@@ -128,32 +128,49 @@ class InvitationsView(MethodView):
             func.lower(func.trim(Invitation.email)) == normalised_email
         )
         invitations = db_session.scalars(stmt)
-        invit_ids = [i.organisation_id for i in invitations]
-        stmt = (
-            select(Organisation)
-            .where(Organisation.deleted_at.is_(None))
-            .filter(Organisation.id.in_(invit_ids))
-        )
-        organisations = db_session.scalars(stmt)
+        invit_ids = {i.organisation_id for i in invitations}
+
+        # Current organisation: always show it if it exists.
         result = []
-        for org in organisations:
-            if org.bw_id:
+        if user.organisation:
+            user_org = user.organisation
+            if user_org.bw_id:
                 # pyrefly: ignore [no-matching-overload]
-                label = f"{org.bw_name} ({LABELS_BW_TYPE_V2.get(org.bw_active, org.bw_active)})"
+                label = f"{user_org.bw_name} ({LABELS_BW_TYPE_V2.get(user_org.bw_active, user_org.bw_active)})"
             else:
-                label = f"{org.name}"
-            infos = {
-                "label": label,
-                "org_id": str(org.id),
-            }
-            if user.organisation_id == org.id:
-                infos["disabled"] = "disabled"
-            else:
-                infos["disabled"] = ""
-            result.append(infos)
-        unofficial = self._unofficial_organisation(user)
-        if unofficial:
-            result.append(unofficial)
+                label = f"{user_org.name}"
+
+            result.append(
+                {
+                    "label": label,
+                    "org_id": str(user_org.id),
+                    "disabled": "disabled",
+                }
+            )
+            # Remove from invitations if present
+            invit_ids.discard(user_org.id)
+
+        if invit_ids:
+            stmt = (
+                select(Organisation)
+                .where(Organisation.deleted_at.is_(None))
+                .filter(Organisation.id.in_(list(invit_ids)))
+            )
+            organisations = db_session.scalars(stmt)
+            for org in organisations:
+                if org.bw_id:
+                    # pyrefly: ignore [no-matching-overload]
+                    label = f"{org.bw_name} ({LABELS_BW_TYPE_V2.get(org.bw_active, org.bw_active)})"
+                else:
+                    label = f"{org.name}"
+
+                result.append(
+                    {
+                        "label": label,
+                        "org_id": str(org.id),
+                        "disabled": "",
+                    }
+                )
         return result
 
     def _role_invitations(self, user: User) -> list[dict[str, Any]]:
@@ -325,21 +342,6 @@ class InvitationsView(MethodView):
                 }
             )
         return revoked
-
-    def _unofficial_organisation(self, user: User) -> dict[str, Any]:
-        """Get user's unofficial (auto-created) organization if any."""
-        org = user.organisation
-        if not org:
-            return {}
-        # Auto organisations are those without a BusinessWall (bw_id is None)
-        if org.has_bw:
-            return {}
-        infos = {
-            "label": f"{org.name}",
-            "org_id": str(org.id),
-            "disabled": "disabled",
-        }
-        return infos
 
     def _join_organisation(self, user: User, org_id: str) -> None:
         """Join the specified organization."""
