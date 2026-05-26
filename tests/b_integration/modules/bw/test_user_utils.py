@@ -540,9 +540,7 @@ class TestGetManageableBusinessWallsForUser:
     client's BW management surface.
     """
 
-    def _seed_partnership(
-        self, db_session, *, accepted: bool = True
-    ):
+    def _seed_partnership(self, db_session, *, accepted: bool = True):
         client_org = Organisation(name="Fake-OSS A380")
         agency_org = Organisation(name="Fake-Garden RP")
         db_session.add_all([client_org, agency_org])
@@ -599,14 +597,10 @@ class TestGetManageableBusinessWallsForUser:
         bws = get_manageable_business_walls_for_user(agent)
         ids = {bw.id for bw in bws}
         assert agency_bw.id in ids, "own BW must be listed"
-        assert client_bw.id in ids, (
-            "partnership client BW must be listed (#0166)"
-        )
+        assert client_bw.id in ids, "partnership client BW must be listed (#0166)"
 
     def test_excludes_revoked_partnership_client_bw(self, db_session):
-        agent, agency_bw, client_bw = self._seed_partnership(
-            db_session, accepted=False
-        )
+        agent, agency_bw, client_bw = self._seed_partnership(db_session, accepted=False)
 
         bws = get_manageable_business_walls_for_user(agent)
         ids = {bw.id for bw in bws}
