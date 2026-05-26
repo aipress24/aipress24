@@ -243,46 +243,35 @@ class TestInvitationsEmailNormalisation:
 class TestInvitationsViewHelpers:
     """Tests for InvitationsView helper methods."""
 
-    def test_unofficial_organisation_no_org(self, app: Flask):
-        """Test _unofficial_organisation returns empty dict when no org."""
+    def test_organisation_inviting_no_org_no_invit(self, app: Flask):
+        """Test _organisation_inviting returns empty list when no org and no invit."""
         view = InvitationsView()
         user = MagicMock()
         user.organisation = None
+        user.email = "test@example.com"
 
-        with app.test_request_context():
-            result = view._unofficial_organisation(user)
-            assert result == {}
+        with app.app_context():
+            result = view._organisation_inviting(user)
+            assert result == []
 
-    def test_unofficial_organisation_non_auto_org(self, app: Flask):
-        """Test _unofficial_organisation returns empty dict for non-AUTO org."""
+    def test_organisation_inviting_with_org_no_invit(self, app: Flask):
+        """Test _organisation_inviting returns current org when no invit."""
         view = InvitationsView()
         user = MagicMock()
-        user.organisation = MagicMock()
-        user.organisation.is_auto = False
-        user.organisation.has_bw = True
+        org = MagicMock()
+        org.id = 123
+        org.name = "My Org"
+        org.bw_id = None
+        user.organisation = org
+        user.organisation_id = 123
+        user.email = "test@example.com"
 
-        with app.test_request_context():
-            result = view._unofficial_organisation(user)
-            assert result == {}
-
-    def test_unofficial_organisation_auto_org(self, app: Flask):
-        """Test _unofficial_organisation returns dict for AUTO org."""
-        view = InvitationsView()
-        user = MagicMock()
-        user.organisation = MagicMock()
-        user.organisation.bw_id = None  # an AUTO organisation
-        user.organisation.bw_active = ""
-        user.organisation.is_auto = True  # for the mock
-        user.organisation.has_bw = False  # for the mock
-        user.organisation.name = "Auto Organization"
-        user.organisation.id = 123
-
-        with app.test_request_context():
-            result = view._unofficial_organisation(user)
-            print(result)
-            assert result["org_id"] == "123"
-            assert result["disabled"] == "disabled"
-            assert "Auto Organization" in result["label"]
+        with app.app_context():
+            result = view._organisation_inviting(user)
+            assert len(result) == 1
+            assert result[0]["org_id"] == "123"
+            assert result[0]["disabled"] == "disabled"
+            assert "My Org" in result[0]["label"]
 
 
 class TestRevokedPartnershipRow:
