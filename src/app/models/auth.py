@@ -55,6 +55,7 @@ roles_users = sa.Table(
         sa.Integer,
         sa.ForeignKey("aut_role.id", name="fk_aut_roles_users_role_id"),
     ),
+    sa.UniqueConstraint("user_id", "role_id", name="uq_aut_roles_users_user_role"),
 )
 
 

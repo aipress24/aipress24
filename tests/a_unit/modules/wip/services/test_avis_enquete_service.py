@@ -1022,6 +1022,113 @@ class TestRDVMailRecipients:
         )
 
 
+class TestRDVTypeFormattingInEmail:
+    """Regression for commit 6196e08c (Jérôme, 2026-05-26).
+
+    The face-à-face branch of `send_rdv_proposed_email` /
+    `send_rdv_confirmed_email` previously tested
+    ``contact.rdv_type.name == "IN_PERSON"`` — but the enum has no such
+    member, only ``F2F``. The branch was dead code, so F2F RDVs were
+    e-mailed with an empty type and no address. Now the branch fires
+    and the address must surface in the mail body.
+    """
+
+    def _capture_mail(self):
+        captured: list[dict] = []
+
+        def _factory(*_args, **kwargs):
+            captured.append(kwargs)
+
+            class _Stub:
+                content_subtype = ""
+
+                def send(self):
+                    return None
+
+            return _Stub()
+
+        return captured, _factory
+
+    def test_propose_rdv_f2f_email_carries_address_and_label(
+        self, db_session: scoped_session
+    ) -> None:
+        journaliste = User(email="journalist@test.com")
+        expert = User(email="expert@test.com")
+        media = Organisation(name="Media")
+        db_session.add_all([journaliste, expert, media])
+        db_session.flush()
+
+        enquete = _create_test_enquete(db_session, journaliste, media)
+        contact = _create_test_contact(
+            db_session, enquete, journaliste, expert, StatutAvis.ACCEPTE
+        )
+
+        service = AvisEnqueteService(db_session=db_session)
+        future_slot = _get_next_weekday_slot()
+        address = "13 rue de la Paix, 75002 Paris"
+        propose_data = RDVProposalData(
+            rdv_type=RDVType.F2F,
+            proposed_slots=[future_slot],
+            rdv_address=address,
+        )
+
+        captured, factory = self._capture_mail()
+        with patch(
+            "app.services.emails.base.EmailMessage",
+            side_effect=factory,
+        ):
+            service.propose_rdv(contact.id, propose_data, "/wip/opportunities/42")
+
+        assert len(captured) == 1
+        body = captured[0]["body"]
+        assert "face-à-face" in body.lower(), (
+            "F2F branch must produce « Rendez-vous face-à-face » in the "
+            "mail body (#6196e08c — previously dead because the branch "
+            "tested for nonexistent IN_PERSON name)"
+        )
+        assert address in body, (
+            "F2F mail must include the meeting address (#6196e08c — "
+            "previously read contact.contact.rdv_address which doesn't "
+            "exist)"
+        )
+
+    def test_confirmed_rdv_f2f_email_carries_address_and_label(
+        self, db_session: scoped_session
+    ) -> None:
+        """Same F2F regression on the second site (line ~238 of
+        avis_enquete_service.py — `send_rdv_confirmed_email`). Build a
+        confirmed contact in-place and call the mailer directly to
+        bypass the multi-step state machine."""
+        journaliste = User(email="journalist-conf@test.com")
+        expert = User(email="expert-conf@test.com")
+        media = Organisation(name="Media-conf")
+        db_session.add_all([journaliste, expert, media])
+        db_session.flush()
+
+        enquete = _create_test_enquete(db_session, journaliste, media)
+        contact = _create_test_contact(
+            db_session, enquete, journaliste, expert, StatutAvis.ACCEPTE
+        )
+        contact.rdv_type = RDVType.F2F
+        contact.rdv_address = "42 avenue Foch, 75016 Paris"
+        contact.date_rdv = _get_next_weekday_slot()
+        contact.rdv_status = RDVStatus.CONFIRMED
+        db_session.flush()
+
+        service = AvisEnqueteService(db_session=db_session)
+        captured, factory = self._capture_mail()
+        with patch(
+            "app.services.emails.base.EmailMessage",
+            side_effect=factory,
+        ):
+            service.send_rdv_confirmed_email(contact)
+
+        assert len(captured) == 1
+        body = captured[0]["body"]
+        assert "face-à-face" in body.lower()
+        assert contact.rdv_address in body
+
+
 class TestNotifyExperts:
     """Tests for notify_experts — regression for bug #0140.
 

@@ -9,9 +9,10 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 import pytest
+from sqlalchemy.exc import IntegrityError
 
 from app.enums import RoleEnum
-from app.models.auth import KYCProfile, Role, User
+from app.models.auth import KYCProfile, Role, User, roles_users
 from app.models.organisation import Organisation
 
 if TYPE_CHECKING:
@@ -260,6 +261,73 @@ class TestUserRemoveRole:
 
         with pytest.raises(ValueError):
             user.remove_role(123)  # type: ignore
+
+    def test_remove_role_handles_in_memory_duplicates(
+        self, db: SQLAlchemy
+    ) -> None:
+        """Regression for commit 2f7d18cf — `User.remove_role` previously
+        used `list.remove(...) + break`, so when the in-memory roles list
+        contained the same Role twice (the bad-data state observed in
+        prod before the UNIQUE constraint was added), only one entry was
+        removed and downstream code crashed on the lingering duplicate.
+
+        The Python-layer defence rebuilds the list filtering by `.name`,
+        so all matches go in one pass. We exercise this in memory (no
+        flush) because the UNIQUE constraint added at the DB layer now
+        blocks the duplicate at write time.
+        """
+        user = User(email="remove_role_dup@example.com")
+        profile = KYCProfile()
+        user.profile = profile
+        manager_role = get_or_create_role(db, RoleEnum.MANAGER)
+        db.session.add_all([user, profile])
+        db.session.flush()
+
+        # Simulate the post-load state: same Role listed twice.
+        user.roles.append(manager_role)
+        user.roles.append(manager_role)
+        assert user.roles.count(manager_role) == 2
+
+        # Must not raise, must remove both.
+        user.remove_role(RoleEnum.MANAGER)
+
+        assert user.has_role(manager_role) is False
+        assert manager_role not in user.roles
+
+
+class TestUserRoleUniqueConstraint:
+    """Regression — companion to commit 2f7d18cf at the DB layer.
+
+    The Python defence in `User.remove_role` handles lingering duplicates
+    gracefully ; the UNIQUE constraint on `aut_roles_users(user_id, role_id)`
+    prevents new duplicates from being inserted in the first place.
+    """
+
+    def test_unique_constraint_blocks_duplicate_user_role(
+        self, db: SQLAlchemy
+    ) -> None:
+        user = User(email="role_unique@example.com")
+        profile = KYCProfile()
+        user.profile = profile
+        role = get_or_create_role(db, RoleEnum.MANAGER)
+        db.session.add_all([user, profile])
+        db.session.flush()
+
+        # First insert via the link table succeeds.
+        db.session.execute(
+            roles_users.insert().values(user_id=user.id, role_id=role.id)
+        )
+        db.session.flush()
+
+        # Second insert of the same (user_id, role_id) pair must be
+        # rejected by the UNIQUE constraint.
+        duplicate_insert = roles_users.insert().values(
+            user_id=user.id, role_id=role.id
+        )
+        with pytest.raises(IntegrityError):  # noqa: PT012
+            db.session.execute(duplicate_insert)
+            db.session.flush()
+        db.session.rollback()
 
 
 class TestUserIsMember:
