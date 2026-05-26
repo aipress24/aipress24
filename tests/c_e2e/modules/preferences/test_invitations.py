@@ -337,9 +337,7 @@ class TestInvitationsPageModalIds:
         html = response.data.decode()
 
         modal_ids = re.findall(r'id="(confirm_join_org_\d+)"', html)
-        modal_targets = re.findall(
-            r'data-modal-target="(confirm_join_org_\d+)"', html
-        )
+        modal_targets = re.findall(r'data-modal-target="(confirm_join_org_\d+)"', html)
 
         assert len(modal_ids) == 2, (
             f"expected 2 distinct confirm-join modals, got {len(modal_ids)} : "
