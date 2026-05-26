@@ -209,6 +209,19 @@ def _press_releases_for_org_clause(org_id: int):
     )
 
 
+def _events_for_org_clause(org_id: int):
+    """Same dual-case clause for events: direct publisher OR delegated
+    publication by a user member of the org (PR agency on behalf of a
+    client). See #0135."""
+    return or_(
+        EventPost.publisher_id == org_id,
+        and_(
+            EventPost.publisher_id != org_id,
+            EventPost.owner.has(User.organisation_id == org_id),
+        ),
+    )
+
+
 class OrgPressReleasesTab(Tab):
     id = "press-releases"
 
@@ -238,7 +251,7 @@ class OrgEventsTab(Tab):
         stmt = (
             select(func.count())
             .select_from(EventPost)
-            .where(EventPost.publisher_id == self.org.id)
+            .where(_events_for_org_clause(self.org.id))
             .where(EventPost.status == PublicationStatus.PUBLIC)
         )
         count = db.session.execute(stmt).scalar()
@@ -390,7 +403,7 @@ class OrgVM(ViewModel):
     def get_events(self) -> list:
         stmt = (
             select(EventPost)
-            .where(EventPost.publisher_id == self.org.id)
+            .where(_events_for_org_clause(self.org.id))
             .where(EventPost.status == PublicationStatus.PUBLIC)
         )
         events = get_multi(EventPost, stmt)
