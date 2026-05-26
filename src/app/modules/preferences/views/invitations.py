@@ -312,7 +312,9 @@ class InvitationsView(MethodView):
         for partnership, business_wall in results:
             client_org = business_wall.get_organisation()
             client_name = (
-                client_org.name if client_org else business_wall.name_safe or "(client inconnu)"
+                client_org.name
+                if client_org
+                else business_wall.name_safe or "(client inconnu)"
             )
             revoked.append(
                 {
