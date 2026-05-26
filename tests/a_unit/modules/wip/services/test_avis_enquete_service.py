@@ -1022,6 +1022,147 @@ class TestRDVMailRecipients:
         )
 
 
+class TestAssociatePressOfficer:
+    """Ticket #0071 / #0174 (Erick, 2026-05-26) : when the expert
+    answers « Oui, en associant mon attaché.e de presse » and picks an
+    email, the picked press officer must (a) become a contact of the
+    same avis d'enquête, (b) receive an in-app notification, and (c)
+    receive the avis e-mail.
+
+    Before the fix the « oui_relation_presse » branch in
+    ``opportunities.py`` only stored the email on the contact ; no
+    Contact row was created, no mail was sent, no bell notification
+    fired. Modelled on `suggest_colleague` (which handles the « non-mais »
+    branch in the same way).
+    """
+
+    def _attach_profile(
+        self, db_session: scoped_session, user: User, email_rp: str
+    ) -> None:
+        profile = KYCProfile(
+            user_id=user.id,
+            info_professionnelle={"email_relation_presse": email_rp},
+        )
+        user.profile = profile
+        db_session.add(profile)
+        db_session.flush()
+
+    def _setup_expert_with_internal_pr(
+        self, db_session: scoped_session
+    ) -> tuple[User, User, User]:
+        client_org = Organisation(name="Fake-Strada Transports")
+        media_org = Organisation(name="Fake-Les Echolos")
+        db_session.add_all([client_org, media_org])
+        db_session.flush()
+
+        journaliste = User(email="erick-journo@test.com")
+        journaliste.organisation = media_org
+        expert = User(email="jocelyne-pdg@test.com")
+        expert.organisation = client_org
+        pr = User(email="layelle-bwpri@test.com")
+        pr.organisation = client_org
+        db_session.add_all([journaliste, expert, pr])
+        db_session.flush()
+        self._attach_profile(db_session, expert, "expert-fallback@test.com")
+
+        bw = BusinessWall(
+            bw_type="leaders_experts",
+            status=BWStatus.ACTIVE.value,
+            owner_id=expert.id,
+            payer_id=expert.id,
+            organisation_id=client_org.id,
+            name="Strada BW",
+        )
+        db_session.add(bw)
+        db_session.flush()
+        client_org.bw_id = bw.id
+        db_session.flush()
+        db_session.add(
+            RoleAssignment(
+                business_wall_id=bw.id,
+                user_id=pr.id,
+                role_type=BWRoleType.BWPRI.value,
+                invitation_status=InvitationStatus.ACCEPTED.value,
+            )
+        )
+        db_session.flush()
+        return journaliste, expert, pr
+
+    def test_associate_press_officer_creates_contact_notif_and_email(
+        self, db_session: scoped_session
+    ) -> None:
+        journaliste, expert, pr = self._setup_expert_with_internal_pr(db_session)
+        enquete = _create_test_enquete(db_session, journaliste, expert.organisation)
+        contact = _create_test_contact(
+            db_session, enquete, journaliste, expert, StatutAvis.ACCEPTE
+        )
+
+        service = AvisEnqueteService(db_session=db_session)
+
+        captured: list[dict] = []
+
+        def _factory(*_args, **kwargs):
+            captured.append(kwargs)
+
+            class _Stub:
+                content_subtype = ""
+
+                def send(self):
+                    return None
+
+            return _Stub()
+
+        with patch(
+            "app.services.emails.base.EmailMessage",
+            side_effect=_factory,
+        ):
+            new_contact = service.associate_press_officer(
+                contact=contact,
+                press_officer_email="layelle-bwpri@test.com",
+                url_builder=lambda c: f"/wip/opportunities/{c.id}",
+            )
+
+        # A new ContactAvisEnquete row must exist for the press officer.
+        assert new_contact.expert_id == pr.id
+        assert new_contact.avis_enquete_id == enquete.id
+        assert new_contact.journaliste_id == journaliste.id
+        assert new_contact.suggested_by_user_id == expert.id
+
+        # Bell notification must have fired for the press officer.
+        notif_service = container.get(NotificationService)
+        pr_notifs = notif_service.get_notifications(pr)
+        assert len(pr_notifs) >= 1, (
+            "the press officer must get an in-app notification (#0174)"
+        )
+
+        # An e-mail must have been sent to the press officer.
+        pr_mails = [k for k in captured if "layelle-bwpri@test.com" in k.get("to", [])]
+        assert pr_mails, (
+            "the press officer must receive an avis-d'enquête e-mail (#0174)"
+        )
+
+    def test_associate_press_officer_rejects_unlisted_email(
+        self, db_session: scoped_session
+    ) -> None:
+        """A tampered POST that sends an email not in the press officer
+        pool must be rejected (the view validates against valid_emails ;
+        the service must also defend itself)."""
+        journaliste, expert, _pr = self._setup_expert_with_internal_pr(db_session)
+        enquete = _create_test_enquete(db_session, journaliste, expert.organisation)
+        contact = _create_test_contact(
+            db_session, enquete, journaliste, expert, StatutAvis.ACCEPTE
+        )
+
+        service = AvisEnqueteService(db_session=db_session)
+
+        with pytest.raises(ValueError, match="not.*press officer"):
+            service.associate_press_officer(
+                contact=contact,
+                press_officer_email="random-intruder@test.com",
+                url_builder=lambda c: f"/wip/opportunities/{c.id}",
+            )
+
+
 class TestRDVTypeFormattingInEmail:
     """Regression for commit 6196e08c (Jérôme, 2026-05-26).
 

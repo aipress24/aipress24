@@ -12,6 +12,7 @@ from datetime import datetime
 from typing import TYPE_CHECKING
 from uuid import UUID
 
+from sqlalchemy import select
 from sqlalchemy.orm import scoped_session
 from svcs.flask import container
 
@@ -659,6 +660,92 @@ class AvisEnqueteService:
             for u in expert.organisation.members
             if u.id != expert.id and u.id not in already_contacted_ids and u.active
         ]
+
+    def associate_press_officer(
+        self,
+        contact: ContactAvisEnquete,
+        press_officer_email: str,
+        url_builder: Callable[[ContactAvisEnquete], str],
+    ) -> ContactAvisEnquete:
+        """Chain a new ContactAvisEnquete from an expert's
+        « Oui, en associant mon attaché de presse » answer (#0071 / #0174).
+
+        Validates that ``press_officer_email`` is in the expert's press
+        officer pool (BWPRi internal + BWPRe via active partnerships —
+        see ``press_officer_emails``), creates a new ContactAvisEnquete
+        for the press officer marked as suggested by the original
+        expert, posts an in-app notification, and sends the avis-
+        d'enquête e-mail. Mirrors ``suggest_colleague`` (« non-mais »
+        branch) at the service layer.
+
+        The caller (view) is responsible for storing
+        ``contact.email_relation_presse`` and for committing the
+        transaction.
+
+        Args:
+            contact: the original ContactAvisEnquete where the expert
+                answered « Oui, en associant… ».
+            press_officer_email: the email picked by the expert. Must
+                belong to ``press_officer_emails(contact.expert)``.
+            url_builder: callable returning an opportunity URL for a
+                (flushed) ContactAvisEnquete — used for both the in-app
+                notification target and the email link.
+
+        Returns:
+            The newly-created ContactAvisEnquete for the press officer.
+
+        Raises:
+            ValueError: if the email is not in the press officer pool
+                or if no User exists for that email.
+        """
+        from app.models.auth import User as UserModel
+
+        eligible = set(self.press_officer_emails(contact.expert))
+        if press_officer_email not in eligible:
+            msg = (
+                f"Email {press_officer_email!r} is not a valid press officer "
+                f"for contact {contact.id}"
+            )
+            raise ValueError(msg)
+
+        pr_user = self._db_session.scalar(
+            select(UserModel).where(UserModel.email == press_officer_email)
+        )
+        if pr_user is None:
+            msg = f"No User found with email {press_officer_email!r}"
+            raise ValueError(msg)
+
+        original_expert = contact.expert
+        avis = contact.avis_enquete
+
+        new_contact = ContactAvisEnquete(
+            avis_enquete=avis,
+            journaliste=contact.journaliste,
+            expert=pr_user,
+            suggested_by_user=original_expert,
+        )
+        self._contact_repo.add(new_contact)
+        self._db_session.flush()
+
+        url = url_builder(new_contact)
+        message = (
+            f"Un avis d'enquête vous a été transmis par "
+            f"{original_expert.full_name} : {avis.title}"
+        )
+        self._notification_service.post(pr_user, message, url)
+
+        self.send_avis_enquete_emails(
+            avis=avis,
+            experts=[pr_user],
+            urls=[url],
+            sender=contact.journaliste,
+            suggested_by_name=original_expert.full_name,
+        )
+
+        record_notifications(self._db_session, [pr_user], avis)
+        self._db_session.flush()
+
+        return new_contact
 
     def suggest_colleague(
         self,
