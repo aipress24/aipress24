@@ -492,7 +492,9 @@ class TestSuggestColleagueRadioAlwaysClickable:
         db_session.flush()
         # An EXPERT role is required for `first_community()` to resolve
         # when rendering the page header.
-        expert_role = db_session.query(Role).filter_by(name=RoleEnum.EXPERT.name).first()
+        expert_role = (
+            db_session.query(Role).filter_by(name=RoleEnum.EXPERT.name).first()
+        )
         if expert_role is None:
             expert_role = Role(
                 name=RoleEnum.EXPERT.name, description=RoleEnum.EXPERT.value
@@ -549,8 +551,7 @@ class TestSuggestColleagueRadioAlwaysClickable:
         label_m = re.search(r'<label\b[^>]*\bfor="non-mais"[^>]*>', html)
         assert label_m is not None
         assert "text-gray-400" not in label_m.group(0), (
-            f"« non-mais » label must not be greyed out (#0075/3): "
-            f"{label_m.group(0)}"
+            f"« non-mais » label must not be greyed out (#0075/3): {label_m.group(0)}"
         )
         # Bug #0071 part 1 (Erick, 2026-05-21) : the form must not
         # surface a confusing « aucun collègue disponible » / « écrivez-

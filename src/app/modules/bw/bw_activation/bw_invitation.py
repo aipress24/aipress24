@@ -645,9 +645,7 @@ def notify_partnership_revoked(
     if agency_owner is None:
         return
     notification_service = container.get(NotificationService)
-    notification_service.post(
-        agency_owner, message, url="/preferences/invitations"
-    )
+    notification_service.post(agency_owner, message, url="/preferences/invitations")
 
 
 def send_partnership_revoked_mail(
@@ -676,7 +674,9 @@ def send_partnership_revoked_mail(
         else None
     )
     agency_name = (
-        (partner_org.name if partner_org else None) or partner_bw.name_safe or "(PR Agency inconnue)"
+        (partner_org.name if partner_org else None)
+        or partner_bw.name_safe
+        or "(PR Agency inconnue)"
     )
 
     mail = BWPartnershipRevokedMail(

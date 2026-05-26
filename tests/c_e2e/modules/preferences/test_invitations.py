@@ -444,8 +444,7 @@ class TestRevokedPartnershipRow:
         )
 
         assert db_session.get(Partnership, UUID(partnership_id)) is not None, (
-            "user must not be able to delete a partnership their org "
-            "doesn't own"
+            "user must not be able to delete a partnership their org doesn't own"
         )
 
 

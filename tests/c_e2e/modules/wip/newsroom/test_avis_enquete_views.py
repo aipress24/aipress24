@@ -477,8 +477,7 @@ class TestJournalistAvisEnqueteViews:
         assert response.status_code == 200
         body = response.data.decode()
         assert "Créneaux proposés" not in body, (
-            "RDV details must not show the (now-obsolete) proposed-slots "
-            "block — #0170"
+            "RDV details must not show the (now-obsolete) proposed-slots block — #0170"
         )
         assert "Aucun créneau proposé" not in body, (
             "RDV details must not show the « Aucun créneau proposé » "
