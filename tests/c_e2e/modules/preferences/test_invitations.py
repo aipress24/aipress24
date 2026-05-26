@@ -6,6 +6,7 @@
 
 from __future__ import annotations
 
+import re
 import uuid
 from datetime import UTC, datetime
 from typing import TYPE_CHECKING
@@ -272,6 +273,162 @@ class TestInvitationsViewHelpers:
             assert result[0]["org_id"] == "123"
             assert result[0]["disabled"] == "disabled"
             assert "My Org" in result[0]["label"]
+
+
+class TestInvitationsPageModalIds:
+    """Regression for commit 9adc1623 (Jérôme, 2026-05-26).
+
+    Before the fix, every « Rejoindre » button shared
+    ``data-modal-target="confirm_join_org"`` and every confirmation
+    modal shared ``id="confirm_join_org"``. With ≥ 2 invitations the
+    duplicate HTML ids meant only the first modal worked — clicking the
+    second « Rejoindre » either did nothing or pointed at the wrong org.
+    Fix : suffix the id with ``{{ loop.index }}``.
+    """
+
+    def _make_inviting_org(
+        self, db_session: Session, owner: User, name: str
+    ) -> Organisation:
+        org = Organisation(name=name)
+        db_session.add(org)
+        db_session.flush()
+        bw = BusinessWall(
+            bw_type="media",
+            status=BWStatus.ACTIVE.value,
+            owner_id=owner.id,
+            payer_id=owner.id,
+            organisation_id=org.id,
+        )
+        db_session.add(bw)
+        db_session.flush()
+        org.bw_id = bw.id
+        org.bw_active = bw.bw_type
+        org.bw_name = name
+        db_session.flush()
+        return org
+
+    def test_each_invitation_has_a_unique_modal_id(
+        self,
+        db_session: Session,
+        invitations_auth_client: FlaskClient,
+        invitations_test_user: User,
+        test_inviting_user_with_profile: User,
+    ):
+        """With two pending invitations the page must render two
+        distinct modal ids and two distinct ``data-modal-target``
+        attributes, pairwise consistent."""
+        org_a = self._make_inviting_org(
+            db_session, test_inviting_user_with_profile, "Inviter A"
+        )
+        org_b = self._make_inviting_org(
+            db_session, test_inviting_user_with_profile, "Inviter B"
+        )
+        for org in (org_a, org_b):
+            db_session.add(
+                Invitation(
+                    email=invitations_test_user.email,
+                    organisation_id=org.id,
+                )
+            )
+        db_session.flush()
+
+        response = invitations_auth_client.get("/preferences/invitations")
+        assert response.status_code == 200
+        html = response.data.decode()
+
+        modal_ids = re.findall(r'id="(confirm_join_org_\d+)"', html)
+        modal_targets = re.findall(
+            r'data-modal-target="(confirm_join_org_\d+)"', html
+        )
+
+        assert len(modal_ids) == 2, (
+            f"expected 2 distinct confirm-join modals, got {len(modal_ids)} : "
+            f"{modal_ids}"
+        )
+        assert len(set(modal_ids)) == 2, (
+            f"modal ids must be distinct, got duplicates : {modal_ids}"
+        )
+        # Every button's target must point at one of the rendered modals.
+        for target in modal_targets:
+            assert target in modal_ids, (
+                f"data-modal-target {target!r} does not match any modal id "
+                f"in the rendered page"
+            )
+
+
+class TestInvitationsViewDedup:
+    """Regression for commit 96c67803 (Jérôme, 2026-05-26).
+
+    Before the fix, when an Invitation existed for the user's *own*
+    current organisation, `_organisation_inviting` returned both : one
+    row for « current org » (disabled) and one row for « invitation to
+    join » (enabled). The screen then offered the user to « rejoindre »
+    an org they were already a member of. The fix removes the current
+    org id from the invitation set before listing the remaining
+    invitations.
+    """
+
+    def test_current_org_appears_once_when_invited_to_own_org(
+        self,
+        db_session: Session,
+        invitations_test_user: User,
+    ):
+        """An invitation pointing at user.organisation must not produce a
+        duplicate row in the invitations list."""
+        own_org = invitations_test_user.organisation
+        assert own_org is not None
+
+        # Inject a fresh invitation pointing at the user's own org.
+        invitation = Invitation(
+            email=invitations_test_user.email,
+            organisation_id=own_org.id,
+        )
+        db_session.add(invitation)
+        db_session.flush()
+
+        view = InvitationsView()
+        result = view._organisation_inviting(invitations_test_user)
+
+        own_id = str(own_org.id)
+        own_rows = [r for r in result if r["org_id"] == own_id]
+        assert len(own_rows) == 1, (
+            "user's own organisation must appear exactly once in the "
+            "invitations list, even when an invitation row points at it "
+            "(#96c67803)"
+        )
+        assert own_rows[0]["disabled"] == "disabled", (
+            "the single row for the user's own org must be the disabled "
+            "« current org » entry, not an actionable « join » entry"
+        )
+
+    def test_invitation_to_other_org_still_listed_alongside_current_org(
+        self,
+        db_session: Session,
+        invitations_test_user: User,
+        inviting_org: Organisation,
+        invitation_for_user: Invitation,
+    ):
+        """The dedup must not over-trim : a real invitation to a different
+        org must still appear, in addition to the user's current org row.
+        """
+        own_org = invitations_test_user.organisation
+        assert own_org is not None
+        assert inviting_org.id != own_org.id
+
+        view = InvitationsView()
+        result = view._organisation_inviting(invitations_test_user)
+
+        org_ids = [r["org_id"] for r in result]
+        assert str(own_org.id) in org_ids
+        assert str(inviting_org.id) in org_ids
+
+        # The current-org row stays disabled ; the foreign-org row is
+        # actionable (empty "disabled" string).
+        for row in result:
+            if row["org_id"] == str(own_org.id):
+                assert row["disabled"] == "disabled"
+            elif row["org_id"] == str(inviting_org.id):
+                assert row["disabled"] == ""
 
 
 class TestRevokedPartnershipRow:
