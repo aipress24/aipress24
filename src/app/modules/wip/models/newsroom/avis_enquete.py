@@ -45,6 +45,14 @@ class RDVType(StrEnum):
     VIDEO = auto()  # Visioconférence
     F2F = auto()  # Face-à-face
 
+    @property
+    def label(self) -> str:
+        return {
+            RDVType.PHONE: "Téléphone",
+            RDVType.VIDEO: "Visioconférence",
+            RDVType.F2F: "Face-à-face",
+        }.get(self, str(self.value))
+
 
 class RDVStatus(StrEnum):
     """Statut du rendez-vous."""
@@ -53,6 +61,15 @@ class RDVStatus(StrEnum):
     PROPOSED = auto()  # Journaliste a proposé des créneaux
     ACCEPTED = auto()  # Expert a accepté un créneau
     CONFIRMED = auto()  # RDV confirmé par les deux parties (optionnel)
+
+    @property
+    def label(self) -> str:
+        return {
+            RDVStatus.NO_RDV: "Pas de RDV",
+            RDVStatus.PROPOSED: "Proposé",
+            RDVStatus.ACCEPTED: "Accepté",
+            RDVStatus.CONFIRMED: "Confirmé",
+        }.get(self, str(self.value))
 
 
 class AvisEnquete(

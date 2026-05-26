@@ -33,28 +33,10 @@
                                         {{ contact.date_rdv.strftime('%d/%m/%Y à %H:%M') if contact.date_rdv else 'Non défini' }}
                                     </td>
                                     <td class="py-2 px-4 border-b">
-                                        {% if contact.rdv_type.value == 'phone' %}
-                                            Téléphone
-                                        {% elif contact.rdv_type.value == 'video' %}
-                                            Visioconférence
-                                        {% elif contact.rdv_type.value == 'f2f' %}
-                                            Face-à-face
-                                        {% else %}
-                                            {{ contact.rdv_type.value }}
-                                        {% endif %}
+                                        {{ contact.rdv_type.label if contact.rdv_type else 'Non défini' }}
                                     </td>
                                     <td class="py-2 px-4 border-b">
-                                        {% if contact.rdv_status.value == 'proposed' %}
-                                            Proposé
-                                        {% elif contact.rdv_status.value == 'accepted' %}
-                                            Accepté
-                                        {% elif contact.rdv_status.value == 'confirmed' %}
-                                            Confirmé
-                                        {% elif contact.rdv_status.value == 'no_rdv' %}
-                                            Pas de RDV
-                                        {% else %}
-                                            {{ contact.rdv_status.value }}
-                                        {% endif %}
+                                        {{ contact.rdv_status.label if contact.rdv_status else 'Non défini' }}
                                     </td>
                                     <td class="py-2 px-4 border-b">
                                         <a href="{{ url_for('AvisEnqueteWipView:rdv_details', id=model.id, contact_id=contact.id) }}" class="text-blue-500 hover:underline">Détails</a>

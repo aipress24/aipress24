@@ -3,211 +3,211 @@
 {% block body_class %}bg-gray-50{% endblock %}
 
 {% block body_content %}
-<div class="p-4">
-  <div class="bg-white p-6 rounded-lg shadow-lg">
-    <h1 class="text-2xl font-bold mb-4">{{ title }}</h1>
+    <div class="p-4">
+        <div class="bg-white p-6 rounded-lg shadow-lg">
+            <h1 class="text-2xl font-bold mb-4">{{ title }}</h1>
 
-    <div class="mb-6 border-l-4 border-blue-400 bg-blue-50 p-4">
-      <p class="text-sm text-gray-600">Avis d'enquête</p>
-      <p class="font-semibold">{{ model.title }}</p>
-      {% if model.media %}
-      <p class="text-sm text-gray-600 mt-1">
-        Média : {{ model.media.name }}
-      </p>
-      {% endif %}
-    </div>
+            <div class="mb-6 border-l-4 border-blue-400 bg-blue-50 p-4">
+                <p class="text-sm text-gray-600">Avis d'enquête</p>
+                <p class="font-semibold">{{ model.title }}</p>
+                {% if model.media %}
+                    <p class="text-sm text-gray-600 mt-1">
+                        Média : {{ model.media.name }}
+                    </p>
+                {% endif %}
+            </div>
 
-    <div class="space-y-4">
-      <div>
-        <h3 class="font-semibold">Journaliste:</h3>
-        <p>
-          <a href="{{ url_for(contact.journaliste) }}" class="text-primary-700 hover:underline">
-            {{ contact.journaliste.full_name }}
-          </a>
-          {% if contact.journaliste.job_title %}
-          <span class="text-gray-600">— {{ contact.journaliste.job_title }}</span>
-          {% endif %}
-        </p>
-      </div>
-      <div>
-        <h3 class="font-semibold">Profil:</h3>
-        <p>
-          <a href="{{ url_for(contact.expert) }}" class="text-primary-700 hover:underline">
-            {{ contact.expert.full_name }}
-          </a>
-          {% if contact.expert.job_title %}
-          <span class="text-gray-600">— {{ contact.expert.job_title }}</span>
-          {% endif %}
-        </p>
-      </div>
-      <div>
-        <h3 class="font-semibold">Statut du RDV:</h3>
-        <p>{{ contact.rdv_status.value if contact.rdv_status else 'Non défini' }}</p>
-      </div>
-      <div>
-        <h3 class="font-semibold">Date du RDV:</h3>
-        <p>{{ contact.date_rdv.strftime('%d/%m/%Y à %H:%M') if contact.date_rdv else 'Non défini' }}</p>
-      </div>
-      <div>
-        <h3 class="font-semibold">Type de RDV:</h3>
-        <p>{{ contact.rdv_type.value if contact.rdv_type else 'Non défini' }}</p>
-      </div>
-      {% if contact.rdv_type and contact.rdv_type.name == 'PHONE' %}
-      <div>
-        <h3 class="font-semibold">Numéro de téléphone:</h3>
-        <p>{{ contact.rdv_phone }}</p>
-      </div>
-      {% elif contact.rdv_type and contact.rdv_type.name == 'VIDEO' %}
-      <div>
-        <h3 class="font-semibold">Lien visioconférence:</h3>
-        <p>{{ contact.rdv_video_link }}</p>
-      </div>
-      {% elif contact.rdv_type and contact.rdv_type.name == 'F2F' %}
-      <div>
-        <h3 class="font-semibold">Adresse:</h3>
-        <p>{{ contact.rdv_address }}</p>
-      </div>
-      {% endif %}
+            <div class="space-y-4">
+                <div>
+                    <h3 class="font-semibold">Journaliste:</h3>
+                    <p>
+                        <a href="{{ url_for(contact.journaliste) }}" class="text-primary-700 hover:underline">
+                            {{ contact.journaliste.full_name }}
+                        </a>
+                        {% if contact.journaliste.job_title %}
+                            <span class="text-gray-600">— {{ contact.journaliste.job_title }}</span>
+                        {% endif %}
+                    </p>
+                </div>
+                <div>
+                    <h3 class="font-semibold">Profil:</h3>
+                    <p>
+                        <a href="{{ url_for(contact.expert) }}" class="text-primary-700 hover:underline">
+                            {{ contact.expert.full_name }}
+                        </a>
+                        {% if contact.expert.job_title %}
+                            <span class="text-gray-600">— {{ contact.expert.job_title }}</span>
+                        {% endif %}
+                    </p>
+                </div>
+                <div>
+                    <h3 class="font-semibold">Statut du RDV:</h3>
+                    <p>{{ contact.rdv_status.label if contact.rdv_status else 'Non défini' }}</p>
+                </div>
+                <div>
+                    <h3 class="font-semibold">Date du RDV:</h3>
+                    <p>{{ contact.date_rdv.strftime('%d/%m/%Y à %H:%M') if contact.date_rdv else 'Non défini' }}</p>
+                </div>
+                <div>
+                    <h3 class="font-semibold">Type de RDV:</h3>
+                    <p>{{ contact.rdv_type.label if contact.rdv_type else 'Non défini' }}</p>
+                </div>
+                {% if contact.rdv_type and contact.rdv_type.name == 'PHONE' %}
+                    <div>
+                        <h3 class="font-semibold">Numéro de téléphone:</h3>
+                        <p>{{ contact.rdv_phone }}</p>
+                    </div>
+                {% elif contact.rdv_type and contact.rdv_type.name == 'VIDEO' %}
+                    <div>
+                        <h3 class="font-semibold">Lien visioconférence:</h3>
+                        <p>{{ contact.rdv_video_link }}</p>
+                    </div>
+                {% elif contact.rdv_type and contact.rdv_type.name == 'F2F' %}
+                    <div>
+                        <h3 class="font-semibold">Adresse:</h3>
+                        <p>{{ contact.rdv_address }}</p>
+                    </div>
+                {% endif %}
       {# Ticket #0170: drop the « Créneaux proposés » list. Once a slot
          has been accepted, only the chosen ``date_rdv`` matters here.
          The negotiation slots remain visible on the rdv_propose /
          rdv_accept pages, which is where they belong. #}
-      <div>
-        <h3 class="font-semibold">Notes du journaliste:</h3>
-        <p>{{ contact.rdv_notes_journaliste if contact.rdv_notes_journaliste else 'Aucune note.' }}</p>
-      </div>
-      <div>
-        <h3 class="font-semibold">Notes du contact:</h3>
-        <p>{{ contact.rdv_notes_expert if contact.rdv_notes_expert else 'Aucune note.' }}</p>
-      </div>
-    </div>
+                <div>
+                    <h3 class="font-semibold">Notes du journaliste:</h3>
+                    <p>{{ contact.rdv_notes_journaliste if contact.rdv_notes_journaliste else 'Aucune note.' }}</p>
+                </div>
+                <div>
+                    <h3 class="font-semibold">Notes du contact:</h3>
+                    <p>{{ contact.rdv_notes_expert if contact.rdv_notes_expert else 'Aucune note.' }}</p>
+                </div>
+            </div>
 
-    <div class="mt-6">
-      {% if contact.can_confirm_rdv() and current_user.id == contact.journaliste_id %}
-        <form
-          id="confirm-rdv-form"
-          action="{{ url_for('AvisEnqueteWipView:rdv_confirm', id=model.id, contact_id=contact.id) }}"
-          method="POST"
-          class="inline-block"
-        >
-        </form>
-        <button
-          type="button"
-          data-modal-target="confirm-rdv-modal"
-          data-modal-toggle="confirm-rdv-modal"
-          class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded"
-        >
-          Confirmer le RDV
-        </button>
-        {% endif %}
-        {% if contact.can_cancel_rdv() and (current_user.id == contact.journaliste_id or current_user.id == contact.expert_id) %}
-        <form
-          id="cancel-rdv-form"
-          action="{{ url_for('AvisEnqueteWipView:rdv_cancel', id=model.id, contact_id=contact.id) }}"
-          method="POST"
-          class="inline-block"
-        >
-        </form>
-        <button
-          type="button"
-          data-modal-target="cancel-rdv-modal"
-          data-modal-toggle="cancel-rdv-modal"
-          class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-orange-500 hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-400"
-        >
-          Annuler le RDV
-        </button>
-      {% endif %}
-    </div> {# end of div with buttons #}
+            <div class="mt-6">
+                {% if contact.can_confirm_rdv() and current_user.id == contact.journaliste_id %}
+                    <form
+                        id="confirm-rdv-form"
+                        action="{{ url_for('AvisEnqueteWipView:rdv_confirm', id=model.id, contact_id=contact.id) }}"
+                        method="POST"
+                        class="inline-block"
+                    >
+                    </form>
+                    <button
+                        type="button"
+                        data-modal-target="confirm-rdv-modal"
+                        data-modal-toggle="confirm-rdv-modal"
+                        class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded"
+                    >
+                        Confirmer le RDV
+                    </button>
+                {% endif %}
+                {% if contact.can_cancel_rdv() and (current_user.id == contact.journaliste_id or current_user.id == contact.expert_id) %}
+                    <form
+                        id="cancel-rdv-form"
+                        action="{{ url_for('AvisEnqueteWipView:rdv_cancel', id=model.id, contact_id=contact.id) }}"
+                        method="POST"
+                        class="inline-block"
+                    >
+                    </form>
+                    <button
+                        type="button"
+                        data-modal-target="cancel-rdv-modal"
+                        data-modal-toggle="cancel-rdv-modal"
+                        class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-orange-500 hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-400"
+                    >
+                        Annuler le RDV
+                    </button>
+                {% endif %}
+            </div> {# end of div with buttons #}
 
     {# Confirm RDV confirmation popup #}
-    {% if contact.can_confirm_rdv() and current_user.id == contact.journaliste_id %}
-    <div id="confirm-rdv-modal"
-      data-modal-backdrop="static"
-      tabindex="-1"
-      aria-hidden="true"
-      class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full">
-      <div class="relative p-4 w-full max-w-md max-h-full">
-        <div class="relative bg-white rounded-lg shadow dark:bg-gray-700">
-          <div class="p-4 md:p-5 text-center">
-            <svg class="mx-auto mb-4 text-gray-400 w-12 h-12 dark:text-gray-200" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
-              <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 11V6m0 8h.01M19 10a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/>
-            </svg>
-            <h3 class="mb-5 text-lg font-normal text-gray-500 dark:text-gray-400">
-              Êtes-vous sûr de vouloir confirmer ce rendez-vous ?
-            </h3>
-            <button
-              type="submit"
-              form="confirm-rdv-form"
-              data-modal-hide="confirm-rdv-modal"
-              class="text-white bg-green-600 hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-green-300 dark:focus:ring-green-800 font-medium rounded-lg text-sm inline-flex items-center px-5 py-2.5 text-center"
-            >
-              Oui, confirmer
-            </button>
-            <button
-              type="button"
-              data-modal-hide="confirm-rdv-modal"
-              class="py-2.5 px-5 ms-3 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-100 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700"
-            >
-              Non, annuler
-            </button>
-          </div>
+            {% if contact.can_confirm_rdv() and current_user.id == contact.journaliste_id %}
+                <div id="confirm-rdv-modal"
+                     data-modal-backdrop="static"
+                     tabindex="-1"
+                     aria-hidden="true"
+                     class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full">
+                    <div class="relative p-4 w-full max-w-md max-h-full">
+                        <div class="relative bg-white rounded-lg shadow dark:bg-gray-700">
+                            <div class="p-4 md:p-5 text-center">
+                                <svg class="mx-auto mb-4 text-gray-400 w-12 h-12 dark:text-gray-200" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
+                                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 11V6m0 8h.01M19 10a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/>
+                                </svg>
+                                <h3 class="mb-5 text-lg font-normal text-gray-500 dark:text-gray-400">
+                                    Êtes-vous sûr de vouloir confirmer ce rendez-vous ?
+                                </h3>
+                                <button
+                                    type="submit"
+                                    form="confirm-rdv-form"
+                                    data-modal-hide="confirm-rdv-modal"
+                                    class="text-white bg-green-600 hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-green-300 dark:focus:ring-green-800 font-medium rounded-lg text-sm inline-flex items-center px-5 py-2.5 text-center"
+                                >
+                                    Oui, confirmer
+                                </button>
+                                <button
+                                    type="button"
+                                    data-modal-hide="confirm-rdv-modal"
+                                    class="py-2.5 px-5 ms-3 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-100 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700"
+                                >
+                                    Non, annuler
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+
+            <div class="mt-4">
+                {% if current_user.id == contact.journaliste_id %}
+                    <a href="{{ url_for('AvisEnqueteWipView:rdv', id=model.id) }}"
+                       class="py-2 text-blue-500 hover:underline"
+                    >
+                        Retour à la liste des RDV
+                    </a>
+                {% else %}
+                    <a href="{{ url_for('wip.opportunities') }}"
+                       class="py-2 text-blue-500 hover:underline"
+                    >
+                        Retour à la liste des opportunités
+                    </a>
+                {% endif %}
+            </div>
+
         </div>
-      </div>
     </div>
+
+    {% if contact.can_cancel_rdv() and (current_user.id == contact.journaliste_id or current_user.id == contact.expert_id) %}
+        <div id="cancel-rdv-modal"
+             data-modal-backdrop="static"
+             tabindex="-1"
+             aria-hidden="true"
+             class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full">
+            <div class="relative p-4 w-full max-w-md max-h-full">
+                <div class="relative bg-white rounded-lg shadow dark:bg-gray-700">
+                    <div class="p-4 md:p-5 text-center">
+                        <svg class="mx-auto mb-4 text-gray-400 w-12 h-12 dark:text-gray-200" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
+                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 11V6m0 8h.01M19 10a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/>
+                        </svg>
+                        <h3 class="mb-5 text-lg font-normal text-gray-500 dark:text-gray-400">
+                            Êtes-vous sûr de vouloir annuler ce RDV ?
+                        </h3>
+                        <button
+                            type="submit"
+                            form="cancel-rdv-form"
+                            data-modal-hide="cancel-rdv-modal"
+                            class="text-white bg-red-600 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 dark:focus:ring-red-800 font-medium rounded-lg text-sm inline-flex items-center px-5 py-2.5 text-center"
+                        >
+                            Oui, annuler
+                        </button>
+                        <button
+                            type="button"
+                            data-modal-hide="cancel-rdv-modal"
+                            class="py-2.5 px-5 ms-3 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-100 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700"
+                        >
+                            Non, garder le RDV
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
     {% endif %}
-
-    <div class="mt-4">
-      {% if current_user.id == contact.journaliste_id %}
-        <a href="{{ url_for('AvisEnqueteWipView:rdv', id=model.id) }}"
-          class="py-2 text-blue-500 hover:underline"
-        >
-          Retour à la liste des RDV
-        </a>
-      {% else %}
-        <a href="{{ url_for('wip.opportunities') }}"
-          class="py-2 text-blue-500 hover:underline"
-        >
-          Retour à la liste des opportunités
-        </a>
-      {% endif %}
-    </div>
-
-  </div>
-</div>
-
-{% if contact.can_cancel_rdv() and (current_user.id == contact.journaliste_id or current_user.id == contact.expert_id) %}
-<div id="cancel-rdv-modal"
-  data-modal-backdrop="static"
-  tabindex="-1"
-  aria-hidden="true"
-  class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full">
-  <div class="relative p-4 w-full max-w-md max-h-full">
-    <div class="relative bg-white rounded-lg shadow dark:bg-gray-700">
-      <div class="p-4 md:p-5 text-center">
-        <svg class="mx-auto mb-4 text-gray-400 w-12 h-12 dark:text-gray-200" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
-        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 11V6m0 8h.01M19 10a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/>
-        </svg>
-        <h3 class="mb-5 text-lg font-normal text-gray-500 dark:text-gray-400">
-          Êtes-vous sûr de vouloir annuler ce RDV ?
-        </h3>
-        <button
-          type="submit"
-          form="cancel-rdv-form"
-          data-modal-hide="cancel-rdv-modal"
-          class="text-white bg-red-600 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 dark:focus:ring-red-800 font-medium rounded-lg text-sm inline-flex items-center px-5 py-2.5 text-center"
-        >
-          Oui, annuler
-        </button>
-        <button
-          type="button"
-          data-modal-hide="cancel-rdv-modal"
-          class="py-2.5 px-5 ms-3 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-100 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700"
-        >
-          Non, garder le RDV
-        </button>
-      </div>
-    </div>
-  </div>
-</div>
-{% endif %}
 {% endblock %}
