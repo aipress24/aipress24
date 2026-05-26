@@ -1339,6 +1339,42 @@ def test_bug_0132_publish_sujet_round_trip(
     assert unpublish_resp is not None and unpublish_resp.status < 400
 
 
+# ─── #0166 ────────────────────────────────────────────────────────
+
+
+def test_bug_0166_manageable_bws_include_partnership_client() -> None:
+    """Bug #0166 — Alfred Delarue (PR Agency owner) : « lorsque je
+    clique sur le bouton "Gérer mes Business Walls", je tombe sur mon
+    propre BW. Il n'y a pas d'interface pour gérer les BW de mes
+    clients ».
+
+    Root cause : `get_manageable_business_walls_for_user` only
+    included BWs the user *owned* or held a DASHBOARD_ACCESS_ROLES
+    role on (BW_OWNER / BWMi / BWMe). A PR Agency owner's access to
+    client BWs flows through a Partnership, not a direct role on the
+    client BW, so client BWs never appeared in /BW/select-bw and the
+    user could never switch into a client's management surface.
+
+    Fix : the helper also unions in client BWs reachable through an
+    active Partnership whose `partner_bw_id` belongs to one of the
+    user's agency BWs. Source-level guard ; runtime coverage in
+    ``tests/b_integration/modules/bw/test_user_utils.py::
+    TestGetManageableBusinessWallsForUser``.
+    """
+    from pathlib import Path
+
+    src = (
+        Path(__file__).resolve().parent.parent.parent
+        / "src/app/modules/bw/bw_activation/user_utils.py"
+    )
+    content = src.read_text()
+    assert "Partnership.partner_bw_id.in_(agency_bw_id_strs)" in content, (
+        "get_manageable_business_walls_for_user must union in client "
+        "BWs from active partnerships — bug #0166 regressed."
+    )
+    assert "_ACTIVE_PARTNERSHIP_STATUSES" in content
+
+
 # ─── #0132 (parts 2, 3, 4, 5) ─────────────────────────────────────
 
 

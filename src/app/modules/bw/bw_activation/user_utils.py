@@ -330,18 +330,28 @@ def get_user_rights_on_bw(user: User, bw: BusinessWall) -> list[str]:
 
 
 def get_manageable_business_walls_for_user(user: User) -> list[BusinessWall]:
-    """Return all BusinessWalls the user can manage.
+    """Return all BusinessWalls the user can manage *or publish for*.
 
-    Includes BWs owned by the user and BWs where the user has an accepted
-    role assignment with management or PR permissions.
+    Includes :
+
+    1. BWs owned by the user.
+    2. BWs where the user has an accepted role in DASHBOARD_ACCESS_ROLES
+       (BW_OWNER / BWMi / BWMe) — the strict management subset.
+    3. Ticket #0166 — client BWs reachable through an active Partnership
+       between the user's organisation BWs (agency side) and a client
+       BW. Without this branch, a PR Agency owner (Alfred Delarue's
+       case) only saw their own agency BW in /BW/select-bw and could
+       never switch into a client's surface to publish CPs / events.
     """
+    from app.modules.bw.bw_activation.models import Partnership
+
     manageable_ids: set[UUID] = set()
 
-    # BWs owned by user
+    # 1) BWs owned by user
     stmt_owner = select(BusinessWall.id).where(BusinessWall.owner_id == user.id)
     manageable_ids.update(db.session.execute(stmt_owner).scalars().all())
 
-    # BWs where user has an accepted management role. Use the shared
+    # 2) BWs where user has an accepted management role. Use the shared
     # DASHBOARD_ACCESS_ROLES constant so this list stays in sync with the
     # dashboard route guard / template visibility check.
     stmt_roles = select(RoleAssignment.business_wall_id).where(
@@ -350,6 +360,27 @@ def get_manageable_business_walls_for_user(user: User) -> list[BusinessWall]:
         RoleAssignment.role_type.in_(DASHBOARD_ACCESS_ROLES),
     )
     manageable_ids.update(db.session.execute(stmt_roles).scalars().all())
+
+    # 3) Client BWs reachable via active PR partnerships. The user's
+    # agency may own several BWs (rare but possible — historical
+    # clutter / brand variants), so union across all of them.
+    if user.organisation_id:
+        agency_bw_id_strs = [
+            str(bw_id)
+            for bw_id in db.session.execute(
+                select(BusinessWall.id).where(
+                    BusinessWall.organisation_id == user.organisation_id
+                )
+            ).scalars()
+        ]
+        if agency_bw_id_strs:
+            stmt_partnerships = select(Partnership.business_wall_id).where(
+                Partnership.partner_bw_id.in_(agency_bw_id_strs),
+                Partnership.status.in_(_ACTIVE_PARTNERSHIP_STATUSES),
+            )
+            manageable_ids.update(
+                db.session.execute(stmt_partnerships).scalars().all()
+            )
 
     if not manageable_ids:
         return []
