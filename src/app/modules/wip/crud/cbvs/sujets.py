@@ -26,6 +26,10 @@ from app.modules.bw.bw_activation.user_utils import (
 )
 from app.modules.wip.models import Sujet, SujetRepository
 from app.modules.wip.pr_access import user_can_access_newsroom
+from app.modules.wip.services.newsroom.sujet_accept import (
+    accept_sujet_as_commande,
+    notify_author_of_sujet_acceptance,
+)
 from app.modules.wip.services.sujet_notifications import (
     notify_media_of_sujet_proposition,
 )
@@ -154,7 +158,12 @@ class SujetsTable(BaseTable):
     def get_actions(self, item):
         """Bug 0132: surface Publier/Dépublier so journalists can actually
         send their sujet to the targeted media — without a Publier action,
-        the sujet sat as DRAFT and no one ever received it."""
+        the sujet sat as DRAFT and no one ever received it.
+
+        Ticket #0132 part 3 : also surface « Accepter » for the rédac
+        chef receiving a PUBLIC sujet (= member of the target media's
+        org). Acceptance materialises a Commande and notifies the author.
+        """
         actions = [
             {"label": "Voir", "url": self.url_for(item)},
             {"label": "Modifier", "url": self.url_for(item, "edit")},
@@ -165,6 +174,21 @@ class SujetsTable(BaseTable):
             actions.append(
                 {"label": "Dépublier", "url": self.url_for(item, "unpublish")}
             )
+        # Accepter : only on PUBLIC sujets, and only for the rédac chef
+        # (member of the target media). The route enforces the same
+        # guard server-side ; we just hide the action when it wouldn't
+        # apply, to keep the menu honest.
+        # `g.user` may not be set in some unit tests that call
+        # `get_actions` directly without a Flask request context —
+        # tolerate that gracefully (the action is then suppressed).
+        current_user = getattr(g, "user", None)
+        user_org_id = getattr(current_user, "organisation_id", None)
+        if (
+            item.status == PublicationStatus.PUBLIC
+            and user_org_id is not None
+            and user_org_id == item.media_id
+        ):
+            actions.append({"label": "Accepter", "url": self.url_for(item, "accept")})
         actions.append({"label": "Supprimer", "url": self.url_for(item, "delete")})
         return actions
 
@@ -251,8 +275,25 @@ class SujetsWipView(BaseWipView):
         publisher = getattr(model, "publisher", None)
         org_name = publisher.name if publisher else owner.organisation_name
 
-        parts = [owner.full_name, owner.job_title, org_name]
-        line = ", ".join(escape(p) for p in parts if p)
+        # Ticket #0132 part 2 (Erick, 2026-05-22) : the rédac chef must
+        # be able to click the author's name to open their full profile
+        # — « ici, on ne peut cliquer pour voir le profil entier de
+        # Nicolas Mouriou et vérifier à qui le rédacteur en chef a
+        # affaire ». `url_for(owner)` resolves the OpenGraph-style
+        # profile route (returns "" for anonymous / orphan users).
+        profile_url = url_for(owner) or ""
+        escaped_name = escape(owner.full_name)
+        if profile_url:
+            name_html = (
+                f'<a href="{escape(profile_url)}" '
+                f'class="text-primary-700 hover:underline">{escaped_name}</a>'
+            )
+        else:
+            name_html = escaped_name
+
+        tail_parts = [owner.job_title, org_name]
+        tail = ", ".join(escape(p) for p in tail_parts if p)
+        line = f"{name_html}, {tail}" if tail else name_html
         return f"""
         <div class="mb-6 border-l-4 border-blue-400 bg-blue-50 p-4">
             <h3 class="text-sm font-medium text-gray-500">Auteur</h3>
@@ -309,6 +350,29 @@ class SujetsWipView(BaseWipView):
         db.session.commit()
         flash("Le sujet a été dépublié")
         return redirect(self._url_for("index"))
+
+    def accept(self, id):
+        """Bug #0132 part 3 : materialise a Commande from the sujet,
+        archive the sujet, notify the author."""
+        sujet = cast("Sujet", self._get_model(id))
+        try:
+            commande = accept_sujet_as_commande(sujet, g.user)
+        except ValueError as e:
+            flash(str(e), "error")
+            return redirect(self._url_for("get", id=id))
+        db.session.commit()
+
+        author = getattr(sujet, "owner", None)
+        if author is not None:
+            commande_url = _absolute_url_for("CommandesWipView:get", id=commande.id)
+            notify_author_of_sujet_acceptance(
+                author=author,
+                accepter=g.user,
+                sujet_title=sujet.titre,
+                commande_url=commande_url,
+            )
+        flash("Sujet accepté : une commande a été créée et l'auteur a été notifié.")
+        return redirect(url_for("CommandesWipView:index"))
 
 
 def _absolute_url_for(endpoint: str, **values) -> str:

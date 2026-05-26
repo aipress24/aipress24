@@ -18,9 +18,10 @@ from __future__ import annotations
 import datetime as dt
 from types import SimpleNamespace
 from typing import TYPE_CHECKING
-from unittest.mock import MagicMock
+from unittest.mock import MagicMock, patch
 
 import pytest
+from svcs.flask import container
 
 from app.models.auth import KYCProfile, User
 from app.models.lifecycle import PublicationStatus
@@ -31,13 +32,16 @@ from app.modules.wip.crud.cbvs.sujets import (
     SujetsTable,
     SujetsWipView,
 )
+from app.modules.wip.models.newsroom.commande import Commande
 from app.modules.wip.models.newsroom.sujet import Sujet
+from app.modules.wip.services.newsroom.sujet_accept import accept_sujet_as_commande
 from app.modules.wip.services.sujet_notifications import (
     notify_media_of_sujet_proposition,
 )
+from app.services.notifications import NotificationService
 
 if TYPE_CHECKING:
-    from sqlalchemy.orm import Session
+    from sqlalchemy.orm import Session, scoped_session
 
 
 @pytest.fixture
@@ -142,6 +146,84 @@ class TestSujetPublishLifecycle:
             sujet.unpublish()
 
 
+class TestSujetAcceptAction:
+    """Ticket #0132 part 3 (Erick, 2026-05-22) : « il manque la fonction
+    "Accepter" qui fait passer le sujet à NEWSROOM/Commandes avec
+    notification à l'Auteur ». The rédac chef of a target media must
+    be able to accept a PUBLIC sujet, which (1) creates a Commande
+    copying the sujet's content + (2) transitions the sujet to
+    ARCHIVED + (3) notifies the author.
+    """
+
+    def test_accept_creates_commande_and_archives_sujet(
+        self,
+        db_session: scoped_session,
+        media_org: Organisation,
+        author_user: User,
+    ):
+        sujet = _make_sujet(db_session, media_id=media_org.id, owner_id=author_user.id)
+        sujet.titre = "Topic title"
+        sujet.contenu = "Topic content"
+        sujet.publish()  # → PUBLIC
+        db_session.flush()
+
+        redac_chef = User(email="redacchef@flounet.example", active=True)
+        redac_chef.organisation = media_org
+        redac_chef.organisation_id = media_org.id
+        db_session.add(redac_chef)
+        db_session.flush()
+
+        commande = accept_sujet_as_commande(sujet, redac_chef)
+
+        # (1) Commande was created with sujet content.
+        assert isinstance(commande, Commande)
+        assert commande.titre == "Topic title"
+        assert commande.contenu == "Topic content"
+        assert commande.owner_id == redac_chef.id
+        assert commande.media_id == media_org.id
+        # (2) Sujet transitioned to ARCHIVED (no longer in « new » list).
+        assert sujet.status == PublicationStatus.ARCHIVED
+
+    def test_accept_refuses_if_not_redac_chef_of_target_media(
+        self,
+        db_session: scoped_session,
+        media_org: Organisation,
+        author_user: User,
+    ):
+        sujet = _make_sujet(db_session, media_id=media_org.id, owner_id=author_user.id)
+        sujet.publish()
+        db_session.flush()
+
+        outsider = User(email="outsider@elsewhere.example", active=True)
+        outsider_org = Organisation(name="Outsider Org")
+        db_session.add(outsider_org)
+        db_session.flush()
+        outsider.organisation = outsider_org
+        outsider.organisation_id = outsider_org.id
+        db_session.add(outsider)
+        db_session.flush()
+
+        with pytest.raises(ValueError, match="not authorized"):
+            accept_sujet_as_commande(sujet, outsider)
+
+    def test_accept_refuses_if_sujet_not_public(
+        self,
+        db_session: scoped_session,
+        media_org: Organisation,
+        author_user: User,
+    ):
+        sujet = _make_sujet(db_session, media_id=media_org.id, owner_id=author_user.id)
+        # Stays DRAFT — not acceptable as a commande.
+        redac_chef = User(email="rc2@flounet.example", active=True)
+        redac_chef.organisation = media_org
+        redac_chef.organisation_id = media_org.id
+        db_session.add(redac_chef)
+        db_session.flush()
+
+        with pytest.raises(ValueError, match="not PUBLIC|not in PUBLIC"):
+            accept_sujet_as_commande(sujet, redac_chef)
+
+
 class TestSujetsTableActions:
     def test_draft_item_shows_publier(self):
         table = SujetsTable()
@@ -205,6 +287,27 @@ class TestSujetFormFields:
         html = view._extra_view_html(sujet, mode="edit")
         assert "<script>" not in html
         assert "&lt;script&gt;" in html
+
+    def test_extra_view_html_wraps_author_name_in_profile_link(
+        self,
+        db_session: Session,
+        media_org: Organisation,
+        author_user: User,
+    ):
+        """Ticket #0132 part 2 (Erick, 2026-05-22) : « il serait bien
+        d'avoir son mini-profil car, ici, on ne peut cliquer pour voir
+        le profil entier de Nicolas Mouriou et vérifier à qui le
+        rédacteur en chef a affaire ». Wrap the author full_name in
+        an `<a href=...>` pointing at their profile."""
+        sujet = _make_sujet(db_session, media_id=media_org.id, owner_id=author_user.id)
+        with patch("app.flask.routing.url_for") as mock_url_for:
+            mock_url_for.return_value = "/swork/members/X"
+            view = SujetsWipView()
+            html = view._extra_view_html(sujet, mode="view")
+        # The author name must sit inside an <a> element.
+        assert f">{author_user.full_name}</a>" in html, (
+            "author name must be wrapped in a profile link (#0132/2)"
+        )
 
     def test_extra_view_html_includes_fonction_and_media(
         self, db_session: Session, media_org: Organisation
@@ -279,10 +382,10 @@ class TestNotifyMediaOfSujetProposition:
             fake_send,
             raising=True,
         )
-        # _pick_bw_owner_email returns "" because no BW + no members.
+        # _pick_bw_owner_user returns None because no BW + no members.
         monkeypatch.setattr(
-            "app.modules.wip.services.sujet_notifications._pick_bw_owner_email",
-            lambda media_org: "",
+            "app.modules.wip.services.sujet_notifications._pick_bw_owner_user",
+            lambda media_org: None,
         )
         author = SimpleNamespace(organisation_id=1, email="j@x", full_name="Jane")
         media_org = SimpleNamespace(id=99, bw_name="Empty media", name="X")
@@ -308,9 +411,12 @@ class TestNotifyMediaOfSujetProposition:
             fake_send,
             raising=True,
         )
+        recipient = SimpleNamespace(
+            id=42, email="rc@flounet.example", full_name="RC Flounet"
+        )
         monkeypatch.setattr(
-            "app.modules.wip.services.sujet_notifications._pick_bw_owner_email",
-            lambda media_org: "rc@flounet.example",
+            "app.modules.wip.services.sujet_notifications._pick_bw_owner_user",
+            lambda media_org: recipient,
         )
         author = SimpleNamespace(
             organisation_id=1, email="nicolas@example", full_name="Nicolas Moriou"
@@ -330,3 +436,51 @@ class TestNotifyMediaOfSujetProposition:
         assert mail.media_name == "Fake-01 Flounet"
         assert mail.sujet_title == "L'IA dans la supply chain"
         assert mail.sender_full_name == "Nicolas Moriou"
+
+    def test_posts_in_app_notification_to_bw_owner(self, monkeypatch):
+        """Ticket #0132 part 5 (Erick, 2026-05-22) : « Les propositions
+        de sujets devraient faire l'objet d'une notification à la
+        cloche ». In addition to the email, post an in-app notif so
+        the rédac chef sees the signal inside the platform too."""
+        # Don't let the email side-effect bleed (templates would fail).
+        monkeypatch.setattr(
+            "app.modules.wip.services.sujet_notifications."
+            "SujetPropositionNotificationMail.send",
+            lambda self: None,
+            raising=True,
+        )
+        recipient = SimpleNamespace(
+            id=7, email="rc@x", full_name="RC", is_anonymous=False, active=True
+        )
+        monkeypatch.setattr(
+            "app.modules.wip.services.sujet_notifications._pick_bw_owner_user",
+            lambda media_org: recipient,
+        )
+
+        posted: list[tuple] = []
+
+        def fake_post(user, message, url=""):
+            posted.append((user, message, url))
+
+        # Replace the NotificationService instance method.
+        notif_service = container.get(NotificationService)
+        monkeypatch.setattr(notif_service, "post", fake_post)
+
+        author = SimpleNamespace(
+            organisation_id=1, email="nicolas@x", full_name="Nicolas Mouriou"
+        )
+        media_org = SimpleNamespace(id=99, bw_name="Fake-01 Flounet", name="01F")
+
+        notify_media_of_sujet_proposition(
+            author=author,
+            media_org=media_org,
+            sujet_title="L'IA dans la supply chain",
+            sujet_url="https://aipress24.com/wip/sujets/12",
+        )
+
+        assert len(posted) == 1
+        notified_user, message, url = posted[0]
+        assert notified_user is recipient
+        assert "Nicolas Mouriou" in message
+        assert "L'IA dans la supply chain" in message
+        assert url == "https://aipress24.com/wip/sujets/12"
