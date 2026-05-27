@@ -38,7 +38,12 @@
                             </thead>
                             <tbody class="divide-y divide-gray-200">
                                 {% for response in responses %}
-                                    <tr>
+                                    {# data-contact-id : inert metadata
+                                       so e2e tests (esp. lifecycle
+                                       discovery) can locate a row by
+                                       contact id even when its status
+                                       renders no actionable link. #}
+                                    <tr data-contact-id="{{ response.id }}">
                                         <td class="whitespace-nowrap py-4 pl-4 pr-3 text-sm sm:pl-0">
                                             <div class="flex items-center">
                                                 <a href="{{ url_for(response.expert) }}" class="h-10 w-10 flex-shrink-0 block">
