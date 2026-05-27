@@ -263,3 +263,40 @@ class TestNewsroomContent:
 
         # Should still render, but possibly with fewer items
         assert response.status_code == 200
+
+    def test_newsroom_shows_items_for_journalist_with_selected_bw(
+        self, app: Flask, db_session: Session, journalist_no_bw: User
+    ):
+        """Test newsroom shows items if journalist has selected an active BW,
+        even if their own organisation has none."""
+        # Create an active BW owned by the journalist but for another organisation
+        other_org = Organisation(name="Other Org")
+        db_session.add(other_org)
+        db_session.flush()
+
+        bw = BusinessWall(
+            bw_type="media",
+            status=BWStatus.ACTIVE.value,
+            is_free=True,
+            owner_id=journalist_no_bw.id,
+            payer_id=journalist_no_bw.id,
+            organisation_id=other_org.id,
+            name="Other Media BW",
+        )
+        db_session.add(bw)
+        db_session.flush()
+
+        # Select this BW for the user
+        journalist_no_bw.selected_bw_id = bw.id
+        db_session.commit()
+
+        client = make_authenticated_client(app, journalist_no_bw)
+        response = client.get("/wip/newsroom")
+
+        assert response.status_code == 200
+        html = response.data.decode()
+        # Should show items because has_bw should be True now
+        assert any(
+            term in html
+            for term in ["Article", "Sujet", "Commande", "Avis", "enquête", "enquete"]
+        )
