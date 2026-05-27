@@ -28,7 +28,9 @@ from app.flask.lib.htmx import extract_fragment
 from app.flask.lib.nav import nav
 from app.logging import warn
 from app.models.auth import User
-from app.modules.bw.bw_activation.user_utils import get_business_wall_for_user
+from app.modules.bw.bw_activation.user_utils import (
+    get_selected_business_wall_for_user,
+)
 from app.modules.wip import blueprint
 from app.modules.wip.services.newsroom import AvisEnqueteService
 from app.services.emails import ContactAvisEnqueteAcceptanceMail
@@ -167,7 +169,7 @@ def media_opportunity_post(id: int) -> str | Response:
     # mutated the contact and the user came back to find the answer
     # "lost". Refuse here so the GET banner remains the single source
     # of truth on the prerequisite.
-    if get_business_wall_for_user(expert) is None:
+    if get_selected_business_wall_for_user(expert) is None:
         flash(
             "Vous devez configurer un Business Wall actif avant de "
             "répondre à un avis d'enquête.",
@@ -347,7 +349,7 @@ def _render_media_opportunity(id: int) -> str:
     eligible_colleagues = avis_service.list_eligible_colleagues(contact)
     # Bug #0164: gate the response form on having an active BW so the
     # user is not invited to type an answer that won't persist.
-    requires_bw = get_business_wall_for_user(expert) is None
+    requires_bw = get_selected_business_wall_for_user(expert) is None
 
     return render_template(
         "wip/pages/media_opportunity.j2",

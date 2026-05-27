@@ -14,7 +14,9 @@ from werkzeug.exceptions import Forbidden
 from app.enums import ProfileEnum, RoleEnum
 from app.flask.lib.nav import nav
 from app.flask.routing import url_for
-from app.modules.bw.bw_activation.user_utils import get_business_wall_for_user
+from app.modules.bw.bw_activation.user_utils import (
+    get_selected_business_wall_for_user,
+)
 from app.modules.wip import blueprint
 from app.modules.wip.pr_access import (
     user_can_access_newsroom,
@@ -138,8 +140,8 @@ def _allowed_redaction_items(items: list[dict[str, Any]]) -> list[dict[str, Any]
 
 
 def _has_active_business_wall() -> bool:
-    """True if user's organisation has an active Business Wall."""
-    bw = get_business_wall_for_user(g.user)
+    """True if user has an active Business Wall (own or selected)."""
+    bw = get_selected_business_wall_for_user(g.user)
     return bw is not None
 
 
