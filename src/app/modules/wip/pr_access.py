@@ -65,12 +65,13 @@ def user_can_access_eventroom(user: User) -> bool:
 
 
 def user_can_access_newsroom(user: User) -> bool:
-    """True if `user` may access Newsroom."""
+    """True if `user` may access Newsroom.
+
+    Journalists only. PR managers do not have NewRoom acess.
+    """
     if not user or user.is_anonymous:
         return False
-    if has_role(user, [RoleEnum.PRESS_MEDIA]):
-        return True
-    return user_is_acting_as_pr_manager(user)
+    return has_role(user, [RoleEnum.PRESS_MEDIA])
 
 
 def user_is_acting_as_pr_manager(user: User) -> bool:
