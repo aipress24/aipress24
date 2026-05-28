@@ -120,22 +120,18 @@ def newsroom():
 
 
 def _allowed_redaction_items(items: list[dict[str, Any]]) -> list[dict[str, Any]]:
-    """Filter items based on user permissions."""
+    """Filter items based on user permissions.
+
+    Journalists only. PR managers have no access to editorial content.
+    """
     allow_journalist = _check_article_creation_by_journalist()
     allow_commands = _check_command_creation_by_redac_chief()
     has_bw = _has_active_business_wall()
 
-    # PR managers acting for another BW can also publish sujets,
-    # avis d'enquêtes and commandes
-    is_pr_manager = user_is_acting_as_pr_manager(g.user)
-    allow_sujet = allow_journalist or is_pr_manager
-    allow_avis = allow_journalist or is_pr_manager
-    allow_commande = allow_commands or is_pr_manager
-
     items = _filter_articles_items(items, [has_bw, allow_journalist])
-    items = _filter_sujets_items(items, [has_bw, allow_sujet])
-    items = _filter_avis_enquetes_items(items, [has_bw, allow_avis])
-    items = _filter_commandes_items(items, [has_bw, allow_commande])
+    items = _filter_sujets_items(items, [has_bw, allow_journalist])
+    items = _filter_avis_enquetes_items(items, [has_bw, allow_journalist])
+    items = _filter_commandes_items(items, [has_bw, allow_commands])
     return items
 
 
