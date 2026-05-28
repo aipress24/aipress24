@@ -49,40 +49,6 @@
                 </p>
             </div>
 
-            {% if bw_info.get('newsroom_features') %}
-                <div
-                    class="mt-6 p-6 bg-indigo-50 rounded-lg border border-indigo-200"
-                >
-                    <h3 class="text-lg font-semibold text-indigo-900 mb-3">
-                        Fonctionnalités Newsroom
-                    </h3>
-                    <p class="text-sm text-indigo-700 mb-4">
-                        Après vérification par les équipes d'AiPRESS24, vous
-                        accéderez automatiquement aux fonctionnalités suivantes
-                        :
-                    </p>
-                    <ul class="space-y-2">
-                        {% for feature in bw_info.get('newsroom_features', []) %}
-                            <li
-                                class="flex items-start gap-2 text-sm text-indigo-800"
-                            >
-                                <svg
-                                    class="w-5 h-5 text-indigo-500 mt-0.5 flex-shrink-0"
-                                    fill="currentColor"
-                                    viewBox="0 0 20 20"
-                                >
-                                    <path
-                                        fill-rule="evenodd"
-                                        d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                                        clip-rule="evenodd"
-                                    />
-                                </svg>
-                                {{ feature }}
-                            </li>
-                        {% endfor %}
-                    </ul>
-                </div>
-            {% endif %}
             {% if bw_info.allows_self_management | default(false) %}
                 <!-- Self-activation option for small organizations -->
                 <div
@@ -448,88 +414,88 @@
                     </div>
                 </div>
             <!-- Summary -->
-            <div
-                class="mt-8 p-6 bg-green-50 rounded-lg border border-green-200"
-            >
-                <h3 class="font-semibold text-green-900 mb-3">
-                    Résumé des missions activées
-                </h3>
-                <div class="text-sm text-green-800">
-                    <p
-                        x-show="Object.values(missions).filter(v => v).length === 0"
-                        class="italic text-gray-500"
-                    >
-                        Aucune mission activée pour le moment.
-                    </p>
-                    <div
-                        x-show="Object.values(missions).filter(v => v).length > 0"
-                    >
-                        <p class="font-medium mb-2">
-                            <span
-                                x-text="Object.values(missions).filter(v => v).length"
-                            ></span>
-                            mission(s) activée(s) :
+                <div
+                    class="mt-8 p-6 bg-green-50 rounded-lg border border-green-200"
+                >
+                    <h3 class="font-semibold text-green-900 mb-3">
+                        Résumé des missions activées
+                    </h3>
+                    <div class="text-sm text-green-800">
+                        <p
+                            x-show="Object.values(missions).filter(v => v).length === 0"
+                            class="italic text-gray-500"
+                        >
+                            Aucune mission activée pour le moment.
                         </p>
-                        <ul class="space-y-1">
-                            <template
-                                x-for="(enabled, key) in missions"
-                                :key="key"
-                            >
-                                <li
-                                    x-show="enabled"
-                                    class="flex items-center gap-2"
+                        <div
+                            x-show="Object.values(missions).filter(v => v).length > 0"
+                        >
+                            <p class="font-medium mb-2">
+                                <span
+                                    x-text="Object.values(missions).filter(v => v).length"
+                                ></span>
+                                mission(s) activée(s) :
+                            </p>
+                            <ul class="space-y-1">
+                                <template
+                                    x-for="(enabled, key) in missions"
+                                    :key="key"
                                 >
-                                    <svg
-                                        class="w-4 h-4 text-green-600"
-                                        fill="currentColor"
-                                        viewBox="0 0 20 20"
+                                    <li
+                                        x-show="enabled"
+                                        class="flex items-center gap-2"
                                     >
-                                        <path
-                                            fill-rule="evenodd"
-                                            d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                                            clip-rule="evenodd"
-                                        />
-                                    </svg>
-                                    <span x-text="missionLabels[key]"></span>
-                                </li>
-                            </template>
-                        </ul>
+                                        <svg
+                                            class="w-4 h-4 text-green-600"
+                                            fill="currentColor"
+                                            viewBox="0 0 20 20"
+                                        >
+                                            <path
+                                                fill-rule="evenodd"
+                                                d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                                                clip-rule="evenodd"
+                                            />
+                                        </svg>
+                                        <span x-text="missionLabels[key]"></span>
+                                    </li>
+                                </template>
+                            </ul>
+                        </div>
                     </div>
                 </div>
-            </div>
 
             <!-- Navigation -->
-            <div
-                class="mt-10 flex items-center justify-between gap-x-6 border-t pt-6"
-            >
-                {% if bw_type != 'pr' %}
-                    <button
-                        type="submit"
-                        name="action"
-                        value="previous"
-                        class="text-sm font-semibold leading-6 text-gray-900 hover:text-gray-700 bg-transparent border-0 cursor-pointer"
-                    >
-                        ← Étape précédente : Partenaires externes
-                    </button>
-                {% else %}
-                    <button
-                        type="submit"
-                        name="action"
-                        value="previous"
-                        class="text-sm font-semibold leading-6 text-gray-900 hover:text-gray-700 bg-transparent border-0 cursor-pointer"
-                    >
-                        ← Étape précédente : Rôles internes
-                    </button>
-                {% endif %}
-                <button
-                    type="submit"
-                    name="action"
-                    value="finish"
-                    class="rounded-md bg-green-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-green-700"
+                <div
+                    class="mt-10 flex items-center justify-between gap-x-6 border-t pt-6"
                 >
-                    Enregistrer et terminer
-                </button>
-            </div>
+                    {% if bw_type != 'pr' %}
+                        <button
+                            type="submit"
+                            name="action"
+                            value="previous"
+                            class="text-sm font-semibold leading-6 text-gray-900 hover:text-gray-700 bg-transparent border-0 cursor-pointer"
+                        >
+                            ← Étape précédente : Partenaires externes
+                        </button>
+                    {% else %}
+                        <button
+                            type="submit"
+                            name="action"
+                            value="previous"
+                            class="text-sm font-semibold leading-6 text-gray-900 hover:text-gray-700 bg-transparent border-0 cursor-pointer"
+                        >
+                            ← Étape précédente : Rôles internes
+                        </button>
+                    {% endif %}
+                    <button
+                        type="submit"
+                        name="action"
+                        value="finish"
+                        class="rounded-md bg-green-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-green-700"
+                    >
+                        Enregistrer et terminer
+                    </button>
+                </div>
             </form>
         </div>
     </div>
