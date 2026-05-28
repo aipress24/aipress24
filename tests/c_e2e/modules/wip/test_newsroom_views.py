@@ -330,3 +330,59 @@ class TestNewsroomContent:
             term in html
             for term in ["Article", "Sujet", "Commande", "Avis", "enquête", "enquete"]
         )
+
+    def test_newsroom_works_for_micro_journalist_owner(
+        self, app: Flask, db_session: Session
+    ):
+        """A journalist in micro-enterprise (owner of its own BW, and so its
+        own PR manager) must have access to everything in newsroom."""
+        # Create role
+        role = db_session.query(Role).filter_by(name=RoleEnum.PRESS_MEDIA.name).first()
+        if not role:
+            role = Role(
+                name=RoleEnum.PRESS_MEDIA.name, description=RoleEnum.PRESS_MEDIA.value
+            )
+            db_session.add(role)
+
+        org = Organisation(name="Micro Media")
+        db_session.add(org)
+        db_session.flush()
+
+        # Profile is Micro-enterprise journalist
+        profile = KYCProfile(profile_code=ProfileEnum.PM_JR_ME.name)
+        user = User(
+            email="micro-journalist@example.com",
+            first_name="Jean",
+            last_name="Indep",
+            active=True,
+        )
+        user.profile = profile
+        user.organisation = org
+        user.organisation_id = org.id
+        user.roles.append(role)
+        db_session.add(user)
+        db_session.flush()
+
+        # BW is Micro type, user is owner, payer
+        bw = BusinessWall(
+            bw_type="micro",
+            status=BWStatus.ACTIVE.value,
+            owner_id=user.id,
+            payer_id=user.id,
+            organisation_id=org.id,
+            name="Mon BW Micro",
+        )
+        db_session.add(bw)
+        db_session.flush()
+        org.bw_id = bw.id
+        db_session.flush()
+
+        client = make_authenticated_client(app, user)
+        response = client.get("/wip/newsroom")
+
+        assert response.status_code == 200
+        html = response.data.decode()
+
+        assert "Article" in html
+        assert "Sujet" in html
+        assert "Avis" in html or "enqu" in html
