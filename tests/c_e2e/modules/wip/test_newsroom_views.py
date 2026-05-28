@@ -172,6 +172,36 @@ class TestNewsroomAccess:
 
         assert response.status_code == 403
 
+    def test_newsroom_forbidden_for_pr_user_acting_as_manager(
+        self, app: Flask, db_session: Session, pr_user: User
+    ):
+        """PR manager acting for a Media BW still gets a 403 on
+        the Newsroom."""
+        # Create a Media BW
+        media_org = Organisation(name="Media Org")
+        db_session.add(media_org)
+        db_session.flush()
+
+        bw = BusinessWall(
+            bw_type="media",
+            status=BWStatus.ACTIVE.value,
+            owner_id=pr_user.id,  # Owner is the PR user
+            payer_id=pr_user.id,
+            organisation_id=media_org.id,
+            name="Target Media BW",
+        )
+        db_session.add(bw)
+        db_session.flush()
+
+        # PR user selects this BW
+        pr_user.selected_bw_id = bw.id
+        db_session.flush()
+
+        client = make_authenticated_client(app, pr_user)
+        response = client.get("/wip/newsroom")
+
+        assert response.status_code == 403
+
 
 class TestNewsroomContent:
     """Tests for newsroom content display."""
