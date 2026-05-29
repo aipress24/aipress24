@@ -2,305 +2,315 @@
 
 {% block main %}
 
-<div class="py-6 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-    <h2 class="text-xl font-medium mb-2">Données techniques</h2>
-    <div>
-        <dt class="text-sm font-medium text-gray-500">Identifiant technique (Organisation.id)</dt>
-        <dd class="mb-2 text-sm text-gray-900">
-            {{ org.id }}
-        </dd>
-    </div>
-    <div>
-        <dt class="text-sm font-medium text-gray-500">Date de création</dt>
-        <dd class="mb-2 text-sm text-gray-900">
-            {% if org.created_at %}
-              {{ org.created_at| localdt }}
-            {% else %}
-              aucune
-            {% endif %}
-        </dd>
-    </div>
-    <div>
-        <dt class="text-sm font-medium text-gray-500">Date de modification</dt>
-        <dd class="mb-2 text-sm text-gray-900">
-          {% if org.modified_at %}
-            {{ org.modified_at| localdt }}
-          {% else %}
-            aucune
-          {% endif %}
-        </dd>
-    </div>
-    {% if org.is_auto %}
-    <div class="mt-4 flex items-center justify-start gap-x-8">
-      BW: Aucun Business wall (organisation non officielle)
-    </div>
-    {% else %}
-    <div class="mt-4 flex items-center justify-start gap-x-8">
-      {% if org.has_active_bw %}
-        <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
-          BW Actif: {{ org.active_business_wall.bw_type }}
-        </span>
-        <button
-          type="button"
-          data-modal-target="deactivate_bw_confirm"
-          data-modal-toggle="deactivate_bw_confirm"
-          class="inline-flex items-center px-3 py-1 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-red-500 hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-400"
-        >
-          Désactiver le BW
-        </button>
-      {% else %}
-        <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-gray-100 text-gray-800">
-          BW: Inactif (aucun Business Wall actif)
-        </span>
-      {% endif %}
-    </div>
-    {% endif %}
-    <div class="mt-4 mb-4 flex items-center justify-end gap-x-6">
-      <button
-        type="button"
-        id="delete_org_button"
-        data-modal-target="delete_org_confirm"
-        data-modal-toggle="delete_org_confirm"
-        class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-red-500 hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-400"
-      >Suppression de l'organisation</button>
-    </div>
-    <hr>
-    <div class="mt-4 mb-4 flex items-center justify-end gap-x-6">
-        <button
-          type="button"
-          id="list_users_button"
-          data-modal-target="list_users_modal"
-          data-modal-toggle="list_users_modal"
-          class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-orange-500 hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-400"
-        >Liste membres</button>
-      {% if not org.is_auto %}
-        <button
-          type="button"
-          id="list_invitations_button"
-          data-modal-target="list_invitations_modal"
-          data-modal-toggle="list_invitations_modal"
-          class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-500 hover:bg-indigo-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-400"
-        >Liste invitations</button>
-      {% endif %}
-</div>
-
-<div id="delete_org_confirm"
-  data-modal-backdrop="static"
-  tabindex="-1"
-  aria-hidden="true"
-  class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full">
-  <div class="relative p-4 w-full max-w-md max-h-full">
-    <div class="relative bg-white rounded-lg shadow dark:bg-gray-700">
-      <div class="p-4 md:p-5 text-center">
-        <svg class="mx-auto mb-4 text-gray-400 w-12 h-12 dark:text-gray-200" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
-          <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 11V6m0 8h.01M19 10a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/>
-        </svg>
-        <h3 class="mb-1 text-lg font-normal text-gray-500 dark:text-gray-400"
-        >Confirmer la suppression définitive de l'organisation&nbsp;?
-        </h3>
-        <p class="pl-14 pt-1 pb-1 mb-4 text-left ">
-          Organisation: {{org.name}} ({{org.bw_active or 'AUTO'}})
-        </p>
-        <button
-          data-modal-hide="delete_org_confirm"
-          type="button"
-          hx-post="/admin/show_org/{{org.id}}"
-          hx-vals='{"action": "delete_org"}'
-          class="text-white bg-red-600 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 dark:focus:ring-red-800 font-medium rounded-lg text-sm inline-flex items-center px-5 py-2.5 text-center"
-        >Oui, supprimer</button>
-        <button
-          data-modal-hide="delete_org_confirm"
-          type="button"
-          class="py-2.5 px-5 ms-3 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-100 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700"
-        >Annuler</button>
-      </div>
-    </div>
-  </div>
-</div>
-
-{% if org.has_active_bw %}
-<div id="deactivate_bw_confirm"
-  data-modal-backdrop="static"
-  tabindex="-1"
-  aria-hidden="true"
-  class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full">
-  <div class="relative p-4 w-full max-w-md max-h-full">
-    <div class="relative bg-white rounded-lg shadow dark:bg-gray-700">
-      <div class="p-4 md:p-5 text-center">
-        <svg class="mx-auto mb-4 text-gray-400 w-12 h-12 dark:text-gray-200" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
-          <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 11V6m0 8h.01M19 10a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/>
-        </svg>
-        <h3 class="mb-1 text-lg font-normal text-gray-500 dark:text-gray-400"
-        >Confirmer la désactivation du Business Wall&nbsp;?
-        </h3>
-        <p class="pt-2 pb-3 mb-4 text-center">
-          BW Type: {{ org.active_business_wall.bw_type }}<br>
-          Statut actuel: {{ org.active_business_wall.status }}
-        </p>
-        <p class="text-sm text-gray-500 mb-4">
-          Cette action suspendra le Business Wall. Il pourra être réactivé plus tard en reprenant un abonnement.
-        </p>
-        <button
-          data-modal-hide="deactivate_bw_confirm"
-          type="button"
-          hx-post="/admin/show_org/{{org.id}}"
-          hx-vals='{"action": "deactivate_bw"}'
-          class="text-white bg-red-600 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 dark:focus:ring-red-800 font-medium rounded-lg text-sm inline-flex items-center px-5 py-2.5 text-center"
-        >Oui, désactiver</button>
-        <button
-          data-modal-hide="deactivate_bw_confirm"
-          type="button"
-          class="py-2.5 px-5 ms-3 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-100 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700"
-        >Annuler</button>
-      </div>
-    </div>
-  </div>
-</div>
-{% endif %}
-
-<div id="list_users_modal"
-  data-modal-backdrop="static"
-  tabindex="-1"
-  aria-hidden="true"
-  class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full">
-  <div class="relative p-4 w-full max-w-screen-sm max-h-full">
-    <div class="relative bg-white rounded-lg shadow dark:bg-gray-700">
-      <h4 class="pl-2 text-lg font-semibold text-gray-900   dark:text-white"
-      >Liste des membres du Business Wall de l'organisation
-      </h4>
-      <p class="bg-white rounded-lg shadow dark:bg-gray-700 pl-2 pr-2 pt-1 text-sm text-gray-900  dark:text-white"
-      >Pour modifier la liste des membres du Business Wall de l'organisation, ajouter ou retirer un email.
-        Attention: adhésion ou radiation directe sans invitation préalable.
-        Les membres doivent être des utilisateurs déjà inscrits dans Aipress24.
-      </p>
-      <div class="p-2">
-        <form class="space-y-4" action="#">
-          <div>
-            <textarea name="content" id="content"
-              class="block p-2 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300
-              placeholder:text-gray-900
-              focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:gray-100"
-              rows="6"
-            >{{ org.members|sort(attribute='email')|join('\n', attribute='email') }}</textarea>
-          </div>
-          <div class="mt-12 flex items-center justify-end gap-x-6">
-            <button
-              type="submit"
-              hx-post="/admin/show_org/{{org.id}}"
-              hx-vals='{"action": "change_emails"}'
-              data-modal-hide="list_users_modal"
-              class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-500 hover:bg-indigo-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-400"
-            >Valider</button>
-            <button data-modal-hide="list_users_modal"
-              type="button"
-              class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-orange-500 hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-400"
-            >Annuler</button>
-          </div>
-        </form>
-      </div>
-    </div>
-  </div>
-</div>
-
-<div id="list_invitations_modal"
-  data-modal-backdrop="static"
-  tabindex="-1"
-  aria-hidden="true"
-  class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full">
-  <div class="relative p-4 w-full max-w-screen-sm max-h-full">
-    <div class="relative bg-white rounded-lg shadow dark:bg-gray-700">
-      <h4 class="pl-2 text-lg font-semibold text-gray-900   dark:text-white"
-      >Liste des invitations à rejoindre le Business Wall de l'organisation
-      </h4>
-      <p class="bg-white rounded-lg shadow dark:bg-gray-700 pl-2 pr-2 pt-1 text-sm text-gray-900  dark:text-white"
-      >Pour modifier la liste des invitations, ajouter ou retirer un email.
-        L'invitation autorise un utilisateur actuel ou futur de Aipress24 à rejoindre le Business Wall de l'organisation.
-      </p>
-      <div class="p-2">
-        <form class="space-y-4" action="#">
-          <div>
-            <textarea name="content" id="content"
-              class="block p-2 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300
-              placeholder:text-gray-900
-              focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:gray-100"
-              rows="6"
-            >{{ org.invitations_emails|sort|join('\n') }}</textarea>
-          </div>
-          <div class="mt-12 flex items-center justify-end gap-x-6">
-            <button
-              type="submit"
-              hx-post="/admin/show_org/{{org.id}}"
-              hx-vals='{"action": "change_invitations_emails"}'
-              data-modal-hide="list_invitations_modal"
-              class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-500 hover:bg-indigo-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-400"
-            >Valider</button>
-            <button data-modal-hide="list_invitations_modal"
-              type="button"
-              class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-orange-500 hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-400"
-            >Annuler</button>
-          </div>
-        </form>
-      </div>
-    </div>
-  </div>
-</div>
-
-<hr>
-<div class="py-6 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-  <div>
-    <h2 class="text-xl font-medium mb-2">Profil de l'organisation</h2>
-    <div>
-      <dt class="pt-2 text-sm font-medium text-gray-500">
-        Nom
-      </dt>
-      <dd>
-        <h3 class="text-xl font-medium mb-2">{{org.name}}</h3>
-      </dd>
-    </div>
-    <div>
-      <dt class="pt-2 text-sm font-medium text-gray-500">
-        Type
-      </dt>
-      <dd>
-        <div class="mt-1 text-sm text-gray-900">{{ org.bw_active or 'AUTO' }}</div>
-      </dd>
-    </div>
-    <div>
-    <dt class="pt-2 text-sm font-medium text-gray-500">
-      Nombre de membres
-    </dt>
-    <dd>
-        <div class="mt-1 text-sm text-gray-900">{{ org.count_members }}</div>
-    </dd>
-  </div>
- {% if not org.is_auto %}
-    <div>
-      <dt class="pt-2 text-sm font-medium text-gray-500">
-        Logo
-      </dt>
-      <dd>
-        {% if org.logo_url %}
-          <div class="flex">
-            <img
-              class="h-24 w-24 ring-2 ring-gray-100 sm:h-32 sm:w-32"
-              src="{{ org.logo_url }}"
-              alt="Logo de l&apos;organisation"
-            />
-          </div>
-        {% else %}
-          <div class="flex">
-            <div class="mt-1 mb-2 text-sm text-gray-900">
-              &nbsp;
+    <div class="py-6 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+        <h2 class="text-xl font-medium mb-2">Données techniques</h2>
+        <div>
+            <dt class="text-sm font-medium text-gray-500">Identifiant technique (Organisation.id)</dt>
+            <dd class="mb-2 text-sm text-gray-900">
+                {{ org.id }}
+            </dd>
+        </div>
+        <div>
+            <dt class="text-sm font-medium text-gray-500">Date de création</dt>
+            <dd class="mb-2 text-sm text-gray-900">
+                {% if org.created_at %}
+                    {{ org.created_at| localdt }}
+                {% else %}
+                    aucune
+                {% endif %}
+            </dd>
+        </div>
+        <div>
+            <dt class="text-sm font-medium text-gray-500">Date de modification</dt>
+            <dd class="mb-2 text-sm text-gray-900">
+                {% if org.modified_at %}
+                    {{ org.modified_at| localdt }}
+                {% else %}
+                    aucune
+                {% endif %}
+            </dd>
+        </div>
+        {% if org.is_auto %}
+            <div class="mt-4 flex items-center justify-start gap-x-8">
+                BW: Aucun Business wall (organisation non officielle)
             </div>
-          </div>
+        {% else %}
+            <div class="mt-4 flex items-center justify-start gap-x-8">
+                {% if org.has_active_bw %}
+                    <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
+                        BW Actif: {{ org.active_business_wall.bw_type }}
+                    </span>
+                    <button
+                        type="button"
+                        data-modal-target="deactivate_bw_confirm"
+                        data-modal-toggle="deactivate_bw_confirm"
+                        class="inline-flex items-center px-3 py-1 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-red-500 hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-400"
+                    >
+                        Désactiver le BW
+                    </button>
+                {% else %}
+                    <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-gray-100 text-gray-800">
+                        BW: Inactif (aucun Business Wall actif)
+                    </span>
+                {% endif %}
+            </div>
         {% endif %}
-      </dd>
-    </div>
+        <div class="mt-4 mb-4 flex items-center justify-end gap-x-6">
+            {% if org.has_bw_record %}
+                <p class="text-sm text-gray-500 italic">
+                    Impossible de supprimer l'organisation car elle a un Business Wall associé.
+                </p>
+            {% endif %}
+            <button
+                type="button"
+                id="delete_org_button"
+                {% if org.has_bw_record %}
+                    disabled
+                    title="Impossible de supprimer une organisation avec un Business Wall"
+                {% else %}
+                    data-modal-target="delete_org_confirm"
+                    data-modal-toggle="delete_org_confirm"
+                {% endif %}
+                class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-red-500 hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-400 disabled:opacity-50 disabled:cursor-not-allowed"
+            >Suppression de l'organisation</button>
+        </div>
+        <hr>
+        <div class="mt-4 mb-4 flex items-center justify-end gap-x-6">
+            <button
+                type="button"
+                id="list_users_button"
+                data-modal-target="list_users_modal"
+                data-modal-toggle="list_users_modal"
+                class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-orange-500 hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-400"
+            >Liste membres</button>
+            {% if not org.is_auto %}
+                <button
+                    type="button"
+                    id="list_invitations_button"
+                    data-modal-target="list_invitations_modal"
+                    data-modal-toggle="list_invitations_modal"
+                    class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-500 hover:bg-indigo-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-400"
+                >Liste invitations</button>
+            {% endif %}
+        </div>
 
-{% include "admin/pages/show_org_bw_form.j2" %}
+        <div id="delete_org_confirm"
+             data-modal-backdrop="static"
+             tabindex="-1"
+             aria-hidden="true"
+             class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full">
+            <div class="relative p-4 w-full max-w-md max-h-full">
+                <div class="relative bg-white rounded-lg shadow dark:bg-gray-700">
+                    <div class="p-4 md:p-5 text-center">
+                        <svg class="mx-auto mb-4 text-gray-400 w-12 h-12 dark:text-gray-200" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
+                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 11V6m0 8h.01M19 10a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/>
+                        </svg>
+                        <h3 class="mb-1 text-lg font-normal text-gray-500 dark:text-gray-400"
+                        >Confirmer la suppression définitive de l'organisation&nbsp;?
+                        </h3>
+                        <p class="pl-14 pt-1 pb-1 mb-4 text-left ">
+                            Organisation: {{org.name}} ({{org.bw_active or 'AUTO'}})
+                        </p>
+                        <button
+                            data-modal-hide="delete_org_confirm"
+                            type="button"
+                            hx-post="/admin/show_org/{{org.id}}"
+                            hx-vals='{"action": "delete_org"}'
+                            class="text-white bg-red-600 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 dark:focus:ring-red-800 font-medium rounded-lg text-sm inline-flex items-center px-5 py-2.5 text-center"
+                        >Oui, supprimer</button>
+                        <button
+                            data-modal-hide="delete_org_confirm"
+                            type="button"
+                            class="py-2.5 px-5 ms-3 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-100 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700"
+                        >Annuler</button>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-{% endif %}
+        {% if org.has_active_bw %}
+            <div id="deactivate_bw_confirm"
+                 data-modal-backdrop="static"
+                 tabindex="-1"
+                 aria-hidden="true"
+                 class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full">
+                <div class="relative p-4 w-full max-w-md max-h-full">
+                    <div class="relative bg-white rounded-lg shadow dark:bg-gray-700">
+                        <div class="p-4 md:p-5 text-center">
+                            <svg class="mx-auto mb-4 text-gray-400 w-12 h-12 dark:text-gray-200" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
+                                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 11V6m0 8h.01M19 10a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/>
+                            </svg>
+                            <h3 class="mb-1 text-lg font-normal text-gray-500 dark:text-gray-400"
+                            >Confirmer la désactivation du Business Wall&nbsp;?
+                            </h3>
+                            <p class="pt-2 pb-3 mb-4 text-center">
+                                BW Type: {{ org.active_business_wall.bw_type }}<br>
+                                Statut actuel: {{ org.active_business_wall.status }}
+                            </p>
+                            <p class="text-sm text-gray-500 mb-4">
+                                Cette action suspendra le Business Wall. Il pourra être réactivé plus tard en reprenant un abonnement.
+                            </p>
+                            <button
+                                data-modal-hide="deactivate_bw_confirm"
+                                type="button"
+                                hx-post="/admin/show_org/{{org.id}}"
+                                hx-vals='{"action": "deactivate_bw"}'
+                                class="text-white bg-red-600 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 dark:focus:ring-red-800 font-medium rounded-lg text-sm inline-flex items-center px-5 py-2.5 text-center"
+                            >Oui, désactiver</button>
+                            <button
+                                data-modal-hide="deactivate_bw_confirm"
+                                type="button"
+                                class="py-2.5 px-5 ms-3 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-100 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700"
+                            >Annuler</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
 
-</div>
+        <div id="list_users_modal"
+             data-modal-backdrop="static"
+             tabindex="-1"
+             aria-hidden="true"
+             class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full">
+            <div class="relative p-4 w-full max-w-screen-sm max-h-full">
+                <div class="relative bg-white rounded-lg shadow dark:bg-gray-700">
+                    <h4 class="pl-2 text-lg font-semibold text-gray-900   dark:text-white"
+                    >Liste des membres du Business Wall de l'organisation
+                    </h4>
+                    <p class="bg-white rounded-lg shadow dark:bg-gray-700 pl-2 pr-2 pt-1 text-sm text-gray-900  dark:text-white"
+                    >Pour modifier la liste des membres du Business Wall de l'organisation, ajouter ou retirer un email.
+                        Attention: adhésion ou radiation directe sans invitation préalable.
+                        Les membres doivent être des utilisateurs déjà inscrits dans Aipress24.
+                    </p>
+                    <div class="p-2">
+                        <form class="space-y-4" action="#">
+                            <div>
+                                <textarea name="content" id="content"
+                                          class="block p-2 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300
+                                                 placeholder:text-gray-900
+                                                 focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:gray-100"
+                                          rows="6"
+                                >{{ org.members|sort(attribute='email')|join('\n', attribute='email') }}</textarea>
+                            </div>
+                            <div class="mt-12 flex items-center justify-end gap-x-6">
+                                <button
+                                    type="submit"
+                                    hx-post="/admin/show_org/{{org.id}}"
+                                    hx-vals='{"action": "change_emails"}'
+                                    data-modal-hide="list_users_modal"
+                                    class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-500 hover:bg-indigo-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-400"
+                                >Valider</button>
+                                <button data-modal-hide="list_users_modal"
+                                        type="button"
+                                        class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-orange-500 hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-400"
+                                >Annuler</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="list_invitations_modal"
+             data-modal-backdrop="static"
+             tabindex="-1"
+             aria-hidden="true"
+             class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full">
+            <div class="relative p-4 w-full max-w-screen-sm max-h-full">
+                <div class="relative bg-white rounded-lg shadow dark:bg-gray-700">
+                    <h4 class="pl-2 text-lg font-semibold text-gray-900   dark:text-white"
+                    >Liste des invitations à rejoindre le Business Wall de l'organisation
+                    </h4>
+                    <p class="bg-white rounded-lg shadow dark:bg-gray-700 pl-2 pr-2 pt-1 text-sm text-gray-900  dark:text-white"
+                    >Pour modifier la liste des invitations, ajouter ou retirer un email.
+                        L'invitation autorise un utilisateur actuel ou futur de Aipress24 à rejoindre le Business Wall de l'organisation.
+                    </p>
+                    <div class="p-2">
+                        <form class="space-y-4" action="#">
+                            <div>
+                                <textarea name="content" id="content"
+                                          class="block p-2 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300
+                                                 placeholder:text-gray-900
+                                                 focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:gray-100"
+                                          rows="6"
+                                >{{ org.invitations_emails|sort|join('\n') }}</textarea>
+                            </div>
+                            <div class="mt-12 flex items-center justify-end gap-x-6">
+                                <button
+                                    type="submit"
+                                    hx-post="/admin/show_org/{{org.id}}"
+                                    hx-vals='{"action": "change_invitations_emails"}'
+                                    data-modal-hide="list_invitations_modal"
+                                    class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-500 hover:bg-indigo-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-400"
+                                >Valider</button>
+                                <button data-modal-hide="list_invitations_modal"
+                                        type="button"
+                                        class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-orange-500 hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-400"
+                                >Annuler</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <hr>
+        <div class="py-6 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div>
+                <h2 class="text-xl font-medium mb-2">Profil de l'organisation</h2>
+                <div>
+                    <dt class="pt-2 text-sm font-medium text-gray-500">
+                        Nom
+                    </dt>
+                    <dd>
+                        <h3 class="text-xl font-medium mb-2">{{org.name}}</h3>
+                    </dd>
+                </div>
+                <div>
+                    <dt class="pt-2 text-sm font-medium text-gray-500">
+                        Type
+                    </dt>
+                    <dd>
+                        <div class="mt-1 text-sm text-gray-900">{{ org.bw_active or 'AUTO' }}</div>
+                    </dd>
+                </div>
+                <div>
+                    <dt class="pt-2 text-sm font-medium text-gray-500">
+                        Nombre de membres
+                    </dt>
+                    <dd>
+                        <div class="mt-1 text-sm text-gray-900">{{ org.count_members }}</div>
+                    </dd>
+                </div>
+                {% if not org.is_auto %}
+                    <div>
+                        <dt class="pt-2 text-sm font-medium text-gray-500">
+                            Logo
+                        </dt>
+                        <dd>
+                            {% if org.logo_url %}
+                                <div class="flex">
+                                    <img
+                                        class="h-24 w-24 ring-2 ring-gray-100 sm:h-32 sm:w-32"
+                                        src="{{ org.logo_url }}"
+                                        alt="Logo de l&apos;organisation"
+                                    />
+                                </div>
+                            {% else %}
+                                <div class="flex">
+                                    <div class="mt-1 mb-2 text-sm text-gray-900">
+                                        &nbsp;
+                                    </div>
+                                </div>
+                            {% endif %}
+                        </dd>
+                    </div>
+
+                    {% include "admin/pages/show_org_bw_form.j2" %}
+
+                {% endif %}
+
+            </div>
 
 {% endblock %}

@@ -9,8 +9,10 @@ from __future__ import annotations
 from typing import cast
 
 from attr import define
+from sqlalchemy import func, select
 from sqlalchemy.exc import NoInspectionAvailable
 
+from app.flask.extensions import db
 from app.flask.lib.view_model import ViewModel
 from app.models.organisation import Organisation
 from app.modules.admin.invitations import emails_invited_to_organisation
@@ -38,7 +40,20 @@ class OrgVM(ViewModel):
             "address_formatted": self.org.formatted_address,
             "active_business_wall": active_bw,
             "has_active_bw": active_bw is not None,
+            "has_bw_record": self.has_bw_record(),
         }
+
+    def has_bw_record(self) -> bool:
+        """Check if ANY BusinessWall record exists for this organisation."""
+        try:
+            stmt = (
+                select(func.count())
+                .select_from(BusinessWall)
+                .where(BusinessWall.organisation_id == self.org.id)
+            )
+            return (db.session.scalar(stmt) or 0) > 0
+        except NoInspectionAvailable:
+            return False
 
     def get_active_business_wall(self) -> BusinessWall | None:
         """Get the active BusinessWall associated with this organisation."""

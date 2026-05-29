@@ -219,7 +219,7 @@ def gc_organisation(organisation: Organisation | None) -> bool:
         .select_from(BusinessWall)
         .where(BusinessWall.organisation_id == organisation.id)
     )
-    if db.session.scalar(stmt) > 0:
+    if (db.session.scalar(stmt) or 0) > 0:
         return False
 
     # AUTO organisation with zero member: delete it
@@ -336,33 +336,29 @@ def merge_organisation(org: Organisation) -> None:
     db_session.flush()
 
 
-def delete_full_organisation(org: Organisation) -> None:
+def delete_full_organisation(org: Organisation) -> str:
     """Full deletion or Organisation.
 
-    step 1: deactivate any active BusinessWall.
+    step 1: check if organisation has an associated BusinessWall.
     step 2: remove users organisation link and their roles.
     step 3: mark organisation as deleted
     """
     # import here to avoid circular imports
-    from app.modules.bw.bw_activation.models import BWStatus
-    from app.modules.bw.bw_activation.user_utils import (
-        get_active_business_wall_for_organisation,
-    )
+    from app.modules.bw.bw_activation.models import BusinessWall
 
     db_session = db.session
 
-    # Step 1: Deactivate any active BusinessWall
-    active_bw = get_active_business_wall_for_organisation(org)
-    if active_bw:
-        active_bw.status = BWStatus.SUSPENDED.value
-        db_session.merge(active_bw)
-        db_session.flush()
-        # Clear organisation BW fields
-        org.bw_active = ""
-        # org.bw_id is nummable
-        org.bw_id = None  # type: ignore [invalid-assignment]
-        db_session.merge(org)
-        db_session.flush()
+    # Block deletion if ANY BusinessWall exists for this organization
+    stmt = (
+        select(func.count())
+        .select_from(BusinessWall)
+        .where(BusinessWall.organisation_id == org.id)
+    )
+    if (db.session.scalar(stmt) or 0) > 0:
+        return (
+            "L'organisation a un Business Wall associé et ne peut pas être supprimée. "
+            "Veuillez d'abord supprimer le Business Wall."
+        )
 
     # Step 2: Remove users organisation link and their roles
     current_members = org.members
@@ -375,3 +371,4 @@ def delete_full_organisation(org: Organisation) -> None:
 
     # Step 3: Mark organisation as deleted
     _mark_organisation_as_deleted(db_session, org)
+    return ""
