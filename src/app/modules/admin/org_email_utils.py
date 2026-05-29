@@ -63,52 +63,6 @@ def change_members_emails(
     add_members_emails(org, mails_to_add)
 
 
-def change_managers_emails(
-    org: Organisation, raw_mails: str, keep_one: bool = False
-) -> None:
-    """Update the managers of an organisation based on email list.
-
-    Note: This flushes but does NOT commit. The caller is responsible
-    for committing at the request boundary.
-    """
-    new_mails = set(raw_mails.lower().split())
-    db_session = db.session
-    current_managers = [u for u in org.members if u.has_role(RoleEnum.MANAGER)]
-    current_members_emails = {u.email.lower() for u in org.members}
-    current_managers_emails = {u.email.lower() for u in current_managers}
-    some_new_manager = False
-    # add users of the new list that are not in the current list of members
-    for mail in new_mails:
-        if mail not in current_managers_emails:
-            if mail not in current_members_emails:
-                continue  # require manager to be already member
-            user = get_user_per_email(mail)
-            if not user:
-                continue
-            add_role(user, RoleEnum.MANAGER)
-            db_session.merge(user)
-            db_session.flush()
-            some_new_manager = True
-    if keep_one and not some_new_manager:
-        # - option "keep_one" active (thus managing the organisation from
-        #   the BW admin page)
-        # - No new manager was added
-        # => do not allow to remove the last manager email
-        removable_count = len(current_managers) - 1
-    else:
-        # either "keep_one" is not active (site admin management) or some
-        # new manager was added
-        # => allow to remove all previous managers
-        removable_count = len(current_managers)
-    # remove managers that are not in the new list of managers
-    for manager in current_managers:
-        if manager.email not in new_mails and removable_count > 0:
-            manager.remove_role(RoleEnum.MANAGER)
-            db_session.merge(manager)
-            db_session.flush()
-            removable_count -= 1
-
-
 def add_managers_emails(org: Organisation, mails: str | list[str]) -> None:
     """Add managers to an organisation based on email list.
 
