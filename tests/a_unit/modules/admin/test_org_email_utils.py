@@ -13,6 +13,7 @@ from app.enums import RoleEnum
 from app.models.auth import KYCProfile, Role, User
 from app.models.organisation import Organisation
 from app.modules.admin.org_email_utils import change_members_emails
+from app.modules.bw.bw_activation.models import BusinessWall, BWStatus
 
 if TYPE_CHECKING:
     from flask_sqlalchemy import SQLAlchemy
@@ -97,3 +98,32 @@ class TestChangeMembersEmails:
 
         # Should not raise an error
         change_members_emails(org, "nonexistent@example.com")
+
+    def test_preserves_bw_owner(self, db: SQLAlchemy) -> None:
+        """Test BW owner is not removed even if not in the new email list."""
+
+        org = Organisation(name="Org With BW", bw_id=uuid4())
+        user = User(email="bw_owner@example.com", active=True)
+        profile = KYCProfile()
+        user.profile = profile
+        user.organisation = org
+        db.session.add_all([org, user, profile])
+        db.session.flush()
+
+        # Create active BW owned by user
+        bw = BusinessWall(
+            id=org.bw_id,
+            organisation_id=org.id,
+            owner_id=user.id,
+            payer_id=user.id,
+            bw_type="media",
+            status=BWStatus.ACTIVE.value,
+        )
+        db.session.add(bw)
+        db.session.flush()
+
+        # Try to remove all members (user is NOT in the list)
+        change_members_emails(org, "")
+
+        # BW owner should still be in the organization
+        assert user.organisation_id == org.id

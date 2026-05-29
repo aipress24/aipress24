@@ -26,6 +26,7 @@ from app.modules.admin.utils import (
     set_user_organisation,
     toggle_org_active,
 )
+from app.modules.bw.bw_activation.models import BusinessWall, BWStatus
 
 if TYPE_CHECKING:
     from flask_sqlalchemy import SQLAlchemy
@@ -264,6 +265,61 @@ class TestRemoveUserOrganisation:
 
         assert result == ""  # No error
         assert user.organisation_id is None
+
+    def test_cannot_remove_bw_owner(self, db: SQLAlchemy) -> None:
+        """Test cannot remove BW owner from organisation."""
+        org = Organisation(name="Org With BW", bw_id=uuid4())
+        user = User(email="bw_owner@example.com", active=True)
+        profile = KYCProfile()
+        user.profile = profile
+        user.organisation = org
+        db.session.add_all([org, user, profile])
+        db.session.flush()
+
+        # Create active BW owned by user
+        bw = BusinessWall(
+            id=org.bw_id,
+            organisation_id=org.id,
+            owner_id=user.id,
+            payer_id=user.id,
+            bw_type="media",
+            status=BWStatus.ACTIVE.value,
+        )
+        db.session.add(bw)
+        db.session.flush()
+
+        result = remove_user_organisation(user)
+
+        assert result.startswith("L'utilisateur est Business Wall")
+        assert user.organisation_id == org.id
+
+    def test_set_org_cannot_remove_bw_owner(self, db: SQLAlchemy) -> None:
+        """Test set_user_organisation fails if user is BW owner of current org."""
+        org1 = Organisation(name="Current Org With BW", bw_id=uuid4())
+        org2 = Organisation(name="Target Org")
+        user = User(email="bw_owner_move@example.com", active=True)
+        profile = KYCProfile()
+        user.profile = profile
+        user.organisation = org1
+        db.session.add_all([org1, org2, user, profile])
+        db.session.flush()
+
+        # Create active BW owned by user in current org
+        bw = BusinessWall(
+            id=org1.bw_id,
+            organisation_id=org1.id,
+            owner_id=user.id,
+            payer_id=user.id,
+            bw_type="media",
+            status=BWStatus.ACTIVE.value,
+        )
+        db.session.add(bw)
+        db.session.flush()
+
+        result = set_user_organisation(user, org2)
+
+        assert result.startswith("L'utilisateur est Business Wall")
+        assert user.organisation_id == org1.id
 
 
 class TestGcAllAutoOrganisations:
