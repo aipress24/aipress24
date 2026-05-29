@@ -41,10 +41,9 @@ def get_user_per_email(email: str) -> User | None:
 
 
 def _remove_organisational_roles(user: User) -> None:
-    for role in ("LEADER", "MANAGER"):
-        # Question: shall we remove all this:
-        # for role in ("LEADER" , "MANAGER", "PRESS_MEDIA", "PRESS_RELATIONS",  "EXPERT", "ACADEMIC", "TRANSFORMER" ):
-        user.remove_role(role)
+    # Question: shall we remove all this:
+    # for role in ("PRESS_MEDIA", "PRESS_RELATIONS",  "EXPERT", "ACADEMIC", "TRANSFORMER" ):
+    user.remove_role("LEADER")
 
 
 def _remove_user_organisation(user: User) -> None:
