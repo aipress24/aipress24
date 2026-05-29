@@ -1,167 +1,70 @@
 # Changes Week 10, 2026
 
-## Business Wall - Data Entry Form
+## Business Wall — Data Entry Form
 
-### Identity Fields
+Many new BW fields added across identity, contact, location, organisation, editorial, interest, and activity dimensions :
 
-- Added `name` field for BW display name
-- Added `name_official` for official organisation name
-- Added `name_group` for group/holding name
-- Added `name_institution` for institution name
+- **Identity** : `name`, `name_official`, `name_group`, `name_institution`.
+- **Contact** : `tel_standard`, `postal_address`, `site_url`.
+- **Location** : `geolocalisation` + country / code / city.
+- **Organisation** : `type_organisation` (dual-field with migration), `taille_organisation`, `type_entreprise_media`, `type_pr_agency`.
+- **Editorial** : `positionnement_editorial`, `audience_cible`, `type_presse_media`, `periodicite` (needs ontology entry).
+- **Interest** : `interest_political_detail`, `interest_economics_detail`, `interest_association_detail` + multi-select fields for "centre d'intérêt".
+- **Activity** : `secteur_activite_couvert`, `clients`.
 
-### Contact Fields
+Image management :
 
-- Added `tel_standard` for main phone number
-- Added `postal_address` for postal address
-- Added `site_url` for website URL
+- New `cover_image` (bandeau) as a second image item.
+- `gallery_images` field on `BusinessWall` ; add / remove multiple images ; helper utilities.
 
-### Location Fields
+Form improvements :
 
-- Added `geolocalisation` field
-- Added country/code/city location fields
+- Generic `updateDualMultiSelect()` JS helper for dual-selection fields.
+- `permit_selection_of_dual_field_type_organisation()` ; BW form field for "liste des membres" removed.
 
-### Organisation Fields
+## Business Wall — PR Missions
 
-- Added `type_organisation` dual field with migration
-- Added `taille_organisation` for organisation size
-- Added `type_entreprise_media` for media company type
-- Added `type_pr_agency` for PR agency type
-
-### Editorial Fields
-
-- Added `positionnement_editorial` for editorial positioning
-- Added `audience_cible` for target audience
-- Added `type_presse_media` for press/media type
-- Added `periodicite` for publication frequency (requires ontology entry)
-
-### Interest Fields
-
-- Added `interest_political_detail` for political interests
-- Added `interest_economics_detail` for economic interests
-- Added `interest_association_detail` for association interests
-- Added multi-select fields for "centre d'intérêt" (political, economics, association)
-
-### Activity Fields
-
-- Added `secteur_activite_couvert` for covered activity sectors
-- Added `clients` field for client list
-
-### Image Management
-
-- Added `cover_image` (bandeau) as second image item
-- Added `gallery_images` field to BusinessWall model
-- Added gallery image management (add/remove multiple images)
-- Added related utilities for gallery handling
-
-### Form Improvements
-
-- Added generic `updateDualMultiSelect()` JavaScript function for dual selection fields
-- Added `permit_selection_of_dual_field_type_organisation()` in BW forms
-- Removed BW form field for "liste des membres"
-
-## Business Wall - PR Missions
-
-### Missions Storage
-
-- Added `missions` field to BusinessWall model to store stage 6 missions as dict
-- Added migration script for BusinessWall `missions` field
-
-### Mission Functions
-
-- Added `apply_bw_missions_to_pr_user()` to apply BW missions to PR user
-- Added `sync_all_pr_missions()` to synchronize all PR permissions when changing missions
-- Apply BW missions to BWPRe when accepting role (using PR owner.id)
-- Apply BW missions to new BW PR when accepting role
-
-### Permission Handling
-
-- Use `PermissionType` enum for permission names in BW stage 6
-- Store PR missions in BusinessWall model
-- Sync current PR permissions when changing missions to PR for BW
+- New `BusinessWall.missions` field (dict, stage-6 missions) + migration.
+- `apply_bw_missions_to_pr_user()` applies BW missions to a PR user.
+- `sync_all_pr_missions()` synchronises all PR permissions on mission change.
+- Missions applied to BWPRe when accepting role (using PR owner.id) ; applied to new BW PR on role acceptance.
+- `PermissionType` enum used consistently for stage-6 permission names.
 
 ## Bug Fixes
 
-- Fixed "Enregistrer et continuer" button to actually send to next page
-- Removed mention at bottom of BW form
-- Fixed single session commit in BW data management
-- Removed bad import
-- Removed wrong attribute in BusinessWall
-- Fixed `PermissionType` values
-- Fixed BW stage 6 missions code
+- "Enregistrer et continuer" actually navigates to next page.
+- BW form footer mention removed.
+- Single-session-commit fix in BW data management.
+- Bad import removed ; wrong attribute on `BusinessWall` removed.
+- `PermissionType` values + BW stage-6 missions code fixed.
 
-## Module Swork - Cleanup
+## Module Swork — Cleanup
 
-### Constants
+- `SWORK_LIST_LIMIT = 100` constant in `settings.py` ; hardcoded `.limit(100)` replaced in members / organisations / groups lists.
+- Hardcoded placeholder URLs in `views/group.py` replaced with `group.logo_url` + `group.cover_image_url`, falling back to `/static/img/blank-square.png` / `gray-texture.png`.
+- Docstrings added to `BaseList`, `Filter`, `FilterByCity`, `FilterByDept`, `MembersList`, `OrganisationsList`, `GroupsList`.
 
-- Added `SWORK_LIST_LIMIT = 100` constant in `settings.py`
-- Replaced hardcoded `.limit(100)` with `SWORK_LIST_LIMIT` in:
-  - `components/members_list.py`
-  - `components/organisations_list.py`
-  - `components/groups_list.py`
+## Tests
 
-### Placeholder URLs
+New test files :
 
-- Fixed hardcoded placeholder URLs in `views/group.py`
-- Now uses `group.logo_url` with fallback to `/static/img/blank-square.png`
-- Now uses `group.cover_image_url` with fallback to `/static/img/gray-texture.png`
+- `pywire/test_routes.py` (6 tests : Livewire sync inputs, fire events).
+- `cli/test_nav.py` (9 tests : mock-user-with-roles, role checking, filter resolution).
+- `stripe/test_stripe_utils.py` (17 tests : key validation, config, pricing-table loading).
+- `pdf/test_pdf_base.py` (4 tests).
+- `lib/test_htmx.py` (4 tests : fragment extraction).
+- `lib/test_controllers.py` (9 tests : decorators + dispatcher).
 
-### Documentation
+Documentation :
 
-- Added docstrings to `BaseList` class
-- Added docstrings to `Filter` class
-- Added docstrings to `FilterByCity` class
-- Added docstrings to `FilterByDept` class
-- Added docstrings to `MembersList` class
-- Added docstrings to `OrganisationsList` class
-- Added docstrings to `GroupsList` class
+- New `notes/dev/testing.md` : stubs vs mocks, pure functions, ViewModels, transaction isolation, functional-core / imperative-shell pattern.
 
-## Tests & Coverage
+Refactoring :
 
-### New Test Files
-
-- `tests/a_unit/flask/lib/pywire/test_routes.py` (6 tests)
-  - `TestLivewireSyncInput`: Tests for setting simple and nested attributes via dot notation
-  - `TestLivewireFireEvent`: Tests for event firing with dash-to-underscore conversion
-
-- `tests/a_unit/flask/cli/test_nav.py` (9 tests)
-  - `TestCreateMockUserWithRoles`: Tests for creating mock users with roles
-  - `TestMockUserHasRole`: Tests for role checking with enum and string
-  - `TestResolveFilterUser`: Tests for filter user resolution
-
-- `tests/a_unit/services/stripe/test_stripe_utils.py` (17 tests)
-  - `TestCheckStripeKeys`: Tests for Stripe key validation
-  - `TestGetStripeConfig`: Tests for Stripe config retrieval
-  - `TestLoadPricingTableId`: Tests for pricing table ID loading
-
-- `tests/a_unit/services/pdf/test_pdf_base.py` (4 tests)
-  - `TestToPdf`: Tests for PDF conversion base function
-
-- `tests/a_unit/flask/lib/test_htmx.py` (4 tests)
-  - `TestExtractFragment`: Tests for HTMX fragment extraction
-
-- `tests/a_unit/flask/lib/test_controllers.py` (9 tests)
-  - `TestDecorators`: Tests for `@get`, `@post`, `@route` decorators
-  - `TestDispatcher`: Tests for Dispatcher class
-  - `TestControllerDecorator`: Tests for `@controller` decorator
-
-### Testing Documentation
-
-- Created `notes/dev/testing.md` with best practices and antipatterns
-- Covers: stubs vs mocks, pure functions, ViewModels, transaction isolation
-- Documents functional core / imperative shell pattern for database testing
-
-### Test Refactoring
-
-- Renamed `test_utils.py` to `test_stripe_utils.py` to avoid pytest import collisions
-- Renamed `test_base.py` to `test_pdf_base.py` for same reason
-- Fixed ClassVar type error in `swork/components/base.py`
+- `test_utils.py` → `test_stripe_utils.py` and `test_base.py` → `test_pdf_base.py` to avoid pytest import collisions.
+- `ClassVar` type error in `swork/components/base.py` fixed.
 
 ## DevOps
 
-- Added Docker configuration (`Dockerfile`, `docker-compose.yml`)
-- Added Hop3 configuration
-
-## Code Quality
-
-- Misc cleanup and refactoring
-- Applied linter fixes
+- Docker config (`Dockerfile`, `docker-compose.yml`) + Hop3 config.
+- Misc cleanup, linter fixes.

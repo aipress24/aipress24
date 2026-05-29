@@ -1,103 +1,56 @@
 # Changes Week 9, 2026
 
-## Business Wall - Role Invitations
+## Business Wall — Role Invitations
 
-### Email Notification System
+- New `BWRoleInvitationMail` mailer + `send_role_invitation_mail()`.
+- BWMI (internal manager) and BWPRI (internal PR) invitation flows wired with email + role assignment.
+- New confirmation page for BW role invitations (`confirm_role_invitation`) using a redirect pattern.
+- `bw_managers_ids()` switched to a generic `bw_roles_ids()` helper.
+- BWME (external manager) role management added.
+- `ensure_roles_membership()` ensures all role assignments stay within current org members.
+- User lists filtered by `user.active`.
 
-- Added `BWRoleInvitationMail` mailer class for BW role invitations
-- Added `send_role_invitation_mail()` function to send invitation emails
-- BWMI (internal manager) invitation with email and role assignment
-- BWPRI (internal PR) invitation with email and role assignment
+## Business Wall — PR Agency Partnerships
 
-### Role Confirmation
+Partnership model :
 
-- Added confirmation page for BW role invitations (`confirm_role_invitation`)
-- Uses redirect pattern for role confirmation flow
-- Better display of pending invitations lists
+- Partnership now references `BusinessWall.id` (was `Organisation.id`). Migration added.
+- New `BusinessWall.name` field and `BusinessWall.name_safe` property ; `name_safe` used in early activation stages.
 
-### Role Management Improvements
+PR Agency lookup helpers : `get_current_press_relation_bw_list`, `get_pending_press_relation_bw_list`, `get_press_relation_bw_list`, `bw_pr_managers_ids`, `get_current_pr_bw_info_list`, `get_pending_pr_bw_info_list`.
 
-- `bw_managers_ids()` now uses generic `bw_roles_ids()` function
-- Added support for BWME (external manager) role management
-- `ensure_roles_membership()` ensures all role assignments are for current organisation members
-- Filter user lists by `user.active` status
+Invitation workflow :
 
-## Business Wall - PR Agency Partnerships
+- Rewritten using Partnership invitation status.
+- Specific confirmation page for Partnership invitations ; pending / rejected / expired invitations surfaced.
+- BW with status "invited" hidden from available-PR lists.
+- `invite_pr_provider()` built on top of `invite_user_role()`.
+- Pending PR BW list shown in `B04_manage_external_partners.html`.
 
-### Partnership Model Changes
+UI : specific empty-state message + inactive button for BWPRe when no PR agency in list ; current external partners listed ; dashboard block numbering adapted for PR BW (block 4 skipped, block 5 renumbered to 4).
 
-- Partnership now uses `BusinessWall.id` to reference partner (not `Organisation.id`)
-- Added migration to update Partnership references
-- Added `BusinessWall.name` field and `BusinessWall.name_safe` property
-- Use `BusinessWall.name_safe` in early stages of BW registration
+## Business Wall — Paid Activation
 
-### PR Agency Lists
-
-- `get_current_press_relation_bw_list()` - list of current PR agency partnerships
-- `get_pending_press_relation_bw_list()` - list of pending PR invitations
-- `get_press_relation_bw_list()` - general PR BW list
-- `bw_pr_managers_ids()` - get PR manager user IDs
-- `get_current_pr_bw_info_list()` - display full name and email in PR agencies list
-- `get_pending_pr_bw_info_list()` - pending PR BW info with contact email
-
-### Partnership Invitation Workflow
-
-- Rewrote BW PR invitation workflow using Partnership invitation status
-- Added specific confirmation page for Partnership invitations
-- Show pending, rejected, and expired invitations for partnerships
-- Do not show PR BW with status "invited" in list of available PR BWs
-- `invite_pr_provider()` function using `invite_user_role()`
-- Display pending PR BW list in B04_manage_external_partners.html
-
-### UI Improvements
-
-- Specific message and inactive button if no PR agency in list for BWPRe
-- Display list of current BW PR external partners
-- Adapted block numbers in dashboard for PR BW (skip block 4, renumber block 5 to 4)
-
-## Business Wall - Paid Activation
-
-- Added `create_new_paid_bw_record()` function for paid BW creation
-- Added links to CGV and "Accord de diffusion" on pricing page
-- Added CGV and "Accord de diffusion" for BW confirmation page
-- Removed "Retour choix d'activation" links from paid confirmation pages
+- New `create_new_paid_bw_record()` for paid BW creation.
+- Links to CGV and "Accord de diffusion" on the pricing page + confirmation page.
+- "Retour choix d'activation" link removed from paid confirmation pages.
 
 ## Bug Fixes
 
-- Fixed `non_authorized` → `not_authorized` endpoint name typo (3 files)
-- Fixed page B05_assign_missions.html when BW does not have newsroom feature
-- Fixed `get_pending_press_relation_bw_list()` to return actual BW of assigned user
-- Fixed `get_pending_pr_bw_info()` to actually return value
-- Fixed BW PR retrieval in confirmation page
-- Fixed typing issue in wire module filters (added `callable()` check)
+- `non_authorized` → `not_authorized` endpoint name typo (3 files).
+- `B05_assign_missions.html` fixed for BW without newsroom feature.
+- `get_pending_press_relation_bw_list` actually returns the BW of the assigned user.
+- `get_pending_pr_bw_info` actually returns a value.
+- BW PR retrieval fixed on the confirmation page.
+- Wire filter typing : `callable()` check added.
 
 ## Tests
 
-### Integration Tests
+Integration tests in `tests/b_integration/modules/bw/` (`test_bw_activation`, `test_bw_routes`, `test_stages_b1_b3`, `test_stages_b4_b6`, `test_bw_dashboard`, plus shared `conftest.py`). `send_role_invitation_mail` mocked to avoid real sends. Active users created and `g.user` set where needed.
 
-- Added comprehensive BW integration tests in `tests/b_integration/modules/bw/`
-- Split large test file into focused modules:
-  - `conftest.py` - shared fixtures
-  - `test_bw_activation.py` - activation utilities and scenarios
-  - `test_bw_routes.py` - activation route tests
-  - `test_stages_b1_b3.py` - internal management stages
-  - `test_stages_b4_b6.py` - external management stages
-  - `test_bw_dashboard.py` - dashboard and workflow tests
-- Mocked `send_role_invitation_mail` to avoid email sending in tests
-- Fixed tests by creating active users and setting `g.user` where needed
-
-### Unit Tests
-
-- Added test for `BWRoleInvitationMail` mailer
-- Added test for `ensure_roles_membership()`
-- Added tests for `change_bwmi_emails()` and `change_bwpri_emails()`
-- Added test for `bw_pr_managers_ids()`
-- Added tests for `get_current_press_relation_bw_list()`
-- Added tests for `get_pending_press_relation_bw_list()`
-- Added test for `create_new_paid_bw_record()`
+Unit tests : `BWRoleInvitationMail`, `ensure_roles_membership`, `change_bwmi_emails` / `change_bwpri_emails`, `bw_pr_managers_ids`, `get_current_press_relation_bw_list`, `get_pending_press_relation_bw_list`, `create_new_paid_bw_record`.
 
 ## Code Quality
 
-- Removed debug symbols and unused code
-- Applied linter fixes
-- Updated dependencies
+- Debug symbols + unused code removed.
+- Linter fixes ; dependencies updated.
