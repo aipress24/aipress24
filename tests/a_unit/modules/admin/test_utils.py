@@ -402,14 +402,15 @@ class TestGcAllAutoOrganisations:
         """Test gc_organisation preserves orgs with associated BW
         records even if bw_id is None."""
         org = Organisation(name="Dangling BW Org")
-        db.session.add(org)
+        user = User(email="dangling_owner@example.com", active=True)
+        db.session.add_all([org, user])
         db.session.flush()
 
         # Create BW record pointing to org, but NOT set in org.bw_id
         bw = BusinessWall(
             organisation_id=org.id,
-            owner_id=1,  # dummy
-            payer_id=1,  # dummy
+            owner_id=user.id,
+            payer_id=user.id,
             bw_type="media",
             status=BWStatus.DRAFT.value,
         )
@@ -460,14 +461,15 @@ class TestDeleteFullOrganisation:
     def test_cannot_delete_org_with_bw(self, db: SQLAlchemy) -> None:
         """Test cannot delete organization if it has an associated BW."""
         org = Organisation(name="Org With BW Delete")
-        db.session.add(org)
+        user = User(email="del_bw_owner@example.com", active=True)
+        db.session.add_all([org, user])
         db.session.flush()
 
         # Create BW record
         bw = BusinessWall(
             organisation_id=org.id,
-            owner_id=1,
-            payer_id=1,
+            owner_id=user.id,
+            payer_id=user.id,
             bw_type="media",
             status=BWStatus.DRAFT.value,
         )
