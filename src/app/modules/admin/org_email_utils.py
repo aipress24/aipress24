@@ -63,32 +63,6 @@ def change_members_emails(
     add_members_emails(org, mails_to_add)
 
 
-def add_managers_emails(org: Organisation, mails: str | list[str]) -> None:
-    """Add managers to an organisation based on email list.
-
-    Note: This flushes but does NOT commit. The caller is responsible
-    for committing at the request boundary.
-    """
-    if isinstance(mails, str):
-        mails = [mails]
-    new_mails = {m.lower().strip() for m in mails}
-    db_session = db.session
-    current_managers = [u for u in org.members if u.has_role(RoleEnum.MANAGER)]
-    current_members_emails = {u.email.lower() for u in org.members}
-    current_managers_emails = {u.email.lower() for u in current_managers}
-    # add users of the new list that are not in the current list of members
-    for mail in new_mails:
-        if mail not in current_managers_emails:
-            if mail not in current_members_emails:
-                continue  # require manager to be already member
-            user = get_user_per_email(mail)
-            if not user:
-                continue
-            add_role(user, RoleEnum.MANAGER)
-            db_session.merge(user)
-            db_session.flush()
-
-
 def change_invitations_emails(org: Organisation, raw_mails: str) -> None:
     new_mails = list(set(raw_mails.split()))  # keep mail case
     new_mails_lower = {m.lower() for m in new_mails}
