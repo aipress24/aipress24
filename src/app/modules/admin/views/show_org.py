@@ -17,7 +17,7 @@ from __future__ import annotations
 
 from typing import ClassVar, cast
 
-from flask import Response, render_template, request, url_for
+from flask import Response, flash, render_template, request, url_for
 from flask.views import MethodView
 
 from app.flask.extensions import db
@@ -99,9 +99,12 @@ class ShowOrgView(MethodView):
                 response.headers["HX-Redirect"] = current_url
 
             case "delete_org":
-                change_invitations_emails(org, "")
-                delete_full_organisation(org)
-                response.headers["HX-Redirect"] = orgs_url
+                if error := delete_full_organisation(org):
+                    flash(error, "error")
+                    response.headers["HX-Redirect"] = current_url
+                else:
+                    change_invitations_emails(org, "")
+                    response.headers["HX-Redirect"] = orgs_url
 
             case "change_emails":
                 raw_mails = request.form["content"]
