@@ -321,6 +321,37 @@ class TestRemoveUserOrganisation:
         assert result.startswith("L'utilisateur est Business Wall")
         assert user.organisation_id == org1.id
 
+    def test_cannot_remove_bw_owner_even_if_bw_id_is_none(self, db: SQLAlchemy) -> None:
+        """Test cannot remove BW owner even if Organisation.bw_id is not set.
+
+        This reproduces the bug where the check only relied on org.has_bw
+        which depends on org.bw_id being set.
+        """
+        org = Organisation(name="Org With BW")
+        # org.bw_id is None
+        user = User(email="bw_owner_dangling@example.com", active=True)
+        profile = KYCProfile()
+        user.profile = profile
+        user.organisation = org
+        db.session.add_all([org, user, profile])
+        db.session.flush()
+
+        # Create active BW owned by user, pointing to org, but NOT set in org.bw_id
+        bw = BusinessWall(
+            organisation_id=org.id,
+            owner_id=user.id,
+            payer_id=user.id,
+            bw_type="media",
+            status=BWStatus.ACTIVE.value,
+        )
+        db.session.add(bw)
+        db.session.flush()
+
+        result = remove_user_organisation(user)
+
+        assert result.startswith("L'utilisateur est Business Wall")
+        assert user.organisation_id == org.id
+
 
 class TestGcAllAutoOrganisations:
     """Test suite for gc_all_auto_organisations function."""
@@ -367,6 +398,29 @@ class TestGcAllAutoOrganisations:
         assert refreshed_org is not None
         assert refreshed_org.deleted_at is None
 
+    def test_gc_preserves_orgs_with_dangling_bw(self, db: SQLAlchemy) -> None:
+        """Test gc_organisation preserves orgs with associated BW
+        records even if bw_id is None."""
+        org = Organisation(name="Dangling BW Org")
+        db.session.add(org)
+        db.session.flush()
+
+        # Create BW record pointing to org, but NOT set in org.bw_id
+        bw = BusinessWall(
+            organisation_id=org.id,
+            owner_id=1,  # dummy
+            payer_id=1,  # dummy
+            bw_type="media",
+            status=BWStatus.DRAFT.value,
+        )
+        db.session.add(bw)
+        db.session.flush()
+
+        result = gc_organisation(org)
+
+        assert result is False
+        assert db.session.get(Organisation, org.id) is not None
+
 
 class TestDeleteFullOrganisation:
     """Test suite for delete_full_organisation function."""
@@ -385,7 +439,8 @@ class TestDeleteFullOrganisation:
         db.session.add_all([org, user1, user2, profile1, profile2])
         db.session.flush()
 
-        delete_full_organisation(org)
+        result = delete_full_organisation(org)
+        assert result == ""
 
         assert user1.organisation_id is None
         assert user2.organisation_id is None
@@ -396,14 +451,37 @@ class TestDeleteFullOrganisation:
         db.session.add(org)
         db.session.flush()
 
-        delete_full_organisation(org)
+        result = delete_full_organisation(org)
+        assert result == ""
 
         assert org.deleted_at is not None
         assert org.active is False
 
+    def test_cannot_delete_org_with_bw(self, db: SQLAlchemy) -> None:
+        """Test cannot delete organization if it has an associated BW."""
+        org = Organisation(name="Org With BW Delete")
+        db.session.add(org)
+        db.session.flush()
+
+        # Create BW record
+        bw = BusinessWall(
+            organisation_id=org.id,
+            owner_id=1,
+            payer_id=1,
+            bw_type="media",
+            status=BWStatus.DRAFT.value,
+        )
+        db.session.add(bw)
+        db.session.flush()
+
+        result = delete_full_organisation(org)
+
+        assert "a un Business Wall associé" in result
+        assert org.deleted_at is None
+
     def test_removes_leader_role_from_members(self, db: SQLAlchemy) -> None:
         """Test leader role is removed from members."""
-        org = Organisation(name="Org Leader Delete", bw_active="media", bw_id=uuid4())
+        org = Organisation(name="Org Leader Delete")
         leader_role = (
             db.session.query(Role).filter_by(name=RoleEnum.LEADER.name).first()
         )
