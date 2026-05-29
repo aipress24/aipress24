@@ -56,16 +56,17 @@ class OrganisationDetailView(MethodView):
         vm = OrgVM(org_obj)
         tabs = list(self._get_tabs(org_obj))
 
-        is_manager = (
-            org_obj.has_bw
-            and soc_user.user.is_member(org_obj.id)
-            and soc_user.user.is_manager
-        )
+        active_bw = get_active_business_wall_for_organisation(org_obj)
+        is_bw_manager = False
+        if active_bw:
+            from app.modules.bw.bw_activation.utils import is_bw_manager_or_admin
+
+            is_bw_manager = is_bw_manager_or_admin(soc_user.user, active_bw)
 
         ctx = {
             "org": vm,
             "is_member": soc_user.user.is_member(org_obj.id),
-            "is_manager": is_manager,
+            "is_bw_manager": is_bw_manager,
             "tabs": tabs,
             "title": org_obj.name,
         }
