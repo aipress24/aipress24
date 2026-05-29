@@ -73,7 +73,7 @@ def change_managers_emails(
     """
     new_mails = set(raw_mails.lower().split())
     db_session = db.session
-    current_managers = [u for u in org.members if u.is_manager]
+    current_managers = [u for u in org.members if u.has_role(RoleEnum.MANAGER)]
     current_members_emails = {u.email.lower() for u in org.members}
     current_managers_emails = {u.email.lower() for u in current_managers}
     some_new_manager = False
@@ -119,7 +119,7 @@ def add_managers_emails(org: Organisation, mails: str | list[str]) -> None:
         mails = [mails]
     new_mails = {m.lower().strip() for m in mails}
     db_session = db.session
-    current_managers = [u for u in org.members if u.is_manager]
+    current_managers = [u for u in org.members if u.has_role(RoleEnum.MANAGER)]
     current_members_emails = {u.email.lower() for u in org.members}
     current_managers_emails = {u.email.lower() for u in current_managers}
     # add users of the new list that are not in the current list of members
