@@ -114,6 +114,8 @@ class TestCreateNewFreeBwRecord:
         assert bw.payer_id == set_current_user.id
         assert bw.organisation_id == org.id
         assert bw.activated_at is not None
+        assert org.bw_id == bw.id
+        assert org.bw_active == bw.bw_type
 
     def test_creates_subscription_of_free_bw(
         self,
@@ -274,6 +276,8 @@ class TestCreateNewPaidBwRecord:
         assert bw.payer_id == set_current_user.id
         assert bw.organisation_id == org.id
         assert bw.activated_at is not None
+        assert org.bw_id == bw.id
+        assert org.bw_active == bw.bw_type
 
     def test_creates_subscription_for_paid_bw(
         self,
