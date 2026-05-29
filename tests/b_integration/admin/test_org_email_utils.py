@@ -7,6 +7,7 @@
 from __future__ import annotations
 
 from typing import TYPE_CHECKING
+from uuid import uuid4
 
 import pytest
 
@@ -18,6 +19,7 @@ from app.modules.admin.org_email_utils import (
     change_invitations_emails,
     change_members_emails,
 )
+from app.modules.bw.bw_activation.models import BusinessWall, BWStatus
 
 if TYPE_CHECKING:
     from sqlalchemy.orm import Session
@@ -152,6 +154,36 @@ class TestChangeMembersEmails:
         db_session.refresh(user2)
         assert user1.organisation_id == test_org.id
         assert user2.organisation_id == test_org.id
+
+    def test_preserve_bw_owner_when_not_in_email_list(
+        self,
+        db_session: Session,
+        test_org: Organisation,
+        test_users: list[User],
+    ):
+        """Test that BW owner is not removed even if missing from sync list."""
+        user = test_users[0]
+        user.organisation_id = test_org.id
+        test_org.bw_id = uuid4()
+        db_session.flush()
+
+        # Create active BW owned by user
+        bw = BusinessWall(
+            id=test_org.bw_id,
+            organisation_id=test_org.id,
+            owner_id=user.id,
+            payer_id=user.id,
+            bw_type="media",
+            status=BWStatus.ACTIVE.value,
+        )
+        db_session.add(bw)
+        db_session.flush()
+
+        # Try to sync with empty email list
+        change_members_emails(test_org, "")
+
+        db_session.refresh(user)
+        assert user.organisation_id == test_org.id
 
 
 class TestChangeInvitationsEmails:
