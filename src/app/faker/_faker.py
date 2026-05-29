@@ -112,11 +112,7 @@ class FakerService:
             profile.induce_organisation_name(organisation.name)
             self.session.flush()
             if len(organisation.members) == 1:
-                add_role(user, "MANAGER")
                 add_role(user, "LEADER")
-            elif random.randint(1, 100) <= 30:
-                # 30% of other members become manager too
-                add_role(user, "MANAGER")
 
         self.session.flush()
 

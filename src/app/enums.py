@@ -15,7 +15,7 @@ class RoleEnum(StrEnum):
 
     # for BW organisations
     LEADER = "leader"
-    MANAGER = "manager"
+    MANAGER = "manager"  # deprecated
 
     # User types by community
     PRESS_MEDIA = "journalist"

@@ -17,7 +17,7 @@ COMMUNITY_TO_ROLE = {
 
 # Roles that are "community" roles in the sense above. A user should
 # have AT MOST ONE of these at any time, matching their current KYC
-# profile's community. Other roles (ADMIN, MANAGER, LEADER, ...) are
+# profile's community. Other roles (ADMIN, LEADER, ...) are
 # orthogonal and are not touched by this module.
 COMMUNITY_ROLE_NAMES: frozenset[str] = frozenset(
     role.name for role in COMMUNITY_TO_ROLE.values()
