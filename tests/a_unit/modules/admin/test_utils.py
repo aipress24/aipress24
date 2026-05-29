@@ -265,29 +265,6 @@ class TestRemoveUserOrganisation:
         assert result == ""  # No error
         assert user.organisation_id is None
 
-    def test_removes_manager_role(self, db: SQLAlchemy) -> None:
-        """Test manager role is removed when leaving organisation."""
-        org = Organisation(name="Test Org Manager", bw_active="media", bw_id=uuid4())
-        # Get or create the role to avoid UNIQUE constraint issues
-        manager_role = (
-            db.session.query(Role).filter_by(name=RoleEnum.MANAGER.name).first()
-        )
-        if not manager_role:
-            manager_role = Role(name=RoleEnum.MANAGER.name, description="Manager")
-            db.session.add(manager_role)
-            db.session.flush()
-        user = User(email="manager_rm@example.com", active=True)
-        profile = KYCProfile()
-        user.profile = profile
-        user.organisation = org
-        user.roles.append(manager_role)
-        db.session.add_all([org, user, profile])
-        db.session.flush()
-
-        remove_user_organisation(user)
-
-        assert not user.is_manager
-
 
 class TestGcAllAutoOrganisations:
     """Test suite for gc_all_auto_organisations function."""

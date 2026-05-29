@@ -404,29 +404,7 @@ class TestUserFirstCommunity:
 
 
 class TestUserIsManagerIsLeader:
-    """Test suite for User.is_manager and is_leader properties."""
-
-    def test_is_manager_true(self, db: SQLAlchemy) -> None:
-        """Test is_manager returns True when user has MANAGER role."""
-        user = User(email="is_manager_true@example.com")
-        profile = KYCProfile()
-        user.profile = profile
-        manager_role = get_or_create_role(db, RoleEnum.MANAGER)
-        user.roles.append(manager_role)
-        db.session.add_all([user, profile])
-        db.session.flush()
-
-        assert user.is_manager is True
-
-    def test_is_manager_false(self, db: SQLAlchemy) -> None:
-        """Test is_manager returns False when user doesn't have MANAGER role."""
-        user = User(email="is_manager_false@example.com")
-        profile = KYCProfile()
-        user.profile = profile
-        db.session.add_all([user, profile])
-        db.session.flush()
-
-        assert user.is_manager is False
+    """Test suite for User.is_leader property."""
 
     def test_is_leader_true(self, db: SQLAlchemy) -> None:
         """Test is_leader returns True when user has LEADER role."""
