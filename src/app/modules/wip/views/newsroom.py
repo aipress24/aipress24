@@ -18,10 +18,7 @@ from app.modules.bw.bw_activation.user_utils import (
     get_selected_business_wall_for_user,
 )
 from app.modules.wip import blueprint
-from app.modules.wip.pr_access import (
-    user_can_access_newsroom,
-    user_is_acting_as_pr_manager,
-)
+from app.modules.wip.pr_access import user_can_access_newsroom
 
 from ._common import count_owned_non_deleted, count_visible_sujets, get_secondary_menu
 

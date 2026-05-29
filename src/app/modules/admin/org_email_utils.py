@@ -4,10 +4,7 @@
 
 from __future__ import annotations
 
-from app.enums import RoleEnum
-from app.flask.extensions import db
 from app.models.organisation import Organisation
-from app.services.roles import add_role
 
 from .invitations import (
     cancel_invitation_users,
