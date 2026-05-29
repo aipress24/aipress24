@@ -428,7 +428,7 @@ class InscriptionsExporter(BaseExporter):
             case "dirigeant":
                 return user.is_leader
             case "manager":
-                return user.is_manager
+                return user.has_role(RoleEnum.MANAGER)
             case "submited_at" | "validated_at" | "modified_at":
                 return self.get_datetime_attr(user, name)
             case "roles":

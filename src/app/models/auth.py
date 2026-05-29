@@ -309,10 +309,6 @@ class User(LifeCycleMixin, Addressable, UserMixin, Base):
         return self.selected_bw_id != own_bw_id
 
     @property
-    def is_manager(self) -> bool:
-        return self.has_role(RoleEnum.MANAGER)
-
-    @property
     def is_leader(self) -> bool:
         return self.has_role(RoleEnum.LEADER)
 
