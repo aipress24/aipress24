@@ -118,6 +118,23 @@ def flush_session(db_session: scoped_session[Session]) -> str:
     return error
 
 
+def _check_bw_owner_removal(user: User) -> str:
+    """Check if the user is a BW owner and cannot be removed from their org."""
+    org = user.organisation
+    if org and org.has_bw:
+        from app.modules.bw.bw_activation.user_utils import (
+            get_active_business_wall_for_organisation,
+        )
+
+        bw = get_active_business_wall_for_organisation(org)
+        if bw and bw.owner_id == user.id:
+            return (
+                "L'utilisateur est Business Wall owner du BW de "
+                "l'organisation et ne peut pas en être retiré."
+            )
+    return ""
+
+
 def set_user_organisation(user: User, organisation: Organisation) -> str:
     """Change the user's Organisation with the provided one, adapting
     (some) KYC fields.
@@ -126,6 +143,10 @@ def set_user_organisation(user: User, organisation: Organisation) -> str:
     for committing at the request boundary.
     """
     db_session = db.session
+
+    if error := _check_bw_owner_removal(user):
+        return error
+
     _remove_user_organisation(user)
     _remove_user_profile_organisation(user)
     _set_user_organisation_id(user, organisation.id)
@@ -226,6 +247,10 @@ def remove_user_organisation(user: User) -> str:
     for committing at the request boundary.
     """
     db_session = db.session
+
+    if error := _check_bw_owner_removal(user):
+        return error
+
     _remove_user_organisation(user)
     _remove_user_profile_organisation(user)
     _mark_user_as_modified(user)
@@ -243,6 +268,10 @@ def set_user_organisation_from_ids(user_id: int, org_id: int) -> str:
     user = get_obj(user_id, User)
     organisation = get_obj(org_id, Organisation)  # Fixed: was user_id
     db_session = db.session
+
+    if error := _check_bw_owner_removal(user):
+        return error
+
     _remove_user_organisation(user)
     _remove_user_profile_organisation(user)
     _set_user_organisation_id(user, organisation.id)
