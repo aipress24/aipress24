@@ -9,7 +9,7 @@ from __future__ import annotations
 from typing import ClassVar, cast
 
 from arrow import now
-from flask import Response, render_template, request, url_for
+from flask import Response, flash, render_template, request, url_for
 from flask.views import MethodView
 from flask_login import current_user
 from loguru import logger
@@ -194,8 +194,10 @@ class ShowUserView(MethodView):
                 response = Response("")
                 response.headers["HX-Redirect"] = url_for("admin.users")
             case "remove_org":
-                self._remove_organisation(user)
-                db.session.commit()
+                if error := self._remove_organisation(user):
+                    flash(error, "error")
+                else:
+                    db.session.commit()
                 response = Response("")
                 response.headers["HX-Redirect"] = url_for("admin.show_user", uid=uid)
             case "grant_admin":
@@ -228,14 +230,16 @@ class ShowUserView(MethodView):
 
         user_deactivated.send(user)
 
-    def _remove_organisation(self, user: User) -> None:
+    def _remove_organisation(self, user: User) -> str:
         """Remove user from organisation.
 
         Note: Does NOT commit - caller is responsible for committing.
         """
         previous_organisation = user.organisation
-        remove_user_organisation(user)
-        gc_organisation(previous_organisation)
+        error = remove_user_organisation(user)
+        if not error:
+            gc_organisation(previous_organisation)
+        return error
 
     def _grant_admin(self, user: User) -> None:
         """Grant ADMIN role to the user.
