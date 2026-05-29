@@ -121,13 +121,17 @@ def flush_session(db_session: scoped_session[Session]) -> str:
 def _check_bw_owner_removal(user: User) -> str:
     """Check if the user is a BW owner and cannot be removed from their org."""
     org = user.organisation
-    if org and org.has_bw:
-        from app.modules.bw.bw_activation.user_utils import (
-            get_active_business_wall_for_organisation,
-        )
+    if org:
+        from app.modules.bw.bw_activation.models import BusinessWall
 
-        bw = get_active_business_wall_for_organisation(org)
-        if bw and bw.owner_id == user.id:
+        # Query for any BusinessWall associated with this organisation
+        # where the user is the owner
+        stmt = select(BusinessWall).where(
+            BusinessWall.organisation_id == org.id,
+            BusinessWall.owner_id == user.id,
+        )
+        bw = db.session.execute(stmt).scalars().first()
+        if bw:
             return (
                 "L'utilisateur est Business Wall owner du BW de "
                 "l'organisation et ne peut pas en être retiré."
@@ -206,6 +210,18 @@ def gc_organisation(organisation: Organisation | None) -> bool:
     """
     if not organisation or organisation.has_bw or len(organisation.members) > 0:
         return False
+
+    # Check if ANY BusinessWall exists for this organization (even if org.bw_id is not set)
+    from app.modules.bw.bw_activation.models import BusinessWall
+
+    stmt = (
+        select(func.count())
+        .select_from(BusinessWall)
+        .where(BusinessWall.organisation_id == organisation.id)
+    )
+    if db.session.scalar(stmt) > 0:
+        return False
+
     # AUTO organisation with zero member: delete it
     db_session = db.session
     if not _delete_organisation_from_db(db_session, organisation):
@@ -218,11 +234,19 @@ def gc_all_auto_organisations() -> int:
 
     Return True is deletion occured.
     """
+    from app.modules.bw.bw_activation.models import BusinessWall
+
     db_session = db.session
+    # Subquery to find all organisation IDs that have a BusinessWall
+    bw_org_ids_stmt = select(BusinessWall.organisation_id).where(
+        BusinessWall.organisation_id.is_not(None)
+    )
+
     stmt = select(Organisation).where(
         Organisation.deleted_at.is_(None),
         Organisation.bw_id.is_(None),
         ~Organisation.members.any(),
+        ~Organisation.id.in_(bw_org_ids_stmt),
     )
     empty_orgs = db_session.scalars(stmt)
     counter = 0

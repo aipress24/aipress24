@@ -438,6 +438,13 @@ def _activate_bw_from_checkout(
 
     _bind_customer_to_organisation(bw, customer_id)
 
+    # Link organisation to BW
+    if bw.organisation_id:
+        org = db.session.get(Organisation, bw.organisation_id)
+        if org:
+            org.bw_id = bw.id
+            org.bw_active = bw.bw_type
+
     bw.status = BWStatus.ACTIVE.value
     info(
         f"BW {bw.id} activated via Stripe Checkout "
