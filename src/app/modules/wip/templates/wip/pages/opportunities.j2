@@ -21,10 +21,14 @@
                  class="underline">
             {{ contact.journaliste.name }}
           </a></td>
-          <td><a href="{{ url_for(organisation) }}"
+          <td>
+            {% if organisation %}
+              <a href="{{ url_for(organisation) }}"
                  class="underline">
-            {{ organisation.name }}
-          </a></td>
+                {{ organisation.name }}
+              </a>
+            {% endif %}
+          </td>
           <td><a href="{{ url_for(".media_opportunity", id=contact.id) }}"
                  class="underline">
             {{ contact.avis_enquete.titre }}
