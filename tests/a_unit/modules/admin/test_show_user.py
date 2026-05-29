@@ -49,10 +49,6 @@ class StubUser:
     _roles: list[StubRole] = field(default_factory=list)
 
     @property
-    def is_manager(self) -> bool:
-        return any(r.name == RoleEnum.MANAGER.name for r in self._roles)
-
-    @property
     def is_leader(self) -> bool:
         return any(r.name == RoleEnum.LEADER.name for r in self._roles)
 
@@ -62,20 +58,6 @@ class StubUser:
     def add_role(self, role_enum: RoleEnum) -> None:
         if not any(r.name == role_enum.name for r in self._roles):
             self._roles.append(StubRole(name=role_enum.name))
-
-
-def toggle_manager_logic(user: StubUser) -> bool:
-    """Mirror of _toggle_manager logic for testing.
-
-    Returns True if the toggle was performed, False if skipped.
-    """
-    if not user.organisation or user.organisation.is_auto:
-        return False
-    if user.is_manager:
-        user.remove_role(RoleEnum.MANAGER)
-    else:
-        user.add_role(RoleEnum.MANAGER)
-    return True
 
 
 def toggle_leader_logic(user: StubUser) -> bool:
@@ -93,87 +75,52 @@ def toggle_leader_logic(user: StubUser) -> bool:
 
 
 class TestToggleRoleLogic:
-    """Test toggle role logic for both manager and leader roles."""
+    """Test toggle role logic for leader role."""
 
-    @pytest.mark.parametrize(
-        ("toggle_func", "role_enum", "check_attr"),
-        [
-            (toggle_manager_logic, RoleEnum.MANAGER, "is_manager"),
-            (toggle_leader_logic, RoleEnum.LEADER, "is_leader"),
-        ],
-    )
-    def test_toggle_adds_role(self, toggle_func, role_enum, check_attr) -> None:
+    def test_toggle_adds_role(self) -> None:
         """Test toggling adds role when not present."""
         org = StubOrganisation()
         user = StubUser(organisation=org)
 
-        toggle_func(user)
+        toggle_leader_logic(user)
 
-        assert getattr(user, check_attr) is True
+        assert user.is_leader is True
 
-    @pytest.mark.parametrize(
-        ("toggle_func", "role_enum", "check_attr"),
-        [
-            (toggle_manager_logic, RoleEnum.MANAGER, "is_manager"),
-            (toggle_leader_logic, RoleEnum.LEADER, "is_leader"),
-        ],
-    )
-    def test_toggle_removes_role(self, toggle_func, role_enum, check_attr) -> None:
+    def test_toggle_removes_role(self) -> None:
         """Test toggling removes role when present."""
         org = StubOrganisation()
-        user = StubUser(organisation=org, _roles=[StubRole(role_enum.name)])
+        user = StubUser(organisation=org, _roles=[StubRole(RoleEnum.LEADER.name)])
 
-        toggle_func(user)
+        toggle_leader_logic(user)
 
-        assert getattr(user, check_attr) is False
+        assert user.is_leader is False
 
-    @pytest.mark.parametrize(
-        ("toggle_func", "check_attr"),
-        [
-            (toggle_manager_logic, "is_manager"),
-            (toggle_leader_logic, "is_leader"),
-        ],
-    )
-    def test_toggle_no_org_does_nothing(self, toggle_func, check_attr) -> None:
+    def test_toggle_no_org_does_nothing(self) -> None:
         """Test toggling with no org does nothing."""
         user = StubUser(organisation=None)
 
-        result = toggle_func(user)
+        result = toggle_leader_logic(user)
 
         assert result is False
-        assert getattr(user, check_attr) is False
+        assert user.is_leader is False
 
-    @pytest.mark.parametrize(
-        ("toggle_func", "check_attr"),
-        [
-            (toggle_manager_logic, "is_manager"),
-            (toggle_leader_logic, "is_leader"),
-        ],
-    )
-    def test_toggle_auto_org_does_nothing(self, toggle_func, check_attr) -> None:
+    def test_toggle_auto_org_does_nothing(self) -> None:
         """Test toggling with AUTO org does nothing."""
         org = StubOrganisation(bw_id=None)
         user = StubUser(organisation=org)
 
-        result = toggle_func(user)
+        result = toggle_leader_logic(user)
 
         assert result is False
-        assert getattr(user, check_attr) is False
+        assert user.is_leader is False
 
-    @pytest.mark.parametrize(
-        ("toggle_func", "check_attr"),
-        [
-            (toggle_manager_logic, "is_manager"),
-            (toggle_leader_logic, "is_leader"),
-        ],
-    )
-    def test_toggle_double_toggle(self, toggle_func, check_attr) -> None:
+    def test_toggle_double_toggle(self) -> None:
         """Test toggling twice returns to original state."""
         org = StubOrganisation()
         user = StubUser(organisation=org)
 
-        toggle_func(user)
-        assert getattr(user, check_attr) is True
+        toggle_leader_logic(user)
+        assert user.is_leader is True
 
-        toggle_func(user)
-        assert getattr(user, check_attr) is False
+        toggle_leader_logic(user)
+        assert user.is_leader is False

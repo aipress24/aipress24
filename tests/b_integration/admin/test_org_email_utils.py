@@ -15,9 +15,7 @@ from app.models.auth import KYCProfile, Role, User
 from app.models.invitation import Invitation
 from app.models.organisation import Organisation
 from app.modules.admin.org_email_utils import (
-    add_managers_emails,
     change_invitations_emails,
-    change_managers_emails,
     change_members_emails,
 )
 
@@ -32,17 +30,6 @@ def test_org(db_session: Session) -> Organisation:
     db_session.add(org)
     db_session.flush()
     return org
-
-
-@pytest.fixture
-def manager_role(db_session: Session) -> Role:
-    """Get or create MANAGER role."""
-    role = db_session.query(Role).filter_by(name=RoleEnum.MANAGER.name).first()
-    if not role:
-        role = Role(name=RoleEnum.MANAGER.name, description="Manager")
-        db_session.add(role)
-        db_session.flush()
-    return role
 
 
 @pytest.fixture
@@ -165,180 +152,6 @@ class TestChangeMembersEmails:
         db_session.refresh(user2)
         assert user1.organisation_id == test_org.id
         assert user2.organisation_id == test_org.id
-
-
-class TestChangeManagersEmails:
-    """Test suite for change_managers_emails function."""
-
-    def test_add_manager_to_existing_member(
-        self,
-        db_session: Session,
-        test_org: Organisation,
-        test_users: list[User],
-        manager_role: Role,
-    ):
-        """Test adding manager role to existing member."""
-        user = test_users[0]
-        user.organisation_id = test_org.id
-        db_session.flush()
-
-        change_managers_emails(test_org, user.email)
-
-        db_session.refresh(user)
-        assert RoleEnum.MANAGER.name in [r.name for r in user.roles]
-
-    def test_remove_manager_role(
-        self,
-        db_session: Session,
-        test_org: Organisation,
-        test_users: list[User],
-        manager_role: Role,
-    ):
-        """Test removing manager role."""
-        user1, user2 = test_users[0], test_users[1]
-        user1.organisation_id = test_org.id
-        user2.organisation_id = test_org.id
-        user1.roles.append(manager_role)
-        user2.roles.append(manager_role)
-        db_session.flush()
-
-        # Update to only have user1 as manager
-        change_managers_emails(test_org, user1.email)
-
-        db_session.refresh(user1)
-        db_session.refresh(user2)
-        assert RoleEnum.MANAGER.name in [r.name for r in user1.roles]
-        assert RoleEnum.MANAGER.name not in [r.name for r in user2.roles]
-
-    def test_skip_non_members(
-        self,
-        db_session: Session,
-        test_org: Organisation,
-        test_users: list[User],
-        manager_role: Role,
-    ):
-        """Test that non-members cannot be made managers."""
-        user = test_users[0]
-        assert user.organisation_id is None
-
-        change_managers_emails(test_org, user.email)
-
-        db_session.refresh(user)
-        assert RoleEnum.MANAGER.name not in [r.name for r in user.roles]
-
-    def test_keep_one_manager_flag(
-        self,
-        db_session: Session,
-        test_org: Organisation,
-        test_users: list[User],
-        manager_role: Role,
-    ):
-        """Test keep_one flag prevents removing last manager."""
-        user = test_users[0]
-        user.organisation_id = test_org.id
-        user.roles.append(manager_role)
-        db_session.flush()
-
-        # Try to remove all managers with keep_one=True
-        change_managers_emails(test_org, "", keep_one=True)
-
-        db_session.refresh(user)
-        # Should still be manager
-        assert RoleEnum.MANAGER.name in [r.name for r in user.roles]
-
-    def test_case_insensitive_matching(
-        self,
-        db_session: Session,
-        test_org: Organisation,
-        test_users: list[User],
-        manager_role: Role,
-    ):
-        """Test case-insensitive email matching."""
-        user = test_users[0]
-        user.organisation_id = test_org.id
-        db_session.flush()
-
-        change_managers_emails(test_org, user.email.upper())
-
-        db_session.refresh(user)
-        assert RoleEnum.MANAGER.name in [r.name for r in user.roles]
-
-
-class TestAddManagersEmails:
-    """Test suite for add_managers_emails function."""
-
-    def test_add_manager_from_string(
-        self,
-        db_session: Session,
-        test_org: Organisation,
-        test_users: list[User],
-        manager_role: Role,
-    ):
-        """Test adding manager from string email."""
-        user = test_users[0]
-        user.organisation_id = test_org.id
-        db_session.flush()
-
-        add_managers_emails(test_org, user.email)
-
-        db_session.refresh(user)
-        assert RoleEnum.MANAGER.name in [r.name for r in user.roles]
-
-    def test_add_managers_from_list(
-        self,
-        db_session: Session,
-        test_org: Organisation,
-        test_users: list[User],
-        manager_role: Role,
-    ):
-        """Test adding managers from list of emails."""
-        user1, user2 = test_users[0], test_users[1]
-        user1.organisation_id = test_org.id
-        user2.organisation_id = test_org.id
-        db_session.flush()
-
-        add_managers_emails(test_org, [user1.email, user2.email])
-
-        db_session.refresh(user1)
-        db_session.refresh(user2)
-        assert RoleEnum.MANAGER.name in [r.name for r in user1.roles]
-        assert RoleEnum.MANAGER.name in [r.name for r in user2.roles]
-
-    def test_skip_non_members(
-        self,
-        db_session: Session,
-        test_org: Organisation,
-        test_users: list[User],
-        manager_role: Role,
-    ):
-        """Test that non-members are skipped."""
-        user = test_users[0]
-        assert user.organisation_id is None
-
-        add_managers_emails(test_org, user.email)
-
-        db_session.refresh(user)
-        assert RoleEnum.MANAGER.name not in [r.name for r in user.roles]
-
-    def test_idempotent_add_existing_manager(
-        self,
-        db_session: Session,
-        test_org: Organisation,
-        test_users: list[User],
-        manager_role: Role,
-    ):
-        """Test that adding existing manager is idempotent."""
-        user = test_users[0]
-        user.organisation_id = test_org.id
-        user.roles.append(manager_role)
-        db_session.flush()
-
-        initial_roles_count = len(user.roles)
-        add_managers_emails(test_org, user.email)
-
-        db_session.refresh(user)
-        # Should not duplicate the role
-        assert len(user.roles) == initial_roles_count
 
 
 class TestChangeInvitationsEmails:
