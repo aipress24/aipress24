@@ -29,9 +29,12 @@ from app.modules.bw.bw_activation.bw_creation import (
     create_new_free_bw_record,
     create_new_paid_bw_record,
 )
-from app.modules.bw.bw_activation.config import BW_TYPES
+from app.modules.bw.bw_activation.config import BW_TYPES, BWTYPE_ALLOWED_PRODUCTS
 from app.modules.bw.bw_activation.models import (
+    BusinessWall,
     BWStatus,
+    Subscription,
+    SubscriptionStatus,
 )
 from app.modules.bw.bw_activation.user_utils import current_business_wall
 from app.modules.bw.bw_activation.utils import (
@@ -40,8 +43,9 @@ from app.modules.bw.bw_activation.utils import (
     is_bw_manager_or_admin,
 )
 from app.services.stripe.utils import (
+    fetch_bw_product_list,
     get_stripe_public_key,
-    load_pricing_table_id,
+    # load_pricing_table_id,
 )
 
 if TYPE_CHECKING:
@@ -262,14 +266,58 @@ def payment(bw_type: str):
     }
 
     if current_app.config.get("STRIPE_LIVE_ENABLED"):
+        warn("in /payment/<bw_type> live")
         draft_bw = _get_or_create_draft_bw_for_checkout(g.user, bw_type)
+        warn(draft_bw)
         if draft_bw is not None:
+            stripe_public_key = get_stripe_public_key()
+            warn("stripe_public_key", stripe_public_key)
+            # pricing_table_id = load_pricing_table_id(bw_type)
+
+            prod_list = fetch_bw_product_list()
+            prod_tmp_info = []
+            for p in prod_list:
+                prod_tmp_info.append(
+                    {
+                        "name": str(p["name"]),
+                        "default_price": str(p["default_price"]),
+                        "metadata": p["metadata"],
+                    }
+                )
+            warn("prod_tmp_info", prod_tmp_info)
+            warn("bw_type", bw_type)
+
+            allowed_products = BWTYPE_ALLOWED_PRODUCTS.get(bw_type, [])
+
+            if not allowed_products:
+                warn("BUG: no allowed_products for", bw_type)
+                return render_template("bw_activation/payment.html", **ctx)
+
+            # FIXME: later let the user select the right one if choice is possible
+            warn(allowed_products)
+            product_reference = allowed_products[0]
+
+            chosen_product = None
+            for p in prod_tmp_info:
+                if p["metadata"]["Subs"].lower() == product_reference.lower():
+                    chosen_product = p
+                    break
+
+            if not chosen_product:
+                return render_template("bw_activation/payment.html", **ctx)
+
+            product_name = chosen_product["name"]
+            warn(product_name)
+            price_id = chosen_product["default_price"]
+
+            # warn("pricing_table_id", pricing_table_id)
             ctx.update(
                 {
                     "stripe_live": True,
                     "bw_id": str(draft_bw.id),
-                    "pricing_table_id": load_pricing_table_id(bw_type),
-                    "stripe_public_key": get_stripe_public_key(),
+                    # "pricing_table_id": pricing_table_id,
+                    "pricing_table_id": price_id,
+                    "stripe_public_key": stripe_public_key,
                     "user_email": g.user.email,
                 }
             )
@@ -336,19 +384,13 @@ def stripe_info(bw_type: str):
     return render_template("bw_activation/stripe_info.html", **ctx)
 
 
-def _get_or_create_draft_bw_for_checkout(user: User, bw_type: str):
+def _get_or_create_draft_bw_for_checkout(
+    user: User, bw_type: str
+) -> BusinessWall | None:
     """Return a DRAFT Business Wall for this user/bw_type, creating one
     if none exists yet. Used as the target of the Stripe Pricing Table's
     `client-reference-id`.
     """
-
-    from app.flask.extensions import db
-    from app.modules.bw.bw_activation.models import (
-        BusinessWall,
-        BWStatus,
-        Subscription,
-        SubscriptionStatus,
-    )
 
     org = getattr(user, "organisation", None)
     if org is None:
