@@ -1,60 +1,33 @@
 # Changes Week 13, 2026
 
-## Image Cropping - All Content Types
+## Image Cropping — All Content Types
 
-Image cropping (client-side recadrage) has been deployed across all content types in the application.
+Client-side recadrage deployed across all content surfaces.
 
-### Articles
+- **Articles** : crop before upload. New `extract_image_from_request()` utility for consistent image handling ; original filename retrieved from uploads ; image-form UI improved.
+- **Communiqués & Events** : same crop feature + UI. Legacy Stimulus test code removed from events template.
+- **KYC / User Profile** : crop widget for carte-de-presse photo ; KYC image widgets merged into one component ; new square photo form ; photo portrait copyright now optional ; new `User.photo_image_copyright` field + migration ; KYC model bumped to version 45.
 
-- Article images can now be cropped before upload
-- New utility function `extract_image_from_request()` for consistent image handling
-- Retrieval of original filename from uploaded images
-- Improved UI for article image forms
+## BusinessWall — Image Management
 
-### Communiqués & Events
+Copyright fields :
 
-- Same crop feature and UI applied to Communiqués and Events
-- Removed legacy Stimulus test code from events template
+- New `logo_image_copyright` and `cover_image_copyright` fields on BW + migration.
+- Integrated into BW forms ; crop support for BW logo / cover.
 
-### KYC / User Profile
+Gallery (new feature) :
 
-- Crop widget for carte de presse photo
-- Merged KYC image widgets into unified component
-- New square photo form in KYC
-- Photo portrait copyright now optional
-- New `User.photo_image_copyright` field + migration
-- KYC model updated to version 45
+- New `BWImage` model + migration.
+- `signed_url()` method on `BWImage` for direct S3 content access.
+- Gallery management forms in the BW dashboard.
+- `MAX_GALLERY_IMAGES = 10`, enforced.
+- Image numbering starts at 1 (applied to all galleries : BW, articles, communiqués, events).
+- BW gallery images displayed in Organisation slider (SWORK) ; deprecated `screenshot` reference removed.
 
-## BusinessWall - Image Management
+Misc : BW registration step numbering corrected.
 
-### Copyright Fields
+## Infrastructure & Tests
 
-- New `logo_image_copyright` and `cover_image_copyright` fields on BusinessWall model
-- Database migration for new fields
-- Integrated into BW forms
-- Crop support for BW logo and cover images
-
-### Gallery (New Feature)
-
-- New `BWImage` model for managing BW gallery images
-- Database migration for BWImage
-- `signed_url()` method on BWImage for direct S3 content access
-- Gallery management forms in BW dashboard
-- `MAX_GALLERY_IMAGES` constant (10) with enforcement
-- Image numbering starts from 1 (applied to all galleries: BW, articles, communiqués, events)
-- BW gallery images displayed in Organisation slider (SWORK)
-- Removed deprecated organisation screenshot reference in SWORK
-
-### Other BW Fixes
-
-- Corrected numbering of BW registration steps
-
-## Infrastructure
-
-- Hop3 deployment configuration (work in progress)
-- Dependency updates
-
-## Tests
-
-- New E2E tests for ontology/taxonomy manager (27 tests, coverage 54% → 96%)
-- Improved MinIO availability detection: now verifies credentials (via `boto3.list_buckets()`) in addition to TCP connectivity, properly skipping storage-dependent tests when MinIO is unavailable or misconfigured
+- Hop3 deployment configuration (WIP) ; dependency updates.
+- 27 new E2E tests for ontology / taxonomy manager (coverage **54 % → 96 %**).
+- `is_minio_available` improved : checks credentials via `boto3.list_buckets()` in addition to TCP — storage-dependent tests skip cleanly when MinIO is unavailable or misconfigured.

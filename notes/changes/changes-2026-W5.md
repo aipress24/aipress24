@@ -1,82 +1,35 @@
 # Changes Week 5, 2026
 
-## Avis d'Enquête - Expert Targeting Selectors
+## Avis d'Enquête — Expert Targeting Selectors
 
-Major expansion of the expert targeting system with 9 new selectors for fine-grained expert filtering.
+9 new selectors added for fine-grained expert filtering : `TypeEntreprisePresseMedias`, `TypePresseMedias`, `Langues`, `FonctionJournalisme`, `FonctionPolitiquesAdministratives`, `FonctionOrganisationsPrivees`, `FonctionAssociationsSyndicats`, `CompetencesGenerales`, `CompetencesJournalisme`.
 
-### New Selectors
+Selectors refactored into a dedicated `expert_selectors.py` (split from `expert_filter.py`) ; each selector follows the same pattern with full test coverage.
 
-| Selector | Purpose |
-|----------|---------|
-| `TypeEntreprisePresseMediasSelector` | Filter by press/media company type |
-| `TypePresseMediasSelector` | Filter by press/media type |
-| `LanguesSelector` | Filter by languages |
-| `FonctionJournalismeSelector` | Filter by journalism function |
-| `FonctionPolitiquesAdministrativesSelector` | Filter by political/administrative function |
-| `FonctionOrganisationsPriveesSelector` | Filter by private organization function |
-| `FonctionAssociationsSyndicatsSelector` | Filter by association/union function |
-| `CompetencesGeneralesSelector` | Filter by general competencies |
-| `CompetencesJournalismeSelector` | Filter by journalism competencies |
+## Avis d'Enquête — UI/UX
 
-### Architecture
-
-- Refactored selectors into dedicated `expert_selectors.py` module (split from `expert_filter.py`)
-- Each selector follows consistent pattern with full test coverage
-
-## Avis d'Enquête - UI/UX Improvements
-
-### Modification Tracking
-
-- AvisEnquete lines now sorted by modification time (null values at end)
-- Modification date displayed in the interface
-- `LifecycleMixin` now sets `modified_at` to `created_at` on creation
-- Enabled event listener in `LifecycleMixin` for automatic timestamp updates
-
-### Terminology Update
-
-- Replaced 'expert' with 'profil' or 'contact' in UI for clarity
-
-### RDV Details Page
-
-- Now displays contextual return link:
-  - Expert: link to opportunities list
-  - Journalist: link to RDV list
+- Lines now sorted by modification time (null values last) ; modification date displayed.
+- `LifecycleMixin` sets `modified_at = created_at` on creation ; event listener enabled for automatic updates.
+- UI terminology : 'expert' → 'profil' or 'contact' for clarity.
+- RDV details : contextual return link (expert → opportunities ; journalist → RDV list).
 
 ## News Tab View
 
-### Improvements
-
-- Renamed label: "tab view" → "vue générale"
-- Fixed filter removal behavior (now works as expected)
+- Label "tab view" → "vue générale".
+- Fixed filter-removal behaviour.
 
 ## Bug Fixes
 
-- **Organization Invitation**: Fixed accepting invitation to join an organization (was broken)
-- **BW Routing**: Fixed routing on Business Wire page to org-profile
-- **Missing Images**: Show blank image for organisations when image bucket is broken
-- **Slider Images**: Display blank image for missing slider images instead of error
+- Organisation invitation acceptance fixed (was broken).
+- BW page routing to `org-profile` fixed.
+- Blank image fallback for organisations / sliders when bucket is broken.
 
 ## Testing
 
-### New Selector Tests
-
-Comprehensive test coverage for all new expert targeting selectors:
-
-- `test_TypeEntreprisePresseMediasSelector`
-- `test_TypePresseMediasSelector`
-- `test_LanguesSelector`
-- `test_FonctionJournalismeSelector`
-- `test_FonctionPolitiquesAdministrativesSelector`
-- `test_FonctionOrganisationsPriveesSelector`
-- `test_FonctionAssociationsSyndicatsSelector`
-- `test_CompetencesGeneralesSelector`
-- `test_CompetencesJournalismeSelector`
-
-### Test Fixes
-
-- Fixed `test_expert_filter_service.py`
+- Tests for all 9 new selectors.
+- Fixed `test_expert_filter_service.py`.
 
 ## Infrastructure
 
-- Disabled Alpine CI builds (temporarily ignored)
-- Version bump: 2026.01.23.1
+- Alpine CI builds temporarily disabled.
+- Version bump : 2026.01.23.1.

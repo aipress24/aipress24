@@ -1,152 +1,62 @@
 # Changes Weeks 3-4, 2026
 
-## Avis d'Enquête - RDV Workflow Completion
+## Avis d'Enquête — RDV Workflow Completion
 
-Full completion of the RDV (rendez-vous) notification and interaction workflow.
+Confirmation popups on all critical RDV actions (acceptance, slot proposal, accept / decline, decline-all, cancellation by either party).
 
-### Confirmation Popups
+Full email notification chain :
 
-All critical RDV actions now require user confirmation via popup dialogs:
+- `ContactAvisEnqueteAcceptedMail` — expert → journalist on acceptance.
+- `ContactAvisEnqueteRDVProposalMail` — journalist → expert on slot proposal.
+- `ContactAvisEnqueteRDVAcceptedMail` — expert → journalist on RDV acceptance.
+- `ContactAvisEnqueteRDVConfirmedMail` — journalist → expert on confirmation.
+- `ContactAvisEnqueteRDVCancelledMail` — cancellation notification.
 
-- **Acceptance**: Expert confirms acceptance of Avis d'Enquête
-- **Proposal**: Journalist confirms RDV time slot proposal
-- **Accept/Decline RDV**: Expert confirms response to proposed slots
-- **Decline All**: Expert can decline all proposed RDV dates at once
-- **Cancellation**: Both journalist and expert can cancel confirmed RDV
+Opportunities view : new status messages ("Attente de dates", "Opportunité déclinée", "Nouvelle opportunité"), confirmed RDV displayed in list, reverse-date sort, auto-redirect after response, auto-flip `AvisEnquete` DRAFT → PUBLIC when sent to experts.
 
-### Notification Emails
-
-Complete email notification chain for RDV workflow:
-
-- `ContactAvisEnqueteAcceptedMail`: Expert → Journalist on acceptance
-- `ContactAvisEnqueteRDVProposalMail`: Journalist → Expert for RDV proposal
-- `ContactAvisEnqueteRDVAcceptedMail`: Expert → Journalist on RDV acceptance
-- `ContactAvisEnqueteRDVConfirmedMail`: Journalist → Expert on RDV confirmation
-- `ContactAvisEnqueteRDVCancelledMail`: Notification when RDV is cancelled
-
-### Opportunities View Improvements
-
-- New status messages: "Attente de dates", "Opportunité déclinée", "Nouvelle opportunité"
-- Display confirmed RDV in opportunities list
-- Sort opportunities by reverse date
-- Auto-redirect to opportunities after RDV response
-- Auto-update AvisEnquete status from DRAFT to PUBLIC when sent to experts
-
-### RDV Cancellation
-
-- Journalist can cancel RDV with confirmation popup
-- Expert can cancel RDV with confirmation popup
-- Cancellation emails sent to notify the other party
-- `ContactAvisEnquete.can_cancel_rdv()` method for permission check
+RDV cancellation : both parties can cancel (with popup) ; emails sent ; new `ContactAvisEnquete.can_cancel_rdv()` permission check.
 
 ## Email System Improvements
 
-### Logging & Monitoring
-
-- Explicit logging of sender, recipient, subject, and status for all emails
-- Actual sender name now included in logged mail information (not just contact@aipress)
-- Better traceability for debugging email issues
-
-### Rate Limiting
-
-- Mail limiter changed from monthly to weekly: **20 mails / 7 days**
-- Added `bypass_quota` option for system-critical emails
-- Max monthly limit set to 200 mails
-
-### Mailer Architecture
-
-- Refactored to use dataclasses for mailer templates
-- Added recipient and sender to mailer context
-- Cleaner template rendering with structured data
-- Renamed attribute `sender_name` → `sender_mail` for clarity
-- Added `sender_full_name` field to all mail templates
-- Opportunity URL now included in proposal emails
+- Explicit logging of sender, recipient, subject, status for every email. Sender name (not just `contact@aipress`) included.
+- Rate limiter switched from monthly to **20 mails / 7 days** ; `bypass_quota` flag for system-critical mails ; monthly cap 200.
+- Mailer refactor : dataclass-based templates ; recipient + sender in context ; `sender_name` → `sender_mail` (clarity) ; `sender_full_name` field added everywhere ; opportunity URL embedded in proposal emails.
 
 ## Expert Filter Service
 
-### State Isolation
+- `ExpertFilterService.initialize()` now requires `avis_enquete_id`. Each Avis maintains independent filter state via scoped session keys — no more bleed between enquêtes.
+- UI : "Aucun expert" → "Aucun nouvel expert" ; selectors synced with backend ; ciblage list empty for new Avis instances.
 
-- `ExpertFilterService.initialize()` now requires `avis_enquete_id`
-- Each Avis d'Enquête maintains independent filter state
-- Session keys scoped to specific Avis d'Enquête instance
-- Prevents filter state bleeding between different enquêtes
+## CLI Reorganisation
 
-### UI Improvements
-
-- Ciblage experts message: "Aucun expert" → "Aucun nouvel expert"
-- Selectors now properly synchronized with backend state
-- Ciblage list properly empty for new AvisEnquete instances
-
-## CLI Improvements
-
-### Command Reorganization
-
-Reduced Flask CLI commands from 29 to 21 top-level entries by grouping related commands.
+Flask CLI commands reduced from 29 to 21 top-level entries by grouping :
 
 | Group | Commands |
-|-------|----------|
+|---|---|
 | `data` | bootstrap-users, fetch-bootstrap-data, load-db, upgrade-ontologies |
 | `media` | dump-photos, upload-photos |
 | `dev` | debug, check, components, packages |
 | `fix` | roles, test-user |
 
-### Migration Examples
-
-```bash
-flask data bootstrap-users     # was: flask bootstrap-users
-flask data load-db             # was: flask load-db
-flask media dump-photos        # was: flask dump-photos
-flask dev check --full         # was: flask check --full
-flask fix roles                # was: flask fix-roles
-```
-
-### New List Commands
-
-Added list commands for Flask-Security groups:
-
-- `flask roles list` - Display all available roles in a formatted table
-- `flask users list` - List users with email, name, status, and roles
-  - `--active` (default): show only active users
-  - `--all`: show all users including inactive
-  - `--limit N`: limit output (default 50)
-
-### Console Cleanup
-
-- Suppressed `pkg_resources` deprecation warning from passlib
-- Removed "Configuring logging" message on startup
+New list commands : `flask roles list`, `flask users list` (with `--active` / `--all` / `--limit`). Console cleanup : `pkg_resources` deprecation warning from passlib silenced, "Configuring logging" startup message removed.
 
 ## Bug Fixes
 
-- **Table Pagination**: Fixed WIP module Table pagination to match admin/table.py behavior
-- **HTMX Refresh**: Fixed page refresh when redirecting to self with HTMX
-- **RDV Dates**: Fixed handling of naive dates (now default to UTC)
-- **Mail Order**: Cancellation mail now sent before state update
-- **Null Check**: Verify `contact.date_rdv` is not None before mail notification
-- **Opportunity Access**: Access to opportunity page now restricted to the expert only
+- WIP Table pagination aligned with admin/table.py.
+- HTMX self-redirect now triggers page refresh.
+- Naive RDV dates default to UTC.
+- Cancellation mail sent before state update (was inverted, mail was empty).
+- Null-check `contact.date_rdv` before mail notification.
+- Opportunity page access restricted to the expert only.
 
 ## Testing
 
-### New Tests
-
-- Unit tests for all mailers
-- E2E test: `test_expert_refuse_rdv_submission_using_decline_slot()`
-- E2E test: `test_expert_refuse_rdv_submission_using_refuse_button()`
-- E2E test: RDV cancellation workflow
-- Unit tests for ExpertFilterService session key isolation
-- Unit tests for ExpertFilterService state independence across enquêtes
-
-### Test Fixes
-
-- Fixed `test_expert_accept_rdv_submission()`
-- Fixed `tests/c_e2e/modules/wip/newsroom/test_rdv_workflow_e2e.py`
-- Fixed `test_avis_enquete_notification_mail()`
-
-### Test Configuration
-
-- Bumped `EMAILS_MAX_SENT_LAST_PERIOD` from 20 to 200 for development tests
+- Unit tests for all mailers ; e2e tests for RDV refuse (decline slot, refuse button) + cancellation workflow ; unit tests for ExpertFilterService session-key isolation + state independence.
+- `EMAILS_MAX_SENT_LAST_PERIOD` bumped 20 → 200 for dev tests.
+- Test fixes : `test_expert_accept_rdv_submission`, RDV workflow e2e, avis-enquête notification mail.
 
 ## Infrastructure
 
-- CI configuration updates (Alpine build profile aligned with Ubuntu/Rocky)
-- Type checker (ty) configuration tweaks
-- Dependency updates
+- CI updates (Alpine profile aligned with Ubuntu / Rocky).
+- Type checker (`ty`) configuration tweaks.
+- Dependency updates.

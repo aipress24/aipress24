@@ -1,179 +1,54 @@
 # Changes Weeks 1-2, 2026
 
-## Avis d'Enquête - RDV (Appointment) System
+## Avis d'Enquête — RDV (Appointment) System
 
-Full implementation of the rendez-vous scheduling workflow for journalist-expert interactions.
+Full implementation of the journalist ↔ expert rendez-vous workflow.
 
-### Key Changes
-
-**1. RDV Workflow**
-- Journalists can propose 1-5 time slots to experts
-- Three RDV types: Phone, Video, Face-to-face
-- Experts select a slot and optionally add notes
-- Full state machine: NO_RDV → PROPOSED → ACCEPTED → CONFIRMED
-
-**2. RDV Views**
-- New RDV table displaying all contacts with RDV status
-- RDV details view with full appointment information
-- RDV management interface for responses
-- Link from opportunities view to RDV details
-
-**3. Validation Rules**
-- Slots must be in business hours (9h-18h)
-- Slots must be on weekdays (Mon-Fri)
-- All slots must be in the future
-- Contact details required per RDV type (phone/video link/address)
+- State machine : `NO_RDV → PROPOSED → ACCEPTED → CONFIRMED`. Three RDV types : phone, video, face-to-face.
+- Journalists propose 1-5 time slots ; experts pick one and may add notes.
+- New RDV table view (all contacts with their status), RDV details view, management interface, link from opportunities.
+- Validation rules : slots must be future, weekdays, business hours (9 h-18 h) ; contact details required per RDV type.
 
 ## Service Layer Architecture
 
-Major refactoring to separate concerns and improve testability.
+Major refactor extracting business logic from CRUD views into services.
 
-### Key Changes
-
-**1. AvisEnqueteService**
-- Orchestrates RDV workflow (propose, accept, confirm, cancel)
-- Handles expert notifications and emails. JD: email notification not implemented
-- Manages contact storage and filtering
-
-**2. ExpertFilterService**
-- Multi-criteria expert filtering (8 selectors)
-- Session state management for filter persistence
-- HTMX request parsing for dynamic updates
-
-**3. Architecture Benefits**
-- CRUD view reduced from 877 to 390 lines (55% reduction)
-- Business logic extracted to services
-- Domain validation in models
-- Testable components with dependency injection
+- `AvisEnqueteService` orchestrates the RDV workflow (propose / accept / confirm / cancel), expert notifications, contact storage and filtering. (JD note : email notifications not yet implemented at this stage.)
+- `ExpertFilterService` : 8-selector multi-criteria expert filter, session-scoped state, HTMX request parsing.
+- WIP CRUD view shrinks **877 → 390 lines (-55 %)** ; domain validation moves into models ; components become testable via DI.
 
 ## Type Checking & Code Quality
 
-Comprehensive type checking improvements across the codebase.
-
-### Key Changes
-
-**1. Runtime Type Checking**
-- Added `typeguard` for runtime type verification during tests
-- Removed `beartype` in favor of typeguard
-- Fixed 68+ type errors across codebase
-
-**2. Navigation Registry Pattern**
-- Replaced monkey-patching `blueprint.nav = {...}` with clean registry
-- New `configure_nav()` function with TypedDict configuration
-- Type-safe with IDE autocomplete support
-- Migrated 8 modules (admin, biz, events, preferences, search, swork, wip, wire)
+- Runtime type checking via `typeguard` (replaces `beartype`). 68+ type errors fixed.
+- Navigation registry pattern : `blueprint.nav = {...}` monkey-patch replaced with a clean `configure_nav()` + TypedDict. 8 modules migrated (admin, biz, events, preferences, search, swork, wip, wire).
 
 ## Navigation ACL System (ADR 003)
 
-Completed implementation of role-based access control for navigation.
+Role-based access control completed.
 
-### Key Changes
+- Section-level ACL inherited by child routes (admin, preferences/SELF).
+- `GUEST` role removed ; new `SELF` magic role (visible to all authenticated users).
+- Personal routes protected (billing, performance, mail, delegate) ; org routes protected with MANAGER / LEADER.
+- Four-layer security : doorman (path) → blueprint hooks → nav ACL → view checks. Defence in depth.
 
-**1. ACL Inheritance**
-- Section-level ACL automatically inherited by child routes
-- Admin routes inherit from admin section
-- Preferences routes inherit SELF ACL
+## Legacy Cleanup
 
-**2. Magic Roles**
-- Removed GUEST role from RoleEnum
-- Added SELF magic role (visible to all authenticated users)
-- Protected personal routes (billing, performance, mail, delegate)
-- Protected org routes with MANAGER/LEADER ACL
+- `preferences/pages/` directory deleted (10 legacy files), 28 legacy Page-class tests dropped (9 useful ones kept). Replaced with Flask-Classful views.
+- Admin module cleaned up ; e2e fixtures refactored ; circular imports fixed.
 
-**3. Four-Layer Security**
-- Doorman (path-based) → Blueprint hooks → Nav ACL → View checks
-- Defense in depth with intentional redundancy
+## Publication Workflow Spec + Notification Refactor
 
-## Legacy Code Cleanup
-
-Removal of deprecated code patterns.
-
-### Key Changes
-
-**1. Page Classes Removed**
-- Deleted `preferences/pages/` directory (10 legacy files)
-- Removed 28 legacy Page class tests, kept 9 useful tests
-- Replaced with modern Flask-Classful views
-
-**2. Module Refactoring**
-- Cleaned up admin module
-- Refactored test fixtures for e2e tests
-- Fixed circular imports
-
-## Documentation
-
-New specification documentation for publication workflow.
-
-### Key Changes
-
-**1. Publication Cycle Specification**
-- Created `notes/specs/cycle-de-publication.md`
-- Documented full workflow: Sujet → Commande → Avis d'Enquête → Article → Justificatif
-- Integrated client feedback (v1.1)
-- Defined entity states, transitions, and business rules
-
-## NotificationPublication Implementation
-
-Simplified notification system for alerting experts when articles are published.
-
-### Key Changes
-
-**1. Model Simplification**
-- Removed JustifPublication (complex lifecycle model)
-- Created NotificationPublication with fire-and-forget design
-- No email/in-app tracking - just records notification was sent
-- NotificationPublicationContact links notification to expert contacts
-
-**2. Design Decisions**
-- Notification ≠ Justificatif (Notification = WIP alert, Justificatif = BIZ product)
-- Fire-and-forget: created = sent, no workflow
-- `notified_at` timestamp set on creation
-
-**3. Database Migration**
-- `8c27eefc5851`: Drop `nrm_justif_publication` table
-- `9763afdb9033`: Create `nrm_notification_publication` and `nrm_notification_publication_contact` tables
+- New spec `notes/specs/cycle-de-publication.md` documents Sujet → Commande → Avis → Article → Justificatif (v1.1, with client feedback).
+- `JustifPublication` (complex lifecycle) removed, replaced by `NotificationPublication` — fire-and-forget : `created = sent`, `notified_at` stamped on creation, no email/in-app tracking. `NotificationPublicationContact` links notification to expert contacts. (Notification = WIP alert ; Justificatif = BIZ product.)
+- Migrations `8c27eefc5851` (drop `nrm_justif_publication`) + `9763afdb9033` (create new tables).
 
 ## Status Field Enum Migration
 
-Technical debt cleanup: migrated string status fields to proper enums.
-
-### Key Changes
-
-**1. Models Updated**
-- `Sujet.status`: `Mapped[str]` → `Mapped[PublicationStatus]`
-- `Commande.status`: `Mapped[str]` → `Mapped[PublicationStatus]`
-- `AvisEnquete.status`: `Mapped[str]` → `Mapped[PublicationStatus]`
-
-**2. Benefits**
-- Type safety and IDE autocomplete
-- Consistent with Article, Communique, Event models
-- Reuses existing `PublicationStatus` enum (DRAFT, PENDING, PUBLIC, etc.)
-
-**3. Database Migration**
-- `a1b2c3d4e5f6`: Convert VARCHAR columns to `publicationstatus` enum
-- Empty strings converted to 'DRAFT'
+- `Sujet.status`, `Commande.status`, `AvisEnquete.status` switched from `Mapped[str]` to `Mapped[PublicationStatus]` (consistent with Article/Communique/Event). Type safety + IDE autocomplete.
+- Migration `a1b2c3d4e5f6` converts VARCHAR → enum ; empty strings → `DRAFT`.
 
 ## Testing
 
-### Test Plan Implementation (Complete)
+Comprehensive test plan (`notes/specs/test-plan-cycle-publication.md`) implemented :
 
-Implemented comprehensive test plan for publication cycle (`notes/specs/test-plan-cycle-publication.md`).
-
-- ExpertFilterService tests (29 tests)
-- ContactAvisEnquete response tests (17 tests)
-- NotificationPublication tests (10 tests)
-- Integration - Publication Cycle tests (10 tests)
-- HTMX state update tests (3 tests)
-- Integration - Expert Flow tests (5 tests)
-- NotificationPublication sending readiness tests (4 tests)
-- E2E - Avis Views tests (15 tests)
-- E2E - RDV Workflow tests (13 tests)
-- Integration - Full Cycle tests (3 tests)
-
-### Summary
-
-- 109 new tests from test plan
-- 237 WIP module tests passing (1 skipped - requires reference data)
-- Anonymous access surface tests
-- Navigation e2e tests
-- 1960+ total tests passing
+- 29 ExpertFilterService, 17 ContactAvisEnquete response, 10 NotificationPublication, 10 publication-cycle integration, 3 HTMX state, 5 expert flow integration, 4 notification sending readiness, 15 Avis views e2e, 13 RDV workflow e2e, 3 full-cycle integration. **109 new tests** ; 237 WIP-module tests passing ; 1960+ total passing.
