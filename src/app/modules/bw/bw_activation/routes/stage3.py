@@ -123,6 +123,11 @@ def confirmation_free():
             # BW ») matches the underlying state.
             if existing.status != BWStatus.ACTIVE.value:
                 existing.status = BWStatus.ACTIVE.value  # type: ignore[assignment]
+                # Link organisation to BW
+                org = existing.get_organisation()
+                if org:
+                    org.bw_id = existing.id
+                    org.bw_active = existing.bw_type
                 db.session.commit()
             fill_session(existing)
             return render_template(
@@ -427,6 +432,11 @@ def confirmation_paid():
         # /wip/opportunities/ stops blocking.
         if existing.status != BWStatus.ACTIVE.value:
             existing.status = BWStatus.ACTIVE.value  # type: ignore[assignment]
+            # Link organisation to BW
+            org = existing.get_organisation()
+            if org:
+                org.bw_id = existing.id
+                org.bw_active = existing.bw_type
             db.session.commit()
         fill_session(existing)
         return render_template(
