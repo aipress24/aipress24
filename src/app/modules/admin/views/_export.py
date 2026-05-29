@@ -272,7 +272,6 @@ class InscriptionsExporter(BaseExporter):
             FieldColumn("macaron_hebergement", "Hébergement", small),
             FieldColumn("macaron_repas", "Repas", small),
             FieldColumn("macaron_verre", "Verre", small),
-            FieldColumn("manager", "Manager", short),
             FieldColumn("metier_principal", "Métier principal", text8),
             FieldColumn("metier_principal_detail", "Métier p. détail", text8),
             FieldColumn("metier", "Métier secondaire", text8),
@@ -427,8 +426,6 @@ class InscriptionsExporter(BaseExporter):
         match name:
             case "dirigeant":
                 return user.is_leader
-            case "manager":
-                return user.has_role(RoleEnum.MANAGER)
             case "submited_at" | "validated_at" | "modified_at":
                 return self.get_datetime_attr(user, name)
             case "roles":
@@ -572,7 +569,6 @@ class UsersExporter(InscriptionsExporter):
         "metier_detail",
         "organisation_name",
         "dirigeant",
-        "manager",
         "pays_zip_ville",
         "pays_zip_ville_detail",
         "adresse_pro",
