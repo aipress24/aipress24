@@ -42,8 +42,8 @@ from app.modules.bw.bw_activation.utils import (
     fill_session,
     is_bw_manager_or_admin,
 )
+from app.services.stripe.product import fetch_bw_product_list
 from app.services.stripe.utils import (
-    fetch_bw_product_list,
     get_stripe_public_key,
     # load_pricing_table_id,
 )

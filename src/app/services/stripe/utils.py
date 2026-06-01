@@ -49,27 +49,6 @@ def get_stripe_webhook_secret() -> str:
     return config.get("STRIPE_WEBHOOK_SECRET") or ""
 
 
-def fetch_bw_product_list() -> list[Product]:
-    results: list[Product] = []
-    if not load_stripe_api_key():
-        return results
-    remote_list = stripe.Product.list(
-        active=True,
-        limit=100,
-    )
-    remote_prods = remote_list.get("data", [])
-    for rp in remote_prods:
-        prod = Product()
-        prod.update(rp)
-        raw_metadata = prod.get("metadata", {})
-        metadata_dict = dict(raw_metadata) if raw_metadata else {}
-        metadata = {str(k).lower(): str(v).lower() for k, v in metadata_dict.items()}
-        if "subs" not in metadata:
-            continue
-        results.append(prod)
-    return results
-
-
 def load_pricing_table_id(bw_type_name: str) -> str:
     """Return the Stripe Pricing Table ID for a given BW type.
 
