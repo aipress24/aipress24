@@ -49,22 +49,6 @@ def get_stripe_webhook_secret() -> str:
     return config.get("STRIPE_WEBHOOK_SECRET") or ""
 
 
-def fetch_product_list() -> list[Product]:
-    results: list[Product] = []
-    if not load_stripe_api_key():
-        return results
-    remote_list = stripe.Product.list(
-        active=True,
-        limit=100,
-    )
-    remote_prods = remote_list.get("data", [])
-    for rp in remote_prods:
-        prod = Product()
-        prod.update(rp)
-        results.append(prod)
-    return results
-
-
 def fetch_bw_product_list() -> list[Product]:
     results: list[Product] = []
     if not load_stripe_api_key():
