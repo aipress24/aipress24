@@ -7,7 +7,7 @@
 from __future__ import annotations
 
 from datetime import UTC, datetime
-from typing import TYPE_CHECKING, cast
+from typing import TYPE_CHECKING, Any, cast
 
 from flask import (
     current_app,
@@ -18,6 +18,7 @@ from flask import (
     session,
     url_for,
 )
+from sqlalchemy.engine.cursor import ResultFetchStrategy
 from sqlalchemy.orm import scoped_session
 from svcs.flask import container
 
@@ -38,7 +39,9 @@ from app.modules.bw.bw_activation.models import (
 )
 from app.modules.bw.bw_activation.user_utils import current_business_wall
 from app.modules.bw.bw_activation.utils import (
+    ERR_NO_ORGANISATION,
     ERR_NOT_MANAGER,
+    ERR_UNKNOWN_ACTION,
     fill_session,
     is_bw_manager_or_admin,
 )
@@ -49,6 +52,8 @@ from app.services.stripe.utils import (
 )
 
 if TYPE_CHECKING:
+    from stripe import Product
+
     from app.models.auth import User
 
 
@@ -258,7 +263,7 @@ def payment(bw_type: str):
         return redirect(url_for("bw_activation.index"))
 
     bw_info = BW_TYPES[bw_type]
-    ctx: dict = {
+    ctx: dict[str, Any] = {
         "bw_type": bw_type,
         "bw_info": bw_info,
         "pricing_value": session["pricing_value"],
@@ -266,62 +271,62 @@ def payment(bw_type: str):
     }
 
     if current_app.config.get("STRIPE_LIVE_ENABLED"):
-        warn("in /payment/<bw_type> live")
-        draft_bw = _get_or_create_draft_bw_for_checkout(g.user, bw_type)
-        warn(draft_bw)
-        if draft_bw is not None:
-            stripe_public_key = get_stripe_public_key()
-            warn("stripe_public_key", stripe_public_key)
-            # pricing_table_id = load_pricing_table_id(bw_type)
+        return _payment_live_enabled(bw_type, ctx)
+    return _payment_simulation(bw_type, ctx)
 
-            prod_list = fetch_bw_product_list()
-            prod_tmp_info = []
-            for p in prod_list:
-                prod_tmp_info.append(
-                    {
-                        "name": str(p["name"]),
-                        "default_price": str(p["default_price"]),
-                        "metadata": p["metadata"],
-                    }
-                )
-            warn("prod_tmp_info", prod_tmp_info)
-            warn("bw_type", bw_type)
 
-            allowed_products = BWTYPE_ALLOWED_PRODUCTS.get(bw_type, [])
+def _payment_simulation(_bw_type: str, ctx: dict[str, Any]):
+    return render_template("bw_activation/payment.html", **ctx)
 
-            if not allowed_products:
-                warn("BUG: no allowed_products for", bw_type)
-                return render_template("bw_activation/payment.html", **ctx)
 
-            # FIXME: later let the user select the right one if choice is possible
-            warn(allowed_products)
-            product_reference = allowed_products[0]
+def allowed_bw_product_list(bw_type: str) -> list[Product]:
+    results: list[Product] = []
+    allowed_values = set(BWTYPE_ALLOWED_PRODUCTS.get(bw_type, []))
+    if not allowed_values:
+        return results
+    prods = fetch_bw_product_list()
+    for prod in prods:
+        raw_metadata = prod.get("metadata", {})
+        metadata_dict = dict(raw_metadata) if raw_metadata else {}
+        metadata_dict = {str(k).lower(): v for k, v in metadata_dict.items()}
+        if metadata_dict.get("subs", "") in allowed_values:
+            results.append(prod)
+    return results
 
-            chosen_product = None
-            for p in prod_tmp_info:
-                if p["metadata"]["Subs"].lower() == product_reference.lower():
-                    chosen_product = p
-                    break
 
-            if not chosen_product:
-                return render_template("bw_activation/payment.html", **ctx)
+def _payment_live_enabled(bw_type: str, ctx: dict[str, Any]):
+    warn("in /payment/<bw_type> live")
+    draft_bw = _get_or_create_draft_bw_for_checkout(g.user, bw_type)
 
-            product_name = chosen_product["name"]
-            warn(product_name)
-            price_id = chosen_product["default_price"]
+    if draft_bw is None:
+        session["error"] = ERR_NO_ORGANISATION
+        return redirect(url_for("bw_activation.not_authorized"))
 
-            # warn("pricing_table_id", pricing_table_id)
-            ctx.update(
-                {
-                    "stripe_live": True,
-                    "bw_id": str(draft_bw.id),
-                    # "pricing_table_id": pricing_table_id,
-                    "pricing_table_id": price_id,
-                    "stripe_public_key": stripe_public_key,
-                    "user_email": g.user.email,
-                }
-            )
+    # pricing_table_id = load_pricing_table_id(bw_type)
 
+    allowed_products = allowed_bw_product_list(bw_type)
+    if not allowed_products:
+        session["error"] = ERR_UNKNOWN_ACTION
+        warn(f"Bug: no allowd stripe product found for bw_type {bw_type!r}")
+        return redirect(url_for("bw_activation.not_authorized"))
+
+    # FIXME: later let the user select the right one if choice is possible
+    warn([prod.name for prod in allowed_products])
+    chosen_product = allowed_products[0]
+
+    price_id = chosen_product["default_price"]
+
+    # warn("pricing_table_id", pricing_table_id)
+    ctx.update(
+        {
+            "stripe_live": True,
+            "bw_id": str(draft_bw.id),
+            # "pricing_table_id": pricing_table_id,
+            "pricing_table_id": price_id,
+            "stripe_public_key": get_stripe_public_key(),
+            "user_email": g.user.email,
+        }
+    )
     return render_template("bw_activation/payment.html", **ctx)
 
 
