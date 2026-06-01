@@ -52,3 +52,17 @@ def stripe_product_json(product_id: str):
         f"<pre>{product_json}</pre>"
         "</body></html>"
     )
+
+
+@blueprint.route("/stripe-prices/<price_id>/json")
+def stripe_price_json(price_id: str):
+    """Return the raw JSON of a Stripe price."""
+    load_stripe_api_key()
+    price = stripe.Price.retrieve(price_id)
+    # Convert Stripe object to dict for pretty printing
+    price_json = json.dumps(price, indent=2)
+    return (
+        "<html><body style='margin:0; padding:20px; font-family:monospace;'>"
+        f"<pre>{price_json}</pre>"
+        "</body></html>"
+    )
