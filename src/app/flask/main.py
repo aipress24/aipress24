@@ -375,7 +375,14 @@ def register_stripe_debug(app: Flask) -> None:
     """Mount /debug/stripe and monkey-patch ``stripe.checkout.Session.create``
     to short-circuit Stripe API calls. Fail-closed (debug or
     ``FLASK_STRIPE_DEBUG_PASSWORD``) — see
-    `app.flask.stripe_debug.StripeDebug.init_app`."""
+    `app.flask.stripe_debug.StripeDebug.init_app`.
+
+    Can be disabled by setting ``FLASK_STRIPE_DEBUG_DISABLED=1``
+    in the environment.
+    """
+    if os.environ.get("FLASK_STRIPE_DEBUG_DISABLED") in ("1", "true", "True"):
+        return
+
     if not (app.debug or os.environ.get("FLASK_STRIPE_DEBUG_PASSWORD")):
         return
     from app.flask.stripe_debug import StripeDebug
