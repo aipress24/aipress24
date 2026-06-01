@@ -15,11 +15,8 @@ def fetch_stripe_product_list(active: bool = True) -> list[Product]:
     results: list[Product] = []
     if not load_stripe_api_key():
         return results
-    # limit: integer.  A limit on the number of objects to be
-    #    returned. Limit can range between 1 and 100, and the default is 10.
-    remote_list = stripe.Product.list(active=active, limit=100)
-    remote_prods = remote_list.get("data", [])
-    for rp in remote_prods:
+
+    for rp in stripe.Product.list(active=active).auto_paging_iter():
         prod = Product()
         prod.update(rp)
         results.append(prod)
