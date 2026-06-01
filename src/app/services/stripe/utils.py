@@ -53,7 +53,10 @@ def fetch_product_list() -> list[Product]:
     results: list[Product] = []
     if not load_stripe_api_key():
         return results
-    remote_list = stripe.Product.list(active=True)
+    remote_list = stripe.Product.list(
+        active=True,
+        limit=100,
+    )
     remote_prods = remote_list.get("data", [])
     for rp in remote_prods:
         prod = Product()
