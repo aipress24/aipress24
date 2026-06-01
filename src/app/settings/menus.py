@@ -184,6 +184,11 @@ ADMIN_MENU = [
         "icon": "list-tree",
     },
     {
+        "label": "Produits",
+        "endpoint": "admin.stripe_products",
+        "icon": "shopping-cart",
+    },
+    {
         "label": "Export DB",
         "endpoint": "/admin/export-db/",
         "icon": "database",

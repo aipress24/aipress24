@@ -1,0 +1,61 @@
+{% extends "admin/layout/_base.j2" %}
+
+{% block main %}
+    <div class="space-y-4">
+        {% for product in products %}
+            <div class="bg-white shadow overflow-hidden sm:rounded-lg border border-gray-200">
+                <div class="px-4 py-3 bg-gray-50 border-b border-gray-200">
+                    <h3 class="text-md leading-6 font-medium text-gray-900">
+                        {{ product.name }}
+                    </h3>
+                </div>
+                <div class="px-4 py-2 sm:p-0">
+                    <dl class="sm:divide-y sm:divide-gray-200">
+                        <div class="py-2 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                            <dt class="text-sm font-medium text-gray-500">Nom</dt>
+                            <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">{{ product.name }}</dd>
+                        </div>
+                        <div class="py-2 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                            <dt class="text-sm font-medium text-gray-500">Id</dt>
+                            <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">{{ product.id }}</dd>
+                        </div>
+                        <div class="py-2 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                            <dt class="text-sm font-medium text-gray-500">Créé le</dt>
+                            <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">{{ product.created_fmt }}</dd>
+                        </div>
+                        <div class="py-2 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                            <dt class="text-sm font-medium text-gray-500">Prix par défaut</dt>
+                            <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">{{ product.default_price or 'Aucun' }}</dd>
+                        </div>
+                        {% if product.statement_descriptor %}
+                            <div class="py-2 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                                <dt class="text-sm font-medium text-gray-500">Libellé bancaire</dt>
+                                <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">{{ product.statement_descriptor }}</dd>
+                            </div>
+                        {% endif %}
+                        {% if product.unit_label %}
+                            <div class="py-2 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                                <dt class="text-sm font-medium text-gray-500">Unité</dt>
+                                <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">{{ product.unit_label }}</dd>
+                            </div>
+                        {% endif %}
+                        <div class="py-2 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                            <dt class="text-sm font-medium text-gray-500">Metadata</dt>
+                            <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+                                {% if product.metadata %}
+                                    <ul class="text-xs space-y-0.5">
+                                        {% for key, value in product.metadata.items() %}
+                                            <li><span class="font-semibold">{{ key }}:</span> {{ value }}</li>
+                                        {% endfor %}
+                                    </ul>
+                                {% else %}
+                                    Aucun
+                                {% endif %}
+                            </dd>
+                        </div>
+                    </dl>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+{% endblock %}
