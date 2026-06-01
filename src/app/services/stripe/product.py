@@ -16,7 +16,9 @@ def fetch_stripe_product_list(active: bool = True) -> list[Product]:
     if not load_stripe_api_key():
         return results
 
-    for rp in stripe.Product.list(active=active).auto_paging_iter():
+    for rp in stripe.Product.list(
+        active=active, expand=["data.default_price"]
+    ).auto_paging_iter():
         prod = Product()
         prod.update(rp)
         results.append(prod)

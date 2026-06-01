@@ -26,12 +26,41 @@ from app.services.stripe.utils import load_stripe_api_key
 )
 def stripe_products():
     """List available active Stripe products."""
+    load_stripe_api_key()
     products = fetch_stripe_product_list(active=True)
     products.sort(key=lambda p: p.name.lower())
 
-    # Pre-format dates for the template
+    tax_rates = stripe.TaxRate.list(limit=100)
+    tax_rates_map = {
+        tr.description: tr.percentage for tr in tax_rates.data if tr.description
+    }
+
+    tax_codes_cache = {}
+
     for product in products:
         product.created_fmt = arrow.get(product.created).format("DD/MM/YYYY HH:mm")
+
+        product.tax_code_name = None
+        if product.tax_code:
+            if product.tax_code not in tax_codes_cache:
+                try:
+                    tc = stripe.TaxCode.retrieve(product.tax_code)
+                    tax_codes_cache[product.tax_code] = tc.name
+                except Exception:
+                    tax_codes_cache[product.tax_code] = None
+            product.tax_code_name = tax_codes_cache[product.tax_code]
+
+        # 2. Tax Rate Percentage (match by description)
+        product.tax_rate_percent = None
+        if product.statement_descriptor in tax_rates_map:
+            product.tax_rate_percent = tax_rates_map[product.statement_descriptor]
+        if not product.tax_rate_percent:
+            for val in (product.metadata or {}).values():
+                if val in tax_rates_map:
+                    product.tax_rate_percent = tax_rates_map[val]
+                    break
+        if not product.tax_rate_percent and product.name in tax_rates_map:
+            product.tax_rate_percent = tax_rates_map[product.name]
 
     return render_template(
         "admin/pages/stripe_products.j2",

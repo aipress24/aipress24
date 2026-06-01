@@ -32,11 +32,46 @@
                             <dt class="text-sm font-medium text-gray-500">Prix par défaut</dt>
                             <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
                                 {% if product.default_price %}
-                                    <a href="{{ url_for('.stripe_price_json', price_id=product.default_price) }}" class="text-blue-600 hover:text-blue-800 underline" target="_blank">
-                                        {{ product.default_price }}
-                                    </a>
+                                    {% set price = product.default_price %}
+                                    <div class="flex items-center space-x-2">
+                                        <a href="{{ url_for('.stripe_price_json', price_id=price.id) }}"
+                                           class="text-blue-600 hover:text-blue-800 underline font-mono text-xs"
+                                           target="_blank">
+                                            {{ price.id }}
+                                        </a>
+                                        <span class="text-gray-900 font-semibold">
+                                            {% if price.unit_amount is not none %}
+                                                {{ (price.unit_amount / 100) | round(2) }} {{ price.currency | upper }}
+                                            {% else %}
+                                                Prix variable/par paliers
+                                            {% endif %}
+                                            {% if price.recurring %}
+                                                / {{ price.recurring.interval }}
+                                            {% endif %}
+                                        </span>
+
+                                    </div>
+                                    <div class="text-xs text-gray-500 mt-1">
+                                        Taxe : {{ price.tax_behavior or 'non spécifié' }}
+                                    </div>
+
                                 {% else %}
                                     Aucun
+                                {% endif %}
+                            </dd>
+                        </div>
+
+                        <div class="py-2 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                            <dt class="text-sm font-medium text-gray-500">Tax ID</dt>
+                            <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+                                {{ product.tax_code or 'Aucun' }}
+                                {% if product.tax_code_name %}
+                                    <span class="ml-2 text-xs text-gray-500">({{ product.tax_code_name }})</span>
+                                {% endif %}
+                                {% if product.tax_rate_percent is not none %}
+                                    <span class="ml-2 px-1.5 py-0.5 text-xs font-semibold">
+                                        Taux : {{ product.tax_rate_percent }}%
+                                    </span>
                                 {% endif %}
                             </dd>
                         </div>
