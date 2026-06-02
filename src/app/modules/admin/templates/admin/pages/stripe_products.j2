@@ -62,19 +62,24 @@
                         </div>
 
                         <div class="py-2 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-                            <dt class="text-sm font-medium text-gray-500">Tax ID</dt>
+                            <dt class="text-sm font-medium text-gray-500">Tax ID (Tax Code)</dt>
                             <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
                                 {{ product.tax_code or 'Aucun' }}
                                 {% if product.tax_code_name %}
                                     <span class="ml-2 text-xs text-gray-500">({{ product.tax_code_name }})</span>
                                 {% endif %}
-                                {% if product.tax_rate_percent is not none %}
-                                    <span class="ml-2 px-1.5 py-0.5 text-xs font-semibold">
-                                        Taux : {{ product.tax_rate_percent }}%
-                                    </span>
-                                {% endif %}
                             </dd>
                         </div>
+
+                        {% if product.tax_sim %}
+                            <div class="py-2 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                                <dt class="text-sm font-medium text-gray-500">Évaluation Taxe (100€, Paris)</dt>
+                                <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+                                    <span class="font-semibold text-blue-600">{{ product.tax_sim.amount_tax | round(2) }}€</span>
+                                    <span class="text-xs text-gray-500 ml-2">{{ product.tax_sim.breakdown }}</span>
+                                </dd>
+                            </div>
+                        {% endif %}
 
                         {% if product.statement_descriptor %}
                             <div class="py-2 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
