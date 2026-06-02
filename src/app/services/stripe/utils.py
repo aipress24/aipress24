@@ -8,7 +8,6 @@ import sys
 
 import stripe
 from flask import Flask, current_app
-from stripe import Product
 
 
 def check_stripe_secret_key(app: Flask) -> bool:

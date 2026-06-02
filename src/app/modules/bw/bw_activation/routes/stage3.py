@@ -12,6 +12,7 @@ from typing import TYPE_CHECKING, Any, cast
 import stripe
 from flask import (
     current_app,
+    flash,
     g,
     redirect,
     render_template,
@@ -19,7 +20,6 @@ from flask import (
     session,
     url_for,
 )
-from sqlalchemy.engine.cursor import ResultFetchStrategy
 from sqlalchemy.orm import scoped_session
 from svcs.flask import container
 
@@ -305,7 +305,7 @@ def checkout(bw_type: str):
 
     # for product with a quantity
     quantity = 1
-    items = [{"price": price_id, "quantity": 1}]
+    items = [{"price": price_id, "quantity": quantity}]
 
     success_url = url_for(
         "bw_activation.payment_success",

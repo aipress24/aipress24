@@ -14,7 +14,6 @@ from typing import Any
 from uuid import UUID
 
 import stripe
-from arrow import Arrow
 from flask import request, session
 from sqlalchemy import select as sa_select
 
@@ -138,8 +137,9 @@ def webhooks():
 
 
 # Event type to handler function name mapping
+# Changes in june 2026, 11 events followed (no more subscription? only paiement)
 _EVENT_HANDLER_NAMES = {
-    "checkout.session.completed": "on_checkout_session_completed",
+    "checkout.session.completed": "on_checkout_session_completed",  # suivi juin 2026
     "subscription_schedule.aborted": "on_subscription_schedule_aborted",
     "subscription_schedule.canceled": "on_subscription_schedule_canceled",
     "subscription_schedule.completed": "on_subscription_schedule_completed",
@@ -147,19 +147,24 @@ _EVENT_HANDLER_NAMES = {
     "subscription_schedule.expiring": "on_subscription_schedule_expiring",
     "subscription_schedule.released": "on_subscription_schedule_released",
     "subscription_schedule.updated": "on_subscription_schedule_updated",
-    "customer.subscription.created": "on_customer_subscription_created",
-    "customer.subscription.deleted": "on_customer_subscription_deleted",
+    "customer.subscription.created": "on_customer_subscription_created",  # suivi juin 2026
+    "customer.subscription.deleted": "on_customer_subscription_deleted",  # suivi juin 2026
     "customer.subscription.paused": "on_customer_subscription_paused",
     "customer.subscription.pending_update_applied": "on_customer_subscription_pending_update_applied",
     "customer.subscription.pending_update_expired": "on_customer_subscription_pending_update_expired",
     "customer.subscription.resumed": "on_customer_subscription_resumed",
-    "customer.subscription.trial_will_end": "on_customer_subscription_trial_will_end",
+    "customer.subscription.trial_will_end": "on_customer_subscription_trial_will_end",  # suivi juin 2026
     "customer.subscription.updated": "on_customer_subscription_updated",
     # Price mirror — local cache kept in sync with Stripe by these 3 events.
     # Spec: local-notes/specs/finances.md §4.
-    "price.created": "on_price_created",
-    "price.updated": "on_price_updated",
-    "price.deleted": "on_price_deleted",
+    "price.created": "on_price_created",  # suivi juin 2026
+    "price.updated": "on_price_updated",  # suivi juin 2026
+    "price.deleted": "on_price_deleted",  # suivi juin 2026
+    # new event received (june 2026) :
+    "invoice.payment_succeeded": "unmanaged_event",  # suivi juin 2026
+    "invoice_payment.paid": "unmanaged_event",  # suivi juin 2026
+    # customer
+    "customer.source.updated": "unmanaged_event",  # suivi juin 2026
 }
 
 
@@ -563,38 +568,64 @@ def _make_subscription_info(data_obj: dict[str, Any]) -> SubscriptionInfo:
     return subinfo
 
 
+def _get_bw_type_from_product(product: stripe.Product) -> str:
+    """Identify the BW type from Stripe product metadata."""
+    metadata = product.metadata or {}
+
+    # New format: "Subs": "BW4PR", "BW4T-GE", etc.
+    subs = metadata.get("Subs")
+    if subs:
+        from app.modules.bw.bw_activation.config import BWTYPE_ALLOWED_PRODUCTS
+
+        for bw_type, products in BWTYPE_ALLOWED_PRODUCTS.items():
+            if subs in products:
+                return str(bw_type)
+
+    # Old deprecated format fallback: "BW": "media", "agency", "com"
+    bw = str(metadata.get("BW", "other")).lower()
+    if bw == "agency":
+        return str(BWType.PR.value)
+    if bw == "media":
+        return str(BWType.MEDIA.value)
+    if bw == "com":
+        return str(BWType.PR.value)
+
+    return str(BWType.MEDIA.value)
+
+
 def _check_subscription_product(
     data_obj: dict[str, Any], subinfo: SubscriptionInfo
 ) -> bool:
-    # items = data_obj["items"]
-    # data0 = items["data"][0]
-    # plan = data0["plan"]
-    plan = data_obj["plan"]
-    subinfo.price_id = plan["id"]  # price_1QP6aDIyzOgen8Oq52ChIHSA
-    subinfo.nickname = plan["nickname"]  # BW4PR_Y, "gratuit"
-    subinfo.interval = plan["interval"]  # month, year
-    subinfo.product_id = plan["product"]  # prod_RHfMqgfIBy7L18
+    plan = data_obj.get("plan")
+    if not plan:
+        # Fallback to first item if top-level plan is missing
+        items = data_obj.get("items", {}).get("data", [])
+        if items:
+            plan = items[0].get("plan")
 
-    product = retrieve_product(plan["product"])
-    if not product:
-        warning(f"unknown Stripe subscription {subinfo.subscription_id}")
+    if not plan:
+        warning(f"no plan found in Stripe subscription {subinfo.subscription_id}")
         return False
-    bw_prod = product.metadata.get("BW", "other").lower()
-    if bw_prod in {"media", "agency", "com"}:
-        subinfo.org_type = bw_prod.upper()
-    else:
-        subinfo.org_type = "OTHER"
+
+    subinfo.price_id = plan.get("id")
+    subinfo.nickname = plan.get("nickname")
+    subinfo.interval = plan.get("interval")
+    subinfo.product_id = plan.get("product")
+
+    product = retrieve_product(subinfo.product_id)
+    if not product:
+        warning(f"unknown Stripe product {subinfo.product_id}")
+        return False
+
+    subinfo.org_type = _get_bw_type_from_product(product)
     subinfo.name = product.name
-    # info(pformat(product))
-    # price = retrieve_price(product["default_price"])
-    # info(pformat(price))
-    # info(pformat(data_obj))
-    latest_invoice = retrieve_invoice(data_obj["latest_invoice"])
-    # info(pformat(latest_invoice))
-    if latest_invoice:
-        subinfo.latest_invoice_url = latest_invoice["hosted_invoice_url"]
-    else:
-        subinfo.latest_invoice_url = ""
+
+    latest_invoice_id = data_obj.get("latest_invoice")
+    if latest_invoice_id:
+        latest_invoice = retrieve_invoice(latest_invoice_id)
+        if latest_invoice:
+            subinfo.latest_invoice_url = latest_invoice.get("hosted_invoice_url") or ""
+
     info(
         f"Stripe subscription for BW {subinfo.subscription_id}",
         f"type: {subinfo.org_type}",
@@ -607,27 +638,36 @@ def _make_customer_subscription_info(
     data_obj: dict[str, Any],
 ) -> SubscriptionInfo | None:
     subinfo = SubscriptionInfo()
-    # info("//////// data_obj")
     # info(pformat(data_obj))
 
     # security
     if data_obj.get("object") != "subscription":
         msg = f"Not a Subscription {data_obj}"
         raise ValueError(msg)
+
     subinfo.subscription_id = data_obj["id"]
     customer_id = data_obj["customer"]
     customer = retrieve_customer(customer_id)
     subinfo.customer_email = customer["email"]
-    subinfo.client_reference_id = ""
-    # info(pformat(customer))
-    # info(pformat(data_obj))
+    subinfo.client_reference_id = data_obj.get("metadata", {}).get("bw_id", "")
+
     if not _check_subscription_product(data_obj, subinfo):
         return None
+
     # data_obj is a stripe.Subscription
-    subinfo.created = data_obj["created"]
-    subinfo.current_period_start = data_obj["current_period_start"]
-    subinfo.current_period_end = data_obj["current_period_end"]
-    subinfo.quantity = data_obj["quantity"]
+    subinfo.created = data_obj.get("created", 0)
+
+    # Try top-level first, then items[0]
+    subinfo.current_period_start = data_obj.get("current_period_start")
+    subinfo.current_period_end = data_obj.get("current_period_end")
+
+    if subinfo.current_period_start is None or subinfo.current_period_end is None:
+        items = data_obj.get("items", {}).get("data", [])
+        if items:
+            subinfo.current_period_start = items[0].get("current_period_start", 0)
+            subinfo.current_period_end = items[0].get("current_period_end", 0)
+
+    subinfo.quantity = data_obj.get("quantity", 1)
     # On status:
     #
     # Possible values are incomplete, incomplete_expired, trialing, active,
@@ -666,36 +706,12 @@ def _make_customer_subscription_info(
     subinfo.status = data_obj["status"] == "active"
     subinfo.stripe_subscription_status = data_obj["status"]
 
-    # subinfo.payment_status = ""
-    # subinfo.currency = ""
-    # subinfo.invoice_id = ""
-    # subinfo.amount_total = Decimal(0)
     _log_subscription_subinfo(subinfo)
     return subinfo
 
 
-# def _parse_schedule_object(data_obj: dict[str, Any]) -> SubsSchedule:
-#     subs = SubsSchedule()
-#     # print(data_obj, file=sys.stderr)
-#     # subs.id = data_obj["id"]
-
-#     # # get customer email
-#     # customer = data_obj["customer"]
-
-#     # subs.status = data_obj["status"]
-#     # # not_started, active, completed, released, canceled
-#     # # trialing !!
-
-#     # subinfo.customer_email = data_obj["customer_email"]
-#     # subinfo.payment_status = data_obj["payment_status"]
-#     # subinfo.client_reference_id = data_obj["client_reference_id"]
-#     # subinfo.invoice_id = data_obj["invoice"]
-#     # subinfo.currency = data_obj["currency"]
-#     # subinfo.amount_total = Decimal(data_obj["amount_total"]) / 100
-#     return subs
-
-
 def _log_subscription_subinfo(subinfo: SubscriptionInfo) -> None:
+    """Log Business Wall subscription details."""
     info(
         f"BW subscription by: {subinfo.customer_email}\n"
         f"    subscription: {subinfo.subscription_id}"
@@ -705,40 +721,11 @@ def _log_subscription_subinfo(subinfo: SubscriptionInfo) -> None:
     )
 
 
-# def _log_checkout_subinfo(subinfo: SubscriptionInfo) -> None:
-#     info(
-#         f"BW subscription by: {subinfo.customer_email} "
-#         f"for org.id: {subinfo.client_reference_id}\n"
-#         f"    payment: {subinfo.payment_status}, {subinfo.amount_total} "
-#         f"{subinfo.currency}\n"
-#         f"    subscription: {subinfo.subscription_id}, invoice: {subinfo.invoice_id}"
-#     )
-
-
-# def _parse_bw_subscription(subinfo: SubscriptionInfo) -> None:
-#     stripe_bw_product = _get_bw_product(subinfo)
-#     if stripe_bw_product is None:
-#         warning(f"unknown Stripe subscription {subinfo.subscription_id}")
-#         return
-#     bw_prod = stripe_bw_product.metadata.get("BW", "other").lower()
-#     if bw_prod in {"media", "agency", "com"}:
-#         subinfo.org_type = bw_prod.upper()
-#     else:
-#         subinfo.org_type = "OTHER"
-#     subinfo.name = stripe_bw_product.name
-#     info(
-#         f"Stripe subscription for BW {subinfo.subscription_id}",
-#         f"type: {subinfo.org_type}",
-#         f'"{subinfo.name}"',
-#     )
-#     _register_bw_subscription(subinfo)
-
-
 def _register_bw_subscription(subinfo: SubscriptionInfo | None) -> None:
+    """Register/Update a Business Wall subscription."""
     if not subinfo:
-        # subscription not managed (not a BW subscription)
         return
-    # here we need to retrieve user account
+
     user = get_user_per_email(subinfo.customer_email)
     if user is None:
         warning(
@@ -746,23 +733,18 @@ def _register_bw_subscription(subinfo: SubscriptionInfo | None) -> None:
             f"from Stripe subscription {subinfo.subscription_id}",
         )
         return
-    # bw_code = stripe_bw_product.metadata.get("BW", "none")
-    # info(user)
-    org = user.organisation  # Organisation or None
-    # client_reference_id should be the org.id IF provided
+
+    org = user.organisation
     if not org:
         warning(f"{user} has no organisation")
         return
+
     if subinfo.client_reference_id and str(org.id) != str(subinfo.client_reference_id):
         warning(f"{user} organisation ID is different from client_reference_id")
-        warning(
-            f"organisation.id: {org.id},  client_reference_id: {subinfo.client_reference_id}"
-        )
         return
+
     _update_organisation_subscription_info(user, org, subinfo)
-    # also add this user invitations
     add_invited_users(user.email, org.id)
-    # Commit the manager/invitation changes
     db.session.commit()
 
 
@@ -771,42 +753,19 @@ def _update_organisation_subscription_info(
     org: Organisation,
     subinfo: SubscriptionInfo,
 ) -> None:
-    # Update org.bw_active with the BW type from subscription
-    org.stripe_subscription_id = subinfo.subscription_id
-    org.stripe_product_id = subinfo.product_id
-    org.stripe_product_quantity = subinfo.quantity
-    org.stripe_subs_creation_date = Arrow.fromtimestamp(subinfo.created)  # type: ignore
-    org.validity_date = Arrow.fromtimestamp(subinfo.current_period_end)  # type: ignore
-    org.stripe_subs_current_period_start = Arrow.fromtimestamp(  # type: ignore
-        subinfo.current_period_start
-    )
-    org.stripe_latest_invoice_url = subinfo.latest_invoice_url
-    # Map org_type to bw_active value
-    org_type_to_bw = {
-        "AGENCY": BWType.PR.value,
-        "MEDIA": BWType.MEDIA.value,
-        "OTHER": BWType.MEDIA.value,
-    }
-    org.bw_active = org_type_to_bw.get(subinfo.org_type, BWType.MEDIA.value)
+    """Update organization attributes based on subscription info."""
+    # org_type now directly contains the BWType value
+    org.bw_active = subinfo.org_type
     org.active = subinfo.status
-    org.stripe_subscription_status = subinfo.stripe_subscription_status
-    # deprecated, use BW attributes:
-    # org.bw_type = _guess_bw_type(user, org)
 
-    db_session = db.session
-    db_session.merge(org)
-    db_session.commit()
+    db.session.merge(org)
+    db.session.commit()
 
-    if subinfo.operation == "create":
-        info(
-            f"Organisation {org.name} subscribed to BW of type: {org.bw_active} "
-            f"(qty: {org.stripe_product_quantity})"
-        )
-    else:
-        info(
-            f"Organisation {org.name} with BW of type: {org.bw_active} "
-            f"(qty: {org.stripe_product_quantity}) has a new Stripe status: {subinfo.stripe_subscription_status}"
-        )
+    op_text = "subscribed to" if subinfo.operation == "create" else "updated"
+    info(
+        f"Organisation {org.name} {op_text} BW of type: {org.bw_active} "
+        f"(qty: {subinfo.quantity})"
+    )
 
 
 # def _guess_bw_type(user: User, org: Organisation) -> BWTypeEnum:

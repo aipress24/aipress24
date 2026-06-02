@@ -71,8 +71,9 @@ def _run_tax_simulation(products: list[Product]) -> dict[str, dict[str, Any]]:
                 "address_source": "billing",
             },
         )
+        assert calculation.id is not None
         lines = stripe.tax.Calculation.list_line_items(
-            calculation.id, expand=["data.tax_breakdown"]
+            calculation=calculation.id, expand=["data.tax_breakdown"]
         )
         return {
             item.reference: {
@@ -80,7 +81,7 @@ def _run_tax_simulation(products: list[Product]) -> dict[str, dict[str, Any]]:
                 "breakdown": ", ".join(
                     [
                         f"{b.tax_rate_details.display_name} ({b.tax_rate_details.percentage_decimal}%)"
-                        for b in item.tax_breakdown
+                        for b in (item.tax_breakdown or [])
                     ]
                 ),
             }
