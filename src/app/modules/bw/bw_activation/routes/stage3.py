@@ -9,6 +9,7 @@ from __future__ import annotations
 from datetime import UTC, datetime
 from typing import TYPE_CHECKING, Any, cast
 
+import stripe
 from flask import (
     current_app,
     g,
@@ -48,6 +49,7 @@ from app.modules.bw.bw_activation.utils import (
 from app.services.stripe.product import fetch_bw_product_list
 from app.services.stripe.utils import (
     get_stripe_public_key,
+    load_stripe_api_key,
     # load_pricing_table_id,
 )
 
@@ -277,6 +279,90 @@ def payment(bw_type: str):
 
 def _payment_simulation(_bw_type: str, ctx: dict[str, Any]):
     return render_template("bw_activation/payment.html", **ctx)
+
+
+@bp.route("/checkout/<bw_type>", methods=["POST"])
+def checkout(bw_type: str):
+    """Create a Stripe Checkout Session and redirect to checkout page."""
+    if bw_type not in BW_TYPES or BW_TYPES[bw_type]["free"]:
+        return redirect(url_for("bw_activation.index"))
+
+    draft_bw = _get_or_create_draft_bw_for_checkout(g.user, bw_type)
+    if draft_bw is None:
+        # should never fail
+        session["error"] = ERR_NO_ORGANISATION
+        return redirect(url_for("bw_activation.not_authorized"))
+
+    allowed_products = allowed_bw_product_list(bw_type)
+    if not allowed_products:
+        return redirect(url_for("bw_activation.index"))
+
+    load_stripe_api_key()
+
+    # fixme: for BW with several pducts, will add a selection page
+    chosen_product = allowed_products[0]
+    price_id = chosen_product["default_price"]
+
+    # for product with a quantity
+    quantity = 1
+    items = [{"price": price_id, "quantity": 1}]
+
+    success_url = url_for(
+        "bw_activation.payment_success",
+        bw_type=bw_type,
+        _external=True,
+    )
+    cancel_url = url_for(
+        "bw_activation.payment_cancel",
+        bw_type=bw_type,
+        _external=True,
+    )
+
+    checkout_kwargs: dict[str, Any] = {
+        "mode": "subscription",
+        "line_items": items,
+        "success_url": success_url,
+        "cancel_url": cancel_url,
+        "client_reference_id": str(draft_bw.id),
+        "metadata": {
+            "bw_id": str(draft_bw.id),
+            "bw_type": bw_type,
+            "user_id": str(g.user.id),
+        },
+        "automatic_tax": {"enabled": True},
+    }
+
+    # Keep exsiting customer ID
+    org = draft_bw.get_organisation()
+    if org and org.stripe_customer_id:
+        checkout_kwargs["customer"] = org.stripe_customer_id
+    else:
+        checkout_kwargs["customer_email"] = g.user.email
+
+    checkout_session = stripe.checkout.Session.create(**checkout_kwargs)
+    return redirect(checkout_session.url, code=303)
+
+
+@bp.route("/payment-success/<bw_type>")
+def payment_success(bw_type: str):
+    """Landing page after successful Stripe checkout."""
+    # Actual activation happens via webhook.
+    # We just display a success message.
+    return render_template(
+        "bw_activation/payment_success.html",
+        bw_type=bw_type,
+        bw_info=BW_TYPES.get(bw_type),
+    )
+
+
+@bp.route("/payment-cancel/<bw_type>")
+def payment_cancel(bw_type: str):
+    """Landing page after cancelled Stripe checkout."""
+    flash(
+        "Le paiement a été annulé. Vous pouvez réessayer quand vous le souhaitez.",
+        "info",
+    )
+    return redirect(url_for("bw_activation.payment_page", bw_type=bw_type))
 
 
 def allowed_bw_product_list(bw_type: str) -> list[Product]:
