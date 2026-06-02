@@ -97,6 +97,7 @@ def _complete_product(
 ) -> None:
     """Complete a Product  with formatted data and tax info."""
     product.created_fmt = arrow.get(product.created).format("DD/MM/YYYY HH:mm")
+    product.updated_fmt = arrow.get(product.updated).format("DD/MM/YYYY HH:mm")
     product.tax_sim = tax_sim_map.get(product.id)
 
     product.tax_code_name = None
