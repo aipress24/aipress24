@@ -21,7 +21,7 @@
                 </div>
             </div>
 
-            {% if stripe_live and pricing_table_id and stripe_public_key %}
+            {% if stripe_live and stripe_public_key %}
                 <div class="mb-6 p-4 bg-blue-50 border-l-4 border-blue-400 rounded">
                     <p class="text-sm text-blue-800">
                         Vous allez être redirigé·e vers Stripe pour procéder au paiement
@@ -42,13 +42,48 @@
                 </form>
                 <div id="stripe-pt-wrapper" hidden>
                     <form method="POST" action="{{ url_for('bw_activation.checkout', bw_type=bw_type) }}">
-                        <button type="submit"
-                                class="w-full rounded-md bg-blue-600 px-4 py-3 text-sm font-semibold text-white shadow-sm hover:bg-blue-700">
+                        {% if multiple_products %}
+                            <div class="mb-6">
+                                <h3 class="font-semibold text-gray-800 mb-4">Choisissez votre abonnement :</h3>
+                                <div class="space-y-4">
+                                    {% for product in allowed_products %}
+                                        <label
+                                            class="flex items-center p-4 border rounded-lg cursor-pointer hover:bg-gray-50 focus-within:ring-2 focus-within:ring-blue-500">
+                                            <input
+                                                type="radio"
+                                                name="product_id"
+                                                value="{{ product.id }}"
+                                                class="h-4 w-4 text-blue-600 border-gray-300" {% if loop.first %}checked{% endif %} required>
+                                            <div
+                                                class="ml-3 flex flex-col">
+                                                <span
+                                                    class="block text-sm font-medium text-gray-900">{{ product.name }}
+                                                </span>
+                                                {% if product.description %}
+                                                    <span
+                                                        class="block text-sm text-gray-500">
+                                                        {{ product.description }}
+                                                    </span>
+                                                {% endif %}
+                                            </div>
+                                        </label>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        {% else %}
+                            <input
+                                type="hidden"
+                                name="product_id"
+                                value="{{ allowed_products[0].id }}">
+                        {% endif %}
+                        <button
+                            type="submit"
+                            class="w-full rounded-md bg-blue-600 px-4 py-3 text-sm font-semibold text-white shadow-sm hover:bg-blue-700">
                             Procéder au paiement sur Stripe
                         </button>
                     </form>
                 </div>
-                
+
                 <script async src="https://js.stripe.com/v3/pricing-table.js"></script>
                 <script>
                     (function () {
@@ -59,10 +94,12 @@
                         });
                     })();
                 </script>
-                
+
                 <div class="mt-6 flex justify-between">
                     <a href="{{ url_for('bw_activation.index') }}"
-                       class="text-gray-600 hover:underline">← Annuler</a>
+                       class="text-gray-600 hover:underline">
+                        ← Annuler
+                    </a>
                 </div>
             {% else %}
             <!-- Fallback : simulation (flag Stripe désactivé ou config incomplète) -->
