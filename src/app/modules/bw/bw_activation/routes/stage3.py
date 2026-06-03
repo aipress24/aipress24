@@ -321,8 +321,15 @@ def checkout(bw_type: str):
         session["error"] = ERR_UNKNOWN_ACTION
         return redirect(url_for("bw_activation.not_authorized"))
 
-    # for product with a quantity
-    quantity = 1
+    # if user entered 'client_count' or 'employee_count' in the pricing step
+    # which was saved in session["pricing_value"] by set_pricing()
+    try:
+        quantity = int(session.get("pricing_value", 1))
+    except (ValueError, TypeError):
+        quantity = 1
+
+    quantity = max(1, quantity)
+
     items = [{"price": price_id, "quantity": quantity}]
 
     success_url = url_for(
