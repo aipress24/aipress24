@@ -16,17 +16,18 @@ from .models import BWType
 
 BWTYPE_ALLOWED_PRODUCTS: dict[str, list[str]] = {
     BWType.TRANSFORMERS.value: [
+        "BW4T-ETI",
         "BW4T-GE",
         "BW4T-PME",
-        "BW4T-TPE",
         "BW4T-Solo",
+        "BW4T-TPE",
     ],
     BWType.LEADERS_EXPERTS.value: [
-        "BW4L&E-GE",
         "BW4L&E-ETI",
+        "BW4L&E-GE",
         "BW4L&E-PME",
-        "BW4L&E-TPE",
         "BW4L&E-Solo",
+        "BW4L&E-TPE",
     ],
     BWType.PR.value: ["BW4PR"],
 }
