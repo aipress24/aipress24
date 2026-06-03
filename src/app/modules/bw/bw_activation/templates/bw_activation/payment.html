@@ -41,41 +41,22 @@
                     </label>
                 </form>
                 <div id="stripe-pt-wrapper" hidden>
-                    <form method="POST" action="{{ url_for('bw_activation.checkout', bw_type=bw_type) }}">
-                        {% if multiple_products %}
-                            <div class="mb-6">
-                                <h3 class="font-semibold text-gray-800 mb-4">Choisissez votre abonnement :</h3>
-                                <div class="space-y-4">
-                                    {% for product in allowed_products %}
-                                        <label
-                                            class="flex items-center p-4 border rounded-lg cursor-pointer hover:bg-gray-50 focus-within:ring-2 focus-within:ring-blue-500">
-                                            <input
-                                                type="radio"
-                                                name="product_id"
-                                                value="{{ product.id }}"
-                                                class="h-4 w-4 text-blue-600 border-gray-300" {% if loop.first %}checked{% endif %} required>
-                                            <div
-                                                class="ml-3 flex flex-col">
-                                                <span
-                                                    class="block text-sm font-medium text-gray-900">{{ product.name }}
-                                                </span>
-                                                {% if product.description %}
-                                                    <span
-                                                        class="block text-sm text-gray-500">
-                                                        {{ product.description }}
-                                                    </span>
-                                                {% endif %}
-                                            </div>
-                                        </label>
-                                    {% endfor %}
-                                </div>
-                            </div>
-                        {% else %}
-                            <input
-                                type="hidden"
-                                name="product_id"
-                                value="{{ allowed_products[0].id }}">
+                    <div class="mb-6 p-4 border rounded-lg bg-gray-50">
+                        <h3
+                            class="font-semibold text-gray-800 mb-2">Abonnement sélectionné&nbsp;:
+                        </h3>
+                        <p
+                            class="text-sm font-medium text-gray-900">
+                            {{ chosen_product.name }}
+                        </p>
+                        {% if chosen_product.description %}
+                            <p
+                                class="text-sm text-gray-500 mt-1">
+                                {{ chosen_product.description }}
+                            </p>
                         {% endif %}
+                    </div>
+                    <form method="POST" action="{{ url_for('bw_activation.checkout', bw_type=bw_type) }}">
                         <button
                             type="submit"
                             class="w-full rounded-md bg-blue-600 px-4 py-3 text-sm font-semibold text-white shadow-sm hover:bg-blue-700">

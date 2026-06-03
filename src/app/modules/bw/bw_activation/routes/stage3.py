@@ -281,6 +281,32 @@ def _payment_simulation(_bw_type: str, ctx: dict[str, Any]):
     return render_template("bw_activation/payment.html", **ctx)
 
 
+def _select_product_for_quantity(products: list[Product], quantity: int) -> Product:
+    """Select the product whose 'maximum' metadata is >= quantity."""
+    if not products:
+        msg = "Empty list of products"
+        raise ValueError(msg)
+
+    parsed_products = []
+    for p in products:
+        meta = p.get("metadata", {})
+        max_str = meta.get("maximum") or meta.get("Maximum") or meta.get("MAXIMUM")
+        try:
+            max_val = int(max_str)
+        except (ValueError, TypeError):
+            max_val = float("inf")
+        parsed_products.append((max_val, p))
+
+    parsed_products.sort()
+
+    for max_val, p in parsed_products:
+        if quantity <= max_val:
+            return p
+
+    # if no threshold found send back the largest product
+    return parsed_products[-1][1]
+
+
 @bp.route("/checkout/<bw_type>", methods=["POST"])
 def checkout(bw_type: str):
     """Create a Stripe Checkout Session and redirect to checkout page."""
@@ -299,14 +325,15 @@ def checkout(bw_type: str):
 
     load_stripe_api_key()
 
-    # Determine chosen product from form or default to first
-    selected_product_id = request.form.get("product_id")
-    chosen_product = allowed_products[0]
-    if selected_product_id:
-        for p in allowed_products:
-            if p.id == selected_product_id:
-                chosen_product = p
-                break
+    try:
+        quantity = int(session.get("pricing_value", 1))
+    except (ValueError, TypeError):
+        quantity = 1
+
+    quantity = max(1, quantity)
+
+    # Automatically choose the product based on quantity
+    chosen_product = _select_product_for_quantity(allowed_products, quantity)
 
     # Extract the price ID
     # it might be a dict due to expansion, or just the string ID)
@@ -320,15 +347,6 @@ def checkout(bw_type: str):
         warn(f"No default price found for product {chosen_product.id}")
         session["error"] = ERR_UNKNOWN_ACTION
         return redirect(url_for("bw_activation.not_authorized"))
-
-    # if user entered 'client_count' or 'employee_count' in the pricing step
-    # which was saved in session["pricing_value"] by set_pricing()
-    try:
-        quantity = int(session.get("pricing_value", 1))
-    except (ValueError, TypeError):
-        quantity = 1
-
-    quantity = max(1, quantity)
 
     items = [{"price": price_id, "quantity": quantity}]
 
@@ -421,14 +439,15 @@ def _payment_live_enabled(bw_type: str, ctx: dict[str, Any]):
         warn(f"Bug: no allowd stripe product found for bw_type {bw_type!r}")
         return redirect(url_for("bw_activation.not_authorized"))
 
-    # Sort products by amount if possible to show lowest price first
-    allowed_products.sort(
-        key=lambda p: p.get("default_price", {}).get("unit_amount", 0)
-        if isinstance(p.get("default_price"), dict)
-        else 0
-    )
+    try:
+        quantity = int(session.get("pricing_value", 1))
+    except (ValueError, TypeError):
+        quantity = 1
 
-    multiple_products = len(allowed_products) > 1
+    quantity = max(1, quantity)
+
+    # Automatically choose the product based on quantity for display
+    chosen_product = _select_product_for_quantity(allowed_products, quantity)
 
     ctx.update(
         {
@@ -436,8 +455,7 @@ def _payment_live_enabled(bw_type: str, ctx: dict[str, Any]):
             "bw_id": str(draft_bw.id),
             "stripe_public_key": get_stripe_public_key(),
             "user_email": g.user.email,
-            "allowed_products": allowed_products,
-            "multiple_products": multiple_products,
+            "chosen_product": chosen_product,
         }
     )
     return render_template("bw_activation/payment.html", **ctx)
