@@ -7,9 +7,10 @@
 from __future__ import annotations
 
 import sqlalchemy as sa
-from flask import render_template, request
+from flask import g, render_template, request
 from sqlalchemy.orm import InstrumentedAttribute
 
+from app.enums import RoleEnum
 from app.flask.extensions import db
 from app.flask.routing import url_for
 from app.flask.sqla import get_multi
@@ -19,10 +20,12 @@ from app.modules.biz.models import (
     EditorialProduct,
     JobOffer,
     MarketplaceContent,
+    MissionCategory,
     MissionOffer,
     ProjectOffer,
 )
 from app.modules.biz.views._common import FILTER_SPECS, TABS
+from app.services.roles import has_role
 
 
 @blueprint.route("/")
@@ -55,6 +58,17 @@ def _get_objs() -> list[MarketplaceContent]:
                 .order_by(MissionOffer.created_at.desc())
                 .limit(30)
             )
+            # Bug #0186 — Journalism missions are visible only to
+            # PRESS_MEDIA. Other communities don't get to know what
+            # journalists post. NULL category (back-compat) stays
+            # visible to everyone.
+            if not has_role(g.user, RoleEnum.PRESS_MEDIA):
+                stmt = stmt.where(
+                    sa.or_(
+                        MissionOffer.category.is_(None),
+                        MissionOffer.category != MissionCategory.JOURNALISME,
+                    )
+                )
             return get_multi(MissionOffer, stmt)
         case "projects":
             stmt = (

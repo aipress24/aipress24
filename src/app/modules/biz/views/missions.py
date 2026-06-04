@@ -8,7 +8,7 @@ from __future__ import annotations
 
 from typing import cast
 
-from flask import flash, g, redirect, render_template, request, url_for
+from flask import abort, flash, g, redirect, render_template, request, url_for
 from wtforms import (
     DateField,
     Form,
@@ -19,6 +19,7 @@ from wtforms import (
     validators,
 )
 
+from app.enums import RoleEnum
 from app.flask.extensions import db
 from app.models.auth import User
 from app.models.lifecycle import PublicationStatus
@@ -45,6 +46,7 @@ from app.modules.bw.bw_activation.user_utils import get_selected_business_wall_f
 from app.modules.kyc.dynform import CountrySelectField
 from app.modules.kyc.ontology_loader import get_choices as get_ontology_choices
 from app.modules.wip.pr_access import check_mission
+from app.services.roles import has_role
 from app.signals import marketplace_published
 
 # Bug #0185 — top-level Mission sub-typing. The 3 categories Erick
@@ -151,6 +153,25 @@ def missions_new():
         else:
             category = None
 
+        # Bug #0186 — only journalists may publish Journalism
+        # missions. Strip the category silently and flash a hint
+        # instead of crashing so the rest of the form is still useful
+        # (the user can lower their ambition to Communication /
+        # Innovation if they wish).
+        if category == MissionCategory.JOURNALISME and not has_role(
+            user, RoleEnum.PRESS_MEDIA
+        ):
+            flash(
+                "Les missions Journalisme sont réservées aux journalistes.",
+                "error",
+            )
+            return render_template(
+                "pages/missions/new.j2",
+                form=form,
+                title="Publier une mission",
+                mission_subcategories=MISSION_SUBCATEGORIES,
+            )
+
         mission = MissionOffer(
             title=form.title.data or "",
             description=form.description.data or "",
@@ -192,9 +213,23 @@ def missions_new():
     )
 
 
+def _enforce_journalism_visibility(mission: MissionOffer) -> None:
+    """Bug #0186 — Journalism missions are only visible to PRESS_MEDIA.
+
+    Abort 404 (not 403) so non-journalists can't probe for the
+    existence of restricted missions. Per Erick : « les autres
+    communautés n'ont pas à savoir ce que postent les journalistes ».
+    """
+    if mission.category != MissionCategory.JOURNALISME:
+        return
+    if not has_role(g.user, RoleEnum.PRESS_MEDIA):
+        abort(404)
+
+
 @blueprint.route("/missions/<int:id>")
 def missions_detail(id: int):
     mission = get_offer_or_404(MissionOffer, id)
+    _enforce_journalism_visibility(mission)
     user = cast(User, g.user)
 
     user_application = None
@@ -213,12 +248,14 @@ def missions_detail(id: int):
 @blueprint.route("/missions/<int:id>/apply", methods=["POST"])
 def missions_apply(id: int):
     mission = get_offer_or_404(MissionOffer, id)
+    _enforce_journalism_visibility(mission)
     return handle_apply(mission, detail_endpoint=".missions_detail")
 
 
 @blueprint.route("/missions/<int:id>/applications")
 def missions_applications(id: int):
     mission = get_offer_or_404(MissionOffer, id)
+    _enforce_journalism_visibility(mission)
     from app.modules.biz.views._offers_common import require_owner
 
     require_owner(mission)

@@ -645,3 +645,210 @@ class TestMissionCategorySubtyping:
         assert "Type de mission" in body
         assert "Journalisme" in body
         assert "Pige / Reportage" in body
+
+
+class TestJournalismVisibilityRestriction:
+    """Bug #0186 (Erick, 2026-06-04) — MARKET/MISSIONS/MISSIONS
+    JOURNALISME : « seuls les journalistes peuvent les poster et les
+    voir. Les autres communautés n'ont pas à savoir ce que postent
+    les journalistes ni qui y répond. »
+
+    A community-level (not BW-level) visibility gate :
+    - only PRESS_MEDIA users see Journalism missions in the listing ;
+    - the detail page returns 404 (not 403, to avoid leaking
+      existence) for non-journalists ;
+    - the apply route refuses non-journalist candidates ;
+    - the deposit POST refuses a non-journalist trying to create one.
+
+    Other categories (Communication, Innovation) stay visible to
+    every authenticated user.
+    """
+
+    @pytest.fixture
+    def journalism_mission(
+        self, db_session: Session, emitter: User, org: Organisation
+    ) -> MissionOffer:
+        mission = MissionOffer(
+            title="Mission Journalisme — visibilité restreinte",
+            description="<p>Pige investigation IA</p>",
+            sector="media",
+            status=PublicationStatus.PUBLIC,
+            mission_status=MissionStatus.OPEN,
+            owner_id=emitter.id,
+            emitter_org_id=org.id,
+            category=MissionCategory.JOURNALISME,
+            subcategory="Enquête",
+        )
+        db_session.add(mission)
+        db_session.commit()
+        return mission
+
+    @pytest.fixture
+    def communication_mission(
+        self, db_session: Session, emitter: User, org: Organisation
+    ) -> MissionOffer:
+        mission = MissionOffer(
+            title="Mission Communication — visible à tous",
+            description="<p>Stratégie RP</p>",
+            sector="media",
+            status=PublicationStatus.PUBLIC,
+            mission_status=MissionStatus.OPEN,
+            owner_id=emitter.id,
+            emitter_org_id=org.id,
+            category=MissionCategory.COMMUNICATION,
+            subcategory="Campagne RP",
+        )
+        db_session.add(mission)
+        db_session.commit()
+        return mission
+
+    @pytest.fixture
+    def non_journalist_user(self, db_session: Session) -> User:
+        """A user with no PRESS_MEDIA role — e.g. PR_RELATIONS or
+        EXPERT — should not see Journalism missions."""
+        pr_role_name = "PRESS_RELATIONS"
+        role = db_session.query(Role).filter_by(name=pr_role_name).first()
+        if role is None:
+            role = Role(name=pr_role_name, description="press relations")
+            db_session.add(role)
+            db_session.flush()
+        user = User(email=_unique_email(), active=True)
+        user.photo = b""
+        user.roles.append(role)
+        db_session.add(user)
+        db_session.commit()
+        return user
+
+    # ---- Listing -------------------------------------------------------
+
+    def test_journalist_sees_journalism_mission_in_listing(
+        self,
+        app: Flask,
+        emitter: User,
+        journalism_mission: MissionOffer,
+    ):
+        client = make_authenticated_client(app, emitter)
+        response = client.get("/biz/?current_tab=missions")
+        assert response.status_code == 200
+        assert journalism_mission.title.encode() in response.data
+
+    def test_non_journalist_does_not_see_journalism_mission_in_listing(
+        self,
+        app: Flask,
+        non_journalist_user: User,
+        journalism_mission: MissionOffer,
+        communication_mission: MissionOffer,
+    ):
+        client = make_authenticated_client(app, non_journalist_user)
+        response = client.get("/biz/?current_tab=missions")
+        assert response.status_code == 200
+        # Journalism mission must NOT appear.
+        assert journalism_mission.title.encode() not in response.data, (
+            "Journalism missions must be hidden from non-journalists (#0186)"
+        )
+        # Communication mission stays visible.
+        assert communication_mission.title.encode() in response.data, (
+            "Non-journalism categories must stay visible to everyone (#0186)"
+        )
+
+    # ---- Detail --------------------------------------------------------
+
+    def test_journalist_can_open_journalism_mission_detail(
+        self,
+        app: Flask,
+        emitter: User,
+        journalism_mission: MissionOffer,
+    ):
+        client = make_authenticated_client(app, emitter)
+        response = client.get(f"/biz/missions/{journalism_mission.id}")
+        assert response.status_code == 200
+
+    def test_non_journalist_gets_404_on_journalism_mission_detail(
+        self,
+        app: Flask,
+        non_journalist_user: User,
+        journalism_mission: MissionOffer,
+    ):
+        client = make_authenticated_client(app, non_journalist_user)
+        response = client.get(f"/biz/missions/{journalism_mission.id}")
+        # 404, not 403 — avoid leaking the existence of the row
+        # (Erick : « n'ont pas à savoir ce que postent les
+        # journalistes »).
+        assert response.status_code == 404, (
+            "Journalism mission detail must 404 for non-journalists, "
+            "not 403, to avoid leaking the row's existence (#0186)"
+        )
+
+    def test_communication_mission_detail_open_to_all(
+        self,
+        app: Flask,
+        non_journalist_user: User,
+        communication_mission: MissionOffer,
+    ):
+        client = make_authenticated_client(app, non_journalist_user)
+        response = client.get(f"/biz/missions/{communication_mission.id}")
+        assert response.status_code == 200
+
+    # ---- Apply ---------------------------------------------------------
+
+    def test_non_journalist_cannot_apply_to_journalism_mission(
+        self,
+        app: Flask,
+        non_journalist_user: User,
+        journalism_mission: MissionOffer,
+        db_session: Session,
+    ):
+        client = make_authenticated_client(app, non_journalist_user)
+        with patch(
+            "app.modules.biz.views._offers_common.notify_emitter_of_application"
+        ) as mock_notify:
+            response = client.post(
+                f"/biz/missions/{journalism_mission.id}/apply",
+                data={"message": "Test interdit"},
+                follow_redirects=False,
+            )
+        # Either 404 (consistent with the detail gate) or 403 — what
+        # matters is no application is persisted and no mail is sent.
+        assert response.status_code in (302, 403, 404)
+        count = (
+            db_session.query(OfferApplication)
+            .filter_by(offer_id=journalism_mission.id)
+            .count()
+        )
+        assert count == 0
+        mock_notify.assert_not_called()
+
+    # ---- Posting -------------------------------------------------------
+
+    def test_non_journalist_cannot_post_journalism_mission(
+        self,
+        app: Flask,
+        non_journalist_user: User,
+        db_session: Session,
+    ):
+        client = make_authenticated_client(app, non_journalist_user)
+        response = client.post(
+            "/biz/missions/new",
+            data={
+                "title": "Mission interdite",
+                "description": "Une description suffisamment longue pour le test.",
+                "sector": "media",
+                "category": "journalisme",
+                "subcategory": "Enquête",
+                "budget_min": "500",
+                "budget_max": "1500",
+            },
+            follow_redirects=False,
+        )
+        # Either 302 with flash error / 403 — what matters : no
+        # Journalism mission is created by a non-journalist.
+        assert response.status_code in (200, 302, 403)
+        count = (
+            db_session.query(MissionOffer)
+            .filter_by(title="Mission interdite")
+            .count()
+        )
+        assert count == 0, (
+            "non-journalists must not be able to publish a Journalism "
+            "mission (#0186)"
+        )
