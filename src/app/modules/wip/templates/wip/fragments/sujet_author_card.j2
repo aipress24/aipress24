@@ -1,0 +1,12 @@
+{# Sujet detail / edit — author mini-card (#0132 part 2).
+
+   Erick (2026-06-02) : « on ne voit toujours pas la carte résumée du
+   journaliste avec sa photo ». Use the shared `poster_card` macro
+   (photo + name + role + organisation + profile link + BW link)
+   above the form so the rédac chef can identify the proposer at a
+   glance and click through to their profile or Business Wall.
+#}
+{% from "macros/_poster_card.j2" import poster_card %}
+<div class="mb-6">
+  {{ poster_card(author, title="Auteur", show_bw_link=True) }}
+</div>

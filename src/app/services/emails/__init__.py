@@ -32,6 +32,7 @@ from .mailers import (
     MissionApplicationMail,
     PRPublicationNotificationMail,
     PublicationNotificationMail,
+    SujetAcceptanceNotificationMail,
     SujetPropositionNotificationMail,
 )
 
@@ -55,6 +56,7 @@ __all__ = [
     "MissionApplicationMail",
     "PRPublicationNotificationMail",
     "PublicationNotificationMail",
+    "SujetAcceptanceNotificationMail",
     "SujetPropositionNotificationMail",
 ]
 

@@ -18,7 +18,7 @@ from __future__ import annotations
 import datetime as dt
 from types import SimpleNamespace
 from typing import TYPE_CHECKING
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock
 
 import pytest
 from svcs.flask import container
@@ -288,32 +288,33 @@ class TestSujetFormFields:
         assert "<script>" not in html
         assert "&lt;script&gt;" in html
 
-    def test_extra_view_html_wraps_author_name_in_profile_link(
+    def test_extra_view_html_renders_profile_link_to_swork_member(
         self,
         db_session: Session,
         media_org: Organisation,
         author_user: User,
     ):
-        """Ticket #0132 part 2 (Erick, 2026-05-22) : « il serait bien
-        d'avoir son mini-profil car, ici, on ne peut cliquer pour voir
-        le profil entier de Nicolas Mouriou et vérifier à qui le
-        rédacteur en chef a affaire ». Wrap the author full_name in
-        an `<a href=...>` pointing at their profile."""
+        """Bug #0132 part 2 (Erick, 2026-06-02) : the author block was
+        upgraded from a text-only blue box to the shared `poster_card`
+        macro. The mini-card must include a clickable link to the
+        author's profile page in /swork/members/<id> so the rédac chef
+        can vérifier à qui ils ont affaire."""
         sujet = _make_sujet(db_session, media_id=media_org.id, owner_id=author_user.id)
-        with patch("app.flask.routing.url_for") as mock_url_for:
-            mock_url_for.return_value = "/swork/members/X"
-            view = SujetsWipView()
-            html = view._extra_view_html(sujet, mode="view")
-        # The author name must sit inside an <a> element.
-        assert f">{author_user.full_name}</a>" in html, (
-            "author name must be wrapped in a profile link (#0132/2)"
+        view = SujetsWipView()
+        html = view._extra_view_html(sujet, mode="view")
+        assert f"/swork/members/{author_user.id}" in html, (
+            "author mini-card must link to the profile page (#0132/2)"
         )
 
-    def test_extra_view_html_includes_fonction_and_media(
+    def test_extra_view_html_includes_author_name_and_organisation(
         self, db_session: Session, media_org: Organisation
     ):
-        """Bug #0132 (2026-05-14): the author line must read
-        "<nom>, <fonction>, <média>" — not the bare name."""
+        """The author mini-card must surface the author's name and
+        organisation (the rédac chef needs both to identify the
+        proposer). The fonction line — computed from KYC fields like
+        `fonctions_journalisme` or `metiers` — is rendered when
+        available, but not required to be present (#0132 / Erick
+        2026-06-02)."""
         org = Organisation(name="Fake-Le Quotient du Médecin")
         db_session.add(org)
         db_session.flush()
@@ -321,7 +322,11 @@ class TestSujetFormFields:
             email="nico@example.com", first_name="Nicolas", last_name="Mouriou"
         )
         author.profile = KYCProfile(
-            profile_label="journaliste avec carte de presse en micro-entreprise"
+            match_making={
+                "fonctions_journalisme": [
+                    "journaliste avec carte de presse en micro-entreprise",
+                ]
+            }
         )
         author.organisation = org
         author.organisation_id = org.id
@@ -332,8 +337,10 @@ class TestSujetFormFields:
         html = SujetsWipView()._extra_view_html(sujet, mode="view")
 
         assert "Nicolas Mouriou" in html
-        assert "journaliste avec carte de presse en micro-entreprise" in html
         assert "Fake-Le Quotient du Médecin" in html
+        # The fonction sourced from `fonctions_journalisme` appears in
+        # the metier_fonction line of the poster_card macro.
+        assert "journaliste avec carte de presse en micro-entreprise" in html
 
     def test_sujet_view_template_renders_author_before_form(self):
         """Bug #0132 (2026-05-14): the author block sits *above* the

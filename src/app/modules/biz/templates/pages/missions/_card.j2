@@ -1,6 +1,6 @@
 {# Partial: card for a MissionOffer in listings.
    Expects `obj` to be a MissionOffer in scope. #}
-{% from "pages/_poster_card.j2" import poster_card %}
+{% from "macros/_poster_card.j2" import poster_card %}
 <div class="p-4">
   <a href="{{ url_for('biz.missions_detail', id=obj.id) }}" class="block">
     <div class="flex items-start justify-between mb-2">

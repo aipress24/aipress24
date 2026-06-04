@@ -1,5 +1,5 @@
 {# Partial: card for a JobOffer in listings. `obj` is a JobOffer. #}
-{% from "pages/_poster_card.j2" import poster_card %}
+{% from "macros/_poster_card.j2" import poster_card %}
 <div class="p-4">
   <a href="{{ url_for('biz.jobs_detail', id=obj.id) }}" class="block">
     <div class="flex items-start justify-between mb-2">

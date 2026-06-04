@@ -9,7 +9,6 @@ from typing import cast
 from attr import define
 from flask import Flask, abort, flash, g, redirect
 from flask_super.registry import register
-from markupsafe import escape
 from sqlalchemy import and_, func, or_, select
 from sqlalchemy.orm import selectinload
 from werkzeug import Response
@@ -255,16 +254,14 @@ class SujetsWipView(BaseWipView):
         return self._view_ctx(model, title=title, mode="view")
 
     def _extra_view_html(self, model, mode: str) -> str:
-        """Show the author — name, fonction and média — above the form.
+        """Render the author mini-card above the form.
 
-        Bug #0132: the chief editor of the receiving media opens the
-        developed sujet (view or edit mode) and must see who proposed
-        it, with enough context to identify them, but cannot modify the
-        author. Per the 2026-05-14 feedback the line reads
-        "Auteur : <nom>, <fonction>, <média>" and sits at the top.
-
-        Rendered via `{{ extra_view_html|safe }}`, so every
-        user-controlled value must be HTML-escaped before interpolation.
+        Bug #0132 part 2 (Erick, 2026-06-02) : the previous version
+        rendered a text-only blue box (« Auteur : <nom>, <fonction>,
+        <média> »). Erick : « on ne voit toujours pas la carte
+        résumée du journaliste avec sa photo ». Replace with the
+        shared `poster_card` macro (photo + name + role +
+        organisation + profile link + BW link).
         """
         if mode == "new":
             return ""
@@ -272,34 +269,12 @@ class SujetsWipView(BaseWipView):
         if not owner:
             return ""
 
-        publisher = getattr(model, "publisher", None)
-        org_name = publisher.name if publisher else owner.organisation_name
+        from flask import render_template
 
-        # Ticket #0132 part 2 (Erick, 2026-05-22) : the rédac chef must
-        # be able to click the author's name to open their full profile
-        # — « ici, on ne peut cliquer pour voir le profil entier de
-        # Nicolas Mouriou et vérifier à qui le rédacteur en chef a
-        # affaire ». `url_for(owner)` resolves the OpenGraph-style
-        # profile route (returns "" for anonymous / orphan users).
-        profile_url = url_for(owner) or ""
-        escaped_name = escape(owner.full_name)
-        if profile_url:
-            name_html = (
-                f'<a href="{escape(profile_url)}" '
-                f'class="text-primary-700 hover:underline">{escaped_name}</a>'
-            )
-        else:
-            name_html = escaped_name
-
-        tail_parts = [owner.job_title, org_name]
-        tail = ", ".join(escape(p) for p in tail_parts if p)
-        line = f"{name_html}, {tail}" if tail else name_html
-        return f"""
-        <div class="mb-6 border-l-4 border-blue-400 bg-blue-50 p-4">
-            <h3 class="text-sm font-medium text-gray-500">Auteur</h3>
-            <p class="text-sm font-medium text-gray-900">{line}</p>
-        </div>
-        """
+        return render_template(
+            "wip/fragments/sujet_author_card.j2",
+            author=owner,
+        )
 
     def publish(self, id):
         """Bug 0132: move sujet DRAFT → PUBLIC and notify the target media."""
@@ -353,7 +328,8 @@ class SujetsWipView(BaseWipView):
 
     def accept(self, id):
         """Bug #0132 part 3 : materialise a Commande from the sujet,
-        archive the sujet, notify the author."""
+        archive the sujet, notify the author (bell + mail #0132 part
+        6)."""
         sujet = cast("Sujet", self._get_model(id))
         try:
             commande = accept_sujet_as_commande(sujet, g.user)
@@ -371,6 +347,33 @@ class SujetsWipView(BaseWipView):
                 sujet_title=sujet.titre,
                 commande_url=commande_url,
             )
+            # Bug #0132 part 6 (Erick, 2026-06-02) : in addition to
+            # the bell notification, send an email so the journalist
+            # learns about the acceptance even if they don't open
+            # AiPRESS24 right away. Mail failures must not undo the
+            # state change — wrap in try/except.
+            if author.email:
+                try:
+                    accepter_org = getattr(g.user, "organisation", None)
+                    accepter_org_name = (
+                        getattr(accepter_org, "bw_name", None)
+                        or getattr(accepter_org, "name", None)
+                        or ""
+                    )
+                    from app.services.emails import SujetAcceptanceNotificationMail
+
+                    mail = SujetAcceptanceNotificationMail(
+                        sender="contact@aipress24.com",
+                        recipient=author.email,
+                        sender_mail=g.user.email,
+                        accepter_full_name=g.user.full_name,
+                        accepter_organisation=accepter_org_name,
+                        sujet_title=sujet.titre,
+                        commande_url=commande_url,
+                    )
+                    mail.send()
+                except Exception as exc:
+                    warn(f"sujet acceptance mail failed (sujet {sujet.id}): {exc}")
         flash("Sujet accepté : une commande a été créée et l'auteur a été notifié.")
         return redirect(url_for("CommandesWipView:index"))
 

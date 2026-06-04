@@ -46,7 +46,13 @@ def profile_image(user, size: int = 24, **kw) -> Markup:
     url = user.photo_image_signed_url()
 
     cls += [f"h-{size}", f"w-{size}", "object-cover", "rounded-full"]
-    community = user.first_community()
+    # `first_community()` raises when the user has no community role
+    # yet (incomplete KYC). Don't let that crash a page that's just
+    # showing a profile thumbnail — fall back to a neutral border.
+    try:
+        community = user.first_community()
+    except RuntimeError:
+        community = None
     match community:
         case RoleEnum.PRESS_MEDIA:
             cls += ["border-red-500"]
@@ -59,8 +65,7 @@ def profile_image(user, size: int = 24, **kw) -> Markup:
         case RoleEnum.ACADEMIC:
             cls += ["border-orange-500"]
         case _:
-            msg = f"Unknown community: {community}"
-            raise RuntimeError(msg)
+            cls += ["border-gray-300"]
 
     if size < 12:
         ring_size = "border-2"

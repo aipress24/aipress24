@@ -553,11 +553,16 @@ class KYCProfile(Base):
 
     @property
     def metiers(self) -> list[str]:
-        return self.info_personnelle["metier_principal_detail"] or []
+        # `.get()` rather than `[]` — `info_personnelle` defaults to
+        # `{}` for users with an incomplete KYC profile, and the
+        # bracket access used to crash `metier_fonction` on its
+        # `metiers` fall-through. Aligned with `fonctions_journalisme`
+        # which already uses `.get(..., [])`.
+        return self.info_personnelle.get("metier_principal_detail") or []
 
     @property
     def metiers_autres(self) -> list[str]:
-        return self.info_personnelle["metier_detail"] or []
+        return self.info_personnelle.get("metier_detail") or []
 
     @property
     def secteurs_activite(self) -> list[str]:

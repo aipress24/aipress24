@@ -149,6 +149,31 @@ class SujetPropositionNotificationMail(EmailTemplate):
 
 
 @dataclass(kw_only=True)
+class SujetAcceptanceNotificationMail(EmailTemplate):
+    """Bug #0132 part 6 (Erick, 2026-06-02): notify the journalist
+    author when their sujet has been accepted by the receiving media
+    and materialised as a Commande. Mirrors the « proposition »
+    notification flow in the opposite direction (the rédac chef is
+    the sender, the original author the recipient).
+
+    Args:
+        - accepter_full_name: rédac chef who accepted.
+        - accepter_organisation: their media's display name (mention
+          « Commanditaire : <nom>, <fonction>, <média> » per Erick).
+        - sujet_title: title of the accepted sujet.
+        - commande_url: absolute URL to the new Commande in
+          WORK/NEWSROOM/Commandes.
+    """
+
+    subject: str = "[Aipress24] Votre sujet a été accepté"
+    template_html: str = "sujet_acceptance_notification.j2"
+    accepter_full_name: str
+    accepter_organisation: str
+    sujet_title: str
+    commande_url: str
+
+
+@dataclass(kw_only=True)
 class MissionApplicationMail(EmailTemplate):
     """Notify a mission emitter that someone has applied to their mission.
 

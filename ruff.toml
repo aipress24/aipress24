@@ -99,6 +99,7 @@ lint.ignore = [
     "RUF043", #  pytest-raises-ambiguous-pattern
     "B017", #    assert-raises-exception
     "SIM117",
+    "PT018",
 ]
 "tasks.py" = [
     "T201", #    print
