@@ -34,6 +34,9 @@ from app.modules.swork.components.organisations_list import (
     FilterByCityOrm as OrgFilterByCityOrm,
     FilterByDeptOrm as OrgFilterByDeptOrm,
     OrganisationsList,
+    OrgFilterByTailleOrganisation,
+    OrgFilterByTypeOrganisation,
+    OrgFilterByTypePresseEtMedia,
     OrgsDirectory,
     OrgVM as OrgListOrgVM,
 )
@@ -590,11 +593,79 @@ class TestOrganisationsListFilters:
     def test_get_filters_returns_list(
         self, db_session: Session, test_organisation: Organisation
     ):
-        """Test get_filters returns list of filters."""
+        """Bug #0078 (Erick, 2026-05-27) : 5 BW-backed filters added to
+        /swork/organisations on top of the 4 existing geo + category
+        filters — Types d'organisation, Types presse & médias, Types
+        de PR Agencies, Tailles d'organisation, Secteurs détaillés.
+        Source data is on BusinessWall (populated in W10), mirrors the
+        equivalents on the /swork/members list."""
         orgs_list = OrganisationsList()
         filters = orgs_list.get_filters()
         assert isinstance(filters, list)
-        assert len(filters) == 4
+        assert len(filters) == 9, (
+            "expected the 4 existing filters (Category + 3 geo) plus the "
+            "5 new BW-backed taxonomy filters (#0078)"
+        )
+
+    def test_filter_ids_cover_erick_request(
+        self, db_session: Session, test_organisation: Organisation
+    ):
+        """The 5 new filters must carry the IDs Erick called out so
+        URL state / persisted user prefs stay stable across releases."""
+        orgs_list = OrganisationsList()
+        ids = {f.id for f in orgs_list.get_filters()}
+        for expected in (
+            "type_organisation",
+            "type_presse_et_media",
+            "type_agence_rp",
+            "taille_organisation",
+            "secteur_activite",
+        ):
+            assert expected in ids, (
+                f"filter id {expected!r} missing — Erick listed it on the "
+                f"#0078 spec (got {sorted(ids)})"
+            )
+
+    def test_type_organisation_filter_derives_options_from_bw_data(self):
+        """The JSON-list BW filters discover their option set by
+        walking the supplied BusinessWalls in memory (the JSONB array
+        columns can't be DISTINCT-aggregated portably). Pin that
+        contract."""
+
+        class _BW:
+            def __init__(self, type_organisation):
+                self.type_organisation = type_organisation
+
+        bws = [
+            _BW(["association", "agence"]),
+            _BW(["agence", "media"]),
+            _BW([]),
+            _BW(None),
+        ]
+        f = OrgFilterByTypeOrganisation(bws)  # type: ignore[arg-type]
+        assert f.options == ["agence", "association", "media"]
+
+    def test_taille_organisation_filter_uses_filter_options_with_codes(self):
+        """`OrgFilterByTailleOrganisation` stores `FilterOption(label,
+        code)` tuples so display labels can diverge from the raw
+        ontology codes used in the URL state."""
+
+        class _BW:
+            def __init__(self, taille_orga):
+                self.taille_orga = taille_orga
+
+        bws = [_BW("1"), _BW("49"), _BW("+"), _BW("")]
+        f = OrgFilterByTailleOrganisation(bws)  # type: ignore[arg-type]
+        codes = [opt.code for opt in f.options]
+        labels = [opt.option for opt in f.options]
+        assert codes == ["+", "1", "49"]
+        assert "1 personne" in labels
+        assert "Plus de 1 000 000" in labels
+
+    def test_type_presse_et_media_filter_handles_empty_bw_set(self):
+        """No active BWs → empty options (no crash on a fresh DB)."""
+        f = OrgFilterByTypePresseEtMedia()
+        assert f.options == []
 
 
 class TestOrgListOrgVM:

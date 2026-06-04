@@ -9,7 +9,8 @@ from typing import Any, ClassVar, cast
 
 from attr import define
 from flask_super.registry import register
-from sqlalchemy import func, or_, select
+from sqlalchemy import cast as sqla_cast, func, or_, select
+from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.sql import Select
 
 from app.flask.extensions import db
@@ -157,11 +158,28 @@ class OrganisationsList(BaseList):
         )
         cities = [str(c) for c in cities if c]
 
+        # Bug #0078 — 5 BW-backed taxonomy filters (Erick, 2026-05-27).
+        # Fetch the active BWs once and let each filter derive its
+        # option set from the in-memory list. Same shape as
+        # `MembersList` for the equivalent KYCProfile filters.
+        active_bws = list(
+            db.session.scalars(
+                select(BusinessWall).where(
+                    BusinessWall.status == BWStatus.ACTIVE.value
+                )
+            )
+        )
+
         return [
             FilterByCategory(),
             FilterByCountryOrm(codes=countries),
             FilterByDeptOrm(names=depts),
             FilterByCityOrm(names=cities),
+            OrgFilterByTypeOrganisation(active_bws),
+            OrgFilterByTypePresseEtMedia(active_bws),
+            OrgFilterByTypeAgenceRP(active_bws),
+            OrgFilterByTailleOrganisation(active_bws),
+            OrgFilterBySecteurActivite(active_bws),
         ]
 
 
@@ -260,6 +278,118 @@ class FilterByCategory(Filter):
                 BusinessWall.bw_type.in_(bw_types)
             )
         return stmt
+
+
+# ---------------------------------------------------------------------------
+# Bug #0078 — 5 new BW-backed taxonomy filters (Erick 2026-05-27).
+# Each picks its options from the active BusinessWalls in memory (the
+# JSON-array columns can't be DISTINCT-aggregated portably across PG +
+# SQLite) and filters via JSONB `?` containment in apply() — the same
+# pattern members_list.py uses against KYCProfile.
+# ---------------------------------------------------------------------------
+
+
+class _OrgListJsonArrayFilter(Filter):
+    """Shared shape for the 4 JSON-list BW filters : Types d'organisation,
+    Types presse & médias, Types de PR Agencies, Secteurs détaillés."""
+
+    bw_field: ClassVar[str] = ""  # the BusinessWall column name (JSON list).
+    options: ClassVar[list[str]] = []  # ty:ignore[invalid-attribute-override]
+
+    def __init__(self, bws: list[BusinessWall] | None = None) -> None:
+        if not bws:
+            return
+        values: set[str] = set()
+        for bw in bws:
+            raw = getattr(bw, self.bw_field, None) or []
+            if isinstance(raw, list):
+                values.update(str(v) for v in raw if v)
+        # pyrefly: ignore [read-only]
+        self.options = sorted(values)  # ty:ignore[invalid-attribute-access]
+
+    def apply(self, stmt: Select, state: dict[str, bool]) -> Select:
+        active_options = self.active_options(state)
+        if not active_options:
+            return stmt
+        col = sqla_cast(getattr(BusinessWall, self.bw_field), JSONB)
+        or_parts = [col.op("?")(str(opt)) for opt in active_options]
+        stmt = stmt.where(BusinessWall.status == BWStatus.ACTIVE.value).where(
+            or_(*or_parts)
+        )
+        return stmt
+
+
+class OrgFilterByTypeOrganisation(_OrgListJsonArrayFilter):
+    id = "type_organisation"
+    label = "Types d'organisation"
+    bw_field = "type_organisation"
+
+
+class OrgFilterByTypePresseEtMedia(_OrgListJsonArrayFilter):
+    id = "type_presse_et_media"
+    label = "Types de presse & médias"
+    bw_field = "type_presse_et_media"
+
+
+class OrgFilterByTypeAgenceRP(_OrgListJsonArrayFilter):
+    id = "type_agence_rp"
+    label = "Types de PR Agencies"
+    bw_field = "type_agence_rp"
+
+
+class OrgFilterBySecteurActivite(_OrgListJsonArrayFilter):
+    id = "secteur_activite"
+    label = "Secteurs détaillés"
+    bw_field = "secteurs_activite_detail"
+
+
+def _taille_orga_label(value: str) -> str:
+    """Mirror of MembersList helper — converts the raw ontology code
+    (« 1 », « 49 », « + ») into a user-friendly label."""
+    if value == "+":
+        return "Plus de 1 000 000"
+    if value == "1":
+        return "1 personne"
+    try:
+        num = int(value)
+        return f"Jusqu'à {num}"
+    except ValueError:
+        return value
+
+
+class OrgFilterByTailleOrganisation(Filter):
+    """Single-value BW field — uses `_taille_orga_label` for display
+    while keeping the raw ontology code on the wire (so URL state
+    stays stable across label tweaks)."""
+
+    id = "taille_organisation"
+    label = "Tailles d'organisation"
+    options: ClassVar[list[str | FilterOption]] = []  # ty:ignore[invalid-attribute-override]
+
+    def __init__(self, bws: list[BusinessWall] | None = None) -> None:
+        if not bws:
+            return
+        codes = sorted({str(bw.taille_orga) for bw in bws if bw.taille_orga})
+        # pyrefly: ignore [read-only]
+        self.options = [  # ty:ignore[invalid-attribute-access]
+            FilterOption(_taille_orga_label(code), code) for code in codes
+        ]
+
+    def active_options(self, state):
+        options = []
+        for i in range(len(state)):
+            if state.get(str(i)):
+                filter_option: FilterOption = cast(FilterOption, self.options[i])
+                options.append(filter_option.code)
+        return options
+
+    def apply(self, stmt: Select, state: dict[str, bool]) -> Select:
+        codes = self.active_options(state)
+        if not codes:
+            return stmt
+        return stmt.where(BusinessWall.status == BWStatus.ACTIVE.value).where(
+            BusinessWall.taille_orga.in_(codes)
+        )
 
 
 @define
