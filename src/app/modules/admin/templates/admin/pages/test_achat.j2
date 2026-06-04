@@ -1,0 +1,47 @@
+{% extends "admin/layout/_base.j2" %}
+
+{% block main %}
+    <div class="space-y-4">
+        {% for product in products %}
+            <div class="bg-white shadow overflow-hidden sm:rounded-lg border border-gray-200">
+                <div class="px-4 py-3 bg-gray-50 border-b border-gray-200 flex justify-between items-center">
+                    <h3 class="text-md leading-6 font-medium text-gray-900">
+                        {{ product.name }}
+                    </h3>
+                </div>
+                <div class="px-4 py-4">
+                    <div class="sm:grid sm:grid-cols-3 sm:gap-4">
+                        <dt class="text-sm font-medium text-gray-500">Prix</dt>
+                        <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+                            {% if product.default_price and product.default_price.unit_amount is not none %}
+                                {{ (product.default_price.unit_amount / 100) | round(2) }} {{ product.default_price.currency | upper }}
+                                {% if product.default_price.recurring %}
+                                    / {{ product.default_price.recurring.interval }}
+                                {% endif %}
+                            {% else %}
+                                Prix non disponible
+                            {% endif %}
+                        </dd>
+                    </div>
+                    <div class="mt-4">
+                        {% if product.default_price %}
+                            <form action="{{ url_for('.test_achat_buy') }}" method="POST">
+                                <input type="hidden" name="product_id" value="{{ product.id }}">
+                                <input type="hidden" name="price_id" value="{{ product.default_price.id }}">
+                                <button type="submit" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                                    Acheter
+                                </button>
+                            </form>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        {% else %}
+            <div class="bg-white shadow overflow-hidden sm:rounded-lg border border-gray-200">
+                <div class="px-4 py-5">
+                    <p class="text-center text-gray-500">Aucun produit disponible à la vente.</p>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+{% endblock %}
