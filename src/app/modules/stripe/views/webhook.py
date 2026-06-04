@@ -56,7 +56,7 @@ class SubscriptionInfo:
     invoice_id: str = ""
     currency: str = ""
     amount_total: Decimal = Decimal(0)
-    org_type: str = ""
+    bw_type: str = ""
     created: int = 0
     current_period_start: int = 0
     current_period_end: int = 0
@@ -616,7 +616,7 @@ def _check_subscription_product(
         warning(f"unknown Stripe product {subinfo.product_id}")
         return False
 
-    subinfo.org_type = _get_bw_type_from_product(product)
+    subinfo.bw_type = _get_bw_type_from_product(product)
     subinfo.name = product.name
 
     latest_invoice_id = data_obj.get("latest_invoice")
@@ -627,7 +627,7 @@ def _check_subscription_product(
 
     info(
         f"Stripe subscription for BW {subinfo.subscription_id}",
-        f"type: {subinfo.org_type}",
+        f"type: {subinfo.bw_type}",
         f'"{subinfo.name}"',
     )
     return True
@@ -714,7 +714,7 @@ def _log_subscription_subinfo(subinfo: SubscriptionInfo) -> None:
     info(
         f"BW subscription by: {subinfo.customer_email}\n"
         f"    subscription: {subinfo.subscription_id}"
-        f"    org_type: {subinfo.org_type}"
+        f"    bw_type: {subinfo.bw_type}"
         f"    quantity: {subinfo.quantity}"
         f"    status: {subinfo.status}"
     )
@@ -753,8 +753,8 @@ def _update_organisation_subscription_info(
     subinfo: SubscriptionInfo,
 ) -> None:
     """Update organization attributes based on subscription info."""
-    # org_type now directly contains the BWType value
-    org.bw_active = subinfo.org_type
+    # bw_type now directly contains the BWType value
+    org.bw_active = subinfo.bw_type
     org.active = subinfo.status
 
     db.session.merge(org)
