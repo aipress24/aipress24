@@ -40,7 +40,6 @@ from app.services.stripe.utils import load_stripe_api_key
 #   STRIPE_PRICE_JUSTIFICATIF=price_... - This is now handled dynamically.
 #   STRIPE_PRICE_CESSION=price_...
 _PRODUCT_TO_ENV: dict[PurchaseProduct, str] = {
-    PurchaseProduct.CONSULTATION: "STRIPE_PRICE_CONSULTATION",
     PurchaseProduct.CESSION: "STRIPE_PRICE_CESSION",
 }
 
@@ -155,6 +154,14 @@ def _price_id_for(product: PurchaseProduct) -> str:
         products = fetch_stripe_product_list(active=True)
         for prod in products:
             if prod.metadata.get("product_type") == "j-article":
+                if prod.default_price:
+                    return prod.default_price.id
+        return ""
+
+    if product == PurchaseProduct.CONSULTATION:
+        products = fetch_stripe_product_list(active=True)
+        for prod in products:
+            if prod.metadata.get("article") == "c-article":
                 if prod.default_price:
                     return prod.default_price.id
         return ""
