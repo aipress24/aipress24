@@ -204,7 +204,20 @@ class FormRenderer:
         publisher_text = ""
         from flask import g
 
-        if g and hasattr(g, "user") and g.user:
+        # Bug #0135 : the « Publié pour le compte de X » header must
+        # reflect the model's own publisher (the client an
+        # agency-member published *for*), not the editing user's own
+        # organisation. Falling back to the user's context is only
+        # correct when creating a brand-new model (no publisher
+        # chosen yet). Cf. `render_field` at the « publisher_id »
+        # branch which already follows `model.publisher` in view mode.
+        model_publisher = getattr(self.model, "publisher", None) if self.model else None
+        if model_publisher is not None:
+            publisher_text = (
+                "Publié pour le compte de "
+                f'"{model_publisher.bw_name or model_publisher.name}"'
+            )
+        elif g and hasattr(g, "user") and g.user:
             from app.modules.bw.bw_activation.user_utils import (
                 get_selected_business_wall_for_user,
             )

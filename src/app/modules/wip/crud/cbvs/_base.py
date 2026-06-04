@@ -226,9 +226,18 @@ class BaseWipView(FlaskView, abc.ABC):
             else:
                 form.pays_zip_ville.lock = 0  # type: ignore[attr-defined]
 
+        # Bug #0135 : the « Publié pour le compte de X » header must
+        # follow the model's own publisher (the client an
+        # agency-member published *for*) ; the editing user's org
+        # is only the right fallback when creating a new model.
         publisher_text = ""
-
-        if getattr(g.user, "is_managing_another_bw", False):
+        model_publisher = getattr(model, "publisher", None) if model else None
+        if model_publisher is not None:
+            publisher_text = (
+                "Publié pour le compte de "
+                f'"{model_publisher.bw_name or model_publisher.name}"'
+            )
+        elif getattr(g.user, "is_managing_another_bw", False):
             bw = get_selected_business_wall_for_user(g.user)
             if bw:
                 publisher_text = f'Publié pour le compte de "{bw.name}"'

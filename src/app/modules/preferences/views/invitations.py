@@ -8,7 +8,7 @@ from __future__ import annotations
 
 from typing import Any, cast
 
-from flask import Response, g, render_template, request
+from flask import Response, flash, g, render_template, request
 from flask.views import MethodView
 from sqlalchemy import func, select
 
@@ -75,6 +75,10 @@ class InvitationsView(MethodView):
                 user = cast(User, g.user)
                 self._ack_revoked_partnership(
                     user, request.form.get("partnership_id", "")
+                )
+                flash(
+                    "Votre confirmation de fin de partenariat est bien enregistrée.",
+                    "success",
                 )
                 response = Response("")
                 response.headers["HX-Redirect"] = url_for(".invitations")

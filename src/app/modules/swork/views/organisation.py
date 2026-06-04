@@ -183,14 +183,13 @@ class OrgPressBookTab(Tab):
 
     @property
     def label(self) -> str:
-        stmt = (
-            select(func.count())
-            .select_from(PressReleasePost)
-            .where(_press_releases_for_org_clause(self.org.id))
-            .where(PressReleasePost.status == PublicationStatus.PUBLIC)
-        )
-        count = db.session.execute(stmt).scalar()
-        return f"Press Book ({count})"
+        # Bug #0180 (Erick, 2026-06-02) : the Press Book is meant to
+        # list « Justificatifs de publication » — a module not yet
+        # implemented. Until then the counter must stay at 0 so it
+        # matches the (empty) tab content. Counting press releases
+        # here would duplicate `OrgPressReleasesTab` and mislead the
+        # user into clicking a tab that renders nothing.
+        return "Press Book (0)"
 
 
 def _press_releases_for_org_clause(org_id: int):

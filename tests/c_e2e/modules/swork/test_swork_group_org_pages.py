@@ -6,6 +6,7 @@
 
 from __future__ import annotations
 
+from pathlib import Path
 from typing import TYPE_CHECKING
 from unittest.mock import patch
 
@@ -509,73 +510,32 @@ class TestOrgPressBookTab:
             tab = OrgPressBookTab(org=test_organisation_media)
             assert tab.label == "Press Book (0)"
 
-    def test_label_counts_direct_publisher(
+    def test_label_is_zero_until_justificatif_implemented(
         self,
         app: Flask,
         db_session: Session,
         test_organisation_media: Organisation,
         test_user_with_profile: User,
     ):
-        """Press releases directly attributed to the org increment the label."""
-        post = PressReleasePost()
-        post.title = "Direct PR"
-        post.owner_id = test_user_with_profile.id
-        post.publisher_id = test_organisation_media.id
-        post.status = PublicationStatus.PUBLIC  # type: ignore[assignment]
-        db_session.add(post)
-        db_session.flush()
+        """Bug #0180 (Erick, 2026-06-02) : « le compteur affiche 4 mais
+        si l'on cliqu, il n'y a aucun contenu. Normal, ces contenus ne
+        peuvent provenir que du Justificatif de publication qui n'est
+        pas encore installé. → Suggestion : mettre le compteur à zéro
+        et le mettre en accord avec le nombre de contenus lorsque le
+        mécanisme du Justificatif de publication sera effectif. »
 
-        with app.test_request_context():
-            tab = OrgPressBookTab(org=test_organisation_media)
-            assert tab.label == "Press Book (1)"
-
-    def test_label_counts_pr_published_on_behalf_by_agency_member(
-        self,
-        app: Flask,
-        db_session: Session,
-        test_organisation_media: Organisation,
-        test_user_with_profile: User,
-    ):
-        """When an agency member publishes a PR for a client (publisher_id=client),
-        the PR counts on the agency's BW too, via the owner.organisation clause.
-        Same semantics as OrgPressReleasesTab; bug 0125 wanted this visible.
+        Press Book ≠ Communiqués : Press Book lists Justificatifs (an
+        unimplemented module), Communiqués lists press releases.
+        Counter must stay at 0 even when public press releases exist
+        for the org — they belong to the Communiqués tab.
         """
-        # The fixture user is in `test_organisation_media` (set on creation? not
-        # quite — re-attach to be explicit).
-        test_user_with_profile.organisation = test_organisation_media
-        test_user_with_profile.organisation_id = test_organisation_media.id
-        client_org = Organisation(name="Client Org")
-        db_session.add(client_org)
-        db_session.flush()
-
-        post = PressReleasePost()
-        post.title = "Delegated PR"
-        post.owner_id = test_user_with_profile.id
-        post.publisher_id = client_org.id
-        post.status = PublicationStatus.PUBLIC  # type: ignore[assignment]
-        db_session.add(post)
-        db_session.flush()
-
-        with app.test_request_context():
-            agency_tab = OrgPressBookTab(org=test_organisation_media)
-            client_tab = OrgPressBookTab(org=client_org)
-            assert agency_tab.label == "Press Book (1)"
-            assert client_tab.label == "Press Book (1)"
-
-    def test_label_excludes_drafts(
-        self,
-        app: Flask,
-        db_session: Session,
-        test_organisation_media: Organisation,
-        test_user_with_profile: User,
-    ):
-        """Draft press releases should not appear in the count."""
-        post = PressReleasePost()
-        post.title = "Draft PR"
-        post.owner_id = test_user_with_profile.id
-        post.publisher_id = test_organisation_media.id
-        post.status = PublicationStatus.DRAFT  # type: ignore[assignment]
-        db_session.add(post)
+        for i in range(3):
+            post = PressReleasePost()
+            post.title = f"Public PR {i}"
+            post.owner_id = test_user_with_profile.id
+            post.publisher_id = test_organisation_media.id
+            post.status = PublicationStatus.PUBLIC  # type: ignore[assignment]
+            db_session.add(post)
         db_session.flush()
 
         with app.test_request_context():
@@ -709,6 +669,34 @@ class TestOrgEventsTab:
         with app.test_request_context():
             tab = OrgEventsTab(org=test_organisation_media)
             assert tab.label == "Evénements (0)"
+
+    def test_events_tab_template_does_not_double_wrap_li(self):
+        """Bug #0179 (Erick, 2026-06-02) : « les événements publiés
+        sont uniquement sur la colonne de droite tandis que la colonne
+        de gauche est vide. Cela donne une impression bizarre. »
+
+        Root cause : the `event-card` component already wraps itself in
+        `<li class="card shadow ...">`. The tab template was wrapping
+        each component call in *another* `<li class="bg-white rounded
+        shadow">`, creating nested `<li>` inside the `<ul
+        grid-cols-2>`. Browsers fall back to a single-column layout
+        when grid items are nested lists. The fix is to drop the
+        outer wrapper and let the event-card's own `<li>` be the
+        direct grid child.
+        """
+        template_path = (
+            Path(__file__).resolve().parents[4]
+            / "src/app/modules/swork/templates/pages/org/org--tab-events.html"
+        )
+        source = template_path.read_text()
+        # The bug is the redundant outer wrapper around the component
+        # call. The string is removed by the fix; if a future refactor
+        # re-introduces it, this test catches the regression.
+        assert '<li class="bg-white rounded shadow">' not in source, (
+            "events tab must not wrap event-card components in an extra <li>; "
+            "the event_card.j2 component already opens with <li>, double "
+            "nesting breaks the grid-cols-2 layout (#0179)"
+        )
 
 
 # =============================================================================

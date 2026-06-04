@@ -1,14 +1,29 @@
-{# Card showing the identity of the offer poster. Replaces the free
-   `contact_email` input on Mission/Project/Job forms — the poster is
-   always the logged-in user (offer.owner_id = g.user.id) and showing
-   their card removes the double-saisie of an email we already know.
+{# Mini-card identifying a user — used in two contexts :
 
-   Ref bug #0073 item 4. #}
-{% macro poster_card(user) %}
+   1. Form preview (Mission/Project/Job creation) : the poster is the
+      logged-in user. Optional `title` + `footer` kwargs render the
+      « Information de contact » heading and the explanation line.
+      Ref bug #0073 item 4.
+
+   2. Public ad display (#0183) + applications list (#0184) :
+      shown alongside the offer / candidacy so visitors can identify
+      who posted and reach their profile + Business Wall. Erick
+      explicitly excludes the Wire-style « Publié par X en tant que
+      contact presse de Y » attribution line (not relevant here).
+
+   Kwargs :
+     - title : optional heading above the card
+     - footer : optional explanatory paragraph under the card
+     - show_bw_link : also link to user.organisation's BW page
+                       (only emitted when the org has a BW)
+#}
+{% macro poster_card(user, title=None, footer=None, show_bw_link=False) %}
 <div>
-  <p class="block text-sm font-medium text-gray-700 mb-2">
-    Information de contact
-  </p>
+  {% if title %}
+    <p class="block text-sm font-medium text-gray-700 mb-2">
+      {{ title }}
+    </p>
+  {% endif %}
   <div class="flex items-center gap-4 p-4 border border-gray-200 rounded-md bg-gray-50">
     {{ profile_image(user, size=14) }}
     <div class="flex-1 min-w-0">
@@ -26,15 +41,25 @@
         </p>
       {% endif %}
     </div>
-    <a href="{{ url_for('swork.member', id=user.id) }}"
-       class="text-sm text-blue-600 hover:underline whitespace-nowrap"
-       target="_blank" rel="noopener">
-      Voir le profil →
-    </a>
+    <div class="flex flex-col items-end gap-1 whitespace-nowrap">
+      <a href="{{ url_for('swork.member', id=user.id) }}"
+         class="text-sm text-blue-600 hover:underline"
+         target="_blank" rel="noopener">
+        Voir le profil →
+      </a>
+      {% if show_bw_link and user.organisation and user.organisation.has_bw %}
+        <a href="{{ url_for('swork.org', id=user.organisation.id) }}"
+           class="text-sm text-blue-600 hover:underline"
+           target="_blank" rel="noopener">
+          Voir le Business Wall →
+        </a>
+      {% endif %}
+    </div>
   </div>
-  <p class="mt-1 text-xs text-gray-500">
-    Les candidatures vous parviendront par notification et par e-mail.
-    Votre profil s'affichera sur l'annonce.
-  </p>
+  {% if footer %}
+    <p class="mt-1 text-xs text-gray-500">
+      {{ footer }}
+    </p>
+  {% endif %}
 </div>
 {% endmacro %}

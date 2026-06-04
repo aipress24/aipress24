@@ -3,11 +3,14 @@
 
   {% set events = org.events %}
   {% if events %}
+    {# Bug #0179 : the `event-card` component already opens with
+       `<li class="card shadow ...">`, so we must NOT wrap it in
+       another `<li>` here — double nesting collapses the grid
+       layout to a single column. The component's own `<li>` is the
+       direct grid child. #}
     <ul role="list" class="grid gap-6 grid-cols-1 md:grid-cols-2">
       {% for event in events %}
-        <li class="bg-white rounded shadow">
-          {{ component("event-card", event, class_="bg-gray-100") }}
-        </li>
+        {{ component("event-card", event, class_="bg-gray-100") }}
       {% endfor %}
     </ul>
   {% else %}

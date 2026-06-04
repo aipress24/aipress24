@@ -1,4 +1,5 @@
 {% extends "layout/private.j2" %}
+{% from "pages/_poster_card.j2" import poster_card %}
 
 {% block content %}
 <div class="py-10">
@@ -55,6 +56,13 @@
          original `|safe` — it was a stored-XSS vector. Newlines kept
          readable via `whitespace-pre-wrap`. #}
       <div class="prose max-w-none text-gray-800 mb-8 whitespace-pre-wrap">{{ project.description }}</div>
+
+      {# Bug #0183 — mini-card du poster. #}
+      {% if project.owner %}
+        <div class="mb-8">
+          {{ poster_card(project.owner, title="Annoncé par", show_bw_link=True) }}
+        </div>
+      {% endif %}
 
       {% if is_owner %}
         <div class="border-t pt-6 flex flex-wrap gap-2">

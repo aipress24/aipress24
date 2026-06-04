@@ -61,7 +61,11 @@
         {{ render_checkbox(form.remote_ok) }}
       </div>
       <div class="mt-6">
-        {{ poster_card(g.user) }}
+        {{ poster_card(
+            g.user,
+            title="Information de contact",
+            footer="Les candidatures vous parviendront par notification et par e-mail. Votre profil s'affichera sur l'annonce."
+        ) }}
       </div>
       <div class="flex space-x-3 mt-6">
         <button type="submit"

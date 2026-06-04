@@ -527,6 +527,41 @@ class TestRevokedPartnershipRow:
         # The Partnership row is gone.
         assert db_session.get(Partnership, UUID(partnership_id)) is None
 
+    def test_confirm_flashes_success_message(
+        self,
+        invitations_auth_client: FlaskClient,
+        revoked_partnership_setup: tuple,
+    ):
+        """Bug #0169 (réouvert 2026-06-02) — Erick : « lorsque Marc
+        Rodriguez appuie sur le bouton "Confirmé", il tombe sur une
+        page blanche qui n'a pas de sens. Il faudrait mettre quelque
+        chose du genre "Votre confirmation de fin de partenariat est
+        bien enregistrée" ». Le POST ack_revoked_partnership doit
+        flasher un message de succès stocké en session, qui sera
+        rendu par le frontend sur le GET suivant via window.toasts."""
+        _client_bw, partnership = revoked_partnership_setup
+        partnership_id = str(partnership.id)
+
+        invitations_auth_client.post(
+            "/preferences/invitations",
+            data={
+                "action": "ack_revoked_partnership",
+                "partnership_id": partnership_id,
+            },
+            follow_redirects=False,
+        )
+
+        # Inspect the test-client session — `flash()` populates
+        # session["_flashes"] which the next request's template will
+        # consume via get_flashed_messages().
+        with invitations_auth_client.session_transaction() as sess:
+            flashes = sess.get("_flashes") or []
+            messages = [msg for _category, msg in flashes]
+            assert any(
+                "Votre confirmation de fin de partenariat est bien enregistrée" in m
+                for m in messages
+            ), f"expected success flash, got {flashes!r}"
+
     def test_confirm_refuses_partnership_not_owned_by_user(
         self,
         invitations_auth_client: FlaskClient,
