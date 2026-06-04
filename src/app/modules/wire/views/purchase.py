@@ -39,9 +39,7 @@ from app.services.stripe.utils import load_stripe_api_key
 #   STRIPE_PRICE_CONSULTATION=price_...
 #   STRIPE_PRICE_JUSTIFICATIF=price_... - This is now handled dynamically.
 #   STRIPE_PRICE_CESSION=price_...
-_PRODUCT_TO_ENV: dict[PurchaseProduct, str] = {
-    PurchaseProduct.CESSION: "STRIPE_PRICE_CESSION",
-}
+_PRODUCT_TO_ENV: dict[PurchaseProduct, str] = {}
 
 
 @blueprint.route("/<post_id>/buy/<product>", methods=["POST"])
@@ -88,6 +86,14 @@ def buy(post_id: str, product: str):
         flash("Configuration Stripe manquante.", "error")
         return redirect(_back_to_post(post))
 
+    try:
+        price = stripe.Price.retrieve(price_id)
+        mode = "subscription" if price.recurring else "payment"
+    except stripe.error.StripeError as e:
+        warn(f"Failed to retrieve Stripe price {price_id}: {e}")
+        flash("Produit momentanément indisponible (erreur Stripe).", "error")
+        return redirect(_back_to_post(post))
+
     purchase = ArticlePurchase(
         post_id=post.id,
         owner_id=user.id,
@@ -109,7 +115,7 @@ def buy(post_id: str, product: str):
     )
 
     checkout = stripe.checkout.Session.create(
-        mode="payment",
+        mode=mode,
         customer_email=user.email,
         line_items=[{"price": price_id, "quantity": 1}],
         success_url=success_url,
@@ -153,23 +159,26 @@ def _price_id_for(product: PurchaseProduct) -> str:
     if product == PurchaseProduct.JUSTIFICATIF:
         products = fetch_stripe_product_list(active=True)
         for prod in products:
-            if prod.metadata.get("product_type") == "j-article":
-                if prod.default_price:
-                    return prod.default_price.id
+            if prod.metadata.get("product_type") == "j-article" and prod.default_price:
+                return prod.default_price.id
         return ""
 
     if product == PurchaseProduct.CONSULTATION:
         products = fetch_stripe_product_list(active=True)
         for prod in products:
-            if prod.metadata.get("article") == "c-article":
-                if prod.default_price:
-                    return prod.default_price.id
+            if prod.metadata.get("article") == "c-article" and prod.default_price:
+                return prod.default_price.id
         return ""
 
-    env_key = _PRODUCT_TO_ENV.get(product)
-    if not env_key:
+    if product == PurchaseProduct.CESSION:
+        products = fetch_stripe_product_list(active=True)
+        for prod in products:
+            if prod.metadata.get("article") == "cd-article" and prod.default_price:
+                return prod.default_price.id
         return ""
-    return current_app.config.get(env_key) or ""
+
+    # unknown product.
+    return ""
 
 
 def _get_purchase_or_404(purchase_id: int) -> ArticlePurchase:
