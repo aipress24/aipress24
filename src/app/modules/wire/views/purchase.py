@@ -32,15 +32,15 @@ from app.modules.wire.models import (
     PurchaseProduct,
     PurchaseStatus,
 )
+from app.services.stripe.product import fetch_stripe_product_list
 from app.services.stripe.utils import load_stripe_api_key
 
 # Stripe Price ID per one-off product kind. Lives in env / Dynaconf:
 #   STRIPE_PRICE_CONSULTATION=price_...
-#   STRIPE_PRICE_JUSTIFICATIF=price_...
+#   STRIPE_PRICE_JUSTIFICATIF=price_... - This is now handled dynamically.
 #   STRIPE_PRICE_CESSION=price_...
 _PRODUCT_TO_ENV: dict[PurchaseProduct, str] = {
     PurchaseProduct.CONSULTATION: "STRIPE_PRICE_CONSULTATION",
-    PurchaseProduct.JUSTIFICATIF: "STRIPE_PRICE_JUSTIFICATIF",
     PurchaseProduct.CESSION: "STRIPE_PRICE_CESSION",
 }
 
@@ -151,7 +151,17 @@ def purchase_cancel(purchase_id: int):
 
 
 def _price_id_for(product: PurchaseProduct) -> str:
-    env_key = _PRODUCT_TO_ENV[product]
+    if product == PurchaseProduct.JUSTIFICATIF:
+        products = fetch_stripe_product_list(active=True)
+        for prod in products:
+            if prod.metadata.get("product_type") == "j-article":
+                if prod.default_price:
+                    return prod.default_price.id
+        return ""
+
+    env_key = _PRODUCT_TO_ENV.get(product)
+    if not env_key:
+        return ""
     return current_app.config.get(env_key) or ""
 
 
