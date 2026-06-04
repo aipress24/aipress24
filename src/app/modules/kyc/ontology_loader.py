@@ -73,6 +73,10 @@ ONTOLOGY_MAP = {
     # Compétences:
     "multi_competences": "competence_expert",
     "multi_langues": "langue",
+    # Bug #0187 — marketplace Journalism mission taxonomies.
+    "multi_type_contenu": "type_contenu",
+    "multi_taille_contenu": "taille_contenu",
+    "multi_mode_remuneration": "mode_remuneration",
 }
 
 ORGANISATION_TO_FAMILY_MAP = {
@@ -97,6 +101,10 @@ ONTOLOGY_DB_LIST = {
     "orga_newsrooms",
     "taille_organisation",
     "type_agence_rp",
+    # Bug #0187 — marketplace Journalism mission taxonomies.
+    "type_contenu",
+    "taille_contenu",
+    "mode_remuneration",
 }
 
 

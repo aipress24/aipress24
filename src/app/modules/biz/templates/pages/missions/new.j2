@@ -75,27 +75,38 @@
 
       {# Bug #0187 — Journalism-only extension block : taxonomies +
          work-mode flags. Rendered only when the chosen category is
-         « journalisme ». Inputs accept comma-separated values for
-         the v0 ; the handler splits them server-side. The full
-         ontology-driven version will replace these StringFields
-         with multi-select widgets once the ontology bridge lands. #}
+         « journalisme ». Each multi-select is backed by the KYC
+         ontology of the same name ; users hold Cmd/Ctrl to pick
+         several entries. #}
+      {% macro render_multi(field) %}
+        <div class="mb-4">
+          {{ field.label(class="block text-sm font-medium text-gray-700 mb-1") }}
+          {{ field(class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500",
+                   size=4) }}
+          <p class="mt-1 text-xs text-gray-500">
+            Maintenez Cmd (macOS) ou Ctrl (Windows) pour sélectionner
+            plusieurs entrées.
+          </p>
+          {% if field.errors %}
+            <div class="mt-1 text-sm text-red-600">
+              {% for error in field.errors %}<span>{{ error }}</span>{% endfor %}
+            </div>
+          {% endif %}
+        </div>
+      {% endmacro %}
+
       <div x-show="category === 'journalisme'" x-cloak class="border-t border-gray-200 pt-4 mt-2">
         <p class="text-sm font-medium text-gray-700 mb-3">
           Fiche descriptive (réservée aux missions Journalisme)
         </p>
-        <p class="text-xs text-gray-500 mb-4">
-          Pour chaque champ : entrez les valeurs séparées par des
-          virgules. Une vraie liste à puces remplacera ces champs
-          quand les ontologies dédiées seront disponibles.
-        </p>
-        {{ render_field(form.metiers_journalisme) }}
-        {{ render_field(form.types_entreprises_presse_medias) }}
-        {{ render_field(form.types_presse_medias) }}
-        {{ render_field(form.competences_journalisme) }}
-        {{ render_field(form.langues) }}
-        {{ render_field(form.types_contenus_editoriaux) }}
-        {{ render_field(form.taille_contenus_editoriaux) }}
-        {{ render_field(form.modes_remuneration) }}
+        {{ render_multi(form.metiers_journalisme) }}
+        {{ render_multi(form.types_entreprises_presse_medias) }}
+        {{ render_multi(form.types_presse_medias) }}
+        {{ render_multi(form.competences_journalisme) }}
+        {{ render_multi(form.langues) }}
+        {{ render_multi(form.types_contenus_editoriaux) }}
+        {{ render_multi(form.taille_contenus_editoriaux) }}
+        {{ render_multi(form.modes_remuneration) }}
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2">
           <label class="flex items-center gap-2 text-sm text-gray-700">
             {{ form.physical_required(class="rounded border-gray-300") }}

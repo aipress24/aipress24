@@ -15,6 +15,7 @@ from wtforms import (
     Form,
     IntegerField,
     SelectField,
+    SelectMultipleField,
     StringField,
     TextAreaField,
     validators,
@@ -112,33 +113,60 @@ class MissionOfferForm(Form):
         "Sous-type",
         validators=[validators.Optional(), validators.Length(max=200)],
     )
-    # Bug #0187 — Journalism extension : 8 taxonomy fields (each
-    # free-text comma-separated in v0) + 2 work-mode flags.
-    # Persisted as JSON lists / booleans on the model. The deposit
-    # template only renders them when the chosen category is
-    # `journalisme` (Alpine wrapper).
-    metiers_journalisme = StringField(
-        "Métiers du journalisme", validators=[validators.Optional()]
-    )
-    types_entreprises_presse_medias = StringField(
-        "Types d'entreprises de presse & médias",
+    # Bug #0187 — Journalism extension : 8 taxonomy fields backed by
+    # KYC ontologies + 2 work-mode flags. Persisted as JSON lists /
+    # booleans on the model. The deposit template only renders them
+    # when the chosen category is « journalisme » (Alpine wrapper).
+    # Choices are populated at request time from the ontology
+    # registry ; `validate_choice=False` keeps the form lenient if a
+    # taxonomy entry was renamed between the GET and the POST.
+    metiers_journalisme = SelectMultipleField(
+        "Métiers du journalisme",
+        choices=[],
+        validate_choice=False,
         validators=[validators.Optional()],
     )
-    types_presse_medias = StringField(
-        "Types presse & médias", validators=[validators.Optional()]
+    types_entreprises_presse_medias = SelectMultipleField(
+        "Types d'entreprises de presse & médias",
+        choices=[],
+        validate_choice=False,
+        validators=[validators.Optional()],
     )
-    competences_journalisme = StringField(
-        "Compétences en journalisme", validators=[validators.Optional()]
+    types_presse_medias = SelectMultipleField(
+        "Types presse & médias",
+        choices=[],
+        validate_choice=False,
+        validators=[validators.Optional()],
     )
-    langues = StringField("Langues", validators=[validators.Optional()])
-    types_contenus_editoriaux = StringField(
-        "Types de contenus éditoriaux", validators=[validators.Optional()]
+    competences_journalisme = SelectMultipleField(
+        "Compétences en journalisme",
+        choices=[],
+        validate_choice=False,
+        validators=[validators.Optional()],
     )
-    taille_contenus_editoriaux = StringField(
-        "Taille des contenus éditoriaux", validators=[validators.Optional()]
+    langues = SelectMultipleField(
+        "Langues",
+        choices=[],
+        validate_choice=False,
+        validators=[validators.Optional()],
     )
-    modes_remuneration = StringField(
-        "Modes de rémunération", validators=[validators.Optional()]
+    types_contenus_editoriaux = SelectMultipleField(
+        "Types de contenus éditoriaux",
+        choices=[],
+        validate_choice=False,
+        validators=[validators.Optional()],
+    )
+    taille_contenus_editoriaux = SelectMultipleField(
+        "Taille des contenus éditoriaux",
+        choices=[],
+        validate_choice=False,
+        validators=[validators.Optional()],
+    )
+    modes_remuneration = SelectMultipleField(
+        "Modes de rémunération",
+        choices=[],
+        validate_choice=False,
+        validators=[validators.Optional()],
     )
     physical_required = BooleanField(
         "La mission doit s'effectuer physiquement à l'emplacement indiqué",
@@ -163,6 +191,38 @@ class MissionOfferForm(Form):
     deadline = DateField("Date limite", validators=[validators.Optional()])
 
 
+_JOURNALISM_TAXONOMY_FIELDS: tuple[tuple[str, str], ...] = (
+    # (form field name, ontology field-type key)
+    ("metiers_journalisme", "multi_fonctions_journalisme"),
+    ("types_entreprises_presse_medias", "multi_type_entreprise_medias"),
+    ("types_presse_medias", "multi_type_media"),
+    ("competences_journalisme", "multi_competences_journalisme"),
+    ("langues", "multi_langues"),
+    ("types_contenus_editoriaux", "multi_type_contenu"),
+    ("taille_contenus_editoriaux", "multi_taille_contenu"),
+    ("modes_remuneration", "multi_mode_remuneration"),
+)
+
+
+def _populate_journalism_taxonomy_choices(form: MissionOfferForm) -> None:
+    """Bug #0187 — wire each Journalism multi-select to its ontology.
+
+    `get_ontology_choices` returns a list of `(value, name)` tuples,
+    matching what WTForms `SelectMultipleField` expects. Failures are
+    swallowed so a missing taxonomy doesn't take down the whole
+    deposit form — the offending field then just has no options.
+    """
+    for field_name, ontology_key in _JOURNALISM_TAXONOMY_FIELDS:
+        try:
+            choices = get_ontology_choices(ontology_key)
+        except Exception:
+            choices = []
+        if isinstance(choices, list):
+            getattr(form, field_name).choices = choices
+        else:
+            getattr(form, field_name).choices = []
+
+
 @blueprint.route("/missions/new", methods=["GET", "POST"])
 def missions_new():
     user = cast(User, g.user)
@@ -170,6 +230,7 @@ def missions_new():
 
     form = MissionOfferForm(request.form)
     form.pays_zip_ville.choices = get_ontology_choices("country_pays")
+    _populate_journalism_taxonomy_choices(form)
     if request.method == "POST" and form.validate():
         emitter_org_id = getattr(user, "organisation_id", None)
         if user.is_managing_another_bw:
@@ -208,31 +269,26 @@ def missions_new():
                 mission_subcategories=MISSION_SUBCATEGORIES,
             )
 
-        def _split_csv(raw: str | None) -> list[str]:
-            """Bug #0187 — turn the comma-separated free-text into
-            a clean list of trimmed, non-empty entries."""
-            if not raw:
-                return []
-            return [piece.strip() for piece in raw.split(",") if piece.strip()]
-
+        # Bug #0187 — `SelectMultipleField.data` is already a clean
+        # list of selected ontology values ; no normalisation needed.
         mission = MissionOffer(
             title=form.title.data or "",
             description=form.description.data or "",
             sector=form.sector.data or "",
             category=category,
             subcategory=(form.subcategory.data or "").strip(),
-            metiers_journalisme=_split_csv(form.metiers_journalisme.data),
-            types_entreprises_presse_medias=_split_csv(
-                form.types_entreprises_presse_medias.data
+            metiers_journalisme=list(form.metiers_journalisme.data or []),
+            types_entreprises_presse_medias=list(
+                form.types_entreprises_presse_medias.data or []
             ),
-            types_presse_medias=_split_csv(form.types_presse_medias.data),
-            competences_journalisme=_split_csv(form.competences_journalisme.data),
-            langues=_split_csv(form.langues.data),
-            types_contenus_editoriaux=_split_csv(form.types_contenus_editoriaux.data),
-            taille_contenus_editoriaux=_split_csv(
-                form.taille_contenus_editoriaux.data
+            types_presse_medias=list(form.types_presse_medias.data or []),
+            competences_journalisme=list(form.competences_journalisme.data or []),
+            langues=list(form.langues.data or []),
+            types_contenus_editoriaux=list(form.types_contenus_editoriaux.data or []),
+            taille_contenus_editoriaux=list(
+                form.taille_contenus_editoriaux.data or []
             ),
-            modes_remuneration=_split_csv(form.modes_remuneration.data),
+            modes_remuneration=list(form.modes_remuneration.data or []),
             physical_required=bool(form.physical_required.data),
             remote_required=bool(form.remote_required.data),
             pays_zip_ville=form.pays_zip_ville.data or "",

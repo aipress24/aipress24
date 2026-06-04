@@ -6,6 +6,7 @@
 
 from __future__ import annotations
 
+import re
 import uuid
 from typing import TYPE_CHECKING
 from unittest.mock import patch
@@ -881,6 +882,8 @@ class TestJournalismMissionExtendedFields:
         db_session: Session,
     ):
         client = make_authenticated_client(app, emitter)
+        # Multi-select fields submit one form value per selected
+        # entry — Flask test client takes a list to express that.
         response = client.post(
             "/biz/missions/new",
             data={
@@ -889,14 +892,14 @@ class TestJournalismMissionExtendedFields:
                 "sector": "media",
                 "category": "journalisme",
                 "subcategory": "Enquête",
-                "metiers_journalisme": "Reporter, Rédacteur en chef",
-                "types_entreprises_presse_medias": "Quotidien régional",
-                "types_presse_medias": "Print, Web",
-                "competences_journalisme": "Investigation, IA",
-                "langues": "Français, Anglais",
-                "types_contenus_editoriaux": "Long-format",
-                "taille_contenus_editoriaux": "Article moyen",
-                "modes_remuneration": "Forfait, Au feuillet",
+                "metiers_journalisme": ["Reporter", "Rédacteur en chef"],
+                "types_entreprises_presse_medias": ["Quotidien régional"],
+                "types_presse_medias": ["Print", "Web"],
+                "competences_journalisme": ["Investigation", "IA"],
+                "langues": ["Français", "Anglais"],
+                "types_contenus_editoriaux": ["Long-format"],
+                "taille_contenus_editoriaux": ["Article moyen"],
+                "modes_remuneration": ["Forfait", "Au feuillet"],
                 "physical_required": "y",
                 "remote_required": "y",
                 "budget_min": "500",
@@ -959,6 +962,43 @@ class TestJournalismMissionExtendedFields:
         assert mission.langues == []
         assert mission.physical_required is False
         assert mission.remote_required is False
+
+    def test_form_renders_multi_select_widgets_backed_by_ontologies(
+        self,
+        app: Flask,
+        emitter: User,
+    ):
+        """Each Journalism taxonomy field renders a `<select multiple>`
+        whose options come from the matching KYC ontology. Options
+        may be empty when the ontology hasn't been seeded yet — the
+        important pin is that the form chrome is in place + the
+        widgets are `<select multiple>` (not `<input>` legacy)."""
+        client = make_authenticated_client(app, emitter)
+        response = client.get("/biz/missions/new")
+        assert response.status_code == 200
+        body = response.data.decode()
+        for field_name in (
+            "metiers_journalisme",
+            "types_entreprises_presse_medias",
+            "types_presse_medias",
+            "competences_journalisme",
+            "langues",
+            "types_contenus_editoriaux",
+            "taille_contenus_editoriaux",
+            "modes_remuneration",
+        ):
+            # WTForms emits attributes in alphabetical order : the
+            # opening tag is `<select class="…" id="…" multiple
+            # name="…" size="…">`. Match attribute presence rather
+            # than ordering.
+            pattern = re.compile(
+                r'<select\b[^>]*\bid="' + field_name + r'"[^>]*\bmultiple\b[^>]*>',
+                re.DOTALL,
+            )
+            assert pattern.search(body), (
+                f"{field_name} must be a `<select multiple>` "
+                "(not a legacy <input>)"
+            )
 
     def test_extended_fields_surface_on_detail_page(
         self,
