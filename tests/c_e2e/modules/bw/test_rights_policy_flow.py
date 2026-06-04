@@ -219,7 +219,6 @@ def test_guard_allows_whitelisted_buyer(
 
     client = make_authenticated_client(app, scenario["buyer"])
     app.config["STRIPE_LIVE_ENABLED"] = True
-    app.config["STRIPE_PRICE_CESSION"] = "price_test"
     try:
         with (
             patch("stripe.checkout.Session.create") as mock_create,
@@ -227,7 +226,13 @@ def test_guard_allows_whitelisted_buyer(
                 "app.modules.wire.views.purchase.load_stripe_api_key",
                 return_value=True,
             ),
+            patch(
+                "app.modules.wire.views.purchase._price_id_for",
+                return_value="price_test",
+            ),
+            patch("stripe.Price.retrieve") as mock_price,
         ):
+            mock_price.return_value = MagicMock(recurring=None)
             mock_create.return_value = MagicMock(url="https://stripe/x")
             response = client.post(
                 f"/wire/{post.id}/buy/cession", follow_redirects=False
@@ -236,7 +241,6 @@ def test_guard_allows_whitelisted_buyer(
         mock_create.assert_called_once()
     finally:
         app.config["STRIPE_LIVE_ENABLED"] = False
-        app.config.pop("STRIPE_PRICE_CESSION", None)
 
 
 def test_pre_mvp_post_still_buyable(app: Flask, db_session: Session, scenario: dict):
@@ -251,7 +255,6 @@ def test_pre_mvp_post_still_buyable(app: Flask, db_session: Session, scenario: d
 
     client = make_authenticated_client(app, scenario["buyer"])
     app.config["STRIPE_LIVE_ENABLED"] = True
-    app.config["STRIPE_PRICE_CESSION"] = "price_test"
     try:
         with (
             patch("stripe.checkout.Session.create") as mock_create,
@@ -259,7 +262,13 @@ def test_pre_mvp_post_still_buyable(app: Flask, db_session: Session, scenario: d
                 "app.modules.wire.views.purchase.load_stripe_api_key",
                 return_value=True,
             ),
+            patch(
+                "app.modules.wire.views.purchase._price_id_for",
+                return_value="price_test",
+            ),
+            patch("stripe.Price.retrieve") as mock_price,
         ):
+            mock_price.return_value = MagicMock(recurring=None)
             mock_create.return_value = MagicMock(url="https://stripe/x")
             response = client.post(
                 f"/wire/{post.id}/buy/cession", follow_redirects=False
