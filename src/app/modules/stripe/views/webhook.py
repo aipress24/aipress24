@@ -136,7 +136,7 @@ def webhooks():
 
 
 # Event type to handler function name mapping
-# Changes in june 2026, 11 events followed (no more subscription? only paiement)
+# Changes in june 2026, 15 events followed (no more subscription? only paiement)
 _EVENT_HANDLER_NAMES = {
     "checkout.session.completed": "on_checkout_session_completed",  # suivi juin 2026
     "subscription_schedule.aborted": "on_subscription_schedule_aborted",
@@ -148,12 +148,12 @@ _EVENT_HANDLER_NAMES = {
     "subscription_schedule.updated": "on_subscription_schedule_updated",
     "customer.subscription.created": "on_customer_subscription_created",  # suivi juin 2026
     "customer.subscription.deleted": "on_customer_subscription_deleted",  # suivi juin 2026
-    "customer.subscription.paused": "on_customer_subscription_paused",
+    "customer.subscription.paused": "on_customer_subscription_paused",  # suivi juin 2026
     "customer.subscription.pending_update_applied": "on_customer_subscription_pending_update_applied",
     "customer.subscription.pending_update_expired": "on_customer_subscription_pending_update_expired",
-    "customer.subscription.resumed": "on_customer_subscription_resumed",
+    "customer.subscription.resumed": "on_customer_subscription_resumed",  # suivi juin 2026
     "customer.subscription.trial_will_end": "on_customer_subscription_trial_will_end",  # suivi juin 2026
-    "customer.subscription.updated": "on_customer_subscription_updated",
+    "customer.subscription.updated": "on_customer_subscription_updated",  # suivi juin 2026
     # Price mirror — local cache kept in sync with Stripe by these 3 events.
     # Spec: local-notes/specs/finances.md §4.
     "price.created": "on_price_created",  # suivi juin 2026
