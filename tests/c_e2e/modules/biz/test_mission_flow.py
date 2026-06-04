@@ -852,3 +852,147 @@ class TestJournalismVisibilityRestriction:
             "non-journalists must not be able to publish a Journalism "
             "mission (#0186)"
         )
+
+
+class TestJournalismMissionExtendedFields:
+    """Bug #0187 (Erick, 2026-06-04) — extension of the JOURNALISME
+    deposit form :
+
+    > Rajouter les taxonomies : Métiers du journalisme, Types
+    > d'entreprises de presse & médias, Types presse & médias,
+    > Compétences en journalisme, Langues, Types de contenus
+    > éditoriaux, Taille des contenus éditoriaux, Modes de
+    > rémunération
+    > Rajouter l'option : "La mission doit s'effectuer physiquement
+    > ici" / "La mission doit s'effectuer en télétravail"
+
+    All 8 taxonomy fields land as JSON lists ; the 2 work-mode flags
+    are booleans. Form accepts comma-separated free text per
+    taxonomy in v0 (no ontology dependency yet — Erick's spec calls
+    out 8 lists but the ontologies aren't seeded). The fields appear
+    only when category is JOURNALISME (via Alpine x-show wrapping)
+    but the model accepts them on any mission for future flexibility.
+    """
+
+    def test_form_persists_all_extended_fields_for_journalism_mission(
+        self,
+        app: Flask,
+        emitter: User,
+        db_session: Session,
+    ):
+        client = make_authenticated_client(app, emitter)
+        response = client.post(
+            "/biz/missions/new",
+            data={
+                "title": "Mission journalisme étendue",
+                "description": "Une description suffisamment longue pour le test.",
+                "sector": "media",
+                "category": "journalisme",
+                "subcategory": "Enquête",
+                "metiers_journalisme": "Reporter, Rédacteur en chef",
+                "types_entreprises_presse_medias": "Quotidien régional",
+                "types_presse_medias": "Print, Web",
+                "competences_journalisme": "Investigation, IA",
+                "langues": "Français, Anglais",
+                "types_contenus_editoriaux": "Long-format",
+                "taille_contenus_editoriaux": "Article moyen",
+                "modes_remuneration": "Forfait, Au feuillet",
+                "physical_required": "y",
+                "remote_required": "y",
+                "budget_min": "500",
+                "budget_max": "1500",
+            },
+            follow_redirects=False,
+        )
+        assert response.status_code == 302, response.data[:500]
+
+        mission = (
+            db_session.query(MissionOffer)
+            .filter_by(title="Mission journalisme étendue")
+            .first()
+        )
+        assert mission is not None
+        # The 8 taxonomy columns store JSON lists.
+        assert mission.metiers_journalisme == ["Reporter", "Rédacteur en chef"]
+        assert mission.types_entreprises_presse_medias == ["Quotidien régional"]
+        assert mission.types_presse_medias == ["Print", "Web"]
+        assert mission.competences_journalisme == ["Investigation", "IA"]
+        assert mission.langues == ["Français", "Anglais"]
+        assert mission.types_contenus_editoriaux == ["Long-format"]
+        assert mission.taille_contenus_editoriaux == ["Article moyen"]
+        assert mission.modes_remuneration == ["Forfait", "Au feuillet"]
+        # The 2 work-mode flags.
+        assert mission.physical_required is True
+        assert mission.remote_required is True
+
+    def test_back_compat_without_extended_fields(
+        self,
+        app: Flask,
+        emitter: User,
+        db_session: Session,
+    ):
+        """A mission posted without the extended fields still
+        publishes — they default to empty list / False."""
+        client = make_authenticated_client(app, emitter)
+        response = client.post(
+            "/biz/missions/new",
+            data={
+                "title": "Mission journalisme minimaliste",
+                "description": "Une description suffisamment longue pour le test.",
+                "sector": "media",
+                "category": "journalisme",
+                "subcategory": "Pige / Reportage",
+                "budget_min": "500",
+                "budget_max": "1500",
+            },
+            follow_redirects=False,
+        )
+        assert response.status_code == 302
+
+        mission = (
+            db_session.query(MissionOffer)
+            .filter_by(title="Mission journalisme minimaliste")
+            .first()
+        )
+        assert mission is not None
+        assert mission.metiers_journalisme == []
+        assert mission.langues == []
+        assert mission.physical_required is False
+        assert mission.remote_required is False
+
+    def test_extended_fields_surface_on_detail_page(
+        self,
+        app: Flask,
+        emitter: User,
+        db_session: Session,
+    ):
+        mission = MissionOffer(
+            title="Mission journalisme avec profil",
+            description="<p>Test</p>",
+            sector="media",
+            status=PublicationStatus.PUBLIC,
+            mission_status=MissionStatus.OPEN,
+            owner_id=emitter.id,
+            emitter_org_id=emitter.organisation_id,
+            category=MissionCategory.JOURNALISME,
+            subcategory="Enquête",
+            metiers_journalisme=["Reporter"],
+            competences_journalisme=["Investigation"],
+            langues=["Français"],
+            physical_required=True,
+            remote_required=False,
+        )
+        db_session.add(mission)
+        db_session.commit()
+
+        client = make_authenticated_client(app, emitter)
+        response = client.get(f"/biz/missions/{mission.id}")
+        assert response.status_code == 200
+        body = response.data.decode()
+        assert "Profil recherché" in body
+        assert "Reporter" in body
+        assert "Investigation" in body
+        assert "Français" in body
+        assert "Présence physique requise" in body
+        # Télétravail chip absent (flag False).
+        assert "Télétravail" not in body

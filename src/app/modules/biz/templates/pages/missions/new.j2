@@ -73,6 +73,41 @@
         </template>
       {% endfor %}
 
+      {# Bug #0187 — Journalism-only extension block : taxonomies +
+         work-mode flags. Rendered only when the chosen category is
+         « journalisme ». Inputs accept comma-separated values for
+         the v0 ; the handler splits them server-side. The full
+         ontology-driven version will replace these StringFields
+         with multi-select widgets once the ontology bridge lands. #}
+      <div x-show="category === 'journalisme'" x-cloak class="border-t border-gray-200 pt-4 mt-2">
+        <p class="text-sm font-medium text-gray-700 mb-3">
+          Fiche descriptive (réservée aux missions Journalisme)
+        </p>
+        <p class="text-xs text-gray-500 mb-4">
+          Pour chaque champ : entrez les valeurs séparées par des
+          virgules. Une vraie liste à puces remplacera ces champs
+          quand les ontologies dédiées seront disponibles.
+        </p>
+        {{ render_field(form.metiers_journalisme) }}
+        {{ render_field(form.types_entreprises_presse_medias) }}
+        {{ render_field(form.types_presse_medias) }}
+        {{ render_field(form.competences_journalisme) }}
+        {{ render_field(form.langues) }}
+        {{ render_field(form.types_contenus_editoriaux) }}
+        {{ render_field(form.taille_contenus_editoriaux) }}
+        {{ render_field(form.modes_remuneration) }}
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2">
+          <label class="flex items-center gap-2 text-sm text-gray-700">
+            {{ form.physical_required(class="rounded border-gray-300") }}
+            <span>{{ form.physical_required.label.text }}</span>
+          </label>
+          <label class="flex items-center gap-2 text-sm text-gray-700">
+            {{ form.remote_required(class="rounded border-gray-300") }}
+            <span>{{ form.remote_required.label.text }}</span>
+          </label>
+        </div>
+      </div>
+
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
         {{ render_field(form.sector) }}
         {{ render_field(form.budget_min, extra_class="no-spinner") }}

@@ -10,6 +10,7 @@ from typing import cast
 
 from flask import abort, flash, g, redirect, render_template, request, url_for
 from wtforms import (
+    BooleanField,
     DateField,
     Form,
     IntegerField,
@@ -111,6 +112,41 @@ class MissionOfferForm(Form):
         "Sous-type",
         validators=[validators.Optional(), validators.Length(max=200)],
     )
+    # Bug #0187 — Journalism extension : 8 taxonomy fields (each
+    # free-text comma-separated in v0) + 2 work-mode flags.
+    # Persisted as JSON lists / booleans on the model. The deposit
+    # template only renders them when the chosen category is
+    # `journalisme` (Alpine wrapper).
+    metiers_journalisme = StringField(
+        "Métiers du journalisme", validators=[validators.Optional()]
+    )
+    types_entreprises_presse_medias = StringField(
+        "Types d'entreprises de presse & médias",
+        validators=[validators.Optional()],
+    )
+    types_presse_medias = StringField(
+        "Types presse & médias", validators=[validators.Optional()]
+    )
+    competences_journalisme = StringField(
+        "Compétences en journalisme", validators=[validators.Optional()]
+    )
+    langues = StringField("Langues", validators=[validators.Optional()])
+    types_contenus_editoriaux = StringField(
+        "Types de contenus éditoriaux", validators=[validators.Optional()]
+    )
+    taille_contenus_editoriaux = StringField(
+        "Taille des contenus éditoriaux", validators=[validators.Optional()]
+    )
+    modes_remuneration = StringField(
+        "Modes de rémunération", validators=[validators.Optional()]
+    )
+    physical_required = BooleanField(
+        "La mission doit s'effectuer physiquement à l'emplacement indiqué",
+        default=False,
+    )
+    remote_required = BooleanField(
+        "La mission doit s'effectuer en télétravail", default=False
+    )
     pays_zip_ville = CountrySelectField(
         name="pays_zip_ville",
         name2="pays_zip_ville_detail",
@@ -172,12 +208,33 @@ def missions_new():
                 mission_subcategories=MISSION_SUBCATEGORIES,
             )
 
+        def _split_csv(raw: str | None) -> list[str]:
+            """Bug #0187 — turn the comma-separated free-text into
+            a clean list of trimmed, non-empty entries."""
+            if not raw:
+                return []
+            return [piece.strip() for piece in raw.split(",") if piece.strip()]
+
         mission = MissionOffer(
             title=form.title.data or "",
             description=form.description.data or "",
             sector=form.sector.data or "",
             category=category,
             subcategory=(form.subcategory.data or "").strip(),
+            metiers_journalisme=_split_csv(form.metiers_journalisme.data),
+            types_entreprises_presse_medias=_split_csv(
+                form.types_entreprises_presse_medias.data
+            ),
+            types_presse_medias=_split_csv(form.types_presse_medias.data),
+            competences_journalisme=_split_csv(form.competences_journalisme.data),
+            langues=_split_csv(form.langues.data),
+            types_contenus_editoriaux=_split_csv(form.types_contenus_editoriaux.data),
+            taille_contenus_editoriaux=_split_csv(
+                form.taille_contenus_editoriaux.data
+            ),
+            modes_remuneration=_split_csv(form.modes_remuneration.data),
+            physical_required=bool(form.physical_required.data),
+            remote_required=bool(form.remote_required.data),
             pays_zip_ville=form.pays_zip_ville.data or "",
             pays_zip_ville_detail=request.form.get("pays_zip_ville_detail", ""),
             budget_min=euros_to_cents(form.budget_min.data),

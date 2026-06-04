@@ -57,6 +57,52 @@
          readable via `whitespace-pre-wrap`. #}
       <div class="prose max-w-none text-gray-800 mb-8 whitespace-pre-wrap">{{ mission.description }}</div>
 
+      {# Bug #0187 — Journalism-extension fields. Each is a list of
+         strings ; render only the ones that carry values. The two
+         work-mode flags surface as chips. #}
+      {% if mission.category and mission.category.value == "journalisme" %}
+        {% set _jour_fields = [
+            ("Métiers du journalisme", mission.metiers_journalisme),
+            ("Types d'entreprises de presse & médias", mission.types_entreprises_presse_medias),
+            ("Types presse & médias", mission.types_presse_medias),
+            ("Compétences en journalisme", mission.competences_journalisme),
+            ("Langues", mission.langues),
+            ("Types de contenus éditoriaux", mission.types_contenus_editoriaux),
+            ("Taille des contenus éditoriaux", mission.taille_contenus_editoriaux),
+            ("Modes de rémunération", mission.modes_remuneration),
+        ] %}
+        {% set _has_jour = mission.physical_required or mission.remote_required or _jour_fields|selectattr(1)|list %}
+        {% if _has_jour %}
+          <div class="border-t border-gray-200 pt-6 mb-8">
+            <h2 class="text-lg font-semibold text-gray-900 mb-3">
+              Profil recherché
+            </h2>
+            <dl class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-3 text-sm">
+              {% for label, values in _jour_fields %}
+                {% if values %}
+                  <div>
+                    <dt class="text-gray-500">{{ label }}</dt>
+                    <dd class="text-gray-800">{{ values|join(", ") }}</dd>
+                  </div>
+                {% endif %}
+              {% endfor %}
+            </dl>
+            <div class="mt-3 flex flex-wrap gap-2">
+              {% if mission.physical_required %}
+                <span class="bg-amber-100 text-amber-800 text-xs px-2 py-1 rounded">
+                  Présence physique requise
+                </span>
+              {% endif %}
+              {% if mission.remote_required %}
+                <span class="bg-emerald-100 text-emerald-800 text-xs px-2 py-1 rounded">
+                  Télétravail
+                </span>
+              {% endif %}
+            </div>
+          </div>
+        {% endif %}
+      {% endif %}
+
       {# Bug #0183 — mini-card du poster, avec lien BW si disponible. #}
       {% if mission.owner %}
         <div class="mb-8">

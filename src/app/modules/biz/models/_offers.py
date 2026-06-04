@@ -24,7 +24,7 @@ from datetime import datetime
 from enum import StrEnum, auto
 
 import sqlalchemy as sa
-from sqlalchemy import BigInteger, ForeignKey, UniqueConstraint
+from sqlalchemy import JSON, BigInteger, ForeignKey, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.models.base import Base
@@ -119,6 +119,21 @@ class MissionOffer(MarketplaceContent, ClassificationMixin, Publishable):
     # missions ; new ones surface a required selector in the form.
     category: Mapped[MissionCategory | None] = mapped_column(default=None)
     subcategory: Mapped[str] = mapped_column(default="")
+    # Bug #0187 — Journalism-mission extension : 8 taxonomy lists +
+    # 2 work-mode flags. The columns are present on every Mission but
+    # the deposit form only exposes them when category == JOURNALISME
+    # (Alpine.js gating). Default to empty list / False so old code
+    # paths and back-compat rows stay valid.
+    metiers_journalisme: Mapped[list] = mapped_column(JSON, default=list)
+    types_entreprises_presse_medias: Mapped[list] = mapped_column(JSON, default=list)
+    types_presse_medias: Mapped[list] = mapped_column(JSON, default=list)
+    competences_journalisme: Mapped[list] = mapped_column(JSON, default=list)
+    langues: Mapped[list] = mapped_column(JSON, default=list)
+    types_contenus_editoriaux: Mapped[list] = mapped_column(JSON, default=list)
+    taille_contenus_editoriaux: Mapped[list] = mapped_column(JSON, default=list)
+    modes_remuneration: Mapped[list] = mapped_column(JSON, default=list)
+    physical_required: Mapped[bool] = mapped_column(default=False)
+    remote_required: Mapped[bool] = mapped_column(default=False)
 
     emitter_org = relationship("Organisation", foreign_keys=[emitter_org_id])
 
