@@ -37,7 +37,7 @@ from ._common import count_owned_non_deleted, get_secondary_menu
 def comroom():
     """Com'room"""
     # Lazy import to avoid circular import
-    from app.modules.wip.models import Communique
+    from app.modules.wip.models import Communique, Sujet
 
     user = g.user
     if not user_can_access_comroom(user):
@@ -52,6 +52,23 @@ def comroom():
             "label": "Communiqués",
             "nickname": "CO",
             "color": "bg-pink-600",
+            "mission": PermissionType.PRESS_RELEASE,
+        },
+        # Bug #0177 (Erick, 2026-06-02) : « il conviendrait de
+        # conserver pour les attachés de presse la fonction Sujets
+        # mais à l'intérieur de Com'room. » The Sujet model + CRUD
+        # live in the Newsroom tree, but the deposit guard now
+        # accepts Comroom-eligible users too. `mission` reuses
+        # PRESS_RELEASE — a PR Agency manager that has been granted
+        # the press-release mission also gets the Sujets tile when
+        # acting for the client BW.
+        {
+            "id": "sujets",
+            "model_class": Sujet,
+            "endpoint": "SujetsWipView:index",
+            "label": "Sujets",
+            "nickname": "SU",
+            "color": "bg-amber-600",
             "mission": PermissionType.PRESS_RELEASE,
         },
     ]

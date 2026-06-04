@@ -166,3 +166,73 @@ class TestComroomContent:
         response = client.get("/wip/comroom")
 
         assert response.status_code == 200
+
+
+class TestSujetsTileInComroom:
+    """Bug #0177 (Erick, 2026-06-02) : « il conviendrait de conserver
+    pour les attachés de presse la fonction "Sujets" mais à
+    l'intérieur de Com'room. Il y aurait donc deux fonctionnalités :
+    Sujets et Communiqués. L'idée, c'est que le module Newsroom soit
+    exclusivement réservé aux journalistes. »
+
+    Newsroom stays PRESS_MEDIA-only (cf. #c076b016). Sujets becomes
+    accessible to attachés de presse via Comroom — the deposit view
+    accepts both Newsroom-eligible and Comroom-eligible users.
+    """
+
+    def test_comroom_lists_sujets_tile(
+        self,
+        app: Flask,
+        pr_user: User,
+    ):
+        client = make_authenticated_client(app, pr_user)
+        response = client.get("/wip/comroom")
+        assert response.status_code == 200
+        body = response.data.decode()
+        # The Sujets tile must be present on the Comroom page.
+        assert "Sujets" in body, (
+            "Comroom must surface a Sujets tile for attachés de "
+            "presse (#0177)"
+        )
+        assert "SujetsWipView" in body or "/wip/sujets" in body, (
+            "the Sujets tile must link to /wip/sujets"
+        )
+
+    def test_pr_relations_user_can_open_sujets_list(
+        self,
+        app: Flask,
+        pr_user: User,
+    ):
+        """PRESS_RELATIONS users (attachés de presse) can now open the
+        Sujets listing — previously the `SujetsWipView.before_request`
+        guard called `user_can_access_newsroom` and refused them."""
+        client = make_authenticated_client(app, pr_user)
+        response = client.get("/wip/sujets/")
+        assert response.status_code == 200, (
+            f"PR_RELATIONS user must reach the Sujets list via Comroom "
+            f"(#0177), got {response.status_code}"
+        )
+
+    def test_user_without_either_room_access_still_forbidden(
+        self,
+        app: Flask,
+        db_session: Session,
+    ):
+        """A user without PRESS_MEDIA / PRESS_RELATIONS / EXPERT /
+        TRANSFORMER / ACADEMIC stays blocked from /wip/sujets/ ."""
+        outsider = User(
+            email="outsider-sujets@example.com",
+            first_name="Out",
+            last_name="Sider",
+            active=True,
+        )
+        outsider.photo = b""
+        db_session.add(outsider)
+        db_session.commit()
+
+        client = make_authenticated_client(app, outsider)
+        response = client.get("/wip/sujets/")
+        assert response.status_code in (302, 403), (
+            f"a role-less user must not reach /wip/sujets/, "
+            f"got {response.status_code}"
+        )
