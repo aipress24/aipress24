@@ -53,6 +53,59 @@ _SUJET_VIEW_TEMPLATE = """
 """
 
 
+_REDAC_CHEF_PROFILES = frozenset({"PM_DIR", "PM_DIR_INST", "PM_DIR_SYND"})
+
+
+def _is_redac_chef_of_org(user, org_id) -> bool:
+    """Bug #0132 pt 1 (Erick, 2026-06-02) : Sujets received by a media
+    must only surface for actual rédacteurs en chef, not for every
+    journalist at the same org.
+
+    A user qualifies as rédac chef if either :
+    - their KYC profile is one of the `PM_DIR*` codes (Directeur de
+      la rédaction, Directeur institutionnel, Directeur syndicat) ;
+    - they hold an ACCEPTED BWMi or BW_OWNER RoleAssignment on the
+      media's active BW (the org-management equivalent).
+    """
+    if user is None or getattr(user, "is_anonymous", False):
+        return False
+    profile = getattr(user, "profile", None)
+    if profile is not None:
+        profile_code = getattr(profile, "profile_code", "") or ""
+        if profile_code in _REDAC_CHEF_PROFILES:
+            return True
+
+    # Lazy imports to keep this module importable without pulling
+    # the full BW activation tree during cold start.
+    from app.modules.bw.bw_activation.models import (
+        BusinessWall,
+        BWRoleType,
+        InvitationStatus,
+    )
+    from app.modules.bw.bw_activation.models.business_wall import BWStatus
+
+    bw = db.session.scalars(
+        select(BusinessWall).where(
+            BusinessWall.organisation_id == org_id,
+            BusinessWall.status == BWStatus.ACTIVE.value,
+        )
+    ).first()
+    if bw is None:
+        return False
+    user_id = getattr(user, "id", None)
+    if user_id is None:
+        return False
+    elevated_roles = {BWRoleType.BWMI.value, BWRoleType.BW_OWNER.value}
+    for assignment in bw.role_assignments:
+        if (
+            assignment.user_id == user_id
+            and assignment.invitation_status == InvitationStatus.ACCEPTED.value
+            and assignment.role_type in elevated_roles
+        ):
+            return True
+    return False
+
+
 @define
 class SujetDataSource(BaseDataSource):
     """Bug 0132: rédacteurs en chef of a target media must see PUBLIC sujets
@@ -62,12 +115,21 @@ class SujetDataSource(BaseDataSource):
     every sujet a journalist had just published to another media — the
     notification mail arrived but the sujet itself was invisible in the
     NEWSROOM list.
+
+    Part 1 (#0132 pt 1, Erick 2026-06-02) : the « received » side of
+    the clause now also requires the viewer to be a rédac chef of the
+    target media — ordinary journalists at the same org no longer see
+    the proposal, which restores the targeting Nicolas relies on.
     """
 
     def _media_recipient_clause(self):
         user: User = g.user
         org_id = getattr(user, "organisation_id", None)
         if not org_id:
+            return None
+        # Bug #0132 pt 1 — gate the received-Sujet view on a rédac
+        # chef qualification.
+        if not _is_redac_chef_of_org(user, org_id):
             return None
         M = self.model_class
         return and_(
