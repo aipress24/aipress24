@@ -35,7 +35,6 @@ from app.modules.bw.bw_activation.models.business_wall import BWType
 from app.modules.stripe import blueprint
 from app.modules.wire.models import ArticlePurchase, PurchaseProduct, PurchaseStatus
 from app.services.stripe.prices import upsert_price_from_event
-from app.services.stripe.product import stripe_bw_subscription_dict
 from app.services.stripe.retriever import (
     retrieve_customer,
     retrieve_invoice,
@@ -792,36 +791,3 @@ def _update_organisation_subscription_info(
 #     if org.bw_active == BWType.PR.value:
 #         return BWTypeEnum.AGENCY  # type: ignore
 #     return BWTypeEnum.MEDIA  # type: ignore
-
-
-def _get_bw_product(subinfo: SubscriptionInfo) -> stripe.Product | None:
-    sub_content = stripe.Subscription.retrieve(subinfo.subscription_id)
-    subinfo.created = sub_content["created"]
-    subinfo.current_period_start = sub_content["current_period_start"]
-    subinfo.current_period_end = sub_content["current_period_end"]
-    items = sub_content["items"]
-    if not items:
-        msg = f"no items in Stripe subscription {subinfo.subscription_id}"
-        warning(msg)
-        return None
-    items_data = items["data"]
-    if not items_data:
-        msg = f"no data in Stripe subscription {subinfo.subscription_id}"
-        warning(msg)
-        return None
-    # assuming *only one* item purchased
-    data = items["data"][0]
-    # metadata = data["metadata"]  # empty
-    plan = data["plan"]  # => a dict
-    subinfo.price_id = plan["id"]  # price_1QP6aDIyzOgen8Oq52ChIHSA
-    subinfo.nickname = plan["nickname"]  # BW4PR_Y
-    subinfo.interval = plan["interval"]  # month
-    subinfo.product_id = plan["product"]  # prod_RHfMqgfIBy7L18
-
-    # price = data["price"]  # => a dict
-    # assuming this is the same price as the plan price
-    # price_id = price["id"]  # price_1QP6aDIyzOgen8Oq52ChIHSA
-    # same nickname as plan
-    # same product_id as plan
-    bw_products = stripe_bw_subscription_dict()
-    return bw_products.get(subinfo.product_id)

@@ -38,20 +38,3 @@ def fetch_bw_product_list() -> list[Product]:
         if "subs" in keys:
             results.append(prod)
     return results
-
-
-def stripe_bw_subscription_dict(active: bool = True) -> dict[str, Product]:
-    """
-    Deprecation: old metadata format
-
-    Return the dict of all active BW subscriptions Products
-    available on Stripe.
-
-    Products filtered by the BW metadata key."""
-    prods = fetch_stripe_product_list(active)
-    # debug
-    # import sys
-
-    # for p in prods:
-    #     print("/// stripe product", p.id, p.metadata, file=sys.stderr)
-    return {p.id: p for p in prods if "BW" in p.metadata}
