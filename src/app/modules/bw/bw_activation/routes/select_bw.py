@@ -114,6 +114,7 @@ def select_bw_post(bw_id: str):
 
     # Check if user has management right to see the dashboard
     has_management_rights = False
+    has_pr_rights = False
     if bw.owner_id == user.id:
         has_management_rights = True
     elif bw.role_assignments:
@@ -121,12 +122,26 @@ def select_bw_post(bw_id: str):
             if (
                 assignment.user_id == user.id
                 and assignment.invitation_status == InvitationStatus.ACCEPTED.value
-                and assignment.role_type in MANAGEMENT_ROLES
             ):
-                has_management_rights = True
-                break
+                if assignment.role_type in MANAGEMENT_ROLES:
+                    has_management_rights = True
+                elif assignment.role_type in (
+                    BWRoleType.BWPRI.value,
+                    BWRoleType.BWPRE.value,
+                ):
+                    has_pr_rights = True
 
     if has_management_rights:
         return redirect(url_for("bw_activation.dashboard"))
+
+    # Bug #0166 (Erick, 2026-06-02) : « En appuyant sur le bouton
+    # Sélectionner le BW de Fake-OSS A380, il ne se passe rien. »
+    # Previously the handler redirected non-managers back to the
+    # selector — the user just saw the same page again. PR managers
+    # (BWPRi internal / BWPRe external) are publication-oriented,
+    # not BW-management : send them to Com'room where they can
+    # actually publish for the newly-selected client BW.
+    if has_pr_rights:
+        return redirect(url_for("wip.comroom"))
 
     return redirect(url_for("bw_activation.select_bw"))
