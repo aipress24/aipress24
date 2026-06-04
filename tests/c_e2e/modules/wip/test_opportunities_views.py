@@ -7,6 +7,7 @@
 from __future__ import annotations
 
 import re
+import uuid
 from datetime import UTC, datetime, timedelta
 from typing import TYPE_CHECKING
 from unittest.mock import patch
@@ -15,7 +16,14 @@ import pytest
 
 from app.enums import RoleEnum
 from app.models.auth import KYCProfile, Role, User
+from app.models.lifecycle import PublicationStatus
 from app.models.organisation import Organisation
+from app.modules.biz.models import (
+    ApplicationStatus,
+    MissionOffer,
+    MissionStatus,
+    OfferApplication,
+)
 from app.modules.bw.bw_activation.models import (
     BusinessWall,
     BWRoleType,
@@ -694,3 +702,221 @@ class TestMediaOpportunityClass:
         assert media_opp.titre == "Test Enquête"
         assert media_opp.brief == "Looking for experts on AI"
         assert media_opp.journaliste == journalist
+
+
+# ---------------------------------------------------------------------
+# Bug #0188 (Erick, 2026-06-04) — marketplace applications surface in
+# WIP/Opportunités. New tabs : Missions / Projects / Jobs, each
+# showing applications received (as emitter) and sent (as applicant).
+# ---------------------------------------------------------------------
+
+
+@pytest.fixture
+def biz_org(db_session: Session) -> Organisation:
+    org = Organisation(name="Biz Opp Test Org")
+    db_session.add(org)
+    db_session.commit()
+    return org
+
+
+@pytest.fixture
+def biz_press_role(db_session: Session) -> Role:
+    role = (
+        db_session.query(Role).filter_by(name=RoleEnum.PRESS_MEDIA.name).first()
+    )
+    if not role:
+        role = Role(
+            name=RoleEnum.PRESS_MEDIA.name,
+            description=RoleEnum.PRESS_MEDIA.value,
+        )
+        db_session.add(role)
+        db_session.commit()
+    return role
+
+
+@pytest.fixture
+def biz_emitter(
+    db_session: Session, biz_org: Organisation, biz_press_role: Role
+) -> User:
+    user = User(
+        email=f"biz-emitter-{uuid.uuid4().hex[:6]}@example.com",
+        first_name="Émettrice",
+        last_name="Test",
+        active=True,
+    )
+    user.photo = b""
+    user.organisation = biz_org
+    user.organisation_id = biz_org.id
+    user.roles.append(biz_press_role)
+    db_session.add(user)
+    db_session.commit()
+    return user
+
+
+@pytest.fixture
+def biz_applicant(db_session: Session, biz_press_role: Role) -> User:
+    user = User(
+        email=f"biz-applicant-{uuid.uuid4().hex[:6]}@example.com",
+        first_name="Candidat",
+        last_name="Test",
+        active=True,
+    )
+    user.photo = b""
+    user.roles.append(biz_press_role)
+    db_session.add(user)
+    db_session.commit()
+    return user
+
+
+class TestMarketplaceApplicationsInOpportunites:
+    """Bug #0188 — Erick : « les répondants ne veulent pas que tout
+    le monde voie leurs propositions. C'est une histoire de respect
+    de la confidentialité. Autrement, personne n'utilisera MARKET.
+    [...] les réponses doivent alors s'afficher tant du côté
+    annonceur que du côté répondant, dans :
+    - WORK/OPPORTUNITÉS/Missions
+    - WORK/OPPORTUNITÉS/Projects
+    - WORK/OPPORTUNITÉS/Job Board »
+    """
+
+    def test_opportunities_page_has_marketplace_tabs(
+        self,
+        app,
+        biz_emitter: User,
+    ):
+        client = make_authenticated_client(app, biz_emitter)
+        response = client.get("/wip/opportunities")
+        assert response.status_code == 200
+        body = response.data.decode()
+        # 3 marketplace tabs surface alongside the existing Avis
+        # d'Enquête.
+        assert "/wip/opportunities?tab=missions" in body
+        assert "/wip/opportunities?tab=projects" in body
+        assert "/wip/opportunities?tab=jobs" in body
+
+    def test_missions_tab_shows_emitter_received_applications(
+        self,
+        app,
+        db_session: Session,
+        biz_emitter: User,
+        biz_applicant: User,
+        biz_org: Organisation,
+    ):
+        mission = MissionOffer(
+            title="Mission émise par testeur",
+            description="<p>Description</p>",
+            sector="media",
+            status=PublicationStatus.PUBLIC,
+            mission_status=MissionStatus.OPEN,
+            owner_id=biz_emitter.id,
+            emitter_org_id=biz_org.id,
+        )
+        db_session.add(mission)
+        db_session.flush()
+        application = OfferApplication(
+            offer_id=mission.id,
+            owner_id=biz_applicant.id,
+            message="Ma candidature à la mission émise",
+            status=ApplicationStatus.PENDING,
+        )
+        db_session.add(application)
+        db_session.commit()
+
+        client = make_authenticated_client(app, biz_emitter)
+        response = client.get("/wip/opportunities?tab=missions")
+        assert response.status_code == 200
+        body = response.data.decode()
+        # The emitter sees the received candidacy under their own offer.
+        assert "Mission émise par testeur" in body
+        assert "Ma candidature à la mission émise" in body
+        assert biz_applicant.full_name in body
+
+    def test_missions_tab_shows_applicant_sent_applications(
+        self,
+        app,
+        db_session: Session,
+        biz_emitter: User,
+        biz_applicant: User,
+        biz_org: Organisation,
+    ):
+        mission = MissionOffer(
+            title="Mission cible candidature",
+            description="<p>Description</p>",
+            sector="media",
+            status=PublicationStatus.PUBLIC,
+            mission_status=MissionStatus.OPEN,
+            owner_id=biz_emitter.id,
+            emitter_org_id=biz_org.id,
+        )
+        db_session.add(mission)
+        db_session.flush()
+        application = OfferApplication(
+            offer_id=mission.id,
+            owner_id=biz_applicant.id,
+            message="J'ai répondu à cette mission",
+            status=ApplicationStatus.PENDING,
+        )
+        db_session.add(application)
+        db_session.commit()
+
+        client = make_authenticated_client(app, biz_applicant)
+        response = client.get("/wip/opportunities?tab=missions")
+        assert response.status_code == 200
+        body = response.data.decode()
+        # The applicant sees their own application. The apostrophe
+        # comes back HTML-escaped (`&#39;`) so we assert on the
+        # apostrophe-less tail of the message.
+        assert "Mission cible candidature" in body
+        assert "ai répondu à cette mission" in body
+
+    def test_missions_tab_isolates_applications_per_user(
+        self,
+        app,
+        db_session: Session,
+        biz_emitter: User,
+        biz_applicant: User,
+        biz_org: Organisation,
+        biz_press_role: Role,
+    ):
+        """Confidentialité : a 3rd party (not emitter, not applicant)
+        must not see anything about this mission or its candidacies."""
+        mission = MissionOffer(
+            title="Mission confidentielle",
+            description="<p>Test</p>",
+            sector="media",
+            status=PublicationStatus.PUBLIC,
+            mission_status=MissionStatus.OPEN,
+            owner_id=biz_emitter.id,
+            emitter_org_id=biz_org.id,
+        )
+        db_session.add(mission)
+        db_session.flush()
+        application = OfferApplication(
+            offer_id=mission.id,
+            owner_id=biz_applicant.id,
+            message="Message secret",
+            status=ApplicationStatus.PENDING,
+        )
+        db_session.add(application)
+
+        outsider = User(
+            email=f"outsider-{uuid.uuid4().hex[:6]}@example.com",
+            first_name="Curieux",
+            last_name="Test",
+            active=True,
+        )
+        outsider.photo = b""
+        outsider.roles.append(biz_press_role)
+        db_session.add(outsider)
+        db_session.commit()
+
+        client = make_authenticated_client(app, outsider)
+        response = client.get("/wip/opportunities?tab=missions")
+        assert response.status_code == 200
+        body = response.data.decode()
+        assert "Mission confidentielle" not in body, (
+            "outsider must not see other people's missions in Opportunités (#0188)"
+        )
+        assert "Message secret" not in body, (
+            "outsider must never see other applicants' messages (#0188)"
+        )

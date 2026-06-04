@@ -43,11 +43,47 @@ if TYPE_CHECKING:
 
 from ._common import get_secondary_menu
 
+_OPPORTUNITES_TABS = (
+    ("avis", "Avis d'enquête"),
+    ("missions", "Missions"),
+    ("projects", "Projets"),
+    ("jobs", "Emplois"),
+)
+
+
+def _build_opportunites_tabs(current: str) -> list[dict]:
+    return [
+        {
+            "id": tab_id,
+            "label": label,
+            "href": url_for("wip.opportunities", tab=tab_id)
+            if tab_id != "avis"
+            else url_for("wip.opportunities"),
+            "active": current == tab_id,
+        }
+        for tab_id, label in _OPPORTUNITES_TABS
+    ]
+
 
 @blueprint.route("/opportunities")
 @nav(icon="cake")
 def opportunities():
-    """Opportunités"""
+    """Opportunités — Avis d'enquête (default) + 3 marketplace tabs.
+
+    Bug #0188 (Erick, 2026-06-04) : « les répondants ne veulent pas
+    que tout le monde voie leurs propositions. [...] les réponses
+    doivent alors s'afficher tant du côté annonceur que du côté
+    répondant, dans WORK/OPPORTUNITÉS/Missions / Projects / Job
+    Board. » Each marketplace tab shows the current user's own
+    candidacies + the candidacies they received on their offers.
+    """
+    tab = request.args.get("tab", "avis")
+    if tab in {"missions", "projects", "jobs"}:
+        return _render_marketplace_opportunites_tab(tab)
+    return _render_avis_opportunites_tab()
+
+
+def _render_avis_opportunites_tab():
     # Lazy import to avoid circular import
     from app.modules.wip.models import ContactAvisEnqueteRepository
 
@@ -62,6 +98,70 @@ def opportunities():
         "wip/pages/opportunities.j2",
         title="Mes opportunités",
         contacts=contacts,
+        tabs=_build_opportunites_tabs("avis"),
+        menus={"secondary": get_secondary_menu("opportunities")},
+    )
+
+
+def _render_marketplace_opportunites_tab(tab: str):
+    """Bug #0188 — render the marketplace tab (missions / projects /
+    jobs). Shows two sections : « Mes candidatures » (the user is the
+    applicant) and « Candidatures reçues » (the user is the offer's
+    owner)."""
+    # Lazy import to avoid bringing biz models into the WIP startup.
+    from sqlalchemy import select
+
+    from app.flask.extensions import db
+    from app.modules.biz.models import (
+        JobOffer,
+        MissionOffer,
+        OfferApplication,
+        ProjectOffer,
+    )
+
+    offer_models = {
+        "missions": MissionOffer,
+        "projects": ProjectOffer,
+        "jobs": JobOffer,
+    }
+    offer_model = offer_models[tab]
+    user = g.user
+
+    if getattr(user, "is_anonymous", False):
+        return redirect(url_for("security.login", next=request.path))
+
+    sent_stmt = (
+        select(OfferApplication, offer_model)
+        .join(offer_model, OfferApplication.offer_id == offer_model.id)
+        .where(OfferApplication.owner_id == user.id)
+        .order_by(OfferApplication.created_at.desc())
+    )
+    sent_applications = list(db.session.execute(sent_stmt).all())
+
+    received_stmt = (
+        select(OfferApplication, offer_model)
+        .join(offer_model, OfferApplication.offer_id == offer_model.id)
+        .where(offer_model.owner_id == user.id)
+        .order_by(OfferApplication.created_at.desc())
+    )
+    received_applications = list(db.session.execute(received_stmt).all())
+
+    labels = {
+        "missions": ("Mission", "missions_detail"),
+        "projects": ("Projet", "projects_detail"),
+        "jobs": ("Emploi", "jobs_detail"),
+    }
+    offer_label, detail_endpoint = labels[tab]
+
+    return render_template(
+        "wip/pages/opportunities_marketplace.j2",
+        title="Mes opportunités",
+        tabs=_build_opportunites_tabs(tab),
+        tab_id=tab,
+        offer_label=offer_label,
+        detail_endpoint=f"biz.{detail_endpoint}",
+        sent_applications=sent_applications,
+        received_applications=received_applications,
         menus={"secondary": get_secondary_menu("opportunities")},
     )
 
