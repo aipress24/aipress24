@@ -17,6 +17,15 @@
       </div>
 
       <dl class="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm text-gray-600 mb-6">
+        {# Bug #0185 — show the category + sub-type pair when set. #}
+        {% if mission.category %}
+          <div>
+            <dt class="text-gray-500">Type de mission</dt>
+            <dd>
+              {{ mission.category.value|capitalize }}{% if mission.subcategory %} · {{ mission.subcategory }}{% endif %}
+            </dd>
+          </div>
+        {% endif %}
         {% if mission.sector %}
           <div><dt class="text-gray-500">Secteur</dt><dd>{{ mission.sector }}</dd></div>
         {% endif %}

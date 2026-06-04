@@ -4,7 +4,10 @@
 <div class="p-4">
   <a href="{{ url_for('biz.missions_detail', id=obj.id) }}" class="block">
     <div class="flex items-start justify-between mb-2">
-      <span class="text-xs uppercase tracking-wide text-gray-500">Mission</span>
+      <span class="text-xs uppercase tracking-wide text-gray-500">
+        {# Bug #0185 — surface the category if any. #}
+        Mission{% if obj.category %} · {{ obj.category.value|capitalize }}{% endif %}
+      </span>
       {% if obj.mission_status.value == "FILLED" %}
         <span class="bg-gray-200 text-gray-700 text-xs px-2 py-0.5 rounded">Pourvue</span>
       {% elif obj.mission_status.value == "CLOSED" %}
@@ -15,6 +18,8 @@
     </div>
     <h3 class="text-lg font-semibold text-gray-900 mb-1">{{ obj.title }}</h3>
     <div class="text-sm text-gray-600 flex flex-wrap gap-x-4 gap-y-1 mb-3">
+      {# Bug #0185 — surface the sub-type when present. #}
+      {% if obj.subcategory %}<span>{{ obj.subcategory }}</span>{% endif %}
       {% if obj.sector %}<span>{{ obj.sector }}</span>{% endif %}
       {% set _geo = obj|offer_geoloc %}
       {% if _geo %}<span>📍 {{ _geo }}</span>{% endif %}

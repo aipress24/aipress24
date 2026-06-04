@@ -18,6 +18,7 @@ from app.models.lifecycle import PublicationStatus
 from app.models.organisation import Organisation
 from app.modules.biz.models import (
     ApplicationStatus,
+    MissionCategory,
     MissionOffer,
     MissionStatus,
     OfferApplication,
@@ -503,3 +504,144 @@ class TestApplicantCardsOnApplicationsPage:
             "the Wire-style press-relations attribution line is "
             "irrelevant on the marketplace applications page (#0184)"
         )
+
+
+class TestMissionCategorySubtyping:
+    """Bug #0185 (Erick, 2026-06-04) : MARKET/MISSIONS — sub-type the
+    missions in 3 categories with their own sub-taxonomies :
+
+    > 1- Pour le journalisme (annonces visibles seulement par les
+    >    journalistes)
+    > 2- Pour la Communication (les PR Agencies et les PR Indeps)
+    > 3- Pour l'innovation dans le journalisme et la communication.
+
+    v0 hardcodes a small placeholder sub-list per category — the
+    full ontology seed is on Erick's side and will land in a later
+    commit (#0185 follow-up). The DB shape and the form contract
+    are wired so the swap is one-line later.
+    """
+
+    def test_form_persists_category_and_subcategory(
+        self,
+        app: Flask,
+        emitter: User,
+        db_session: Session,
+    ):
+        client = make_authenticated_client(app, emitter)
+        response = client.post(
+            "/biz/missions/new",
+            data={
+                "title": "Cherche pigiste IA",
+                "description": "Une description suffisamment longue pour le test.",
+                "sector": "media",
+                "category": "journalisme",
+                "subcategory": "Enquête",
+                "budget_min": "500",
+                "budget_max": "1500",
+            },
+            follow_redirects=False,
+        )
+        assert response.status_code == 302, response.data[:500]
+
+        mission = (
+            db_session.query(MissionOffer)
+            .filter_by(title="Cherche pigiste IA")
+            .first()
+        )
+        assert mission is not None
+        assert mission.category is not None, (
+            "MissionOffer.category must be persisted from the form (#0185)"
+        )
+        assert mission.category.value == "journalisme"
+        assert mission.subcategory == "Enquête"
+
+    def test_empty_category_stays_blank_for_back_compat(
+        self,
+        app: Flask,
+        emitter: User,
+        db_session: Session,
+    ):
+        """Missions created without a category (legacy callers, old
+        forms) must still publish — the new fields are optional."""
+        client = make_authenticated_client(app, emitter)
+        response = client.post(
+            "/biz/missions/new",
+            data={
+                "title": "Mission sans catégorie",
+                "description": "Une description suffisamment longue pour le test.",
+                "sector": "media",
+                "budget_min": "500",
+                "budget_max": "1500",
+            },
+            follow_redirects=False,
+        )
+        assert response.status_code == 302
+
+        mission = (
+            db_session.query(MissionOffer)
+            .filter_by(title="Mission sans catégorie")
+            .first()
+        )
+        assert mission is not None
+        assert mission.category is None
+        assert mission.subcategory == ""
+
+    def test_new_form_template_offers_three_categories(
+        self,
+        app: Flask,
+        emitter: User,
+    ):
+        """The GET on /biz/missions/new must render the category
+        selector with the 3 enum values + the static templates for
+        each sub-list so Alpine can pick the right one (#0185)."""
+        client = make_authenticated_client(app, emitter)
+        response = client.get("/biz/missions/new")
+        assert response.status_code == 200
+        body = response.data.decode()
+        assert "Type de mission" in body
+        for value in ("journalisme", "communication", "innovation"):
+            assert f'value="{value}"' in body, (
+                f"category option {value} missing in the form"
+            )
+        # Spot-check at least one sub-option from each category's
+        # placeholder list.
+        for sub in ("Pige / Reportage", "Campagne RP", "Outil IA"):
+            assert sub in body, f"sub-option {sub!r} missing in form template"
+
+    def test_category_and_subcategory_surface_on_card_and_detail(
+        self,
+        app: Flask,
+        emitter: User,
+        db_session: Session,
+    ):
+        mission = MissionOffer(
+            title="Mission #0185 surface",
+            description="<p>Test</p>",
+            sector="tech",
+            location="Paris",
+            status=PublicationStatus.PUBLIC,
+            mission_status=MissionStatus.OPEN,
+            owner_id=emitter.id,
+            emitter_org_id=emitter.organisation_id,
+            category=MissionCategory.JOURNALISME,
+            subcategory="Pige / Reportage",
+        )
+        db_session.add(mission)
+        db_session.commit()
+
+        client = make_authenticated_client(app, emitter)
+
+        listing = client.get("/biz/?current_tab=missions")
+        assert listing.status_code == 200
+        body = listing.data.decode()
+        assert "Journalisme" in body, "category must surface on the listing card"
+        assert "Pige / Reportage" in body, (
+            "sub-category must surface on the listing card"
+        )
+
+        detail = client.get(f"/biz/missions/{mission.id}")
+        assert detail.status_code == 200
+        body = detail.data.decode()
+        assert "Type de mission" in body
+        assert "Journalisme" in body
+        assert "Pige / Reportage" in body

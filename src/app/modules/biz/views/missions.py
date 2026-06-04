@@ -13,6 +13,7 @@ from wtforms import (
     DateField,
     Form,
     IntegerField,
+    SelectField,
     StringField,
     TextAreaField,
     validators,
@@ -24,6 +25,7 @@ from app.models.lifecycle import PublicationStatus
 from app.modules.biz import blueprint
 from app.modules.biz.models import (
     ApplicationStatus,
+    MissionCategory,
     MissionOffer,
     MissionStatus,
 )
@@ -45,6 +47,44 @@ from app.modules.kyc.ontology_loader import get_choices as get_ontology_choices
 from app.modules.wip.pr_access import check_mission
 from app.signals import marketplace_published
 
+# Bug #0185 — top-level Mission sub-typing. The 3 categories Erick
+# spelled out, with per-category placeholder sub-lists kept until the
+# `type_mission_*` ontologies land. Wire format = StrEnum lowercase
+# name (`MissionCategory(...).value`), shared with the form, the URL
+# state, and the DB column.
+_CATEGORY_CHOICES: list[tuple[str, str]] = [
+    ("", "— Choisissez une catégorie —"),
+    (MissionCategory.JOURNALISME.value, "Journalisme"),
+    (MissionCategory.COMMUNICATION.value, "Communication"),
+    (MissionCategory.INNOVATION.value, "Innovation"),
+]
+
+# Placeholder sub-lists per category, exposed to the template so the
+# dynamic Alpine.js selector can mount only the relevant one.
+MISSION_SUBCATEGORIES: dict[str, list[str]] = {
+    MissionCategory.JOURNALISME.value: [
+        "Pige / Reportage",
+        "Enquête",
+        "Interview",
+        "Couverture d'événement",
+        "Édition / Secrétariat de rédaction",
+    ],
+    MissionCategory.COMMUNICATION.value: [
+        "Communiqué de presse",
+        "Conférence de presse / Événement",
+        "Campagne RP",
+        "Réseaux sociaux",
+        "Stratégie / Conseil",
+    ],
+    MissionCategory.INNOVATION.value: [
+        "Outil IA",
+        "Newsletter / Plateforme",
+        "Format vidéo / podcast",
+        "Recherche / Étude",
+        "Outil de gestion éditoriale",
+    ],
+}
+
 
 class MissionOfferForm(Form):
     title = StringField(
@@ -56,6 +96,19 @@ class MissionOfferForm(Form):
         validators=[validators.InputRequired(), validators.Length(min=20)],
     )
     sector = StringField("Secteur", validators=[validators.Optional()])
+    # Bug #0185 — top-level category + per-category sub-type. Both
+    # are optional in the form layer to preserve back-compat with the
+    # existing tests / clients ; the UI strongly invites the user to
+    # fill them.
+    category = SelectField(
+        "Type de mission",
+        choices=_CATEGORY_CHOICES,
+        validators=[validators.Optional()],
+    )
+    subcategory = StringField(
+        "Sous-type",
+        validators=[validators.Optional(), validators.Length(max=200)],
+    )
     pays_zip_ville = CountrySelectField(
         name="pays_zip_ville",
         name2="pays_zip_ville_detail",
@@ -86,10 +139,24 @@ def missions_new():
             if bw:
                 emitter_org_id = bw.organisation_id
 
+        # Bug #0185 — category is optional ; map the empty form
+        # value to None on the model.
+        category_value = (form.category.data or "").strip()
+        category: MissionCategory | None
+        if category_value:
+            try:
+                category = MissionCategory(category_value)
+            except ValueError:
+                category = None
+        else:
+            category = None
+
         mission = MissionOffer(
             title=form.title.data or "",
             description=form.description.data or "",
             sector=form.sector.data or "",
+            category=category,
+            subcategory=(form.subcategory.data or "").strip(),
             pays_zip_ville=form.pays_zip_ville.data or "",
             pays_zip_ville_detail=request.form.get("pays_zip_ville_detail", ""),
             budget_min=euros_to_cents(form.budget_min.data),
@@ -116,7 +183,12 @@ def missions_new():
         return redirect(url_for(".missions_detail", id=mission.id))
 
     return render_template(
-        "pages/missions/new.j2", form=form, title="Publier une mission"
+        "pages/missions/new.j2",
+        form=form,
+        title="Publier une mission",
+        # Bug #0185 — handed to the template so Alpine can mount the
+        # right sub-category select based on the chosen category.
+        mission_subcategories=MISSION_SUBCATEGORIES,
     )
 
 

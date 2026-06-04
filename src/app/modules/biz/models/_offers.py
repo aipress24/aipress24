@@ -37,11 +37,31 @@ __all__ = [
     "ApplicationStatus",
     "ContractType",
     "JobOffer",
+    "MissionCategory",
     "MissionOffer",
     "MissionStatus",
     "OfferApplication",
     "ProjectOffer",
 ]
+
+
+class MissionCategory(StrEnum):
+    """Bug #0185 (Erick, 2026-06-04) : top-level sub-typing of
+    marketplace Missions :
+
+    > 1- Pour le journalisme (annonces visibles seulement par les
+    >    journalistes)
+    > 2- Pour la Communication (les PR Agencies et les PR Indeps)
+    > 3- Pour l'innovation dans le journalisme et la communication.
+
+    `.value` is the lowercase enum name (« journalisme » /
+    « communication » / « innovation »), kept as the wire format on
+    the form, in URLs, and in the DB row.
+    """
+
+    JOURNALISME = auto()
+    COMMUNICATION = auto()
+    INNOVATION = auto()
 
 
 class MissionStatus(StrEnum):
@@ -93,6 +113,12 @@ class MissionOffer(MarketplaceContent, ClassificationMixin, Publishable):
         BigInteger, ForeignKey("crp_organisation.id"), default=None
     )
     mission_status: Mapped[MissionStatus] = mapped_column(default=MissionStatus.OPEN)
+    # Bug #0185 — top-level category + free-text sub-category
+    # (placeholder until Erick's `type_mission_*` ontology lands).
+    # `category` stays nullable for back-compat with already-published
+    # missions ; new ones surface a required selector in the form.
+    category: Mapped[MissionCategory | None] = mapped_column(default=None)
+    subcategory: Mapped[str] = mapped_column(default="")
 
     emitter_org = relationship("Organisation", foreign_keys=[emitter_org_id])
 
