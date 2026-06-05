@@ -78,9 +78,7 @@ class TestSelectBwPostForPRManager:
             "client BW, not be sent back to /BW/select-bw (#0166)"
         )
 
-    def test_pr_manager_internal_also_lands_on_comroom(
-        self, app: Flask, fresh_db
-    ):
+    def test_pr_manager_internal_also_lands_on_comroom(self, app: Flask, fresh_db):
         """Same target for BWPRi (internal PR manager) — both PR
         roles are publication-oriented, not BW-management."""
         data = create_bw_test_data(
@@ -99,9 +97,7 @@ class TestSelectBwPostForPRManager:
         assert response.status_code == 302
         assert "/wip/comroom" in response.headers.get("Location", "")
 
-    def test_selection_persists_user_selected_bw_id(
-        self, app: Flask, fresh_db
-    ):
+    def test_selection_persists_user_selected_bw_id(self, app: Flask, fresh_db):
         """The selected_bw_id column must record the choice
         regardless of which destination page the user is routed to."""
         data = create_bw_test_data(

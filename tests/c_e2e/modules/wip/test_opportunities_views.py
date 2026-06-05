@@ -721,9 +721,7 @@ def biz_org(db_session: Session) -> Organisation:
 
 @pytest.fixture
 def biz_press_role(db_session: Session) -> Role:
-    role = (
-        db_session.query(Role).filter_by(name=RoleEnum.PRESS_MEDIA.name).first()
-    )
+    role = db_session.query(Role).filter_by(name=RoleEnum.PRESS_MEDIA.name).first()
     if not role:
         role = Role(
             name=RoleEnum.PRESS_MEDIA.name,

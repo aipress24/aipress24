@@ -285,9 +285,7 @@ def missions_new():
             competences_journalisme=list(form.competences_journalisme.data or []),
             langues=list(form.langues.data or []),
             types_contenus_editoriaux=list(form.types_contenus_editoriaux.data or []),
-            taille_contenus_editoriaux=list(
-                form.taille_contenus_editoriaux.data or []
-            ),
+            taille_contenus_editoriaux=list(form.taille_contenus_editoriaux.data or []),
             modes_remuneration=list(form.modes_remuneration.data or []),
             physical_required=bool(form.physical_required.data),
             remote_required=bool(form.remote_required.data),

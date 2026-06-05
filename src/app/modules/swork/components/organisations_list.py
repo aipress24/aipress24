@@ -164,9 +164,7 @@ class OrganisationsList(BaseList):
         # `MembersList` for the equivalent KYCProfile filters.
         active_bws = list(
             db.session.scalars(
-                select(BusinessWall).where(
-                    BusinessWall.status == BWStatus.ACTIVE.value
-                )
+                select(BusinessWall).where(BusinessWall.status == BWStatus.ACTIVE.value)
             )
         )
 

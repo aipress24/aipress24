@@ -191,8 +191,7 @@ class TestSujetsTileInComroom:
         body = response.data.decode()
         # The Sujets tile must be present on the Comroom page.
         assert "Sujets" in body, (
-            "Comroom must surface a Sujets tile for attachés de "
-            "presse (#0177)"
+            "Comroom must surface a Sujets tile for attachés de presse (#0177)"
         )
         assert "SujetsWipView" in body or "/wip/sujets" in body, (
             "the Sujets tile must link to /wip/sujets"
@@ -233,6 +232,5 @@ class TestSujetsTileInComroom:
         client = make_authenticated_client(app, outsider)
         response = client.get("/wip/sujets/")
         assert response.status_code in (302, 403), (
-            f"a role-less user must not reach /wip/sujets/, "
-            f"got {response.status_code}"
+            f"a role-less user must not reach /wip/sujets/, got {response.status_code}"
         )

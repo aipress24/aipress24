@@ -545,9 +545,7 @@ class TestMissionCategorySubtyping:
         assert response.status_code == 302, response.data[:500]
 
         mission = (
-            db_session.query(MissionOffer)
-            .filter_by(title="Cherche pigiste IA")
-            .first()
+            db_session.query(MissionOffer).filter_by(title="Cherche pigiste IA").first()
         )
         assert mission is not None
         assert mission.category is not None, (
@@ -845,13 +843,10 @@ class TestJournalismVisibilityRestriction:
         # Journalism mission is created by a non-journalist.
         assert response.status_code in (200, 302, 403)
         count = (
-            db_session.query(MissionOffer)
-            .filter_by(title="Mission interdite")
-            .count()
+            db_session.query(MissionOffer).filter_by(title="Mission interdite").count()
         )
         assert count == 0, (
-            "non-journalists must not be able to publish a Journalism "
-            "mission (#0186)"
+            "non-journalists must not be able to publish a Journalism mission (#0186)"
         )
 
 
@@ -996,8 +991,7 @@ class TestJournalismMissionExtendedFields:
                 re.DOTALL,
             )
             assert pattern.search(body), (
-                f"{field_name} must be a `<select multiple>` "
-                "(not a legacy <input>)"
+                f"{field_name} must be a `<select multiple>` (not a legacy <input>)"
             )
 
     def test_extended_fields_surface_on_detail_page(

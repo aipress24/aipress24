@@ -296,9 +296,7 @@ def test_other_pm_dir_variants_count_as_redac_chef(
             g.user = rc
             ds = SujetDataSource(model_class=Sujet, q="")
             ids = {s.id for s in ds.get_items()}
-        assert public.id in ids, (
-            f"{code} must qualify as rédac chef (#0132 pt 1)"
-        )
+        assert public.id in ids, f"{code} must qualify as rédac chef (#0132 pt 1)"
 
 
 def test_bwmi_role_holder_qualifies_as_redac_chef(

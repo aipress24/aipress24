@@ -310,9 +310,7 @@ class SujetsWipView(BaseWipView):
         # Com'room — Newsroom est exclusivement journalistique mais
         # le Sujet en tant qu'objet métier reste pertinent pour les
         # deux communautés.
-        if not (
-            user_can_access_newsroom(g.user) or user_can_access_comroom(g.user)
-        ):
+        if not (user_can_access_newsroom(g.user) or user_can_access_comroom(g.user)):
             abort(403)
         return None
 
