@@ -161,8 +161,7 @@ class TestSelectBwPostStateMutationGuard:
             follow_redirects=False,
         )
 
-        # Whatever the redirect target, `selected_bw_id` must NOT
-        # point at the foreign BW.
+        # `selected_bw_id` must NOT point at the foreign BW.
         assert response.status_code in (302, 303)
         fresh_db.session.refresh(pr_user)
         assert pr_user.selected_bw_id != data["media_bw"].id, (
@@ -173,3 +172,7 @@ class TestSelectBwPostStateMutationGuard:
             "the column must be left at its previous value when the "
             "user has no role on the chosen BW (VULN-003)"
         )
+        # And the user must land on `/BW/not-authorized` (with an
+        # explicit error stored in session), not silently back on the
+        # selector — otherwise we recreate the original #0166 symptom.
+        assert "/BW/not-authorized" in response.headers.get("Location", "")

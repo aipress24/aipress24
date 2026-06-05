@@ -306,18 +306,14 @@ class SujetsWipView(BaseWipView):
 
     def _user_can_access_sujet(self, sujet: Sujet) -> bool:
         user = g.user
-        if user is None or getattr(user, "is_anonymous", False):
+        if user is None or user.is_anonymous:
             return False
-        owner_id = getattr(sujet, "owner_id", None)
-        if owner_id is not None and owner_id == getattr(user, "id", None):
+        if sujet.owner_id == user.id:
             return True
-        media_id = getattr(sujet, "media_id", None)
-        user_org_id = getattr(user, "organisation_id", None)
         return (
-            media_id is not None
-            and media_id == user_org_id
+            sujet.media_id == user.organisation_id
             and sujet.status == PublicationStatus.PUBLIC
-            and _is_redac_chef_of_org(user, media_id)
+            and _is_redac_chef_of_org(user, sujet.media_id)
         )
 
     def _post_update_model(self, model: Sujet) -> None:

@@ -34,6 +34,16 @@ if TYPE_CHECKING:
     from app.models.auth import User
 
 
+_MANAGEMENT_ROLES = frozenset(
+    {
+        BWRoleType.BW_OWNER.value,
+        BWRoleType.BWMI.value,
+        BWRoleType.BWME.value,
+    }
+)
+_PR_ROLES = frozenset({BWRoleType.BWPRI.value, BWRoleType.BWPRE.value})
+
+
 @bp.route("/select-bw")
 def select_bw():
     """Show a page to select which Business Wall to manage."""
@@ -49,16 +59,11 @@ def select_bw():
 
     # Prepare data for the template
     bw_data = []
-    MANAGEMENT_ROLES = {
-        BWRoleType.BW_OWNER.value,
-        BWRoleType.BWMI.value,
-        BWRoleType.BWME.value,
-    }
 
     for bw in active_bws:
         rights = get_user_rights_on_bw(user, bw)
 
-        # Check if user has at least one role from the MANAGEMENT_ROLES set
+        # Check if user has at least one role from `_MANAGEMENT_ROLES`
         has_management_rights = False
         if bw.owner_id == user.id:
             has_management_rights = True
@@ -67,7 +72,7 @@ def select_bw():
                 if (
                     assignment.user_id == user.id
                     and assignment.invitation_status == InvitationStatus.ACCEPTED.value
-                    and assignment.role_type in MANAGEMENT_ROLES
+                    and assignment.role_type in _MANAGEMENT_ROLES
                 ):
                     has_management_rights = True
                     break
@@ -102,12 +107,6 @@ def select_bw_post(bw_id: str):
         session["error"] = ERR_NOT_MANAGER
         return redirect(url_for("bw_activation.not_authorized"))
 
-    MANAGEMENT_ROLES = {
-        BWRoleType.BW_OWNER.value,
-        BWRoleType.BWMI.value,
-        BWRoleType.BWME.value,
-    }
-
     # Security VULN-003 : compute the user's rights on the BW BEFORE
     # mutating `user.selected_bw_id`. The previous version persisted
     # the column unconditionally and then computed the redirect target
@@ -123,18 +122,18 @@ def select_bw_post(bw_id: str):
                 assignment.user_id == user.id
                 and assignment.invitation_status == InvitationStatus.ACCEPTED.value
             ):
-                if assignment.role_type in MANAGEMENT_ROLES:
+                if assignment.role_type in _MANAGEMENT_ROLES:
                     has_management_rights = True
-                elif assignment.role_type in (
-                    BWRoleType.BWPRI.value,
-                    BWRoleType.BWPRE.value,
-                ):
+                elif assignment.role_type in _PR_ROLES:
                     has_pr_rights = True
 
     if not (has_management_rights or has_pr_rights):
-        # No role on this BW — refuse silently without touching the
-        # user's state.
-        return redirect(url_for("bw_activation.select_bw"))
+        # No role on this BW — route to `not_authorized` so the user
+        # sees an explicit error instead of the silent #0166 symptom
+        # (« le clic ne fait rien »). Mirrors the unknown-BW branch
+        # above.
+        session["error"] = ERR_NOT_MANAGER
+        return redirect(url_for("bw_activation.not_authorized"))
 
     user.selected_bw_id = bw.id
     db.session.commit()
