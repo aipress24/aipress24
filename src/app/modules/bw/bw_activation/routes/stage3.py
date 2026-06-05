@@ -325,6 +325,7 @@ def checkout(bw_type: str):
 
     load_stripe_api_key()
 
+    # For subscription Products, quantity only used for selecting the product
     try:
         quantity = int(session.get("pricing_value", 1))
     except (ValueError, TypeError):
@@ -348,7 +349,8 @@ def checkout(bw_type: str):
         session["error"] = ERR_UNKNOWN_ACTION
         return redirect(url_for("bw_activation.not_authorized"))
 
-    items = [{"price": price_id, "quantity": quantity}]
+    # For subscription Products, quantity only used for selecting the product
+    items = [{"price": price_id, "quantity": 1}]
 
     success_url = url_for(
         "bw_activation.payment_success",
@@ -439,6 +441,7 @@ def _payment_live_enabled(bw_type: str, ctx: dict[str, Any]):
         warn(f"Bug: no allowd stripe product found for bw_type {bw_type!r}")
         return redirect(url_for("bw_activation.not_authorized"))
 
+    # For subscription Products, quantity only used for selecting the product
     try:
         quantity = int(session.get("pricing_value", 1))
     except (ValueError, TypeError):
