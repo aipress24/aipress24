@@ -47,7 +47,12 @@ def _make_sujet(db_session, *, owner_id: int, media_id: int) -> Sujet:
 
 @pytest.fixture
 def redac_chef(db_session: Session, test_org) -> User:
-    """A rédac chef who is a member of the target media's org."""
+    """A rédac chef who is a member of the target media's org.
+
+    `profile_code="PM_DIR"` makes them qualify as rédac chef per the
+    `#0132 pt 1` gate in `_is_redac_chef_of_org` — required for the
+    visibility-aware Sujet routes to admit them on get/edit/accept.
+    """
     role = db_session.query(Role).filter_by(name=RoleEnum.PRESS_MEDIA.name).first()
     if role is None:
         role = Role(name=RoleEnum.PRESS_MEDIA.name, description="journalist")
@@ -59,7 +64,33 @@ def redac_chef(db_session: Session, test_org) -> User:
         last_name="Stramazian",
         active=True,
     )
-    user.profile = KYCProfile()
+    user.profile = KYCProfile(profile_code="PM_DIR")
+    user.organisation = test_org
+    user.organisation_id = test_org.id
+    user.roles.append(role)
+    db_session.add(user)
+    db_session.flush()
+    return user
+
+
+@pytest.fixture
+def ordinary_journalist(db_session: Session, test_org) -> User:
+    """A regular journalist at the target media's org — same org as
+    the rédac chef but NOT qualifying as one (`PM_JR_CP_SAL` profile,
+    no BWMi role). Per `#0132 pt 1` they must NOT see or act on
+    received Sujets."""
+    role = db_session.query(Role).filter_by(name=RoleEnum.PRESS_MEDIA.name).first()
+    if role is None:
+        role = Role(name=RoleEnum.PRESS_MEDIA.name, description="journalist")
+        db_session.add(role)
+        db_session.flush()
+    user = User(
+        email="aicha@flounet.example",
+        first_name="Aïcha",
+        last_name="BenMahfoud",
+        active=True,
+    )
+    user.profile = KYCProfile(profile_code="PM_JR_CP_SAL")
     user.organisation = test_org
     user.organisation_id = test_org.id
     user.roles.append(role)
@@ -289,6 +320,148 @@ class TestSujetAuthorMiniCardOnDetail:
             "the rich poster_card macro must replace the legacy "
             "text-only blue box (#0132 pt 2)"
         )
+
+
+class TestSujetRedacChefGate:
+    """Security review VULN-001 — the `#0132 pt 1` visibility gate
+    must apply to the detail / edit / accept routes too, not only the
+    LIST datasource. A regular journalist at the target media (same
+    org as the rédac chef but not qualifying as one) must NOT be able
+    to view or act on received Sujets via direct URL.
+    """
+
+    def test_get_route_denies_ordinary_journalist_at_target_media(
+        self,
+        app: Flask,
+        db_session: Session,
+        test_org: Organisation,
+        ordinary_journalist: User,
+        author: User,
+    ):
+        """Aïcha (regular journalist at Fake-01Flounet) cannot view a
+        Sujet sent to her org's rédac chef by direct URL."""
+        sujet = _make_sujet(db_session, owner_id=author.id, media_id=test_org.id)
+        db_session.commit()
+
+        client = make_authenticated_client(app, ordinary_journalist)
+        response = client.get(
+            url_for("SujetsWipView:get", id=sujet.id),
+            follow_redirects=False,
+        )
+
+        assert response.status_code == 404, (
+            "an ordinary journalist must not see Sujets received by "
+            "their media's rédac chef via direct URL (VULN-001)"
+        )
+
+    def test_edit_route_denies_ordinary_journalist_at_target_media(
+        self,
+        app: Flask,
+        db_session: Session,
+        test_org: Organisation,
+        ordinary_journalist: User,
+        author: User,
+    ):
+        """Aïcha cannot open the edit form for the rédac chef's
+        received Sujet either."""
+        sujet = _make_sujet(db_session, owner_id=author.id, media_id=test_org.id)
+        db_session.commit()
+
+        client = make_authenticated_client(app, ordinary_journalist)
+        response = client.get(
+            url_for("SujetsWipView:edit", id=sujet.id),
+            follow_redirects=False,
+        )
+
+        assert response.status_code == 404
+
+    def test_accept_route_denies_ordinary_journalist_at_target_media(
+        self,
+        app: Flask,
+        db_session: Session,
+        test_org: Organisation,
+        ordinary_journalist: User,
+        author: User,
+    ):
+        """Aïcha (same org as the rédac chef but not a rédac chef
+        herself) must NOT be able to accept a Sujet by direct URL —
+        the previous code only checked `accepter.organisation_id ==
+        sujet.media_id`, which she trivially passes."""
+        sujet = _make_sujet(db_session, owner_id=author.id, media_id=test_org.id)
+        db_session.commit()
+        sujet_id = sujet.id
+
+        client = make_authenticated_client(app, ordinary_journalist)
+        with patch(
+            "app.modules.wip.crud.cbvs.sujets.notify_author_of_sujet_acceptance"
+        ):
+            response = client.get(
+                url_for("SujetsWipView:accept", id=sujet.id),
+                follow_redirects=False,
+            )
+
+        assert response.status_code in (302, 303, 403, 404)
+
+        db_session.expire_all()
+        sujet_after = db_session.get(Sujet, sujet_id)
+        assert sujet_after.status == PublicationStatus.PUBLIC, (
+            "a non-rédac-chef journalist must not archive the rédac "
+            "chef's received Sujet (VULN-001)"
+        )
+        # No Commande must have been materialised.
+        commandes = db_session.query(Commande).filter_by(media_id=test_org.id).all()
+        assert commandes == [], (
+            "no Commande must be created when a non-rédac-chef accepts "
+            "a Sujet (VULN-001)"
+        )
+
+    def test_get_route_denies_user_at_unrelated_org(
+        self,
+        app: Flask,
+        db_session: Session,
+        test_org: Organisation,
+        author: User,
+    ):
+        """A third party with newsroom access but at a completely
+        unrelated org must not be able to read a Sujet by guessing its
+        (sequential BigInteger) id. Cross-org information disclosure.
+        """
+        sujet = _make_sujet(db_session, owner_id=author.id, media_id=test_org.id)
+        db_session.commit()
+
+        # Build a third journalist : neither the sujet owner, nor a
+        # member of the target media's org, but holding PRESS_MEDIA
+        # so they pass the upstream `before_request` newsroom gate.
+        role = db_session.query(Role).filter_by(name=RoleEnum.PRESS_MEDIA.name).first()
+        if role is None:
+            role = Role(name=RoleEnum.PRESS_MEDIA.name, description="journalist")
+            db_session.add(role)
+            db_session.flush()
+        third_org = Organisation(name="Fake-Unrelated Media")
+        db_session.add(third_org)
+        db_session.flush()
+        third_journalist = User(
+            email="probe@example.com",
+            first_name="Probe",
+            last_name="Journalist",
+            active=True,
+        )
+        third_journalist.profile = KYCProfile(profile_code="PM_JR_CP_SAL")
+        third_journalist.organisation = third_org
+        third_journalist.organisation_id = third_org.id
+        third_journalist.roles.append(role)
+        db_session.add(third_journalist)
+        db_session.commit()
+
+        client = make_authenticated_client(app, third_journalist)
+        response = client.get(
+            url_for("SujetsWipView:get", id=sujet.id),
+            follow_redirects=False,
+        )
+
+        # Direct URL access to a Sujet they neither own nor receive
+        # must 404 (existence-hiding).
+        assert response.status_code == 404
 
 
 class TestSujetAcceptSendsMailToAuthor:

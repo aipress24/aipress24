@@ -18,7 +18,9 @@ from __future__ import annotations
 from typing import cast
 
 import stripe
-from flask import abort, current_app, flash, g, redirect, render_template, url_for
+import stripe.error
+from flask import current_app, flash, g, redirect, render_template, url_for
+from werkzeug.exceptions import Forbidden, NotFound
 
 from app.flask.extensions import db
 from app.flask.sqla import get_obj
@@ -55,8 +57,8 @@ def buy(post_id: str, product: str):
 
     try:
         product_type = PurchaseProduct(product)
-    except ValueError:
-        abort(404)
+    except ValueError as err:
+        raise NotFound from err
 
     post = get_obj(post_id, Post)
     if not current_app.config.get("STRIPE_LIVE_ENABLED"):
@@ -184,10 +186,10 @@ def _price_id_for(product: PurchaseProduct) -> str:
 def _get_purchase_or_404(purchase_id: int) -> ArticlePurchase:
     purchase = db.session.get(ArticlePurchase, purchase_id)
     if purchase is None:
-        abort(404)
+        raise NotFound
     user = cast(User, g.user)
     if not user.is_anonymous and purchase.owner_id != user.id:
-        abort(403)
+        raise Forbidden
     return purchase
 
 

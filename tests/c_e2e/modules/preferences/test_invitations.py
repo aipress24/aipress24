@@ -651,6 +651,72 @@ class TestInvitationsJoinOrg:
         assert "HX-Redirect" in response.headers
 
 
+class TestInvitationsJoinOrgRequiresInvitation:
+    """Security review VERIFY-001 — `_join_organisation` must verify
+    that the user has a matching `Invitation` row for the requested
+    org id before mutating `user.organisation`. Without this check,
+    any authenticated user can POST `action=join_org&target=<any_org>`
+    and become a member of an arbitrary organisation."""
+
+    def test_join_org_refuses_without_invitation(
+        self,
+        invitations_auth_client: FlaskClient,
+        invitations_test_user: User,
+        db_session: Session,
+    ):
+        """The user has NO invitation for `target_org`. The POST must
+        not change `user.organisation_id`."""
+        # An org the user was NEVER invited to.
+        target_org = Organisation(name="Forbidden Org")
+        db_session.add(target_org)
+        db_session.flush()
+
+        original_org_id = invitations_test_user.organisation_id
+        assert target_org.id != original_org_id
+
+        invitations_auth_client.post(
+            "/preferences/invitations",
+            data={
+                "action": "join_org",
+                "target": str(target_org.id),
+            },
+            follow_redirects=False,
+        )
+
+        db_session.refresh(invitations_test_user)
+        assert invitations_test_user.organisation_id == original_org_id, (
+            "user must not become a member of an org they were never "
+            "invited to (VERIFY-001)"
+        )
+        assert invitations_test_user.organisation_id != target_org.id
+
+    def test_join_org_still_works_with_matching_invitation(
+        self,
+        invitations_auth_client: FlaskClient,
+        invitations_test_user: User,
+        invitation_for_user: Invitation,
+        inviting_org: Organisation,
+        db_session: Session,
+    ):
+        """Regression : with a real invitation row, joining still
+        works (the fix must not break the legitimate flow)."""
+        original_org_id = invitations_test_user.organisation_id
+        assert inviting_org.id != original_org_id
+
+        response = invitations_auth_client.post(
+            "/preferences/invitations",
+            data={
+                "action": "join_org",
+                "target": str(inviting_org.id),
+            },
+            follow_redirects=False,
+        )
+
+        assert response.status_code == 200
+        db_session.refresh(invitations_test_user)
+        assert invitations_test_user.organisation_id == inviting_org.id
+
+
 class TestAcceptedRoleStaysVisible:
     """Bug: a BW role (e.g. BWPRi) that the user accepted vanished from
     /preferences/invitations because the page only listed PENDING role

@@ -348,7 +348,34 @@ class InvitationsView(MethodView):
         return revoked
 
     def _join_organisation(self, user: User, org_id: str) -> None:
-        """Join the specified organization."""
+        """Join the specified organization.
+
+        Security VERIFY-001 : require a matching `Invitation` row
+        before mutating `user.organisation`. The list of joinable orgs
+        in `_organisation_inviting` is invitation-filtered, but the
+        POST handler used to trust whatever `target` the form sent —
+        any authenticated user could POST an arbitrary org id and
+        become a member. Mirror the same normalisation as the listing
+        helper (lower + trim) so legacy whitespace/casing matches.
+        """
+        normalised_email = (user.email or "").strip().lower()
+        if not normalised_email or not org_id:
+            return
+        try:
+            target_org_id = int(org_id)
+        except (TypeError, ValueError):
+            return
+        invitation = db.session.scalar(
+            select(Invitation).where(
+                func.lower(func.trim(Invitation.email)) == normalised_email,
+                Invitation.organisation_id == target_org_id,
+            )
+        )
+        if invitation is None:
+            # No invitation : silently refuse — matches the listing
+            # filter and avoids leaking whether the org id exists.
+            return
+
         organisation = get_obj(org_id, Organisation)
         set_user_organisation(user, organisation)
         gc_all_auto_organisations()

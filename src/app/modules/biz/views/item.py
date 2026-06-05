@@ -7,8 +7,9 @@
 from __future__ import annotations
 
 import sqlalchemy as sa
-from flask import abort, g, render_template
+from flask import g, render_template
 from sqlalchemy.orm import selectinload
+from werkzeug.exceptions import NotFound
 
 from app.flask.extensions import db
 from app.flask.lib.nav import nav
@@ -33,11 +34,11 @@ def biz_item(id: int):
     item = db.session.scalars(stmt).first()
 
     if not item:
-        abort(404)
+        raise NotFound
 
     # Only allow access to published items
     if item.status != PublicationStatus.PUBLIC:
-        abort(404)
+        raise NotFound
 
     # Set dynamic breadcrumb label
     g.nav.label = item.title

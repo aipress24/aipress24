@@ -7,11 +7,12 @@ from __future__ import annotations
 from typing import cast
 
 from attr import define
-from flask import Flask, abort, flash, g, redirect
+from flask import Flask, flash, g, redirect
 from flask_super.registry import register
 from sqlalchemy import and_, func, or_, select
 from sqlalchemy.orm import selectinload
 from werkzeug import Response
+from werkzeug.exceptions import Forbidden, NotFound
 
 from app.flask.extensions import db
 from app.flask.lib.templates import templated
@@ -283,6 +284,42 @@ class SujetsWipView(BaseWipView):
     msg_delete_ok = "Le sujet a été supprimé"
     msg_delete_ko = "Vous n'êtes pas autorisé à supprimer ce sujet"
 
+    def _get_model(self, id):
+        """Per-record visibility gate for Sujet (security VULN-001).
+
+        The LIST view's `_media_recipient_clause` restricts received
+        Sujets to rédacteurs en chef (#0132 pt 1). The same gate must
+        apply when a record is fetched by primary key — otherwise the
+        get / edit / accept / publish / unpublish / delete routes
+        bypass the visibility rule via direct URL.
+
+        Authorized viewers :
+        - the Sujet's own owner, regardless of status ;
+        - the target media's rédac chef when the Sujet is PUBLIC.
+
+        Anything else 404s (existence-hiding).
+        """
+        model = super()._get_model(id)
+        if model is None or self._user_can_access_sujet(model):
+            return model
+        raise NotFound
+
+    def _user_can_access_sujet(self, sujet: Sujet) -> bool:
+        user = g.user
+        if user is None or getattr(user, "is_anonymous", False):
+            return False
+        owner_id = getattr(sujet, "owner_id", None)
+        if owner_id is not None and owner_id == getattr(user, "id", None):
+            return True
+        media_id = getattr(sujet, "media_id", None)
+        user_org_id = getattr(user, "organisation_id", None)
+        return (
+            media_id is not None
+            and media_id == user_org_id
+            and sujet.status == PublicationStatus.PUBLIC
+            and _is_redac_chef_of_org(user, media_id)
+        )
+
     def _post_update_model(self, model: Sujet) -> None:
         # Validate publisher_id: if the user selected a client org they are
         # not authorized to publish for, warn but DO NOT silently reset.
@@ -311,7 +348,7 @@ class SujetsWipView(BaseWipView):
         # le Sujet en tant qu'objet métier reste pertinent pour les
         # deux communautés.
         if not (user_can_access_newsroom(g.user) or user_can_access_comroom(g.user)):
-            abort(403)
+            raise Forbidden
         return None
 
     @templated(_SUJET_VIEW_TEMPLATE)

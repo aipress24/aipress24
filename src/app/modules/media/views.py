@@ -9,7 +9,8 @@ import re
 from io import BytesIO
 
 from advanced_alchemy.types.file_object import storages
-from flask import abort, send_file
+from flask import send_file
+from werkzeug.exceptions import NotFound
 from werkzeug.wrappers import Response
 
 from . import blueprint
@@ -26,13 +27,13 @@ _MAX_AGE = 31_536_000
 @blueprint.route("/<string:storage_name>")
 def serve(storage_name: str) -> Response:
     if not _STORAGE_NAME_RE.match(storage_name):
-        abort(404)
+        raise NotFound
 
     backend = storages.get_backend("s3")
     try:
         content = backend.get_content(storage_name)
-    except (FileNotFoundError, OSError):
-        abort(404)
+    except (FileNotFoundError, OSError) as err:
+        raise NotFound from err
 
     mimetype, _ = mimetypes.guess_type(storage_name)
     sha256 = storage_name.split(".", 1)[0]

@@ -8,7 +8,6 @@ from typing import TYPE_CHECKING, cast
 
 from flask import (
     Flask,
-    abort,
     flash,
     g,
     redirect,
@@ -18,7 +17,7 @@ from flask import (
 from flask_classful import route
 from flask_super.registry import register
 from sqlalchemy_utils.types.arrow import arrow
-from werkzeug.exceptions import NotFound
+from werkzeug.exceptions import Forbidden, NotFound
 from werkzeug.wrappers import Response
 
 from app.flask.extensions import db
@@ -169,12 +168,12 @@ class EventsWipView(BaseWipView):
 
         user = g.user
         if not user_can_access_eventroom(user):
-            abort(403)
+            raise Forbidden
 
         if user_is_acting_as_pr_manager(user) and not user_has_mission(
             user, PermissionType.EVENTS
         ):
-            abort(403)
+            raise Forbidden
 
         return None
 

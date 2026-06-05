@@ -8,8 +8,9 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from flask import Response, abort
+from flask import Response
 from loguru import logger
+from werkzeug.exceptions import InternalServerError, NotFound
 
 from app.flask.extensions import db
 from app.modules.admin import blueprint
@@ -48,14 +49,15 @@ def create_export_response(
         logger.error(
             f"Database export only supports PostgreSQL, got: {db_url.drivername}"
         )
-        abort(404, "Database export only available for PostgreSQL databases")
+        msg = "Database export only available for PostgreSQL databases"
+        raise NotFound(msg)
 
     try:
         config = PgDumpConfig.from_url(db_url)
     except ValueError as e:
         logger.error(str(e))
-        abort(500, "Database configuration error")
-        raise  # unreachable, but helps type checker
+        msg = "Database configuration error"
+        raise InternalServerError(msg) from e
 
     service = service_class(config)
     filename = service.generate_filename()

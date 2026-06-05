@@ -4,9 +4,10 @@
 
 from __future__ import annotations
 
-from flask import Flask, abort, g
+from flask import Flask, g
 from flask_super.registry import register
 from werkzeug import Response
+from werkzeug.exceptions import Forbidden
 
 from app.flask.routing import url_for
 from app.logging import warn
@@ -62,7 +63,7 @@ class CommandesWipView(BaseWipView):
             return resp
 
         if not user_can_access_newsroom(g.user):
-            abort(403)
+            raise Forbidden
         return None
 
     def _post_update_model(self, model: Commande) -> None:

@@ -8,7 +8,8 @@ from __future__ import annotations
 
 from typing import cast
 
-from flask import abort, flash, g, redirect, render_template, request, url_for
+from flask import flash, g, redirect, render_template, request, url_for
+from werkzeug.exceptions import NotFound
 from wtforms import (
     BooleanField,
     DateField,
@@ -334,7 +335,7 @@ def _enforce_journalism_visibility(mission: MissionOffer) -> None:
     if mission.category != MissionCategory.JOURNALISME:
         return
     if not has_role(g.user, RoleEnum.PRESS_MEDIA):
-        abort(404)
+        raise NotFound
 
 
 @blueprint.route("/missions/<int:id>")

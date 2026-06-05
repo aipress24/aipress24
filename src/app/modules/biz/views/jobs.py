@@ -8,7 +8,8 @@ from __future__ import annotations
 
 from typing import cast
 
-from flask import abort, flash, g, redirect, render_template, request, url_for
+from flask import flash, g, redirect, render_template, request, url_for
+from werkzeug.exceptions import Forbidden
 from wtforms import (
     BooleanField,
     DateField,
@@ -117,7 +118,7 @@ def jobs_new():
                 check_mission(user, PermissionType.DOCTORAL)
             case _:
                 if user.is_managing_another_bw:
-                    abort(403)
+                    raise Forbidden
 
         emitter_org_id = getattr(user, "organisation_id", None)
         if user.is_managing_another_bw:

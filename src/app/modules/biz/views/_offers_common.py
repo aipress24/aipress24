@@ -15,7 +15,8 @@ from __future__ import annotations
 from datetime import datetime
 from typing import Any, cast
 
-from flask import abort, flash, g, redirect, request, url_for
+from flask import flash, g, redirect, request, url_for
+from werkzeug.exceptions import Forbidden, NotFound
 
 from app.flask.extensions import db
 from app.models.auth import User
@@ -41,15 +42,14 @@ def get_offer_or_404(model: type, id: int):
     """
     offer = db.session.get(model, id)
     if offer is None:
-        abort(404)
+        raise NotFound
     if offer.status == PublicationStatus.PUBLIC:
         return offer
     if offer.status == PublicationStatus.PENDING:
         user = cast(User, g.user)
         if not user.is_anonymous and user.id == offer.owner_id:
             return offer
-    abort(404)
-    return None  # unreachable, keeps the type-checker happy
+    raise NotFound
 
 
 def default_new_offer_status():
@@ -124,7 +124,7 @@ def list_applications(offer):
 def require_owner(offer) -> User:
     user = cast(User, g.user)
     if user.is_anonymous or user.id != offer.owner_id:
-        abort(403)
+        raise Forbidden
     return user
 
 
@@ -134,7 +134,7 @@ def update_application_status(
     require_owner(offer)
     application = db.session.get(OfferApplication, app_id)
     if application is None or application.offer_id != offer.id:
-        abort(404)
+        raise NotFound
 
     previous_status = application.status
     application.status = new_status

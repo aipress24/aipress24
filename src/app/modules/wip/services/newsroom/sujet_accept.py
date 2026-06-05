@@ -39,7 +39,10 @@ def accept_sujet_as_commande(sujet: Sujet, accepter: User) -> Commande:
     Args:
         sujet: the PUBLIC sujet to accept. Must be in PUBLIC status.
         accepter: the user accepting (= the rédac chef). Their
-            organisation_id must match `sujet.media_id`.
+            organisation_id must match `sujet.media_id` AND they must
+            qualify as rédac chef of that organisation (security
+            VULN-001 — without the rédac chef check, any ordinary
+            journalist at the target media could hijack the sujet).
 
     Returns:
         the newly-created (and flushed) Commande row.
@@ -52,6 +55,16 @@ def accept_sujet_as_commande(sujet: Sujet, accepter: User) -> Commande:
         msg = (
             "User is not authorized to accept this sujet — must be a "
             "member of the target media organisation"
+        )
+        raise ValueError(msg)
+
+    # Lazy import to keep the auth helper out of the cold-start path.
+    from app.modules.wip.crud.cbvs.sujets import _is_redac_chef_of_org
+
+    if not _is_redac_chef_of_org(accepter, sujet.media_id):
+        msg = (
+            "User is not authorized to accept this sujet — only the "
+            "rédac chef of the target media may accept (#0132 pt 1)"
         )
         raise ValueError(msg)
 

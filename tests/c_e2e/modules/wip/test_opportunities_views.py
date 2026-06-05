@@ -633,6 +633,82 @@ class TestOpportunityResponseRequiresActiveBW:
         assert "avis-response-form" not in html
 
 
+class TestMediaOpportunityFormUpdateOwnershipGate:
+    """Security review VERIFY-002 — `media_opportunity_form_update`
+    must not render the form fragment for a contact that belongs to
+    another expert. The GET sibling enforces `g.user.id ==
+    contact.expert_id` ; the POST HTMX partial used to skip it, letting
+    any authenticated user read the expert's pre-filled notes via
+    `/wip/opportunities/<id>/form`."""
+
+    def test_post_form_for_another_users_contact_does_not_leak(
+        self,
+        app,
+        db_session: Session,
+        test_user: User,
+        test_contact: ContactAvisEnquete,
+        test_org: Organisation,
+    ):
+        """An authenticated user who is NEITHER the contact's expert
+        NOR the journalist must not be able to read the form fragment
+        for that contact via the HTMX partial endpoint."""
+        # The contact's expert pre-fills their notes — simulate that.
+        test_contact.rdv_notes_expert = "secret expert notes 42"
+        db_session.commit()
+
+        # A third party with PRESS_MEDIA role to pass the upstream
+        # blueprint auth (so we exercise the per-record gate, not the
+        # global one). The role is created by `journalist_user` via
+        # the `test_contact` fixture chain — just reuse it.
+        role = db_session.query(Role).filter_by(name=RoleEnum.PRESS_MEDIA.name).one()
+        outsider = User(
+            email=f"outsider-form-{uuid.uuid4().hex[:6]}@example.com",
+            first_name="Outsider",
+            last_name="Probe",
+            active=True,
+        )
+        outsider.profile = KYCProfile()
+        outsider.photo = b""
+        outsider.organisation = test_org
+        outsider.organisation_id = test_org.id
+        outsider.roles.append(role)
+        db_session.add(outsider)
+        db_session.commit()
+
+        client = make_authenticated_client(app, outsider)
+        response = client.post(
+            f"/wip/opportunities/{test_contact.id}/form",
+            data={"reponse1": "non"},
+            follow_redirects=False,
+        )
+
+        body = response.data.decode()
+        assert "secret expert notes 42" not in body, (
+            "media_opportunity_form_update must not leak another "
+            "expert's pre-filled notes (VERIFY-002)"
+        )
+        # The status code should signal refusal — 403/404 are both
+        # acceptable.
+        assert response.status_code in (302, 403, 404), (
+            f"the route must refuse cross-expert access (got {response.status_code})"
+        )
+
+    def test_post_form_still_works_for_the_owning_expert(
+        self,
+        logged_in_client: FlaskClient,
+        test_contact: ContactAvisEnquete,
+        active_bw,
+    ):
+        """Regression : the contact's actual expert can still drive
+        the HTMX partial."""
+        response = logged_in_client.post(
+            f"/wip/opportunities/{test_contact.id}/form",
+            data={"reponse1": "oui"},
+            follow_redirects=False,
+        )
+        assert response.status_code == 200
+
+
 class TestOpportunityFormUpdate:
     """Tests for HTMX form partial updates."""
 

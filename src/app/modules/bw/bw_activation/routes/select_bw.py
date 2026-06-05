@@ -108,11 +108,11 @@ def select_bw_post(bw_id: str):
         BWRoleType.BWME.value,
     }
 
-    user.selected_bw_id = bw.id
-    db.session.commit()
-    fill_session(bw)
-
-    # Check if user has management right to see the dashboard
+    # Security VULN-003 : compute the user's rights on the BW BEFORE
+    # mutating `user.selected_bw_id`. The previous version persisted
+    # the column unconditionally and then computed the redirect target
+    # — leaving every authenticated user free to set their session
+    # pointer at any BW UUID they could guess.
     has_management_rights = False
     has_pr_rights = False
     if bw.owner_id == user.id:
@@ -131,6 +131,15 @@ def select_bw_post(bw_id: str):
                 ):
                     has_pr_rights = True
 
+    if not (has_management_rights or has_pr_rights):
+        # No role on this BW — refuse silently without touching the
+        # user's state.
+        return redirect(url_for("bw_activation.select_bw"))
+
+    user.selected_bw_id = bw.id
+    db.session.commit()
+    fill_session(bw)
+
     if has_management_rights:
         return redirect(url_for("bw_activation.dashboard"))
 
@@ -141,7 +150,4 @@ def select_bw_post(bw_id: str):
     # (BWPRi internal / BWPRe external) are publication-oriented,
     # not BW-management : send them to Com'room where they can
     # actually publish for the newly-selected client BW.
-    if has_pr_rights:
-        return redirect(url_for("wip.comroom"))
-
-    return redirect(url_for("bw_activation.select_bw"))
+    return redirect(url_for("wip.comroom"))

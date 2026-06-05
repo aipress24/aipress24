@@ -10,7 +10,6 @@ from typing import TYPE_CHECKING, cast
 from flask import (
     Flask,
     Response,
-    abort,
     current_app,
     flash,
     g,
@@ -22,6 +21,7 @@ from flask_classful import route
 from flask_login import current_user
 from flask_super.registry import register
 from svcs.flask import container
+from werkzeug.exceptions import Forbidden
 from werkzeug.wrappers import Response as WerkzeugResponse
 
 from app.flask.lib.htmx import extract_fragment
@@ -199,14 +199,12 @@ class AvisEnqueteWipView(BaseWipView):
     # Filtering by RoleEnum.EXPERT alone wrongly 403'd them.
     PER_CONTACT_ACTIONS = frozenset({"rdv_accept", "rdv_details", "rdv_cancel"})
 
-    # `abort()` raises HTTPException — the final fall-through never
-    # returns, but ruff RET503 doesn't model NoReturn for third-party
-    # callables, so suppress here on the function definition (where
-    # RET503 is anchored). Annotated with `WerkzeugResponse` (not
-    # `flask.Response`) to match the parent override : the base
-    # `BaseWipView.before_request` returns `werkzeug.Response | None`
-    # and ty rejects narrowing to flask's subclass.
-    def before_request(self, *_args, **_kwargs) -> WerkzeugResponse | None:  # noqa: RET503
+    # Annotated with `WerkzeugResponse` (not `flask.Response`) to match
+    # the parent override : the base `BaseWipView.before_request`
+    # returns `werkzeug.Response | None` and ty rejects narrowing to
+    # flask's subclass. The final `raise Forbidden` makes the function
+    # NoReturn on the unauthorized branch.
+    def before_request(self, *_args, **_kwargs) -> WerkzeugResponse | None:
         if resp := super().before_request(*_args, **_kwargs):
             return resp
 
@@ -217,7 +215,7 @@ class AvisEnqueteWipView(BaseWipView):
         if action in self.PER_CONTACT_ACTIONS and self._user_is_party_to_contact():
             return None
 
-        abort(403)
+        raise Forbidden
 
     def _user_is_party_to_contact(self) -> bool:
         """True if the logged-in user is the journalist or the expert

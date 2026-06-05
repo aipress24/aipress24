@@ -168,6 +168,9 @@ class TestSujetAcceptAction:
         db_session.flush()
 
         redac_chef = User(email="redacchef@flounet.example", active=True)
+        # Security VULN-001 : `accept_sujet_as_commande` now also
+        # requires rédac chef qualification — not just org membership.
+        redac_chef.profile = KYCProfile(profile_code="PM_DIR")
         redac_chef.organisation = media_org
         redac_chef.organisation_id = media_org.id
         db_session.add(redac_chef)
@@ -215,6 +218,7 @@ class TestSujetAcceptAction:
         sujet = _make_sujet(db_session, media_id=media_org.id, owner_id=author_user.id)
         # Stays DRAFT — not acceptable as a commande.
         redac_chef = User(email="rc2@flounet.example", active=True)
+        redac_chef.profile = KYCProfile(profile_code="PM_DIR")
         redac_chef.organisation = media_org
         redac_chef.organisation_id = media_org.id
         db_session.add(redac_chef)

@@ -11,7 +11,8 @@ queue stays empty and the page is a harmless placeholder.
 from __future__ import annotations
 
 import sqlalchemy as sa
-from flask import abort, flash, redirect, render_template, url_for
+from flask import flash, redirect, render_template, url_for
+from werkzeug.exceptions import NotFound
 
 from app.flask.extensions import db
 from app.models.lifecycle import PublicationStatus
@@ -65,7 +66,7 @@ def _load_pending_or_404(id: int) -> MarketplaceContent:
         or offer.status != PublicationStatus.PENDING
         or offer.type not in _SUPPORTED_KINDS
     ):
-        abort(404)
+        raise NotFound
     return offer
 
 

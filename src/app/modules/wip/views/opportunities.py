@@ -11,7 +11,6 @@ from typing import TYPE_CHECKING, cast
 
 from attr import frozen
 from flask import (
-    abort,
     current_app,
     flash,
     g,
@@ -23,6 +22,7 @@ from flask import (
 from flask_login import current_user
 from svcs.flask import container
 from werkzeug import Response
+from werkzeug.exceptions import NotFound
 
 from app.flask.lib.htmx import extract_fragment
 from app.flask.lib.nav import nav
@@ -192,7 +192,7 @@ def media_opportunity(id: int):
     # 500 with a stack trace.
     contact = repo.get_one_or_none(id=id)
     if contact is None:
-        abort(404)
+        raise NotFound
     if g.user.id != contact.expert_id:
         flash(
             "Cet avis d'enquête ne vous est pas adressé. "
@@ -262,7 +262,7 @@ def media_opportunity_post(id: int) -> str | Response:
     # Audit C4 / lessons-learned #15.
     contact = repo.get_one_or_none(id=id)
     if contact is None:
-        abort(404)
+        raise NotFound
 
     # Bug #0164: a response is only meaningful once the user's org has
     # an active Business Wall. Before this guard, the POST silently
@@ -381,8 +381,25 @@ def media_opportunity_post(id: int) -> str | Response:
 
 @blueprint.route("/opportunities/<int:id>/form", methods=["POST"])
 def media_opportunity_form_update(id: int) -> str | Response:
-    """Handle media opportunity form partial updates for HTMX."""
-    # This view does NOT save anything. It just renders the form.
+    """Handle media opportunity form partial updates for HTMX.
+
+    Security VERIFY-002 : the form fragment is prefilled with the
+    contact's `rdv_notes_expert` and the expert's press-officer email
+    list — never render it for a contact that doesn't belong to the
+    requesting user. The GET sibling (`media_opportunity`) already
+    enforces this ; the HTMX POST partial used to skip the check.
+    """
+    from app.modules.wip.models import ContactAvisEnqueteRepository
+
+    if g.user.is_anonymous:
+        raise NotFound
+    repo = container.get(ContactAvisEnqueteRepository)
+    contact = repo.get_one_or_none(id=id)
+    if contact is None:
+        raise NotFound
+    if g.user.id != contact.expert_id:
+        raise NotFound
+
     html = _render_media_opportunity(id)
     html = extract_fragment(html, id="avis-response-form")
     return html
@@ -399,7 +416,7 @@ def _render_media_opportunity(id: int) -> str:
     # Audit C4 / lessons-learned #15.
     contact = repo.get_one_or_none(id=id)
     if contact is None:
-        abort(404)
+        raise NotFound
     media_opp = MediaOpportunity(
         id=contact.id,
         avis_enquete=contact.avis_enquete,

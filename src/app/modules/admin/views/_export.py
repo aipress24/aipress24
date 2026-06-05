@@ -14,9 +14,10 @@ from zoneinfo import ZoneInfo
 
 import pytz
 from arrow import Arrow
-from flask import abort, send_file
+from flask import send_file
 from odsgenerator import odsgenerator
 from sqlalchemy import desc, false, nulls_last, select, true
+from werkzeug.exceptions import NotFound
 
 from app.constants import BW_TRIGGER_LABEL, LABEL_INSCRIPTION_VALIDEE, LOCAL_TZ
 from app.flask.extensions import db
@@ -33,7 +34,7 @@ def export_route(exporter_name: str):
     """Generic export route that handles all export types."""
     exporter_class = EXPORTERS.get(exporter_name)
     if exporter_class is None:
-        abort(404)
+        raise NotFound
 
     assert exporter_class is not None  # type narrowing for type checker
     generator = exporter_class()

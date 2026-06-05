@@ -570,7 +570,18 @@ def _get_or_create_draft_bw_for_checkout(
 
 @bp.route("/simulate_payment/<bw_type>", methods=["POST"])
 def simulate_payment(bw_type: str):
-    """Simulate payment and activate paid BW."""
+    """Simulate payment and activate paid BW.
+
+    Dev-only shortcut for the days before real Stripe Checkout was
+    wired. Security VULN-002 : MUST be a no-op when `STRIPE_LIVE_ENABLED`
+    is on — otherwise any authenticated user can self-grant a paid BW
+    by POSTing here after a legitimate `/set_pricing/<bw_type>` POST
+    primed `session["pricing_value"]`. In live mode the only
+    activation path is the `checkout.session.completed` webhook.
+    """
+    if current_app.config.get("STRIPE_LIVE_ENABLED"):
+        return redirect(url_for("bw_activation.index"))
+
     if bw_type not in BW_TYPES or BW_TYPES[bw_type]["free"]:
         return redirect(url_for("bw_activation.index"))
 
@@ -623,6 +634,15 @@ def confirmation_paid():
             bw_info=bw_info,
         )
     session.pop("bw_id", None)
+
+    # Security VULN-002 : in live mode the BW is created by the
+    # `checkout.session.completed` webhook, not synchronously here.
+    # The synchronous fallback is for the simulation flow only ; in
+    # live mode it would let any caller who reaches this route (with
+    # `bw_activated`/`bw_type` set via the simulation path or a forged
+    # cookie) self-grant a paid BW for free.
+    if current_app.config.get("STRIPE_LIVE_ENABLED"):
+        return redirect(url_for("bw_activation.payment", bw_type=bw_type))
 
     # here create an actual BW instance
     created = create_new_paid_bw_record(session)

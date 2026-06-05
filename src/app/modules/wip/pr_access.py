@@ -17,7 +17,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from flask import abort
+from werkzeug.exceptions import Forbidden
 
 from app.enums import RoleEnum
 from app.modules.bw.bw_activation.models import (
@@ -135,4 +135,4 @@ def user_has_mission(user: User, mission: PermissionType) -> bool:
 def check_mission(user: User, mission: PermissionType) -> None:
     """Abort with 403 if `user` is an acting PR manager without `mission`."""
     if user_is_acting_as_pr_manager(user) and not user_has_mission(user, mission):
-        abort(403)
+        raise Forbidden

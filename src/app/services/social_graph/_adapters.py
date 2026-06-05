@@ -257,32 +257,34 @@ def adapt(obj) -> Never:
     raise NotImplementedError(msg)
 
 
-# pyrefly: ignore [no-matching-overload]
-@adapt.register
+# `from __future__ import annotations` (top of file) makes the
+# parameter annotations strings at runtime, so the bare
+# `@adapt.register` form (which reads `__annotations__` to dispatch)
+# can't resolve them without `typing.get_type_hints()`. Pass the
+# dispatch type explicitly — same registration, but matches the
+# `register(cls: type, func: None = None)` overload that ty and
+# pyrefly both understand.
+@adapt.register(User)
 def adapt_user(user: User) -> SocialUser:
     return adapter.adapt(user, SocialUser)
 
 
-# pyrefly: ignore [no-matching-overload]
-@adapt.register
+@adapt.register(Organisation)
 def adapt_org(org: Organisation) -> SocialOrganisation:
     return adapter.adapt(org, SocialOrganisation)
 
 
-# pyrefly: ignore [no-matching-overload]
-@adapt.register
+@adapt.register(FrontendBaseContent)
 def adapt_frontend_post(content: FrontendBaseContent) -> SocialContent:
     return adapter.adapt(content, SocialContent)
 
 
-# pyrefly: ignore [no-matching-overload]
-@adapt.register
+@adapt.register(ContentBaseContent)
 def adapt_content_post(content: ContentBaseContent) -> SocialContent:
     return adapter.adapt(content, SocialContent)
 
 
-# pyrefly: ignore [no-matching-overload]
-@adapt.register
+@adapt.register(EventPost)
 def adapt_event_post(event: EventPost) -> SocialContent:
     return adapter.adapt(event, SocialContent)
 

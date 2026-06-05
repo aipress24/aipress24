@@ -133,3 +133,43 @@ class TestSelectBwPostForPRManager:
 
         assert response.status_code == 302
         assert "/BW/dashboard" in response.headers.get("Location", "")
+
+
+class TestSelectBwPostStateMutationGuard:
+    """Security review VULN-003 — `select_bw_post` must NOT persist
+    `user.selected_bw_id` for a BW the user has no role on. The
+    previous implementation wrote the column before any role check,
+    leaving every authenticated user free to point their session at
+    any BW UUID they could guess."""
+
+    def test_unauthorized_user_cannot_dirty_selected_bw_id(self, app: Flask, fresh_db):
+        """A PR user with NO role assignment on the media's BW POSTs
+        the selector with that BW's UUID. The handler must refuse and
+        `user.selected_bw_id` must remain untouched."""
+        data = create_bw_test_data(
+            fresh_db,
+            create_pr_user=True,
+            create_pr_bw=True,
+            # No role assignment on media_bw.
+        )
+        pr_user = data["pr_owner"]
+        baseline_selected_bw_id = pr_user.selected_bw_id
+
+        client = make_authenticated_client(app, pr_user)
+        response = client.post(
+            f"/BW/select-bw/{data['media_bw'].id}",
+            follow_redirects=False,
+        )
+
+        # Whatever the redirect target, `selected_bw_id` must NOT
+        # point at the foreign BW.
+        assert response.status_code in (302, 303)
+        fresh_db.session.refresh(pr_user)
+        assert pr_user.selected_bw_id != data["media_bw"].id, (
+            "select_bw_post must not persist selected_bw_id before "
+            "verifying the user's rights on the BW (VULN-003)"
+        )
+        assert pr_user.selected_bw_id == baseline_selected_bw_id, (
+            "the column must be left at its previous value when the "
+            "user has no role on the chosen BW (VULN-003)"
+        )
