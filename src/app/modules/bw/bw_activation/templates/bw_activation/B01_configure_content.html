@@ -658,13 +658,17 @@
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-900 mb-2">Taille de l'organisation</label>
+                            {# Ticket #0182 — pre-select from the employee count given on
+                               the pricing page when the BW itself doesn't yet have a value.
+                               The dropdown stays editable. #}
+                            {% set effective_taille_orga = business_wall.taille_orga or default_taille_orga|default('') %}
                             <select id="taille_orga"
                                     name="taille_orga"
                                     class="block w-full tom-select-single">
                                 <option value="">-- Sélectionnez --</option>
                                 {% for value, label in taille_orga_ontology %}
                                     <option value="{{ value }}"
-                                            {% if business_wall.taille_orga == value %}selected{% endif %}>
+                                            {% if effective_taille_orga == value %}selected{% endif %}>
                                         {{ label }}
                                     </option>
                                 {% endfor %}

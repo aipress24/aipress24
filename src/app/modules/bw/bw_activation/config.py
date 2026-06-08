@@ -14,6 +14,40 @@ from typing import Any
 
 from .models import BWType
 
+# Ticket #0182 — INSEE-style employee-count brackets used to pre-select
+# the « Taille de l'organisation » dropdown in stage B01 from the value
+# entered earlier in the pricing form (so the user doesn't have to pick
+# the same information twice). Codes match the `taille_organisation`
+# KYC ontology and the size suffixes in `BWTYPE_ALLOWED_PRODUCTS`.
+#
+# Conventions :
+#   1 – 9     → TPE   (très petite entreprise)
+#   10 – 249  → PME
+#   250 – 4999 → ETI
+#   5000+     → GE    (grande entreprise)
+#   0 / None → ""    (no opinion ; the dropdown stays empty so the user
+#                     can pick Solo explicitly if applicable)
+_EMPLOYEE_COUNT_BRACKETS: tuple[tuple[int, str], ...] = (
+    (9, "TPE"),
+    (249, "PME"),
+    (4999, "ETI"),
+)
+
+
+def taille_orga_for_employee_count(count: int | None) -> str:
+    """Map an employee count to a `taille_organisation` ontology code.
+
+    Returns an empty string when `count` is None or ≤ 0 so the caller
+    can fall back to « let the user pick » without a misleading default.
+    """
+    if count is None or count <= 0:
+        return ""
+    for max_count, code in _EMPLOYEE_COUNT_BRACKETS:
+        if count <= max_count:
+            return code
+    return "GE"
+
+
 BWTYPE_ALLOWED_PRODUCTS: dict[str, list[str]] = {
     BWType.TRANSFORMERS.value: [
         "BW4T-ETI",

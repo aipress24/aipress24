@@ -26,7 +26,7 @@ from app.lib.file_object_utils import create_file_object
 from app.lib.image_utils import extract_image_from_request
 from app.logging import warn
 from app.modules.bw.bw_activation import bp
-from app.modules.bw.bw_activation.config import BW_TYPES
+from app.modules.bw.bw_activation.config import BW_TYPES, taille_orga_for_employee_count
 from app.modules.bw.bw_activation.models.business_wall import BWStatus
 from app.modules.bw.bw_activation.models.subscription import SubscriptionStatus
 from app.modules.bw.bw_activation.user_utils import current_business_wall
@@ -338,9 +338,13 @@ def configure_content():
     interest_association_ontology = get_taxonomy_dual_select("interet_asso")
     pays_ontology = get_full_countries()
 
-    # from app.services.taxonomies import get_all_taxonomy_names
-
-    # warn(get_all_taxonomy_names())
+    # Ticket #0182 — pre-select the « Taille de l'organisation »
+    # dropdown from the employee count entered in the pricing form.
+    # The fallback empty string keeps the existing UX (user picks
+    # manually) when no count was supplied or the session was cleared.
+    default_taille_orga = taille_orga_for_employee_count(
+        session.get("bw_employee_count")
+    )
 
     return render_template(
         "bw_activation/B01_configure_content.html",
@@ -354,6 +358,7 @@ def configure_content():
         periodicite_ontology=periodicite_ontology,
         secteurs_activite_ontology=secteurs_activite_ontology,
         taille_orga_ontology=taille_orga_ontology,
+        default_taille_orga=default_taille_orga,
         interest_political_ontology=interest_political_ontology,
         interest_economics_ontology=interest_economics_ontology,
         interest_association_ontology=interest_association_ontology,
