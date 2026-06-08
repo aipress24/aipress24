@@ -1287,6 +1287,55 @@ class TestRevokePartnershipIntegration:
 
         assert result is False
 
+    def test_mail_failure_reports_to_sentry_but_partnership_stays_revoked(
+        self,
+        app,
+        db_session: Session,
+        media_bw: BusinessWall,
+        pr_bw: BusinessWall,
+        media_owner: User,
+    ):
+        """Ticket #0169 + Sentry wiring : if SMTP raises, the failure
+        must (a) reach Sentry via `report_failure`, and (b) NOT undo
+        the partnership revocation — the state change must stand even
+        when the side-effect notification fails."""
+        partnership = Partnership(
+            business_wall_id=media_bw.id,
+            partner_bw_id=str(pr_bw.id),
+            status=PartnershipStatus.ACTIVE.value,
+            invited_by_user_id=media_bw.owner_id,
+            invited_at=datetime.now(UTC),
+            accepted_at=datetime.now(UTC),
+        )
+        db_session.add(partnership)
+        db_session.flush()
+
+        with (
+            app.test_request_context("/"),
+            patch(
+                "app.modules.bw.bw_activation.bw_invitation"
+                ".send_partnership_revoked_mail",
+                side_effect=RuntimeError("smtp down"),
+            ),
+            patch("app.logging.sentry_sdk.capture_exception") as mock_capture,
+        ):
+            g.user = media_owner
+            result = revoke_partnership(media_bw, str(pr_bw.id))
+
+        # Revocation succeeded despite the SMTP failure.
+        assert result is True
+        db_session.refresh(partnership)
+        assert partnership.status == PartnershipStatus.REVOKED.value
+
+        # And Sentry was notified — no more silent swallow.
+        assert mock_capture.called, (
+            "mail failure must reach Sentry via report_failure, not "
+            "just a local warn() that nobody reads (#0169)"
+        )
+        captured_exc = mock_capture.call_args.args[0]
+        assert isinstance(captured_exc, RuntimeError)
+        assert str(captured_exc) == "smtp down"
+
 
 class TestBwpriInvitationVisibleInPreferences:
     """Ticket #0158: an internal member invited as BWPRi by her boss
