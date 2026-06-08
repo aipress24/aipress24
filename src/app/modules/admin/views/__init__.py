@@ -23,7 +23,7 @@ from . import (
     show_user,
     stripe_products,
     system,
-    test_achat,
+    debug_purchase,
     users,
     validation,
 )
@@ -44,7 +44,7 @@ __all__ = [
     "show_user",
     "stripe_products",
     "system",
-    "test_achat",
+    "debug_purchase",
     "users",
     "validation",
 ]
