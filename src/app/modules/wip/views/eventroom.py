@@ -32,6 +32,7 @@ from ._common import count_owned_non_deleted, get_secondary_menu
         ("Allow", RoleEnum.EXPERT, "view"),
         ("Allow", RoleEnum.TRANSFORMER, "view"),
         ("Allow", RoleEnum.ACADEMIC, "view"),
+        ("Allow", RoleEnum.PRESS_MEDIA, "view"),
     ],
 )
 def eventroom():
