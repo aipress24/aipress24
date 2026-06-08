@@ -10,6 +10,7 @@ import uuid
 from typing import TYPE_CHECKING
 
 import pytest
+
 from app.enums import RoleEnum
 from app.models.auth import Role, User
 from app.modules.wip.pr_access import (

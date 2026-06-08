@@ -13,6 +13,7 @@ from . import (
     cms,
     contents,
     db_export,
+    debug_purchase,
     dramatiq_dashboard,
     exports,
     groups,
@@ -23,7 +24,6 @@ from . import (
     show_user,
     stripe_products,
     system,
-    debug_purchase,
     users,
     validation,
 )
@@ -34,6 +34,7 @@ __all__ = [
     "cms",
     "contents",
     "db_export",
+    "debug_purchase",
     "dramatiq_dashboard",
     "exports",
     "groups",
@@ -44,7 +45,6 @@ __all__ = [
     "show_user",
     "stripe_products",
     "system",
-    "debug_purchase",
     "users",
     "validation",
 ]

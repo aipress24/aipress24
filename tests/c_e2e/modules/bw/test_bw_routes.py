@@ -571,6 +571,39 @@ class TestStage3PaidRoutes:
         assert response.status_code in (302, 303)
         assert "payment" in response.headers.get("Location", "")
 
+    def test_set_pricing_employee_count_persists_for_taille_orga_prefill(
+        self,
+        authenticated_client: FlaskClient,
+    ) -> None:
+        """Ticket #0182 — POSTing an employee-count-based pricing
+        must persist the value in `session["bw_employee_count"]` so
+        stage B01 can pre-select the « Taille de l'organisation »
+        dropdown later. The companion key survives `fill_session`,
+        unlike the consumed `pricing_value`."""
+        authenticated_client.post("/BW/select-subscription/leaders_experts")
+        authenticated_client.post(
+            "/BW/submit-contacts",
+            data={
+                "owner_first_name": "Jean",
+                "owner_last_name": "Dupont",
+                "owner_email": "jean@example.com",
+                "owner_phone": "+33612345678",
+                "same_as_owner": "on",
+            },
+        )
+
+        authenticated_client.post(
+            "/BW/set_pricing/leaders_experts",
+            data={"employee_count": "50", "cgv_accepted": "on"},
+            follow_redirects=False,
+        )
+
+        with authenticated_client.session_transaction() as sess:
+            assert sess.get("bw_employee_count") == 50, (
+                "set_pricing must persist the employee count to "
+                "session['bw_employee_count'] (#0182)"
+            )
+
 
 # =============================================================================
 # Dashboard and Post-Activation Routes
