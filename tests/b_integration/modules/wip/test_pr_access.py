@@ -10,10 +10,12 @@ import uuid
 from typing import TYPE_CHECKING
 
 import pytest
-
 from app.enums import RoleEnum
 from app.models.auth import Role, User
-from app.modules.wip.pr_access import user_can_access_comroom
+from app.modules.wip.pr_access import (
+    user_can_access_comroom,
+    user_can_access_eventroom,
+)
 
 if TYPE_CHECKING:
     from sqlalchemy.orm import Session
@@ -50,7 +52,7 @@ def _user_with_role(db_session: Session, role_enum: RoleEnum | None) -> User:
         RoleEnum.ACADEMIC,
     ],
 )
-def test_non_journalist_community_roles_grant_access(
+def test_non_journalist_community_roles_grant_comroom_access(
     db_session: Session, role: RoleEnum
 ):
     """Every community role except PRESS_MEDIA grants Com'room access."""
@@ -58,12 +60,35 @@ def test_non_journalist_community_roles_grant_access(
     assert user_can_access_comroom(user) is True
 
 
-def test_press_media_denied(db_session: Session):
+def test_press_media_denied_for_comroom(db_session: Session):
     """Journalists use Newsroom, not Com'room."""
     user = _user_with_role(db_session, RoleEnum.PRESS_MEDIA)
     assert user_can_access_comroom(user) is False
 
 
-def test_no_role_denied(db_session: Session):
+def test_no_role_denied_for_comroom(db_session: Session):
     user = _user_with_role(db_session, None)
     assert user_can_access_comroom(user) is False
+
+
+def test_press_media_grants_eventroom_access(db_session: Session):
+    """Journalists (PRESS_MEDIA) have access to Eventroom."""
+    user = _user_with_role(db_session, RoleEnum.PRESS_MEDIA)
+    assert user_can_access_eventroom(user) is True
+
+
+@pytest.mark.parametrize(
+    "role",
+    [
+        RoleEnum.PRESS_RELATIONS,
+        RoleEnum.EXPERT,
+        RoleEnum.TRANSFORMER,
+        RoleEnum.ACADEMIC,
+    ],
+)
+def test_non_journalist_community_roles_grant_eventroom_access(
+    db_session: Session, role: RoleEnum
+):
+    """Non-journalist community roles also grant Eventroom access."""
+    user = _user_with_role(db_session, role)
+    assert user_can_access_eventroom(user) is True
