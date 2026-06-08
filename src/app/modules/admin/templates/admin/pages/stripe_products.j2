@@ -1,6 +1,7 @@
 {% extends "admin/layout/_base.j2" %}
 
 {% block main %}
+    <p class="mb-4 text-sm text-gray-600">Nombre de produits actifs : {{ products | length }}</p>
     <div class="space-y-4">
         {% for product in products %}
             <div class="bg-white shadow overflow-hidden sm:rounded-lg border border-gray-200">
