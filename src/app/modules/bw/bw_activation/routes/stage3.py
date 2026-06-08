@@ -239,6 +239,14 @@ def set_pricing(bw_type: str):
             session["bw_type"] = bw_type
             session["pricing_value"] = pricing_value
             session["cgv_accepted"] = True  # Store CGV acceptance
+            # Ticket #0182 — preserve the count across the
+            # activation funnel so stage B01 (`configure_content`)
+            # can pre-select the « Taille de l'organisation »
+            # dropdown without asking the user to type it again.
+            # `pricing_value` is wiped by `fill_session` after BW
+            # creation ; this companion key is not.
+            if pricing_field == "employee_count":
+                session["bw_employee_count"] = pricing_value
             return redirect(url_for("bw_activation.payment", bw_type=bw_type))
     except ValueError:
         pass
