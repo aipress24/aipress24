@@ -18,7 +18,7 @@ from werkzeug.exceptions import NotFound
 
 from app.flask.extensions import db
 from app.flask.sqla import get_obj
-from app.logging import warn
+from app.logging import report_failure, warn
 from app.models.auth import User
 from app.modules.admin.utils import get_user_per_email
 from app.modules.bw.bw_activation.models import (
@@ -619,11 +619,11 @@ def revoke_partnership(
         try:
             notify_partnership_revoked(business_wall, partner_bw)
         except Exception as exc:
-            warn(f"revoke_partnership: in-app notification failed: {exc}")
+            report_failure("revoke_partnership: in-app notification failed", exc)
         try:
             send_partnership_revoked_mail(business_wall, partner_bw)
         except Exception as exc:
-            warn(f"revoke_partnership: email failed: {exc}")
+            report_failure("revoke_partnership: email failed", exc)
 
     return True
 
