@@ -37,10 +37,21 @@ if TYPE_CHECKING:
 # is intentionally excluded — they use Newsroom.
 COMROOM_COMMUNITY_ROLES: frozenset[RoleEnum] = frozenset(
     {
-        RoleEnum.PRESS_RELATIONS,
-        RoleEnum.EXPERT,
-        RoleEnum.TRANSFORMER,
         RoleEnum.ACADEMIC,
+        RoleEnum.EXPERT,
+        RoleEnum.PRESS_RELATIONS,
+        RoleEnum.TRANSFORMER,
+    }
+)
+
+
+EVENTROOM_COMMUNITY_ROLES: frozenset[RoleEnum] = frozenset(
+    {
+        RoleEnum.ACADEMIC,
+        RoleEnum.EXPERT,
+        RoleEnum.PRESS_MEDIA,
+        RoleEnum.PRESS_RELATIONS,
+        RoleEnum.TRANSFORMER,
     }
 )
 
@@ -58,8 +69,8 @@ def user_can_access_eventroom(user: User) -> bool:
     """True if `user` may author events in Eventroom."""
     if not user or user.is_anonymous:
         return False
-    # For now, allow same as comroom
-    if has_role(user, [role.name for role in COMROOM_COMMUNITY_ROLES]):
+
+    if has_role(user, [role.name for role in EVENTROOM_COMMUNITY_ROLES]):
         return True
     return user_is_acting_as_pr_manager(user)
 
