@@ -20,7 +20,7 @@ from typing import TYPE_CHECKING
 
 from svcs.flask import container
 
-from app.logging import warn
+from app.logging import report_failure, warn
 from app.services.emails import SujetPropositionNotificationMail
 from app.services.notifications import NotificationService
 
@@ -63,7 +63,7 @@ def notify_media_of_sujet_proposition(
         message = f"Nouveau sujet proposé par {author.full_name} : « {sujet_title} »"
         container.get(NotificationService).post(recipient_user, message, url=sujet_url)
     except Exception as exc:
-        warn(f"sujet proposition: in-app notification failed: {exc}")
+        report_failure("sujet proposition: in-app notification failed", exc)
 
     mail = SujetPropositionNotificationMail(
         sender="contact@aipress24.com",

@@ -25,7 +25,7 @@ from app.flask.lib.templates import templated
 from app.flask.routing import url_for
 from app.lib.file_object_utils import create_file_object
 from app.lib.image_utils import extract_image_from_request
-from app.logging import warn
+from app.logging import report_failure, warn
 from app.models.lifecycle import PublicationStatus
 from app.modules.bw.bw_activation.models import PermissionType
 from app.modules.bw.bw_activation.user_utils import (
@@ -254,7 +254,7 @@ class EventsWipView(BaseWipView):
                     content_url=absolute_url_for("EventsWipView:get", id=event.id),
                 )
             except Exception as exc:
-                warn(f"PR publication notif failed (event {event.id}): {exc}")
+                report_failure(f"PR publication notif failed (event {event.id})", exc)
 
         flash("L'événement a été publié")
         return redirect(self._url_for("index"))

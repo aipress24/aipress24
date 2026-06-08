@@ -25,7 +25,7 @@ from app.flask.routing import url_for
 from app.flask.sqla import get_obj
 from app.lib.file_object_utils import create_file_object
 from app.lib.image_utils import extract_image_from_request
-from app.logging import warn
+from app.logging import report_failure, warn
 from app.models.lifecycle import PublicationStatus
 from app.modules.bw.bw_activation.models import PermissionType
 from app.modules.bw.bw_activation.user_utils import (
@@ -300,7 +300,9 @@ class CommuniquesWipView(BaseWipView):
                     ),
                 )
             except Exception as exc:
-                warn(f"PR publication notif failed (communique {communique.id}): {exc}")
+                report_failure(
+                    f"PR publication notif failed (communique {communique.id})", exc
+                )
 
         flash("Le communiqué a été publié")
         return redirect(self._url_for("index"))

@@ -17,7 +17,7 @@ from werkzeug.exceptions import Forbidden, NotFound
 from app.flask.extensions import db
 from app.flask.lib.templates import templated
 from app.flask.routing import url_for
-from app.logging import warn
+from app.logging import report_failure, warn
 from app.models.auth import User
 from app.models.lifecycle import PublicationStatus
 from app.modules.bw.bw_activation.user_utils import (
@@ -411,7 +411,9 @@ class SujetsWipView(BaseWipView):
                     sujet_url=_absolute_url_for("SujetsWipView:get", id=sujet.id),
                 )
             except Exception as exc:  # never block the publish on a mail issue
-                warn(f"Sujet proposition notif failed (sujet {sujet.id}): {exc}")
+                report_failure(
+                    f"Sujet proposition notif failed (sujet {sujet.id})", exc
+                )
 
         flash("Le sujet a été publié et envoyé au média sélectionné.")
         return redirect(self._url_for("index"))
@@ -476,7 +478,9 @@ class SujetsWipView(BaseWipView):
                     )
                     mail.send()
                 except Exception as exc:
-                    warn(f"sujet acceptance mail failed (sujet {sujet.id}): {exc}")
+                    report_failure(
+                        f"sujet acceptance mail failed (sujet {sujet.id})", exc
+                    )
         flash("Sujet accepté : une commande a été créée et l'auteur a été notifié.")
         return redirect(url_for("CommandesWipView:index"))
 

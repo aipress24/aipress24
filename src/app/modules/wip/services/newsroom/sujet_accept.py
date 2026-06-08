@@ -23,7 +23,7 @@ from typing import TYPE_CHECKING
 from svcs.flask import container
 
 from app.flask.extensions import db
-from app.logging import warn
+from app.logging import report_failure
 from app.models.lifecycle import PublicationStatus
 from app.modules.wip.models.newsroom.commande import Commande
 from app.services.notifications import NotificationService
@@ -120,4 +120,4 @@ def notify_author_of_sujet_acceptance(
         )
         container.get(NotificationService).post(author, message, url=commande_url)
     except Exception as exc:
-        warn(f"sujet acceptance: in-app notification failed: {exc}")
+        report_failure("sujet acceptance: in-app notification failed", exc)
