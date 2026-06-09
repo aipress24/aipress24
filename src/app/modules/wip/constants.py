@@ -82,6 +82,24 @@ MENU = [
         icon="credit-card",
         endpoint="wip.billing",
     ),
+    # Ticket #0192 — WORK/Achats : the buyer-side counterpart of every
+    # one-off article purchase (CdA / CdAO / JdP / CdD).
+    MenuEntry(
+        name="achats",
+        label="Achats",
+        icon="shopping-bag",
+        endpoint="wip.achats",
+    ),
+    # Ticket #0192 — WORK/Ventes : the author-side counterpart. Lists
+    # PAID purchases on the user's own articles + (for rédac chefs)
+    # the aggregated sales of the whole media.
+    MenuEntry(
+        name="ventes",
+        label="Ventes",
+        icon="banknotes",
+        endpoint="wip.ventes",
+        allowed_roles=["PRESS_MEDIA"],
+    ),
     MenuEntry(
         name="performance",
         label="Performance",
