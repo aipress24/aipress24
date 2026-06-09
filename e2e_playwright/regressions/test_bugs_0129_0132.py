@@ -380,12 +380,24 @@ def test_bug_0132_sujet_workflow_completeness() -> None:
 
     src = Path(__file__).resolve().parent.parent.parent / "src/app/modules/wip"
 
-    # part 2 : the cbv renders an <a> for the author name.
+    # part 2 : the cbv renders an author mini-card via the shared
+    # `poster_card` macro (refactor from inline `url_for(owner)` HTML
+    # to a Jinja template, commit 72a5d61d). The mini-card itself
+    # contains the clickable profile link.
     cbv = src / "crud/cbvs/sujets.py"
     cbv_content = cbv.read_text()
-    assert "url_for(owner)" in cbv_content, (
-        "_extra_view_html must wrap the author full_name in a profile "
-        "link via url_for(owner) — bug #0132/2 regressed."
+    assert "sujet_author_card.j2" in cbv_content, (
+        "_extra_view_html must render the author mini-card "
+        "(sujet_author_card.j2) — bug #0132/2 regressed."
+    )
+    author_card = src / "templates/wip/fragments/sujet_author_card.j2"
+    assert author_card.exists(), (
+        "sujet_author_card.j2 template missing — bug #0132/2 regressed."
+    )
+    assert "poster_card" in author_card.read_text(), (
+        "sujet_author_card.j2 must use the shared `poster_card` macro "
+        "so the author full_name links to their profile — bug #0132/2 "
+        "regressed."
     )
 
     # part 3 : the accept service + the cbv route exist.
