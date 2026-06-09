@@ -7,13 +7,27 @@
 from __future__ import annotations
 
 from typing import TYPE_CHECKING
-from unittest.mock import MagicMock
 
 from app.modules.wip.crud.cbvs._table import BaseDataSource, BaseTable
 from app.modules.wip.models import Article
 
 if TYPE_CHECKING:
     from flask import Flask
+
+
+class _Media:
+    """Minimal stand-in for a media object with a name attribute."""
+
+    def __init__(self, name: str) -> None:
+        self.name = name
+
+
+class _Item:
+    """Minimal stand-in for a model item exposing id and optional media."""
+
+    def __init__(self, id: int, media: _Media | None = None) -> None:
+        self.id = id
+        self.media = media
 
 
 class TestBaseDataSource:
@@ -47,15 +61,15 @@ class TestBaseDataSource:
         """Test next_offset increments by limit."""
         with app.test_request_context("/?offset=0&limit=10"):
             ds = BaseDataSource(model_class=Article, q="")
-            # Mock get_count to return 100
-            ds.get_count = MagicMock(return_value=100)
+            # Stub get_count to return 100
+            ds.get_count = lambda: 100
             assert ds.next_offset() == 10
 
     def test_next_offset_stays_at_end(self, app: Flask):
         """Test next_offset stays at current when at end."""
         with app.test_request_context("/?offset=90&limit=10"):
             ds = BaseDataSource(model_class=Article, q="")
-            ds.get_count = MagicMock(return_value=95)
+            ds.get_count = lambda: 95
             # 90 + 10 = 100 >= 95, so stays at 90
             assert ds.next_offset() == 90
 
@@ -106,17 +120,15 @@ class TestBaseTable:
         """Test get_actions returns view, edit, delete actions."""
         with app.test_request_context():
             table = BaseTable(Article)
-            mock_item = MagicMock()
-            mock_item.id = 1
+            item = _Item(id=1)
 
-            # Mock url_for
-            table.url_for = MagicMock(
-                side_effect=lambda item, action="get": (
-                    f"/wip/articles/{item.id}/{action}"
-                )
-            )
+            # Replace url_for with a deterministic stub
+            def fake_url_for(obj, action="get"):
+                return f"/wip/articles/{obj.id}/{action}"
 
-            actions = table.get_actions(mock_item)
+            table.url_for = fake_url_for
+
+            actions = table.get_actions(item)
             assert len(actions) == 3
             labels = [a["label"] for a in actions]
             assert "Voir" in labels
@@ -128,9 +140,7 @@ class TestBaseTable:
         with app.test_request_context():
             table = BaseTable(Article)
 
-            obj = MagicMock()
-            obj.media = MagicMock()
-            obj.media.name = "Test Media"
+            obj = _Item(id=1, media=_Media("Test Media"))
 
             assert table.get_media_name(obj) == "Test Media"
 
@@ -139,7 +149,6 @@ class TestBaseTable:
         with app.test_request_context():
             table = BaseTable(Article)
 
-            obj = MagicMock()
-            obj.media = None
+            obj = _Item(id=1, media=None)
 
             assert table.get_media_name(obj) == ""

@@ -171,6 +171,19 @@ def get_active_business_wall_for_organisation(org: Organisation) -> BusinessWall
     return session.execute(stmt).scalars().one_or_none()
 
 
+def pick_bw_display_name(active_bw, org, fallback: str) -> str:
+    """Pure 3-tier preference for the BW display name :
+    `active_bw.name_safe` (media-group case where org and BW have
+    different names) → `org.name` → `fallback`. Extracted from
+    `resolve_user_bw_name` so the preference rule is unit-testable
+    without a DB session."""
+    if active_bw is not None and active_bw.name_safe:
+        return active_bw.name_safe
+    if org is None:
+        return fallback
+    return org.name or fallback
+
+
 def resolve_user_bw_name(user: User, fallback: str = "inconnue") -> str:
     """Best-effort name of the BW a user publishes for.
 
@@ -182,16 +195,29 @@ def resolve_user_bw_name(user: User, fallback: str = "inconnue") -> str:
     if org is None:
         return fallback
     active_bw = get_active_business_wall_for_organisation(org)
-    if active_bw is not None and active_bw.name_safe:
-        return active_bw.name_safe
-    return org.name or fallback
+    return pick_bw_display_name(active_bw, org, fallback)
+
+
+def bw_type_marks_agency(bw_type_label: str | None) -> bool:
+    """Pure check : does a BusinessWall's `type_entreprise_media`
+    label mark it as a press agency ?
+
+    The marker is the literal French label « Agence de presse »
+    (case-sensitive, substring match — multiple labels can be
+    comma-separated in the column). Pin the contract so a future
+    label rename (« Press Agency » or similar) gets caught at PR
+    time rather than silently turning every agency invisible to
+    the « représenter mes clients » flow."""
+    if not bw_type_label:
+        return False
+    return "Agence de presse" in bw_type_label
 
 
 def is_organisation_an_agency(org: Organisation) -> bool:
     result: bool = False
     bw = get_active_business_wall_for_organisation(org)
     if org.bw_active == "media" and bw:
-        if "Agence de presse" in bw.type_entreprise_media:
+        if bw_type_marks_agency(bw.type_entreprise_media):
             result = True
         warn(f"BW {bw.name} is agency: {result}")
     return result

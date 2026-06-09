@@ -7,7 +7,6 @@
 from __future__ import annotations
 
 from typing import TYPE_CHECKING
-from unittest.mock import MagicMock
 
 from app.modules.admin.views._common import (
     build_table_context,
@@ -17,6 +16,66 @@ from app.modules.admin.views._common import (
 
 if TYPE_CHECKING:
     from flask import Flask
+
+
+class _DataSource:
+    """Stand-in for a datasource used by the admin table helpers."""
+
+    def __init__(
+        self,
+        *,
+        records: list | None = None,
+        offset: int = 0,
+        limit: int = 10,
+        count: int = 0,
+        search: str = "",
+        next_offset: int = 0,
+        prev_offset: int = 0,
+    ) -> None:
+        self._records = records if records is not None else []
+        self.offset = offset
+        self.limit = limit
+        self._count = count
+        self.search = search
+        self._next_offset = next_offset
+        self._prev_offset = prev_offset
+
+    def records(self) -> list:
+        return self._records
+
+    def count(self) -> int:
+        return self._count
+
+    def next_offset(self) -> int:
+        return self._next_offset
+
+    def prev_offset(self) -> int:
+        return self._prev_offset
+
+
+class _Table:
+    """Stand-in table object that just collects attributes set on it."""
+
+    def __init__(self, records: list) -> None:
+        self.records = records
+
+
+def _ds_factory(ds: _DataSource):
+    """Wrap a prebuilt _DataSource so the SUT can call it with no args."""
+
+    def _factory() -> _DataSource:
+        return ds
+
+    return _factory
+
+
+def _table_factory(table_cls=_Table):
+    """Return a callable that builds a `_Table` from records."""
+
+    def _factory(records):
+        return table_cls(records)
+
+    return _factory
 
 
 class TestBuildUrl:
@@ -65,44 +124,21 @@ class TestBuildTableContext:
 
     def test_build_table_context_returns_dict(self, app: Flask):
         """Test that build_table_context returns expected structure."""
-        # Create mock classes
-        mock_ds_class = MagicMock()
-        mock_ds_instance = MagicMock()
-        mock_ds_instance.records.return_value = []
-        mock_ds_instance.offset = 0
-        mock_ds_instance.limit = 10
-        mock_ds_instance.count.return_value = 0
-        mock_ds_instance.search = ""
-        mock_ds_class.return_value = mock_ds_instance
-
-        mock_table_class = MagicMock()
-        mock_table_instance = MagicMock()
-        mock_table_class.return_value = mock_table_instance
+        ds = _DataSource(records=[], offset=0, limit=10, count=0, search="")
 
         with app.test_request_context():
-            context = build_table_context(mock_ds_class, mock_table_class)
+            context = build_table_context(_ds_factory(ds), _table_factory())
 
         assert "table" in context
         assert "ds" in context
-        assert context["ds"] == mock_ds_instance
+        assert context["ds"] is ds
 
     def test_build_table_context_sets_table_attrs(self, app: Flask):
         """Test that build_table_context sets table attributes."""
-        mock_ds_class = MagicMock()
-        mock_ds_instance = MagicMock()
-        mock_ds_instance.records.return_value = [1, 2, 3]
-        mock_ds_instance.offset = 0
-        mock_ds_instance.limit = 10
-        mock_ds_instance.count.return_value = 50
-        mock_ds_instance.search = "test"
-        mock_ds_class.return_value = mock_ds_instance
-
-        mock_table_class = MagicMock()
-        mock_table_instance = MagicMock()
-        mock_table_class.return_value = mock_table_instance
+        ds = _DataSource(records=[1, 2, 3], offset=0, limit=10, count=50, search="test")
 
         with app.test_request_context():
-            context = build_table_context(mock_ds_class, mock_table_class)
+            context = build_table_context(_ds_factory(ds), _table_factory())
 
         table = context["table"]
         assert table.start == 1
@@ -116,14 +152,10 @@ class TestHandleTablePost:
 
     def test_handle_table_post_next(self, app: Flask):
         """Test handle_table_post with next action."""
-        mock_ds_class = MagicMock()
-        mock_ds_instance = MagicMock()
-        mock_ds_instance.next_offset.return_value = 10
-        mock_ds_instance.search = ""
-        mock_ds_class.return_value = mock_ds_instance
+        ds = _DataSource(next_offset=10, search="")
 
         with app.test_request_context(method="POST", data={"action": "next"}):
-            response = handle_table_post(mock_ds_class, "admin.users")
+            response = handle_table_post(_ds_factory(ds), "admin.users")
 
         assert response.status_code == 200
         assert "HX-Redirect" in response.headers
@@ -131,28 +163,20 @@ class TestHandleTablePost:
 
     def test_handle_table_post_previous(self, app: Flask):
         """Test handle_table_post with previous action."""
-        mock_ds_class = MagicMock()
-        mock_ds_instance = MagicMock()
-        mock_ds_instance.prev_offset.return_value = 0
-        mock_ds_instance.search = ""
-        mock_ds_class.return_value = mock_ds_instance
+        ds = _DataSource(prev_offset=0, search="")
 
         with app.test_request_context(method="POST", data={"action": "previous"}):
-            response = handle_table_post(mock_ds_class, "admin.users")
+            response = handle_table_post(_ds_factory(ds), "admin.users")
 
         assert response.status_code == 200
         assert "HX-Redirect" in response.headers
 
     def test_handle_table_post_search(self, app: Flask):
         """Test handle_table_post with search action."""
-        mock_ds_class = MagicMock()
-        mock_ds_instance = MagicMock()
-        mock_ds_instance.search = ""
-        mock_ds_instance.offset = 0
-        mock_ds_class.return_value = mock_ds_instance
+        ds = _DataSource(search="", offset=0)
 
         with app.test_request_context(method="POST", data={"search": "query"}):
-            response = handle_table_post(mock_ds_class, "admin.users")
+            response = handle_table_post(_ds_factory(ds), "admin.users")
 
         assert response.status_code == 200
         assert "HX-Redirect" in response.headers
@@ -160,26 +184,20 @@ class TestHandleTablePost:
 
     def test_handle_table_post_search_same_resets_offset(self, app: Flask):
         """Test that same search query keeps offset, new search resets."""
-        mock_ds_class = MagicMock()
-        mock_ds_instance = MagicMock()
-        mock_ds_instance.search = "existing"
-        mock_ds_instance.offset = 20
-        mock_ds_class.return_value = mock_ds_instance
+        ds = _DataSource(search="existing", offset=20)
 
         # New search should reset offset to 0
         with app.test_request_context(method="POST", data={"search": "new_query"}):
-            response = handle_table_post(mock_ds_class, "admin.users")
+            response = handle_table_post(_ds_factory(ds), "admin.users")
 
         assert "offset" not in response.headers["HX-Redirect"]
 
     def test_handle_table_post_no_action(self, app: Flask):
         """Test handle_table_post with no action redirects to base."""
-        mock_ds_class = MagicMock()
-        mock_ds_instance = MagicMock()
-        mock_ds_class.return_value = mock_ds_instance
+        ds = _DataSource()
 
         with app.test_request_context(method="POST", data={}):
-            response = handle_table_post(mock_ds_class, "admin.users")
+            response = handle_table_post(_ds_factory(ds), "admin.users")
 
         assert response.status_code == 200
         assert "HX-Redirect" in response.headers
@@ -187,14 +205,10 @@ class TestHandleTablePost:
 
     def test_handle_table_post_next_with_search(self, app: Flask):
         """Test handle_table_post next action preserves search."""
-        mock_ds_class = MagicMock()
-        mock_ds_instance = MagicMock()
-        mock_ds_instance.next_offset.return_value = 10
-        mock_ds_instance.search = "preserved"
-        mock_ds_class.return_value = mock_ds_instance
+        ds = _DataSource(next_offset=10, search="preserved")
 
         with app.test_request_context(method="POST", data={"action": "next"}):
-            response = handle_table_post(mock_ds_class, "admin.users")
+            response = handle_table_post(_ds_factory(ds), "admin.users")
 
         assert "offset=10" in response.headers["HX-Redirect"]
         assert "search=preserved" in response.headers["HX-Redirect"]

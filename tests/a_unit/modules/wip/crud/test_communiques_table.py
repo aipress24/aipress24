@@ -7,10 +7,17 @@
 from __future__ import annotations
 
 from types import SimpleNamespace
-from unittest.mock import MagicMock
 
 from app.models.lifecycle import PublicationStatus
 from app.modules.wip.crud.cbvs.communiques import CommuniquesTable, CommuniquesWipView
+
+
+class _Item:
+    """Minimal stand-in for a Communique row used by CommuniquesTable."""
+
+    def __init__(self, id: int, status: PublicationStatus) -> None:
+        self.id = id
+        self.status = status
 
 
 class TestCommuniquesTableActions:
@@ -19,7 +26,7 @@ class TestCommuniquesTableActions:
     def test_draft_item_shows_publish_action(self):
         """Draft items should have 'Publier' but not 'Dépublier'."""
         table = CommuniquesTable()
-        item = MagicMock(id=1, status=PublicationStatus.DRAFT)
+        item = _Item(id=1, status=PublicationStatus.DRAFT)
 
         actions = table.get_actions(item)
         labels = [a["label"] for a in actions]
@@ -30,7 +37,7 @@ class TestCommuniquesTableActions:
     def test_published_item_shows_unpublish_action(self):
         """Published items should have 'Dépublier' but not 'Publier'."""
         table = CommuniquesTable()
-        item = MagicMock(id=1, status=PublicationStatus.PUBLIC)
+        item = _Item(id=1, status=PublicationStatus.PUBLIC)
 
         actions = table.get_actions(item)
         labels = [a["label"] for a in actions]
@@ -41,7 +48,7 @@ class TestCommuniquesTableActions:
     def test_all_items_have_core_actions(self):
         """All items should have view, edit, images, and delete actions."""
         table = CommuniquesTable()
-        item = MagicMock(id=1, status=PublicationStatus.DRAFT)
+        item = _Item(id=1, status=PublicationStatus.DRAFT)
 
         actions = table.get_actions(item)
         labels = [a["label"] for a in actions]

@@ -62,6 +62,120 @@ def get_name(obj):
     return obj.name if obj else ""
 
 
+def _format_publisher_label(name: str) -> str:
+    """Pure : wrap an organisation name in the standard publisher header.
+
+    Centralising the format string keeps the « Publié pour le compte de … »
+    header consistent across the three branches of `_resolve_publisher_text`.
+    """
+    return f'Publié pour le compte de "{name}"'
+
+
+def _resolve_publisher_text(
+    model,
+    *,
+    user_is_managing_another_bw: bool,
+    selected_bw_name: str | None,
+    user_org=None,
+) -> str:
+    """Pure core for the « Publié pour le compte de X » header.
+
+    Bug #0135 : the header must follow the *model's own* publisher (the
+    client an agency-member published *for*); the editing user's org is
+    only the right fallback when creating a new model.
+
+    The shell (`_view_ctx`) is responsible for resolving the runtime
+    inputs (Flask `g.user`, `get_selected_business_wall_for_user`). The
+    branching itself is pure and exhaustively unit-tested below.
+
+    Args:
+      model: the model being edited (or None for "new").
+      user_is_managing_another_bw: snapshot of
+        `g.user.is_managing_another_bw`.
+      selected_bw_name: name of the currently-selected business wall,
+        or None if the user is not managing another BW (or no BW is
+        currently selected).
+      user_org: the editing user's own organisation (or None).
+    """
+    model_publisher = getattr(model, "publisher", None) if model else None
+    if model_publisher is not None:
+        name = model_publisher.bw_name or model_publisher.name
+        return _format_publisher_label(name)
+    if user_is_managing_another_bw:
+        if selected_bw_name:
+            return _format_publisher_label(selected_bw_name)
+        return ""
+    if user_org is not None:
+        name = user_org.bw_name or user_org.name
+        return _format_publisher_label(name)
+    return ""
+
+
+def _build_index_breadcrumbs(
+    *,
+    work_url: str,
+    label_list: str,
+    index_url: str,
+    extra_label: str = "",
+    new_label: str | None = None,
+) -> list[BreadCrumb]:
+    """Pure : assemble the trail for index/new/edit pages.
+
+    The shell resolves the URLs from Flask's `url_for`; this function
+    just composes the standard prefix (`Work > <label_list>`) and
+    appends the optional "new" and free-form crumbs.
+    """
+    crumbs = [
+        BreadCrumb(label="Work", url=work_url),
+        BreadCrumb(label=label_list, url=index_url),
+    ]
+    if new_label:
+        crumbs.append(BreadCrumb(label=new_label, url=""))
+    if extra_label:
+        crumbs.append(BreadCrumb(label=extra_label, url=""))
+    return crumbs
+
+
+def _build_phase_breadcrumbs(
+    *,
+    work_url: str,
+    label_list: str,
+    index_url: str,
+    model_title: str,
+    model_url: str,
+    phase: str,
+) -> list[BreadCrumb]:
+    """Pure : trail for a model sub-page (`Work > list > title > phase`).
+
+    The `<titre>` crumb is clickable so the user can jump back to the
+    detail view without going all the way up to the Work dashboard.
+    Refs bugs #0070 (Avis d'enquête) and #0085 (article images).
+    """
+    return [
+        BreadCrumb(label="Work", url=work_url),
+        BreadCrumb(label=label_list, url=index_url),
+        BreadCrumb(label=model_title, url=model_url),
+        BreadCrumb(label=phase, url=""),
+    ]
+
+
+def _sort_org_choices(
+    orgs,
+    *,
+    pinned_org=None,
+) -> list[tuple[str, str]]:
+    """Pure : turn `Organisation` rows into the (id, label) choices list.
+
+    The list is sorted by display name; the optional `pinned_org` is
+    inserted *first* so the editing user's own org always shows up at
+    the top of the picker (with its `bw_name` label).
+    """
+    result = sorted([(str(org.id), org.name) for org in orgs], key=itemgetter(1))
+    if pinned_org is not None:
+        result.insert(0, (str(pinned_org.id), pinned_org.bw_name))
+    return result
+
+
 class BaseWipView(FlaskView, abc.ABC):
     name: str
     model_class: type
@@ -144,17 +258,13 @@ class BaseWipView(FlaskView, abc.ABC):
             Organisation.bw_active == "media",
         )
         query_result = db.session.execute(query).scalars()
-        result = sorted(
-            [(str(org.id), org.name) for org in query_result], key=itemgetter(1)
-        )
+        pinned_org = None
         if g.user.organisation_id:
             query2 = select(Organisation).where(
                 Organisation.id == g.user.organisation_id
             )
-            user_org = db.session.execute(query2).scalar()
-            if user_org:
-                result.insert(0, (str(user_org.id), user_org.bw_name))
-        return result
+            pinned_org = db.session.execute(query2).scalar()
+        return _sort_org_choices(query_result, pinned_org=pinned_org)
 
     @templated(UPDATE_TEMPLATE)
     def post(self) -> Response | dict:
@@ -226,27 +336,22 @@ class BaseWipView(FlaskView, abc.ABC):
             else:
                 form.pays_zip_ville.lock = 0  # type: ignore[attr-defined]
 
-        # Bug #0135 : the « Publié pour le compte de X » header must
-        # follow the model's own publisher (the client an
-        # agency-member published *for*) ; the editing user's org
-        # is only the right fallback when creating a new model.
-        publisher_text = ""
-        model_publisher = getattr(model, "publisher", None) if model else None
-        if model_publisher is not None:
-            publisher_text = (
-                "Publié pour le compte de "
-                f'"{model_publisher.bw_name or model_publisher.name}"'
-            )
-        elif getattr(g.user, "is_managing_another_bw", False):
+        # Bug #0135 : delegate the branching to a pure helper. The
+        # shell only resolves the runtime inputs (current user, its
+        # selected business wall) — the textual contract itself is
+        # unit-tested directly via `_resolve_publisher_text`.
+        user_is_managing_another_bw = getattr(g.user, "is_managing_another_bw", False)
+        selected_bw_name: str | None = None
+        if user_is_managing_another_bw:
             bw = get_selected_business_wall_for_user(g.user)
             if bw:
-                publisher_text = f'Publié pour le compte de "{bw.name}"'
-        else:
-            own_org = getattr(g.user, "organisation", None)
-            if own_org:
-                publisher_text = (
-                    f'Publié pour le compte de "{own_org.bw_name or own_org.name}"'
-                )
+                selected_bw_name = bw.name
+        publisher_text = _resolve_publisher_text(
+            model,
+            user_is_managing_another_bw=user_is_managing_another_bw,
+            selected_bw_name=selected_bw_name,
+            user_org=getattr(g.user, "organisation", None),
+        )
 
         renderer = FormRenderer(
             form,
@@ -318,23 +423,13 @@ class BaseWipView(FlaskView, abc.ABC):
 
     def update_breadcrumbs(self, key="", label="") -> None:
         context = container.get(Context)
-        breadcrumbs = [
-            BreadCrumb(
-                label="Work",
-                url=url_for("wip.wip"),
-            ),
-            BreadCrumb(
-                label=self.label_list,
-                url=self._url_for("index"),
-            ),
-        ]
-        if key == "new":
-            bc = BreadCrumb(label=self.label_new, url="")
-            breadcrumbs.append(bc)
-        if label:
-            bc = BreadCrumb(label=label, url="")
-            breadcrumbs.append(bc)
-
+        breadcrumbs = _build_index_breadcrumbs(
+            work_url=url_for("wip.wip"),
+            label_list=self.label_list,
+            index_url=self._url_for("index"),
+            extra_label=label,
+            new_label=self.label_new if key == "new" else None,
+        )
         context.update(breadcrumbs=breadcrumbs)
 
     def update_phase_breadcrumbs(self, model, phase: str) -> None:
@@ -349,12 +444,14 @@ class BaseWipView(FlaskView, abc.ABC):
         #0070 (Avis d'enquête) and #0085 (article images).
         """
         context = container.get(Context)
-        breadcrumbs = [
-            BreadCrumb(label="Work", url=url_for("wip.wip")),
-            BreadCrumb(label=self.label_list, url=self._url_for("index")),
-            BreadCrumb(label=model.title, url=self._url_for("get", id=model.id)),
-            BreadCrumb(label=phase, url=""),
-        ]
+        breadcrumbs = _build_phase_breadcrumbs(
+            work_url=url_for("wip.wip"),
+            label_list=self.label_list,
+            index_url=self._url_for("index"),
+            model_title=model.title,
+            model_url=self._url_for("get", id=model.id),
+            phase=phase,
+        )
         context.update(breadcrumbs=breadcrumbs)
 
     def _get_repo(self):

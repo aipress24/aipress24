@@ -8,6 +8,21 @@ from app.flask.routing import url_for
 from app.modules.preferences.constants import MENU
 
 
+def endpoint_to_view_name(endpoint: str | None) -> str:
+    """Extract the bare view-function name from a Flask endpoint.
+
+    `request.endpoint` is `"blueprint.view"` (e.g. `"preferences.profile"`)
+    or just `"view"` for endpoints not behind a blueprint, or None on
+    routing errors. The preferences sidebar matches by bare view name
+    (« profile » against MenuEntry.name == "profile"), so we strip the
+    blueprint prefix.
+
+    Pure : no Flask context required."""
+    if not endpoint:
+        return ""
+    return endpoint.rsplit(".", 1)[-1]
+
+
 def make_menu(current_name: str):
     """Build the preferences secondary menu.
 

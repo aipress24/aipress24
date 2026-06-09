@@ -106,6 +106,51 @@ def warning(*args: Any) -> None:
     print(f"Warning (Stripe Webhook): {msg}", file=sys.stderr)
 
 
+# ── Pure helpers for the checkout-handling path ──────────────────────
+#
+# Extracted from `_record_article_purchase_from_checkout` so they're
+# unit-testable without spinning up a Stripe webhook POST. See
+# `tests/a_unit/modules/stripe/test_webhook_helpers.py`.
+
+
+def event_data_getter(data_obj):
+    """Return a `.get(key, default=None)` callable that works on either
+    a Python dict (test fixtures) or a `stripe.Object` (live SDK), so
+    downstream extraction code doesn't have to branch."""
+    if hasattr(data_obj, "get"):
+        return data_obj.get
+    return lambda k, d=None: getattr(data_obj, k, d)
+
+
+def extract_purchase_id(data_obj) -> str | None:
+    """Read `metadata.purchase_id` (the local ArticlePurchase id we
+    stamp when creating the Stripe Checkout session). Returns None if
+    missing or empty so the caller can short-circuit cleanly."""
+    get = event_data_getter(data_obj)
+    metadata = get("metadata") or {}
+    purchase_id = metadata.get("purchase_id")
+    return purchase_id or None
+
+
+def extract_amount_cents_ht(data_obj) -> int | None:
+    """Stripe sends both `amount_subtotal` (pre-tax) and `amount_total`
+    (tax-inclusive) when `automatic_tax={"enabled": True}` is on. The
+    rest of the codebase labels `ArticlePurchase.amount_cents` as
+    « € HT », so we store the subtotal. Fall back to `amount_total`
+    for payloads that omit the subtotal (test fixtures, manual
+    replays). Returns None when neither field is present."""
+    get = event_data_getter(data_obj)
+    return get("amount_subtotal") or get("amount_total")
+
+
+def normalise_currency_or_eur(data_obj) -> str:
+    """Return the uppercased currency code, defaulting to EUR when
+    Stripe didn't carry one. Mirrors the existing call site which used
+    `(get("currency") or "eur").upper()`."""
+    get = event_data_getter(data_obj)
+    return (get("currency") or "eur").upper()
+
+
 @blueprint.route("/webhook", methods=["GET", "POST"])
 def webhooks():
     load_stripe_api_key()
@@ -167,12 +212,26 @@ _EVENT_HANDLER_NAMES = {
 }
 
 
+def resolve_handler(
+    event_type: str, registry: dict[str, str] | None = None
+) -> str | None:
+    """Pure lookup. Return the handler-function-name string or None.
+
+    Extracted from `on_received_event` so the dispatch table can be
+    unit-tested without patching globals(). The imperative shell
+    (`on_received_event`) keeps the 1-line `globals()[name](event)`
+    invocation, which belongs to integration coverage.
+    """
+    table = registry if registry is not None else _EVENT_HANDLER_NAMES
+    return table.get(event_type)
+
+
 def on_received_event(event: stripe.Event) -> None:
-    handler_name = _EVENT_HANDLER_NAMES.get(event.type)
-    if handler_name:
-        handler = globals()[handler_name]
-        return handler(event)
-    return unmanaged_event(event)
+    handler_name = resolve_handler(event.type, _EVENT_HANDLER_NAMES)
+    if handler_name is None:
+        return unmanaged_event(event)
+    handler = globals()[handler_name]
+    return handler(event)
 
 
 def _get_event_object(event: stripe.Event) -> object:
@@ -476,14 +535,9 @@ def _record_article_purchase_from_checkout(data_obj) -> None:
     the session) and flips the local row to PAID. Idempotent via unique
     `stripe_checkout_session_id`.
     """
-    get = (
-        data_obj.get
-        if hasattr(data_obj, "get")
-        else lambda k, d=None: getattr(data_obj, k, d)
-    )
+    get = event_data_getter(data_obj)
     session_id = get("id")
-    metadata = get("metadata") or {}
-    purchase_id = metadata.get("purchase_id")
+    purchase_id = extract_purchase_id(data_obj)
     if not purchase_id:
         warning(f"payment checkout without purchase_id metadata: {session_id}")
         return
@@ -513,15 +567,10 @@ def _record_article_purchase_from_checkout(data_obj) -> None:
 
     purchase.stripe_checkout_session_id = session_id
     purchase.stripe_payment_intent_id = get("payment_intent")
-    # Store HT, not TTC. We pass `automatic_tax={"enabled": True}` in
-    # buy/buy_gift, so Stripe's `amount_total` is tax-inclusive (TTC)
-    # while `amount_subtotal` is pre-tax (HT). The rest of the codebase
-    # (cumul aggregates, sales recap, cession acknowledgment email)
-    # labels `amount_cents` as « € HT », so we store HT here. Fall
-    # back to `amount_total` for payloads that don't carry
-    # `amount_subtotal` (test fixtures, manual replays).
-    purchase.amount_cents = get("amount_subtotal") or get("amount_total")
-    purchase.currency = (get("currency") or "eur").upper()
+    # HT vs TTC and currency normalisation are unit-tested separately ;
+    # see `tests/a_unit/modules/stripe/test_webhook_helpers.py`.
+    purchase.amount_cents = extract_amount_cents_ht(data_obj)
+    purchase.currency = normalise_currency_or_eur(data_obj)
     purchase.status = PurchaseStatus.PAID  # type: ignore[assignment]
     purchase.paid_at = datetime.now(UTC)  # type: ignore[assignment]
     db.session.commit()

@@ -6,7 +6,8 @@
 
 from __future__ import annotations
 
-from typing import cast
+from collections.abc import Callable, Iterable
+from typing import Any, cast
 
 from flask import flash, g, redirect, render_template, request, url_for
 from werkzeug.exceptions import NotFound
@@ -85,6 +86,22 @@ _NON_JOURNALISM_SUBCATEGORIES: dict[str, list[str]] = {
 }
 
 
+def _build_mission_subcategories(
+    journalism: Iterable[str],
+) -> dict[str, list[str]]:
+    """Pure : given the journalism list, return the full subcategory dict.
+
+    Combines the runtime-sourced journalism list with the hardcoded
+    Communication / Innovation lists. Defensively materialises the
+    journalism iterable into a fresh list so callers can't mutate the
+    returned dict's values through a shared reference.
+    """
+    return {
+        MissionCategory.JOURNALISME.value: list(journalism),
+        **_NON_JOURNALISM_SUBCATEGORIES,
+    }
+
+
 def get_mission_subcategories() -> dict[str, list[str]]:
     """Per-request sub-type lists exposed to the publish form.
 
@@ -99,10 +116,7 @@ def get_mission_subcategories() -> dict[str, list[str]]:
         journalism = list(get_taxonomy("genres"))
     except Exception:
         journalism = []
-    return {
-        MissionCategory.JOURNALISME.value: journalism,
-        **_NON_JOURNALISM_SUBCATEGORIES,
-    }
+    return _build_mission_subcategories(journalism)
 
 
 class MissionOfferForm(Form):
@@ -219,6 +233,26 @@ _JOURNALISM_TAXONOMY_FIELDS: tuple[tuple[str, str], ...] = (
 )
 
 
+def _resolve_journalism_field_choices(
+    loader: Callable[[str], Any],
+    field_mapping: tuple[tuple[str, str], ...] = _JOURNALISM_TAXONOMY_FIELDS,
+) -> dict[str, list]:
+    """Pure : given a loader callable + the (form_field, ontology_key)
+    mapping, return a dict of form_field → list-of-choices.
+
+    Errors and non-list returns produce an empty list — the form must
+    still render even if a single taxonomy is misconfigured.
+    """
+    out: dict[str, list] = {}
+    for field_name, ontology_key in field_mapping:
+        try:
+            choices = loader(ontology_key)
+        except Exception:
+            choices = []
+        out[field_name] = choices if isinstance(choices, list) else []
+    return out
+
+
 def _populate_journalism_taxonomy_choices(form: MissionOfferForm) -> None:
     """Bug #0187 — wire each Journalism multi-select to its ontology.
 
@@ -227,15 +261,9 @@ def _populate_journalism_taxonomy_choices(form: MissionOfferForm) -> None:
     swallowed so a missing taxonomy doesn't take down the whole
     deposit form — the offending field then just has no options.
     """
-    for field_name, ontology_key in _JOURNALISM_TAXONOMY_FIELDS:
-        try:
-            choices = get_ontology_choices(ontology_key)
-        except Exception:
-            choices = []
-        if isinstance(choices, list):
-            getattr(form, field_name).choices = choices
-        else:
-            getattr(form, field_name).choices = []
+    choices_by_field = _resolve_journalism_field_choices(get_ontology_choices)
+    for field_name, choices in choices_by_field.items():
+        getattr(form, field_name).choices = choices
 
 
 @blueprint.route("/missions/new", methods=["GET", "POST"])

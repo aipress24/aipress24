@@ -35,6 +35,7 @@ from app.modules.wire.models import (
     PurchaseProduct,
     PurchaseStatus,
 )
+from app.services.stripe._client import StripeClient
 from app.services.stripe.product import fetch_stripe_product_list
 from app.services.stripe.utils import load_stripe_api_key
 
@@ -518,25 +519,25 @@ _PRODUCT_STRIPE_MARKER: dict[PurchaseProduct, tuple[str, str]] = {
 }
 
 
-def _price_id_for(product: PurchaseProduct, genre: str = "") -> str:
-    """Resolve the Stripe price id for a given (product × genre).
+def _select_price_id(
+    products: list,
+    product: PurchaseProduct,
+    genre: str = "",
+) -> str:
+    """Pure : given a list of Stripe products, return the right price id.
 
-    Strategy :
-    1. If `genre` is provided, look for a product matching both the
-       product-type marker AND `metadata.genre == genre`.
-    2. Otherwise (or if no genre-specific product exists), fall back
-       to any product matching the product-type marker — the pre-#0192
-       behaviour.
+    Extracted from `_price_id_for` so the lookup logic can be unit-
+    tested without any Stripe SDK or live HTTP call. The shape each
+    product must expose is the one the Stripe SDK gives us — attribute
+    access to `.metadata` (mapping) and `.default_price` (object with
+    `.id`, or falsy).
 
-    Returns "" when neither path finds a candidate (handled by the
-    caller with a flash).
+    Returns "" when no candidate matches.
     """
     marker = _PRODUCT_STRIPE_MARKER.get(product)
     if marker is None:
         return ""
     key, value = marker
-
-    products = fetch_stripe_product_list(active=True)
 
     if genre:
         for prod in products:
@@ -553,6 +554,33 @@ def _price_id_for(product: PurchaseProduct, genre: str = "") -> str:
             return prod.default_price.id
 
     return ""
+
+
+def _price_id_for(
+    product: PurchaseProduct,
+    genre: str = "",
+    *,
+    client: StripeClient | None = None,
+) -> str:
+    """Resolve the Stripe price id for a given (product × genre).
+
+    Strategy :
+    1. If `genre` is provided, look for a product matching both the
+       product-type marker AND `metadata.genre == genre`.
+    2. Otherwise (or if no genre-specific product exists), fall back
+       to any product matching the product-type marker — the pre-#0192
+       behaviour.
+
+    Returns "" when neither path finds a candidate (handled by the
+    caller with a flash).
+
+    Pass an explicit `client` to inject a fake StripeClient — used by
+    unit tests to seed canned products without monkeypatching. The
+    default production path goes through `fetch_stripe_product_list`'s
+    own default client (the real Stripe SDK adapter).
+    """
+    products = fetch_stripe_product_list(active=True, client=client)
+    return _select_price_id(products, product, genre)
 
 
 def _get_purchase_or_404(purchase_id: int) -> ArticlePurchase:

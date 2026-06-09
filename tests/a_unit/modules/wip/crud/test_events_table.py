@@ -6,10 +6,20 @@
 
 from __future__ import annotations
 
-from unittest.mock import MagicMock
-
 from app.models.lifecycle import PublicationStatus
 from app.modules.wip.crud.cbvs.events import EventsTable
+
+
+class _Item:
+    """Minimal stand-in for an Event row used by EventsTable.get_actions.
+
+    The SUT only reads ``id`` (for URL building) and ``status`` (to choose
+    publish vs. unpublish action).
+    """
+
+    def __init__(self, id: int, status: PublicationStatus) -> None:
+        self.id = id
+        self.status = status
 
 
 class TestEventsTableActions:
@@ -18,7 +28,7 @@ class TestEventsTableActions:
     def test_draft_item_shows_publish_action(self):
         """Draft items should have 'Publier' but not 'Dépublier'."""
         table = EventsTable()
-        item = MagicMock(id=1, status=PublicationStatus.DRAFT)
+        item = _Item(id=1, status=PublicationStatus.DRAFT)
 
         actions = table.get_actions(item)
         labels = [a["label"] for a in actions]
@@ -29,7 +39,7 @@ class TestEventsTableActions:
     def test_published_item_shows_unpublish_action(self):
         """Published items should have 'Dépublier' but not 'Publier'."""
         table = EventsTable()
-        item = MagicMock(id=1, status=PublicationStatus.PUBLIC)
+        item = _Item(id=1, status=PublicationStatus.PUBLIC)
 
         actions = table.get_actions(item)
         labels = [a["label"] for a in actions]
@@ -40,7 +50,7 @@ class TestEventsTableActions:
     def test_all_items_have_core_actions(self):
         """All items should have view, edit, images, and delete actions."""
         table = EventsTable()
-        item = MagicMock(id=1, status=PublicationStatus.DRAFT)
+        item = _Item(id=1, status=PublicationStatus.DRAFT)
 
         actions = table.get_actions(item)
         labels = [a["label"] for a in actions]
