@@ -8,6 +8,7 @@ from datetime import datetime
 from enum import StrEnum, auto
 from typing import ClassVar
 
+import sqlalchemy as sa
 from advanced_alchemy.types.file_object import FileObject, StoredObject
 from sqlalchemy import JSON, BigInteger, Enum, ForeignKey, orm
 from sqlalchemy.orm import Mapped, mapped_column
@@ -213,13 +214,19 @@ class PressReleasePost(Post, Taggable):
 class PurchaseProduct(StrEnum):
     """Kinds of article-level one-off purchases.
 
-    Matches the three buy buttons on the article page (wire aside):
+    Matches the four buy actions on the article page (wire aside):
     - `consultation` : read-access to an otherwise truncated article.
+    - `consultation_gift` : pay to grant `consultation` to N other
+      members (ticket #0194 — « Consultation d'article offerte »).
+      The N beneficiaries are stored in `ArticlePurchaseGift` rows
+      attached to the parent purchase ; each can read the article
+      in full.
     - `justificatif` : official PDF proof of publication.
     - `cession` : reproduction licence for another media.
     """
 
     CONSULTATION = auto()
+    CONSULTATION_GIFT = auto()
     JUSTIFICATIF = auto()
     CESSION = auto()
 
@@ -285,3 +292,48 @@ class ArticlePurchase(IdMixin, Owned, Timestamped, Base):
             return file_obj.sign(expires_in=expires_in, for_upload=False)
         except RuntimeError:
             return None
+
+
+class ArticlePurchaseGift(IdMixin, Timestamped, Base):
+    """Ticket #0194 — beneficiaries of a `CONSULTATION_GIFT` purchase.
+
+    One row per (purchase, beneficiary) pair. The buyer paid for N
+    beneficiaries → N rows attached to the same `ArticlePurchase`.
+    Each beneficiary, once the parent purchase is PAID, can read the
+    article in full (paywall lifted).
+
+    Unique on (purchase_id, beneficiary_user_id) — a single purchase
+    can't gift the same person twice.
+    """
+
+    __tablename__ = "wire_article_purchase_gift"
+
+    purchase_id: Mapped[int] = mapped_column(
+        BigInteger,
+        ForeignKey("wire_article_purchase.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
+    )
+    beneficiary_user_id: Mapped[int] = mapped_column(
+        BigInteger,
+        ForeignKey("aut_user.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
+    )
+    notified_at: Mapped[datetime | None] = mapped_column(
+        ArrowType(timezone=True), nullable=True
+    )
+
+    purchase = orm.relationship(
+        "ArticlePurchase",
+        foreign_keys=[purchase_id],
+        backref=orm.backref("gifts", cascade="all, delete-orphan"),
+    )
+
+    __table_args__ = (
+        sa.UniqueConstraint(
+            "purchase_id",
+            "beneficiary_user_id",
+            name="uq_purchase_gift_beneficiary",
+        ),
+    )
