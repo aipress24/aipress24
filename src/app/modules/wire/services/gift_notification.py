@@ -76,8 +76,16 @@ def notify_gift_beneficiaries(purchase_id: int) -> int:
         if recipient is None:
             continue
 
+        # Only stamp `notified_at` if at least one side-effect actually
+        # succeeded. A total failure (Sentry-logged but invisible to
+        # the user) would otherwise mark the gift as notified and
+        # prevent any future retry — the beneficiary would silently
+        # get nothing.
+        any_succeeded = False
+
         try:
             _post_in_app(recipient, article_title, giver, article_url)
+            any_succeeded = True
         except Exception as exc:
             report_failure(
                 f"consultation_gift: in-app notification failed "
@@ -93,6 +101,7 @@ def notify_gift_beneficiaries(purchase_id: int) -> int:
                     article_title=article_title,
                     article_url=article_url,
                 )
+                any_succeeded = True
             except Exception as exc:
                 report_failure(
                     f"consultation_gift: email failed "
@@ -100,8 +109,9 @@ def notify_gift_beneficiaries(purchase_id: int) -> int:
                     exc,
                 )
 
-        gift.notified_at = datetime.now(UTC)
-        notified += 1
+        if any_succeeded:
+            gift.notified_at = datetime.now(UTC)
+            notified += 1
 
     if notified:
         db.session.flush()
