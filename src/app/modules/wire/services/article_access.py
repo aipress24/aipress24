@@ -23,6 +23,7 @@ from app.enums import RoleEnum
 from app.flask.extensions import db
 from app.modules.wire.models import (
     ArticlePurchase,
+    ArticlePurchaseGift,
     PurchaseProduct,
     PurchaseStatus,
 )
@@ -41,6 +42,7 @@ def user_can_read_full(user: User | None, post: Post) -> bool:
     - author → yes
     - admin → yes
     - owns a PAID consultation purchase on this post → yes
+    - was gifted a PAID consultation on this post (ticket #0194) → yes
     - otherwise → no
     """
     if user is None or user.is_anonymous:
@@ -49,7 +51,9 @@ def user_can_read_full(user: User | None, post: Post) -> bool:
         return True
     if has_role(user, RoleEnum.ADMIN.name):
         return True
-    return _has_paid_consultation(user.id, post.id)
+    if _has_paid_consultation(user.id, post.id):
+        return True
+    return _has_received_consultation_gift(user.id, post.id)
 
 
 def _has_paid_consultation(user_id: int, post_id: int) -> bool:
@@ -58,6 +62,25 @@ def _has_paid_consultation(user_id: int, post_id: int) -> bool:
         .where(ArticlePurchase.owner_id == user_id)
         .where(ArticlePurchase.post_id == post_id)
         .where(ArticlePurchase.product_type == PurchaseProduct.CONSULTATION)
+        .where(ArticlePurchase.status == PurchaseStatus.PAID)
+    )
+    count = db.session.scalar(stmt) or 0
+    return count > 0
+
+
+def _has_received_consultation_gift(user_id: int, post_id: int) -> bool:
+    """Ticket #0194 — `user_id` was named as a beneficiary on a PAID
+    `CONSULTATION_GIFT` purchase targeting `post_id`."""
+    stmt = (
+        sa.select(sa.func.count(ArticlePurchaseGift.id))
+        .select_from(ArticlePurchaseGift)
+        .join(
+            ArticlePurchase,
+            ArticlePurchase.id == ArticlePurchaseGift.purchase_id,
+        )
+        .where(ArticlePurchaseGift.beneficiary_user_id == user_id)
+        .where(ArticlePurchase.post_id == post_id)
+        .where(ArticlePurchase.product_type == PurchaseProduct.CONSULTATION_GIFT)
         .where(ArticlePurchase.status == PurchaseStatus.PAID)
     )
     count = db.session.scalar(stmt) or 0
