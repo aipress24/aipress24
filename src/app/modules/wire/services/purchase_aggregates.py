@@ -168,14 +168,85 @@ def count_org_press_book(org_id: int | None) -> int:
     return int(db.session.scalar(stmt) or 0)
 
 
+def _direct_consultation_count_stmt(post_id_predicate):
+    """SQL fragment counting direct PAID CONSULTATION purchases, keyed
+    by `post_id`. Shared by the singular / batched / scalar-subquery
+    callers so they cannot drift on the « what counts as a vue » rule.
+    `post_id_predicate` is a callable taking the column and returning a
+    SQLAlchemy boolean (`== post_id` or `.in_(post_ids)`)."""
+    from app.modules.wire.models import PurchaseProduct
+
+    return (
+        select(ArticlePurchase.post_id, func.count().label("c"))
+        .where(post_id_predicate(ArticlePurchase.post_id))
+        .where(ArticlePurchase.product_type == PurchaseProduct.CONSULTATION)
+        .where(ArticlePurchase.status == PurchaseStatus.PAID)
+        .group_by(ArticlePurchase.post_id)
+    )
+
+
+def _gift_consultation_count_stmt(post_id_predicate):
+    """SQL fragment counting PAID CONSULTATION_GIFT beneficiaries
+    (each beneficiary is one « vue »), keyed by the parent purchase's
+    `post_id`. Companion of `_direct_consultation_count_stmt`."""
+    from app.modules.wire.models import ArticlePurchaseGift, PurchaseProduct
+
+    return (
+        select(
+            ArticlePurchase.post_id,
+            func.count(ArticlePurchaseGift.id).label("c"),
+        )
+        .select_from(ArticlePurchaseGift)
+        .join(
+            ArticlePurchase,
+            ArticlePurchase.id == ArticlePurchaseGift.purchase_id,
+        )
+        .where(post_id_predicate(ArticlePurchase.post_id))
+        .where(ArticlePurchase.product_type == PurchaseProduct.CONSULTATION_GIFT)
+        .where(ArticlePurchase.status == PurchaseStatus.PAID)
+        .group_by(ArticlePurchase.post_id)
+    )
+
+
+def paid_consultation_count_subquery(post_id_col):
+    """Return a scalar SQLAlchemy expression that yields the « vues »
+    count (direct CONSULTATION + CONSULTATION_GIFT beneficiaries) for
+    the row identified by `post_id_col`. Use it in `ORDER BY` /
+    correlated subqueries — e.g. the « Trier > Popularité (vues) »
+    wall sort. Single source of truth for the rule, so display, sort,
+    and batched count cannot diverge."""
+    from app.modules.wire.models import ArticlePurchaseGift, PurchaseProduct
+
+    direct = (
+        select(func.count())
+        .select_from(ArticlePurchase)
+        .where(ArticlePurchase.post_id == post_id_col)
+        .where(ArticlePurchase.product_type == PurchaseProduct.CONSULTATION)
+        .where(ArticlePurchase.status == PurchaseStatus.PAID)
+        .scalar_subquery()
+    )
+    gifted = (
+        select(func.count(ArticlePurchaseGift.id))
+        .select_from(ArticlePurchaseGift)
+        .join(
+            ArticlePurchase,
+            ArticlePurchase.id == ArticlePurchaseGift.purchase_id,
+        )
+        .where(ArticlePurchase.post_id == post_id_col)
+        .where(ArticlePurchase.product_type == PurchaseProduct.CONSULTATION_GIFT)
+        .where(ArticlePurchase.status == PurchaseStatus.PAID)
+        .scalar_subquery()
+    )
+    return direct + gifted
+
+
 def get_paid_consultations_count(post_id: int | None) -> int:
     """Return the number of PAID CONSULTATION purchases on `post_id`.
 
     Ticket #0193 — Erick : « Le nombre des consultations d'article se
     cumule dans le compteur de Vue (icône œil) ». The eye-icon counter
     on the NEWS portal is the read-count of *paying* readers, not the
-    raw page-view tally. Used both for display and for the « Trier >
-    Popularité (vues) » sort option.
+    raw page-view tally.
 
     Ticket #0194 — also counts gift beneficiaries : each
     CONSULTATION_GIFT row attaches N beneficiaries, each of whom can
@@ -184,57 +255,31 @@ def get_paid_consultations_count(post_id: int | None) -> int:
     """
     if not post_id:
         return 0
-    # Lazy imports to keep `ArticlePost` / `Post` import shape simple.
-    from app.modules.wire.models import ArticlePurchaseGift, PurchaseProduct
-
-    # Direct CONSULTATION purchases : count rows.
-    direct_stmt = (
-        select(func.count())
-        .select_from(ArticlePurchase)
-        .where(ArticlePurchase.post_id == post_id)
-        .where(ArticlePurchase.product_type == PurchaseProduct.CONSULTATION)
-        .where(ArticlePurchase.status == PurchaseStatus.PAID)
-    )
-    direct = int(db.session.scalar(direct_stmt) or 0)
-
-    # Gift purchases : count beneficiaries linked to any PAID
-    # CONSULTATION_GIFT purchase on this post.
-    gift_stmt = (
-        select(func.count(ArticlePurchaseGift.id))
-        .select_from(ArticlePurchaseGift)
-        .join(
-            ArticlePurchase,
-            ArticlePurchase.id == ArticlePurchaseGift.purchase_id,
-        )
-        .where(ArticlePurchase.post_id == post_id)
-        .where(ArticlePurchase.product_type == PurchaseProduct.CONSULTATION_GIFT)
-        .where(ArticlePurchase.status == PurchaseStatus.PAID)
-    )
-    gifted = int(db.session.scalar(gift_stmt) or 0)
-
-    return direct + gifted
+    counts = get_paid_consultations_counts([post_id])
+    return counts.get(post_id, 0)
 
 
 def get_paid_consultations_counts(post_ids: list[int]) -> dict[int, int]:
     """Batched counterpart of `get_paid_consultations_count`.
 
     Returns `{post_id: count}` for every id in `post_ids`. Missing ids
-    are absent from the dict — callers should default to 0. Used by
-    the wall renderer so the trending box / cards don't fire one
-    query per article.
+    are absent from the dict — callers should default to 0. Includes
+    CONSULTATION_GIFT beneficiaries (same rule as the singular helper)
+    so the wall / trending / sort surfaces all show the same number as
+    the per-card display.
     """
     if not post_ids:
         return {}
-    from app.modules.wire.models import PurchaseProduct
 
-    stmt = (
-        select(ArticlePurchase.post_id, func.count())
-        .where(ArticlePurchase.post_id.in_(post_ids))
-        .where(ArticlePurchase.product_type == PurchaseProduct.CONSULTATION)
-        .where(ArticlePurchase.status == PurchaseStatus.PAID)
-        .group_by(ArticlePurchase.post_id)
-    )
-    return {row[0]: int(row[1] or 0) for row in db.session.execute(stmt)}
+    counts: dict[int, int] = {}
+    for stmt_fn in (
+        _direct_consultation_count_stmt,
+        _gift_consultation_count_stmt,
+    ):
+        rows = db.session.execute(stmt_fn(lambda col: col.in_(post_ids)))
+        for post_id, c in rows:
+            counts[post_id] = counts.get(post_id, 0) + int(c or 0)
+    return counts
 
 
 def is_consultation_giftable_to(beneficiary_user_id: int, post_id: int) -> bool:

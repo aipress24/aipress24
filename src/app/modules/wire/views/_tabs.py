@@ -24,7 +24,6 @@ from app.modules.bw.bw_activation.user_utils import (
 from app.modules.wire.models import (
     ArticlePurchase,
     Post,
-    PurchaseProduct,
     PurchaseStatus,
 )
 from app.services.social_graph import adapt
@@ -92,16 +91,17 @@ class Tab(abc.ABC):
         # query stays a single SELECT.
         match sort_order:
             case "views":
-                consultation_count = (
-                    sa.select(sa.func.count())
-                    .select_from(ArticlePurchase)
-                    .where(ArticlePurchase.post_id == Post.id)
-                    .where(ArticlePurchase.product_type == PurchaseProduct.CONSULTATION)
-                    .where(ArticlePurchase.status == PurchaseStatus.PAID)
-                    .correlate(Post)
-                    .scalar_subquery()
+                # Reuse the same expression as
+                # `get_paid_consultations_count` (direct + gift
+                # beneficiaries). Otherwise the wall sort orders by a
+                # number different from the eye-icon counter displayed
+                # on the card — same article shows « 25 vues » but
+                # sits below an article showing « 10 vues ».
+                from app.modules.wire.services.purchase_aggregates import (
+                    paid_consultation_count_subquery,
                 )
-                order = consultation_count.desc()
+
+                order = paid_consultation_count_subquery(Post.id).desc()
             case "sales":
                 sales_amount = (
                     sa.select(

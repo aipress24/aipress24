@@ -18,6 +18,7 @@ from app.models.organisation import Organisation
 from app.modules.wire.models import (
     ArticlePost,
     ArticlePurchase,
+    ArticlePurchaseGift,
     PurchaseProduct,
     PurchaseStatus,
 )
@@ -422,6 +423,57 @@ class TestGetPaidConsultationsCounts:
         counts = get_paid_consultations_counts([post.id, 999_999])
         assert post.id not in counts or counts[post.id] == 0
         assert 999_999 not in counts
+
+    def test_batched_agrees_with_singular_on_mixed_gifts(
+        self, db_session: Session, alice: User, bob: User
+    ):
+        """The batched helper must produce the same number as the
+        singular when a post has BOTH direct consultations AND
+        CONSULTATION_GIFT beneficiaries. Otherwise any caller migrating
+        to the batched helper silently regresses the eye-icon counter."""
+        post = _make_post(db_session, alice)
+        # 2 direct PAID consultations from another buyer.
+        for _ in range(2):
+            _make_purchase(
+                db_session,
+                user=bob,
+                post=post,
+                amount_cents=100,
+                status=PurchaseStatus.PAID,
+                product=PurchaseProduct.CONSULTATION,
+            )
+        # 1 PAID gift with 5 beneficiaries — real users so the FK
+        # constraint on Postgres holds (SQLite leaves FKs off by
+        # default and tolerated fake ids).
+        beneficiaries = [
+            User(email=f"gift_b{i}@example.com", active=True)
+            for i in range(5)
+        ]
+        for b in beneficiaries:
+            db_session.add(b)
+        db_session.flush()
+
+        gift_purchase = _make_purchase(
+            db_session,
+            user=bob,
+            post=post,
+            amount_cents=500,
+            status=PurchaseStatus.PAID,
+            product=PurchaseProduct.CONSULTATION_GIFT,
+        )
+        for b in beneficiaries:
+            db_session.add(
+                ArticlePurchaseGift(
+                    purchase_id=gift_purchase.id,
+                    beneficiary_user_id=b.id,
+                )
+            )
+        db_session.flush()
+
+        singular = get_paid_consultations_count(post.id)
+        batched = get_paid_consultations_counts([post.id])
+        assert singular == 2 + 5
+        assert batched.get(post.id) == singular
 
 
 class TestGetPostSalesAmount:
