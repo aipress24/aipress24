@@ -14,7 +14,7 @@ from typing import Any
 from uuid import UUID
 
 import stripe
-from flask import request, session
+from flask import request
 from sqlalchemy import select as sa_select
 
 from app.actors.justificatif import generate_justificatif
@@ -176,7 +176,6 @@ def on_received_event(event: stripe.Event) -> None:
 
 
 def _get_event_object(event: stripe.Event) -> object:
-    session.clear()
     info(f"on event:{event.id}, type={event.type}")
     data = event.data
     return data.object
@@ -514,7 +513,14 @@ def _record_article_purchase_from_checkout(data_obj) -> None:
 
     purchase.stripe_checkout_session_id = session_id
     purchase.stripe_payment_intent_id = get("payment_intent")
-    purchase.amount_cents = get("amount_total")
+    # Store HT, not TTC. We pass `automatic_tax={"enabled": True}` in
+    # buy/buy_gift, so Stripe's `amount_total` is tax-inclusive (TTC)
+    # while `amount_subtotal` is pre-tax (HT). The rest of the codebase
+    # (cumul aggregates, sales recap, cession acknowledgment email)
+    # labels `amount_cents` as « € HT », so we store HT here. Fall
+    # back to `amount_total` for payloads that don't carry
+    # `amount_subtotal` (test fixtures, manual replays).
+    purchase.amount_cents = get("amount_subtotal") or get("amount_total")
     purchase.currency = (get("currency") or "eur").upper()
     purchase.status = PurchaseStatus.PAID  # type: ignore[assignment]
     purchase.paid_at = datetime.now(UTC)  # type: ignore[assignment]
@@ -527,7 +533,21 @@ def _record_article_purchase_from_checkout(data_obj) -> None:
     # Trigger downstream effects per product type.
 
     if purchase.product_type == PurchaseProduct.JUSTIFICATIF:
-        generate_justificatif.send(purchase.id)
+        # Wrap the Dramatiq enqueue. If Redis is transiently down, an
+        # unwrapped `.send()` would raise → the webhook 500s → Stripe
+        # retries → the upstream idempotency guard short-circuits →
+        # `generate_justificatif.send()` is never re-attempted. Buyer
+        # paid, no PDF ever produced.
+        try:
+            generate_justificatif.send(purchase.id)
+        except Exception as exc:
+            from app.logging import report_failure
+
+            report_failure(
+                f"justificatif: generate_justificatif.send failed "
+                f"(purchase {purchase.id})",
+                exc,
+            )
     elif purchase.product_type == PurchaseProduct.CONSULTATION_GIFT:
         # Ticket #0194 — notify each beneficiary of the gift now that
         # the parent purchase is PAID. Inline + best-effort : a notif
