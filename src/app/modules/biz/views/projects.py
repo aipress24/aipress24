@@ -13,6 +13,7 @@ from wtforms import (
     DateField,
     Form,
     IntegerField,
+    SelectField,
     StringField,
     TextAreaField,
     validators,
@@ -44,7 +45,61 @@ from app.modules.bw.bw_activation.user_utils import get_selected_business_wall_f
 from app.modules.kyc.dynform import CountrySelectField
 from app.modules.kyc.ontology_loader import get_choices as get_ontology_choices
 from app.modules.wip.pr_access import check_mission
+from app.services.taxonomies import get_taxonomy
 from app.signals import marketplace_published
+
+# Ticket #0198 — top-level project category, mirroring MissionCategory
+# values. Kept as a separate constant (not the enum) because the source
+# of truth is the admin-editable `type_projets` taxonomy ; this list
+# is the form fallback when the ontology is empty.
+_PROJECT_CATEGORY_VALUES: tuple[tuple[str, str], ...] = (
+    ("journalisme", "Journalisme"),
+    ("communication", "Communication"),
+    ("innovation", "Innovation"),
+)
+
+# Per-category sub-type ontology slug, as defined by Erick in
+# /admin/ontology/?taxonomy_name=type_projet_<cat>.
+_PROJECT_SUBTYPE_TAXONOMIES: dict[str, str] = {
+    "journalisme": "type_projet_journalisme",
+    "communication": "type_projet_communication",
+    "innovation": "type_projet_innovation",
+}
+
+
+def get_project_category_choices() -> list[tuple[str, str]]:
+    """Top-level project category select choices.
+
+    Sourced from the `type_projets` taxonomy when populated, with the
+    hardcoded triple as fallback. Always prefixes a blank entry so the
+    select reads as optional.
+    """
+    fallback = list(_PROJECT_CATEGORY_VALUES)
+    try:
+        rows = list(get_taxonomy("type_projets"))
+    except Exception:
+        rows = []
+    if rows:
+        # Use the ontology values as both value+label (the names in
+        # `type_projets` are already display-ready French labels).
+        return [("", "— Choisissez un type —"), *((r, r) for r in rows)]
+    return [("", "— Choisissez un type —"), *fallback]
+
+
+def get_project_subtypes() -> dict[str, list[str]]:
+    """Per-category sub-type lists for the Alpine cascade.
+
+    Each value of `project_category` maps to a list of sub-type strings
+    loaded from its taxonomy. Empty taxonomies stay empty — the
+    template simply renders an empty select for that branch.
+    """
+    out: dict[str, list[str]] = {}
+    for cat, taxonomy_name in _PROJECT_SUBTYPE_TAXONOMIES.items():
+        try:
+            out[cat] = list(get_taxonomy(taxonomy_name))
+        except Exception:
+            out[cat] = []
+    return out
 
 
 class ProjectOfferForm(Form):
@@ -79,9 +134,17 @@ class ProjectOfferForm(Form):
         "Durée (mois)",
         validators=[validators.Optional(), validators.NumberRange(min=1)],
     )
-    project_type = StringField(
-        "Type de projet (dossier, série, enquête...)",
+    # Ticket #0198 — replace the legacy free-text « Type de projet »
+    # with a cascading pair of ontology-backed selects.
+    project_category = SelectField(
+        "Type de projet",
+        choices=[],  # populated per request
+        validate_choice=False,
         validators=[validators.Optional()],
+    )
+    project_type = StringField(
+        "Sous-type de projet",
+        validators=[validators.Optional(), validators.Length(max=200)],
     )
 
 
@@ -92,6 +155,7 @@ def projects_new():
 
     form = ProjectOfferForm(request.form)
     form.pays_zip_ville.choices = get_ontology_choices("country_pays")
+    form.project_category.choices = get_project_category_choices()
     if request.method == "POST" and form.validate():
         emitter_org_id = getattr(user, "organisation_id", None)
         if user.is_managing_another_bw:
@@ -110,7 +174,8 @@ def projects_new():
             deadline=date_to_datetime(form.deadline.data),
             team_size=form.team_size.data,
             duration_months=form.duration_months.data,
-            project_type=form.project_type.data or "",
+            project_category=(form.project_category.data or "").strip(),
+            project_type=(form.project_type.data or "").strip(),
             # contact_email left empty on new offers; notifications
             # fall back to owner.email. Ref bug #0073 item 4.
             status=default_new_offer_status(),
@@ -131,7 +196,10 @@ def projects_new():
         return redirect(url_for(".projects_detail", id=project.id))
 
     return render_template(
-        "pages/projects/new.j2", form=form, title="Publier un projet"
+        "pages/projects/new.j2",
+        form=form,
+        title="Publier un projet",
+        project_subtypes=get_project_subtypes(),
     )
 
 
@@ -176,8 +244,13 @@ def projects_applications(id: int):
 )
 def projects_application_select(id: int, app_id: int):
     project = get_offer_or_404(ProjectOffer, id)
+    message = (request.form.get("decision_message") or "").strip()
     return update_application_status(
-        project, app_id, ApplicationStatus.SELECTED, ".projects_applications"
+        project,
+        app_id,
+        ApplicationStatus.SELECTED,
+        ".projects_applications",
+        decision_message=message,
     )
 
 
@@ -186,8 +259,13 @@ def projects_application_select(id: int, app_id: int):
 )
 def projects_application_reject(id: int, app_id: int):
     project = get_offer_or_404(ProjectOffer, id)
+    message = (request.form.get("decision_message") or "").strip()
     return update_application_status(
-        project, app_id, ApplicationStatus.REJECTED, ".projects_applications"
+        project,
+        app_id,
+        ApplicationStatus.REJECTED,
+        ".projects_applications",
+        decision_message=message,
     )
 
 

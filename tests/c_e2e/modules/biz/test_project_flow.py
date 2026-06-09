@@ -179,6 +179,115 @@ def test_emitter_sees_project_applications(
     assert b"Motivation pour projet" in response.data
 
 
+def test_project_form_offers_category_select_with_fallback(
+    app: Flask,
+    emitter: User,
+):
+    """Ticket #0198 — even without ontology data, the publish form
+    must render the three categories (journalisme/communication/
+    innovation) as the hardcoded fallback."""
+    client = make_authenticated_client(app, emitter)
+    response = client.get("/biz/projects/new")
+    assert response.status_code == 200
+    body = response.data.decode()
+    assert "Type de projet" in body
+    for value in ("journalisme", "communication", "innovation"):
+        assert f'value="{value}"' in body, f"project category option {value!r} missing"
+
+
+def test_project_form_pulls_subtypes_from_ontology(
+    app: Flask,
+    emitter: User,
+):
+    """Ticket #0198 — sub-types come from `type_projet_<category>`
+    taxonomies (admin-editable)."""
+    client = make_authenticated_client(app, emitter)
+    with patch(
+        "app.modules.biz.views.projects.get_taxonomy",
+        side_effect=lambda name: {
+            "type_projets": [],
+            "type_projet_journalisme": ["Enquête #0198", "Dossier #0198"],
+            "type_projet_communication": ["Campagne #0198"],
+            "type_projet_innovation": ["Outil IA #0198"],
+        }.get(name, []),
+    ):
+        response = client.get("/biz/projects/new")
+    body = response.data.decode()
+    for sub in ("Enquête #0198", "Campagne #0198", "Outil IA #0198"):
+        assert sub in body, f"sub-type {sub!r} should appear in the form"
+
+
+def test_project_post_persists_category_and_subtype(
+    app: Flask,
+    emitter: User,
+    db_session: Session,
+):
+    """A successful POST stores both the top-level category and the
+    sub-type on the row."""
+    client = make_authenticated_client(app, emitter)
+    response = client.post(
+        "/biz/projects/new",
+        data={
+            "title": "Projet test #0198",
+            "description": "Description longue pour le projet test #0198.",
+            "sector": "tech",
+            "project_category": "journalisme",
+            "project_type": "Enquête #0198",
+        },
+        follow_redirects=False,
+    )
+    assert response.status_code == 302
+    project = (
+        db_session.query(ProjectOffer).filter_by(title="Projet test #0198").first()
+    )
+    assert project is not None
+    assert project.project_category == "journalisme"
+    assert project.project_type == "Enquête #0198"
+
+
+def test_project_select_persists_decision_message_and_notifies(
+    app: Flask,
+    db_session: Session,
+    published_project: ProjectOffer,
+    emitter: User,
+    applicant: User,
+):
+    """Ticket #0200 — same accept/reject + decision_message flow as
+    Missions, applied to Projects."""
+    applicant_client = make_authenticated_client(app, applicant)
+    with patch("app.modules.biz.views._offers_common.notify_emitter_of_application"):
+        applicant_client.post(
+            f"/biz/projects/{published_project.id}/apply",
+            data={"message": "Je postule au projet."},
+        )
+    application = (
+        db_session.query(OfferApplication)
+        .filter_by(offer_id=published_project.id)
+        .first()
+    )
+    assert application is not None
+
+    emitter_client = make_authenticated_client(app, emitter)
+    with patch(
+        "app.modules.biz.services.offer_notifications.ApplicationSelectedMail"
+    ) as mail_cls:
+        mail_cls.return_value.send.return_value = None
+        emitter_client.post(
+            f"/biz/projects/{published_project.id}"
+            f"/applications/{application.id}/select",
+            data={"decision_message": "Vous êtes pris pour le projet."},
+            follow_redirects=False,
+        )
+
+    db_session.refresh(application)
+    assert application.status == ApplicationStatus.SELECTED
+    assert application.decision_message == "Vous êtes pris pour le projet."
+    assert mail_cls.called
+    assert mail_cls.call_args.kwargs["decision_message"] == (
+        "Vous êtes pris pour le projet."
+    )
+
+
 def test_project_fill_blocks_new_applications(
     app: Flask,
     db_session: Session,

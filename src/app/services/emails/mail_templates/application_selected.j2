@@ -9,6 +9,13 @@ candidature</strong> pour l'offre :
 <strong>« {{ offer_title }} »</strong>
 </p>
 
+{% if decision_message %}
+<p>Message de l'émetteur :</p>
+<blockquote style="border-left: 3px solid #ccc; padding-left: 1em; color: #555;">
+{{ decision_message }}
+</blockquote>
+{% endif %}
+
 <p>
 <a href="{{ offer_url }}">Voir l'offre</a>
 </p>

@@ -2,18 +2,22 @@
 #
 # SPDX-License-Identifier: AGPL-3.0-only
 
-"""E-mail notifications around Marketplace offers.
+"""E-mail + in-app notifications around Marketplace offers.
 
 - `notify_emitter_of_application`: new candidacy lands → e-mail owner.
 - `notify_applicant_selected` / `notify_applicant_rejected`: owner
-  decides on a candidacy → e-mail candidate.
+  decides on a candidacy → e-mail + in-app cloche to the candidate.
+  Per Erick #0199 + #0200 both channels carry the optional free-text
+  `decision_message` the emitter wrote on the dashboard.
 """
 
 from __future__ import annotations
 
+import contextlib
 from typing import TYPE_CHECKING
 
 from flask import current_app, url_for
+from svcs.flask import container
 
 from app.flask.extensions import db
 from app.logging import warn
@@ -23,6 +27,7 @@ from app.services.emails import (
     ApplicationSelectedMail,
     MissionApplicationMail,
 )
+from app.services.notifications import NotificationService
 
 if TYPE_CHECKING:
     from app.modules.biz.models import OfferApplication
@@ -74,9 +79,9 @@ def _notify_applicant_decision(
     *, offer, application: OfferApplication, selected: bool
 ) -> None:
     applicant = db.session.get(User, application.owner_id)
-    if applicant is None or not applicant.email:
+    if applicant is None:
         warn(
-            f"No applicant e-mail for application {application.id}; "
+            f"No applicant for application {application.id}; "
             f"skipping outcome notification"
         )
         return
@@ -86,6 +91,24 @@ def _notify_applicant_decision(
     emitter_email = emitter.email if emitter else "contact@aipress24.com"
 
     offer_url = _absolute_offer_url(offer)
+    decision_message = getattr(application, "decision_message", "") or ""
+
+    # In-app cloche (#0199 + #0200 explicitly require it alongside the
+    # mail). The applicant sees both regardless of e-mail validity ;
+    # NotificationService failures are non-fatal — we still try the mail.
+    verb = "sélectionnée" if selected else "non retenue"
+    in_app_message = (
+        f"Votre candidature pour « {offer.title} » a été {verb} par {emitter_name}."
+    )
+    if decision_message:
+        in_app_message += f" Message : {decision_message}"
+    with contextlib.suppress(Exception):
+        container.get(NotificationService).post(
+            applicant, in_app_message, url=offer_url
+        )
+
+    if not applicant.email:
+        return
 
     if selected:
         mail = ApplicationSelectedMail(
@@ -95,6 +118,7 @@ def _notify_applicant_decision(
             offer_title=offer.title,
             offer_url=offer_url,
             emitter_name=emitter_name,
+            decision_message=decision_message,
         )
     else:
         mail = ApplicationRejectedMail(
@@ -103,6 +127,8 @@ def _notify_applicant_decision(
             sender_mail=emitter_email,
             offer_title=offer.title,
             offer_url=offer_url,
+            emitter_name=emitter_name,
+            decision_message=decision_message,
         )
     mail.send()
 

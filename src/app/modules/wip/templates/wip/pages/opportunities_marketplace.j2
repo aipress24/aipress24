@@ -39,6 +39,12 @@
       {% else %}
         <span class="bg-yellow-100 text-yellow-700 text-xs px-2 py-1 rounded">En attente</span>
       {% endif %}
+      {% if application.decision_message %}
+        <div class="text-xs text-gray-600 italic mt-1 max-w-md"
+             title="{{ application.decision_message }}">
+          « {{ application.decision_message }} »
+        </div>
+      {% endif %}
     </td>
     <td class="px-3 py-2 text-xs text-gray-500">
       {% if application.created_at %}

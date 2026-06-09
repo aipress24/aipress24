@@ -50,6 +50,7 @@ from app.modules.kyc.dynform import CountrySelectField
 from app.modules.kyc.ontology_loader import get_choices as get_ontology_choices
 from app.modules.wip.pr_access import check_mission
 from app.services.roles import has_role
+from app.services.taxonomies import get_taxonomy
 from app.signals import marketplace_published
 
 # Bug #0185 — top-level Mission sub-typing. The 3 categories Erick
@@ -64,16 +65,9 @@ _CATEGORY_CHOICES: list[tuple[str, str]] = [
     (MissionCategory.INNOVATION.value, "Innovation"),
 ]
 
-# Placeholder sub-lists per category, exposed to the template so the
-# dynamic Alpine.js selector can mount only the relevant one.
-MISSION_SUBCATEGORIES: dict[str, list[str]] = {
-    MissionCategory.JOURNALISME.value: [
-        "Pige / Reportage",
-        "Enquête",
-        "Interview",
-        "Couverture d'événement",
-        "Édition / Secrétariat de rédaction",
-    ],
+# Communication / Innovation sub-types stay hardcoded for now ; only
+# JOURNALISME is sourced from the ontology (ticket #0201).
+_NON_JOURNALISM_SUBCATEGORIES: dict[str, list[str]] = {
     MissionCategory.COMMUNICATION.value: [
         "Communiqué de presse",
         "Conférence de presse / Événement",
@@ -89,6 +83,26 @@ MISSION_SUBCATEGORIES: dict[str, list[str]] = {
         "Outil de gestion éditoriale",
     ],
 }
+
+
+def get_mission_subcategories() -> dict[str, list[str]]:
+    """Per-request sub-type lists exposed to the publish form.
+
+    For JOURNALISME, options come from the `genres` taxonomy (admin-
+    editable in /admin/ontology). The other two categories keep their
+    hardcoded list — Erick only specced #0201 for the journalism tab.
+
+    Falls back to an empty list if the ontology DB query fails, so a
+    misconfigured environment doesn't take down the publish form.
+    """
+    try:
+        journalism = list(get_taxonomy("genres"))
+    except Exception:
+        journalism = []
+    return {
+        MissionCategory.JOURNALISME.value: journalism,
+        **_NON_JOURNALISM_SUBCATEGORIES,
+    }
 
 
 class MissionOfferForm(Form):
@@ -267,7 +281,7 @@ def missions_new():
                 "pages/missions/new.j2",
                 form=form,
                 title="Publier une mission",
-                mission_subcategories=MISSION_SUBCATEGORIES,
+                mission_subcategories=get_mission_subcategories(),
             )
 
         # Bug #0187 — `SelectMultipleField.data` is already a clean
@@ -321,7 +335,7 @@ def missions_new():
         title="Publier une mission",
         # Bug #0185 — handed to the template so Alpine can mount the
         # right sub-category select based on the chosen category.
-        mission_subcategories=MISSION_SUBCATEGORIES,
+        mission_subcategories=get_mission_subcategories(),
     )
 
 
@@ -385,8 +399,13 @@ def missions_applications(id: int):
 )
 def missions_application_select(id: int, app_id: int):
     mission = get_offer_or_404(MissionOffer, id)
+    message = (request.form.get("decision_message") or "").strip()
     return update_application_status(
-        mission, app_id, ApplicationStatus.SELECTED, ".missions_applications"
+        mission,
+        app_id,
+        ApplicationStatus.SELECTED,
+        ".missions_applications",
+        decision_message=message,
     )
 
 
@@ -396,8 +415,13 @@ def missions_application_select(id: int, app_id: int):
 )
 def missions_application_reject(id: int, app_id: int):
     mission = get_offer_or_404(MissionOffer, id)
+    message = (request.form.get("decision_message") or "").strip()
     return update_application_status(
-        mission, app_id, ApplicationStatus.REJECTED, ".missions_applications"
+        mission,
+        app_id,
+        ApplicationStatus.REJECTED,
+        ".missions_applications",
+        decision_message=message,
     )
 
 

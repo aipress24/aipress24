@@ -5,6 +5,13 @@ Votre candidature pour l'offre <strong>« {{ offer_title }} »</strong>
 n'a pas été retenue cette fois-ci.
 </p>
 
+{% if decision_message %}
+<p>Message de l'émetteur :</p>
+<blockquote style="border-left: 3px solid #ccc; padding-left: 1em; color: #555;">
+{{ decision_message }}
+</blockquote>
+{% endif %}
+
 <p>
 D'autres offres similaires sont régulièrement publiées sur AiPRESS24 ;
 n'hésitez pas à consulter le Marketplace.

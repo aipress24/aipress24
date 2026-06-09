@@ -446,8 +446,7 @@ class TestGetPaidConsultationsCounts:
         # constraint on Postgres holds (SQLite leaves FKs off by
         # default and tolerated fake ids).
         beneficiaries = [
-            User(email=f"gift_b{i}@example.com", active=True)
-            for i in range(5)
+            User(email=f"gift_b{i}@example.com", active=True) for i in range(5)
         ]
         for b in beneficiaries:
             db_session.add(b)
