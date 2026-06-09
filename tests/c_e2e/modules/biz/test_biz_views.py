@@ -13,6 +13,7 @@ from flask import g, render_template
 
 from app.models.auth import User
 from app.modules.biz.models import EditorialProduct
+from app.modules.biz.views.home import _get_filters
 
 if TYPE_CHECKING:
     from flask import Flask
@@ -107,6 +108,40 @@ class TestBizHomeView:
         """Test biz home page with tab parameter."""
         response = authenticated_client.get("/biz/?current_tab=subscriptions")
         assert response.status_code in (200, 302)
+
+    def test_journalism_filters_visible_on_journalism_view(self, app: Flask):
+        """Ticket #0202 — the journalism-specific filters appear only
+        when `current_tab=missions` AND `category=journalisme`. We
+        exercise the filter helper directly (the full home view goes
+        through the same code path) to keep the test independent of
+        the auth fixture's wiring."""
+        with app.test_request_context(
+            "/biz/?current_tab=missions&category=journalisme"
+        ):
+            ids_with = [f["id"] for f in _get_filters()]
+
+        with app.test_request_context("/biz/?current_tab=missions"):
+            ids_without = [f["id"] for f in _get_filters()]
+
+        # Without category=journalisme, only the generic filters are
+        # present.
+        for fid in ("metiers_journalisme", "competences_journalisme"):
+            assert fid not in ids_without
+
+        # With category=journalisme, the spec'd filters land.
+        for fid in (
+            "metiers_journalisme",
+            "types_entreprises_presse_medias",
+            "competences_journalisme",
+            "modes_remuneration",
+            "work_mode",
+            "budget_min",
+            "budget_max",
+            "deadline",
+            "pays",
+            "code_postal_ville",
+        ):
+            assert fid in ids_with, f"journalism filter {fid!r} missing"
 
 
 class TestBizPurchasesView:

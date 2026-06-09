@@ -24,7 +24,12 @@ from app.modules.biz.models import (
     MissionOffer,
     ProjectOffer,
 )
-from app.modules.biz.views._common import FILTER_SPECS, TABS
+from app.modules.biz.views._common import (
+    FILTER_SPECS,
+    JOURNALISM_FILTER_SPECS,
+    TABS,
+)
+from app.modules.kyc.ontology_loader import get_choices as get_ontology_choices
 from app.services.roles import has_role
 
 
@@ -91,7 +96,12 @@ def _get_objs() -> list[MarketplaceContent]:
 
 
 def _get_filters() -> list[dict]:
-    """Build filter options using efficient DISTINCT queries."""
+    """Build filter options using efficient DISTINCT queries.
+
+    Ticket #0202 — when the user is on the Missions tab AND has picked
+    the JOURNALISME category (`?category=journalisme`), the
+    journalism-specific filter set is appended after the generic ones.
+    """
     result = []
     for spec in FILTER_SPECS:
         filter_id = spec["id"]
@@ -110,7 +120,36 @@ def _get_filters() -> list[dict]:
 
         result.append({"id": filter_id, "label": label, "options": options})
 
+    if _journalism_filters_active():
+        for spec in JOURNALISM_FILTER_SPECS:
+            options: list[dict] = []
+            if spec.get("options"):
+                options = [{"id": o, "label": o} for o in spec["options"]]
+            elif "ontology_key" in spec:
+                try:
+                    choices = get_ontology_choices(spec["ontology_key"])
+                except Exception:
+                    choices = []
+                if isinstance(choices, list):
+                    for c in choices:
+                        if isinstance(c, tuple) and len(c) == 2:
+                            options.append({"id": c[0], "label": c[1]})
+                        elif isinstance(c, str):
+                            options.append({"id": c, "label": c})
+            result.append(
+                {"id": spec["id"], "label": spec["label"], "options": options}
+            )
+
     return result
+
+
+def _journalism_filters_active() -> bool:
+    """The expanded journalism filter set is shown only on the
+    Missions tab when the JOURNALISME category is selected."""
+    return (
+        request.args.get("current_tab", "stories") == "missions"
+        and request.args.get("category", "") == "journalisme"
+    )
 
 
 def _get_distinct_values(column_name: str) -> list[str]:
