@@ -173,17 +173,24 @@ def test_flat_selectors_still_initialize(
         wait_until="networkidle",
     )
 
-    flat_count = page.locator(".tom-select-it").count()
+    # `.tom-select-it` matches both the original `<select>` element AND
+    # the `.ts-wrapper` div that Tom-Select creates around it (Tom-Select
+    # copies the source classes onto its wrapper). The `.tomselect`
+    # instance property only lives on the original select, so we must
+    # restrict the selector to the `<select>` tag — otherwise every
+    # successfully-initialized flat selector would falsely fail the
+    # check on its wrapper.
+    flat_count = page.locator("select.tom-select-it").count()
     if flat_count == 0:
         pytest.skip("no flat selectors on /ciblage")
 
     initialized = page.evaluate(
         """() => Array.from(
-          document.querySelectorAll('.tom-select-it')
+          document.querySelectorAll('select.tom-select-it')
         ).every(el => el.tomselect !== undefined)"""
     )
     assert initialized, (
-        "At least one flat `.tom-select-it` did not get a "
+        "At least one flat `select.tom-select-it` did not get a "
         "`.tomselect` instance attached. Check `initFlatSelectors()` "
         "in ciblage.j2 — a JS error in either init path stops both."
     )
