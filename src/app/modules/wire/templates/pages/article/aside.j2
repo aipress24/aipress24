@@ -1,57 +1,64 @@
-{# Purchase Actions — MVP Stripe one-off checkout #}
+{# Purchase Actions — MVP Stripe one-off checkout.
+   Ticket #0193 — each button now opens an HTMX confirmation modal
+   first (cf. `pages/purchase/buy_modal.j2`) showing HT/TVA/TTC + the
+   cumul de vos achats individuel + organisationnel. The modal's
+   « Accepter » button is the one that POSTs to /wire/<id>/buy/<product>. #}
 <div class="mb-6 pb-6 border-b border-gray-200">
   <h2 class="text-xl font-medium text-gray-700 mb-4">Acquisition</h2>
 
   {% set btn_class = "w-full flex items-center justify-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed" %}
-  {% set stripe_live = config.get("STRIPE_LIVE_ENABLED") %}
   {% set post_id = post._model.id if post._model is defined else post.id %}
+
+  <div id="purchase-modal"></div>
 
   <div class="space-y-3">
     {# Droit de consultation #}
-    <form method="POST"
-          action="{{ url_for('wire.buy', post_id=post_id, product='consultation') }}">
-      <button type="submit"
-              class="{{ btn_class }}"
-              title="Accéder au contenu complet de l'article"
-              {% if not stripe_live %}disabled{% endif %}>
-        {{ icon("eye", class="h-5 w-5 mr-2 text-gray-500") }}
-        Droit de consultation
-      </button>
-    </form>
+    <button type="button"
+            class="{{ btn_class }}"
+            title="Accéder au contenu complet de l'article"
+            hx-get="{{ url_for('wire.buy_modal', post_id=post_id, product='consultation') }}"
+            hx-target="#purchase-modal"
+            hx-swap="innerHTML">
+      {{ icon("eye", class="h-5 w-5 mr-2 text-gray-500") }}
+      Droit de consultation
+    </button>
+
+    {# Ticket #0194 — Droit de consultation offerte #}
+    <button type="button"
+            class="{{ btn_class }}"
+            title="Offrir cet article à d'autres membres d'AiPRESS24"
+            hx-get="{{ url_for('wire.buy_modal_gift', post_id=post_id) }}"
+            hx-target="#purchase-modal"
+            hx-swap="innerHTML">
+      {{ icon("gift", class="h-5 w-5 mr-2 text-gray-500") }}
+      Droit de consultation offerte
+    </button>
 
     {# Justificatif de publication #}
-    <form method="POST"
-          action="{{ url_for('wire.buy', post_id=post_id, product='justificatif') }}">
-      <button type="submit"
-              class="{{ btn_class }}"
-              title="Obtenir un justificatif officiel de publication"
-              {% if not stripe_live %}disabled{% endif %}>
-        {{ icon("document-check", class="h-5 w-5 mr-2 text-gray-500") }}
-        Justificatif de publication
-      </button>
-    </form>
+    <button type="button"
+            class="{{ btn_class }}"
+            title="Obtenir un justificatif officiel de publication"
+            hx-get="{{ url_for('wire.buy_modal', post_id=post_id, product='justificatif') }}"
+            hx-target="#purchase-modal"
+            hx-swap="innerHTML">
+      {{ icon("document-check", class="h-5 w-5 mr-2 text-gray-500") }}
+      Justificatif de publication
+    </button>
 
     {# Droits de reproduction / Cession — hidden when clearly ineligible
        per the article's frozen rights-sales policy. #}
     {% if can_cede %}
-    <form method="POST"
-          action="{{ url_for('wire.buy', post_id=post_id, product='cession') }}">
-      <button type="submit"
-              class="{{ btn_class }}"
-              title="Acquérir les droits de reproduction de l'article"
-              {% if not stripe_live %}disabled{% endif %}>
-        {{ icon("shield-check", class="h-5 w-5 mr-2 text-gray-500") }}
-        Droits de reproduction
-      </button>
-    </form>
+    <button type="button"
+            class="{{ btn_class }}"
+            title="Acquérir les droits de reproduction de l'article"
+            hx-get="{{ url_for('wire.buy_modal', post_id=post_id, product='cession') }}"
+            hx-target="#purchase-modal"
+            hx-swap="innerHTML">
+      {{ icon("shield-check", class="h-5 w-5 mr-2 text-gray-500") }}
+      Droits de reproduction
+    </button>
     {% endif %}
   </div>
-
-  {% if not stripe_live %}
-    <p class="mt-3 text-xs text-gray-500 italic">
-      Ces boutons seront activés dès la mise en place du paiement Stripe.
-    </p>
-  {% endif %}
 </div>
 
 <h2 class="text-xl font-medium text-gray-700">Métadonnées</h2>
