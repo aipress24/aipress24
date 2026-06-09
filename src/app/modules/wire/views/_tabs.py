@@ -21,7 +21,12 @@ from app.models.organisation import Organisation
 from app.modules.bw.bw_activation.user_utils import (
     is_organisation_an_agency,
 )
-from app.modules.wire.models import Post
+from app.modules.wire.models import (
+    ArticlePurchase,
+    Post,
+    PurchaseProduct,
+    PurchaseStatus,
+)
 from app.services.social_graph import adapt
 
 from ._filters import FilterBar
@@ -81,9 +86,34 @@ class Tab(abc.ABC):
         active_filters = filter_bar.active_filters
         sort_order = filter_bar.sort_order
 
+        # Ticket #0193 — « Popularité (vues) » and « Ventes » in the
+        # Trier menu both feed off PAID article purchases now, not the
+        # raw `Post.view_count`. Each is a scalar subquery so the wall
+        # query stays a single SELECT.
         match sort_order:
             case "views":
-                order = Post.view_count.desc()
+                consultation_count = (
+                    sa.select(sa.func.count())
+                    .select_from(ArticlePurchase)
+                    .where(ArticlePurchase.post_id == Post.id)
+                    .where(ArticlePurchase.product_type == PurchaseProduct.CONSULTATION)
+                    .where(ArticlePurchase.status == PurchaseStatus.PAID)
+                    .correlate(Post)
+                    .scalar_subquery()
+                )
+                order = consultation_count.desc()
+            case "sales":
+                sales_amount = (
+                    sa.select(
+                        sa.func.coalesce(sa.func.sum(ArticlePurchase.amount_cents), 0)
+                    )
+                    .select_from(ArticlePurchase)
+                    .where(ArticlePurchase.post_id == Post.id)
+                    .where(ArticlePurchase.status == PurchaseStatus.PAID)
+                    .correlate(Post)
+                    .scalar_subquery()
+                )
+                order = sales_amount.desc()
             case "likes":
                 order = Post.like_count.desc()
             case "comments":
