@@ -111,6 +111,14 @@ class AvisEnquete(
     pays_zip_ville: Mapped[str] = mapped_column(default="")
     pays_zip_ville_detail: Mapped[str] = mapped_column(default="")
 
+    # Ticket #0195 — Erick : « Ce choix valide le comptage de l'enquête
+    # pour rémunérer le journaliste de son enquête. » Incremented by N
+    # in `notify_avis_participants_of_justificatif` (where N = number of
+    # recipients actually notified). Surfaced in the WIP avis list as
+    # « JdP » so the journalist can see how many participants of each
+    # enquête have been notified.
+    justificatif_notifications_count: Mapped[int] = mapped_column(default=0)
+
 
 class ContactAvisEnquete(IdMixin, Base):
     __tablename__ = "nrm_contact_avis_enquete"

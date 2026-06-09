@@ -95,6 +95,14 @@ class AvisEnqueteTable(BaseTable):
                 "name": "status",
                 "label": "Statut",
             },
+            # Ticket #0195 — JdP counter feeding rémunération journaliste.
+            # Surfaced here so the journalist can see how many enquête
+            # participants they have notified per avis.
+            {
+                "name": "justificatif_notifications_count",
+                "label": "JdP notifiés",
+                "class": "max-w-24 text-right",
+            },
             {
                 "name": "modified_at",
                 "label": "Modification",
