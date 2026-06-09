@@ -97,5 +97,6 @@ class TestResolveFilterUser:
             )
 
             assert user is not None
+            assert description is not None
             assert "roles:" in description
             assert len(user.roles) == 2

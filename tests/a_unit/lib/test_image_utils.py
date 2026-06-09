@@ -215,11 +215,16 @@ class TestSquared:
         result_img = Image.open(io.BytesIO(result))
         # Check top-left corner pixel (should be transparent)
         pixel = result_img.getpixel((0, 0))
+        # Pillow's `getpixel` is typed as `int | tuple | float | None` ;
+        # for RGBA-mode images it always returns a tuple, but the
+        # typecheckers can't see that. Narrow explicitly.
+        assert isinstance(pixel, tuple)
         # Last component is alpha - should be 0 (fully transparent)
         assert pixel[3] == 0
 
         # Check middle pixel (should be red, opaque)
         center_pixel = result_img.getpixel((200, 200))
+        assert isinstance(center_pixel, tuple)
         assert center_pixel[0] == 255  # Red
         assert center_pixel[3] == 255  # Opaque
 

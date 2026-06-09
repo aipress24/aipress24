@@ -170,4 +170,5 @@ class TestQueryTrackerWithParameters:
             tracker.add_query("SELECT * FROM users WHERE id = ?", (i,))
 
         report = tracker.get_report(threshold=3)
+        assert report is not None
         assert "params:" in report

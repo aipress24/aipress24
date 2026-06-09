@@ -145,7 +145,7 @@ class TestBaseListInit:
         class TestFilter(Filter):
             id = "test"
             label = "Test"
-            options: ClassVar[list] = ["A", "B", "C"]
+            options: list = ["A", "B", "C"]  # noqa: RUF012
 
             def apply(self, stmt, state):
                 return stmt
@@ -243,7 +243,7 @@ class TestFilterActiveOptions:
         class TestFilter(Filter):
             id = "test"
             label = "Test"
-            options: ClassVar[list] = ["A", "B", "C"]
+            options: list = ["A", "B", "C"]  # noqa: RUF012
 
             def apply(self, stmt, state):
                 return stmt
@@ -261,7 +261,7 @@ class TestFilterActiveOptions:
         class TestFilter(Filter):
             id = "test"
             label = "Test"
-            options: ClassVar[list] = ["A", "B", "C"]
+            options: list = ["A", "B", "C"]  # noqa: RUF012
 
             def apply(self, stmt, state):
                 return stmt

@@ -685,7 +685,9 @@ def test_rdv_temporal_calculations(db_session: scoped_session) -> None:
     contact.accept_rdv(far_future)
 
     # RDV is not soon (> 24h away)
-    assert contact.time_until_rdv() > timedelta(hours=24)
+    time_until = contact.time_until_rdv()
+    assert time_until is not None
+    assert time_until > timedelta(hours=24)
     assert contact.is_rdv_soon is False
     assert contact.is_rdv_past is False
 
