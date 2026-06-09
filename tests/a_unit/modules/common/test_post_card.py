@@ -6,6 +6,8 @@
 
 from __future__ import annotations
 
+from datetime import UTC, datetime
+
 import arrow
 import pytest
 from flask import render_template_string
@@ -20,7 +22,13 @@ from app.modules.common.components.post_card import (
     UserVM,
 )
 from app.modules.wip.models.comroom import Communique
-from app.modules.wire.models import ArticlePost, PressReleasePost
+from app.modules.wire.models import (
+    ArticlePost,
+    ArticlePurchase,
+    PressReleasePost,
+    PurchaseProduct,
+    PurchaseStatus,
+)
 
 
 class TestPostCard:
@@ -106,23 +114,46 @@ class TestArticleVM:
             assert vm.summary == short_summary
 
     def test_counts_from_post(self, db_session, app):
-        """Test likes, replies, views come from post."""
+        """Test likes, replies, views come from post.
+
+        Ticket #0193 — `views` is now the count of PAID
+        CONSULTATION purchases on this post (eye-icon counter shows
+        paying readers, not raw page views). Two PAID consultations
+        → `vm.views == 2`. `Post.view_count` is no longer surfaced
+        through the card view-model.
+        """
         with app.test_request_context():
             user = User(email="author@example.com")
             db_session.add(user)
             db_session.flush()
 
+            buyer = User(email="buyer_card@example.com")
+            db_session.add(buyer)
+            db_session.flush()
+
             article = ArticlePost(owner=user, title="Test")
             article.like_count = 10
             article.comment_count = 5
-            article.view_count = 100
             db_session.add(article)
+            db_session.flush()
+
+            for _ in range(2):
+                db_session.add(
+                    ArticlePurchase(
+                        post_id=article.id,
+                        owner_id=buyer.id,
+                        product_type=PurchaseProduct.CONSULTATION,
+                        status=PurchaseStatus.PAID,
+                        amount_cents=100,
+                        paid_at=datetime.now(UTC),
+                    )
+                )
             db_session.flush()
 
             vm = ArticleVM(article)
             assert vm.likes == 10
             assert vm.replies == 5
-            assert vm.views == 100
+            assert vm.views == 2
 
     def test_image_url_default(self, db_session, app):
         """Test default image URL when no image."""

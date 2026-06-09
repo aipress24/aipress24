@@ -55,6 +55,12 @@ class ArticleVM(Wrapper):
     image_url: str = field(init=False)
 
     def extra_attrs(self):
+        # Lazy import — `purchase_aggregates` pulls `ArticlePurchase`,
+        # which would create an unnecessary import cycle if hoisted.
+        from app.modules.wire.services.purchase_aggregates import (
+            get_paid_consultations_count,
+        )
+
         post: ArticlePost = self._model
         summary = remove_markup(post.summary)
         if len(summary) > 200:
@@ -65,7 +71,13 @@ class ArticleVM(Wrapper):
             "summary": summary,
             "likes": post.like_count,
             "replies": post.comment_count,
-            "views": post.view_count,
+            # Ticket #0193 — Erick : « Le nombre des consultations
+            # d'article se cumule dans le compteur de Vue (icône
+            # œil) ». The eye-icon counter on each article card is
+            # the count of *paying* readers, not the raw page-view
+            # tally. `Post.view_count` is kept on the model for
+            # back-compat but no longer surfaces here.
+            "views": get_paid_consultations_count(post.id),
             "image_url": self.get_image_url(),
             "_url": url_for(post),
         }
