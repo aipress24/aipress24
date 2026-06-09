@@ -22,6 +22,7 @@ public status flips.
 
 from __future__ import annotations
 
+from collections.abc import Callable, Iterable
 from datetime import UTC, datetime
 from functools import singledispatch
 from typing import Any
@@ -34,6 +35,8 @@ from app.modules.biz.models import MarketplaceContent
 from app.modules.events.models import EventPost
 from app.modules.wire.models import ArticlePost, PressReleasePost
 from app.services.tagging import get_tags
+
+TagLoader = Callable[[Any], Iterable[dict[str, Any]]]
 
 
 @singledispatch
@@ -82,13 +85,24 @@ def _to_datetime(value: Any) -> datetime | None:
     return value
 
 
-def _tags(obj: Any) -> str:
-    """Comma-separated tag labels for the ``KEYWORD(commas=True)`` field."""
+def _format_tags(applications: Iterable[dict[str, Any]]) -> str:
+    """Pure: render the comma-separated label list for the
+    ``KEYWORD(commas=True)`` field. Empty / missing labels are skipped."""
+    return ",".join(t["label"] for t in applications if t.get("label"))
+
+
+def _tags(obj: Any, *, loader: TagLoader = get_tags) -> str:
+    """Comma-separated tag labels for the ``KEYWORD(commas=True)`` field.
+
+    ``loader`` is dependency-injected for testability — defaults to the
+    real :func:`app.services.tagging.get_tags`, which hits the DB. The
+    try/except is the production safety net for the "no session" path
+    (e.g. an event fired during app bootstrap)."""
     try:
-        applications = get_tags(obj)
+        applications = loader(obj)
     except Exception:  # pragma: no cover  defensive
         return ""
-    return ",".join(t["label"] for t in applications if t.get("label"))
+    return _format_tags(applications)
 
 
 def _is_publicly_visible(obj: Any, expiry_attr: str) -> bool:

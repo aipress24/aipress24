@@ -63,6 +63,33 @@ def snapshot_policy_for(bw: BusinessWall | None) -> dict[str, Any]:
     return get_policy(bw)
 
 
+def evaluate_cession_policy(option: str, buyer_bw_id: str, media_ids: set[str]) -> bool:
+    """Pure policy evaluator : given the post's frozen `option`, the
+    buyer's BW id, and the set of authorised media ids, decide
+    whether the buyer is authorised.
+
+    The match arms :
+    - `all_subscribed` → True (every subscribed buyer authorised)
+    - `whitelist` → buyer_bw_id must be in media_ids
+    - `blacklist` → buyer_bw_id must NOT be in media_ids
+    - `none` → False (nobody authorised)
+    - unrecognised → True (defensive : pre-MVP default)
+
+    Extracted from `is_eligible_for_cession` so the rule is
+    unit-testable without a DB session."""
+    match option:
+        case "all_subscribed":
+            return True
+        case "whitelist":
+            return buyer_bw_id in media_ids
+        case "blacklist":
+            return buyer_bw_id not in media_ids
+        case "none":
+            return False
+        case _:
+            return True
+
+
 def is_eligible_for_cession(user: User | None, post: Post) -> bool:
     """Can `user` buy a reproduction licence on `post`?
 
@@ -84,19 +111,7 @@ def is_eligible_for_cession(user: User | None, post: Post) -> bool:
     option = snapshot.get("option", "all_subscribed")
     media_ids = {str(x) for x in snapshot.get("media_ids", [])}
 
-    buyer_bw_id = str(buyer_bw.id)
-
-    match option:
-        case "all_subscribed":
-            return True
-        case "whitelist":
-            return buyer_bw_id in media_ids
-        case "blacklist":
-            return buyer_bw_id not in media_ids
-        case "none":
-            return False
-        case _:
-            return True
+    return evaluate_cession_policy(option, str(buyer_bw.id), media_ids)
 
 
 def _buyer_media_bw_for(user: User) -> BusinessWall | None:

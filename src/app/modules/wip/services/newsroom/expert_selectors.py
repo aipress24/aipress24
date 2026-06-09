@@ -33,9 +33,10 @@ from __future__ import annotations
 import abc
 import unicodedata
 from collections import Counter
-from collections.abc import Iterable
+from collections.abc import Callable, Iterable
 from dataclasses import dataclass
 from functools import cached_property
+from typing import Any
 
 from app.models.auth import User
 from app.modules.kyc.field_label import (
@@ -49,6 +50,13 @@ from app.services.taxonomies import get_taxonomy, get_taxonomy_dual_select
 # - Filter values (list[str]) for selectors like secteur, metier, etc.
 # - Expert IDs (list[int]) for selected_experts
 FilterState = dict[str, str | list[str] | list[int]]
+
+# Loader signatures used by `BaseSelector` and `DualSelector`. Default
+# implementations hit the DB via the `taxonomies` service; tests inject
+# in-memory callables to keep the unit boundary clean (no Flask app,
+# no SQL, no KYC ontology boot).
+TaxonomyLoader = Callable[[str], Iterable[str]]
+DualTaxonomyLoader = Callable[[str], dict[str, Any]]
 
 
 @dataclass(frozen=True, order=True)
@@ -96,9 +104,22 @@ class BaseSelector(abc.ABC):
         self,
         state: FilterState,
         experts: list[User],
+        *,
+        taxonomy_loader: TaxonomyLoader | None = None,
+        dual_taxonomy_loader: DualTaxonomyLoader | None = None,
     ) -> None:
         self._state = state
         self._experts = experts
+        # Default to the real DB-backed loaders; tests pass in stand-ins
+        # so the unit boundary stays free of Flask app / SQL / KYC boot.
+        self._taxonomy_loader: TaxonomyLoader = (
+            taxonomy_loader if taxonomy_loader is not None else get_taxonomy
+        )
+        self._dual_taxonomy_loader: DualTaxonomyLoader = (
+            dual_taxonomy_loader
+            if dual_taxonomy_loader is not None
+            else get_taxonomy_dual_select
+        )
         raw_values = state.get(self.id, [])
         # Selectors only use string filter values, not int expert IDs
         if isinstance(raw_values, list):
@@ -128,7 +149,7 @@ class BaseSelector(abc.ABC):
         """
         result: set[str] = set(self.values)
         if self.taxonomy_name:
-            result.update(get_taxonomy(self.taxonomy_name))
+            result.update(self._taxonomy_loader(self.taxonomy_name))
         for expert in self._experts:
             result.update(self._expert_values(expert))
         return result
@@ -311,7 +332,7 @@ class DualSelector(BaseSelector):
         tagged with it?", not "is the taxonomy entry present?".
         """
         raw = convert_dual_choices_js(
-            get_taxonomy_dual_select(self.taxonomy_name or "")
+            self._dual_taxonomy_loader(self.taxonomy_name or "")
         )
         selected_parents = set(self._state.get(self.parent_id, []) or [])
         if isinstance(selected_parents, str):
@@ -447,7 +468,7 @@ class FonctionSelector(BaseSelector):
             "profession_fonction_prive",
             "profession_fonction_asso",
         ):
-            result.update(get_taxonomy(tx))
+            result.update(self._taxonomy_loader(tx))
         for expert in self._experts:
             result.update(self._expert_values(expert))
         return result

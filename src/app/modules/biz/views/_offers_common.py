@@ -96,7 +96,7 @@ def handle_apply(offer, *, detail_endpoint: str, cv_url: str = ""):
         flash("Vous avez déjà candidaté à cette offre.", "info")
         return redirect(url_for(detail_endpoint, id=offer.id))
 
-    message = (request.form.get("message") or "").strip()
+    message = normalise_application_message(request.form.get("message"))
     application = OfferApplication(
         offer_id=offer.id,
         owner_id=user.id,
@@ -154,7 +154,7 @@ def update_application_status(
     application.decision_message = decision_message
     db.session.commit()
 
-    if previous_status != new_status:
+    if should_transition_to(previous_status, new_status):
         if new_status == ApplicationStatus.SELECTED:
             notify_applicant_selected(offer=offer, application=application)
         elif new_status == ApplicationStatus.REJECTED:
@@ -180,3 +180,20 @@ def date_to_datetime(value: Any) -> datetime | None:
     if value is None:
         return None
     return datetime.combine(value, datetime.min.time())
+
+
+def normalise_application_message(raw: str | None) -> str:
+    """Trim + coerce None to empty. The candidature form's `message`
+    field is optional ; the candidate can leave it blank or fill it
+    with whitespace. We store the trimmed text so the dashboard
+    doesn't render a blank-looking row that's actually full of
+    spaces. Mirrors `_offers_common.handle_apply` line 99."""
+    return (raw or "").strip()
+
+
+def should_transition_to(previous: ApplicationStatus, new: ApplicationStatus) -> bool:
+    """Pure predicate : should the accept/reject flow fire its
+    notifications? The rule is « only on actual change » — re-pressing
+    SELECTED on an already-SELECTED row must not send a second mail.
+    Extracted from `update_application_status` lines 157-161."""
+    return previous != new

@@ -132,6 +132,38 @@ class InvitationOutcome:
         return self.is_success
 
 
+def find_existing_assignment(role_assignments, user_id: int, role_value: str):
+    """Search a BW's role_assignments for one matching (user, role).
+
+    Returns the assignment row or None. Pure — no DB session needed
+    (the list is already loaded on the BW row). Extracted from
+    `invite_user_role` so the search rule is unit-testable."""
+    if not role_assignments:
+        return None
+    for assignment in role_assignments:
+        if assignment.user_id == user_id and assignment.role_type == role_value:
+            return assignment
+    return None
+
+
+def classify_existing_assignment(assignment) -> InvitationOutcomeCode | None:
+    """Map an already-existing RoleAssignment's invitation_status to
+    the outcome code an admin should see :
+
+    - ACCEPTED → ALREADY_ACCEPTED (idempotent no-op, user already in role)
+    - PENDING  → ALREADY_PENDING (idempotent no-op, invitation in flight)
+    - REJECTED / EXPIRED / anything else → None
+      (caller should re-invite by resurrecting the row)
+
+    Pure : no DB, no side effects."""
+    status = assignment.invitation_status
+    if status == InvitationStatus.ACCEPTED.value:
+        return InvitationOutcomeCode.ALREADY_ACCEPTED
+    if status == InvitationStatus.PENDING.value:
+        return InvitationOutcomeCode.ALREADY_PENDING
+    return None
+
+
 def invite_user_role(
     business_wall: BusinessWall, user: User, role: BWRoleType, is_internal=True
 ) -> InvitationOutcome:
@@ -177,30 +209,23 @@ def invite_user_role(
             )
             return InvitationOutcome(InvitationOutcomeCode.FAILED_NOT_IN_ORG, email)
 
-    if business_wall.role_assignments:
-        for assignment in business_wall.role_assignments:
-            if assignment.user_id == user.id and assignment.role_type == role.value:
-                # do not invite already accepted
-                if assignment.invitation_status == InvitationStatus.ACCEPTED.value:
-                    warn("invite_user_role: already assigned")
-                    return InvitationOutcome(
-                        InvitationOutcomeCode.ALREADY_ACCEPTED, email
-                    )
-                # neither invite twice
-                if assignment.invitation_status == InvitationStatus.PENDING.value:
-                    warn("invite_user_role: already pending")
-                    return InvitationOutcome(
-                        InvitationOutcomeCode.ALREADY_PENDING, email
-                    )
-                # we can re-invite previous removed users
-                assignment.invitation_status = InvitationStatus.PENDING.value
-                assignment.invited_at = datetime.now(UTC)
-                assignment.accepted_at = None
-                assignment.rejected_at = None
-                db.session.flush()
-                post_role_invitation_notification(business_wall, user, role)
-                send_role_invitation_mail(business_wall, user, role)
-                return InvitationOutcome(InvitationOutcomeCode.RESENT, email)
+    existing = find_existing_assignment(
+        business_wall.role_assignments, user.id, role.value
+    )
+    if existing is not None:
+        idempotent_code = classify_existing_assignment(existing)
+        if idempotent_code is not None:
+            warn(f"invite_user_role: {idempotent_code.value}")
+            return InvitationOutcome(idempotent_code, email)
+        # Previously rejected / expired — resurrect.
+        existing.invitation_status = InvitationStatus.PENDING.value
+        existing.invited_at = datetime.now(UTC)
+        existing.accepted_at = None
+        existing.rejected_at = None
+        db.session.flush()
+        post_role_invitation_notification(business_wall, user, role)
+        send_role_invitation_mail(business_wall, user, role)
+        return InvitationOutcome(InvitationOutcomeCode.RESENT, email)
 
     role_assignment = RoleAssignment(
         business_wall_id=business_wall.id,
@@ -410,6 +435,20 @@ def change_bwpri_emails(
     )
 
 
+def parse_email_list(raw_mails: str | None) -> set[str]:
+    """Parse a textarea-supplied email list into a normalised set.
+
+    Splits on whitespace, lowercases, drops empties. The textarea
+    in the BW admin UI lets the user paste one-per-line or one-per-
+    word ; we don't care about the separator. Used by
+    `_apply_email_list` to diff against the current invitations.
+
+    Pure : no DB, no Flask. Unit-testable trivially."""
+    if not raw_mails:
+        return set()
+    return {m.strip().lower() for m in raw_mails.split() if m.strip()}
+
+
 def _apply_email_list(
     business_wall: BusinessWall,
     raw_mails: str,
@@ -423,7 +462,7 @@ def _apply_email_list(
     outcomes of every invite attempt so the route can flash failures
     to the admin — bug #0139 v2 surfaced the cost of swallowing them.
     """
-    new_mails = {m.strip().lower() for m in raw_mails.split() if m.strip()}
+    new_mails = parse_email_list(raw_mails)
     org = business_wall.get_organisation()
     if not org:
         return [InvitationOutcome(InvitationOutcomeCode.FAILED_NO_ORG)]

@@ -10,10 +10,18 @@ used both from the detail view and the tests:
 - `user_can_read_full(user, post)` — paywall verdict.
 - `truncate_body(html, limit)` — HTML-aware truncation for the
   preview shown to non-buyers.
+
+The verdict logic is split into a pure core
+(`_decide_can_read_full`) and an imperative shell
+(`user_can_read_full`) that injects the role check + DB lookups as
+default-arg callables. This keeps the call site identical for
+production code while letting unit tests exercise the rules without
+any monkey-patching.
 """
 
 from __future__ import annotations
 
+from collections.abc import Callable
 from typing import TYPE_CHECKING
 
 import sqlalchemy as sa
@@ -34,7 +42,14 @@ if TYPE_CHECKING:
     from app.modules.wire.models import Post
 
 
-def user_can_read_full(user: User | None, post: Post) -> bool:
+def user_can_read_full(
+    user: User | None,
+    post: Post,
+    *,
+    role_checker: Callable[[User, str], bool] | None = None,
+    paid_lookup: Callable[[int, int], bool] | None = None,
+    gift_lookup: Callable[[int, int], bool] | None = None,
+) -> bool:
     """Can `user` see the full body of `post` without buying?
 
     Rules:
@@ -44,16 +59,48 @@ def user_can_read_full(user: User | None, post: Post) -> bool:
     - owns a PAID consultation purchase on this post → yes
     - was gifted a PAID consultation on this post (ticket #0194) → yes
     - otherwise → no
+
+    The keyword-only `role_checker` / `paid_lookup` / `gift_lookup`
+    arguments default to the production helpers; tests pass plain
+    callables to avoid hitting the database.
     """
     if user is None or user.is_anonymous:
         return False
     if user.id == post.owner_id:
         return True
-    if has_role(user, RoleEnum.ADMIN.name):
+
+    check_role = role_checker or has_role
+    if check_role(user, RoleEnum.ADMIN.name):
         return True
-    if _has_paid_consultation(user.id, post.id):
+
+    check_paid = paid_lookup or _has_paid_consultation
+    if check_paid(user.id, post.id):
         return True
-    return _has_received_consultation_gift(user.id, post.id)
+
+    check_gift = gift_lookup or _has_received_consultation_gift
+    return check_gift(user.id, post.id)
+
+
+def _decide_can_read_full(
+    *,
+    is_anonymous: bool,
+    is_author: bool,
+    is_admin: bool,
+    has_paid: bool,
+    has_gift: bool,
+) -> bool:
+    """Pure verdict: given the already-resolved booleans, return the
+    paywall decision. Used internally for unit tests of the rule
+    table; production code goes through `user_can_read_full`."""
+    if is_anonymous:
+        return False
+    if is_author:
+        return True
+    if is_admin:
+        return True
+    if has_paid:
+        return True
+    return has_gift
 
 
 def _has_paid_consultation(user_id: int, post_id: int) -> bool:

@@ -6,6 +6,7 @@
 
 from __future__ import annotations
 
+from collections.abc import Callable, Iterable
 from typing import cast
 
 from flask import flash, g, redirect, render_template, request, url_for
@@ -67,6 +68,22 @@ _PROJECT_SUBTYPE_TAXONOMIES: dict[str, str] = {
 }
 
 
+def _build_category_choices(
+    taxonomy_rows: Iterable[str],
+) -> list[tuple[str, str]]:
+    """Pure : given ontology rows, build the select choices.
+
+    Always prefixes a blank entry. When the ontology is populated, use
+    the rows as both value+label (the `type_projets` names are already
+    display-ready French labels). When empty, fall back to the
+    hardcoded `_PROJECT_CATEGORY_VALUES` triple.
+    """
+    rows = list(taxonomy_rows)
+    if rows:
+        return [("", "— Choisissez un type —"), *((r, r) for r in rows)]
+    return [("", "— Choisissez un type —"), *list(_PROJECT_CATEGORY_VALUES)]
+
+
 def get_project_category_choices() -> list[tuple[str, str]]:
     """Top-level project category select choices.
 
@@ -74,32 +91,40 @@ def get_project_category_choices() -> list[tuple[str, str]]:
     hardcoded triple as fallback. Always prefixes a blank entry so the
     select reads as optional.
     """
-    fallback = list(_PROJECT_CATEGORY_VALUES)
     try:
         rows = list(get_taxonomy("type_projets"))
     except Exception:
         rows = []
-    if rows:
-        # Use the ontology values as both value+label (the names in
-        # `type_projets` are already display-ready French labels).
-        return [("", "— Choisissez un type —"), *((r, r) for r in rows)]
-    return [("", "— Choisissez un type —"), *fallback]
+    return _build_category_choices(rows)
+
+
+def _build_subtypes_for_taxonomies(
+    loader: Callable[[str], Iterable[str]],
+    taxonomies: dict[str, str],
+) -> dict[str, list[str]]:
+    """Pure : given a loader callable + the taxonomy-name mapping,
+    return the per-category subtype lists.
+
+    A loader exception on any taxonomy degrades to an empty list for
+    that category — the template simply renders an empty select for
+    that branch.
+    """
+    out: dict[str, list[str]] = {}
+    for cat, taxonomy_name in taxonomies.items():
+        try:
+            out[cat] = list(loader(taxonomy_name))
+        except Exception:
+            out[cat] = []
+    return out
 
 
 def get_project_subtypes() -> dict[str, list[str]]:
     """Per-category sub-type lists for the Alpine cascade.
 
     Each value of `project_category` maps to a list of sub-type strings
-    loaded from its taxonomy. Empty taxonomies stay empty — the
-    template simply renders an empty select for that branch.
+    loaded from its taxonomy. Empty taxonomies stay empty.
     """
-    out: dict[str, list[str]] = {}
-    for cat, taxonomy_name in _PROJECT_SUBTYPE_TAXONOMIES.items():
-        try:
-            out[cat] = list(get_taxonomy(taxonomy_name))
-        except Exception:
-            out[cat] = []
-    return out
+    return _build_subtypes_for_taxonomies(get_taxonomy, _PROJECT_SUBTYPE_TAXONOMIES)
 
 
 class ProjectOfferForm(Form):

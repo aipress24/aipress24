@@ -7,7 +7,6 @@
 from __future__ import annotations
 
 from typing import TYPE_CHECKING
-from unittest.mock import MagicMock
 
 import pytest
 from typeguard import TypeCheckError
@@ -25,6 +24,16 @@ from app.modules.events.services import (
 
 if TYPE_CHECKING:
     from flask_sqlalchemy import SQLAlchemy
+
+
+class _UserStub:
+    """Minimal duck-typed stand-in for `User` — only exposes `has_role`."""
+
+    def __init__(self, roles: set[RoleEnum] | None = None) -> None:
+        self._roles: set[RoleEnum] = roles or set()
+
+    def has_role(self, role: RoleEnum) -> bool:
+        return role in self._roles
 
 
 # ----------------------------------------------------------------
@@ -237,13 +246,11 @@ class TestCanUserAccredit:
     """Bug 0127: accreditation reserved to journalists (RoleEnum.PRESS_MEDIA)."""
 
     def test_journalist_can_accredit(self, event_post: EventPost) -> None:
-        user = MagicMock(spec=User)
-        user.has_role = MagicMock(side_effect=lambda r: r == RoleEnum.PRESS_MEDIA)
+        user = _UserStub(roles={RoleEnum.PRESS_MEDIA})
 
         assert can_user_accredit(user, event_post) is True
 
     def test_non_journalist_cannot_accredit(self, event_post: EventPost) -> None:
-        user = MagicMock(spec=User)
-        user.has_role = MagicMock(return_value=False)
+        user = _UserStub(roles=set())
 
         assert can_user_accredit(user, event_post) is False

@@ -21,6 +21,7 @@ from __future__ import annotations
 from datetime import UTC, datetime, timedelta
 from typing import TYPE_CHECKING
 
+from flask import current_app
 from sqlalchemy import func, select
 
 from app.models.auth import User
@@ -29,6 +30,8 @@ from app.modules.wip.models.newsroom.avis_notification_log import (
 )
 
 if TYPE_CHECKING:
+    from collections.abc import Mapping
+
     from sqlalchemy.orm import Session
 
     from app.modules.wip.models.newsroom.avis_enquete import AvisEnquete
@@ -106,9 +109,14 @@ def partition_by_cap(
     *,
     cap: int = NOTIFICATION_CAP,
     days: int = NOTIFICATION_WINDOW_DAYS,
+    config: Mapping[str, object] | None = None,
 ) -> tuple[list[User], list[User]]:
-    """Split `experts` into (to_notify, skipped_due_to_cap)."""
-    if _mail_debug_active():
+    """Split `experts` into (to_notify, skipped_due_to_cap).
+
+    `config` is the Flask app config used to detect the mail-debug
+    bypass ; defaults to `current_app.config` for production callers.
+    """
+    if _mail_debug_active(config):
         # The dev DB AvisNotificationLog accumulates across e2e runs ;
         # without this bypass the test that exercises the confirm
         # path systematically hits the cap on the second run.
@@ -121,11 +129,19 @@ def partition_by_cap(
     return to_notify, skipped
 
 
-def _mail_debug_active() -> bool:
-    """Local import — circular dep otherwise."""
-    from app.flask.mail_debug import is_active
+def _mail_debug_active(config: Mapping[str, object] | None = None) -> bool:
+    """True iff the mail-debug bypass flag is set.
 
-    return is_active()
+    The Flask app config is read by default — pass an explicit
+    `config` (any `Mapping`) to bypass the app context for unit tests.
+    Falls back to False when called outside an app context.
+    """
+    if config is None:
+        try:
+            config = current_app.config
+        except RuntimeError:
+            return False
+    return bool(config.get("MAIL_DEBUG_ACTIVE"))
 
 
 def record_notifications(

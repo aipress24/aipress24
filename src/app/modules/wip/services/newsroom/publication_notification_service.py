@@ -21,11 +21,20 @@ Policy decisions frozen by SF (2026-04-24) :
   the one-per-publication half).
 
 Spec : `local-notes/specs/notification-publication.md`.
+
+Design note
+-----------
+Pure decision helpers (input normalisation, recipient deduplication,
+eligibility predicate, in-app message composition, mail kwargs
+assembly) are extracted at module level so they can be unit-tested
+without a DB session or mail bus. The `PublicationNotificationService`
+class is the imperative shell that orchestrates DB writes + email
+dispatch around those pure pieces.
 """
 
 from __future__ import annotations
 
-from collections.abc import Callable
+from collections.abc import Callable, Iterable
 from datetime import UTC, datetime, timedelta
 from typing import TYPE_CHECKING
 
@@ -54,12 +63,153 @@ SPAM_CAP = 5
 SPAM_WINDOW_DAYS = 30
 DEDUP_WINDOW_DAYS = 7
 
+ACCEPTED_STATUSES: frozenset[StatutAvis] = frozenset(
+    {StatutAvis.ACCEPTE, StatutAvis.ACCEPTE_RELATION_PRESSE}
+)
+
 UrlBuilder = Callable[[NotificationPublication], str]
 _NO_URL: UrlBuilder = lambda _n: ""  # noqa: E731
 
 
 class PublicationNotificationError(ValueError):
     """User-facing validation error (empty URL, ownership violation)."""
+
+
+# --------------------------------------------------------------
+# Pure helpers (no DB, no I/O)
+# --------------------------------------------------------------
+
+
+def is_eligible_contact(contact: ContactAvisEnquete) -> bool:
+    """True iff a contact has accepted the avis (mode A pre-check)."""
+    return contact.status in ACCEPTED_STATUSES
+
+
+def normalise_inputs(
+    article_url: str, article_title: str, message: str
+) -> tuple[str, str, str]:
+    """Strip the three user-supplied free-text fields.
+
+    Centralised so the validation, persistence and mail rendering
+    code paths all agree on whitespace handling.
+    """
+    return article_url.strip(), article_title.strip(), message.strip()
+
+
+def validate_article_url(article_url: str) -> None:
+    """Raise `PublicationNotificationError` if the URL is empty."""
+    if not article_url:
+        msg = "L'URL de l'article est obligatoire."
+        raise PublicationNotificationError(msg)
+
+
+def deduplicate_recipients(
+    recipients: Iterable[User], sender_id: int
+) -> dict[int, User]:
+    """Order-preserving recipient dedup, drops the sender themselves.
+
+    Returns an `{id: user}` dict so callers can both iterate in order
+    and look up by id (e.g. for the contact-provenance map).
+    """
+    unique: dict[int, User] = {}
+    for u in recipients:
+        if u.id == sender_id:
+            continue
+        unique.setdefault(u.id, u)
+    return unique
+
+
+def partition_recipients(
+    unique: dict[int, User],
+    *,
+    dup_ids: set[int],
+    capped_ids: set[int],
+) -> tuple[list[User], list[User]]:
+    """Split unique recipients into (accepted, skipped) by dup/cap sets.
+
+    Pure : the SQL is performed elsewhere ; here we just apply two
+    pre-computed exclusion sets and preserve insertion order.
+    """
+    accepted: list[User] = []
+    skipped: list[User] = []
+    for uid, user in unique.items():
+        if uid in dup_ids or uid in capped_ids:
+            skipped.append(user)
+        else:
+            accepted.append(user)
+    return accepted, skipped
+
+
+def filter_own_contacts(
+    contacts: list[ContactAvisEnquete], own_ids: set[int]
+) -> list[ContactAvisEnquete]:
+    """Drop any contact whose id is not in the avis's own contact set.
+
+    Defence in depth : the form POST might smuggle a `contact_id` for
+    a contact attached to a *different* avis.
+    """
+    return [c for c in contacts if c.id in own_ids]
+
+
+def extract_recipients_and_provenance(
+    contacts: Iterable[ContactAvisEnquete],
+) -> tuple[list[User], dict[int, int]]:
+    """From a list of contacts, derive (recipients, provenance map).
+
+    `provenance` maps `expert_id -> contact_id` so that the
+    `NotificationPublicationContact` row can record which contact
+    originated the notification (audit trail for mode A).
+    """
+    recipients = [c.expert for c in contacts if c.expert is not None]
+    provenance = {c.expert_id: c.id for c in contacts}
+    return recipients, provenance
+
+
+def filter_active_users(users: Iterable[User | None]) -> list[User]:
+    """Mode B input scrubber : drop None entries and inactive users."""
+    return [u for u in users if u is not None and u.active]
+
+
+def build_in_app_message(sender_full_name: str, article_title: str) -> str:
+    """Render the in-app notification body. Pure & deterministic."""
+    return (
+        f"{sender_full_name} vous a notifié de la "
+        f"publication de l'article « {article_title} »."
+    )
+
+
+def build_mail_kwargs(
+    *,
+    sender: User,
+    sender_bw_name: str,
+    recipient: User,
+    article_title: str,
+    article_url: str,
+    message: str,
+    opportunities_url: str,
+) -> dict[str, str]:
+    """Assemble the kwargs payload for `PublicationNotificationMail`.
+
+    Returns a dict so tests can pin the contract without going through
+    the mail constructor (which has side effects).
+    """
+    return {
+        "sender": "contact@aipress24.com",
+        "recipient": recipient.email or "",
+        "sender_mail": sender.email or "",
+        "sender_full_name": sender.full_name,
+        "sender_bw_name": sender_bw_name,
+        "recipient_first_name": recipient.first_name or "",
+        "article_title": article_title,
+        "article_url": article_url,
+        "personal_message": message,
+        "opportunities_url": opportunities_url,
+    }
+
+
+# --------------------------------------------------------------
+# Imperative shell
+# --------------------------------------------------------------
 
 
 @service
@@ -80,8 +230,7 @@ class PublicationNotificationService:
         return list(self._session.execute(stmt).scalars())
 
     def eligible_contacts_for_avis(self, avis: AvisEnquete) -> list[ContactAvisEnquete]:
-        accepted = {StatutAvis.ACCEPTE, StatutAvis.ACCEPTE_RELATION_PRESSE}
-        return [c for c in self.contacts_for_avis(avis) if c.status in accepted]
+        return [c for c in self.contacts_for_avis(avis) if is_eligible_contact(c)]
 
     def notify_from_avis(
         self,
@@ -103,9 +252,8 @@ class PublicationNotificationService:
             msg = "Vous ne pouvez notifier qu'à partir d'un de vos avis d'enquête."
             raise PublicationNotificationError(msg)
         own_ids = {c.id for c in self.contacts_for_avis(avis)}
-        contacts = [c for c in contacts if c.id in own_ids]
-        recipients = [c.expert for c in contacts if c.expert is not None]
-        provenance = {c.expert_id: c.id for c in contacts}
+        contacts = filter_own_contacts(contacts, own_ids)
+        recipients, provenance = extract_recipients_and_provenance(contacts)
 
         return self._dispatch(
             journalist=journalist,
@@ -131,7 +279,7 @@ class PublicationNotificationService:
         opportunities_url_builder: UrlBuilder = _NO_URL,
     ) -> tuple[NotificationPublication, list[User]]:
         """Mode B : free-form recipient list. Inactive users are dropped."""
-        recipients = [u for u in recipients if u is not None and u.active]
+        recipients = filter_active_users(recipients)
         return self._dispatch(
             journalist=journalist,
             avis=None,
@@ -161,20 +309,12 @@ class PublicationNotificationService:
         contact_provenance: dict[int, int],
         opportunities_url_builder: UrlBuilder,
     ) -> tuple[NotificationPublication, list[User]]:
-        article_url = article_url.strip()
-        article_title = article_title.strip()
-        message = message.strip()
-        if not article_url:
-            msg = "L'URL de l'article est obligatoire."
-            raise PublicationNotificationError(msg)
+        article_url, article_title, message = normalise_inputs(
+            article_url, article_title, message
+        )
+        validate_article_url(article_url)
 
-        # Deduplicate recipients + drop the sender themselves.
-        unique: dict[int, User] = {}
-        for u in recipients:
-            if u.id == journalist.id:
-                continue
-            # pyrefly: ignore [no-matching-overload]
-            unique.setdefault(u.id, u)
+        unique = deduplicate_recipients(recipients, journalist.id)
         target_ids = list(unique.keys())
 
         # Batched anti-spam + anti-dedup pre-checks. Skipped in
@@ -187,13 +327,9 @@ class PublicationNotificationService:
         else:
             dup_ids = self._recent_dups(article_url, target_ids)
             capped_ids = self._over_cap(target_ids)
-        accepted_users: list[User] = []
-        skipped: list[User] = []
-        for uid, user in unique.items():
-            if uid in dup_ids or uid in capped_ids:
-                skipped.append(user)
-            else:
-                accepted_users.append(user)
+        accepted_users, skipped = partition_recipients(
+            unique, dup_ids=dup_ids, capped_ids=capped_ids
+        )
 
         now = datetime.now(UTC)
         notif = NotificationPublication(
@@ -220,13 +356,11 @@ class PublicationNotificationService:
 
         target_url = opportunities_url_builder(notif)
         in_app = container.get(NotificationService)
+        in_app_message = build_in_app_message(journalist.full_name, article_title)
         for user in accepted_users:
             in_app.post(
                 receiver=user,
-                message=(
-                    f"{journalist.full_name} vous a notifié de la "
-                    f"publication de l'article « {article_title} »."
-                ),
+                message=in_app_message,
                 url=target_url,
             )
 
@@ -234,18 +368,16 @@ class PublicationNotificationService:
         for user in accepted_users:
             if not user.email:
                 continue
-            PublicationNotificationMail(
-                sender="contact@aipress24.com",
-                recipient=user.email,
-                sender_mail=journalist.email or "",
-                sender_full_name=journalist.full_name,
+            kwargs = build_mail_kwargs(
+                sender=journalist,
                 sender_bw_name=bw_name,
-                recipient_first_name=user.first_name or "",
+                recipient=user,
                 article_title=article_title,
                 article_url=article_url,
-                personal_message=message,
+                message=message,
                 opportunities_url=target_url,
-            ).send()
+            )
+            PublicationNotificationMail(**kwargs).send()
 
         return notif, skipped
 

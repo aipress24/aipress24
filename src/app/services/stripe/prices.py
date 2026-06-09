@@ -19,11 +19,11 @@ from dataclasses import dataclass
 from decimal import Decimal
 from typing import Any
 
-import stripe
 from babel.numbers import format_currency
 from loguru import logger
 
 from app.flask.extensions import db
+from app.services.stripe._client import StripeClient, default_client
 from app.services.stripe._price_model import StripePrice
 from app.services.stripe.utils import load_stripe_api_key
 
@@ -117,18 +117,23 @@ def _coerce_metadata(raw_meta: Any) -> dict:
     return {}
 
 
-def sync_all_prices() -> int:
+def sync_all_prices(*, client: StripeClient | None = None) -> int:
     """Pull every active Stripe Price into the local mirror.
 
     Returns the number of rows touched. Used by the CLI command
     `flask stripe sync prices` (bootstrap + manual drift correction).
+
+    A passed `client` is assumed to be test-only and skips the API-key
+    check ; the production path requires the API key.
     """
-    if not load_stripe_api_key():
-        msg = "Stripe API key not configured"
-        raise RuntimeError(msg)
+    if client is None:
+        if not load_stripe_api_key():
+            msg = "Stripe API key not configured"
+            raise RuntimeError(msg)
+        client = default_client()
 
     count = 0
-    for price in stripe.Price.list(active=True, limit=100).auto_paging_iter():
+    for price in client.list_prices(active=True, limit=100):
         upsert_price_from_event(price)
         count += 1
     db.session.commit()
@@ -146,21 +151,23 @@ class PriceDrift:
     stripe_value: object
 
 
-def list_drifts() -> list[PriceDrift]:
+def list_drifts(*, client: StripeClient | None = None) -> list[PriceDrift]:
     """Return a list of drifts between local `stripe_price` and Stripe.
 
     Read-only — no DB modification, no Stripe modification. Used by
     `flask stripe verify prices`.
     """
-    if not load_stripe_api_key():
-        msg = "Stripe API key not configured"
-        raise RuntimeError(msg)
+    if client is None:
+        if not load_stripe_api_key():
+            msg = "Stripe API key not configured"
+            raise RuntimeError(msg)
+        client = default_client()
 
     drifts: list[PriceDrift] = []
     locals_by_id = {p.id: p for p in db.session.query(StripePrice).all()}
 
     seen_stripe_ids: set[str] = set()
-    for stripe_price in stripe.Price.list(active=True, limit=100).auto_paging_iter():
+    for stripe_price in client.list_prices(active=True, limit=100):
         seen_stripe_ids.add(stripe_price.id)
         local = locals_by_id.get(stripe_price.id)
         if local is None:

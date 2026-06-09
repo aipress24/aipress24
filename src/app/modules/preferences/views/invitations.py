@@ -31,6 +31,161 @@ from app.modules.bw.bw_activation.models.business_wall import BWStatus
 from app.modules.preferences import blueprint
 from app.ui.labels import LABELS_BW_TYPE_V2
 
+# ── Pure helpers ──────────────────────────────────────────────────────
+#
+# Extracted from `InvitationsView` so they can be unit-tested without
+# a DB session. See `tests/a_unit/modules/preferences/test_invitation_helpers.py`.
+
+
+def normalise_email(value: str | None) -> str:
+    """Lowercase + strip whitespace ; None becomes empty string.
+
+    Both the listing query and the `_join_organisation` security
+    guard use this to compare the user's email against the
+    `Invitation.email` column. The DB-side comparison uses
+    `func.lower(func.trim(...))` ; this Python-side helper must
+    produce the same key, otherwise an invitation shown in the UI
+    couldn't be accepted because the join gate would refuse it.
+    """
+    return (value or "").strip().lower()
+
+
+def count_open_invitations(invitations_list) -> int:
+    """Count invitations whose `disabled` flag is empty (i.e. the
+    user CAN still accept them — `disabled == "disabled"` means
+    they're already a member). Pin so the « open count » bubble in
+    the UI stays accurate after refactors of the list shape."""
+    return sum(1 for i in invitations_list if i.get("disabled") == "")
+
+
+def parse_partnership_id(raw: str | None):
+    """Safely parse a partnership UUID from a form field.
+
+    Returns the `UUID` object on success, None on missing/blank/
+    non-UUID input. Mirrors `parse_org_id`'s silent-refusal contract
+    so the `ack_revoked_partnership` POST handler never raises on
+    crafted form input."""
+    from uuid import UUID
+
+    if not raw:
+        return None
+    try:
+        return UUID(raw)
+    except (TypeError, ValueError):
+        return None
+
+
+def parse_org_id(raw: str | None) -> int | None:
+    """Safely parse an org id from a form field.
+
+    Returns None when the value is missing, blank, or non-integer
+    (« silent refusal » policy : the gate avoids leaking whether the
+    org id exists at all). Previously `_join_organisation` raised
+    ValueError on non-numeric input, leaking a 500.
+    """
+    if not raw:
+        return None
+    try:
+        return int(raw)
+    except (TypeError, ValueError):
+        return None
+
+
+def format_org_label(org) -> str:
+    """Build the display label for an organisation in the invitations
+    listing.
+
+    - org with an active BusinessWall : `« <bw_name> (<bw_type_label>) »`
+      where the type label comes from `LABELS_BW_TYPE_V2` (falls back
+      to the raw bw_active code if the labels dict doesn't know it).
+    - org without a BW : just the plain organisation name.
+
+    Duck-typed on `org` — only reads `name`, `bw_id`, `bw_name`,
+    `bw_active`. Unit-testable without a real Organisation row.
+    """
+    if org.bw_id:
+        # pyrefly: ignore [no-matching-overload]
+        return f"{org.bw_name} ({LABELS_BW_TYPE_V2.get(org.bw_active, org.bw_active)})"
+    return f"{org.name}"
+
+
+def _bw_display_name(business_wall) -> str:
+    """Safe display name for a BusinessWall — falls back to a marker
+    string if `name_safe` is empty / None so the UI never renders a
+    bare empty space."""
+    return business_wall.name_safe or "(Nom inconnu)"
+
+
+def role_invitation_to_dict(role_assignment, business_wall) -> dict[str, Any]:
+    """Map a `(RoleAssignment, BusinessWall)` query row to the dict
+    shape consumed by the `org_invitation.j2` template. Pure
+    transformation : no DB, no Flask context."""
+    return {
+        "id": str(role_assignment.id),
+        "bw_id": str(business_wall.id),
+        "bw_name": _bw_display_name(business_wall),
+        "role_type": role_assignment.role_type,
+        "role_label": BW_ROLE_TYPE_LABEL.get(
+            role_assignment.role_type, role_assignment.role_type
+        ),
+        "user_id": role_assignment.user_id,
+        "invited_at": role_assignment.invited_at,
+    }
+
+
+def accepted_role_to_dict(role_assignment, business_wall) -> dict[str, Any]:
+    """Companion of `role_invitation_to_dict` for the « accepted
+    roles » section. Shape differs slightly : `accepted_at` instead of
+    `invited_at` and `user_id` is omitted (the row is the user's own)."""
+    return {
+        "id": str(role_assignment.id),
+        "bw_id": str(business_wall.id),
+        "bw_name": _bw_display_name(business_wall),
+        "role_type": role_assignment.role_type,
+        "role_label": BW_ROLE_TYPE_LABEL.get(
+            role_assignment.role_type, role_assignment.role_type
+        ),
+        "accepted_at": role_assignment.accepted_at,
+    }
+
+
+def partnership_invitation_to_dict(partnership, business_wall) -> dict[str, Any]:
+    """Map a pending `Partnership` row to the dict consumed by the
+    « partnership invitations » section. The `role_label` is hardcoded
+    because every partnership maps to the same external role (PR
+    Manager (external))."""
+    return {
+        "id": str(partnership.id),
+        "bw_id": str(business_wall.id),
+        "bw_name": _bw_display_name(business_wall),
+        "role_label": "PR Manager (external)",
+        "invited_at": partnership.invited_at,
+    }
+
+
+def resolve_client_name(business_wall, client_org) -> str:
+    """Pick the display name for the client side of a partnership.
+
+    Prefer the live `Organisation.name` ; fall back to the BW's safe
+    name ; finally to a marker so the row still renders. Used by the
+    REVOKED-partnerships list (ticket #0169 part 3)."""
+    if client_org is not None:
+        return client_org.name
+    return business_wall.name_safe or "(client inconnu)"
+
+
+def revoked_partnership_to_dict(
+    partnership, business_wall, client_org
+) -> dict[str, Any]:
+    """Map a REVOKED `Partnership` row to the dict consumed by the
+    « partnerships terminated » section."""
+    return {
+        "id": str(partnership.id),
+        "bw_name": _bw_display_name(business_wall),
+        "client_name": resolve_client_name(business_wall, client_org),
+        "revoked_at": partnership.revoked_at,
+    }
+
 
 class InvitationsView(MethodView):
     """invitations d'organisations"""
@@ -38,7 +193,7 @@ class InvitationsView(MethodView):
     def get(self):
         user = cast(User, g.user)
         invitations_list = self._organisation_inviting(user)
-        open_invitations = sum(i["disabled"] == "" for i in invitations_list)
+        open_invitations = count_open_invitations(invitations_list)
         role_invitations_list = self._role_invitations(user)
         accepted_roles_list = self._accepted_role_invitations(user)
         partnership_invitations_list = self._partnership_invitations(user)
@@ -90,7 +245,8 @@ class InvitationsView(MethodView):
     def _ack_revoked_partnership(self, user: User, partnership_id: str) -> None:
         """Hard-delete a REVOKED partnership the user's org is the
         partner of (ticket #0169 part 3)."""
-        if not partnership_id:
+        pid = parse_partnership_id(partnership_id)
+        if pid is None:
             return
         org = user.organisation
         if org is None:
@@ -102,12 +258,6 @@ class InvitationsView(MethodView):
         stmt = select(BusinessWall.id).where(BusinessWall.organisation_id == org.id)
         bw_ids = {str(bw_id) for bw_id in db_session.scalars(stmt)}
         if not bw_ids:
-            return
-        try:
-            from uuid import UUID
-
-            pid = UUID(partnership_id)
-        except (TypeError, ValueError):
             return
         partnership = db_session.get(Partnership, pid)
         if partnership is None:
@@ -127,9 +277,9 @@ class InvitationsView(MethodView):
         # Bug 0130: normalise both sides (strip + lower) so an invitation
         # whose email was stored with stray whitespace or uppercase still
         # surfaces in the invitee's preferences page.
-        normalised_email = (user.email or "").strip().lower()
+        normalised = normalise_email(user.email)
         stmt = select(Invitation).where(
-            func.lower(func.trim(Invitation.email)) == normalised_email
+            func.lower(func.trim(Invitation.email)) == normalised
         )
         invitations = db_session.scalars(stmt)
         invit_ids = {i.organisation_id for i in invitations}
@@ -138,15 +288,9 @@ class InvitationsView(MethodView):
         result = []
         if user.organisation:
             user_org = user.organisation
-            if user_org.bw_id:
-                # pyrefly: ignore [no-matching-overload]
-                label = f"{user_org.bw_name} ({LABELS_BW_TYPE_V2.get(user_org.bw_active, user_org.bw_active)})"
-            else:
-                label = f"{user_org.name}"
-
             result.append(
                 {
-                    "label": label,
+                    "label": format_org_label(user_org),
                     "org_id": str(user_org.id),
                     "disabled": "disabled",
                 }
@@ -162,15 +306,9 @@ class InvitationsView(MethodView):
             )
             organisations = db_session.scalars(stmt)
             for org in organisations:
-                if org.bw_id:
-                    # pyrefly: ignore [no-matching-overload]
-                    label = f"{org.bw_name} ({LABELS_BW_TYPE_V2.get(org.bw_active, org.bw_active)})"
-                else:
-                    label = f"{org.name}"
-
                 result.append(
                     {
-                        "label": label,
+                        "label": format_org_label(org),
                         "org_id": str(org.id),
                         "disabled": "",
                     }
@@ -196,22 +334,10 @@ class InvitationsView(MethodView):
         )
         results = db_session.execute(stmt).all()
 
-        role_invitations = []
-        for role_assignment, business_wall in results:
-            role_label = BW_ROLE_TYPE_LABEL.get(
-                role_assignment.role_type, role_assignment.role_type
-            )
-            infos = {
-                "id": str(role_assignment.id),
-                "bw_id": str(business_wall.id),
-                "bw_name": business_wall.name_safe or "(Nom inconnu)",
-                "role_type": role_assignment.role_type,
-                "role_label": role_label,
-                "user_id": role_assignment.user_id,
-                "invited_at": role_assignment.invited_at,
-            }
-            role_invitations.append(infos)
-        return role_invitations
+        return [
+            role_invitation_to_dict(role_assignment, business_wall)
+            for role_assignment, business_wall in results
+        ]
 
     def _accepted_role_invitations(self, user: User) -> list[dict[str, Any]]:
         """Return the BusinessWall roles this user has accepted.
@@ -238,21 +364,10 @@ class InvitationsView(MethodView):
         )
         results = db_session.execute(stmt).all()
 
-        accepted_roles = []
-        for role_assignment, business_wall in results:
-            role_label = BW_ROLE_TYPE_LABEL.get(
-                role_assignment.role_type, role_assignment.role_type
-            )
-            infos = {
-                "id": str(role_assignment.id),
-                "bw_id": str(business_wall.id),
-                "bw_name": business_wall.name_safe or "(Nom inconnu)",
-                "role_type": role_assignment.role_type,
-                "role_label": role_label,
-                "accepted_at": role_assignment.accepted_at,
-            }
-            accepted_roles.append(infos)
-        return accepted_roles
+        return [
+            accepted_role_to_dict(role_assignment, business_wall)
+            for role_assignment, business_wall in results
+        ]
 
     def _partnership_invitations(self, user: User) -> list[dict[str, Any]]:
         """Return the list of pending BusinessWall partnership invitations for this user.
@@ -287,17 +402,10 @@ class InvitationsView(MethodView):
         )
         results = db_session.execute(stmt).all()
 
-        partnership_invitations = []
-        for partnership, business_wall in results:
-            infos = {
-                "id": str(partnership.id),
-                "bw_id": str(business_wall.id),
-                "bw_name": business_wall.name_safe or "(Nom inconnu)",
-                "role_label": "PR Manager (external)",
-                "invited_at": partnership.invited_at,
-            }
-            partnership_invitations.append(infos)
-        return partnership_invitations
+        return [
+            partnership_invitation_to_dict(partnership, business_wall)
+            for partnership, business_wall in results
+        ]
 
     def _revoked_partnerships(self, user: User) -> list[dict[str, Any]]:
         """Return REVOKED partnerships where the user's organisation
@@ -329,23 +437,12 @@ class InvitationsView(MethodView):
         )
         results = db_session.execute(stmt).all()
 
-        revoked = []
-        for partnership, business_wall in results:
-            client_org = business_wall.get_organisation()
-            client_name = (
-                client_org.name
-                if client_org
-                else business_wall.name_safe or "(client inconnu)"
+        return [
+            revoked_partnership_to_dict(
+                partnership, business_wall, business_wall.get_organisation()
             )
-            revoked.append(
-                {
-                    "id": str(partnership.id),
-                    "bw_name": business_wall.name_safe or "(Nom inconnu)",
-                    "client_name": client_name,
-                    "revoked_at": partnership.revoked_at,
-                }
-            )
-        return revoked
+            for partnership, business_wall in results
+        ]
 
     def _join_organisation(self, user: User, org_id: str) -> None:
         """Join the specified organization.
@@ -358,16 +455,13 @@ class InvitationsView(MethodView):
         become a member. Mirror the same normalisation as the listing
         helper (lower + trim) so legacy whitespace/casing matches.
         """
-        normalised_email = (user.email or "").strip().lower()
-        if not normalised_email or not org_id:
-            return
-        try:
-            target_org_id = int(org_id)
-        except (TypeError, ValueError):
+        normalised = normalise_email(user.email)
+        target_org_id = parse_org_id(org_id)
+        if not normalised or target_org_id is None:
             return
         invitation = db.session.scalar(
             select(Invitation).where(
-                func.lower(func.trim(Invitation.email)) == normalised_email,
+                func.lower(func.trim(Invitation.email)) == normalised,
                 Invitation.organisation_id == target_org_id,
             )
         )

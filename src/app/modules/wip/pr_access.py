@@ -15,6 +15,7 @@ sujets).
 
 from __future__ import annotations
 
+from collections.abc import Callable
 from typing import TYPE_CHECKING
 
 from werkzeug.exceptions import Forbidden
@@ -32,6 +33,10 @@ from app.services.roles import has_role
 
 if TYPE_CHECKING:
     from app.models.auth import User
+    from app.modules.bw.bw_activation.models import BusinessWall
+
+# Injectable default loader -- callers in tests can pass a fake.
+BWLoader = Callable[["User"], "BusinessWall | None"]
 
 # Community roles that grant access to Com'room. `PRESS_MEDIA` (journalists)
 # is intentionally excluded — they use Newsroom.
@@ -56,23 +61,31 @@ EVENTROOM_COMMUNITY_ROLES: frozenset[RoleEnum] = frozenset(
 )
 
 
-def user_can_access_comroom(user: User) -> bool:
+def user_can_access_comroom(
+    user: User,
+    *,
+    bw_loader: BWLoader = get_selected_business_wall_for_user,
+) -> bool:
     """True if `user` may author press releases in Com'room."""
     if not user or user.is_anonymous:
         return False
     if has_role(user, [role.name for role in COMROOM_COMMUNITY_ROLES]):
         return True
-    return user_is_acting_as_pr_manager(user)
+    return user_is_acting_as_pr_manager(user, bw_loader=bw_loader)
 
 
-def user_can_access_eventroom(user: User) -> bool:
+def user_can_access_eventroom(
+    user: User,
+    *,
+    bw_loader: BWLoader = get_selected_business_wall_for_user,
+) -> bool:
     """True if `user` may author events in Eventroom."""
     if not user or user.is_anonymous:
         return False
 
     if has_role(user, [role.name for role in EVENTROOM_COMMUNITY_ROLES]):
         return True
-    return user_is_acting_as_pr_manager(user)
+    return user_is_acting_as_pr_manager(user, bw_loader=bw_loader)
 
 
 def user_can_access_newsroom(user: User) -> bool:
@@ -85,7 +98,11 @@ def user_can_access_newsroom(user: User) -> bool:
     return has_role(user, [RoleEnum.PRESS_MEDIA])
 
 
-def user_is_acting_as_pr_manager(user: User) -> bool:
+def user_is_acting_as_pr_manager(
+    user: User,
+    *,
+    bw_loader: BWLoader = get_selected_business_wall_for_user,
+) -> bool:
     """True if `user` is currently acting as PR manager for another BW.
 
     A user is "acting as PR manager" if they have selected a Business Wall
@@ -98,22 +115,33 @@ def user_is_acting_as_pr_manager(user: User) -> bool:
         return False
 
     # Check if user has PR role on the selected BW
-    bw = get_selected_business_wall_for_user(user)
+    bw = bw_loader(user)
     if not bw:
         return False
 
+    return _bw_grants_pr_manager_role(bw, user.id)
+
+
+def _bw_grants_pr_manager_role(bw, user_id) -> bool:
+    """Pure check: does the BW have an accepted PR-manager assignment for user_id?"""
+    pr_roles = (BWRoleType.BWPRI.value, BWRoleType.BWPRE.value)
+    accepted = InvitationStatus.ACCEPTED.value
     for assignment in bw.role_assignments:
         if (
-            assignment.user_id == user.id
-            and assignment.invitation_status == InvitationStatus.ACCEPTED.value
-            and assignment.role_type in (BWRoleType.BWPRI.value, BWRoleType.BWPRE.value)
+            assignment.user_id == user_id
+            and assignment.invitation_status == accepted
+            and assignment.role_type in pr_roles
         ):
             return True
-
     return False
 
 
-def user_has_mission(user: User, mission: PermissionType) -> bool:
+def user_has_mission(
+    user: User,
+    mission: PermissionType,
+    *,
+    bw_loader: BWLoader = get_selected_business_wall_for_user,
+) -> bool:
     """True if `user` has the specified mission on the currently selected BW.
 
     Always True for BW owners. For others, checks the active RoleAssignment
@@ -122,20 +150,21 @@ def user_has_mission(user: User, mission: PermissionType) -> bool:
     if not user or user.is_anonymous:
         return False
 
-    bw = get_selected_business_wall_for_user(user)
+    bw = bw_loader(user)
     if not bw:
         return False
 
-    # Owners have all missions
-    if bw.owner_id == user.id:
+    return _bw_grants_mission(bw, user.id, mission)
+
+
+def _bw_grants_mission(bw, user_id, mission: PermissionType) -> bool:
+    """Pure check: BW owners have all missions; otherwise check accepted assignments."""
+    if bw.owner_id == user_id:
         return True
 
+    accepted = InvitationStatus.ACCEPTED.value
     for assignment in bw.role_assignments:
-        if (
-            assignment.user_id == user.id
-            and assignment.invitation_status == InvitationStatus.ACCEPTED.value
-        ):
-            # Check for the specific mission
+        if assignment.user_id == user_id and assignment.invitation_status == accepted:
             for perm in assignment.permissions:
                 if perm.permission_type == mission.value and perm.is_granted:
                     return True
@@ -143,7 +172,14 @@ def user_has_mission(user: User, mission: PermissionType) -> bool:
     return False
 
 
-def check_mission(user: User, mission: PermissionType) -> None:
+def check_mission(
+    user: User,
+    mission: PermissionType,
+    *,
+    bw_loader: BWLoader = get_selected_business_wall_for_user,
+) -> None:
     """Abort with 403 if `user` is an acting PR manager without `mission`."""
-    if user_is_acting_as_pr_manager(user) and not user_has_mission(user, mission):
+    if user_is_acting_as_pr_manager(user, bw_loader=bw_loader) and not user_has_mission(
+        user, mission, bw_loader=bw_loader
+    ):
         raise Forbidden

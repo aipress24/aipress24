@@ -6,10 +6,10 @@
 
 from __future__ import annotations
 
-from collections.abc import Callable
+from collections.abc import Callable, Iterable
 from dataclasses import dataclass
 from datetime import datetime
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 from uuid import UUID
 
 from sqlalchemy import select
@@ -42,6 +42,184 @@ from app.services.notifications import NotificationService
 
 if TYPE_CHECKING:
     from app.models.auth import User
+
+
+# ---------------------------------------------------------------------------
+# Pure helpers — no I/O, no DB, no app context.
+# Extracted from the orchestration methods below so they can be unit-tested
+# directly. Each method that used to inline this logic now calls the helper.
+# ---------------------------------------------------------------------------
+
+_RDV_TYPE_LABELS: dict[str, str] = {
+    "PHONE": "Rendez-vous téléphonique",
+    "VIDEO": "Rendez-vous visioconférence",
+    "F2F": "Rendez-vous face-à-face",
+}
+
+_DATE_FMT = "%d/%m/%Y à %H:%M"
+
+
+def _format_rdv_type_label(rdv_type: Any) -> str:
+    """Map an RDVType (or anything with a ``.name``) to its French label.
+
+    Returns ``""`` when the type is None or unknown — matches the legacy
+    behaviour of the email templates (empty section, not a crash).
+    """
+    if rdv_type is None:
+        return ""
+    name = getattr(rdv_type, "name", None)
+    if name is None:
+        return ""
+    return _RDV_TYPE_LABELS.get(name, "")
+
+
+def _format_rdv_contact_info(
+    rdv_type: Any,
+    *,
+    phone: str = "",
+    video_link: str = "",
+    address: str = "",
+) -> str:
+    """Map an RDV type + per-type fields to the contact info line.
+
+    Pure — no truncation, no I/O. Returns ``""`` for unknown / None type.
+    """
+    if rdv_type is None:
+        return ""
+    name = getattr(rdv_type, "name", None)
+    if name == "PHONE":
+        return f"Numéro de téléphone: {phone}"
+    if name == "VIDEO":
+        return f"Lien visioconférence: {video_link}"
+    if name == "F2F":
+        return f"Adresse: {address}"
+    return ""
+
+
+def _format_rdv_datetime(dt: datetime | None) -> str:
+    """Format a datetime into the canonical 'DD/MM/YYYY à HH:MM' shape.
+
+    ``None`` yields ``""`` so callers can branch off an empty string
+    rather than chain ``if dt is None`` everywhere.
+    """
+    if dt is None:
+        return ""
+    return dt.strftime(_DATE_FMT)
+
+
+def _format_proposed_slots(slots: Iterable[datetime]) -> list[str]:
+    """Format an iterable of datetimes into the canonical date strings."""
+    return [slot.strftime(_DATE_FMT) for slot in slots]
+
+
+def _dedup_preserve_order(items: Iterable[str]) -> list[str]:
+    """Return the input list deduped, preserving first-seen order.
+
+    Empty / falsy entries are dropped — matches the press-officer
+    pipeline which never wants a blank recipient in the recipient list.
+    """
+    seen: set[str] = set()
+    out: list[str] = []
+    for item in items:
+        if not item or item in seen:
+            continue
+        out.append(item)
+        seen.add(item)
+    return out
+
+
+def _resolve_bw_display_name(
+    active_bw_name: str | None,
+    organisation_name: str | None,
+) -> str:
+    """Pick the BW name shown to the expert in notification emails.
+
+    Preference order : active BW name (media group case — show the
+    media, not the parent) → organisation name → ``"inconnue"``.
+    """
+    name = (active_bw_name or "").strip()
+    if name:
+        return name
+    name = (organisation_name or "").strip()
+    if name:
+        return name
+    return "inconnue"
+
+
+def _filter_unknown_experts(
+    experts: Iterable[Any],
+    known_ids: set[Any],
+) -> list[Any]:
+    """Return experts whose ``.id`` is not in ``known_ids``, in order."""
+    return [e for e in experts if e.id not in known_ids]
+
+
+def _filter_eligible_colleagues(
+    members: Iterable[Any],
+    *,
+    expert_id: Any,
+    already_contacted_ids: set[Any],
+) -> list[Any]:
+    """Return active org members other than ``expert_id`` not already contacted."""
+    return [
+        u
+        for u in members
+        if u.id != expert_id and u.id not in already_contacted_ids and u.active
+    ]
+
+
+def _is_contact_removable(
+    contact: Any,
+    *,
+    desired_ids: set[Any],
+    rdv_no_status: Any,
+    en_attente_status: Any,
+) -> bool:
+    """Predicate : a contact can be silently dropped on retargeting iff
+    its expert is no longer in the journalist's selection AND it has
+    no engagement yet (still EN_ATTENTE, no RDV in progress, and not
+    chained in as a colleague suggestion).
+    """
+    return (
+        contact.expert_id not in desired_ids
+        and contact.status == en_attente_status
+        and contact.rdv_status == rdv_no_status
+        and contact.suggested_by_user_id is None
+    )
+
+
+def _format_notify_avis_message(title: str) -> str:
+    return f"Un nouvel avis d'enquête est disponible: {title}"
+
+
+def _format_notify_rdv_proposed_message(title: str) -> str:
+    return f"Proposition de rendez-vous pour l'avis d'enquête : {title}"
+
+
+def _format_notify_rdv_accepted_message(expert_full_name: str) -> str:
+    return f"{expert_full_name} a accepté un créneau pour le RDV"
+
+
+def _format_notify_rdv_refused_message(expert_full_name: str) -> str:
+    return f"{expert_full_name} a refusé les RDV proposés"
+
+
+def _format_suggested_message(suggester_full_name: str, title: str) -> str:
+    return f"Un avis d'enquête vous a été transmis par {suggester_full_name} : {title}"
+
+
+def _validate_notify_lengths(experts: list[Any], urls: list[str]) -> None:
+    """Raise ValueError when the two parallel lists disagree in length.
+
+    Pure — no I/O, no logging. Lifted out of ``notify_experts`` so it
+    can be tested in isolation and reused by future call sites.
+    """
+    if len(experts) != len(urls):
+        msg = (
+            f"experts and notification_urls must match in length: "
+            f"got {len(experts)} experts and {len(urls)} urls"
+        )
+        raise ValueError(msg)
 
 
 @dataclass(frozen=True)
@@ -233,22 +411,17 @@ class AvisEnqueteService:
         title = contact.avis_enquete.titre
         notes = contact.rdv_notes_journaliste or "Aucune note."
 
-        if contact.rdv_type and contact.rdv_type.name == "PHONE":
-            rdv_type = "Rendez-vous téléphonique"
-            rdv_info = f"Numéro de téléphone: {contact.rdv_phone}"
-        elif contact.rdv_type and contact.rdv_type.name == "VIDEO":
-            rdv_type = "Rendez-vous visioconférence"
-            rdv_info = f"Lien visioconférence: {contact.rdv_video_link}"
-        elif contact.rdv_type and contact.rdv_type.name == "F2F":
-            rdv_type = "Rendez-vous face-à-face"
-            rdv_info = f"Adresse: {contact.rdv_address}"
-        else:
-            rdv_type = ""
-            rdv_info = ""
+        rdv_type = _format_rdv_type_label(contact.rdv_type)
+        rdv_info = _format_rdv_contact_info(
+            contact.rdv_type,
+            phone=contact.rdv_phone,
+            video_link=contact.rdv_video_link,
+            address=contact.rdv_address,
+        )
         if contact.date_rdv is None:
             # Should never happen
             return
-        date_rdv = contact.date_rdv.strftime("%d/%m/%Y à %H:%M")
+        date_rdv = _format_rdv_datetime(contact.date_rdv)
 
         notification_mail = ContactAvisEnqueteRDVConfirmationMail(
             sender="contact@aipress24.com",
@@ -286,7 +459,7 @@ class AvisEnqueteService:
         if contact.date_rdv is None:
             # Should never happen
             return
-        date_rdv = contact.date_rdv.strftime("%d/%m/%Y à %H:%M")
+        date_rdv = _format_rdv_datetime(contact.date_rdv)
 
         notification_mail = ContactAvisEnqueteRDVCancelledJournalistMail(
             sender="contact@aipress24.com",
@@ -320,7 +493,7 @@ class AvisEnqueteService:
         if contact.date_rdv is None:
             # Should never happen
             return
-        date_rdv = contact.date_rdv.strftime("%d/%m/%Y à %H:%M")
+        date_rdv = _format_rdv_datetime(contact.date_rdv)
 
         notification_mail = ContactAvisEnqueteRDVCancelledExpertMail(
             sender="contact@aipress24.com",
@@ -403,11 +576,11 @@ class AvisEnqueteService:
         desired_ids = {expert.id for expert in selected_experts}
         removed: list[ContactAvisEnquete] = []
         for contact in self._contact_repo.list(avis_enquete_id=avis.id):
-            if (
-                contact.expert_id not in desired_ids
-                and contact.status == StatutAvis.EN_ATTENTE
-                and contact.rdv_status == RDVStatus.NO_RDV
-                and contact.suggested_by_user_id is None
+            if _is_contact_removable(
+                contact,
+                desired_ids=desired_ids,
+                rdv_no_status=RDVStatus.NO_RDV,
+                en_attente_status=StatutAvis.EN_ATTENTE,
             ):
                 self._db_session.delete(contact)
                 removed.append(contact)
@@ -439,13 +612,8 @@ class AvisEnqueteService:
         Note:
             Caller should commit after this method to persist notifications.
         """
-        if len(experts) != len(notification_urls):
-            msg = (
-                f"experts and notification_urls must match in length: "
-                f"got {len(experts)} experts and {len(notification_urls)} urls"
-            )
-            raise ValueError(msg)
-        message = f"Un nouvel avis d'enquête est disponible: {avis.title}"
+        _validate_notify_lengths(experts, notification_urls)
+        message = _format_notify_avis_message(avis.title)
         for expert, url in zip(experts, notification_urls, strict=True):
             self._notification_service.post(expert, message, url)
         self._db_session.flush()
@@ -467,7 +635,7 @@ class AvisEnqueteService:
         """
         contacts = self._contact_repo.list(avis_enquete_id=avis.id)
         known_expert_ids = {contact.expert_id for contact in contacts}
-        return [e for e in experts if e.id not in known_expert_ids]
+        return _filter_unknown_experts(experts, known_expert_ids)
 
     def prefilter_candidates(
         self,
@@ -522,15 +690,15 @@ class AvisEnqueteService:
         organisation = sender.organisation
         # Prefer the active BW name (media-group case: org = LVMH, BW = Les
         # Échos; the expert expects to see the media name, not the parent).
-        bw_name = ""
+        active_bw_name: str | None = None
         if organisation is not None:
             active_bw = get_active_business_wall_for_organisation(organisation)
             if active_bw is not None:
-                bw_name = active_bw.name_safe or ""
-            if not bw_name:
-                bw_name = organisation.name
-        if not bw_name:
-            bw_name = "inconnue"
+                active_bw_name = active_bw.name_safe
+        bw_name = _resolve_bw_display_name(
+            active_bw_name,
+            organisation.name if organisation is not None else None,
+        )
 
         for expert, url in zip(experts, urls, strict=True):
             notification_mail = AvisEnqueteNotificationMail(
@@ -595,8 +763,7 @@ class AvisEnqueteService:
         if bw is None:
             return [fallback_str] if fallback_str else []
 
-        ordered: list[str] = []
-        seen: set[str] = set()
+        collected: list[str] = []
 
         # 1) Internal BWPRi(s).
         for assignment in bw.role_assignments or ():
@@ -605,9 +772,8 @@ class AvisEnqueteService:
                 and assignment.invitation_status == InvitationStatus.ACCEPTED.value
             ):
                 pr_user = self._db_session.get(UserModel, assignment.user_id)
-                if pr_user is not None and pr_user.email and pr_user.email not in seen:
-                    ordered.append(pr_user.email)
-                    seen.add(pr_user.email)
+                if pr_user is not None and pr_user.email:
+                    collected.append(pr_user.email)
 
         # 2) External PR Agency partners (active partnerships).
         active_statuses = {
@@ -625,14 +791,10 @@ class AvisEnqueteService:
             if partner_bw is None or partner_bw.status != "active":
                 continue
             agency_owner = self._db_session.get(UserModel, partner_bw.owner_id)
-            if (
-                agency_owner is not None
-                and agency_owner.email
-                and agency_owner.email not in seen
-            ):
-                ordered.append(agency_owner.email)
-                seen.add(agency_owner.email)
+            if agency_owner is not None and agency_owner.email:
+                collected.append(agency_owner.email)
 
+        ordered = _dedup_preserve_order(collected)
         if ordered:
             return ordered
         return [fallback_str] if fallback_str else []
@@ -655,11 +817,11 @@ class AvisEnqueteService:
             for c in self._contact_repo.list(avis_enquete_id=contact.avis_enquete_id)
         }
 
-        return [
-            u
-            for u in expert.organisation.members
-            if u.id != expert.id and u.id not in already_contacted_ids and u.active
-        ]
+        return _filter_eligible_colleagues(
+            expert.organisation.members,
+            expert_id=expert.id,
+            already_contacted_ids=already_contacted_ids,
+        )
 
     def associate_press_officer(
         self,
@@ -728,10 +890,7 @@ class AvisEnqueteService:
         self._db_session.flush()
 
         url = url_builder(new_contact)
-        message = (
-            f"Un avis d'enquête vous a été transmis par "
-            f"{original_expert.full_name} : {avis.title}"
-        )
+        message = _format_suggested_message(original_expert.full_name, avis.title)
         self._notification_service.post(pr_user, message, url)
 
         self.send_avis_enquete_emails(
@@ -799,7 +958,7 @@ class AvisEnqueteService:
         self._db_session.flush()
 
         url = url_builder(new_contact)
-        message = f"Un nouvel avis d'enquête est disponible: {avis.title}"
+        message = _format_notify_avis_message(avis.title)
         self._notification_service.post(colleague, message, url)
 
         self.send_avis_enquete_emails(
@@ -922,10 +1081,7 @@ class AvisEnqueteService:
         Note:
             Caller should commit after this method.
         """
-        message = (
-            f"Proposition de rendez-vous pour l'avis d'enquête : "
-            f"{contact.avis_enquete.title}"
-        )
+        message = _format_notify_rdv_proposed_message(contact.avis_enquete.title)
         self._notification_service.post(contact.expert, message, url)
 
     def send_rdv_proposed_email(
@@ -948,22 +1104,15 @@ class AvisEnqueteService:
         recipient = contact.expert.email
         title = contact.avis_enquete.titre
         notes = contact.rdv_notes_journaliste or "Aucune note."
-        proposed_slots = [
-            slot.strftime("%d/%m/%Y à %H:%M") for slot in contact.proposed_slots_dt
-        ]
+        proposed_slots = _format_proposed_slots(contact.proposed_slots_dt)
 
-        if contact.rdv_type and contact.rdv_type.name == "PHONE":
-            rdv_type = "Rendez-vous téléphonique"
-            rdv_info = f"Numéro de téléphone: {contact.rdv_phone}"
-        elif contact.rdv_type and contact.rdv_type.name == "VIDEO":
-            rdv_type = "Rendez-vous visioconférence"
-            rdv_info = f"Lien visioconférence: {contact.rdv_video_link}"
-        elif contact.rdv_type and contact.rdv_type.name == "F2F":
-            rdv_type = "Rendez-vous face-à-face"
-            rdv_info = f"Adresse: {contact.rdv_address}"
-        else:
-            rdv_type = ""
-            rdv_info = ""
+        rdv_type = _format_rdv_type_label(contact.rdv_type)
+        rdv_info = _format_rdv_contact_info(
+            contact.rdv_type,
+            phone=contact.rdv_phone,
+            video_link=contact.rdv_video_link,
+            address=contact.rdv_address,
+        )
 
         notification_mail = ContactAvisEnqueteRDVProposalMail(
             sender="contact@aipress24.com",
@@ -990,7 +1139,7 @@ class AvisEnqueteService:
         Note:
             Caller should commit after this method.
         """
-        message = f"{contact.expert.full_name} a accepté un créneau pour le RDV"
+        message = _format_notify_rdv_accepted_message(contact.expert.full_name)
         self._notification_service.post(contact.journaliste, message, url)
 
     def notify_rdv_refused(
@@ -1004,7 +1153,7 @@ class AvisEnqueteService:
         Note:
             Caller should commit after this method.
         """
-        message = f"{contact.expert.full_name} a refusé les RDV proposés"
+        message = _format_notify_rdv_refused_message(contact.expert.full_name)
         self._notification_service.post(contact.journaliste, message, url)
 
     def send_rdv_refused_email(
@@ -1059,7 +1208,7 @@ class AvisEnqueteService:
         if contact.date_rdv is None:
             # Should never happen
             return
-        date_rdv = contact.date_rdv.strftime("%d/%m/%Y à %H:%M")
+        date_rdv = _format_rdv_datetime(contact.date_rdv)
 
         notification_mail = ContactAvisEnqueteRDVAcceptedMail(
             sender="contact@aipress24.com",

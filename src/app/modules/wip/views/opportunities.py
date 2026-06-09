@@ -50,6 +50,23 @@ _OPPORTUNITES_TABS = (
     ("jobs", "Emplois"),
 )
 
+_MARKETPLACE_TAB_LABELS: dict[str, tuple[str, str]] = {
+    "missions": ("Mission", "missions_detail"),
+    "projects": ("Projet", "projects_detail"),
+    "jobs": ("Emploi", "jobs_detail"),
+}
+
+_STATUS_TO_FORM_FIELD: dict[str, tuple[str, str]] = {
+    # Pure mapping : StatutAvis value → (reponse1 token, prefill key).
+    # Prefill key is the form-state field that should receive the
+    # contact's `rdv_notes_expert` value when the contact already has
+    # this status.
+    "accepte": ("oui", "contribution"),
+    "accepte_relation_presse": ("oui_relation_presse", "contribution"),
+    "refuse": ("non", "refusal_reason"),
+    "refuse_suggestion": ("non-mais", "suggestion"),
+}
+
 
 def _build_opportunites_tabs(current: str) -> list[dict]:
     return [
@@ -63,6 +80,77 @@ def _build_opportunites_tabs(current: str) -> list[dict]:
         }
         for tab_id, label in _OPPORTUNITES_TABS
     ]
+
+
+def _pick_protocol(domain: str) -> str:
+    """Pure : pick http for loopback `127.x.x.x`, https everywhere else.
+
+    Used to compose absolute URLs that travel through emails or
+    notifications. Loopback domains can't speak TLS in dev, so we
+    downgrade only for them.
+    """
+    return "http" if domain.startswith("127.") else "https"
+
+
+def _build_absolute_url(domain: str, path: str) -> str:
+    """Pure : compose `<protocol>://<domain><path>`."""
+    return f"{_pick_protocol(domain)}://{domain}{path}"
+
+
+def _translate_response_label(response: str) -> str:
+    """Pure : map the raw response token to its human label.
+
+    Currently only `oui_relation_presse` is rewritten — every other
+    token is forwarded unchanged.
+    """
+    if response == "oui_relation_presse":
+        return "oui, avec relation presse"
+    return response
+
+
+def _select_press_officer_email(picked: str, valid_emails: list[str]) -> str:
+    """Pure : choose which press-officer email to record on the contact.
+
+    Bug #0075/2 — when the form rendered multiple options, trust the
+    user's pick if (and only if) it appears in the valid set. Fall
+    back to the first valid email when the form didn't carry an
+    explicit choice (single-option case). When neither holds, leave
+    the field empty.
+    """
+    picked = (picked or "").strip()
+    if picked and picked in valid_emails:
+        return picked
+    if valid_emails:
+        return valid_emails[0]
+    return ""
+
+
+def _form_defaults_from_status(status: str, rdv_notes_expert: str) -> dict[str, str]:
+    """Pure : derive the form-state defaults for a contact's status.
+
+    Returns a complete dict with the four prefill keys :
+    `reponse1`, `contribution`, `refusal_reason`, `suggestion`.
+    Only one of the three text fields is populated (per the status
+    spec) ; the others are empty. Unknown / EN_ATTENTE statuses
+    return all-empty.
+    """
+    base = {
+        "reponse1": "",
+        "contribution": "",
+        "refusal_reason": "",
+        "suggestion": "",
+    }
+    if status not in _STATUS_TO_FORM_FIELD:
+        return base
+    reponse1, prefill_key = _STATUS_TO_FORM_FIELD[status]
+    base["reponse1"] = reponse1
+    base[prefill_key] = rdv_notes_expert or ""
+    return base
+
+
+def _marketplace_labels(tab: str) -> tuple[str, str]:
+    """Pure : (human label, biz detail endpoint name) for a tab id."""
+    return _MARKETPLACE_TAB_LABELS[tab]
 
 
 @blueprint.route("/opportunities")
@@ -146,12 +234,7 @@ def _render_marketplace_opportunites_tab(tab: str):
     )
     received_applications = list(db.session.execute(received_stmt).all())
 
-    labels = {
-        "missions": ("Mission", "missions_detail"),
-        "projects": ("Projet", "projects_detail"),
-        "jobs": ("Emploi", "jobs_detail"),
-    }
-    offer_label, detail_endpoint = labels[tab]
+    offer_label, detail_endpoint = _marketplace_labels(tab)
 
     return render_template(
         "wip/pages/opportunities_marketplace.j2",
@@ -230,8 +313,7 @@ def send_avis_enquete_acceptance_email(
     title = contact.avis_enquete.titre
     notes = contact.rdv_notes_expert
 
-    if response == "oui_relation_presse":
-        response = "oui, avec relation presse"
+    response = _translate_response_label(response)
 
     notification_mail = ContactAvisEnqueteAcceptanceMail(
         sender="contact@aipress24.com",
@@ -296,13 +378,10 @@ def media_opportunity_post(id: int) -> str | Response:
             # an explicit choice (single-option case).
             svc = AvisEnqueteService()
             valid_emails = svc.press_officer_emails(expert)
-            picked = (request.form.get("email_relation_presse") or "").strip()
-            if picked and picked in valid_emails:
-                contact.email_relation_presse = picked
-            elif valid_emails:
-                contact.email_relation_presse = valid_emails[0]
-            else:
-                contact.email_relation_presse = ""
+            picked = request.form.get("email_relation_presse") or ""
+            contact.email_relation_presse = _select_press_officer_email(
+                picked, valid_emails
+            )
 
             # Bug #0071 / #0174 (Erick, 2026-05-26): also chain a new
             # ContactAvisEnquete for the picked press officer so they
@@ -312,9 +391,8 @@ def media_opportunity_post(id: int) -> str | Response:
 
                 def _build_pr_opportunity_url(c: ContactAvisEnquete) -> str:
                     domain = str(current_app.config.get("SERVER_NAME"))
-                    protocol = "http" if domain.startswith("127.") else "https"
                     path = str(url_for("wip.media_opportunity", id=c.id))
-                    return f"{protocol}://{domain}{path}"
+                    return _build_absolute_url(domain, path)
 
                 try:
                     svc.associate_press_officer(
@@ -350,13 +428,8 @@ def media_opportunity_post(id: int) -> str | Response:
 
             def _build_opportunity_url(contact: ContactAvisEnquete) -> str:
                 domain = str(current_app.config.get("SERVER_NAME"))
-                if domain.startswith("127."):
-                    protocol = "http"
-                else:
-                    protocol = "https"
-                # url = str(url_for("wip.media_opportunity", id=contact.id, _external=True))
                 path = str(url_for("wip.media_opportunity", id=contact.id))
-                return f"{protocol}://{domain}{path}"
+                return _build_absolute_url(domain, path)
 
             avis_service = AvisEnqueteService()
             try:
@@ -427,10 +500,6 @@ def _render_media_opportunity(id: int) -> str:
     if expert.is_anonymous:
         return ""
 
-    reponse1 = ""
-    contribution = ""
-    refusal_reason = ""
-    suggestion = ""
     avis_service = AvisEnqueteService()
     # Bug #0061-b: prefill with the org's accepted BWPRi email.
     # Bug #0075/2: full list (internal BWPRi + external BWPRe partners)
@@ -439,24 +508,17 @@ def _render_media_opportunity(id: int) -> str:
     press_officer_emails = avis_service.press_officer_emails(expert)
     email_relation_presse = press_officer_emails[0] if press_officer_emails else ""
 
-    if contact.status == StatutAvis.ACCEPTE:
-        reponse1 = "oui"
-        contribution = contact.rdv_notes_expert or ""
-    elif contact.status == StatutAvis.ACCEPTE_RELATION_PRESSE:
-        reponse1 = "oui_relation_presse"
-        contribution = contact.rdv_notes_expert or ""
-    elif contact.status == StatutAvis.REFUSE:
-        reponse1 = "non"
-        refusal_reason = contact.rdv_notes_expert or ""
-    elif contact.status == StatutAvis.REFUSE_SUGGESTION:
-        reponse1 = "non-mais"
-        suggestion = contact.rdv_notes_expert or ""
+    defaults = _form_defaults_from_status(
+        str(contact.status), contact.rdv_notes_expert or ""
+    )
 
     form_state = {
-        "reponse1": request.form.get("reponse1", reponse1),
-        "contribution": request.form.get("contribution", contribution),
-        "refusal_reason": request.form.get("refusal_reason", refusal_reason),
-        "suggestion": request.form.get("suggestion", suggestion),
+        "reponse1": request.form.get("reponse1", defaults["reponse1"]),
+        "contribution": request.form.get("contribution", defaults["contribution"]),
+        "refusal_reason": request.form.get(
+            "refusal_reason", defaults["refusal_reason"]
+        ),
+        "suggestion": request.form.get("suggestion", defaults["suggestion"]),
         "suggested_colleague_id": request.form.get("suggested_colleague_id", ""),
         "email_relation_presse": email_relation_presse,
         "press_officer_emails": press_officer_emails,
