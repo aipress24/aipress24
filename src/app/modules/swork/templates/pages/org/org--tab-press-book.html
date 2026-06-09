@@ -1,0 +1,24 @@
+<div x-show="tab === 'press-book'">
+  <h2 class="text-lg font-bold mb-2">Press Book</h2>
+
+  <p class="mb-4 text-sm text-gray-600">
+    Articles pour lesquels les membres de cette organisation détiennent un
+    justificatif de publication (ticket #0195).
+  </p>
+
+  {% set posts = org.press_book %}
+
+  {% if posts %}
+    <ul role="list" class="grid gap-6 grid-cols-1 md:grid-cols-2">
+      {% for post in posts %}
+        <li class="bg-white rounded shadow">
+          {{ component("post-card", post, class_="bg-gray-100") }}
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p class="text-sm text-gray-600 italic">
+      Aucun justificatif de publication enregistré à ce jour.
+    </p>
+  {% endif %}
+</div>

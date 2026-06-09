@@ -183,13 +183,14 @@ class OrgPressBookTab(Tab):
 
     @property
     def label(self) -> str:
-        # Bug #0180 (Erick, 2026-06-02) : the Press Book is meant to
-        # list « Justificatifs de publication » — a module not yet
-        # implemented. Until then the counter must stay at 0 so it
-        # matches the (empty) tab content. Counting press releases
-        # here would duplicate `OrgPressReleasesTab` and mislead the
-        # user into clicking a tab that renders nothing.
-        return "Press Book (0)"
+        # Ticket #0195 — counter wired to the aggregated Press Book
+        # of the org's members (PAID JUSTIFICATIF purchases). Was
+        # frozen at 0 while the module was a placeholder (#0180).
+        from app.modules.wire.services.purchase_aggregates import (
+            count_org_press_book,
+        )
+
+        return f"Press Book ({count_org_press_book(self.org.id)})"
 
 
 def _press_releases_for_org_clause(org_id: int):
@@ -312,6 +313,7 @@ class OrgVM(ViewModel):
             "cover_image_copyright": self.get_cover_image_copyright(),
             "press_releases": self.get_press_releases(),
             "publications": self.get_publications(),
+            "press_book": self.get_press_book(),
             "events": self.get_events(),
             "timeline": timeline,
             "address_formatted": self._get_address_formatted(),
@@ -390,6 +392,15 @@ class OrgVM(ViewModel):
         )
         press_releases = get_multi(PressReleasePost, stmt)
         return list(press_releases)
+
+    def get_press_book(self) -> list:
+        """Ticket #0195 — aggregated Press Book of the org's members
+        (articles for which any member owns a PAID JUSTIFICATIF)."""
+        from app.modules.wire.services.purchase_aggregates import (
+            list_org_press_book,
+        )
+
+        return list_org_press_book(self.org.id)
 
     def get_publications(self) -> list:
         stmt = (

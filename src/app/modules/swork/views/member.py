@@ -68,6 +68,7 @@ class MemberDetailView(MethodView):
         template_map = {
             "profile": "pages/member/member--tab-profile.j2",
             "publications": "pages/member/member--tab-publications.j2",
+            "press-book": "pages/member/member--tab-press-book.j2",
             "activities": "pages/member/member--tab-activities.j2",
             "groups": "pages/member/member--tab-groups.j2",
             "followers": "pages/member/member--tab-followers.j2",
@@ -96,12 +97,25 @@ class MemberDetailView(MethodView):
         # organisation page. The count reuses `get_posts()` so it is
         # always consistent with the list the tab actually renders.
         posts_count = len(user_vm.get_posts())
-        tabs = [
-            {**tab, "label": f"{tab['label']} ({posts_count})"}
-            if tab["id"] == "publications" and posts_count
-            else tab
-            for tab in MEMBER_TABS
-        ]
+        # Ticket #0195 — Press Book count (PAID JUSTIFICATIF articles
+        # owned by the user). Computed lazily so the tab label stays
+        # honest.
+        from app.modules.wire.services.purchase_aggregates import (
+            count_user_press_book,
+            list_user_press_book,
+        )
+
+        press_book_count = count_user_press_book(user.id)
+        press_book = list_user_press_book(user.id)
+
+        def _tab_label(tab):
+            if tab["id"] == "publications" and posts_count:
+                return f"{tab['label']} ({posts_count})"
+            if tab["id"] == "press-book" and press_book_count:
+                return f"{tab['label']} ({press_book_count})"
+            return tab["label"]
+
+        tabs = [{**tab, "label": _tab_label(tab)} for tab in MEMBER_TABS]
 
         context.update(
             {
@@ -109,6 +123,7 @@ class MemberDetailView(MethodView):
                 "tabs": tabs,
                 "active_tab": active_tab,
                 "followers_sample": followers_sample,
+                "press_book": press_book,
             }
         )
         return context
