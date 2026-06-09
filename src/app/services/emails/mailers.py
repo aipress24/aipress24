@@ -566,3 +566,79 @@ class PublicationNotificationMail(EmailTemplate):
     article_url: str
     personal_message: str
     opportunities_url: str
+
+
+@dataclass(kw_only=True)
+class JustificatifInvitationMail(EmailTemplate):
+    """Ticket #0195 — invite an enquête participant to acquire the
+    consultation or the justificatif of an article that resulted from
+    their enquête.
+
+    Triggered when a journalist clicks « Justificatif » in WIP /
+    Articles and selects participants of an avis d'enquête.
+
+    Args:
+        - sender / recipient / sender_mail: standard EmailTemplate fields.
+        - recipient_full_name: how to address the participant.
+        - enquete_title: the avis d'enquête that resulted in the article.
+        - journalist_full_name: the journalist who wrote the article.
+        - media_name: the journalist's press organisation.
+        - article_title: the article's title.
+        - article_url: link to read the article on the NEWS portal.
+    """
+
+    subject: str = "[Aipress24] Votre enquête débouche sur une publication"
+    template_html: str = "justificatif_invitation.j2"
+    recipient_full_name: str
+    enquete_title: str
+    journalist_full_name: str
+    media_name: str
+    article_title: str
+    article_url: str
+
+
+@dataclass(kw_only=True)
+class ConsultationGiftMail(EmailTemplate):
+    """Ticket #0194 — notify a beneficiary that someone has gifted
+    them a consultation on an article. Sent when the parent
+    `CONSULTATION_GIFT` purchase reaches PAID.
+
+    Args:
+        - sender / recipient / sender_mail: standard EmailTemplate fields.
+        - recipient_full_name: how to address the beneficiary.
+        - giver_full_name: the AiPRESS24 member who paid for the gift.
+        - article_title: title of the gifted article.
+        - article_url: link to read the article (paywall lifted for
+          this user).
+    """
+
+    subject: str = "[Aipress24] Un article vous a été offert"
+    template_html: str = "consultation_gift.j2"
+    recipient_full_name: str
+    giver_full_name: str
+    article_title: str
+    article_url: str
+
+
+@dataclass(kw_only=True)
+class CessionPurchaseAcknowledgmentMail(EmailTemplate):
+    """Ticket #0196 — confirms to the buyer that a cession-de-droits
+    (reproduction-rights licence) purchase has been recorded.
+
+    Triggered from the Stripe webhook when an `ArticlePurchase` of
+    product type CESSION reaches PAID.
+
+    Args:
+        - sender / recipient / sender_mail: standard EmailTemplate fields.
+        - article_title: title of the article whose rights were acquired.
+        - author_full_name: the journalist who authored the article.
+        - media_name: name of the press organisation employing the author.
+        - amount_ht_eur: amount in € HT (formatted string for display).
+    """
+
+    subject: str = "[Aipress24] Confirmation d'acquisition de droits de reproduction"
+    template_html: str = "cession_purchase_acknowledgment.j2"
+    article_title: str
+    author_full_name: str
+    media_name: str
+    amount_ht_eur: str
