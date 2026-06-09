@@ -41,8 +41,13 @@
                             {% set price = chosen_product.default_price %}
                             {% if price.unit_amount %}
                                 <strong>Prix (hors taxes) : {{ "%.2f" | format(price.unit_amount / 100) }} {{ price.currency | upper }}</strong>
-                            {% elif price.billing_scheme == "tiered" and price.tiers %}
-                                <strong>Prix : à partir de {{ "%.2f" | format(price.tiers[0].unit_amount / 100) }} {{ price.currency | upper }} / palier</strong>
+                            {% elif price.billing_scheme == "tiered" %}
+                                {% set tiers = price.get('tiers') %}
+                                {% if tiers and tiers[0].unit_amount %}
+                                    <strong>Prix : à partir de {{ "%.2f" | format(tiers[0].unit_amount / 100) }} {{ price.currency | upper }} / palier</strong>
+                                {% else %}
+                                    <strong>Prix : par palier</strong>
+                                {% endif %}
                             {% else %}
                                 <strong>Prix : sur demande</strong>
                             {% endif %}
