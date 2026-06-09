@@ -44,6 +44,12 @@ from app.services.stripe.utils import load_stripe_api_key
 #   STRIPE_PRICE_CESSION=price_...
 _PRODUCT_TO_ENV: dict[PurchaseProduct, str] = {}
 
+# Upper bound on the recipient list of one CdAO (Consultation d'article
+# offerte) purchase. Generous enough for a small team / classroom, low
+# enough to block trivial DoS via a 10k-entry POST that would otherwise
+# blow through the giftable-check loop and Postgres parameter limits.
+MAX_GIFT_BENEFICIARIES = 50
+
 
 @blueprint.route("/buy_modal/close", methods=["GET"])
 def buy_modal_close() -> str:
@@ -74,12 +80,35 @@ def buy_modal(post_id: str, product: str):
     )
 
     user = cast(User, g.user)
+    # Gate the modal endpoint the same way `buy` gates the POST. Without
+    # this, an anonymous visitor can see the Stripe price and the
+    # would-be cumul rendered as if they were a buyer ; CESSION price
+    # in particular is sensitive (it's the rights tier).
+    if user.is_anonymous:
+        flash("Connectez-vous pour acheter cet article.", "error")
+        return redirect(url_for("security.login"))
+
     try:
         product_type = PurchaseProduct(product)
     except ValueError as err:
         raise NotFound from err
 
     post = get_obj(post_id, Post)
+
+    # Same eligibility gate as in `buy` so the modal cannot leak the
+    # CESSION price to a user who can't actually buy.
+    if product_type == PurchaseProduct.CESSION:
+        from app.modules.bw.bw_activation.rights_policy import (
+            is_eligible_for_cession,
+        )
+
+        if not is_eligible_for_cession(user, post):
+            flash(
+                "Les droits de reproduction ne sont accessibles "
+                "qu'aux abonnés Business Wall.",
+                "error",
+            )
+            return redirect(_back_to_post(post))
 
     amount_ht_eur: float | None = None
     if current_app.config.get("STRIPE_LIVE_ENABLED") and load_stripe_api_key():
@@ -216,6 +245,12 @@ def buy_modal_gift(post_id: str):
     )
 
     user = cast(User, g.user)
+    # Mirror the `buy` anonymous guard so the modal cannot leak prices
+    # or cumul to an unauthenticated visitor.
+    if user.is_anonymous:
+        flash("Connectez-vous pour offrir cet article.", "error")
+        return redirect(url_for("security.login"))
+
     post = get_obj(post_id, Post)
 
     amount_ht_eur: float | None = None
@@ -303,17 +338,51 @@ def buy_gift(post_id: str):
         if e.strip()
     }
     if emails:
+        from sqlalchemy import func as sa_func, select as sa_select
+
+        from app.models.auth import User as _User
+
+        # Case-insensitive email match — Postgres `IN` is case-sensitive
+        # so emails stored with mixed case would silently miss otherwise.
+        rows = db.session.execute(
+            sa_select(_User.id).where(sa_func.lower(_User.email).in_(emails))
+        ).all()
+        for (uid,) in rows:
+            if uid and uid not in seen:
+                seen.add(uid)
+                candidate_ids.append(uid)
+
+    # Cap the recipient count. The form is client-side ; without this
+    # an authenticated user can post thousands of ids and DoS a worker
+    # on the giftable-check loop below.
+    if len(candidate_ids) > MAX_GIFT_BENEFICIARIES:
+        flash(
+            f"Vous ne pouvez offrir un article qu'à {MAX_GIFT_BENEFICIARIES} "
+            "destinataires en une seule fois.",
+            "error",
+        )
+        return redirect(_back_to_post(post))
+
+    # Drop self-gifts : `is_consultation_giftable_to` doesn't know who
+    # the buyer is, so it would otherwise let a buyer pay full price to
+    # « gift » themselves.
+    candidate_ids = [uid for uid in candidate_ids if uid != user.id]
+
+    # Validate that each candidate id corresponds to a real `aut_user`
+    # row. Without this, phantom ids would pass
+    # `is_consultation_giftable_to` (which only checks for existing PAID
+    # rows) and become orphan `ArticlePurchaseGift` rows — buyer billed
+    # for ghost seats.
+    if candidate_ids:
         from sqlalchemy import select as sa_select
 
         from app.models.auth import User as _User
 
-        rows = db.session.execute(
-            sa_select(_User.id, _User.email).where(_User.email.in_(emails))
+        existing_rows = db.session.execute(
+            sa_select(_User.id).where(_User.id.in_(candidate_ids))
         ).all()
-        for uid, _email in rows:
-            if uid and uid not in seen:
-                seen.add(uid)
-                candidate_ids.append(uid)
+        existing_ids = {uid for (uid,) in existing_rows}
+        candidate_ids = [uid for uid in candidate_ids if uid in existing_ids]
 
     # Filter out recipients who already have access.
     eligible_ids = [
@@ -369,20 +438,40 @@ def buy_gift(post_id: str):
         _external=True,
     )
 
-    checkout = stripe.checkout.Session.create(
-        mode="payment",
-        customer_email=user.email,
-        line_items=[{"price": price_id, "quantity": quantity}],
-        success_url=success_url,
-        cancel_url=cancel_url,
-        metadata={
-            "purchase_id": str(purchase.id),
-            "post_id": str(post.id),
-            "product_type": PurchaseProduct.CONSULTATION_GIFT.value,
-            "beneficiary_count": str(quantity),
-        },
-        automatic_tax={"enabled": True},
-    )
+    # Guard the Stripe call. Without try/except, any Stripe-side error
+    # (network blip, 5xx, rate limit) leaves the PENDING purchase + N
+    # gift rows orphaned with no checkout session the buyer can resume
+    # from. On error we delete the would-be-orphan rows and flash a
+    # generic « try again » message.
+    try:
+        checkout = stripe.checkout.Session.create(
+            mode="payment",
+            customer_email=user.email,
+            line_items=[{"price": price_id, "quantity": quantity}],
+            success_url=success_url,
+            cancel_url=cancel_url,
+            metadata={
+                "purchase_id": str(purchase.id),
+                "post_id": str(post.id),
+                "product_type": PurchaseProduct.CONSULTATION_GIFT.value,
+                "beneficiary_count": str(quantity),
+            },
+            automatic_tax={"enabled": True},
+        )
+    except stripe.error.StripeError as exc:
+        warn(f"buy_gift: Stripe Checkout creation failed: {exc}")
+        db.session.query(ArticlePurchaseGift).filter_by(
+            purchase_id=purchase.id
+        ).delete()
+        db.session.delete(purchase)
+        db.session.commit()
+        flash(
+            "La passerelle de paiement est momentanément indisponible. "
+            "Merci de réessayer dans un instant.",
+            "error",
+        )
+        return redirect(_back_to_post(post))
+
     return redirect(checkout.url, code=303)
 
 

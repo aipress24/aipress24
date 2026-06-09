@@ -15,6 +15,7 @@ from unittest.mock import MagicMock, patch
 
 import arrow
 import pytest
+import stripe as stripe_module
 
 from app.enums import RoleEnum
 from app.models.auth import Role, User
@@ -361,3 +362,190 @@ class TestBuyGiftFlow:
             )
         assert response.status_code in (302, 303)
         mock_create.assert_not_called()
+
+
+class TestBuyGiftValidation:
+    """Guard the form against phantom ids, self-gifts, oversize lists,
+    and case-sensitive emails."""
+
+    def test_rejects_phantom_user_ids(
+        self,
+        app: Flask,
+        db_session: Session,
+        buyer: User,
+        article: ArticlePost,
+        alice: User,
+    ):
+        """A beneficiary id that doesn't match any `aut_user.id` is
+        silently dropped — no ghost-seat billing."""
+        client = make_authenticated_client(app, buyer)
+        app.config["STRIPE_LIVE_ENABLED"] = True
+        try:
+            p1, p2, p3 = _patch_stripe()
+            with p1, p2, p3 as mock_create:
+                client.post(
+                    f"/wire/{article.id}/buy_gift",
+                    data={
+                        "beneficiary_user_id": [
+                            str(alice.id),
+                            "99999999",  # phantom
+                            "88888888",  # phantom
+                        ],
+                    },
+                    follow_redirects=False,
+                )
+        finally:
+            app.config["STRIPE_LIVE_ENABLED"] = False
+
+        assert mock_create.called
+        kwargs = mock_create.call_args.kwargs
+        # Only Alice survives — quantity is 1, not 3.
+        assert kwargs["line_items"][0]["quantity"] == 1
+        # And no orphan gift row pointing at a phantom id was created.
+        gifts = list(db_session.query(ArticlePurchaseGift))
+        assert all(g.beneficiary_user_id == alice.id for g in gifts)
+
+    def test_rejects_self_gift(
+        self,
+        app: Flask,
+        db_session: Session,
+        buyer: User,
+        article: ArticlePost,
+    ):
+        """buyer.id is filtered out of the beneficiary list — a buyer
+        cannot pay full price to « gift » themselves."""
+        client = make_authenticated_client(app, buyer)
+        app.config["STRIPE_LIVE_ENABLED"] = True
+        try:
+            p1, p2, p3 = _patch_stripe()
+            with p1, p2, p3 as mock_create:
+                response = client.post(
+                    f"/wire/{article.id}/buy_gift",
+                    data={"beneficiary_user_id": [str(buyer.id)]},
+                    follow_redirects=False,
+                )
+        finally:
+            app.config["STRIPE_LIVE_ENABLED"] = False
+
+        # Only candidate was the buyer themself ; nothing to bill.
+        assert response.status_code in (302, 303)
+        mock_create.assert_not_called()
+
+    def test_caps_beneficiary_count(
+        self,
+        app: Flask,
+        db_session: Session,
+        buyer: User,
+        article: ArticlePost,
+    ):
+        """A POST with more beneficiaries than `MAX_GIFT_BENEFICIARIES`
+        is rejected (DoS guard)."""
+        # Create 60 distinct users (cap is 50).
+        many: list[User] = []
+        for _ in range(60):
+            u = User(email=_email(), active=True)
+            db_session.add(u)
+            many.append(u)
+        db_session.commit()
+
+        client = make_authenticated_client(app, buyer)
+        app.config["STRIPE_LIVE_ENABLED"] = True
+        try:
+            with patch("stripe.checkout.Session.create") as mock_create:
+                response = client.post(
+                    f"/wire/{article.id}/buy_gift",
+                    data={"beneficiary_user_id": [str(u.id) for u in many]},
+                    follow_redirects=False,
+                )
+        finally:
+            app.config["STRIPE_LIVE_ENABLED"] = False
+
+        assert response.status_code in (302, 303, 400)
+        mock_create.assert_not_called()
+
+    def test_email_matching_is_case_insensitive(
+        self,
+        app: Flask,
+        db_session: Session,
+        buyer: User,
+        article: ArticlePost,
+    ):
+        """Buyer pastes an email in mixed case ; the lookup must still
+        find the row stored in its canonical case."""
+        # Create a user whose stored email is mixed-case.
+        mixed = User(
+            email=f"Mixed_{uuid.uuid4().hex[:6]}@Example.com",
+            active=True,
+            first_name="Mx",
+            last_name="C",
+        )
+        db_session.add(mixed)
+        db_session.commit()
+
+        client = make_authenticated_client(app, buyer)
+        app.config["STRIPE_LIVE_ENABLED"] = True
+        try:
+            p1, p2, p3 = _patch_stripe()
+            with p1, p2, p3 as mock_create:
+                client.post(
+                    f"/wire/{article.id}/buy_gift",
+                    data={"beneficiary_email": mixed.email.lower()},
+                    follow_redirects=False,
+                )
+        finally:
+            app.config["STRIPE_LIVE_ENABLED"] = False
+
+        assert mock_create.called
+        assert mock_create.call_args.kwargs["line_items"][0]["quantity"] == 1
+
+
+class TestBuyGiftStripeFailure:
+    """If Stripe Checkout creation fails, the PENDING purchase and its
+    gift rows must be rolled back so we don't accumulate orphan rows
+    on every Stripe outage."""
+
+    def test_stripe_error_rolls_back_pending_rows(
+        self,
+        app: Flask,
+        db_session: Session,
+        buyer: User,
+        article: ArticlePost,
+        alice: User,
+    ):
+        client = make_authenticated_client(app, buyer)
+        app.config["STRIPE_LIVE_ENABLED"] = True
+        try:
+            with (
+                patch(
+                    "app.modules.wire.views.purchase._price_id_for",
+                    return_value="price_consultation",
+                ),
+                patch(
+                    "app.modules.wire.views.purchase.load_stripe_api_key",
+                    return_value=True,
+                ),
+                patch(
+                    "stripe.checkout.Session.create",
+                    side_effect=stripe_module.error.APIConnectionError("boom"),
+                ),
+            ):
+                response = client.post(
+                    f"/wire/{article.id}/buy_gift",
+                    data={"beneficiary_user_id": [str(alice.id)]},
+                    follow_redirects=False,
+                )
+        finally:
+            app.config["STRIPE_LIVE_ENABLED"] = False
+
+        assert response.status_code in (302, 303)
+        # No orphan PENDING purchase, no orphan gift rows.
+        assert (
+            db_session.query(ArticlePurchase)
+            .filter_by(
+                owner_id=buyer.id,
+                product_type=PurchaseProduct.CONSULTATION_GIFT,
+            )
+            .count()
+            == 0
+        )
+        assert db_session.query(ArticlePurchaseGift).count() == 0
