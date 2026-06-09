@@ -38,7 +38,19 @@
                     {% endif %}
                     {% if chosen_product.default_price %}
                         <p class="text-sm text-gray-700 mt-1">
-                            <strong>Prix (hors taxes) : {{ "%.2f" | format(chosen_product.default_price.unit_amount / 100) }} {{ chosen_product.default_price.currency | upper }}</strong>
+                            {% set price = chosen_product.default_price %}
+                            {% if price.unit_amount %}
+                                <strong>Prix (hors taxes) : {{ "%.2f" | format(price.unit_amount / 100) }} {{ price.currency | upper }}</strong>
+                            {% elif price.billing_scheme == "tiered" %}
+                                {% set tiers = price.get('tiers') %}
+                                {% if tiers and tiers[0].unit_amount %}
+                                    <strong>Prix : à partir de {{ "%.2f" | format(tiers[0].unit_amount / 100) }} {{ price.currency | upper }} / palier</strong>
+                                {% else %}
+                                    <strong>Prix : par palier</strong>
+                                {% endif %}
+                            {% else %}
+                                <strong>Prix : sur demande</strong>
+                            {% endif %}
                         </p>
                     {% endif %}
                 </div>
