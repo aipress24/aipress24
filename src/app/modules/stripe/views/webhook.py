@@ -528,6 +528,44 @@ def _record_article_purchase_from_checkout(data_obj) -> None:
 
     if purchase.product_type == PurchaseProduct.JUSTIFICATIF:
         generate_justificatif.send(purchase.id)
+    elif purchase.product_type == PurchaseProduct.CONSULTATION_GIFT:
+        # Ticket #0194 — notify each beneficiary of the gift now that
+        # the parent purchase is PAID. Inline + best-effort : a notif
+        # glitch must not poison the webhook ack and trigger a Stripe
+        # retry.
+        from app.modules.wire.services.gift_notification import (
+            notify_gift_beneficiaries,
+        )
+
+        try:
+            notify_gift_beneficiaries(purchase.id)
+        except Exception as exc:
+            from app.logging import report_failure
+
+            report_failure(
+                f"consultation_gift: notify_gift_beneficiaries failed "
+                f"(purchase {purchase.id})",
+                exc,
+            )
+    elif purchase.product_type == PurchaseProduct.CESSION:
+        # Ticket #0196 — cloche + email acknowledgment to the buyer.
+        # Inline call (cheap, idempotent upstream) ; wrapped in
+        # try/except so a notification glitch doesn't poison the
+        # webhook response and trigger a Stripe retry.
+        from app.modules.wire.services.cession_notification import (
+            notify_cession_purchase,
+        )
+
+        try:
+            notify_cession_purchase(purchase.id)
+        except Exception as exc:
+            from app.logging import report_failure
+
+            report_failure(
+                f"cession_purchase: notify_cession_purchase failed "
+                f"(purchase {purchase.id})",
+                exc,
+            )
 
 
 # def _filter_unknown_checkout(data_obj: dict[str, Any]) -> bool:
