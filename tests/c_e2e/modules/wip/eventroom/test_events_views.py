@@ -256,6 +256,8 @@ class TestEventsTemporalValidation:
     def test_temporal_validation(self, test_event: Event):
         """Test event temporal business logic."""
         # Valid event (end after start)
+        assert test_event.start_time is not None
+        assert test_event.end_time is not None
         assert test_event.start_time < test_event.end_time
         test_event.publish()
         assert test_event.status == PublicationStatus.PUBLIC

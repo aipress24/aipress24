@@ -34,6 +34,8 @@ from app.models.organisation import Organisation
 from app.modules.wire.models import ArticlePost
 
 if TYPE_CHECKING:
+    from collections.abc import Iterator
+
     from flask import Flask
     from flask.testing import FlaskClient
     from sqlalchemy.orm import Session
@@ -134,7 +136,7 @@ def db_session(fresh_db) -> Session:
 
 
 @pytest.fixture
-def logged_in_client(app: Flask, fresh_db) -> FlaskClient:
+def logged_in_client(app: Flask, fresh_db) -> Iterator[FlaskClient]:
     """Provide a logged-in Flask test client with a fresh database.
 
     Creates test data (role, org, user, article) and authenticates.

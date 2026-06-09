@@ -50,6 +50,7 @@ class TestToJsonLd:
         obj = ComplexObject()
         result = to_json_ld(obj)
 
+        assert isinstance(result, dict)
         assert result["@context"] == "https://schema.org"
         assert result["@type"] == "Person"
         assert result["name"] == "John Doe"
@@ -93,9 +94,12 @@ class TestToJsonLd:
         obj = NestedObject()
         result = to_json_ld(obj)
 
+        assert isinstance(result, dict)
         assert result["@type"] == "Article"
-        assert result["author"]["@type"] == "Person"
-        assert result["author"]["name"] == "Jane Smith"
+        author = result["author"]
+        assert isinstance(author, dict)
+        assert author["@type"] == "Person"
+        assert author["name"] == "Jane Smith"
 
     def test_none_input(self):
         """Test with None as input."""

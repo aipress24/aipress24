@@ -10,7 +10,7 @@ avoiding mocks per testing guidelines.
 
 from __future__ import annotations
 
-from lxml import etree
+from lxml import etree  # ty: ignore[unresolved-import]
 
 
 def _extract_by_id(html: str, element_id: str) -> str:

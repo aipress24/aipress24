@@ -297,6 +297,7 @@ class TestInitMissionsState:
             init_missions_state()
 
             missions = session.get("missions")
+            assert missions is not None
             assert missions["press_release"] is True
             assert missions["events"] is True
 
