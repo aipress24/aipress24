@@ -7,6 +7,7 @@
 from __future__ import annotations
 
 from . import (
+    achats,
     billing,
     comroom,
     dashboard,
@@ -19,9 +20,11 @@ from . import (
     performance,
     publication_notifications,
     publications,
+    ventes,
 )
 
 __all__ = [
+    "achats",
     "billing",
     "comroom",
     "dashboard",
@@ -34,4 +37,5 @@ __all__ = [
     "performance",
     "publication_notifications",
     "publications",
+    "ventes",
 ]
