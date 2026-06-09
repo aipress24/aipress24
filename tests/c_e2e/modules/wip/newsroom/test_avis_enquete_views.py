@@ -220,6 +220,19 @@ class TestJournalistAvisEnqueteViews:
         response = logged_in_client.get(url)
         assert response.status_code == 200
 
+    def test_index_exposes_justificatif_notification_counter(
+        self,
+        logged_in_client: FlaskClient,
+        test_avis_enquete: AvisEnquete,
+    ):
+        """Ticket #0195 — the « JdP notifiés » column is surfaced on
+        the avis list so the journalist can see the counter that
+        feeds rémunération."""
+        url = url_for("AvisEnqueteWipView:index")
+        body = logged_in_client.get(url).data.decode()
+        # The column header must be present (HTML entities tolerated).
+        assert "JdP notifi" in body
+
     def test_create_avis_enquete_form(self, logged_in_client: FlaskClient):
         """Avis d'enquête creation form loads successfully."""
         url = url_for("AvisEnqueteWipView:new")

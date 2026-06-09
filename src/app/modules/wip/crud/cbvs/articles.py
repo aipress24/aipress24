@@ -35,6 +35,23 @@ from ._base import BaseWipView
 from ._forms import ArticleForm
 from ._table import BaseTable
 
+
+def _absolute_url_for(endpoint: str, **values) -> str:
+    """Build an absolute URL for outbound notifications.
+
+    Mirrors the sujet helper (`cbvs/sujets.py`) — duplicated to keep
+    the import direction clean (this module already imports from many
+    others ; pulling the helper would add a circular hop via sujet's
+    rédac chef plumbing).
+    """
+    from flask import current_app, url_for as _url_for
+
+    domain = str(current_app.config.get("SERVER_NAME") or "aipress24.com")
+    protocol = "http" if domain.startswith("127.") else "https"
+    path = _url_for(endpoint, **values)
+    return f"{protocol}://{domain}{path}"
+
+
 # Custom list template for articles: adds a discreet reminder banner
 # pointing to the cession-droits policy page, visible only for users
 # whose active BW is of type `media`. The banner is shown at the top
@@ -181,6 +198,16 @@ class ArticlesTable(BaseTable):
                     "url": self.url_for(item, "unpublish"),
                 }
             )
+            # Ticket #0195 — « Justificatif » : notifier les
+            # participants à une enquête que l'article publié les
+            # concerne. Apparait uniquement sur les articles publiés
+            # car la cible (lecteur potentiel) doit pouvoir cliquer.
+            actions.append(
+                {
+                    "label": "Justificatif",
+                    "url": self.url_for(item, "notify"),
+                }
+            )
         actions += [
             {
                 "label": "Supprimer",
@@ -286,6 +313,88 @@ class ArticlesWipView(BaseWipView):
         db.session.commit()
         flash("L'article a été dépublié")
         return redirect(self._url_for("index"))
+
+    @route("/<int:id>/notify/", methods=["GET", "POST"])
+    def notify(self, id: int):
+        """Ticket #0195 — « Justificatif » action : notify enquête
+        participants of a publication.
+
+        GET : render the form with the journalist's avis d'enquêtes
+        and (if one is picked) its contacts.
+        POST : send mail + cloche to selected recipients.
+        """
+        # Lazy imports : keep the article view free of newsroom plumbing
+        # at cold start.
+        from app.modules.wip.services.newsroom.justificatif_notification import (
+            list_avis_contacts,
+            list_journalist_avis_enquetes,
+            notify_avis_participants_of_justificatif,
+        )
+
+        article = cast("Article", self._get_model(id))
+        user = g.user
+
+        if request.method == "POST":
+            try:
+                avis_id = int(request.form.get("avis_enquete_id", "0"))
+            except ValueError:
+                avis_id = 0
+            recipient_ids: list[int] = []
+            for raw in request.form.getlist("recipient_user_id"):
+                try:
+                    recipient_ids.append(int(raw))
+                except ValueError:
+                    continue
+
+            if not avis_id or not recipient_ids:
+                flash(
+                    "Choisissez une enquête et au moins un destinataire.",
+                    "error",
+                )
+                return redirect(self._url_for("notify", id=article.id))
+
+            from app.modules.wip.models.newsroom.avis_enquete import (
+                AvisEnquete,
+            )
+
+            avis = db.session.get(AvisEnquete, avis_id)
+            if avis is None or avis.owner_id != user.id:
+                flash("Enquête introuvable.", "error")
+                return redirect(self._url_for("index"))
+
+            notified = notify_avis_participants_of_justificatif(
+                article=article,
+                avis_enquete=avis,
+                recipient_user_ids=recipient_ids,
+                journalist=user,
+                article_url=_absolute_url_for("ArticlesWipView:get", id=article.id),
+            )
+            flash(
+                f"{notified} participant(s) notifié(s) du justificatif.",
+                "success",
+            )
+            return redirect(self._url_for("index"))
+
+        # GET — render the picker.
+        avis_list = list_journalist_avis_enquetes(user.id)
+        selected_avis_id_raw = request.args.get("avis_enquete_id", "")
+        try:
+            selected_avis_id = int(selected_avis_id_raw)
+        except ValueError:
+            selected_avis_id = 0
+        contacts = list_avis_contacts(selected_avis_id) if selected_avis_id else []
+        # Breadcrumbs : the base WIP layout reads them from the request
+        # context — `update_phase_breadcrumbs` populates the standard
+        # « Work > Articles > <title> > <phase> » trail.
+        self.update_phase_breadcrumbs(article, "Justificatif")
+        return render_template(
+            "wip/article/notify_justificatif.j2",
+            title=f"Notifier les participants — {article.title}",
+            article=article,
+            avis_list=avis_list,
+            selected_avis_id=selected_avis_id,
+            contacts=contacts,
+        )
 
     @route("/<int:id>/images/", methods=["GET", "POST"])
     def images(self, id: int):

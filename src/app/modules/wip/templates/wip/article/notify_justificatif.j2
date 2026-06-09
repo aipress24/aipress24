@@ -1,0 +1,89 @@
+{% extends "wip/layout/_base.j2" %}
+
+{% block body_class %}bg-gray-50{% endblock %}
+
+{% block body_content %}
+  <h1 class="text-2xl font-semibold text-gray-900 mb-2">
+    Notifier les participants
+  </h1>
+  <p class="text-sm text-gray-600 mb-6">
+    Article : <strong>{{ article.title }}</strong>
+  </p>
+
+  <form method="POST"
+        action="{{ url_for('ArticlesWipView:notify', id=article.id) }}"
+        class="bg-white border border-gray-200 rounded shadow-sm p-6 space-y-6">
+
+    <fieldset>
+      <legend class="text-sm font-medium text-gray-900 mb-2">
+        Voulez-vous notifier les personnes qui ont participé à l'enquête
+        à l'origine de votre article ?
+      </legend>
+      <p class="text-xs text-gray-500 mb-3">
+        Choisissez l'enquête qui fait l'objet de votre publication. Vos
+        destinataires recevront un e-mail ainsi qu'une notification sur
+        AiPRESS24, avec un lien direct vers l'article.
+      </p>
+      <select name="avis_enquete_id"
+              class="block w-full rounded-md border-gray-300 shadow-sm focus:border-pink-500 focus:ring-pink-500 sm:text-sm"
+              hx-get="{{ url_for('ArticlesWipView:notify', id=article.id) }}"
+              hx-trigger="change"
+              hx-target="#recipients-section"
+              hx-include="this"
+              hx-select="#recipients-section"
+              hx-swap="outerHTML">
+        <option value="">-- Sélectionnez une enquête --</option>
+        {% for a in avis_list %}
+          <option value="{{ a.id }}"
+                  {% if a.id == selected_avis_id %}selected{% endif %}>
+            {{ a.titre }}
+          </option>
+        {% endfor %}
+      </select>
+    </fieldset>
+
+    <fieldset id="recipients-section">
+      {% if selected_avis_id %}
+        <legend class="text-sm font-medium text-gray-900 mb-2">
+          Saisissez les noms des personnes que vous voulez notifier
+        </legend>
+        {% if contacts %}
+          <div class="space-y-2 max-h-64 overflow-y-auto border border-gray-200 rounded p-3">
+            {% for c in contacts %}
+              <label class="flex items-center space-x-2">
+                <input type="checkbox"
+                       name="recipient_user_id"
+                       value="{{ c.user_id }}"
+                       class="rounded border-gray-300 text-pink-600 focus:ring-pink-500">
+                <span class="text-sm text-gray-900">{{ c.full_name }}</span>
+                {% if c.email %}
+                  <span class="text-xs text-gray-500">({{ c.email }})</span>
+                {% endif %}
+              </label>
+            {% endfor %}
+          </div>
+        {% else %}
+          <p class="text-sm text-gray-600 italic">
+            Aucun participant trouvé pour cette enquête.
+          </p>
+        {% endif %}
+      {% else %}
+        <p class="text-sm text-gray-500 italic">
+          Sélectionnez d'abord une enquête ci-dessus pour voir la liste des
+          participants à notifier.
+        </p>
+      {% endif %}
+    </fieldset>
+
+    <div class="flex justify-end space-x-3">
+      <a href="{{ url_for('ArticlesWipView:index') }}"
+         class="rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">
+        Non — Retour à la liste
+      </a>
+      <button type="submit"
+              class="rounded-md border border-transparent bg-pink-600 px-4 py-2 text-sm font-medium text-white hover:bg-pink-700">
+        Envoyer les notifications
+      </button>
+    </div>
+  </form>
+{% endblock %}
