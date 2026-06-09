@@ -75,6 +75,32 @@ class Row:
     def ratio(self) -> float:
         return self.total_test_loc / self.src_loc if self.src_loc else 0.0
 
+    def tier_ratio(self, tier: str) -> float:
+        """LOC of `tier` tests / source LOC. Same denominator as
+        `ratio` so the three tier ratios sum to `ratio`."""
+        return self.tier_loc.get(tier, 0) / self.src_loc if self.src_loc else 0.0
+
+    def shape(self) -> str:
+        """One-glyph mnemonic for the testing pyramid shape :
+
+        - `▲` : healthy pyramid (a_unit ≥ b_integration ≥ c_e2e)
+        - `▼` : inverted (c_e2e dominates)
+        - `◇` : balanced — no tier > 50 % of the total
+        - `·` : no tests
+        """
+        if self.total_test_loc == 0:
+            return "·"
+        u, i, e = (self.tier_loc.get(t, 0) for t in TEST_TIERS)
+        total = self.total_test_loc
+        # Inverted : e2e is the largest tier AND clearly bigger than unit.
+        if e > u and e >= i and e / total > 0.5:
+            return "▼"
+        # Pyramid : a_unit is at least as big as both other tiers and
+        # the bottom is non-negligible.
+        if u >= i and u >= e and u / total >= 0.4:
+            return "▲"
+        return "◇"
+
 
 def cloc_loc(path: Path) -> int:
     """Return the Python `code` LOC under `path` as counted by cloc.
@@ -150,20 +176,30 @@ def format_table(rows: list[Row]) -> str:
     """Render a fixed-width table sorted by ratio descending."""
     rows_sorted = sorted(rows, key=lambda r: r.ratio, reverse=True)
 
-    headers = ("package", "src", "a_unit", "b_integ", "c_e2e", "tests", "ratio")
+    headers = (
+        "package",
+        "src",
+        "a_unit",
+        "b_integ",
+        "c_e2e",
+        "tests",
+        "ratio",
+        "shape",
+    )
     keys = ("src_loc", "a_unit", "b_integration", "c_e2e", "total_test_loc")
 
     name_w = max(len(headers[0]), max(len(r.name) for r in rows_sorted))
     num_widths: list[int] = []
-    for h, key in zip(headers[1:-1], keys, strict=True):
+    for h, key in zip(headers[1:-2], keys, strict=True):
         col_vals = [
             r.tier_loc[key] if key in TEST_TIERS else getattr(r, key)
             for r in rows_sorted
         ]
         num_widths.append(max(len(h), max(len(f"{v:,}") for v in col_vals)))
-    ratio_w = max(len(headers[-1]), len("99.99x"))
+    ratio_w = max(len(headers[-2]), len("99.99x"))
+    shape_w = max(len(headers[-1]), 1)
 
-    widths = [name_w, *num_widths, ratio_w]
+    widths = [name_w, *num_widths, ratio_w, shape_w]
     sep_line = "  ".join("-" * w for w in widths)
 
     header_line = "  ".join(
@@ -183,6 +219,7 @@ def format_table(rows: list[Row]) -> str:
                     f"{r.tier_loc['c_e2e']:>{widths[4]},}",
                     f"{r.total_test_loc:>{widths[5]},}",
                     f"{r.ratio:>{widths[6] - 1}.2f}x",
+                    f"{r.shape():>{widths[7]}}",
                 ]
             )
         )
@@ -249,6 +286,69 @@ def summary(rows: list[Row]) -> str:
         f"Heavily-tested (ratio > {OVER:.1f}x — {len(over)} units) :",
         over,
     )
+
+    # Per-tier balance — the classic test pyramid asks for many cheap
+    # unit tests, fewer integration tests, and only a small e2e cap.
+    # We flag two anti-shapes :
+    inverted = [r for r in rows if r.shape() == "▼"]
+    no_unit = [
+        r
+        for r in rows
+        if r.tier_loc.get("a_unit", 0) == 0
+        and r.total_test_loc > 0
+        and r.src_loc >= 200
+    ]
+
+    if inverted:
+        lines.append("")
+        lines.append(
+            f"Inverted pyramid (▼ : c_e2e > 50 % of total — {len(inverted)} "
+            f"units). Cheap tests are missing under the expensive ones :"
+        )
+        for r in sorted(inverted, key=lambda x: x.src_loc, reverse=True):
+            u = r.tier_loc.get("a_unit", 0)
+            i = r.tier_loc.get("b_integration", 0)
+            e = r.tier_loc.get("c_e2e", 0)
+            lines.append(
+                f"  - {r.name:<28}  src={r.src_loc:>6,}  "
+                f"u={u:>5,} i={i:>5,} e={e:>5,}  "
+                f"e_share={e / r.total_test_loc:.0%}"
+            )
+
+    if no_unit:
+        lines.append("")
+        lines.append(
+            f"No a_unit tier ({len(no_unit)} non-trivial units have tests "
+            "but zero unit-level coverage — pure-function logic is going "
+            "uncovered or buried in integration tests) :"
+        )
+        for r in sorted(no_unit, key=lambda x: x.src_loc, reverse=True):
+            i = r.tier_loc.get("b_integration", 0)
+            e = r.tier_loc.get("c_e2e", 0)
+            lines.append(
+                f"  - {r.name:<28}  src={r.src_loc:>6,}  "
+                f"u=    0 i={i:>5,} e={e:>5,}"
+            )
+
+    # Aggregate tier distribution as a sanity check.
+    if total_tests:
+        u_share = by_tier["a_unit"] / total_tests
+        i_share = by_tier["b_integration"] / total_tests
+        e_share = by_tier["c_e2e"] / total_tests
+        lines.append("")
+        lines.append(
+            f"Tier mix across the codebase : "
+            f"unit {u_share:.0%}  /  integration {i_share:.0%}  /  "
+            f"e2e {e_share:.0%}"
+        )
+        # Classic pyramid target ≈ 70 / 20 / 10. Anything where unit
+        # < 40 % is worth flagging at the macro level.
+        if u_share < 0.40:
+            lines.append(
+                "  ⚠ unit share is below 40 % — the pyramid is flattened. "
+                "Inverting it back means writing unit tests for code that "
+                "currently has only integration / e2e coverage."
+            )
     return "\n".join(lines)
 
 
