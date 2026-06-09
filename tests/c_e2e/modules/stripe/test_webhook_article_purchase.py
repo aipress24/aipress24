@@ -54,6 +54,7 @@ def _fake_payment_event(
     purchase_id: int,
     payment_intent: str = "pi_test_1",
     amount_total: int = 200,
+    amount_subtotal: int | None = None,
     currency: str = "eur",
 ) -> MagicMock:
     data_obj = {
@@ -65,6 +66,8 @@ def _fake_payment_event(
         "currency": currency,
         "payment_status": "paid",
     }
+    if amount_subtotal is not None:
+        data_obj["amount_subtotal"] = amount_subtotal
     event = MagicMock()
     event.id = f"evt_{session_id}"
     event.type = "checkout.session.completed"
@@ -87,6 +90,24 @@ class TestArticlePurchaseCheckout:
         assert purchase.amount_cents == 200
         assert purchase.currency == "EUR"
         assert purchase.paid_at is not None
+
+    def test_stores_amount_subtotal_when_present(self, fresh_db):
+        """When Stripe returns both amount_total (TTC) and
+        amount_subtotal (HT) we store the HT one — the whole pricing UX
+        (cumul, recap, cession ack email) labels amount_cents as € HT."""
+        session = fresh_db.session
+        _, _, purchase = _mk_article_purchase(session)
+
+        event = _fake_payment_event(
+            session_id="cs_paym_ht",
+            purchase_id=purchase.id,
+            amount_total=1200,  # TTC
+            amount_subtotal=1000,  # HT
+        )
+        on_checkout_session_completed(event)
+
+        session.refresh(purchase)
+        assert purchase.amount_cents == 1000
 
     def test_is_idempotent(self, fresh_db):
         session = fresh_db.session
