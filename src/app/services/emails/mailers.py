@@ -214,6 +214,9 @@ class ApplicationSelectedMail(EmailTemplate):
         - offer_title: title of the offer.
         - offer_url: absolute URL to the offer detail page.
         - emitter_name: full name of the offer owner (who selected).
+        - decision_message: free-text message the emitter attached
+          (#0199 + #0200). Empty string means « no custom message » ;
+          the template falls back to a default body.
     """
 
     subject: str = "[Aipress24] Votre candidature a été sélectionnée"
@@ -221,6 +224,7 @@ class ApplicationSelectedMail(EmailTemplate):
     offer_title: str
     offer_url: str
     emitter_name: str
+    decision_message: str = ""
 
 
 @dataclass(kw_only=True)
@@ -231,12 +235,17 @@ class ApplicationRejectedMail(EmailTemplate):
         - sender / recipient / sender_mail: standard fields.
         - offer_title: title of the offer.
         - offer_url: absolute URL to the offer detail page.
+        - emitter_name: full name of the offer owner (who rejected).
+        - decision_message: free-text message the emitter attached
+          (#0199 + #0200). Empty string means « no custom message ».
     """
 
     subject: str = "[Aipress24] Votre candidature n'a pas été retenue"
     template_html: str = "application_rejected.j2"
     offer_title: str
     offer_url: str
+    emitter_name: str = ""
+    decision_message: str = ""
 
 
 @dataclass(kw_only=True)

@@ -164,6 +164,11 @@ class ProjectOffer(MarketplaceContent, ClassificationMixin, Publishable):
     mission_status: Mapped[MissionStatus] = mapped_column(default=MissionStatus.OPEN)
     team_size: Mapped[int | None] = mapped_column(default=None)
     duration_months: Mapped[int | None] = mapped_column(default=None)
+    # Ticket #0198 — top-level category (« journalisme » / « communication »
+    # / « innovation » as in the `type_projets` taxonomy) + sub-type
+    # drawn from the matching per-category taxonomy
+    # (`type_projet_journalisme` etc.).
+    project_category: Mapped[str] = mapped_column(default="")
     project_type: Mapped[str] = mapped_column(default="")
 
     emitter_org = relationship("Organisation", foreign_keys=[emitter_org_id])
@@ -220,3 +225,6 @@ class OfferApplication(IdMixin, LifeCycleMixin, Owned, Base):
     message: Mapped[str] = mapped_column(default="")
     cv_url: Mapped[str] = mapped_column(default="")
     status: Mapped[ApplicationStatus] = mapped_column(default=ApplicationStatus.PENDING)
+    # Free-text message the emitter attaches when accepting / rejecting
+    # (tickets #0199 + #0200). Empty for PENDING applications.
+    decision_message: Mapped[str] = mapped_column(default="")

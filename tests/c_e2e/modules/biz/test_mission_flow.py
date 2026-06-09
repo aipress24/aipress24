@@ -12,6 +12,7 @@ from typing import TYPE_CHECKING
 from unittest.mock import patch
 
 import pytest
+from svcs.flask import container
 
 from app.enums import RoleEnum
 from app.models.auth import Role, User
@@ -24,6 +25,7 @@ from app.modules.biz.models import (
     MissionStatus,
     OfferApplication,
 )
+from app.services.notifications import NotificationService
 from tests.c_e2e.conftest import make_authenticated_client
 
 if TYPE_CHECKING:
@@ -253,6 +255,110 @@ class TestMissionDashboard:
         )
         assert response.status_code == 200
         assert b"Ma candidature" in response.data
+
+    def test_select_persists_decision_message_and_notifies(
+        self,
+        app: Flask,
+        db_session: Session,
+        published_mission: MissionOffer,
+        emitter: User,
+        applicant: User,
+    ):
+        """Tickets #0199 + #0200 — the emitter can attach a free-text
+        message to the accept/reject decision. Persisted on the
+        application row, e-mailed to the candidate via
+        ApplicationSelectedMail.decision_message, AND posted as an
+        in-app cloche."""
+        # Submit application.
+        applicant_client = make_authenticated_client(app, applicant)
+        with patch(
+            "app.modules.biz.views._offers_common.notify_emitter_of_application"
+        ):
+            applicant_client.post(
+                f"/biz/missions/{published_mission.id}/apply",
+                data={"message": "Je postule"},
+            )
+        application = (
+            db_session.query(OfferApplication)
+            .filter_by(offer_id=published_mission.id)
+            .first()
+        )
+        assert application is not None
+
+        # Emitter selects with a custom message.
+        emitter_client = make_authenticated_client(app, emitter)
+        with patch(
+            "app.modules.biz.services.offer_notifications.ApplicationSelectedMail"
+        ) as mail_cls:
+            mail_cls.return_value.send.return_value = None
+            response = emitter_client.post(
+                f"/biz/missions/{published_mission.id}"
+                f"/applications/{application.id}/select",
+                data={"decision_message": "Bravo, vous êtes pris."},
+                follow_redirects=False,
+            )
+
+        assert response.status_code == 302
+        db_session.refresh(application)
+        assert application.status == ApplicationStatus.SELECTED
+        assert application.decision_message == "Bravo, vous êtes pris."
+
+        # The mailer received the message.
+        assert mail_cls.called
+        assert mail_cls.call_args.kwargs["decision_message"] == (
+            "Bravo, vous êtes pris."
+        )
+
+        # And the in-app cloche fired for the applicant.
+        notifs = container.get(NotificationService).get_notifications(applicant)
+        assert any(
+            published_mission.title in n.message
+            and "Bravo, vous êtes pris." in n.message
+            for n in notifs
+        )
+
+    def test_reject_persists_decision_message_and_notifies(
+        self,
+        app: Flask,
+        db_session: Session,
+        published_mission: MissionOffer,
+        emitter: User,
+        applicant: User,
+    ):
+        applicant_client = make_authenticated_client(app, applicant)
+        with patch(
+            "app.modules.biz.views._offers_common.notify_emitter_of_application"
+        ):
+            applicant_client.post(
+                f"/biz/missions/{published_mission.id}/apply",
+                data={"message": "Je postule"},
+            )
+        application = (
+            db_session.query(OfferApplication)
+            .filter_by(offer_id=published_mission.id)
+            .first()
+        )
+        assert application is not None
+
+        emitter_client = make_authenticated_client(app, emitter)
+        with patch(
+            "app.modules.biz.services.offer_notifications.ApplicationRejectedMail"
+        ) as mail_cls:
+            mail_cls.return_value.send.return_value = None
+            emitter_client.post(
+                f"/biz/missions/{published_mission.id}"
+                f"/applications/{application.id}/reject",
+                data={"decision_message": "Désolé, profil non retenu."},
+                follow_redirects=False,
+            )
+
+        db_session.refresh(application)
+        assert application.status == ApplicationStatus.REJECTED
+        assert application.decision_message == "Désolé, profil non retenu."
+        assert mail_cls.called
+        assert mail_cls.call_args.kwargs["decision_message"] == (
+            "Désolé, profil non retenu."
+        )
 
     def test_emitter_can_select_application(
         self,
@@ -602,10 +708,34 @@ class TestMissionCategorySubtyping:
             assert f'value="{value}"' in body, (
                 f"category option {value} missing in the form"
             )
-        # Spot-check at least one sub-option from each category's
-        # placeholder list.
-        for sub in ("Pige / Reportage", "Campagne RP", "Outil IA"):
+        # Communication / Innovation sub-types remain hardcoded.
+        for sub in ("Campagne RP", "Outil IA"):
             assert sub in body, f"sub-option {sub!r} missing in form template"
+
+    def test_journalism_subtype_sourced_from_genres_ontology(
+        self,
+        app: Flask,
+        emitter: User,
+    ):
+        """Ticket #0201 — the journalism sub-type select must be
+        populated from the `genres` taxonomy, not the legacy hardcoded
+        list (« Pige / Reportage », « Enquête »…)."""
+        client = make_authenticated_client(app, emitter)
+        # Stub the taxonomy so we don't depend on prod ontology data.
+        fake_genres = ["Portrait test #0201", "Brève test #0201"]
+        with patch(
+            "app.modules.biz.views.missions.get_taxonomy",
+            return_value=fake_genres,
+        ):
+            response = client.get("/biz/missions/new")
+
+        assert response.status_code == 200
+        body = response.data.decode()
+        for sub in fake_genres:
+            assert sub in body, (
+                f"genres ontology entry {sub!r} should populate the "
+                "journalism sub-type select"
+            )
 
     def test_category_and_subcategory_surface_on_card_and_detail(
         self,

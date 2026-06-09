@@ -129,8 +129,21 @@ def require_owner(offer) -> User:
 
 
 def update_application_status(
-    offer, app_id: int, new_status: ApplicationStatus, redirect_endpoint: str
+    offer,
+    app_id: int,
+    new_status: ApplicationStatus,
+    redirect_endpoint: str,
+    *,
+    decision_message: str = "",
 ):
+    """Flip an application's status to SELECTED or REJECTED, persist
+    the emitter's free-text decision message, and notify the applicant
+    (mail + in-app cloche).
+
+    `decision_message` comes from the form on the dashboard. It is
+    visible to the candidate in WORK/OPPORTUNITÉS/Missions (or Projets)
+    and quoted in the outbound mail, per Erick #0199 + #0200.
+    """
     require_owner(offer)
     application = db.session.get(OfferApplication, app_id)
     if application is None or application.offer_id != offer.id:
@@ -138,6 +151,7 @@ def update_application_status(
 
     previous_status = application.status
     application.status = new_status
+    application.decision_message = decision_message
     db.session.commit()
 
     if previous_status != new_status:
