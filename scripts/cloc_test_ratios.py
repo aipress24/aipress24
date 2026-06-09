@@ -30,6 +30,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
 import shutil
 import statistics
 import subprocess
@@ -39,8 +40,26 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 SRC_ROOT = ROOT / "src" / "app"
-TEST_TIERS: tuple[str, ...] = ("a_unit", "b_integration", "c_e2e")
-TIER_ROOTS = {tier: ROOT / "tests" / tier for tier in TEST_TIERS}
+
+# The four tiers we count, in increasing cost order.
+#
+# Naming caveat : `tests/c_e2e/` is named « e2e » but actually holds
+# HTTP-stack tests using the Flask test client — no browser, no
+# network, no flake. The real browser tier lives in `e2e_playwright/`
+# (separate root). For clarity in the output we surface them as two
+# distinct columns and call out the difference in the summary.
+TEST_TIERS: tuple[str, ...] = (
+    "a_unit",
+    "b_integration",
+    "c_e2e",
+    "e2e_playwright",
+)
+TIER_ROOTS = {
+    "a_unit": ROOT / "tests" / "a_unit",
+    "b_integration": ROOT / "tests" / "b_integration",
+    "c_e2e": ROOT / "tests" / "c_e2e",
+    "e2e_playwright": ROOT / "e2e_playwright",
+}
 
 # Packages we don't expect to test, by policy. Keep this short — every
 # entry should have a stated reason so future readers can challenge it.
@@ -80,24 +99,38 @@ class Row:
         `ratio` so the three tier ratios sum to `ratio`."""
         return self.tier_loc.get(tier, 0) / self.src_loc if self.src_loc else 0.0
 
+    @property
+    def unit_share(self) -> float:
+        """Fraction of test LOC that is a_unit. Headline metric for
+        the pyramid-refactor work : the policy target is ≥ 0.5 (50 %
+        of test code is cheap unit tests), ideally ≥ 0.6."""
+        return (
+            self.tier_loc.get("a_unit", 0) / self.total_test_loc
+            if self.total_test_loc
+            else 0.0
+        )
+
     def shape(self) -> str:
         """One-glyph mnemonic for the testing pyramid shape :
 
-        - `▲` : healthy pyramid (a_unit ≥ b_integration ≥ c_e2e)
-        - `▼` : inverted (c_e2e dominates)
-        - `◇` : balanced — no tier > 50 % of the total
-        - `·` : no tests
+        - `▲` : healthy pyramid (a_unit is the dominant tier).
+        - `▼` : inverted — the combined HTTP-stack + browser tiers
+          (c_e2e + e2e_playwright) outweigh unit tests, AND unit
+          share is below 30 %.
+        - `◇` : balanced — none of the above patterns triggers.
+        - `·` : no tests.
         """
         if self.total_test_loc == 0:
             return "·"
-        u, i, e = (self.tier_loc.get(t, 0) for t in TEST_TIERS)
-        total = self.total_test_loc
-        # Inverted : e2e is the largest tier AND clearly bigger than unit.
-        if e > u and e >= i and e / total > 0.5:
+        u = self.tier_loc.get("a_unit", 0)
+        heavy = self.tier_loc.get("c_e2e", 0) + self.tier_loc.get(
+            "e2e_playwright", 0
+        )
+        if heavy > u and self.unit_share < 0.3:
             return "▼"
-        # Pyramid : a_unit is at least as big as both other tiers and
-        # the bottom is non-negligible.
-        if u >= i and u >= e and u / total >= 0.4:
+        if u >= max(self.tier_loc.get(t, 0) for t in TEST_TIERS) and (
+            self.unit_share >= 0.4
+        ):
             return "▲"
         return "◇"
 
@@ -154,8 +187,24 @@ def discover_source_units() -> list[tuple[str, Path]]:
 
 
 def test_paths_for(rel_name: str) -> dict[str, Path]:
-    """Map the source unit name to its three tier paths."""
-    return {tier: TIER_ROOTS[tier] / rel_name for tier in TEST_TIERS}
+    """Map the source unit name to its tier paths.
+
+    `tests/{a_unit,b_integration,c_e2e}/` mirror `src/app/` directly,
+    so `modules/biz` → `tests/<tier>/modules/biz`. The Playwright
+    tier flatters the layout : `e2e_playwright/biz/` (no `modules/`
+    prefix). We translate accordingly.
+    """
+    out: dict[str, Path] = {}
+    for tier in TEST_TIERS:
+        if tier == "e2e_playwright":
+            # Strip the `modules/` prefix so `modules/biz` → `biz`.
+            playwright_name = (
+                rel_name.removeprefix("modules/") if rel_name != "modules" else rel_name
+            )
+            out[tier] = TIER_ROOTS[tier] / playwright_name
+        else:
+            out[tier] = TIER_ROOTS[tier] / rel_name
+    return out
 
 
 def build_rows(min_src: int, exclude: frozenset[str]) -> list[Row]:
@@ -182,24 +231,34 @@ def format_table(rows: list[Row]) -> str:
         "a_unit",
         "b_integ",
         "c_e2e",
+        "browser",
         "tests",
         "ratio",
+        "u%",
         "shape",
     )
-    keys = ("src_loc", "a_unit", "b_integration", "c_e2e", "total_test_loc")
+    keys = (
+        "src_loc",
+        "a_unit",
+        "b_integration",
+        "c_e2e",
+        "e2e_playwright",
+        "total_test_loc",
+    )
 
     name_w = max(len(headers[0]), max(len(r.name) for r in rows_sorted))
     num_widths: list[int] = []
-    for h, key in zip(headers[1:-2], keys, strict=True):
+    for h, key in zip(headers[1:-3], keys, strict=True):
         col_vals = [
             r.tier_loc[key] if key in TEST_TIERS else getattr(r, key)
             for r in rows_sorted
         ]
         num_widths.append(max(len(h), max(len(f"{v:,}") for v in col_vals)))
-    ratio_w = max(len(headers[-2]), len("99.99x"))
+    ratio_w = max(len(headers[-3]), len("99.99x"))
+    u_share_w = max(len(headers[-2]), len("100%"))
     shape_w = max(len(headers[-1]), 1)
 
-    widths = [name_w, *num_widths, ratio_w, shape_w]
+    widths = [name_w, *num_widths, ratio_w, u_share_w, shape_w]
     sep_line = "  ".join("-" * w for w in widths)
 
     header_line = "  ".join(
@@ -209,6 +268,7 @@ def format_table(rows: list[Row]) -> str:
 
     body_lines = []
     for r in rows_sorted:
+        u_pct = f"{r.unit_share * 100:.0f}%" if r.total_test_loc else "—"
         body_lines.append(
             "  ".join(
                 [
@@ -217,9 +277,11 @@ def format_table(rows: list[Row]) -> str:
                     f"{r.tier_loc['a_unit']:>{widths[2]},}",
                     f"{r.tier_loc['b_integration']:>{widths[3]},}",
                     f"{r.tier_loc['c_e2e']:>{widths[4]},}",
-                    f"{r.total_test_loc:>{widths[5]},}",
-                    f"{r.ratio:>{widths[6] - 1}.2f}x",
-                    f"{r.shape():>{widths[7]}}",
+                    f"{r.tier_loc['e2e_playwright']:>{widths[5]},}",
+                    f"{r.total_test_loc:>{widths[6]},}",
+                    f"{r.ratio:>{widths[7] - 1}.2f}x",
+                    f"{u_pct:>{widths[8]}}",
+                    f"{r.shape():>{widths[9]}}",
                 ]
             )
         )
@@ -260,7 +322,8 @@ def summary(rows: list[Row]) -> str:
         f"Total test LOC        : {total_tests:,}",
         "  a_unit              : {a_unit:,}".format(**by_tier),
         "  b_integration       : {b_integration:,}".format(**by_tier),
-        "  c_e2e               : {c_e2e:,}".format(**by_tier),
+        "  c_e2e (Flask client): {c_e2e:,}".format(**by_tier),
+        "  e2e_playwright      : {e2e_playwright:,}".format(**by_tier),
         f"Weighted test/src     : {weighted:.2f}x  (Σ tests / Σ src)",
         f"Plain mean ratio      : {mean:.2f}x  ± {stdev:.2f}",
         f"Median ratio          : {median:.2f}x",
@@ -277,7 +340,33 @@ def summary(rows: list[Row]) -> str:
                 f"tests={r.total_test_loc:>6,}  ratio={r.ratio:5.2f}x"
             )
 
+    # Headline metric — unit share of total tests. Target ≥ 50 %
+    # for any module > 500 src LOC.
+    LOW_UNIT, MIN_SRC = 0.40, 500
+    low_unit = [
+        r
+        for r in rows
+        if r.total_test_loc > 0
+        and r.src_loc >= MIN_SRC
+        and r.unit_share < LOW_UNIT
+    ]
+
     _list(f"No tests at all ({len(untested)} units) :", untested)
+    if low_unit:
+        lines.append("")
+        lines.append(
+            f"Low unit share (a_unit/total < {LOW_UNIT:.0%} on > "
+            f"{MIN_SRC} LOC src — {len(low_unit)} units). "
+            "Pure-function logic is going uncovered or trapped in "
+            "integration/e2e tests :"
+        )
+        for r in sorted(low_unit, key=lambda x: x.unit_share):
+            u = r.tier_loc.get("a_unit", 0)
+            rest = r.total_test_loc - u
+            lines.append(
+                f"  - {r.name:<28}  src={r.src_loc:>6,}  "
+                f"u={u:>5,}  rest={rest:>5,}  u_share={r.unit_share:5.0%}"
+            )
     _list(
         f"Under-tested (0 < ratio < {UNDER:.1f}x — {len(under)} units) :",
         under,
@@ -287,9 +376,8 @@ def summary(rows: list[Row]) -> str:
         over,
     )
 
-    # Per-tier balance — the classic test pyramid asks for many cheap
-    # unit tests, fewer integration tests, and only a small e2e cap.
-    # We flag two anti-shapes :
+    # Per-tier balance — the classic pyramid asks for many cheap unit
+    # tests, fewer integration tests, and only a small e2e cap.
     inverted = [r for r in rows if r.shape() == "▼"]
     no_unit = [
         r
@@ -302,17 +390,18 @@ def summary(rows: list[Row]) -> str:
     if inverted:
         lines.append("")
         lines.append(
-            f"Inverted pyramid (▼ : c_e2e > 50 % of total — {len(inverted)} "
-            f"units). Cheap tests are missing under the expensive ones :"
+            f"Inverted pyramid (▼ : HTTP-stack + browser tiers outweigh "
+            f"unit AND u_share < 30 % — {len(inverted)} units). "
+            "Cheap tests are missing under the expensive ones :"
         )
         for r in sorted(inverted, key=lambda x: x.src_loc, reverse=True):
             u = r.tier_loc.get("a_unit", 0)
             i = r.tier_loc.get("b_integration", 0)
             e = r.tier_loc.get("c_e2e", 0)
+            pw = r.tier_loc.get("e2e_playwright", 0)
             lines.append(
                 f"  - {r.name:<28}  src={r.src_loc:>6,}  "
-                f"u={u:>5,} i={i:>5,} e={e:>5,}  "
-                f"e_share={e / r.total_test_loc:.0%}"
+                f"u={u:>5,} i={i:>5,} e={e:>5,} pw={pw:>4,}"
             )
 
     if no_unit:
@@ -325,30 +414,105 @@ def summary(rows: list[Row]) -> str:
         for r in sorted(no_unit, key=lambda x: x.src_loc, reverse=True):
             i = r.tier_loc.get("b_integration", 0)
             e = r.tier_loc.get("c_e2e", 0)
+            pw = r.tier_loc.get("e2e_playwright", 0)
             lines.append(
                 f"  - {r.name:<28}  src={r.src_loc:>6,}  "
-                f"u=    0 i={i:>5,} e={e:>5,}"
+                f"u=    0 i={i:>5,} e={e:>5,} pw={pw:>4,}"
             )
 
-    # Aggregate tier distribution as a sanity check.
     if total_tests:
         u_share = by_tier["a_unit"] / total_tests
         i_share = by_tier["b_integration"] / total_tests
         e_share = by_tier["c_e2e"] / total_tests
+        pw_share = by_tier["e2e_playwright"] / total_tests
         lines.append("")
         lines.append(
             f"Tier mix across the codebase : "
             f"unit {u_share:.0%}  /  integration {i_share:.0%}  /  "
-            f"e2e {e_share:.0%}"
+            f"HTTP-e2e {e_share:.0%}  /  browser {pw_share:.0%}"
         )
-        # Classic pyramid target ≈ 70 / 20 / 10. Anything where unit
-        # < 40 % is worth flagging at the macro level.
+        lines.append(
+            "Caveat : tier is by directory, not by what each test actually "
+            "exercises. Some `c_e2e/` files use only the Flask client + DB "
+            "and are really integration tests ; some `b_integration/` files "
+            "are pure unit. Audit with `--audit` to surface mismatches."
+        )
         if u_share < 0.40:
             lines.append(
-                "  ⚠ unit share is below 40 % — the pyramid is flattened. "
-                "Inverting it back means writing unit tests for code that "
-                "currently has only integration / e2e coverage."
+                "  ⚠ unit share is below 40 % — the pyramid is flattened."
             )
+    return "\n".join(lines)
+
+
+_PLAYWRIGHT_RE = re.compile(r"\b(?:from|import)\s+playwright(?:[. ]|$)")
+# Flask test-client : actual call sites, not mere mentions in comments.
+_FLASK_CLIENT_RE = re.compile(
+    r"\b(?:make_authenticated_client|app\.test_client\(\)|"
+    r"client\.(?:get|post|put|delete|patch)\(|FlaskClient\b)"
+)
+# DB fixture injection : the fixture name appearing as a function
+# parameter, not in a docstring or comment. Looks for `(db_session`,
+# `, db_session`, or on its own line in a multi-line signature.
+_DB_FIXTURE_RE = re.compile(
+    r"(?:\(|,\s|^\s+)\s*(?:db_session|fresh_db)\b", re.MULTILINE
+)
+
+
+def _classify_file(path: Path) -> str:
+    """Heuristic : what tier should this test file *really* belong to,
+    based on which markers it uses?
+
+    Order matters — a file that drives a browser AND a Flask client
+    is still a browser test (the cheaper signal is dominated by the
+    expensive one).
+    """
+    try:
+        text = path.read_text(encoding="utf-8", errors="ignore")
+    except OSError:
+        return "?"
+    if _PLAYWRIGHT_RE.search(text):
+        return "e2e_playwright"
+    if _FLASK_CLIENT_RE.search(text):
+        return "c_e2e"
+    if _DB_FIXTURE_RE.search(text):
+        return "b_integration"
+    return "a_unit"
+
+
+def audit_misclassifications() -> list[tuple[Path, str, str]]:
+    """Walk every test file and flag those whose containing tier
+    disagrees with what the markers suggest. Returns a list of
+    `(path, actual_tier, detected_tier)` tuples."""
+    out: list[tuple[Path, str, str]] = []
+    for tier, root in TIER_ROOTS.items():
+        if not root.exists():
+            continue
+        for py in root.rglob("test_*.py"):
+            detected = _classify_file(py)
+            if detected == "?":
+                continue
+            if detected != tier:
+                out.append((py, tier, detected))
+    return out
+
+
+def format_audit(misses: list[tuple[Path, str, str]]) -> str:
+    if not misses:
+        return "Audit : no tier mismatches detected."
+    lines = [
+        f"Audit : {len(misses)} test file(s) likely misclassified.",
+        "  detected = what the file's imports / fixtures suggest.",
+        "  Move it (or relax this rule) if the heuristic is wrong.",
+        "",
+    ]
+    by_pair: dict[tuple[str, str], list[Path]] = {}
+    for path, actual, detected in misses:
+        by_pair.setdefault((actual, detected), []).append(path)
+    for (actual, detected), paths in sorted(by_pair.items()):
+        lines.append(f"  {actual}/  →  detected as {detected}  ({len(paths)}) :")
+        for p in sorted(paths):
+            lines.append(f"    - {p.relative_to(ROOT)}")
+        lines.append("")
     return "\n".join(lines)
 
 
@@ -392,8 +556,21 @@ def main() -> int:
             f"exclusions: {sorted(DEFAULT_EXCLUDE)}."
         ),
     )
+    parser.add_argument(
+        "--audit",
+        action="store_true",
+        help=(
+            "Skip the LOC report and instead walk every test file, "
+            "comparing its containing tier against what its imports / "
+            "fixtures suggest. Lists likely-misclassified files."
+        ),
+    )
     args = parser.parse_args()
     exclude = DEFAULT_EXCLUDE | frozenset(args.exclude)
+
+    if args.audit:
+        print(format_audit(audit_misclassifications()))
+        return 0
 
     if shutil.which("cloc") is None:
         print("cloc not found on PATH — install it first.", file=sys.stderr)
