@@ -43,10 +43,24 @@ class SearchEngine:
     @classmethod
     def svcs_factory(cls, container: Container) -> SearchEngine:
         from flask import current_app
+        from sqlalchemy import create_engine
+        from sqlalchemy.pool import NullPool
         from wesh.backends.sql.storage import SQLAlchemyStorage
 
         url = current_app.config["SQLALCHEMY_DATABASE_URI"]
-        storage = SQLAlchemyStorage(url).create()
+        # wesh's `_make_engine` defaults to QueuePool(size=5, overflow=10)
+        # for non-SQLite URLs even though its own docstring warns this
+        # « exhausts quickly » under multi-segment indexes : every count /
+        # search opens several segment readers, each grabbing its own
+        # connection, and `/search/?qs=…` iterates over every collection
+        # in COLLECTIONS — easily blowing past 15 connections per request
+        # and producing a `QueuePool limit … timed out` 500. NullPool
+        # short-circuits the cap : every checkout opens a fresh
+        # connection and returns it to the OS as soon as wesh closes
+        # the reader, so a request can use as many concurrent readers
+        # as it needs without starving the pool.
+        engine = create_engine(url, poolclass=NullPool)
+        storage = SQLAlchemyStorage(engine).create()
         return cls(storage)
 
     # ── Index lifecycle ─────────────────────────────────────────────
