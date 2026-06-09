@@ -18,7 +18,7 @@ from flask_classful import route
 from flask_super.registry import register
 from markupsafe import Markup
 from sqlalchemy_utils.types.arrow import arrow
-from werkzeug.exceptions import NotFound
+from werkzeug.exceptions import Forbidden, NotFound
 
 from app.flask.extensions import db
 from app.flask.lib.templates import templated
@@ -334,6 +334,13 @@ class ArticlesWipView(BaseWipView):
         article = cast("Article", self._get_model(id))
         user = g.user
 
+        # Only the article's author can trigger justificatif notifications.
+        # Without this guard any WIP user could POST/GET for any article
+        # id and either spam recipients in the author's name or
+        # reconnoitre the journalist's avis list.
+        if getattr(article, "owner_id", None) != user.id:
+            raise Forbidden
+
         if request.method == "POST":
             try:
                 avis_id = int(request.form.get("avis_enquete_id", "0"))
@@ -369,6 +376,13 @@ class ArticlesWipView(BaseWipView):
                 journalist=user,
                 article_url=_absolute_url_for("ArticlesWipView:get", id=article.id),
             )
+            # Commit before redirect. The service only flushes the
+            # counter increment + in-app notifications ; without this
+            # commit, the request teardown (`session.remove()`) rolls
+            # everything back. The flash would claim success while the
+            # DB stayed unchanged — breaking the journalist's
+            # rémunération calc which feeds off this counter.
+            db.session.commit()
             flash(
                 f"{notified} participant(s) notifié(s) du justificatif.",
                 "success",

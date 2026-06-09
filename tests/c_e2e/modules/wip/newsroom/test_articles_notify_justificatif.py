@@ -25,6 +25,7 @@ from app.modules.wip.models.newsroom.avis_enquete import (
     AvisEnquete,
     ContactAvisEnquete,
 )
+from app.modules.wip.services.newsroom import justificatif_notification
 from tests.c_e2e.conftest import make_authenticated_client
 
 if TYPE_CHECKING:
@@ -181,6 +182,145 @@ class TestNotifyForm:
             flashes = sess.get("_flashes") or []
             messages = [m for _c, m in flashes]
             assert any("au moins un destinataire" in m for m in messages)
+
+    def test_post_on_someone_elses_article_refused(
+        self,
+        app: Flask,
+        fresh_db,
+        test_user: User,
+        test_org: Organisation,
+        avis_with_contacts: tuple[AvisEnquete, User],
+    ):
+        """A journalist must not be able to trigger notifications for
+        an article they did not author, even if they own the avis they
+        are pairing it with."""
+        db = fresh_db.session
+        other = User(email=_email(), first_name="OtherAuth", last_name="X", active=True)
+        db.add(other)
+        db.commit()
+        now_arrow = arrow.utcnow()
+        foreign_article = Article(
+            titre="Other's article",
+            owner_id=other.id,
+            publisher_id=test_org.id,
+            commanditaire_id=other.id,
+            media_id=test_org.id,
+            status=PublicationStatus.PUBLIC,
+            published_at=now_arrow,
+            date_parution_prevue=now_arrow,
+        )
+        db.add(foreign_article)
+        db.commit()
+
+        avis, expert = avis_with_contacts
+        client = make_authenticated_client(app, test_user)
+        with patch(
+            "app.modules.wip.services.newsroom.justificatif_notification"
+            ".notify_avis_participants_of_justificatif"
+        ) as mock_notify:
+            response = client.post(
+                url_for("ArticlesWipView:notify", id=foreign_article.id),
+                data={
+                    "avis_enquete_id": str(avis.id),
+                    "recipient_user_id": [str(expert.id)],
+                },
+                follow_redirects=False,
+            )
+        # GET also refused.
+        get_response = client.get(
+            url_for("ArticlesWipView:notify", id=foreign_article.id)
+        )
+        assert response.status_code in (302, 303, 403)
+        assert get_response.status_code in (302, 303, 403)
+        mock_notify.assert_not_called()
+
+    def test_post_commits_jdp_counter(
+        self,
+        app: Flask,
+        fresh_db,
+        test_user: User,
+        published_article: Article,
+        avis_with_contacts: tuple[AvisEnquete, User],
+    ):
+        """The JdP counter increment must survive the request boundary
+        (not just `flush()` which gets rolled back at teardown)."""
+        avis, expert = avis_with_contacts
+        previous = avis.justificatif_notifications_count or 0
+
+        client = make_authenticated_client(app, test_user)
+        # Stub the side-effects so we don't actually send mail/cloche,
+        # but exercise the real counter-increment + commit.
+        with (
+            patch.object(justificatif_notification, "_post_in_app"),
+            patch.object(justificatif_notification, "_send_email"),
+        ):
+            response = client.post(
+                url_for("ArticlesWipView:notify", id=published_article.id),
+                data={
+                    "avis_enquete_id": str(avis.id),
+                    "recipient_user_id": [str(expert.id)],
+                },
+                follow_redirects=False,
+            )
+        assert response.status_code in (302, 303)
+
+        # Force a fresh read from DB — if commit happened, the counter
+        # is incremented ; if only flush happened it's back to `previous`.
+        fresh_db.session.expire_all()
+        reloaded = fresh_db.session.get(AvisEnquete, avis.id)
+        assert reloaded is not None
+        assert reloaded.justificatif_notifications_count == previous + 1
+
+    def test_post_filters_recipients_not_in_avis(
+        self,
+        app: Flask,
+        fresh_db,
+        test_user: User,
+        published_article: Article,
+        avis_with_contacts: tuple[AvisEnquete, User],
+    ):
+        """The service must drop recipient_user_ids that don't
+        correspond to actual ContactAvisEnquete.expert_id rows of the
+        avis. Otherwise an attacker can email any user_id."""
+        db = fresh_db.session
+        outsider = User(
+            email=_email(), first_name="Outsider", last_name="X", active=True
+        )
+        db.add(outsider)
+        db.commit()
+
+        avis, expert = avis_with_contacts
+
+        # Don't mock the service — exercise the real filter.
+        captured: list[int] = []
+        original_post_in_app = justificatif_notification._post_in_app
+
+        def _capture(recipient, *args, **kwargs):
+            captured.append(recipient.id)
+            # don't actually post — avoid touching NotificationService
+
+        with (
+            patch.object(
+                justificatif_notification, "_post_in_app", side_effect=_capture
+            ),
+            patch.object(justificatif_notification, "_send_email"),
+        ):
+            client = make_authenticated_client(app, test_user)
+            client.post(
+                url_for("ArticlesWipView:notify", id=published_article.id),
+                data={
+                    "avis_enquete_id": str(avis.id),
+                    # Both: real expert AND the outsider id.
+                    "recipient_user_id": [str(expert.id), str(outsider.id)],
+                },
+                follow_redirects=False,
+            )
+
+        # Only the real avis contact was notified ; the outsider is dropped.
+        assert expert.id in captured
+        assert outsider.id not in captured
+        # Suppress unused-variable warning.
+        _ = original_post_in_app
 
     def test_post_on_someone_elses_avis_refused(
         self,

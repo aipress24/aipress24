@@ -46,9 +46,19 @@ def notify_avis_participants_of_justificatif(
     if not recipient_user_ids:
         return 0
 
+    # Filter recipient ids against the avis's actual contacts
+    # (`ContactAvisEnquete.expert_id`). The form input is client-side,
+    # so without this check a journalist could pass any User.id and
+    # spam-email arbitrary users — and inflate
+    # `justificatif_notifications_count` on top of it.
+    allowed_ids = _avis_contact_ids(avis_enquete.id)
+    filtered_ids = [uid for uid in recipient_user_ids if uid in allowed_ids]
+    if not filtered_ids:
+        return 0
+
     media_name = _journalist_media_name(journalist)
     notified = 0
-    for user_id in recipient_user_ids:
+    for user_id in filtered_ids:
         recipient = db.session.get(User, user_id)
         if recipient is None:
             continue
@@ -85,10 +95,6 @@ def notify_avis_participants_of_justificatif(
     # of participants actually notified. Downstream rémunération is
     # computed off this counter ; a notification that didn't reach a
     # real user (unknown id) doesn't count.
-    #
-    # We flush rather than commit : the web request commits at its
-    # boundary, and tests' transactional wrapper rolls back. Hard-
-    # committing here would leak rows across test isolation.
     if notified:
         current = avis_enquete.justificatif_notifications_count or 0
         avis_enquete.justificatif_notifications_count = current + notified
@@ -159,6 +165,22 @@ def list_journalist_avis_enquetes(journalist_id: int) -> list[dict]:
         .all()
     )
     return [{"id": r.id, "titre": r.titre} for r in rows]
+
+
+def _avis_contact_ids(avis_enquete_id: int) -> set[int]:
+    """Return the set of `User.id` that are legitimate participants of
+    the avis (via `ContactAvisEnquete.expert_id`). Used to gate the
+    `recipient_user_ids` input in `notify_avis_participants_of_justificatif`."""
+    from app.modules.wip.models.newsroom.avis_enquete import (
+        ContactAvisEnquete,
+    )
+
+    rows = (
+        db.session.query(ContactAvisEnquete.expert_id)
+        .filter(ContactAvisEnquete.avis_enquete_id == avis_enquete_id)
+        .all()
+    )
+    return {r[0] for r in rows if r[0] is not None}
 
 
 def list_avis_contacts(avis_enquete_id: int) -> list[dict]:
