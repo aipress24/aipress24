@@ -6,6 +6,7 @@
 
 from __future__ import annotations
 
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import TYPE_CHECKING
 from unittest.mock import patch
@@ -38,7 +39,13 @@ from app.modules.swork.views.organisation import (
     OrgPublicationsTab,
     OrgVM,
 )
-from app.modules.wire.models import PressReleasePost
+from app.modules.wire.models import (
+    ArticlePost,
+    ArticlePurchase,
+    PressReleasePost,
+    PurchaseProduct,
+    PurchaseStatus,
+)
 
 if TYPE_CHECKING:
     from flask.testing import FlaskClient
@@ -541,6 +548,47 @@ class TestOrgPressBookTab:
         with app.test_request_context():
             tab = OrgPressBookTab(org=test_organisation_media)
             assert tab.label == "Press Book (0)"
+
+    def test_label_reflects_paid_justificatif_count(
+        self,
+        app: Flask,
+        db_session: Session,
+        test_organisation_media: Organisation,
+        test_user_with_profile: User,
+    ):
+        """Ticket #0195 — the counter is now wired to
+        `count_org_press_book` and reflects the number of distinct
+        articles for which any member of the org owns a PAID
+        JUSTIFICATIF purchase."""
+        # Put `test_user_with_profile` at the media org so their PAID
+        # justificatifs aggregate into the org's Press Book.
+        test_user_with_profile.organisation = test_organisation_media
+        test_user_with_profile.organisation_id = test_organisation_media.id
+        db_session.flush()
+
+        for i in range(2):
+            post = ArticlePost(
+                title=f"Justified article {i}",
+                owner_id=test_user_with_profile.id,
+                status=PublicationStatus.PUBLIC,
+            )
+            db_session.add(post)
+            db_session.flush()
+            db_session.add(
+                ArticlePurchase(
+                    post_id=post.id,
+                    owner_id=test_user_with_profile.id,
+                    product_type=PurchaseProduct.JUSTIFICATIF,
+                    status=PurchaseStatus.PAID,
+                    amount_cents=100,
+                    paid_at=datetime.now(UTC),
+                )
+            )
+        db_session.flush()
+
+        with app.test_request_context():
+            tab = OrgPressBookTab(org=test_organisation_media)
+            assert tab.label == "Press Book (2)"
 
 
 class TestOrgPressReleasesTab:

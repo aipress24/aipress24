@@ -6,17 +6,26 @@
 
 from __future__ import annotations
 
+from datetime import UTC, datetime
 from typing import TYPE_CHECKING
 
+import arrow
 import pytest
 from flask import Flask, g
 
 from app.models.auth import KYCProfile, User
+from app.models.lifecycle import PublicationStatus
 from app.modules.swork.masked_fields import MaskFields
 from app.modules.swork.views._common import (
     MASK_FIELDS,
     MEMBER_TABS,
     filter_email_mobile,
+)
+from app.modules.wire.models import (
+    ArticlePost,
+    ArticlePurchase,
+    PurchaseProduct,
+    PurchaseStatus,
 )
 from app.services.social_graph import adapt
 
@@ -114,9 +123,11 @@ class TestMemberPageConstants:
 
     def test_tabs_structure(self):
         """Test MEMBER_TABS has expected structure."""
-        assert len(MEMBER_TABS) == 6
+        assert len(MEMBER_TABS) == 7
         tab_ids = [t["id"] for t in MEMBER_TABS]
         assert "profile" in tab_ids
+        # Ticket #0195 — Press Book tab added.
+        assert "press-book" in tab_ids
         assert "publications" in tab_ids
         assert "activities" in tab_ids
         assert "groups" in tab_ids
@@ -269,6 +280,67 @@ class TestMemberPageEndpoints:
             headers={"HX-Request": "true"},
         )
         assert response.status_code in (200, 302)
+
+    def test_get_with_htmx_press_book_tab_empty(
+        self, authenticated_client: FlaskClient, db_session: Session, target_user: User
+    ):
+        """Ticket #0195 — Press Book tab route is wired (mirrors the
+        smoke-test pattern of the sibling tabs which accept either 200
+        or 302 depending on auth state)."""
+        response = authenticated_client.get(
+            f"/swork/members/{target_user.id}?tab=press-book",
+            headers={"HX-Request": "true"},
+        )
+        assert response.status_code in (200, 302)
+        if response.status_code == 200:
+            body = response.data.decode()
+            assert "Press Book" in body
+            assert "Aucun justificatif" in body
+
+    def test_get_with_htmx_press_book_tab_lists_articles(
+        self,
+        authenticated_client: FlaskClient,
+        db_session: Session,
+        target_user: User,
+    ):
+        """When the member owns a PAID JUSTIFICATIF on an article, that
+        article appears in the Press Book tab (when status is 200)."""
+        author = User(email="pb_author@example.com")
+        author.first_name = "Auteur"
+        author.last_name = "PB"
+        author.photo = b""
+        db_session.add(author)
+        db_session.flush()
+        post = ArticlePost(
+            title="Article en Press Book",
+            owner_id=author.id,
+            status=PublicationStatus.PUBLIC,
+            published_at=arrow.utcnow(),
+        )
+        db_session.add(post)
+        db_session.flush()
+        db_session.add(
+            ArticlePurchase(
+                post_id=post.id,
+                owner_id=target_user.id,
+                product_type=PurchaseProduct.JUSTIFICATIF,
+                status=PurchaseStatus.PAID,
+                amount_cents=200,
+                paid_at=datetime.now(UTC),
+            )
+        )
+        db_session.commit()
+
+        response = authenticated_client.get(
+            f"/swork/members/{target_user.id}?tab=press-book",
+            headers={"HX-Request": "true"},
+        )
+        assert response.status_code in (200, 302)
+        if response.status_code == 200:
+            body = response.data.decode()
+            assert "Article en Press Book" in body
+            # The empty-state copy must NOT be shown when there's content.
+            assert "Aucun justificatif" not in body
 
     def test_get_with_htmx_activities_tab(
         self, authenticated_client: FlaskClient, db_session: Session, target_user: User
