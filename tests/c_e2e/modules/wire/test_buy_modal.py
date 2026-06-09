@@ -94,13 +94,30 @@ def article(db_session: Session, press_role: Role) -> ArticlePost:
 
 
 class TestBuyModal:
-    def test_modal_renders_for_each_product_type(
+    def test_modal_renders_for_consultation_and_justificatif(
         self, app: Flask, reader: User, article: ArticlePost
     ):
         client = make_authenticated_client(app, reader)
-        for product in ("consultation", "justificatif", "cession"):
+        for product in ("consultation", "justificatif"):
             response = client.get(f"/wire/{article.id}/buy_modal/{product}")
             assert response.status_code == 200, f"buy_modal must render for {product}"
+
+    def test_modal_blocks_cession_for_non_eligible_user(
+        self, app: Flask, reader: User, article: ArticlePost
+    ):
+        """CESSION price reconnaissance is forbidden : the modal must
+        redirect users who can't actually buy. `reader` is a plain
+        PRESS_MEDIA user, not a BW subscriber."""
+        client = make_authenticated_client(app, reader)
+        response = client.get(f"/wire/{article.id}/buy_modal/cession")
+        assert response.status_code in (302, 303)
+
+    def test_modal_redirects_anonymous_to_login(self, app: Flask, article: ArticlePost):
+        """Anonymous viewers must not see prices / cumul. Mirrors
+        the `buy` POST guard."""
+        client = app.test_client()
+        response = client.get(f"/wire/{article.id}/buy_modal/consultation")
+        assert response.status_code in (302, 303)
 
     def test_modal_shows_three_action_buttons(
         self, app: Flask, reader: User, article: ArticlePost
