@@ -6,6 +6,7 @@
 
 from __future__ import annotations
 
+from collections.abc import Callable
 from typing import TYPE_CHECKING, ClassVar, cast
 
 import arrow
@@ -128,40 +129,65 @@ class ItemDetailView(MethodView):
 
     def _get_metadata_list(self, post: Post) -> list[dict]:
         """Build metadata list for display."""
+        return build_metadata_list(post)
 
-        def post_type() -> str:
-            if post.type == "article":
-                return "Article"
-            if post.type == "press_release":
-                return "Communiqué"
-            return "Non classé"
 
-        data = [
-            {"label": "Type", "value": post_type()},
-            {"label": "Genre", "value": post.genre or "N/A"},
-            {"label": "Rubrique", "value": post.section or "N/A"},
-            {"label": "Sujet", "value": post.topic or "N/A"},
-            {"label": "Secteur d'activité", "value": post.sector or "N/A"},
-        ]
+# =============================================================================
+# Pure helpers (mock-free unit-testable)
+# =============================================================================
 
-        if post.address:
-            data.append({"label": "Adresse", "value": post.address})
-        if post.pays_zip_ville:
-            data.append(
-                {
-                    "label": "Pays",
-                    "value": country_code_to_label(post.pays_zip_ville),
-                }
-            )
-        if post.pays_zip_ville_detail:
-            data.append(
-                {
-                    "label": "Ville",
-                    "value": country_zip_code_to_city(post.pays_zip_ville_detail),
-                }
-            )
 
-        return data
+_POST_TYPE_LABELS: dict[str, str] = {
+    "article": "Article",
+    "press_release": "Communiqué",
+}
+
+
+def post_type_label(type_str: str | None) -> str:
+    """Map a post.type string to its French display label.
+
+    Pure lookup over `_POST_TYPE_LABELS` with a fallback for unknown
+    or missing types. Extracted from the nested `post_type()` closure
+    inside `_get_metadata_list` so it can be tested without a Post.
+    """
+    if not type_str:
+        return "Non classé"
+    return _POST_TYPE_LABELS.get(type_str, "Non classé")
+
+
+def build_metadata_list(
+    post,
+    *,
+    country_label: Callable[[str], str] = country_code_to_label,
+    city_label: Callable[[str], str] = country_zip_code_to_city,
+) -> list[dict]:
+    """Build the [{label, value}] metadata list shown next to a post.
+
+    Pure transformation : reads attributes off `post` (duck-typed) and
+    routes the two ontology lookups through injected callables so
+    tests can pass plain `def fake(code): return ...` stubs without
+    loading the KYC ontologies. Production callers keep the defaults.
+    """
+    data = [
+        {"label": "Type", "value": post_type_label(getattr(post, "type", None))},
+        {"label": "Genre", "value": post.genre or "N/A"},
+        {"label": "Rubrique", "value": post.section or "N/A"},
+        {"label": "Sujet", "value": post.topic or "N/A"},
+        {"label": "Secteur d'activité", "value": post.sector or "N/A"},
+    ]
+
+    if post.address:
+        data.append({"label": "Adresse", "value": post.address})
+    if post.pays_zip_ville:
+        data.append(
+            {"label": "Pays", "value": country_label(post.pays_zip_ville)}
+        )
+    if post.pays_zip_ville_detail:
+        data.append(
+            {"label": "Ville", "value": city_label(post.pays_zip_ville_detail)}
+        )
+
+    return data
 
 
 def _get_comment_object_id(post: Post) -> str:
