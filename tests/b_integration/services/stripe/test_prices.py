@@ -1,8 +1,15 @@
-# Copyright (c) 2026, Abilian SAS & TCA
+# Copyright (c) 2021-2026, Abilian SAS & TCA
 #
 # SPDX-License-Identifier: AGPL-3.0-only
 
-"""Unit tests for the Stripe Price mirror + display helper."""
+"""Integration tests for the Stripe Price mirror + display helper.
+
+These tests round-trip through SQLAlchemy via the ``db_session`` savepoint
+fixture: they seed ``stripe_price`` rows, invoke the production helpers
+(``stripe_price_display``, ``upsert_price_from_event``) which read or
+write the table, then assert on the resulting state. The short-circuit
+branch (falsy ``price_id``) lives at the a_unit tier.
+"""
 
 from __future__ import annotations
 
@@ -52,10 +59,6 @@ class TestStripePriceDisplay:
 
     def test_unknown_price_returns_fallback(self, db_session: Session) -> None:
         assert stripe_price_display("price_does_not_exist") == "—"
-
-    def test_empty_price_id_returns_fallback(self, db_session: Session) -> None:
-        assert stripe_price_display("") == "—"
-        assert stripe_price_display(None) == "—"
 
     def test_active_price_renders_amount(self, db_session: Session) -> None:
         price = StripePrice(

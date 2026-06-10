@@ -2,29 +2,25 @@
 #
 # SPDX-License-Identifier: AGPL-3.0-only
 
-"""Unit tests for `list_drifts` in `app.services.stripe.prices`.
+"""Integration tests for `list_drifts` in `app.services.stripe.prices`.
 
-`list_drifts` accepts a `client=FakeStripeClient(...)` keyword-only
-parameter for test isolation. Tests inject canned Stripe listings and
-seed local rows via the `db_session` fixture, then assert on the
-returned `PriceDrift` list.
-
-`sync_all_prices` is NOT tested here — it calls `db.session.commit()`
-which defeats the savepoint-based `db_session` fixture. Its
-end-to-end test belongs at the b_integration tier (TODO).
+These tests live at the b_integration tier because they seed local
+rows through the `db_session` savepoint fixture and exercise a real
+DB round-trip before comparing them against a `FakeStripeClient`
+listing. The drift detection itself is pure, but the local-side
+state lives in the database.
 """
 
 from __future__ import annotations
 
+from types import SimpleNamespace
 from typing import TYPE_CHECKING
 
-from app.services.stripe._price_model import StripePrice
-from app.services.stripe.prices import (
-    PriceDrift,
-    list_drifts,
-)
+import pytest
 
-from ._fake_client import FakeStripeClient, stripe_obj
+from app.services.stripe._price_model import StripePrice
+from app.services.stripe.prices import PriceDrift, list_drifts
+from tests.a_unit.services.stripe._fake_client import FakeStripeClient, stripe_obj
 
 if TYPE_CHECKING:
     from sqlalchemy.orm import Session
@@ -41,7 +37,7 @@ def _stripe_price(
     nickname: str | None = None,
     recurring: dict | None = None,
     metadata: dict | None = None,
-):
+) -> SimpleNamespace:
     return stripe_obj(
         id=price_id,
         product=product_id,
@@ -59,6 +55,20 @@ class TestListDrifts:
     """`list_drifts(client=FakeStripeClient(price_listing=[...]))`
     compares the local `stripe_price` table with the injected listing
     and returns a list of `PriceDrift` records."""
+
+    @pytest.fixture(autouse=True)
+    def _purge_stripe_price(self, db_session: Session) -> None:
+        """Wipe the `stripe_price` table at the start of each test.
+
+        Upstream tests in this suite (notably
+        ``tests/b_integration/modules/stripe/test_webhook_prices.py``)
+        exercise production webhook handlers that call
+        ``db.session.commit()``, which bypasses the savepoint
+        rollback and leaks ``stripe_price`` rows. ``list_drifts``
+        scans the entire table, so it would see those leaks as
+        spurious drifts. Purge first for isolation."""
+        db_session.query(StripePrice).delete()
+        db_session.flush()
 
     def test_no_drift_returns_empty(self, db_session: Session) -> None:
         """Local and Stripe perfectly aligned → no drift."""
@@ -81,21 +91,6 @@ class TestListDrifts:
         )
         drifts = list_drifts(client=fake)
         assert drifts == []
-
-    def test_missing_local_row_yields_presence_drift(self, db_session: Session) -> None:
-        """Stripe knows a price that the local mirror has never seen
-        → a presence drift is reported."""
-        fake = FakeStripeClient(
-            price_listing=[_stripe_price(price_id="price_only_on_stripe")]
-        )
-        drifts = list_drifts(client=fake)
-        assert len(drifts) == 1
-        assert drifts[0] == PriceDrift(
-            price_id="price_only_on_stripe",
-            field="presence",
-            local="missing",
-            stripe_value="exists",
-        )
 
     def test_amount_mismatch_yields_amount_drift(self, db_session: Session) -> None:
         db_session.add(
@@ -168,3 +163,19 @@ class TestListDrifts:
         assert len(currency_drifts) == 1
         assert currency_drifts[0].local == "eur"
         assert currency_drifts[0].stripe_value == "usd"
+
+    def test_missing_local_row_yields_presence_drift(self, db_session) -> None:
+        """Stripe knows a price that the local mirror has never seen
+        → a presence drift is reported. (Relocated from a_unit — needs
+        access to the empty stripe_price table.)"""
+        fake = FakeStripeClient(
+            price_listing=[_stripe_price(price_id="price_only_on_stripe")]
+        )
+        drifts = list_drifts(client=fake)
+        assert len(drifts) == 1
+        assert drifts[0] == PriceDrift(
+            price_id="price_only_on_stripe",
+            field="presence",
+            local="missing",
+            stripe_value="exists",
+        )

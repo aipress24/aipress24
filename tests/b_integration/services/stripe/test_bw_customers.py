@@ -1,15 +1,22 @@
-# Copyright (c) 2025, Abilian SAS & TCA
+# Copyright (c) 2021-2026, Abilian SAS & TCA
 #
 # SPDX-License-Identifier: AGPL-3.0-only
 
-"""Unit tests for count_pr_bw_customers()."""
+"""Integration tests for count_pr_bw_customers().
+
+These tests live at the b_integration tier because they exercise real
+database round-trips through the ``db_session`` savepoint fixture:
+they create ``Organisation``, ``User``, ``BusinessWall`` and
+``Partnership`` rows and rely on SQLAlchemy / SQL semantics to assert
+that ``count_pr_bw_customers`` returns the expected counts.
+"""
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
 from uuid import uuid4
 
 import pytest
+from sqlalchemy.orm import Session
 
 from app.models.auth import User
 from app.models.organisation import Organisation
@@ -21,9 +28,6 @@ from app.modules.bw.bw_activation.models import (
 )
 from app.modules.bw.bw_activation.models.business_wall import BWType
 from app.services.stripe.bw_customers import count_pr_bw_customers
-
-if TYPE_CHECKING:
-    from sqlalchemy.orm import Session
 
 
 @pytest.fixture
@@ -102,15 +106,7 @@ def _make_partnership(
 
 
 class TestCountPrBwCustomers:
-    """Test suite for count_pr_bw_customers."""
-
-    def test_invalid_bw_id_returns_zero(self) -> None:
-        """Non-UUID string."""
-        assert count_pr_bw_customers("not-a-uuid") == 0
-
-    def test_nonexistent_bw_returns_zero(self) -> None:
-        """BW that does not exist should return 0."""
-        assert count_pr_bw_customers(str(uuid4())) == 0
+    """Test suite for count_pr_bw_customers (DB-backed cases)."""
 
     def test_non_pr_bw_returns_zero(
         self, db_session: Session, test_org: Organisation, test_user: User
@@ -346,3 +342,8 @@ class TestCountPrBwCustomers:
         )
 
         assert count_pr_bw_customers(str(pr_bw.id)) == 2
+
+    def test_nonexistent_bw_returns_zero(self, db_session) -> None:
+        """BW id that doesn't exist in the DB returns 0 (vs the
+        previously-pure invalid-uuid case in the a_unit sibling)."""
+        assert count_pr_bw_customers(str(uuid4())) == 0
