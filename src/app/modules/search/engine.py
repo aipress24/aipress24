@@ -36,9 +36,18 @@ class SearchEngine:
     responsibility; ``svcs_factory`` handles it for the Flask path).
     """
 
-    def __init__(self, storage: Storage) -> None:
+    def __init__(self, storage: Storage, *, indexname: str = "MAIN") -> None:
+        """`indexname` keys the on-disk segment files for the
+        underlying wesh writer. The default is wesh's own default,
+        which keeps production behaviour unchanged. Tests passing a
+        unique name (e.g. via `uuid4()`) avoid colliding on the
+        shared `/tmp/<indexname>.tmp/` directory when run in parallel
+        (pytest-xdist) — wesh's `RamStorage.temp_storage` uses the
+        OS-level tempdir for segment finalisation, and that tempdir
+        IS shared across processes."""
         self._storage = storage
-        self._index: Any = None  # whoosh.index.Index, lazy
+        self._indexname = indexname
+        self._index: Any = None  # wesh.index.Index, lazy
 
     @classmethod
     def svcs_factory(cls, container: Container) -> SearchEngine:
@@ -67,10 +76,14 @@ class SearchEngine:
 
     def _get_index(self) -> Any:
         if self._index is None:
-            if self._storage.index_exists():
-                self._index = self._storage.open_index(schema=SCHEMA)
+            if self._storage.index_exists(indexname=self._indexname):
+                self._index = self._storage.open_index(
+                    indexname=self._indexname, schema=SCHEMA
+                )
             else:
-                self._index = self._storage.create_index(SCHEMA)
+                self._index = self._storage.create_index(
+                    SCHEMA, indexname=self._indexname
+                )
         return self._index
 
     # ── CRUD ────────────────────────────────────────────────────────

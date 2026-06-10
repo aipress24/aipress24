@@ -22,6 +22,7 @@ from __future__ import annotations
 
 from datetime import UTC, datetime
 from typing import TYPE_CHECKING
+from uuid import uuid4
 
 import pytest
 import svcs.flask
@@ -46,7 +47,7 @@ def test_engine(app) -> Iterator[SearchEngine]:
     duration of the test. Lets us inspect the index without committing
     anything to the app's database.
     """
-    engine = SearchEngine(RamStorage())
+    engine = SearchEngine(RamStorage(), indexname=f"test_{uuid4().hex[:12]}")
     previous = svcs.flask.overwrite_value(SearchEngine, engine)
     try:
         yield engine

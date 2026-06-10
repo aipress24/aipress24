@@ -15,6 +15,7 @@ from __future__ import annotations
 
 from datetime import UTC, datetime
 from typing import TYPE_CHECKING
+from uuid import uuid4
 
 import pytest
 import svcs.flask
@@ -63,7 +64,7 @@ def test_engine(app: Flask) -> Iterator[SearchEngine]:
     """Inject a RAM-backed engine into the SVCS container for the
     duration of the test.
     """
-    engine = SearchEngine(RamStorage())
+    engine = SearchEngine(RamStorage(), indexname=f"test_{uuid4().hex[:12]}")
     previous = svcs.flask.overwrite_value(SearchEngine, engine)
     try:
         yield engine

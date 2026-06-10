@@ -9,12 +9,24 @@ from __future__ import annotations
 import tempfile
 from datetime import UTC, datetime
 from pathlib import Path
+from uuid import uuid4
 
 import pytest
 from wesh.backends.filedb.filestore import RamStorage
 from wesh.backends.sql.storage import SQLAlchemyStorage
 
 from app.modules.search.engine import SearchEngine
+
+
+def _unique_indexname() -> str:
+    """Give each engine a unique on-disk segment dir.
+
+    wesh's writer uses `/<tempdir>/<indexname>.tmp/` for segment
+    finalisation. That dir is shared across processes — under
+    pytest-xdist parallel runs concurrent workers writing to
+    `/tmp/MAIN.tmp/` race on file create/delete and produce
+    `FileNotFoundError`. A per-engine random name avoids the clash."""
+    return f"test_{uuid4().hex[:12]}"
 
 
 def _doc(
@@ -41,7 +53,7 @@ def _doc(
 
 @pytest.fixture
 def engine() -> SearchEngine:
-    return SearchEngine(RamStorage())
+    return SearchEngine(RamStorage(), indexname=_unique_indexname())
 
 
 @pytest.fixture
@@ -155,7 +167,7 @@ class TestSearchEngineSqlStorage:
         with tempfile.TemporaryDirectory() as td:
             url = f"sqlite:///{Path(td) / 'phase2.db'}"
             storage = SQLAlchemyStorage(url).create()
-            engine = SearchEngine(storage)
+            engine = SearchEngine(storage, indexname=_unique_indexname())
 
             engine.upsert(
                 _doc(
