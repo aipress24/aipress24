@@ -271,11 +271,20 @@ def get_selected_business_wall_for_user(user: User) -> BusinessWall | None:
 
     Checks the user for an explicitly selected BW, then the session,
     then falls back to the user's organisation default BW.
+
+    DRAFT BWs are excluded — a BW that hasn't been activated (or whose
+    Stripe checkout hasn't completed) must not be taken into account.
     """
+    _non_selectable = {BWStatus.DRAFT.value, BWStatus.CANCELLED.value}
+
     # 1. Check user profile
     bw_id = user.selected_bw_id
     if bw_id:
-        stmt = select(BusinessWall).where(BusinessWall.id == bw_id)
+        stmt = (
+            select(BusinessWall)
+            .where(BusinessWall.id == bw_id)
+            .where(BusinessWall.status.not_in(_non_selectable))
+        )
         bw = db.session.execute(stmt).scalars().one_or_none()
         if bw:
             return bw
@@ -284,7 +293,11 @@ def get_selected_business_wall_for_user(user: User) -> BusinessWall | None:
     bw_id_sess: str | None = session.get("bw_id")
     if bw_id_sess:
         try:
-            stmt = select(BusinessWall).where(BusinessWall.id == UUID(bw_id_sess))
+            stmt = (
+                select(BusinessWall)
+                .where(BusinessWall.id == UUID(bw_id_sess))
+                .where(BusinessWall.status.not_in(_non_selectable))
+            )
             bw = db.session.execute(stmt).scalars().one_or_none()
             if bw:
                 return bw
@@ -412,6 +425,9 @@ def get_manageable_business_walls_for_user(user: User) -> list[BusinessWall]:
     stmt = (
         select(BusinessWall)
         .where(BusinessWall.id.in_(manageable_ids))
+        .where(
+            BusinessWall.status.not_in({BWStatus.DRAFT.value, BWStatus.CANCELLED.value})
+        )
         .order_by(BusinessWall.name)
     )
     return list(db.session.execute(stmt).scalars().all())

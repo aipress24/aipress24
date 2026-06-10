@@ -357,6 +357,148 @@ def _extract_price_id(chosen_product: Any) -> str | None:
     return None
 
 
+def _get_value(obj: Any, key: str, default: Any = None) -> Any:
+    """Read a key from a dict or a Stripe SDK object."""
+    if isinstance(obj, dict):
+        return obj.get(key, default)
+    return getattr(obj, key, default)
+
+
+def _calculate_price_total(price: Any, quantity: int) -> int | None:
+    """Return the total price in cents for a Stripe Price and quantity.
+
+    Handles flat prices (``unit_amount``) and tiered prices
+    (``billing_scheme == "tiered"``).  Returns ``None`` when the price
+    object is missing or its structure is unrecognised.
+    """
+    if not price:
+        return None
+
+    # Flat price
+    unit_amount = _get_value(price, "unit_amount")
+    if unit_amount is not None:
+        return int(unit_amount) * quantity
+
+    # Tiered price
+    billing_scheme = _get_value(price, "billing_scheme")
+    if billing_scheme != "tiered":
+        return None
+
+    tiers = _get_value(price, "tiers")
+
+    # Fallback: some Stripe accounts store tier data under
+    # 'currency_options.{currency}.tiers' rather than top-level 'tiers'.
+    if not tiers:
+        currency = _get_value(price, "currency")
+        currency_options = _get_value(price, "currency_options")
+        if currency_options and currency:
+            currency_upper = currency.upper()
+            currency_data = _get_value(currency_options, currency_upper)
+            if currency_data:
+                tiers = _get_value(currency_data, "tiers")
+
+    if not tiers:
+        return None
+
+    tiers_mode = _get_value(price, "tiers_mode")
+    total = 0
+
+    if tiers_mode == "volume":
+        # All units charged at the rate of the tier the quantity falls into.
+        applicable_tier = None
+        for tier in tiers:
+            up_to = _get_value(tier, "up_to")
+            if up_to is None or quantity <= up_to:
+                applicable_tier = tier
+                break
+        if applicable_tier is None:
+            applicable_tier = tiers[-1]
+
+        tier_unit = _get_value(applicable_tier, "unit_amount")
+        tier_flat = _get_value(applicable_tier, "flat_amount")
+        if tier_unit is not None:
+            total += quantity * int(tier_unit)
+        if tier_flat is not None:
+            total += int(tier_flat)
+        return total if total else None
+
+    # Graduated (default) — tax-bracket style: each tier applies to a
+    # slice of the quantity.
+    remaining = quantity
+    prev_up_to = 0
+    for tier in tiers:
+        up_to = _get_value(tier, "up_to")
+        tier_unit = _get_value(tier, "unit_amount")
+        tier_flat = _get_value(tier, "flat_amount")
+
+        if up_to is None:
+            units_in_tier = remaining
+        else:
+            units_in_tier = min(remaining, int(up_to) - prev_up_to)
+
+        if tier_unit is not None:
+            total += units_in_tier * int(tier_unit)
+        if tier_flat is not None:
+            total += int(tier_flat)
+
+        remaining -= units_in_tier
+        if remaining <= 0:
+            break
+        prev_up_to = int(up_to)
+
+    if total:
+        return total
+    return None
+
+
+def _preview_checkout_amount(
+    draft_bw: Any,
+    bw_type: str,
+    price_id: str,
+    quantity: int,
+) -> int | None:
+    """Create a temporaty Checkout Session to ask Stripe for the exact
+    'amount_total' of a subscription with the given price/quantity.
+
+    Used as a fallback when the Price object does not expose its 'tiers',
+    for example in the current Price of BW4PR.
+
+    The created session is never shown to the user and expires
+    unused in one day.
+    """
+    success_url = url_for(
+        "bw_activation.payment_success",
+        bw_type=bw_type,
+        _external=True,
+    )
+    cancel_url = url_for(
+        "bw_activation.payment_cancel",
+        bw_type=bw_type,
+        _external=True,
+    )
+    checkout_kwargs: dict[str, Any] = {
+        "mode": "subscription",
+        "line_items": [{"price": price_id, "quantity": quantity}],
+        "success_url": success_url,
+        "cancel_url": cancel_url,
+        "client_reference_id": str(draft_bw.id),
+        "metadata": _build_checkout_metadata(draft_bw.id, bw_type, g.user.id),
+        "automatic_tax": {"enabled": True},
+    }
+    org = draft_bw.get_organisation()
+    if org:
+        customer_id = org.stripe_customer_id
+    else:
+        customer_id = None
+    checkout_kwargs.update(_resolve_stripe_customer_kwargs(customer_id, g.user.email))
+    try:
+        preview_session = stripe.checkout.Session.create(**checkout_kwargs)
+        return preview_session.amount_subtotal
+    except Exception as exc:
+        warn(f"Preview checkout session failed: {exc}")
+        return None
+
+
 def _filter_products_by_allowed_subs(
     products: list[Any], allowed_values: set[str]
 ) -> list[Any]:
@@ -503,8 +645,23 @@ def checkout(bw_type: str):
         session["error"] = ERR_UNKNOWN_ACTION
         return redirect(url_for("bw_activation.not_authorized"))
 
-    # For subscription Products, quantity only used for selecting the product
-    items = [{"price": price_id, "quantity": 1}]
+    # For tiered/graduated prices (e.g. BW4PR) the quantity drives the
+    # tier calculation ; for flat-priced products it stays at 1.
+    if isinstance(chosen_product, dict):
+        default_price = chosen_product.get("default_price")
+    else:
+        default_price = getattr(chosen_product, "default_price", None)
+
+    if isinstance(default_price, dict):
+        billing_scheme = default_price.get("billing_scheme")
+    else:
+        billing_scheme = getattr(default_price, "billing_scheme", None)
+
+    if billing_scheme == "tiered":  # for BW4PR
+        checkout_quantity = quantity
+    else:
+        checkout_quantity = 1
+    items = [{"price": price_id, "quantity": checkout_quantity}]
 
     success_url = url_for(
         "bw_activation.payment_success",
@@ -555,7 +712,7 @@ def payment_cancel(bw_type: str):
         "Le paiement a été annulé. Vous pouvez réessayer quand vous le souhaitez.",
         "info",
     )
-    return redirect(url_for("bw_activation.payment_page", bw_type=bw_type))
+    return redirect(url_for("bw_activation.payment", bw_type=bw_type))
 
 
 def allowed_bw_product_list(bw_type: str) -> list[Product]:
@@ -582,11 +739,42 @@ def _payment_live_enabled(bw_type: str, ctx: dict[str, Any]):
         warn(f"Bug: no allowd stripe product found for bw_type {bw_type!r}")
         return redirect(url_for("bw_activation.not_authorized"))
 
+    load_stripe_api_key()
+
     # For subscription Products, quantity only used for selecting the product
     quantity = _parse_quantity_from_session_value(session.get("pricing_value", 1))
 
     # Automatically choose the product based on quantity for display
     chosen_product = _select_product_for_quantity(allowed_products, quantity)
+
+    if isinstance(chosen_product, dict):
+        default_price = chosen_product.get("default_price")
+    else:
+        default_price = getattr(chosen_product, "default_price", None)
+
+    # For flat-priced products the display price is unit_amount × 1;
+    # for tiered products (BW4PR) it depends on the actual quantity.
+    if hasattr(default_price, "get"):
+        _billing_scheme = default_price.get("billing_scheme")
+    else:
+        _billing_scheme = getattr(default_price, "billing_scheme", None)
+
+    if _billing_scheme == "tiered":
+        checkout_quantity = quantity
+    else:
+        checkout_quantity = 1
+
+    price_total = _calculate_price_total(default_price, checkout_quantity)
+
+    # If the Price object doesn't expose its tiers (observed with some
+    # Stripe API versions / account configs), ask Stripe directly for the
+    # amount by creating a throw-away Checkout Session.
+    if price_total is None and _billing_scheme == "tiered":
+        price_id = _extract_price_id(chosen_product)
+        if price_id:
+            price_total = _preview_checkout_amount(
+                draft_bw, bw_type, price_id, checkout_quantity
+            )
 
     ctx.update(
         {
@@ -595,6 +783,7 @@ def _payment_live_enabled(bw_type: str, ctx: dict[str, Any]):
             "stripe_public_key": get_stripe_public_key(),
             "user_email": g.user.email,
             "chosen_product": chosen_product,
+            "chosen_price_total": price_total,
         }
     )
     return render_template("bw_activation/payment.html", **ctx)

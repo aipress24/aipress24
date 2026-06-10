@@ -56,7 +56,7 @@ def dashboard():
     user = cast("User", g.user)
     current_bw = current_business_wall(user)
     if current_bw:
-        if current_bw.status == BWStatus.CANCELLED.value:
+        if current_bw.status in (BWStatus.CANCELLED.value, BWStatus.DRAFT.value):
             return redirect(url_for("bw_activation.index"))
         fill_session(current_bw)
         if not is_bw_manager_or_admin(user, current_bw):
