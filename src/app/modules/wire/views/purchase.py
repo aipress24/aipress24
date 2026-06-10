@@ -597,3 +597,120 @@ def _back_to_post(post: Post) -> str:
     if post is None:
         return url_for("wire.wire")
     return url_for("wire.item", id=base62.encode(post.id))
+
+
+# ---------------------------------------------------------------------------
+# Pure helpers (extracted for unit testing — no Flask / DB / Stripe SDK)
+# ---------------------------------------------------------------------------
+
+# French standard VAT rate. Stripe `automatic_tax` computes the *real*
+# VAT at payment time ; this constant is only used to show a TTC
+# estimate in the buy-modal templates.
+_FRENCH_VAT_RATE = 0.20
+
+
+def _cents_to_eur(amount_cents: int | None) -> float | None:
+    """Stripe quotes prices in the smallest currency unit (cents for
+    EUR). The modal shows euros. `None` round-trips so the template
+    can decide what « unknown price » means visually."""
+    if amount_cents is None:
+        return None
+    return amount_cents / 100
+
+
+def _compute_vat_ttc(
+    amount_ht_eur: float | None,
+    *,
+    rate: float = _FRENCH_VAT_RATE,
+) -> tuple[float | None, float | None]:
+    """Return `(vat_eur, ttc_eur)` for a given HT amount.
+
+    `None` HT round-trips as `(None, None)` so the modal can render
+    « prix indisponible » when Stripe is offline. The rate is exposed
+    as a keyword-only arg so a future I18n / B2B-export path can
+    override it without touching the view code.
+    """
+    if amount_ht_eur is None:
+        return None, None
+    vat = amount_ht_eur * rate
+    return vat, amount_ht_eur + vat
+
+
+def _parse_beneficiary_ids(raw_ids: list[str]) -> list[int]:
+    """Parse a list of raw form values into deduplicated positive ints.
+
+    Rejects non-numeric values, non-positive ids, and duplicates while
+    preserving the first-seen order — the request handler then layers
+    additional gates (self-gift, existence in `aut_user`, eligibility)
+    on top of this list.
+    """
+    out: list[int] = []
+    seen: set[int] = set()
+    for raw in raw_ids:
+        try:
+            uid = int(raw)
+        except (TypeError, ValueError):
+            continue
+        if uid <= 0 or uid in seen:
+            continue
+        seen.add(uid)
+        out.append(uid)
+    return out
+
+
+def _parse_beneficiary_emails(raw_emails: list[str]) -> set[str]:
+    """Split a list of textarea values into a lower-cased email set.
+
+    The modal textarea lets the buyer paste emails one-per-line OR
+    comma-separated, and the form field can repeat (one « blob » per
+    textarea). Empty chunks are dropped. Case is normalised so the
+    later `func.lower(email) IN (...)` match is symmetrical.
+    """
+    blob = "\n".join(raw_emails)
+    return {
+        chunk.strip().lower()
+        for chunk in blob.replace(",", "\n").splitlines()
+        if chunk.strip()
+    }
+
+
+def _filter_self_gift(candidate_ids: list[int], buyer_id: int) -> list[int]:
+    """Drop the buyer's own user id from a candidate list.
+
+    `is_consultation_giftable_to` doesn't know who the buyer is, so
+    without this gate the buyer could pay full price to « gift »
+    themselves.
+    """
+    return [uid for uid in candidate_ids if uid != buyer_id]
+
+
+def _exceeds_gift_cap(
+    candidate_ids: list[int],
+    *,
+    cap: int = MAX_GIFT_BENEFICIARIES,
+) -> bool:
+    """True iff the candidate list breaches the recipient cap."""
+    return len(candidate_ids) > cap
+
+
+def _build_checkout_metadata(
+    *,
+    purchase_id: int,
+    post_id: int,
+    product: PurchaseProduct,
+    beneficiary_count: int | None = None,
+) -> dict[str, str]:
+    """Pure : assemble the Stripe Checkout `metadata` dict.
+
+    All values are stringified because Stripe metadata is a
+    str-to-str map. `beneficiary_count` is only set on the gift
+    flow ; passing `None` omits the key entirely.
+    """
+    meta: dict[str, str] = {
+        "purchase_id": str(purchase_id),
+        "post_id": str(post_id),
+        "product_type": product.value,
+    }
+    if beneficiary_count is not None:
+        meta["beneficiary_count"] = str(beneficiary_count)
+    return meta
