@@ -503,8 +503,24 @@ def checkout(bw_type: str):
         session["error"] = ERR_UNKNOWN_ACTION
         return redirect(url_for("bw_activation.not_authorized"))
 
-    # For subscription Products, quantity only used for selecting the product
-    items = [{"price": price_id, "quantity": 1}]
+    # For tiered/graduated prices (e.g. BW4PR) the quantity drives the
+    # tier calculation ; for flat-priced products it stays at 1.
+    default_price = (
+        chosen_product.get("default_price")
+        if isinstance(chosen_product, dict)
+        else getattr(chosen_product, "default_price", None)
+    )
+    billing_scheme = (
+        default_price.get("billing_scheme")
+        if isinstance(default_price, dict)
+        else getattr(default_price, "billing_scheme", None)
+    )
+
+    if billing_scheme == "tiered":  # for BW4PR
+        checkout_quantity = quantity
+    else:
+        checkout_quantity = 1
+    items = [{"price": price_id, "quantity": checkout_quantity}]
 
     success_url = url_for(
         "bw_activation.payment_success",
