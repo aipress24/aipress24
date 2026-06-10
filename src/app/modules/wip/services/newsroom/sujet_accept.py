@@ -18,7 +18,7 @@ Workflow expected by Erick (2026-05-22) :
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 from svcs.flask import container
 
@@ -31,6 +31,94 @@ from app.services.notifications import NotificationService
 if TYPE_CHECKING:
     from app.models.auth import User
     from app.modules.wip.models.newsroom.sujet import Sujet
+
+
+# ── Pure decision helpers ───────────────────────────────────────────
+#
+# The acceptance flow has three pure pieces : the precondition check
+# (org match + sujet status), the Commande field mapping from the
+# sujet, and the « should we notify the author » skip rule. Each is
+# extracted so the rules can be unit-tested at microsecond speed
+# without a DB fixture. The rédac-chef check stays in the orchestrator
+# below (it needs a DB lookup).
+
+
+def validate_basic_acceptance(
+    *,
+    accepter_org_id: int | None,
+    sujet_media_id: int | None,
+    sujet_status: Any,
+) -> None:
+    """Raise `ValueError` if the basic preconditions for accepting a
+    sujet aren't met. Doesn't cover the rédac-chef check — that's
+    DB-coupled and lives in the orchestrator.
+
+    Two rules :
+
+    1. The accepter must belong to the target media organisation
+       (`accepter.organisation_id == sujet.media_id`). Otherwise an
+       outsider can hijack the sujet (security VULN-001 prequel).
+    2. The sujet must be in PUBLIC status — a DRAFT sujet hasn't been
+       offered yet, and an ARCHIVED one has already been accepted
+       (or refused). Pin so the orchestrator can't fire twice.
+    """
+    if accepter_org_id != sujet_media_id:
+        msg = (
+            "User is not authorized to accept this sujet — must be a "
+            "member of the target media organisation"
+        )
+        raise ValueError(msg)
+
+    if sujet_status != PublicationStatus.PUBLIC:
+        msg = f"Cannot accept sujet: not in PUBLIC status (got {sujet_status})"
+        raise ValueError(msg)
+
+
+def build_commande_payload(sujet: Sujet, accepter_id: int) -> dict:
+    """Map a sujet onto the field set for a new Commande row.
+
+    Pure — no DB ; the orchestrator passes the result to
+    `Commande(**payload)`. Encodes the business rules :
+
+    - `owner_id` AND `commanditaire_id` both = the accepter (the
+      rédac chef who clicked Accepter — they own the commande and
+      are the customer behind it).
+    - `media_id` mirrors the sujet's, so the new commande lives in
+      the rédac chef's own newsroom.
+    - `brief` defaults to "" when the author didn't fill one (NOT
+      NULL column on Commande).
+    - `status = DRAFT` — the rédac chef tweaks before publishing.
+    - `date_bouclage` AND `date_paiement` default to the sujet's
+      `date_parution_prevue` so the NOT-NULL columns get a sensible
+      starting point ; the rédac chef can adjust before publishing.
+    """
+    return {
+        "owner_id": accepter_id,
+        "media_id": sujet.media_id,
+        "commanditaire_id": accepter_id,
+        "titre": sujet.titre,
+        "contenu": sujet.contenu,
+        "brief": sujet.brief or "",
+        "status": PublicationStatus.DRAFT,
+        "date_limite_validite": sujet.date_limite_validite,
+        "date_parution_prevue": sujet.date_parution_prevue,
+        "date_bouclage": sujet.date_parution_prevue,
+        "date_paiement": sujet.date_parution_prevue,
+    }
+
+
+def is_notification_eligible(author: Any) -> bool:
+    """Return True iff `author` should receive the acceptance cloche.
+
+    Skips the anonymous / missing-author cases up-front so the
+    orchestrator can return without touching the notification
+    service."""
+    if author is None:
+        return False
+    return not getattr(author, "is_anonymous", False)
+
+
+# ── Orchestrators ───────────────────────────────────────────────────
 
 
 def accept_sujet_as_commande(sujet: Sujet, accepter: User) -> Commande:
@@ -51,12 +139,11 @@ def accept_sujet_as_commande(sujet: Sujet, accepter: User) -> Commande:
         ValueError: if the accepter isn't authorised or the sujet
             isn't in PUBLIC status.
     """
-    if accepter.organisation_id != sujet.media_id:
-        msg = (
-            "User is not authorized to accept this sujet — must be a "
-            "member of the target media organisation"
-        )
-        raise ValueError(msg)
+    validate_basic_acceptance(
+        accepter_org_id=accepter.organisation_id,
+        sujet_media_id=sujet.media_id,
+        sujet_status=sujet.status,
+    )
 
     # Lazy import to keep the auth helper out of the cold-start path.
     from app.modules.wip.crud.cbvs.sujets import _is_redac_chef_of_org
@@ -68,29 +155,7 @@ def accept_sujet_as_commande(sujet: Sujet, accepter: User) -> Commande:
         )
         raise ValueError(msg)
 
-    if sujet.status != PublicationStatus.PUBLIC:
-        msg = f"Cannot accept sujet: not in PUBLIC status (got {sujet.status})"
-        raise ValueError(msg)
-
-    commande = Commande(
-        owner_id=accepter.id,
-        media_id=sujet.media_id,
-        commanditaire_id=accepter.id,
-        titre=sujet.titre,
-        contenu=sujet.contenu,
-        brief=sujet.brief or "",
-        status=PublicationStatus.DRAFT,
-        # Mirror the sujet's deadlines / publication target onto the
-        # new commande so the rédac chef doesn't have to retype them.
-        date_limite_validite=sujet.date_limite_validite,
-        date_parution_prevue=sujet.date_parution_prevue,
-        # Commande requires a `date_bouclage` and `date_paiement` (NOT
-        # NULL columns) ; default both to the sujet's publication
-        # date as a reasonable starting point — the rédac chef can
-        # adjust before publishing the commande.
-        date_bouclage=sujet.date_parution_prevue,
-        date_paiement=sujet.date_parution_prevue,
-    )
+    commande = Commande(**build_commande_payload(sujet, accepter.id))
     db.session.add(commande)
     db.session.flush()
 
@@ -112,7 +177,7 @@ def notify_author_of_sujet_acceptance(
     The mail side-effect lives in the route handler — this helper is
     in-app only so a flaky transport doesn't undo the state change.
     """
-    if author is None or getattr(author, "is_anonymous", False):
+    if not is_notification_eligible(author):
         return
     try:
         message = (
