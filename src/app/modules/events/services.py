@@ -51,6 +51,17 @@ def get_participants(
     return list(db.session.scalars(stmt2))
 
 
+def _is_user_in(user_id, participant_ids) -> bool:
+    """Pure predicate: True iff `user_id` is in `participant_ids`.
+
+    Extracted for testability (functional core). `participant_ids` may be any
+    iterable of ids; `user_id` is compared by equality.
+    """
+    if user_id is None:
+        return False
+    return any(pid == user_id for pid in participant_ids)
+
+
 def is_participant(event: EventPost, user: User) -> bool:
     """True if `user` is already accredited to `event`."""
     stmt = sa.select(sa.func.count()).where(
