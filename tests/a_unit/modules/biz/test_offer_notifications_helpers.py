@@ -25,6 +25,9 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from app.modules.biz.services.offer_notifications import (
+    _absolute_applications_url,
+    _absolute_offer_url,
+    _absolute_profile_url,
     _absolutize,
     _dashboard_for,
     _detail_for,
@@ -213,3 +216,84 @@ class TestPickEmitterEmail:
 
         with app.app_context():
             assert _pick_emitter_email(_NoContact()) == ""
+
+
+class _StubUser:
+    def __init__(self, *, id_: int = 1) -> None:
+        self.id = id_
+
+
+class TestAbsoluteProfileUrl:
+    """`_absolute_profile_url` calls `url_for("swork.member", id=user.id)`
+    inside a try/except — when the resolver fails (no request context,
+    blueprint missing, etc.), it falls back to a hand-coded
+    `/swork/members/<id>` path. The fallback is the unit-testable
+    branch ; the happy path needs a routed app and lives in
+    b_integration."""
+
+    def test_fallback_path_when_no_app_context(self, app: Flask):
+        """Outside any request/app context, `url_for` raises a
+        RuntimeError — the helper must catch it and fall back to the
+        hand-coded path."""
+        # `_absolutize` reads `current_app.config` — give it just enough
+        # context to do that, but no request context so `url_for` fails.
+        with app.app_context():
+            app.config["SERVER_NAME"] = "aipress24.com"
+            result = _absolute_profile_url(_StubUser(id_=42))
+        assert result.endswith("/swork/members/42")
+        assert result.startswith("https://aipress24.com")
+
+
+class TestAbsoluteApplicationsUrl:
+    """Same shape as `_absolute_profile_url` — dispatch by offer type
+    and absolutize the result."""
+
+    def test_fallback_for_mission_offer(self, app: Flask):
+        with app.app_context():
+            app.config["SERVER_NAME"] = "aipress24.com"
+            result = _absolute_applications_url(_OfferLike(type_="mission_offer", id_=7))
+        assert result.endswith("/biz/missions/7/applications")
+        assert result.startswith("https://aipress24.com")
+
+    def test_fallback_for_project_offer(self, app: Flask):
+        with app.app_context():
+            app.config["SERVER_NAME"] = "aipress24.com"
+            result = _absolute_applications_url(_OfferLike(type_="project_offer", id_=8))
+        assert result.endswith("/biz/projects/8/applications")
+
+    def test_fallback_for_job_offer(self, app: Flask):
+        with app.app_context():
+            app.config["SERVER_NAME"] = "aipress24.com"
+            result = _absolute_applications_url(_OfferLike(type_="job_offer", id_=9))
+        assert result.endswith("/biz/jobs/9/applications")
+
+
+class TestAbsoluteOfferUrl:
+    """Detail-page absolutiser — pairs with `_detail_for` to produce
+    a public URL the candidate sees in the rejection/selection email."""
+
+    def test_fallback_for_mission_offer(self, app: Flask):
+        with app.app_context():
+            app.config["SERVER_NAME"] = "aipress24.com"
+            result = _absolute_offer_url(_OfferLike(type_="mission_offer", id_=42))
+        assert result.endswith("/biz/missions/42")
+
+    def test_fallback_for_project_offer(self, app: Flask):
+        with app.app_context():
+            app.config["SERVER_NAME"] = "aipress24.com"
+            result = _absolute_offer_url(_OfferLike(type_="project_offer", id_=42))
+        assert result.endswith("/biz/projects/42")
+
+    def test_fallback_for_job_offer(self, app: Flask):
+        with app.app_context():
+            app.config["SERVER_NAME"] = "aipress24.com"
+            result = _absolute_offer_url(_OfferLike(type_="job_offer", id_=42))
+        assert result.endswith("/biz/jobs/42")
+
+    def test_loopback_dev_host_uses_http(self, app: Flask):
+        """End-to-end check that the absolutiser's loopback-detection
+        feeds through to the per-kind helpers — dev runs over http."""
+        with app.app_context():
+            app.config["SERVER_NAME"] = "127.0.0.1:5000"
+            result = _absolute_offer_url(_OfferLike(type_="mission_offer", id_=1))
+        assert result.startswith("http://127.0.0.1:5000")
