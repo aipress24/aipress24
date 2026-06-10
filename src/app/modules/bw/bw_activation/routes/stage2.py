@@ -6,6 +6,7 @@
 
 from __future__ import annotations
 
+from collections.abc import Mapping
 from typing import TYPE_CHECKING, Any, cast
 
 from flask import redirect, render_template, request, session, url_for
@@ -16,6 +17,61 @@ from app.modules.bw.bw_activation.user_utils import StdDict, get_current_user_da
 
 if TYPE_CHECKING:
     pass
+
+
+# Fields shared by the owner and payer halves of the stage-2 form.
+_CONTACT_FIELDS: tuple[str, ...] = ("first_name", "last_name", "email", "phone")
+
+
+def parse_contacts_form(form: Mapping[str, str | None]) -> dict[str, str | None]:
+    """Pure: extract owner / payer contact values from a form mapping.
+
+    The stage-2 POST handler stores eight session keys (owner_* and
+    payer_*) and copies the owner block over the payer block when the
+    "same_as_owner" checkbox is on. Lifted as a pure helper so the
+    duplication / passthrough rule can be exercised without a Flask
+    request — the route then writes the returned dict straight into
+    `session`.
+
+    Args:
+        form: Mapping of form field names to values (e.g. ``request.form``
+            or a plain dict in tests). Missing keys are treated as
+            ``None`` (which is what ``MultiDict.get`` returns).
+
+    Returns:
+        A dict with eight keys: ``owner_first_name`` … ``payer_phone``.
+        When the form contains ``same_as_owner == "on"`` the payer
+        values are taken from the owner values (regardless of any
+        payer_* fields the user might have submitted).
+    """
+    result: dict[str, str | None] = {}
+    for field in _CONTACT_FIELDS:
+        result[f"owner_{field}"] = form.get(f"owner_{field}")
+
+    same_as_owner = form.get("same_as_owner") == "on"
+    for field in _CONTACT_FIELDS:
+        if same_as_owner:
+            result[f"payer_{field}"] = result[f"owner_{field}"]
+        else:
+            result[f"payer_{field}"] = form.get(f"payer_{field}")
+    return result
+
+
+def post_contacts_redirect_endpoint(bw_type: str) -> str:
+    """Pure: decide which endpoint to redirect to after submit_contacts.
+
+    Free BW types land on the free-activation page; paid types land on
+    the pricing page. Extracted from `submit_contacts` so the dispatch
+    rule can be pinned without spinning up the Flask app.
+
+    Raises:
+        KeyError: if `bw_type` is not a known BW type — the route only
+            calls this after writing `bw_type` to session via
+            `select_subscription`, which validates against `BW_TYPES`.
+    """
+    if BW_TYPES[bw_type]["free"]:
+        return "bw_activation.activate_free_page"
+    return "bw_activation.pricing_page"
 
 
 @bp.route("/nominate-contacts")
@@ -43,28 +99,14 @@ def submit_contacts():
     if not session.get("bw_type_confirmed"):
         return redirect(url_for("bw_activation.confirm_subscription"))
 
-    # Store contact information in session
-    session["owner_first_name"] = request.form.get("owner_first_name")
-    session["owner_last_name"] = request.form.get("owner_last_name")
-    session["owner_email"] = request.form.get("owner_email")
-    session["owner_phone"] = request.form.get("owner_phone")
-
-    same_as_owner = request.form.get("same_as_owner") == "on"
-    if same_as_owner:
-        session["payer_first_name"] = session["owner_first_name"]
-        session["payer_last_name"] = session["owner_last_name"]
-        session["payer_email"] = session["owner_email"]
-        session["payer_phone"] = session["owner_phone"]
-    else:
-        session["payer_first_name"] = request.form.get("payer_first_name")
-        session["payer_last_name"] = request.form.get("payer_last_name")
-        session["payer_email"] = request.form.get("payer_email")
-        session["payer_phone"] = request.form.get("payer_phone")
+    # Store contact information in session via the pure parser so the
+    # same-as-owner duplication rule stays unit-testable.
+    parsed = parse_contacts_form(request.form)
+    for key, value in parsed.items():
+        session[key] = value
 
     session["contacts_confirmed"] = True
 
-    # Redirect to appropriate activation page based on BW type
     bw_type: str = cast(str, session.get("bw_type"))
-    if BW_TYPES[bw_type]["free"]:
-        return redirect(url_for("bw_activation.activate_free_page", bw_type=bw_type))
-    return redirect(url_for("bw_activation.pricing_page", bw_type=bw_type))
+    endpoint = post_contacts_redirect_endpoint(bw_type)
+    return redirect(url_for(endpoint, bw_type=bw_type))
