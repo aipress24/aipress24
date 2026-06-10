@@ -114,9 +114,22 @@ def is_eligible_for_cession(user: User | None, post: Post) -> bool:
     return evaluate_cession_policy(option, str(buyer_bw.id), media_ids)
 
 
+def _buyer_org_id_or_none(user: User | None) -> int | None:
+    """Pure prefix of `_buyer_media_bw_for` : extract the user's
+    organisation id, or None if no user / no org. Defensive
+    `getattr` keeps duck-typed callers (anonymous user proxies,
+    test stubs) from raising `AttributeError`.
+
+    Extracted from `_buyer_media_bw_for` so the defensive None /
+    no-org gate is unit-testable without a DB session."""
+    if user is None:
+        return None
+    return getattr(user, "organisation_id", None)
+
+
 def _buyer_media_bw_for(user: User) -> BusinessWall | None:
     """Return the user's active rights-holder BW (media or micro)."""
-    org_id = getattr(user, "organisation_id", None)
+    org_id = _buyer_org_id_or_none(user)
     if org_id is None:
         return None
     stmt = (
@@ -129,6 +142,34 @@ def _buyer_media_bw_for(user: User) -> BusinessWall | None:
     return db.session.scalars(stmt).first()
 
 
+def _collect_candidate_org_ids(post: Post) -> list[int]:
+    """Pure helper : given a Post, return the ordered list of
+    organisation ids that *could* hold the rights on that post.
+
+    Priority order (preserved verbatim from the original SQL
+    query) :
+    1. `post.publisher_id` (explicit publisher)
+    2. `post.media_id` (the media the post was filed under)
+    3. `post.owner.organisation_id` (the user-org link)
+
+    Each candidate is appended only when non-None. Duplicates are
+    preserved (the SQL `in_` clause naturally deduplicates ;
+    keeping list semantics here makes the priority order
+    observable).
+
+    Extracted from `emitter_bw_for_post` so the candidate-
+    collection logic is unit-testable without a DB session."""
+    candidate_org_ids: list[int] = []
+    for attr in ("publisher_id", "media_id"):
+        val = getattr(post, attr, None)
+        if val is not None:
+            candidate_org_ids.append(val)
+    owner = getattr(post, "owner", None)
+    if owner is not None and getattr(owner, "organisation_id", None) is not None:
+        candidate_org_ids.append(owner.organisation_id)
+    return candidate_org_ids
+
+
 def emitter_bw_for_post(post: Post) -> BusinessWall | None:
     """Return the BW of the org that emitted a given Post, if any.
 
@@ -137,15 +178,7 @@ def emitter_bw_for_post(post: Post) -> BusinessWall | None:
     rights-holder BW (media or micro) can be resolved — the caller
     should treat that as ``all_subscribed`` (the default).
     """
-    candidate_org_ids: list[int] = []
-    for attr in ("publisher_id", "media_id"):
-        val = getattr(post, attr, None)
-        if val is not None:
-            candidate_org_ids.append(val)
-    owner = getattr(post, "owner", None)
-    if owner is not None and owner.organisation_id is not None:
-        candidate_org_ids.append(owner.organisation_id)
-
+    candidate_org_ids = _collect_candidate_org_ids(post)
     if not candidate_org_ids:
         return None
 

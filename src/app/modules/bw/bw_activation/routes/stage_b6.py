@@ -6,6 +6,7 @@
 
 from __future__ import annotations
 
+from collections.abc import Mapping
 from typing import Any, cast
 
 from flask import g, redirect, render_template, request, session, url_for
@@ -25,6 +26,116 @@ from app.modules.bw.bw_activation.utils import (
     init_missions_state,
     is_bw_manager_or_admin,
 )
+
+# Mapping of form-field name -> PermissionType value, used by
+# `parse_missions_from_form` to translate the HTML checkbox names from
+# the B06 template into the canonical permission keys persisted on
+# `BusinessWall.missions`. Lifted to module scope so the pure helper
+# can be unit-tested without rebuilding the dict on each request and
+# so the contract (which checkboxes drive which permission) is
+# visible at a glance.
+_FORM_TO_PERMISSION: dict[str, str] = {
+    "mission_press_release": PermissionType.PRESS_RELEASE.value,
+    "mission_events": PermissionType.EVENTS.value,
+    "mission_missions": PermissionType.MISSIONS.value,
+    "mission_projects": PermissionType.PROJECTS.value,
+    "mission_internships": PermissionType.INTERNSHIPS.value,
+    "mission_apprenticeships": PermissionType.APPRENTICESHIPS.value,
+    "mission_doctoral": PermissionType.DOCTORAL.value,
+}
+
+# The action keyword on the stage-B6 form submit button. Only these
+# two values are recognised — anything else is a programmer error
+# (the template can't emit something else without an edit) and the
+# route raises ``ValueError`` rather than silently defaulting.
+_VALID_ACTIONS: frozenset[str] = frozenset({"previous", "finish"})
+
+
+def parse_missions_from_form(form: Mapping[str, Any]) -> dict[str, bool]:
+    """Pure: translate a request.form mapping into the missions dict.
+
+    Each entry of ``_FORM_TO_PERMISSION`` is checked: a present, truthy
+    value yields ``True``; an absent or empty value yields ``False``.
+
+    Args:
+        form: A mapping that behaves like Flask's ``request.form`` — the
+            real ``ImmutableMultiDict`` works, as does any plain ``dict``.
+            We deliberately type as ``Mapping`` so tests can pass plain
+            dicts without flask machinery.
+
+    Returns:
+        A dict keyed by ``PermissionType`` value (``"press_release"``,
+        ``"events"``, …) with boolean values reflecting the form state.
+        Permission types absent from the form mapping are mapped to
+        ``False`` — checkboxes do not POST a value when unchecked.
+    """
+    return {
+        permission: bool(form.get(field))
+        for field, permission in _FORM_TO_PERMISSION.items()
+    }
+
+
+def diff_missions(
+    before: Mapping[str, bool], after: Mapping[str, bool]
+) -> tuple[set[str], set[str]]:
+    """Pure: compute (granted, revoked) permissions between two states.
+
+    Returns the set of permission keys that flipped from
+    ``False``/missing -> ``True`` (granted) and from ``True`` ->
+    ``False``/missing (revoked).
+
+    Permissions absent from either mapping are treated as ``False``.
+    Permissions whose state did not change appear in neither set.
+
+    Args:
+        before: The previous missions dict (``BusinessWall.missions``
+            before this POST).
+        after: The new missions dict produced by
+            :func:`parse_missions_from_form`.
+
+    Returns:
+        ``(granted, revoked)`` — two sets of permission-type keys.
+    """
+    all_keys = set(before) | set(after)
+    granted: set[str] = set()
+    revoked: set[str] = set()
+    for key in all_keys:
+        was = bool(before.get(key, False))
+        is_now = bool(after.get(key, False))
+        if was and not is_now:
+            revoked.add(key)
+        elif is_now and not was:
+            granted.add(key)
+    return granted, revoked
+
+
+def resolve_previous_endpoint(bw_type: str) -> str:
+    """Pure: pick the « previous » route name for the stage-B6 form.
+
+    The B6 wizard step is preceded by *manage_internal_roles* for PR
+    (``"pr"``) Business Walls and by *manage_external_partners* for
+    every other BW type. Extracted so the branch is independently
+    testable.
+
+    Args:
+        bw_type: The current BW's type string (``"pr"``, ``"media"``,
+            …).
+
+    Returns:
+        The fully-qualified Flask endpoint to redirect to.
+    """
+    if bw_type == "pr":
+        return "bw_activation.manage_internal_roles"
+    return "bw_activation.manage_external_partners"
+
+
+def is_valid_action(action: str) -> bool:
+    """Pure: ``True`` iff ``action`` is one of ``previous`` / ``finish``.
+
+    Centralises the action whitelist so the route guard and any test
+    that wants to assert « no silent default » share a single source.
+    """
+    return action in _VALID_ACTIONS
 
 
 @bp.route("/assign-missions", methods=["GET", "POST"])
@@ -59,22 +170,8 @@ def assign_missions():
         init_missions_state()
 
     if request.method == "POST":
-        # Update missions from form data
-        missions = {
-            PermissionType.PRESS_RELEASE.value: bool(
-                request.form.get("mission_press_release")
-            ),
-            PermissionType.EVENTS.value: bool(request.form.get("mission_events")),
-            PermissionType.MISSIONS.value: bool(request.form.get("mission_missions")),
-            PermissionType.PROJECTS.value: bool(request.form.get("mission_projects")),
-            PermissionType.INTERNSHIPS.value: bool(
-                request.form.get("mission_internships")
-            ),
-            PermissionType.APPRENTICESHIPS.value: bool(
-                request.form.get("mission_apprenticeships")
-            ),
-            PermissionType.DOCTORAL.value: bool(request.form.get("mission_doctoral")),
-        }
+        # Update missions from form data (pure parser; see helpers above)
+        missions = parse_missions_from_form(request.form)
 
         # Save to BusinessWall
         business_wall.missions = missions
@@ -93,19 +190,14 @@ def assign_missions():
         action = request.form.get("action", "finish")
         warn(action)
 
-        match action:
-            case "previous":
-                if bw_type == "pr":
-                    previous = "bw_activation.manage_internal_roles"
-                else:
-                    previous = "bw_activation.manage_external_partners"
-                return redirect(url_for(previous))
-            case "finish":
-                return redirect(url_for("bw_activation.dashboard"))
-            case _:
-                msg = f"Unknown action {action!r}"
-                warn(msg)
-                raise ValueError(msg)
+        if not is_valid_action(action):
+            msg = f"Unknown action {action!r}"
+            warn(msg)
+            raise ValueError(msg)
+
+        if action == "previous":
+            return redirect(url_for(resolve_previous_endpoint(bw_type)))
+        return redirect(url_for("bw_activation.dashboard"))
 
     return render_template(
         "bw_activation/B06_assign_missions.html",

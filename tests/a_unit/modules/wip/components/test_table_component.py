@@ -65,7 +65,10 @@ def _make_table(
     """Build a Table bound to a stub data source for tests."""
     table = Table()
     table.data_source = StubDataSource(items=items or [])
-    table.columns = columns or []
+    # `columns` is declared as a ClassVar on Table for the production
+    # default ; assigning via object.__setattr__ shadows it on the
+    # instance only — which is the test intent.
+    object.__setattr__(table, "columns", columns or [])
     if actions is not None:
         table.get_actions = actions  # type: ignore[method-assign]
     return table
