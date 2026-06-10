@@ -60,6 +60,207 @@ class SelectorSection:
     selectors: list[BaseSelector]
 
 
+# ── Pure decision helpers ───────────────────────────────────────────
+#
+# `ExpertFilterService` is a stateful Flask-coupled orchestrator
+# (request, session, repository). The genuinely pure pieces — filter
+# pipeline, form-state merging, selection dedup, form parsing,
+# section grouping — are factored out so the rules can be unit-tested
+# without a Flask context, an HTMX request shape, or a DB. The class
+# delegates to these for every decision.
+
+
+def apply_filter_pipeline(
+    experts: list[User],
+    state: FilterState,
+    selectors: list[BaseSelector],
+    *,
+    max_count: int = MAX_SELECTABLE_EXPERTS,
+) -> list[User]:
+    """Run the targeted-experts pipeline. Pure — no DB, no request.
+
+    Rules :
+
+    1. If no selector has any criterion set in ``state``, return the
+       first ``max_count`` experts without filtering, sorting, or
+       exclusion — this matches the « no filters » view the journalist
+       sees on first open.
+    2. Otherwise, AND every active selector's filter together over
+       the candidate pool.
+    3. Exclude experts whose id appears in ``state["selected_experts"]``
+       (the « already picked » list) — they show up in a separate
+       section of the UI.
+    4. Sort by (last_name, first_name) so the table is alphabetical.
+    5. Cap at ``max_count`` — the UI table has no pagination ;
+       beyond 50 the journalist is told to refine.
+    """
+    if all(not state.get(s.id) for s in selectors):
+        return experts[:max_count]
+
+    filtered = experts
+    for selector in selectors:
+        selected_values = state.get(selector.id)
+        if not selected_values:
+            continue
+        criteria: set[str] = (
+            set(selected_values)
+            if isinstance(selected_values, list)
+            else {selected_values}
+        )
+        filtered = selector.filter_experts(criteria, filtered)
+
+    selected_ids = set(state.get("selected_experts", []))
+    new_experts = [e for e in filtered if e.id not in selected_ids]
+    new_experts.sort(key=lambda e: (e.last_name, e.first_name))
+    return new_experts[:max_count]
+
+
+def merge_form_state_into_filter(
+    state: FilterState,
+    form_lists: dict[str, list[str]],
+    tracked_keys: set[str],
+) -> FilterState:
+    """Apply an HTMX selector-change form payload to the filter state.
+
+    Pure — returns a NEW state dict, doesn't mutate the input.
+
+    Two rules :
+
+    * Every tracked key (selector id OR dual-selector parent id) found
+      with non-empty values is written into the state.
+    * Every tracked key NOT mentioned in the payload is popped — that
+      models « user unchecked the dropdown ». Without this drop, stale
+      criteria leak across HTMX re-renders.
+
+    Non-tracked keys in the payload (e.g. ``selector_change`` itself,
+    CSRF tokens) are ignored — the form has many fields that don't
+    belong to a selector.
+    """
+    new_state: FilterState = dict(state)
+    seen_keys: set[str] = set()
+    for key, values in form_lists.items():
+        if key not in tracked_keys:
+            continue
+        actual = [v for v in values if v]
+        if actual:
+            new_state[key] = actual
+            seen_keys.add(key)
+
+    for key in tracked_keys:
+        if key not in seen_keys:
+            new_state.pop(key, None)
+    return new_state
+
+
+def merge_expert_selection(existing: object, new_ids: list[int]) -> list[int]:
+    """Combine the previously-selected expert ids with a fresh batch
+    from the form. Pure — order is not preserved (the UI sorts later).
+
+    Tolerant of legacy state shapes : ``existing`` may be the
+    int-typed list we expect, or it may have been overwritten by an
+    inconsistent caller. Anything that isn't a list of ints is
+    silently dropped — the user re-checks any ids they care about
+    via the form."""
+    out: list[int] = list(new_ids)
+    if isinstance(existing, list):
+        for item in existing:
+            if isinstance(item, int):
+                out.append(item)
+    return list(set(out))
+
+
+def parse_action_from_form(form_keys: object) -> str:
+    """Extract the form's action name. Pure.
+
+    The form encodes the user's click as a key like ``action:confirm``
+    or ``action:update`` (so a single ``<form>`` can dispatch multiple
+    actions without JavaScript). Returns the suffix or ``""`` if no
+    action key is present.
+
+    ``form_keys`` is anything iterable producing the form's keys —
+    a dict, a list, ``request.form.to_dict()``."""
+    for key in form_keys:
+        if isinstance(key, str) and key.startswith("action:"):
+            return key.split(":", 1)[1]
+    return ""
+
+
+def parse_expert_ids_from_form(form_keys: object) -> list[int]:
+    """Extract expert ids from form keys shaped ``expert:<int>``. Pure.
+
+    The form uses keys like ``expert:42`` so the journalist can
+    toggle multiple experts in a single submit. Non-numeric suffixes
+    raise — that's an input-shape bug worth surfacing, not a silent
+    drop."""
+    out: list[int] = []
+    for key in form_keys:
+        if isinstance(key, str) and key.startswith("expert:"):
+            out.append(int(key.split(":", 1)[1]))
+    return out
+
+
+def build_sections_from_selectors(
+    selectors: list[BaseSelector],
+) -> list[SelectorSection]:
+    """Group the 17 selectors into Annie's 4 thematic headings
+    (bug #0150 phase 2). Pure — operates only on the selector list."""
+    by_id = {s.id: s for s in selectors}
+
+    def pick(*ids: str) -> list[BaseSelector]:
+        return [by_id[i] for i in ids if i in by_id]
+
+    return [
+        SelectorSection(
+            title="Secteurs d'activité et types d'organisation",
+            selectors=pick(
+                "secteur",
+                "type_organisation",
+                "type_entreprise_presse_medias",
+                "type_presse_et_media",
+                "taille_organisation",
+            ),
+        ),
+        SelectorSection(
+            title="Géolocalisation",
+            selectors=pick("pays", "departement", "ville"),
+        ),
+        SelectorSection(
+            title="Fonctions",
+            selectors=pick(
+                "fonction_pol_adm",
+                "fonction_org_priv",
+                "fonction_ass_syn",
+                "fonction",
+                "fonction_journalisme",
+            ),
+        ),
+        SelectorSection(
+            title="Métiers, compétences & langues",
+            selectors=pick(
+                "metier",
+                "competences",
+                "competences_journalisme",
+                "langues",
+            ),
+        ),
+    ]
+
+
+def compute_tracked_form_keys(selectors: list[BaseSelector]) -> set[str]:
+    """Return the set of form keys ``merge_form_state_into_filter``
+    should pay attention to : every selector id, plus the parent_id
+    of any dual selector (parent dropdowns don't filter experts but
+    must round-trip through state for the cascade UI). Pure."""
+    selector_keys = {s.id for s in selectors}
+    parent_keys = {
+        getattr(s, "parent_id", "")
+        for s in selectors
+        if getattr(s, "is_dual", False)
+    }
+    parent_keys.discard("")
+    return selector_keys | parent_keys
+
+
 class ExpertFilterService:
     """
     Service for filtering experts based on multiple criteria.
@@ -118,31 +319,9 @@ class ExpertFilterService:
         Returns:
             List of experts (limited to MAX_SELECTABLE_EXPERTS)
         """
-        selectors = self._get_selectors()
-        experts = self._get_all_experts()
-
-        # If no filters applied, return all (limited)
-        if all(not self._state.get(s.id) for s in selectors):
-            return experts[:MAX_SELECTABLE_EXPERTS]
-
-        # Apply each selector's filter
-        for selector in selectors:
-            selected_values = self._state.get(selector.id)
-            if not selected_values:
-                continue
-            criteria: set[str] = (
-                set(selected_values)  # type: ignore[arg-type]
-                if isinstance(selected_values, list)
-                else {selected_values}
-            )
-            experts = selector.filter_experts(criteria, experts)
-
-        # Exclude already-selected experts
-        selected_ids = set(self._state.get("selected_experts", []))
-        new_experts = [e for e in experts if e.id not in selected_ids]
-
-        new_experts.sort(key=lambda e: (e.last_name, e.first_name))
-        return new_experts[:MAX_SELECTABLE_EXPERTS]
+        return apply_filter_pipeline(
+            self._get_all_experts(), self._state, self._get_selectors()
+        )
 
     def get_selected_experts(self) -> list[User]:
         """
@@ -157,19 +336,16 @@ class ExpertFilterService:
 
     def add_experts_from_request(self) -> None:
         """Add experts from form to current selection."""
-        expert_ids = list(self._get_expert_ids_from_request())
-        existing = self._state.get("selected_experts", [])
-        if isinstance(existing, list):
-            # selected_experts always contains int IDs
-            for item in existing:
-                if isinstance(item, int):
-                    expert_ids.append(item)
-        self._state["selected_experts"] = list(set(expert_ids))
+        new_ids = parse_expert_ids_from_form(request.form.to_dict())
+        self._state["selected_experts"] = merge_expert_selection(
+            self._state.get("selected_experts", []), new_ids
+        )
 
     def update_experts_from_request(self) -> None:
         """Replace current selection with experts from form."""
-        expert_ids = list(self._get_expert_ids_from_request())
-        self._state["selected_experts"] = expert_ids
+        self._state["selected_experts"] = parse_expert_ids_from_form(
+            request.form.to_dict()
+        )
 
     def get_selectors(self) -> list[BaseSelector]:
         """
@@ -193,46 +369,7 @@ class ExpertFilterService:
         `.selectors` view is still exposed for callers that don't
         care about grouping (e.g. validation, state plumbing).
         """
-        by_id = {s.id: s for s in self._get_selectors()}
-
-        def pick(*ids: str) -> list[BaseSelector]:
-            return [by_id[i] for i in ids if i in by_id]
-
-        return [
-            SelectorSection(
-                title="Secteurs d'activité et types d'organisation",
-                selectors=pick(
-                    "secteur",
-                    "type_organisation",
-                    "type_entreprise_presse_medias",
-                    "type_presse_et_media",
-                    "taille_organisation",
-                ),
-            ),
-            SelectorSection(
-                title="Géolocalisation",
-                selectors=pick("pays", "departement", "ville"),
-            ),
-            SelectorSection(
-                title="Fonctions",
-                selectors=pick(
-                    "fonction_pol_adm",
-                    "fonction_org_priv",
-                    "fonction_ass_syn",
-                    "fonction",
-                    "fonction_journalisme",
-                ),
-            ),
-            SelectorSection(
-                title="Métiers, compétences & langues",
-                selectors=pick(
-                    "metier",
-                    "competences",
-                    "competences_journalisme",
-                    "langues",
-                ),
-            ),
-        ]
+        return build_sections_from_selectors(self._get_selectors())
 
     def get_action_from_request(self) -> str:
         """
@@ -241,10 +378,7 @@ class ExpertFilterService:
         Returns:
             Action name (e.g., "confirm", "update", "add") or empty string
         """
-        for name in request.form.to_dict():
-            if name.startswith("action:"):
-                return name.split(":")[1]
-        return ""
+        return parse_action_from_form(request.form.to_dict())
 
     @property
     def state(self) -> FilterState:
@@ -274,40 +408,14 @@ class ExpertFilterService:
         if "selector_change" not in selector_data:
             return
 
-        # Dual selectors expose two form fields (parent + child). The
-        # parent field is UI-only — it narrows the child dropdown but
-        # doesn't filter experts. We still track it in state so the
-        # cascade UI keeps its selection across HTMX re-renders.
-        selectors = self._get_selectors()
-        selector_keys = {s.id for s in selectors}
-        parent_keys = {
-            getattr(s, "parent_id", "")
-            for s in selectors
-            if getattr(s, "is_dual", False)
-        }
-        parent_keys.discard("")
-        tracked_keys = selector_keys | parent_keys
-        seen_keys: set[str] = set()
-
-        for key, values in selector_data.items():
-            if key in tracked_keys:
-                actual_values = [v for v in values if v]
-                if actual_values:
-                    self._state[key] = actual_values
-                    seen_keys.add(key)
-
-        # Clear unmentioned fields so unchecking a dropdown actually
-        # drops the criterion (rather than leaving stale state).
-        for key in tracked_keys:
-            if key not in seen_keys:
-                self._state.pop(key, None)
+        tracked_keys = compute_tracked_form_keys(self._get_selectors())
+        self._state = merge_form_state_into_filter(
+            self._state, selector_data, tracked_keys
+        )
 
     def _get_expert_ids_from_request(self) -> Generator[int]:
         """Extract expert IDs from form data."""
-        form_data = request.form.to_dict()
-        for k in form_data:
-            if k.startswith("expert:"):
-                yield int(k.split(":")[1])
+        yield from parse_expert_ids_from_form(request.form.to_dict())
 
     def _get_all_experts(self) -> list[User]:
         """Get all experts (cached).
