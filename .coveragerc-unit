@@ -1,0 +1,62 @@
+# Unit-tier coverage config — invoked only by `make test-cov-unit`.
+#
+# Why a separate file (rather than pyproject.toml's [tool.coverage.run]):
+# views / routes belong at the b_integration + c_e2e tiers — measuring
+# them under tests/a_unit/ produces a misleading "0% covered" bar that
+# tanks the unit-tier score with code we never intended to exercise here.
+# Stripping them out at measurement time gives a coverage number that
+# actually reflects what unit-tier tests can hit.
+#
+# This file MUST NOT be loaded by the default `make test-cov` or by CI ;
+# those need the full pyproject config to track integration / e2e
+# coverage on the view layer.
+
+[run]
+source = src/app
+omit =
+    tests/*.py
+    **/test*.py
+    **/*test.py
+    src/app/faker/**/*.py
+    # View / route layers — covered at b_integration + c_e2e, not here.
+    **/views.py
+    **/views/*.py
+    **/routes.py
+    **/routes/*.py
+    **/*_views.py
+    **/*_routes.py
+    # CRUD Class-Based Views are the view layer by another name.
+    **/crud/cbvs/*.py
+    # Module-level pywire components (modules/*/components/) reach
+    # into the SVCS container + repositories ; they're view-tier.
+    # NOTE : framework-level `src/app/flask/components/` is KEPT — it
+    # holds pure helpers with their own a_unit tests.
+    src/app/modules/*/components/*.py
+    src/app/modules/*/components/**/*.py
+    # API route handlers (modules/api) — Flask views in another dir.
+    src/app/modules/api/*.py
+    # CLI commands : testable via `test_cli_runner` but DB-touching →
+    # honest tier is b_integration.
+    src/app/flask/cli/*.py
+    # One-shot data loaders / bootstrap scripts — DB-heavy.
+    src/app/flask/bootstrap/*.py
+    # Debug-only blueprints (stripe_debug, mail_debug).
+    src/app/flask/*_debug.py
+    # Process entrypoint — not unit-testable.
+    src/app/dramatiq/worker_entry.py
+
+[report]
+exclude_lines =
+    pragma: no cover
+    if __name__ == .__main__.:
+    if TYPE_CHECKING:
+    if typing.TYPE_CHECKING:
+    raise AssertionError
+    raise NotImplementedError
+skip_covered = True
+skip_empty = True
+# Worst-covered modules first — quickest scan for unit-tier targets.
+sort = Cover
+
+[html]
+show_contexts = True

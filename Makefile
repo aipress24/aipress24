@@ -7,7 +7,7 @@ help:
 #
 # Tests
 #
-.PHONY: test test-with-sqla-warnings test-with-coverage test-with-typeguard
+.PHONY: test test-with-sqla-warnings test-with-coverage test-with-typeguard test-cov-unit test-cov-all
 
 ## Run tests
 test:
@@ -24,6 +24,19 @@ test-with-coverage:
 	pytest tests --cov=app --doctest-modules
 
 test-cov: test-with-coverage
+
+## Coverage report scoped to the a_unit tier. Views / routes are omitted
+## (covered at b_integration + c_e2e tiers) — see .coveragerc-unit.
+test-cov-unit:
+	pytest tests/a_unit/ --cov=app --cov-config=.coveragerc-unit
+
+## Full coverage report (a_unit + b_integration). Reuses .coveragerc-unit
+## so views / routes are still omitted, but rolls in integration-tier
+## hits so the per-module % reflects what is ACTUALLY tested across
+## tiers. The unit-only report (`test-cov-unit`) over-counts misses on
+## anything that's only reachable via real DB / Stripe / etc.
+test-cov-all:
+	pytest tests/a_unit/ tests/b_integration/ --cov=app --cov-config=.coveragerc-unit
 
 test-with-typeguard:
 	pytest tests --typeguard-packages=app
