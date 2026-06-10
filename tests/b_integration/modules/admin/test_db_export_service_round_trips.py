@@ -145,9 +145,7 @@ class TestBuildCommandFromLiveConfig:
 class TestGenerateFilenameAgainstLiveDatabase:
     """`generate_filename` must produce a sortable, timestamped name."""
 
-    _FILENAME_RE = re.compile(
-        r"^(?P<db>.+)_dump_(?P<ts>\d{8}_\d{6})\.sql\.gz$"
-    )
+    _FILENAME_RE = re.compile(r"^(?P<db>.+)_dump_(?P<ts>\d{8}_\d{6})\.sql\.gz$")
 
     def test_filename_matches_documented_pattern(self, live_url: URL) -> None:
         if not live_url.database:

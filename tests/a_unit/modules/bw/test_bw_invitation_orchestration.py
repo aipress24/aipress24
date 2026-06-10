@@ -342,9 +342,7 @@ class TestInviteDecisionShape:
     """Pin the dataclass contract the orchestrating shell relies on."""
 
     def test_decision_has_three_fields(self):
-        d = InviteDecision(
-            InviteAction.CREATE_NEW, InvitationOutcomeCode.CREATED, None
-        )
+        d = InviteDecision(InviteAction.CREATE_NEW, InvitationOutcomeCode.CREATED, None)
         assert d.action == InviteAction.CREATE_NEW
         assert d.outcome_code == InvitationOutcomeCode.CREATED
         assert d.existing is None

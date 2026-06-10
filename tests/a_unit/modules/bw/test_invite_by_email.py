@@ -91,9 +91,7 @@ class _InviteRecorder:
     received_business_wall: _FakeBusinessWall | None = field(default=None)
     received_user: _FakeUser | None = field(default=None)
 
-    def __call__(
-        self, business_wall, user, role: BWRoleType
-    ) -> InvitationOutcome:
+    def __call__(self, business_wall, user, role: BWRoleType) -> InvitationOutcome:
         self.received_role = role
         self.received_business_wall = business_wall
         self.received_user = user

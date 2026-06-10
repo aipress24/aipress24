@@ -69,9 +69,7 @@ CATEGORIES = (
 class TestPopulateJsonFieldRoundTrip:
     """``populate_json_field`` output survives a real flush + reload cycle."""
 
-    def test_info_personnelle_persists_and_reloads(
-        self, db_session: Session
-    ) -> None:
+    def test_info_personnelle_persists_and_reloads(self, db_session: Session) -> None:
         user = _make_user(db_session, "perso@example.com")
         profile = _make_profile(db_session, user)
 
@@ -81,9 +79,7 @@ class TestPopulateJsonFieldRoundTrip:
             "competences": ["seo", "data"],
             "unknown_key_should_be_dropped": "ignored",
         }
-        profile.info_personnelle = populate_json_field(
-            "info_personnelle", form_results
-        )
+        profile.info_personnelle = populate_json_field("info_personnelle", form_results)
         db_session.flush()
         db_session.expire(profile)
 
@@ -123,9 +119,7 @@ class TestPopulateJsonFieldRoundTrip:
         user = _make_user(db_session, "contact@example.com")
         profile = _make_profile(db_session, user)
 
-        profile.show_contact_details = populate_json_field(
-            "show_contact_details", {}
-        )
+        profile.show_contact_details = populate_json_field("show_contact_details", {})
         db_session.flush()
         db_session.expire(profile)
 
@@ -134,9 +128,7 @@ class TestPopulateJsonFieldRoundTrip:
         for contact_type in ContactTypeEnum:
             assert f"email_{contact_type.name}" in reloaded.show_contact_details
             assert f"mobile_{contact_type.name}" in reloaded.show_contact_details
-            assert reloaded.show_contact_details[
-                f"email_{contact_type.name}"
-            ] is False
+            assert reloaded.show_contact_details[f"email_{contact_type.name}"] is False
 
     @pytest.mark.parametrize("category", CATEGORIES)
     def test_empty_form_seeds_default_shape(
@@ -246,9 +238,7 @@ class TestFormDataReverseRoundTrip:
         # Now play the view-layer role: build the form data dict from the
         # persisted JSON.
         form_data: dict[str, Any] = {}
-        populate_form_data(
-            "info_personnelle", reloaded.info_personnelle, form_data
-        )
+        populate_form_data("info_personnelle", reloaded.info_personnelle, form_data)
 
         assert form_data["pseudo"] == "round"
         assert form_data["competences"] == ["seo"]
@@ -267,9 +257,7 @@ class TestFormDataReverseRoundTrip:
         profile.info_personnelle = populate_json_field(
             "info_personnelle", {"pseudo": "owner"}
         )
-        profile.info_hobby = populate_json_field(
-            "info_hobby", {"hobbies": "chess"}
-        )
+        profile.info_hobby = populate_json_field("info_hobby", {"hobbies": "chess"})
         db_session.flush()
         db_session.expire(profile)
 
@@ -277,9 +265,7 @@ class TestFormDataReverseRoundTrip:
         assert reloaded is not None
 
         form_data: dict[str, Any] = {"csrf_token": "kept", "submit": "kept"}
-        populate_form_data(
-            "info_personnelle", reloaded.info_personnelle, form_data
-        )
+        populate_form_data("info_personnelle", reloaded.info_personnelle, form_data)
         populate_form_data("info_hobby", reloaded.info_hobby, form_data)
 
         # Both categories ended up in the same dict, alongside pre-existing

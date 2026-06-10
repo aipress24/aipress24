@@ -195,7 +195,10 @@ class TestContentFormMissingRequired:
     @pytest.mark.parametrize(
         ("form", "expected"),
         [
-            ({"name": "  ", "siren": "12345"}, ["name"]),  # whitespace-only counts as missing
+            (
+                {"name": "  ", "siren": "12345"},
+                ["name"],
+            ),  # whitespace-only counts as missing
             ({"name": "ACME", "siren": ""}, ["siren"]),
             ({"name": "", "siren": "12345"}, ["name"]),
             ({"name": "ACME", "siren": "   "}, ["siren"]),
@@ -499,8 +502,7 @@ class TestGallerySwapPositions:
     def test_unknown_target_returns_none(self):
         images = self._images()
         assert (
-            gallery_swap_positions(images=images, target_id=999, direction="up")
-            is None
+            gallery_swap_positions(images=images, target_id=999, direction="up") is None
         )
 
     @pytest.mark.parametrize("direction", ["", "left", "sideways", "UP", "Down"])
@@ -512,9 +514,7 @@ class TestGallerySwapPositions:
         )
 
     def test_empty_list_returns_none(self):
-        assert (
-            gallery_swap_positions(images=[], target_id=1, direction="up") is None
-        )
+        assert gallery_swap_positions(images=[], target_id=1, direction="up") is None
 
     def test_swap_pair_preserves_positions_attribute(self):
         """The route swaps the two ``position`` fields after the helper

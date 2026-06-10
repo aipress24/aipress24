@@ -210,9 +210,7 @@ class TestGetOntologyContentCacheInvalidation:
         # list — this is the documented behavior of `@cached`.
         assert get_ontology_content("langue") == []
 
-    def test_cache_clear_exposes_fresh_db_state(
-        self, db_session: Session
-    ) -> None:
+    def test_cache_clear_exposes_fresh_db_state(self, db_session: Session) -> None:
         # Same scenario, but invalidate the cache after seeding.
         assert get_ontology_content("langue") == []
         _seed(db_session, "langue", [("Français", "", "fr", 1)])

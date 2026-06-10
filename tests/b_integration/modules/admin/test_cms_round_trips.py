@@ -81,9 +81,7 @@ class TestCreateRoundTrip:
         rows = db_session.query(CorporatePage).filter_by(slug="cgv").all()
         assert len(rows) == 1
 
-    def test_get_returns_none_for_unknown_slug(
-        self, svc: CorporatePageService
-    ) -> None:
+    def test_get_returns_none_for_unknown_slug(self, svc: CorporatePageService) -> None:
         assert svc.get(slug="does-not-exist") is None
 
     def test_list_all_includes_every_persisted_page(
@@ -236,9 +234,7 @@ class TestDeleteRoundTrip:
 class TestSlugUniqueness:
     """The DB-level uniqueness constraint must reject duplicates."""
 
-    def test_inserting_duplicate_slug_raises(
-        self, db_session: Session
-    ) -> None:
+    def test_inserting_duplicate_slug_raises(self, db_session: Session) -> None:
         db_session.add(CorporatePage(slug="dup", title="a", body_md=""))
         db_session.flush()
 

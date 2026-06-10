@@ -203,9 +203,7 @@ class TestCanUserAccredit:
     def test_user_with_press_media_among_others_can_accredit(self) -> None:
         # Realistic case: a journalist who is also an expert or admin must
         # still be allowed.
-        user = UserStub(
-            roles={RoleEnum.PRESS_MEDIA, RoleEnum.EXPERT, RoleEnum.ADMIN}
-        )
+        user = UserStub(roles={RoleEnum.PRESS_MEDIA, RoleEnum.EXPERT, RoleEnum.ADMIN})
         event = EventStub()
 
         assert can_user_accredit(user, event) is True

@@ -59,9 +59,7 @@ def _auto_org(name: str) -> Organisation:
 class TestGetOrganisationFamily:
     """``get_organisation_family`` filters by ``bw_active`` or AUTO."""
 
-    def test_none_returns_only_auto_orgs_sorted(
-        self, db_session: Session
-    ) -> None:
+    def test_none_returns_only_auto_orgs_sorted(self, db_session: Session) -> None:
         db_session.add_all(
             [
                 _auto_org("Zeta Auto"),
@@ -79,9 +77,7 @@ class TestGetOrganisationFamily:
         "bw_type",
         ["media", "pr", "academics", "transformers"],
     )
-    def test_filters_by_bw_active(
-        self, db_session: Session, bw_type: str
-    ) -> None:
+    def test_filters_by_bw_active(self, db_session: Session, bw_type: str) -> None:
         db_session.add_all(
             [
                 _bw_org("Match Org", bw_type),
@@ -106,9 +102,7 @@ class TestGetOrganisationFamily:
 class TestGetOrganisationForNomsMedias:
     """media + AUTO orgs surface; non-media BW orgs are filtered out."""
 
-    def test_returns_media_and_auto_excludes_pr(
-        self, db_session: Session
-    ) -> None:
+    def test_returns_media_and_auto_excludes_pr(self, db_session: Session) -> None:
         db_session.add_all(
             [
                 _bw_org("Media Org", "media"),
@@ -181,9 +175,7 @@ class TestGetOrganisationForNomsOrgas:
 class TestGetOrganisationForNomsCom:
     """COM family = ``bw_active == 'pr'`` + AUTO."""
 
-    def test_returns_pr_and_auto_excludes_media(
-        self, db_session: Session
-    ) -> None:
+    def test_returns_pr_and_auto_excludes_media(self, db_session: Session) -> None:
         db_session.add_all(
             [
                 _bw_org("Media Org", "media"),
@@ -275,15 +267,11 @@ class TestStoreAutoOrganisationIdempotency:
 class TestFindInvitingOrganisations:
     """``find_inviting_organisations`` resolves orgs by invitation email."""
 
-    def test_returns_org_for_matching_invitation(
-        self, db_session: Session
-    ) -> None:
+    def test_returns_org_for_matching_invitation(self, db_session: Session) -> None:
         org = _bw_org("Inviting Org", "media")
         db_session.add(org)
         db_session.flush()
-        db_session.add(
-            Invitation(email="invited@example.com", organisation_id=org.id)
-        )
+        db_session.add(Invitation(email="invited@example.com", organisation_id=org.id))
         db_session.flush()
 
         result = find_inviting_organisations("invited@example.com")
@@ -309,18 +297,14 @@ class TestFindInvitingOrganisations:
     ) -> None:
         assert find_inviting_organisations(bad_email) == []
 
-    def test_returns_empty_when_no_invitation(
-        self, db_session: Session
-    ) -> None:
+    def test_returns_empty_when_no_invitation(self, db_session: Session) -> None:
         org = _bw_org("Unrelated", "media")
         db_session.add(org)
         db_session.flush()
 
         assert find_inviting_organisations("nobody@example.com") == []
 
-    def test_orphan_invitation_id_is_skipped(
-        self, db_session: Session
-    ) -> None:
+    def test_orphan_invitation_id_is_skipped(self, db_session: Session) -> None:
         """Audit L2 invariant: dead organisation_id does not raise."""
         org = _bw_org("Live Org", "media")
         db_session.add(org)
@@ -339,9 +323,7 @@ class TestFindInvitingOrganisations:
         # The orphan invitation is silently skipped, not raised.
         assert [o.id for o in result] == [org.id]
 
-    def test_multiple_orgs_invite_same_email(
-        self, db_session: Session
-    ) -> None:
+    def test_multiple_orgs_invite_same_email(self, db_session: Session) -> None:
         org_a = _bw_org("Org A", "media")
         org_b = _bw_org("Org B", "pr")
         db_session.add_all([org_a, org_b])

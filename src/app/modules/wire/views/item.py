@@ -179,13 +179,9 @@ def build_metadata_list(
     if post.address:
         data.append({"label": "Adresse", "value": post.address})
     if post.pays_zip_ville:
-        data.append(
-            {"label": "Pays", "value": country_label(post.pays_zip_ville)}
-        )
+        data.append({"label": "Pays", "value": country_label(post.pays_zip_ville)})
     if post.pays_zip_ville_detail:
-        data.append(
-            {"label": "Ville", "value": city_label(post.pays_zip_ville_detail)}
-        )
+        data.append({"label": "Ville", "value": city_label(post.pays_zip_ville_detail)})
 
     return data
 

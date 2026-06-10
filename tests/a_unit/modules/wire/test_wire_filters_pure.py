@@ -123,9 +123,7 @@ class TestSorterProperty:
         bar = _bare_bar()
         assert len(bar.sorter["options"]) == len(SORTER_OPTIONS)
 
-    @pytest.mark.parametrize(
-        "sort_by", ["date", "views", "likes", "shares", "sales"]
-    )
+    @pytest.mark.parametrize("sort_by", ["date", "views", "likes", "shares", "sales"])
     def test_each_sort_value_selects_only_itself(self, sort_by: str) -> None:
         bar = _bare_bar({"sort-by": sort_by})
         options = bar.sorter["options"]
@@ -152,9 +150,7 @@ class TestActiveFiltersLabelFunction:
     called, the value passed through, and no TypeError was raised."""
 
     def test_pays_filter_invokes_label_function(self, app) -> None:
-        bar = _bare_bar(
-            {"filters": [{"id": "pays_zip_ville", "value": "ZZZ-unknown"}]}
-        )
+        bar = _bare_bar({"filters": [{"id": "pays_zip_ville", "value": "ZZZ-unknown"}]})
         with app.app_context():
             active = bar.active_filters
         assert len(active) == 1
@@ -175,9 +171,7 @@ class TestActiveFiltersLabelFunction:
 
     def test_unknown_filter_id_has_empty_tag_label(self) -> None:
         # No spec match -> FILTER_TAG_LABEL.get returns "".
-        bar = _bare_bar(
-            {"filters": [{"id": "made_up", "value": "anything"}]}
-        )
+        bar = _bare_bar({"filters": [{"id": "made_up", "value": "anything"}]})
         active = bar.active_filters
         assert active[0]["tag_label"] == ""
         assert active[0]["label"] == "anything"
@@ -201,9 +195,7 @@ class TestStatePersistence:
             bar.save_state()
             # A fresh FilterBar reading the same session sees the same state.
             fresh = _bare_bar(tab="wall")
-            assert fresh.get_state() == {
-                "filters": [{"id": "sector", "value": "tech"}]
-            }
+            assert fresh.get_state() == {"filters": [{"id": "sector", "value": "tech"}]}
 
     def test_get_state_handles_corrupted_json(self, app) -> None:
         bar = _bare_bar(tab="wall")
@@ -226,9 +218,7 @@ class TestStatePersistence:
             bar.set_tag("python")
             assert bar.tag == "python"
             fresh = _bare_bar(tab="wall")
-            assert fresh.get_state()["filters"] == [
-                {"id": "tag", "value": "python"}
-            ]
+            assert fresh.get_state()["filters"] == [{"id": "tag", "value": "python"}]
 
     def test_per_tab_isolation(self, app) -> None:
         # State for "wall" must not leak into "com" — different session keys.
@@ -252,9 +242,7 @@ class TestUpdateStateDispatcher:
         assert bar.state["filters"] == [{"id": "sector", "value": "tech"}]
 
     def test_toggle_action_removes_existing_filter(self, app) -> None:
-        bar = _bare_bar(
-            {"filters": [{"id": "sector", "value": "tech"}]}, tab="wall"
-        )
+        bar = _bare_bar({"filters": [{"id": "sector", "value": "tech"}]}, tab="wall")
         form = {"action": "toggle", "id": "sector", "value": "tech"}
         with app.test_request_context(method="POST", data=form):
             bar.update_state()
@@ -320,9 +308,7 @@ class TestRemoveFilterEdgeCases:
     the dispatcher in `update_state` calls it eagerly."""
 
     def test_remove_missing_filter_is_noop(self) -> None:
-        bar = _bare_bar(
-            {"filters": [{"id": "sector", "value": "tech"}]}, tab="wall"
-        )
+        bar = _bare_bar({"filters": [{"id": "sector", "value": "tech"}]}, tab="wall")
         bar.remove_filter("genre", "news")
         assert bar.state["filters"] == [{"id": "sector", "value": "tech"}]
 

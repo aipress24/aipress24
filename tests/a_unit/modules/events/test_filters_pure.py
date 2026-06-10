@@ -153,9 +153,7 @@ class TestActiveFiltersEdges:
         original = spec.get("label_function")
         spec["label_function"] = lambda code: f"<{code}>"
         try:
-            bar = _make_bar(
-                {"filters": [{"id": "pays_zip_ville", "value": "FR"}]}
-            )
+            bar = _make_bar({"filters": [{"id": "pays_zip_ville", "value": "FR"}]})
             active = bar.active_filters
         finally:
             spec["label_function"] = original

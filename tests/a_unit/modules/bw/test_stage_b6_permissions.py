@@ -331,10 +331,7 @@ class TestResolvePreviousEndpoint:
 
     def test_pr_goes_to_internal_roles(self):
         """PR BWs route to internal-roles for « previous »."""
-        assert (
-            resolve_previous_endpoint("pr")
-            == "bw_activation.manage_internal_roles"
-        )
+        assert resolve_previous_endpoint("pr") == "bw_activation.manage_internal_roles"
 
     @pytest.mark.parametrize(
         "bw_type",
@@ -355,8 +352,7 @@ class TestResolvePreviousEndpoint:
         falls through to external-partners — pin the case-sensitivity
         so a future ``.lower()`` slip is loud."""
         assert (
-            resolve_previous_endpoint("PR")
-            == "bw_activation.manage_external_partners"
+            resolve_previous_endpoint("PR") == "bw_activation.manage_external_partners"
         )
 
 

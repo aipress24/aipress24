@@ -280,9 +280,7 @@ class TestCurrentBwToInfoDictValues:
 
     def test_contact_tuple_is_passed_through_in_order(self) -> None:
         bw = FakeBW(name_safe="Acme PR", id=UUID(int=13))
-        row = _current_bw_to_info_dict(
-            bw, ("Bob Martin", "bob@example.test")
-        )
+        row = _current_bw_to_info_dict(bw, ("Bob Martin", "bob@example.test"))
 
         assert row["bw_contact_name"] == "Bob Martin"
         assert row["bw_contact_email"] == "bob@example.test"
