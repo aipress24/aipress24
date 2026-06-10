@@ -13,19 +13,13 @@ from app.modules.kyc.survey_model import (
     get_survey_model,
     get_survey_profile,
     get_survey_profile_ids,
-    load_survey_model,
 )
 
-
-def test_load_survey_model():
-    """Test load_survey_model function."""
-    result = load_survey_model()
-
-    # Should return a dictionary with expected keys
-    assert isinstance(result, dict)
-    assert "communities" in result
-    assert "survey_fields" in result
-    assert "profiles" in result
+# `load_survey_model()` re-parses the XLS file on every call (~ 430 ms).
+# Production calls it exactly once at module import time and binds the
+# result to the module-level `survey` dict, which `get_survey_model()`
+# returns. The dict-shape contract is therefore tested below via the
+# cached path — `test_load_survey_model` was redundant + slow.
 
 
 def test_get_survey_model():
