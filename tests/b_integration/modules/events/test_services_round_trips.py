@@ -26,14 +26,10 @@ mock, not the SQL. So we drive the real engine via the autouse
 ``db_session`` fixture (savepoint rollback after every test) and assert on
 tangible row state.
 
-``EventPost`` is abstract for our purposes (the codebase uses concrete
-subclasses ``PublicEvent`` and ``PressEvent``), so we instantiate
-``PublicEvent`` / ``PressEvent`` directly — they share the ``cnt_base``
-table and satisfy ``isinstance(event, EventPost)`` only when EventPost
-itself is used. The SUT's ``isinstance`` guard in ``get_participants``
-therefore forces us to use ``EventPost`` for that one path; the
-association table itself is keyed by the shared ``BaseContent.id``, so
-``PublicEvent`` / ``PressEvent`` work for the other three functions.
+Only true ``EventPost`` rows can participate — the association table
+FKs ``event_id`` to ``evt_event_post.id``, and the sibling classes
+``PublicEvent`` / ``PressEvent`` write to their own tables and never
+land in ``evt_event_post``.
 """
 
 from __future__ import annotations
@@ -46,8 +42,6 @@ import sqlalchemy as sa
 from app.models.auth import User
 from app.modules.events.models import (
     EventPost,
-    PressEvent,
-    PublicEvent,
     participation_table,
 )
 from app.modules.events.services import (
@@ -137,23 +131,13 @@ class TestAddParticipantRoundTrip:
 
         assert _participation_row_count(db_session, event.id) == len(users)
 
-    @pytest.mark.parametrize("event_cls", [PublicEvent, PressEvent])
-    def test_works_for_concrete_subclasses(
-        self,
-        db_session: Session,
-        users: list[User],
-        event_cls: type,
-    ) -> None:
-        # The association table is keyed by the shared cnt_base id, so any
-        # ``EventPost``-rooted subclass works for the insert/delete/count
-        # path (``get_participants`` is the only one with an isinstance guard).
-        e = event_cls(title=f"Sub {event_cls.__name__}", owner=users[0])
-        db_session.add(e)
-        db_session.flush()
-
-        assert add_participant(e, users[1]) is True
-        db_session.flush()
-        assert _participation_row_count(db_session, e.id) == 1
+    # NOTE: an earlier `test_works_for_concrete_subclasses[PublicEvent | PressEvent]`
+    # was deleted. Its premise was wrong: `PublicEvent` and `PressEvent` are
+    # siblings of `EventPost`, not subclasses — they write to their own tables
+    # (`evt_public_event` / `evt_press_event`) and never land in `evt_event_post`.
+    # `participation_table.event_id` FKs to `EventPost.id`, so the SUT only
+    # supports true `EventPost` instances. SQLite skipped the FK check ; Postgres
+    # surfaced the violation. The behaviour is correct ; the test was buggy.
 
 
 # ----------------------------------------------------------------
