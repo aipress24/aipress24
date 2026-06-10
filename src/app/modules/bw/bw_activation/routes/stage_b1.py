@@ -7,7 +7,7 @@
 from __future__ import annotations
 
 from datetime import UTC, datetime
-from typing import TYPE_CHECKING, cast
+from typing import TYPE_CHECKING, Any, cast
 
 from flask import (
     current_app,
@@ -44,6 +44,151 @@ from app.settings.constants import MAX_IMAGE_SIZE
 
 if TYPE_CHECKING:
     from app.models.auth import User
+
+
+# --- Pure helpers (Pattern A) ---------------------------------------------
+#
+# These functions are unit-tested in
+# tests/a_unit/modules/bw/test_stages_b1.py with plain dicts / stand-in
+# objects (no Flask, no DB, no mocks). They isolate the decision logic
+# of stage B1 from the imperative Flask shell above.
+
+
+def cancel_subscription_action(
+    *,
+    bw_activated: bool,
+    business_wall: Any,
+    user_id: int | None,
+    manager_ids: set[int],
+    stripe_live_enabled: bool,
+) -> str:
+    """Decide what `cancel_subscription` should do, as a single keyword.
+
+    Returns one of:
+      - ``"redirect_stripe_portal"`` — Stripe live and BW has a real
+        Stripe subscription; cancellation must happen via Stripe portal.
+      - ``"redirect_index"`` — session has no active BW activation.
+      - ``"redirect_not_authorized_bw_not_found"`` — no BW for user.
+      - ``"redirect_not_authorized_not_manager"`` — user isn't a manager.
+      - ``"cancel_locally"`` — proceed with local cancellation.
+
+    The branch order mirrors the original route so the keyword maps 1:1
+    to a redirect / mutation arm in the shell.
+    """
+    has_stripe_sub = bool(
+        business_wall is not None
+        and getattr(business_wall, "subscription", None) is not None
+        and getattr(business_wall.subscription, "stripe_customer_id", None)
+    )
+    if stripe_live_enabled and has_stripe_sub:
+        return "redirect_stripe_portal"
+    if not bw_activated:
+        return "redirect_index"
+    if business_wall is None:
+        return "redirect_not_authorized_bw_not_found"
+    if user_id is None or user_id not in manager_ids:
+        return "redirect_not_authorized_not_manager"
+    return "cancel_locally"
+
+
+def parse_content_form(form: dict[str, Any]) -> dict[str, Any]:
+    """Pure: project the multi-form into a clean update dict.
+
+    The original route inlines ~25 ``request.form.get(...).strip()`` /
+    ``request.form.getlist(...)`` reads, each guarded by ``if value:``.
+    This helper does the same projection on a plain dict so we can
+    assert the contract of "which fields make it through, and what
+    siblings come along (e.g. ``*_detail`` lists)" without a Flask
+    request context.
+
+    Returns a dict with only the keys whose value is truthy (matches
+    the route's conditional-assignment pattern). For dual selectors
+    the ``_detail`` companion list is included alongside the primary
+    field even when empty (mirrors the route's ``or []`` fallback).
+
+    Missing form keys are treated as the empty string / empty list.
+    """
+
+    def _get(name: str) -> str:
+        v = form.get(name, "")
+        return v.strip() if isinstance(v, str) else ""
+
+    def _getlist(name: str) -> list[str]:
+        v = form.get(name, [])
+        return list(v) if isinstance(v, (list, tuple)) else []
+
+    out: dict[str, Any] = {}
+
+    # Mandatory scalar text fields
+    for key in (
+        "name",
+        "logo_image_copyright",
+        "cover_image_copyright",
+        "name_group",
+        "siren",
+        "tva",
+        "agrement",
+        "name_official",
+        "positionnement_editorial",
+        "audience_cible",
+        "periodicite",
+        "tel_standard",
+        "postal_address",
+        "geolocalisation",
+        "site_url",
+        "taille_orga",
+        "clients",
+        "name_institution",
+    ):
+        value = _get(key)
+        if value:
+            out[key] = value
+
+    # type_organisation: scalar + companion list
+    type_orga = _get("type_organisation")
+    if type_orga:
+        out["type_organisation"] = [type_orga]
+        out["type_organisation_detail"] = _getlist("type_organisation_detail")
+
+    # Multi-select fields
+    for key in ("type_entreprise_media", "type_presse_et_media", "type_agence_rp"):
+        values = _getlist(key)
+        if values:
+            out[key] = values
+
+    # Dual multi-selects (primary + _detail companion)
+    for primary, detail in (
+        ("secteurs_activite", "secteurs_activite_detail"),
+        ("interest_political", "interest_political_detail"),
+        ("interest_economics", "interest_economics_detail"),
+        ("interest_association", "interest_association_detail"),
+    ):
+        values = _getlist(primary)
+        if values:
+            out[primary] = values
+            out[detail] = _getlist(detail)
+
+    # pays_zip_ville (primary + sibling detail string)
+    pays_zip_ville = _get("pays_zip_ville")
+    if pays_zip_ville:
+        out["pays_zip_ville"] = pays_zip_ville
+        out["pays_zip_ville_detail"] = _get("pays_zip_ville_detail")
+
+    return out
+
+
+def content_form_missing_required(form: dict[str, Any]) -> list[str]:
+    """Return the list of mandatory fields missing from `form`.
+
+    The route enforces two mandatory text fields and short-circuits to
+    a flash + redirect when either is empty: ``name`` and ``siren``.
+    """
+    missing: list[str] = []
+    for key in ("name", "siren"):
+        v = form.get(key, "")
+        if not (isinstance(v, str) and v.strip()):
+            missing.append(key)
+    return missing
 
 
 @bp.route("/configure-content", methods=["GET", "POST"])
