@@ -7,7 +7,7 @@
 from __future__ import annotations
 
 import contextlib
-from typing import TYPE_CHECKING, cast
+from typing import TYPE_CHECKING, Any, cast
 from uuid import UUID
 
 from flask import flash, g, redirect, render_template, request, session, url_for
@@ -29,6 +29,70 @@ from app.settings.constants import MAX_GALLERY_IMAGES, MAX_IMAGE_SIZE
 
 if TYPE_CHECKING:
     from app.lib.image_utils import UploadedImageData
+
+
+# --- Pure helpers (Pattern A) ---------------------------------------------
+#
+# These functions are unit-tested in
+# tests/a_unit/modules/bw/test_stages_b1.py without Flask / DB / mocks.
+# They isolate the gallery's small decision rules from the imperative
+# Flask shell below.
+
+
+def gallery_upload_outcome(
+    *,
+    skip_add: bool,
+    gallery_count: int,
+    image_size: int | None,
+    max_gallery: int,
+    max_image_size: int,
+) -> str:
+    """Decide what stage B1b's gallery upload should do.
+
+    Returns one of:
+      - ``"redirect_next"`` — caller pressed "Skip add".
+      - ``"limit_reached"`` — gallery already at the max.
+      - ``"no_image"`` — no image data in the request.
+      - ``"image_too_big"`` — image bytes ≥ ``max_image_size``.
+      - ``"accept"`` — proceed to persist the image.
+    """
+    if skip_add:
+        return "redirect_next"
+    if gallery_count >= max_gallery:
+        return "limit_reached"
+    if image_size is None:
+        return "no_image"
+    if image_size >= max_image_size:
+        return "image_too_big"
+    return "accept"
+
+
+def gallery_swap_positions(
+    *,
+    images: list[Any],
+    target_id: Any,
+    direction: str,
+) -> tuple[Any, Any] | None:
+    """Return the two image objects whose ``position`` should swap, or
+    None if the move is a no-op (boundary hit / unknown direction /
+    missing target).
+
+    Mirrors the route's swap semantics with ``up``/``down`` and the
+    edge-case guards (first row can't go up, last row can't go down).
+    """
+    if direction not in ("up", "down"):
+        return None
+    idx = next(
+        (i for i, img in enumerate(images) if getattr(img, "id", None) == target_id),
+        None,
+    )
+    if idx is None:
+        return None
+    if direction == "up" and idx > 0:
+        return images[idx], images[idx - 1]
+    if direction == "down" and idx < len(images) - 1:
+        return images[idx], images[idx + 1]
+    return None
 
 
 @bp.route("/configure-gallery", methods=["GET", "POST"])

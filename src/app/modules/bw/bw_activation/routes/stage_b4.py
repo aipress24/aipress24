@@ -10,7 +10,6 @@ from typing import TYPE_CHECKING, Any, cast
 
 from flask import flash, g, redirect, render_template, request, session, url_for
 from werkzeug import Response
-from werkzeug.exceptions import NotFound
 
 from app.flask.extensions import db
 from app.flask.sqla import get_obj
@@ -128,6 +127,17 @@ def manage_internal_roles():
     )
 
 
+def _format_failure_flash(outcome: InvitationOutcome) -> str:
+    """Build the user-facing failure banner string for a failed
+    invitation outcome. Pure function — no side-effects, easy to test.
+
+    Empty e-mail (admin typed only commas / whitespace) falls back to
+    a localized placeholder so the banner is never bare.
+    """
+    label = outcome.email or "(adresse vide)"
+    return f"Invitation impossible pour {label} : {outcome.admin_message}"
+
+
 def _flash_invitation_outcomes(outcomes: list[InvitationOutcome]) -> None:
     """Flash a single banner per failed invitation so the admin learns
     that a typed e-mail did not produce a PENDING role assignment.
@@ -141,10 +151,80 @@ def _flash_invitation_outcomes(outcomes: list[InvitationOutcome]) -> None:
     """
     for outcome in outcomes:
         if outcome.is_failure:
-            label = outcome.email or "(adresse vide)"
-            flash(
-                f"Invitation impossible pour {label} : {outcome.admin_message}", "error"
-            )
+            flash(_format_failure_flash(outcome), "error")
+
+
+def _categorize_role_assignments(
+    assignments,
+    user_loader,
+) -> dict[str, list | dict[str, str]]:
+    """Categorize BW role assignments into owner / BWMi / BWPRi buckets.
+
+    Pure-ish helper — all DB access goes through `user_loader`, a
+    keyword-injected callable `(user_id) -> user_or_None`. Returning
+    `None` (or raising) for an unknown id means « skip ».
+
+    For BWMi / BWPRi : accepted assignments land in the « members »
+    list, pending / rejected / expired land in the « invitations »
+    e-mail list. The owner is returned separately because the
+    template renders it in its own slot.
+
+    Returns a dict with keys: ``owner_info``, ``bwmi_members``,
+    ``bwmi_invitations``, ``bwpri_members``, ``bwpri_invitations``.
+    """
+    owner_info: dict[str, str] = {}
+    bwmi_members: list = []
+    bwmi_invitations: list[str] = []
+    bwpri_members: list = []
+    bwpri_invitations: list[str] = []
+
+    for assignment in assignments or []:
+        role_type = assignment.role_type
+        status = assignment.invitation_status
+        user_id = assignment.user_id
+
+        if role_type == BWRoleType.BW_OWNER.value:
+            if owner_info:
+                # only the first owner wins; matches legacy `break`
+                continue
+            try:
+                owner_user = user_loader(user_id)
+            except Exception:
+                owner_user = None
+            if owner_user is None:
+                owner_info = {"email": "N/A", "full_name": "Inconnu"}
+            else:
+                owner_info = {
+                    "email": owner_user.email,
+                    "full_name": owner_user.full_name,
+                }
+            continue
+
+        try:
+            user = user_loader(user_id)
+        except Exception:  # noqa: S112 — defensive: any load error means skip
+            continue
+        if user is None:
+            continue
+
+        if role_type == BWRoleType.BWMI.value:
+            if status == InvitationStatus.ACCEPTED.value:
+                bwmi_members.append(user)
+            else:
+                bwmi_invitations.append(user.email)
+        elif role_type == BWRoleType.BWPRI.value:
+            if status == InvitationStatus.ACCEPTED.value:
+                bwpri_members.append(user)
+            else:
+                bwpri_invitations.append(user.email)
+
+    return {
+        "owner_info": owner_info,
+        "bwmi_members": bwmi_members,
+        "bwmi_invitations": bwmi_invitations,
+        "bwpri_members": bwpri_members,
+        "bwpri_invitations": bwpri_invitations,
+    }
 
 
 def _build_context(
@@ -153,62 +233,16 @@ def _build_context(
     bw_info: dict[str, str],
 ) -> dict[str, str | dict | list]:
     """Build context for internal roles template."""
-    # Retrieve owner info
-    owner_info: dict[str, str] = {}
-    if business_wall.role_assignments:
-        for assignment in business_wall.role_assignments:
-            if assignment.role_type == BWRoleType.BW_OWNER.value:
-                try:
-                    owner_user = get_obj(assignment.user_id, User)
-                    owner_info["email"] = owner_user.email
-                    owner_info["full_name"] = owner_user.full_name
-                except Exception:
-                    owner_info["email"] = "N/A"
-                    owner_info["full_name"] = "Inconnu"
-                break
 
-    # Initialize lists for BWMi and BWPRi
-    bwmi_members: list[User] = []
-    bwmi_invitations: list[str] = []
-    bwpri_members: list[User] = []
-    bwpri_invitations: list[str] = []
+    def _load(user_id):
+        return get_obj(user_id, User)
 
-    # Process role assignments
-    if business_wall.role_assignments:
-        for assignment in business_wall.role_assignments:
-            role_type = assignment.role_type
-            user_id = assignment.user_id
-            status = assignment.invitation_status
-
-            # Skip owner (already handled separately)
-            if role_type == BWRoleType.BW_OWNER.value:
-                continue
-
-            try:
-                user = get_obj(user_id, User)
-            except NotFound:
-                continue
-
-            if role_type == BWRoleType.BWMI.value:
-                if status == InvitationStatus.ACCEPTED.value:
-                    bwmi_members.append(user)
-                else:
-                    # For pending/rejected/expired
-                    bwmi_invitations.append(user.email)
-
-            elif role_type == BWRoleType.BWPRI.value:
-                if status == InvitationStatus.ACCEPTED.value:
-                    bwpri_members.append(user)
-                else:
-                    # For pending/rejected/expired, show as invitation
-                    bwpri_invitations.append(user.email)
+    parts = _categorize_role_assignments(
+        business_wall.role_assignments, user_loader=_load
+    )
 
     return {
         "bw_type": bw_type,
         "bw_info": bw_info,
-        "owner_info": owner_info,
-        "bwmi_members": bwmi_members,
-        "bwmi_invitations": bwmi_invitations,
-        "bwpri_members": bwpri_members,
-        "bwpri_invitations": bwpri_invitations,
+        **parts,
     }
