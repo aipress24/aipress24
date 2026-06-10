@@ -243,10 +243,20 @@ def get_press_relation_bw_list() -> list[BusinessWall]:
 def _get_press_relation_bw_list_for_status(
     businesswall: BusinessWall,
     partnership_status: set[str],
+    *,
+    service: BusinessWallService | None = None,
 ) -> list[tuple[BusinessWall, str]]:
-    """Returns the list of PR BW partners of the given BusinessWall for given status."""
+    """Returns the list of PR BW partners of the given BusinessWall for given status.
 
-    bw_service = container.get(BusinessWallService)
+    Args:
+        businesswall: The BusinessWall whose partnerships are inspected.
+        partnership_status: Set of `Partnership.status` values to keep.
+        service: Optional `BusinessWallService` used to resolve partner BW
+            ids. Defaults to the container-resolved production service.
+            Injected for tests (Pattern B — DI via default-arg).
+    """
+
+    bw_service = service if service is not None else container.get(BusinessWallService)
 
     result: list[tuple[BusinessWall, str]] = []
     for partnership in businesswall.partnerships or []:
@@ -260,19 +270,23 @@ def _get_press_relation_bw_list_for_status(
 
 def get_current_press_relation_bw_list(
     businesswall: BusinessWall,
+    *,
+    service: BusinessWallService | None = None,
 ) -> list[BusinessWall]:
     """Returns the list of active PR BW partners of the given BusinessWall."""
 
     return [
         bw_status[0]
         for bw_status in _get_press_relation_bw_list_for_status(
-            businesswall, {PartnershipStatus.ACTIVE.value}
+            businesswall, {PartnershipStatus.ACTIVE.value}, service=service
         )
     ]
 
 
 def get_pending_press_relation_bw_list(
     businesswall: BusinessWall,
+    *,
+    service: BusinessWallService | None = None,
 ) -> list[tuple[BusinessWall, str]]:
     """Returns the list of pending and status PR BW partners of the given BusinessWall."""
 
@@ -283,61 +297,121 @@ def get_pending_press_relation_bw_list(
             PartnershipStatus.REJECTED,
             PartnershipStatus.EXPIRED,
         },
+        service=service,
     )
 
 
 def get_invited_press_relation_bw_list(
     businesswall: BusinessWall,
+    *,
+    service: BusinessWallService | None = None,
 ) -> list[BusinessWall]:
     """Returns the list of PR BW partners with invited status for given BusinessWall."""
     return [
         bw_status[0]
         for bw_status in _get_press_relation_bw_list_for_status(
-            businesswall, {PartnershipStatus.INVITED.value}
+            businesswall, {PartnershipStatus.INVITED.value}, service=service
         )
     ]
 
 
-def bw_contact_name_email(bw: BusinessWall) -> tuple[str, str]:
-    """Returns the contact name and email of the Business Wall owner."""
-    owner = cast(User, get_obj(bw.owner_id, User))
+def bw_contact_name_email(bw: BusinessWall, *, loader=None) -> tuple[str, str]:
+    """Returns the contact name and email of the Business Wall owner.
+
+    Args:
+        bw: The BusinessWall instance whose owner contact to fetch.
+        loader: Optional ``(owner_id) -> User`` callable for testing /
+            DI. Defaults to fetching the user from ``db.session`` via
+            :func:`get_obj`.
+    """
+    if loader is None:
+        owner = cast(User, get_obj(bw.owner_id, User))
+    else:
+        owner = loader(bw.owner_id)
     return owner.full_name, owner.email
+
+
+# Translation map for partnership status as shown to humans in the
+# pending PR BW dashboard. Lifted to module scope so the pure
+# `_pending_bw_to_info_dict` helper can be unit-tested without rebuilding
+# the dict on every call.
+_PENDING_STATUS_TRANSLATION: dict[str, str] = {
+    "invited": "invitation en cours",
+    "rejected": "invitation rejetée",
+    "expired": "invitation expirée",
+}
+
+
+def _pending_bw_to_info_dict(
+    bw: BusinessWall,
+    status: str,
+    contact: tuple[str, str],
+) -> dict[str, str]:
+    """Pure helper: build the pending-PR-BW info dict.
+
+    Extracted from `get_pending_pr_bw_info_list` so the dict-shape
+    contract (key set, status translation, contact passthrough) can be
+    unit-tested without any DB access.
+
+    Args:
+        bw: The partner BusinessWall whose name appears in the row.
+        status: Raw partnership status string ("invited" / "rejected" /
+            "expired"). Unknown values fall back to the raw status.
+        contact: ``(contact_name, contact_email)`` tuple, already
+            resolved by the caller via ``bw_contact_name_email``.
+
+    Returns:
+        Dict with keys ``bw_name``, ``bw_contact_name``,
+        ``bw_contact_email``, ``bw_status``.
+    """
+    return {
+        "bw_name": bw.name_safe,
+        "bw_contact_name": contact[0],
+        "bw_contact_email": contact[1],
+        "bw_status": _PENDING_STATUS_TRANSLATION.get(status, status),
+    }
+
+
+def _current_bw_to_info_dict(
+    bw: BusinessWall,
+    contact: tuple[str, str],
+) -> dict[str, str]:
+    """Pure helper: build the active-PR-BW info dict.
+
+    Extracted from `get_current_pr_bw_info_list` so the dict-shape
+    contract (key set, id stringification, contact passthrough) can be
+    unit-tested without any DB access.
+
+    Args:
+        bw: The partner BusinessWall.
+        contact: ``(contact_name, contact_email)`` tuple, already
+            resolved by the caller via ``bw_contact_name_email``.
+
+    Returns:
+        Dict with keys ``bw_name``, ``bw_contact_name``,
+        ``bw_contact_email``, ``bw_id`` (always stringified).
+    """
+    return {
+        "bw_name": bw.name_safe,
+        "bw_contact_name": contact[0],
+        "bw_contact_email": contact[1],
+        "bw_id": str(bw.id),
+    }
 
 
 def get_pending_pr_bw_info_list(businesswall: BusinessWall) -> list[dict[str, str]]:
     """Returns list of pending PR Business Walls with their info."""
     pending_bw_status_list = get_pending_press_relation_bw_list(businesswall)
-    result: list[dict[str, str]] = []
-    TRANSLATION = {
-        "invited": "invitation en cours",
-        "rejected": "invitation rejetée",
-        "expired": "invitation expirée",
-    }
-    for bw_status in pending_bw_status_list:
-        info = bw_contact_name_email(bw_status[0])
-        result.append(
-            {
-                "bw_name": bw_status[0].name_safe,
-                "bw_contact_name": info[0],
-                "bw_contact_email": info[1],
-                "bw_status": TRANSLATION[bw_status[1]],
-            }
-        )
-    return result
+    return [
+        _pending_bw_to_info_dict(bw, status, bw_contact_name_email(bw))
+        for bw, status in pending_bw_status_list
+    ]
 
 
 def get_current_pr_bw_info_list(businesswall: BusinessWall) -> list[dict[str, str]]:
     """Returns list of active PR BW with their info."""
     current_bw_list = get_current_press_relation_bw_list(businesswall)
-    result: list[dict[str, str]] = []
-    for bw in current_bw_list:
-        info = bw_contact_name_email(bw)
-        result.append(
-            {
-                "bw_name": bw.name_safe,
-                "bw_contact_name": info[0],
-                "bw_contact_email": info[1],
-                "bw_id": str(bw.id),
-            }
-        )
-    return result
+    return [
+        _current_bw_to_info_dict(bw, bw_contact_name_email(bw))
+        for bw in current_bw_list
+    ]
