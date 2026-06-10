@@ -106,7 +106,7 @@ class TestMenuEntryShape:
 
     def test_required_fields_are_required(self) -> None:
         with pytest.raises(TypeError):
-            MenuEntry(name="x", label="X", icon="i")  # type: ignore[call-arg]
+            MenuEntry(name="x", label="X", icon="i")  # type: ignore[call-arg]  # ty:ignore[missing-argument]
 
 
 class TestMenuEntries:

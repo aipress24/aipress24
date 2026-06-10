@@ -231,7 +231,9 @@ class TestTags:
         and break production tag indexing."""
         assert _tags.__defaults__ is None  # all defaults are kw-only
         # The kw-only loader default lives in __kwdefaults__.
-        assert _tags.__kwdefaults__["loader"] is real_get_tags
+        kwdefaults = _tags.__kwdefaults__
+        assert kwdefaults is not None
+        assert kwdefaults["loader"] is real_get_tags
 
 
 # ---------------------------------------------------------------------

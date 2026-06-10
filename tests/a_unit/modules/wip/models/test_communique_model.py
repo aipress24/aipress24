@@ -261,7 +261,7 @@ class TestEmbargoAndExpiredProperties:
         assert _comm_stub(embargoed_until=past).is_embargoed is False
 
     def test_embargo_naive_future_treated_as_utc(self):
-        future_naive = datetime.utcnow() + timedelta(hours=1)  # noqa: DTZ003
+        future_naive = datetime.now(UTC).replace(tzinfo=None) + timedelta(hours=1)
         assert _comm_stub(embargoed_until=future_naive).is_embargoed is True
 
     def test_expired_none_returns_false(self):
@@ -276,7 +276,7 @@ class TestEmbargoAndExpiredProperties:
         assert _comm_stub(expired_at=future).is_expired is False
 
     def test_expired_naive_past_treated_as_utc(self):
-        past_naive = datetime.utcnow() - timedelta(hours=1)  # noqa: DTZ003
+        past_naive = datetime.now(UTC).replace(tzinfo=None) - timedelta(hours=1)
         assert _comm_stub(expired_at=past_naive).is_expired is True
 
 

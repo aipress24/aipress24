@@ -67,7 +67,7 @@ class _User:
         if isinstance(role, RoleEnum):
             return role.name
         if hasattr(role, "name"):
-            return role.name
+            return str(role.name)
         return str(role)
 
     def has_role(self, role: object) -> bool:

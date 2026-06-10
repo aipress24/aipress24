@@ -404,7 +404,7 @@ class TestStatusProperties:
 
     def test_is_expired_handles_naive_datetime(self):
         """A naive datetime in the past must be treated as UTC, not crash."""
-        naive_past = datetime.utcnow() - timedelta(days=1)  # noqa: DTZ003
+        naive_past = datetime.now(UTC).replace(tzinfo=None) - timedelta(days=1)
         stub = _StubArticle(expired_at=naive_past)
         assert Article.is_expired.fget(stub) is True
 
