@@ -5,6 +5,7 @@
 from __future__ import annotations
 
 import inspect
+from collections.abc import Callable
 from copy import deepcopy
 from pathlib import Path
 from typing import Any
@@ -17,17 +18,22 @@ from app.services.json_ld import to_json_ld
 from app.services.opengraph import to_opengraph
 
 
-def get_related_template(obj: Any, path: str) -> Template:
+def resolve_template_path(obj: Any, path: str) -> Path:
+    """Return the on-disk template path for ``obj`` and ``path``.
+
+    Pure: given the same inputs, returns the same path. No I/O.
+    """
     try:
         file = Path(inspect.getfile(obj))
     except TypeError:
         file = Path(inspect.getfile(obj.__class__))
     if path:
-        base_dir = file.parent
-        template_file = base_dir / path
-    else:
-        template_file = file.with_suffix(".j2")
+        return file.parent / path
+    return file.with_suffix(".j2")
 
+
+def get_related_template(obj: Any, path: str) -> Template:
+    template_file = resolve_template_path(obj, path)
     template_str = template_file.read_text()
     template = current_app.jinja_env.from_string(template_str)
     return template
@@ -74,15 +80,42 @@ class TemplateResponse(Response):
                 msg = "template_name or template_str must be provided"
                 raise ValueError(msg)
 
-    def enrich_context(self, context: dict[str, Any] | None = None) -> dict[str, Any]:
-        new_context = deepcopy(context or {})
+    def enrich_context(
+        self,
+        context: dict[str, Any] | None = None,
+        *,
+        to_opengraph_fn: Callable[[Any], dict] | None = None,
+        to_json_ld_fn: Callable[[Any], Any] | None = None,
+    ) -> dict[str, Any]:
+        return enrich_context(
+            context,
+            to_opengraph_fn=to_opengraph_fn,
+            to_json_ld_fn=to_json_ld_fn,
+        )
 
-        if "model" in new_context:
-            model = unwrap(new_context["model"])
-            new_context["og_data"] = to_opengraph(model)
-            new_context["json_ld"] = to_json_ld(model)
 
-        if "json_data" not in new_context:
-            new_context["json_data"] = {}
+def enrich_context(
+    context: dict[str, Any] | None = None,
+    *,
+    to_opengraph_fn: Callable[[Any], dict] | None = None,
+    to_json_ld_fn: Callable[[Any], Any] | None = None,
+) -> dict[str, Any]:
+    """Return a new enriched context dict.
 
-        return new_context
+    Pure: no Flask globals; collaborators may be injected for tests.
+    Defaults preserve production behavior (calls the real services).
+    """
+    og_fn = to_opengraph_fn if to_opengraph_fn is not None else to_opengraph
+    jld_fn = to_json_ld_fn if to_json_ld_fn is not None else to_json_ld
+
+    new_context = deepcopy(context or {})
+
+    if "model" in new_context:
+        model = unwrap(new_context["model"])
+        new_context["og_data"] = og_fn(model)
+        new_context["json_ld"] = jld_fn(model)
+
+    if "json_data" not in new_context:
+        new_context["json_data"] = {}
+
+    return new_context
