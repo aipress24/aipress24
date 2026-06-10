@@ -313,6 +313,59 @@ def current_business_wall(user: User) -> BusinessWall | None:
     return get_selected_business_wall_for_user(user)
 
 
+def find_finalizable_bw_for_user(user: User) -> BusinessWall | None:
+    """Like `current_business_wall`, but ALSO returns DRAFT BWs.
+
+    Used by the `/BW/confirmation/free` and `/BW/confirmation/paid`
+    idempotency guards (#0071/2) : a BW that sits in DRAFT (pre-Stripe
+    pre-checkout, or because the webhook never fired) must be
+    findable by these routes so they can flip it to ACTIVE. The
+    default `current_business_wall` excludes DRAFT (the opportunity
+    gate and dashboard need ACTIVE-only) ; this variant includes it.
+
+    Mirrors the 3-stage lookup of `get_selected_business_wall_for_user`
+    (selected_bw_id → session["bw_id"] → org default) ; only CANCELLED
+    is excluded.
+    """
+    _excluded = {BWStatus.CANCELLED.value}
+
+    # 1. user-selected BW
+    bw_id = user.selected_bw_id
+    if bw_id:
+        stmt = (
+            select(BusinessWall)
+            .where(BusinessWall.id == bw_id)
+            .where(BusinessWall.status.not_in(_excluded))
+        )
+        bw = db.session.execute(stmt).scalars().one_or_none()
+        if bw:
+            return bw
+
+    # 2. session-pinned BW (typical confirmation-route shape : the
+    #    activation form put `bw_id` here before redirecting to
+    #    /confirmation/{free,paid}).
+    bw_id_sess: str | None = session.get("bw_id")
+    if bw_id_sess:
+        with contextlib.suppress(ValueError):
+            stmt = (
+                select(BusinessWall)
+                .where(BusinessWall.id == UUID(bw_id_sess))
+                .where(BusinessWall.status.not_in(_excluded))
+            )
+            bw = db.session.execute(stmt).scalars().one_or_none()
+            if bw:
+                return bw
+
+    # 3. Fallback : the user's org default. This step DOES still
+    #    filter on ACTIVE (it goes through `get_active_business_wall_for_organisation`).
+    #    A DRAFT BW that the user is the owner of but has no
+    #    `selected_bw_id` and no `session["bw_id"]` won't be found
+    #    here — that's intentional. Without one of those signals
+    #    there's no way to know which DRAFT BW the user meant to
+    #    finalize.
+    return get_business_wall_for_user(user)
+
+
 def get_user_rights_on_bw(user: User, bw: BusinessWall) -> list[str]:
     """Return a list of human-readable rights/actions for the user on this BW."""
 
