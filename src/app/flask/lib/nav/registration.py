@@ -6,7 +6,7 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 from flask import g, request
 from svcs.flask import container
@@ -15,7 +15,25 @@ from .request import NavRequest
 from .tree import NavTree
 
 if TYPE_CHECKING:
+    from collections.abc import Iterable
+
     from flask import Flask
+
+    from .tree import BreadCrumb
+
+
+def nav_crumbs_to_legacy(crumbs: Iterable[BreadCrumb]) -> list[dict[str, Any]]:
+    """Convert nav BreadCrumb objects to legacy Page format dicts.
+
+    The HeaderBreadcrumbs component expects breadcrumbs in the Context
+    service with keys 'name' and 'href' (legacy Page format).
+
+    Pure function: no Flask/request state required.
+    """
+    return [
+        {"name": crumb.label, "href": crumb.url, "current": crumb.current}
+        for crumb in crumbs
+    ]
 
 
 def register_nav(app: Flask) -> None:
@@ -87,10 +105,7 @@ def _inject_breadcrumbs_to_context() -> None:
 
         context = container.get(Context)
         # Convert from nav format (label, url) to Page format (name, href)
-        breadcrumbs = [
-            {"name": crumb.label, "href": crumb.url, "current": crumb.current}
-            for crumb in nav_crumbs
-        ]
+        breadcrumbs = nav_crumbs_to_legacy(nav_crumbs)
         context.update(breadcrumbs=breadcrumbs)
     except Exception:  # noqa: S110
         # Context service may not be available in all contexts (e.g., static files)
