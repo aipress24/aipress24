@@ -4,6 +4,7 @@
 
 from __future__ import annotations
 
+from collections.abc import Callable
 from functools import singledispatch
 
 from app.flask.routing import url_for
@@ -12,11 +13,13 @@ from app.modules.wire.models import ArticlePost
 
 
 @singledispatch
-def to_opengraph(obj) -> dict[str, str]:
-    return to_opengraph_generic(obj)
+def to_opengraph(obj, *, _url_for: Callable | None = None) -> dict[str, str]:
+    return to_opengraph_generic(obj, _url_for=_url_for)
 
 
-def to_opengraph_generic(obj) -> dict[str, str]:
+def to_opengraph_generic(
+    obj, *, _url_for: Callable | None = None
+) -> dict[str, str]:
     if hasattr(obj, "name"):
         title = obj.name
     elif hasattr(obj, "title"):
@@ -24,10 +27,12 @@ def to_opengraph_generic(obj) -> dict[str, str]:
     else:
         return {}
 
+    url_resolver = _url_for if _url_for is not None else url_for
+
     og_data = {
         "og:type": "object",
         "og:title": title,
-        "og:url": url_for(obj, _external=True),
+        "og:url": url_resolver(obj, _external=True),
         "og:site_name": "AiPRESS24",
     }
 
@@ -40,8 +45,8 @@ def to_opengraph_generic(obj) -> dict[str, str]:
 
 
 @to_opengraph.register
-def _to_opengraph_article(obj: ArticlePost):
-    og_data = to_opengraph_generic(obj)
+def _to_opengraph_article(obj: ArticlePost, *, _url_for: Callable | None = None):
+    og_data = to_opengraph_generic(obj, _url_for=_url_for)
     og_data["og:type"] = "article"
 
     # TODO
@@ -76,8 +81,8 @@ def _to_opengraph_article(obj: ArticlePost):
 
 
 @to_opengraph.register
-def _to_opengraph_user(obj: User):
-    og_data = to_opengraph_generic(obj)
+def _to_opengraph_user(obj: User, *, _url_for: Callable | None = None):
+    og_data = to_opengraph_generic(obj, _url_for=_url_for)
     og_data["og:type"] = "profile"
     og_data["og:image"] = obj.photo_image_signed_url()
     # pyrefly: ignore [unsupported-operation]

@@ -15,14 +15,16 @@ from app.services.social_graph.models import likes_table
 
 
 # Social networking
-def nb_foller_mbr(user: User) -> int:
+def nb_foller_mbr(user: User, *, adapt_fn: Callable | None = None) -> int:
     """Nombre de followers membres."""
-    return adapt(user).num_followers()
+    adapt_fn = adapt_fn or adapt
+    return adapt_fn(user).num_followers()
 
 
-def nb_follg_mbr(user: User) -> int:
+def nb_follg_mbr(user: User, *, adapt_fn: Callable | None = None) -> int:
     """Nombre de followings membres."""
-    return adapt(user).num_followees()
+    adapt_fn = adapt_fn or adapt
+    return adapt_fn(user).num_followees()
 
 
 def nb_follg_org(user: User) -> int:
@@ -35,10 +37,11 @@ def nb_follg_gr(user: User) -> int:
     return 0
 
 
-def nb_likes_art(user: User) -> int:
+def nb_likes_art(user: User, *, session=None) -> int:
     """Nombre de likes articles."""
+    session = session if session is not None else db.session
     stmt = sa.select(likes_table).where(likes_table.c.user_id == user.id)
-    rows = db.session.execute(stmt)
+    rows = session.execute(stmt)
     return len(list(rows))
 
 
