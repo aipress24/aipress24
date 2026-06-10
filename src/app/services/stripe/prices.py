@@ -30,6 +30,7 @@ from app.services.stripe.utils import load_stripe_api_key
 __all__ = [
     "PriceDrift",
     "StripePrice",
+    "extract_price_payload",
     "list_drifts",
     "stripe_price_display",
     "sync_all_prices",
@@ -65,29 +66,55 @@ def upsert_price_from_event(price_obj: Any) -> StripePrice:
     `price_obj` is the `event.data.object` from a `price.*` webhook
     (Stripe Price resource, exposing dict-like or attribute access).
     """
-    get = _attr_or_item_getter(price_obj)
-    price_id = str(get("id"))
+    payload = extract_price_payload(price_obj)
+    price_id = payload.pop("id")
     existing = db.session.get(StripePrice, price_id)
     if existing is None:
         existing = StripePrice(id=price_id)
         db.session.add(existing)
-    _apply_price_fields(existing, get)
+    for field, value in payload.items():
+        setattr(existing, field, value)
     return existing
 
 
-def _apply_price_fields(price: StripePrice, get: Any) -> None:
-    """Copy fields from a Stripe Price object onto our model row."""
-    recurring_get = _attr_or_item_getter(get("recurring") or {})
-    meta_dict = _coerce_metadata(get("metadata"))
+def extract_price_payload(price_obj: Any) -> dict[str, Any]:
+    """Map a Stripe Price webhook object onto the field dict for our
+    `StripePrice` row.
 
-    price.product_id = str(get("product") or "")
-    price.unit_amount_cents = int(get("unit_amount") or 0)
-    price.currency = str(get("currency") or "eur")
-    price.active = bool(get("active"))
-    price.tax_behavior = str(get("tax_behavior") or "unspecified")
-    price.nickname = get("nickname")
-    price.recurring_interval = recurring_get("interval")
-    price.metadata_json = meta_dict
+    Pure — no DB, no session. The orchestrator iterates the returned
+    dict and `setattr`s onto a row (existing or new). The `id` key
+    is included so the caller can look up the row.
+
+    Defaults encode the rules :
+
+    - `product_id` → "" if the Stripe payload omits `product`
+      (defensive ; production payloads always set it).
+    - `unit_amount_cents` → 0 when omitted ; some test fixtures pass
+      `None` for free / promo prices.
+    - `currency` → "eur" (the only currency aipress24 charges in,
+      but Stripe accepts any ISO ; default to ours).
+    - `tax_behavior` → "unspecified" — Stripe's own default when
+      not configured at the price level.
+    - `nickname` is `None` when absent (StripePrice allows null —
+      it's a free-form admin label, not a business field).
+    - `recurring_interval` is None for one-off prices ; for
+      subscriptions it's "month" / "year" / etc.
+    - `metadata_json` defaults to `{}` so a free-text dict column
+      never holds None.
+    """
+    get = _attr_or_item_getter(price_obj)
+    recurring_get = _attr_or_item_getter(get("recurring") or {})
+    return {
+        "id": str(get("id")),
+        "product_id": str(get("product") or ""),
+        "unit_amount_cents": int(get("unit_amount") or 0),
+        "currency": str(get("currency") or "eur"),
+        "active": bool(get("active")),
+        "tax_behavior": str(get("tax_behavior") or "unspecified"),
+        "nickname": get("nickname"),
+        "recurring_interval": recurring_get("interval"),
+        "metadata_json": _coerce_metadata(get("metadata")),
+    }
 
 
 def _attr_or_item_getter(obj: Any) -> Any:
