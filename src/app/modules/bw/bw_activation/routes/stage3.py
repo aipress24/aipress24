@@ -647,16 +647,15 @@ def checkout(bw_type: str):
 
     # For tiered/graduated prices (e.g. BW4PR) the quantity drives the
     # tier calculation ; for flat-priced products it stays at 1.
-    default_price = (
-        chosen_product.get("default_price")
-        if isinstance(chosen_product, dict)
-        else getattr(chosen_product, "default_price", None)
-    )
-    billing_scheme = (
-        default_price.get("billing_scheme")
-        if isinstance(default_price, dict)
-        else getattr(default_price, "billing_scheme", None)
-    )
+    if isinstance(chosen_product, dict):
+        default_price = chosen_product.get("default_price")
+    else:
+        default_price = getattr(chosen_product, "default_price", None)
+
+    if isinstance(default_price, dict):
+        billing_scheme = default_price.get("billing_scheme")
+    else:
+        billing_scheme = getattr(default_price, "billing_scheme", None)
 
     if billing_scheme == "tiered":  # for BW4PR
         checkout_quantity = quantity
@@ -748,29 +747,34 @@ def _payment_live_enabled(bw_type: str, ctx: dict[str, Any]):
     # Automatically choose the product based on quantity for display
     chosen_product = _select_product_for_quantity(allowed_products, quantity)
 
-    default_price = (
-        chosen_product.get("default_price")
-        if isinstance(chosen_product, dict)
-        else getattr(chosen_product, "default_price", None)
-    )
+    if isinstance(chosen_product, dict):
+        default_price = chosen_product.get("default_price")
+    else:
+        default_price = getattr(chosen_product, "default_price", None)
 
-    price_total = _calculate_price_total(default_price, quantity)
+    # For flat-priced products the display price is unit_amount × 1;
+    # for tiered products (BW4PR) it depends on the actual quantity.
+    if hasattr(default_price, "get"):
+        _billing_scheme = default_price.get("billing_scheme")
+    else:
+        _billing_scheme = getattr(default_price, "billing_scheme", None)
+
+    if _billing_scheme == "tiered":
+        checkout_quantity = quantity
+    else:
+        checkout_quantity = 1
+
+    price_total = _calculate_price_total(default_price, checkout_quantity)
 
     # If the Price object doesn't expose its tiers (observed with some
     # Stripe API versions / account configs), ask Stripe directly for the
     # amount by creating a throw-away Checkout Session.
-    if price_total is None:
-        _billing_scheme = (
-            default_price.get("billing_scheme")
-            if hasattr(default_price, "get")
-            else getattr(default_price, "billing_scheme", None)
-        )
-        if _billing_scheme == "tiered":
-            price_id = _extract_price_id(chosen_product)
-            if price_id:
-                price_total = _preview_checkout_amount(
-                    draft_bw, bw_type, price_id, quantity
-                )
+    if price_total is None and _billing_scheme == "tiered":
+        price_id = _extract_price_id(chosen_product)
+        if price_id:
+            price_total = _preview_checkout_amount(
+                draft_bw, bw_type, price_id, checkout_quantity
+            )
 
     ctx.update(
         {
