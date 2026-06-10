@@ -72,6 +72,101 @@ class PurchaseDrift:
     stripe_status: str = ""
 
 
+# ── Pure decision helpers ───────────────────────────────────────────
+#
+# Each helper takes plain data (no DB session, no Stripe client) and
+# returns the drift the orchestrator should record — or None for
+# "everything matches". This lets the rule itself be unit-tested at
+# microsecond speed without a DB fixture, while the orchestration
+# functions below stay thin and call out to these for every row they
+# walk.
+
+
+def detect_subscription_drift(
+    *,
+    local_id: str,
+    local_status: str,
+    stripe_id: str,
+    stripe_sub: object | None,
+) -> Drift | None:
+    """Compare a single local Subscription to its Stripe counterpart.
+
+    Returns a `Drift` to record, or `None` if the row is aligned.
+
+    `stripe_sub` is whatever `client.retrieve_subscription` returned —
+    a Stripe SDK object (`.status` attribute) or `None` if the id is
+    unknown upstream.
+    """
+    if stripe_sub is None:
+        return Drift(
+            subscription_id=local_id,
+            stripe_id=stripe_id,
+            issue="not_found",
+        )
+
+    local_active = local_status == SubscriptionStatus.ACTIVE.value
+    stripe_status = getattr(stripe_sub, "status", "") or ""
+    stripe_active = stripe_status in _STRIPE_ACTIVE
+
+    if local_active != stripe_active:
+        return Drift(
+            subscription_id=local_id,
+            stripe_id=stripe_id,
+            issue="status_mismatch",
+            local_status=local_status,
+            stripe_status=stripe_status,
+        )
+    return None
+
+
+def detect_customer_drift(
+    *,
+    customer_id: str,
+    stripe_customer: object | None,
+) -> CustomerDrift | None:
+    """Compare a single local Organisation's customer ref to Stripe.
+
+    `not_found` vs `deleted` are intentionally distinct issue codes :
+    `not_found` means « we have an id Stripe never heard of » (worth
+    investigating), `deleted` means « Stripe killed this customer
+    upstream » (clean up locally).
+    """
+    if stripe_customer is None:
+        return CustomerDrift(customer_id=customer_id, issue="not_found")
+    if getattr(stripe_customer, "deleted", False):
+        return CustomerDrift(customer_id=customer_id, issue="deleted")
+    return None
+
+
+def detect_purchase_drift(
+    *,
+    checkout_session_id: str,
+    local_status: object,
+    stripe_session: object | None,
+) -> PurchaseDrift | None:
+    """Compare a single local ArticlePurchase to its Stripe Checkout
+    Session. `local_status` is the SQLAlchemy enum value (typically a
+    `PurchaseStatus` member or its `.value`) — we read it via equality
+    so this helper isn't coupled to the enum class.
+    """
+    if stripe_session is None:
+        return PurchaseDrift(
+            checkout_session_id=checkout_session_id,
+            issue="not_found",
+        )
+
+    stripe_paid = getattr(stripe_session, "payment_status", "") == "paid"
+    local_paid = local_status == PurchaseStatus.PAID
+    if stripe_paid != local_paid:
+        return PurchaseDrift(
+            checkout_session_id=checkout_session_id,
+            issue="payment_status_mismatch",
+            local_status="paid" if local_paid else "pending",
+            stripe_status=getattr(stripe_session, "payment_status", ""),
+        )
+    return None
+
+
 def reconcile_subscriptions(
     session: Session | None = None,
     *,
@@ -102,32 +197,15 @@ def reconcile_subscriptions(
         stripe_id = sub.stripe_subscription_id or ""
         if not stripe_id:
             continue  # defensive — the filter above should prevent this
-
         stripe_sub = client.retrieve_subscription(stripe_id)
-        if stripe_sub is None:
-            drifts.append(
-                Drift(
-                    subscription_id=str(sub.id),
-                    stripe_id=stripe_id,
-                    issue="not_found",
-                )
-            )
-            continue
-
-        local_active = sub.status == SubscriptionStatus.ACTIVE.value
-        stripe_status = getattr(stripe_sub, "status", "") or ""
-        stripe_active = stripe_status in _STRIPE_ACTIVE
-
-        if local_active != stripe_active:
-            drifts.append(
-                Drift(
-                    subscription_id=str(sub.id),
-                    stripe_id=stripe_id,
-                    issue="status_mismatch",
-                    local_status=sub.status,
-                    stripe_status=stripe_status,
-                )
-            )
+        drift = detect_subscription_drift(
+            local_id=str(sub.id),
+            local_status=sub.status,
+            stripe_id=stripe_id,
+            stripe_sub=stripe_sub,
+        )
+        if drift is not None:
+            drifts.append(drift)
 
     return drifts
 
@@ -154,11 +232,11 @@ def reconcile_customers(
     for org in session.execute(stmt).scalars():
         customer_id = org.stripe_customer_id or ""
         customer = client.retrieve_customer(customer_id)
-        if customer is None:
-            drifts.append(CustomerDrift(customer_id=customer_id, issue="not_found"))
-            continue
-        if getattr(customer, "deleted", False):
-            drifts.append(CustomerDrift(customer_id=customer_id, issue="deleted"))
+        drift = detect_customer_drift(
+            customer_id=customer_id, stripe_customer=customer
+        )
+        if drift is not None:
+            drifts.append(drift)
 
     return drifts
 
@@ -191,21 +269,12 @@ def reconcile_purchases(
     for purchase in session.execute(stmt).scalars():
         checkout_id = purchase.stripe_checkout_session_id or ""
         stripe_session = client.retrieve_session(checkout_id)
-        if stripe_session is None:
-            drifts.append(
-                PurchaseDrift(checkout_session_id=checkout_id, issue="not_found"),
-            )
-            continue
-        stripe_paid = stripe_session.payment_status == "paid"
-        local_paid = purchase.status == PurchaseStatus.PAID
-        if stripe_paid != local_paid:
-            drifts.append(
-                PurchaseDrift(
-                    checkout_session_id=checkout_id,
-                    issue="payment_status_mismatch",
-                    local_status="paid" if local_paid else "pending",
-                    stripe_status=stripe_session.payment_status,
-                )
-            )
+        drift = detect_purchase_drift(
+            checkout_session_id=checkout_id,
+            local_status=purchase.status,
+            stripe_session=stripe_session,
+        )
+        if drift is not None:
+            drifts.append(drift)
 
     return drifts
