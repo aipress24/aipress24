@@ -421,9 +421,7 @@ def revoke_user_role(business_wall: BusinessWall, user: User, role: BWRoleType) 
     Returns:
         True if done successfully
     """
-    target = decide_revoke_action(
-        business_wall.role_assignments, user.id, role.value
-    )
+    target = decide_revoke_action(business_wall.role_assignments, user.id, role.value)
     if target is None:
         return False
 

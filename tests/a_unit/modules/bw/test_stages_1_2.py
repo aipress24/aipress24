@@ -243,9 +243,7 @@ class TestParseContactsFormSameAsOwner:
         "checkbox_value",
         ["", "off", "true", "1", "yes", "On", "ON"],
     )
-    def test_only_literal_on_triggers_duplication(
-        self, checkbox_value: str
-    ) -> None:
+    def test_only_literal_on_triggers_duplication(self, checkbox_value: str) -> None:
         """HTML checkboxes ship the literal string « on » when ticked
         (per Flask + browser behaviour). Anything else must be
         treated as « distinct payer » — otherwise a forged « true »
@@ -331,9 +329,7 @@ class TestPostContactsRedirectEndpoint:
         ],
     )
     def test_paid_types_redirect_to_pricing_page(self, bw_type: str) -> None:
-        assert (
-            post_contacts_redirect_endpoint(bw_type) == "bw_activation.pricing_page"
-        )
+        assert post_contacts_redirect_endpoint(bw_type) == "bw_activation.pricing_page"
 
     def test_every_configured_type_is_classified(self) -> None:
         """Every key present in `BW_TYPES` must be routable —

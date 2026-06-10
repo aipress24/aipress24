@@ -372,8 +372,10 @@ def _filter_products_by_allowed_subs(
         return []
     results: list[Any] = []
     for prod in products:
-        raw_metadata = prod.get("metadata", {}) if isinstance(prod, dict) else getattr(
-            prod, "metadata", {}
+        raw_metadata = (
+            prod.get("metadata", {})
+            if isinstance(prod, dict)
+            else getattr(prod, "metadata", {})
         )
         metadata_dict = dict(raw_metadata) if raw_metadata else {}
         lowered = {str(k).lower(): v for k, v in metadata_dict.items()}

@@ -118,9 +118,7 @@ class TestGetPressRelationBwListForStatus:
         bw = StubBusinessWall(partnerships=[])
         service = FakeBusinessWallService([])
 
-        result = _get_press_relation_bw_list_for_status(
-            bw, {"active"}, service=service
-        )
+        result = _get_press_relation_bw_list_for_status(bw, {"active"}, service=service)
 
         assert result == []
 
@@ -131,9 +129,7 @@ class TestGetPressRelationBwListForStatus:
         bw.partnerships = None  # type: ignore[assignment]
         service = FakeBusinessWallService([])
 
-        result = _get_press_relation_bw_list_for_status(
-            bw, {"active"}, service=service
-        )
+        result = _get_press_relation_bw_list_for_status(bw, {"active"}, service=service)
 
         assert result == []
 
@@ -148,9 +144,7 @@ class TestGetPressRelationBwListForStatus:
         )
         service = FakeBusinessWallService([active_partner, revoked_partner])
 
-        result = _get_press_relation_bw_list_for_status(
-            bw, {"active"}, service=service
-        )
+        result = _get_press_relation_bw_list_for_status(bw, {"active"}, service=service)
 
         assert result == [(active_partner, "active")]
 
@@ -188,9 +182,7 @@ class TestGetPressRelationBwListForStatus:
         )
         service = FakeBusinessWallService([partner])
 
-        result = _get_press_relation_bw_list_for_status(
-            bw, {"active"}, service=service
-        )
+        result = _get_press_relation_bw_list_for_status(bw, {"active"}, service=service)
 
         assert result == [(partner, "active")]
 
@@ -198,14 +190,10 @@ class TestGetPressRelationBwListForStatus:
         # A partnership row pointing at a deleted partner BW must not
         # surface as a dashboard entry — the helper drops it silently.
         ghost_id = str(uuid4())
-        bw = StubBusinessWall(
-            partnerships=[StubPartnership("active", ghost_id)]
-        )
+        bw = StubBusinessWall(partnerships=[StubPartnership("active", ghost_id)])
         service = FakeBusinessWallService([])  # ghost is unknown
 
-        result = _get_press_relation_bw_list_for_status(
-            bw, {"active"}, service=service
-        )
+        result = _get_press_relation_bw_list_for_status(bw, {"active"}, service=service)
 
         assert result == []
 
@@ -214,14 +202,10 @@ class TestGetPressRelationBwListForStatus:
         # and parsed back to `UUID` for the service lookup. A stub that
         # only accepts UUID keys (not strings) proves this.
         partner = _make_partner("UUIDPartner")
-        bw = StubBusinessWall(
-            partnerships=[StubPartnership("active", str(partner.id))]
-        )
+        bw = StubBusinessWall(partnerships=[StubPartnership("active", str(partner.id))])
         service = FakeBusinessWallService([partner])
 
-        result = _get_press_relation_bw_list_for_status(
-            bw, {"active"}, service=service
-        )
+        result = _get_press_relation_bw_list_for_status(bw, {"active"}, service=service)
 
         assert result == [(partner, "active")]
 
@@ -238,7 +222,9 @@ class TestPublicWrappers:
     explicitly forbidden."""
 
     @pytest.fixture
-    def mixed_bw(self) -> tuple[StubBusinessWall, FakeBusinessWallService, dict[str, StubBusinessWall]]:
+    def mixed_bw(
+        self,
+    ) -> tuple[StubBusinessWall, FakeBusinessWallService, dict[str, StubBusinessWall]]:
         """A BusinessWall with one partner in every Partnership state."""
         partners = {
             "invited": _make_partner("Invited Co"),

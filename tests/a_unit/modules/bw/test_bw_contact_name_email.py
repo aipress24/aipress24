@@ -71,8 +71,7 @@ def make_loader(user: FakeUser, *, expected_id: int | None = None):
     def loader(owner_id: int) -> FakeUser:
         if expected_id is not None:
             assert owner_id == expected_id, (
-                f"loader received owner_id={owner_id!r}, "
-                f"expected {expected_id!r}"
+                f"loader received owner_id={owner_id!r}, expected {expected_id!r}"
             )
         return user
 
@@ -215,9 +214,7 @@ class TestLoaderContract:
         """We don't count invocations (forbidden recorder pattern); we
         prove the loader was used by observing that *its* return value
         flowed back out of ``bw_contact_name_email``."""
-        sentinel = FakeUser(
-            full_name="sentinel-full-name", email="sentinel@e"
-        )
+        sentinel = FakeUser(full_name="sentinel-full-name", email="sentinel@e")
         bw = FakeBW(owner_id=99)
 
         result = bw_contact_name_email(bw, loader=lambda _id: sentinel)

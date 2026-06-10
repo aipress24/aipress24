@@ -164,9 +164,7 @@ class TestInvitationRowShape:
 class TestCrossOrganisationIsolation:
     """Each organisation has its own invitation namespace."""
 
-    def test_same_email_can_be_invited_to_two_orgs(
-        self, db_session: Session
-    ) -> None:
+    def test_same_email_can_be_invited_to_two_orgs(self, db_session: Session) -> None:
         org_a = Organisation(name="Org A")
         org_b = Organisation(name="Org B")
         db_session.add_all([org_a, org_b])

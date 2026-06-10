@@ -162,9 +162,7 @@ class TestSetUserOrganisation:
         assert refreshed.validated_at is not None
         assert refreshed.validation_status != ""
 
-    def test_set_user_organisation_from_ids_works_the_same(
-        self, db_session: Session
-    ):
+    def test_set_user_organisation_from_ids_works_the_same(self, db_session: Session):
         user = _make_user(db_session, email="ids@example.com")
         org = _make_org(db_session, name="ById")
 
@@ -206,9 +204,7 @@ class TestRemoveUserOrganisation:
         assert info.get("nom_orga", "") == ""
         assert info.get("nom_media", []) == []
 
-    def test_is_idempotent_for_user_without_organisation(
-        self, db_session: Session
-    ):
+    def test_is_idempotent_for_user_without_organisation(self, db_session: Session):
         # User never belonged to an org; removing should be a no-op
         # error-wise (no IntegrityError, no exception).
         user = _make_user(db_session, email="solo@example.com")

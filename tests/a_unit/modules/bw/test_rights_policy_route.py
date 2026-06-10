@@ -129,9 +129,7 @@ class TestIsValidOption:
     def test_valid_options_exact_set(self):
         """Pin the canonical set exactly so a third arm sneaking in
         (or an existing arm being renamed) breaks this test."""
-        expected = frozenset(
-            {"all_subscribed", "whitelist", "blacklist", "none"}
-        )
+        expected = frozenset({"all_subscribed", "whitelist", "blacklist", "none"})
         assert expected == VALID_OPTIONS
 
     def test_backward_compat_alias(self):
@@ -232,9 +230,7 @@ class TestIsPickerCandidate:
         assert is_picker_candidate(None, None) is False
 
     def test_returns_bool_type(self):
-        assert isinstance(
-            is_picker_candidate("media", BWStatus.ACTIVE.value), bool
-        )
+        assert isinstance(is_picker_candidate("media", BWStatus.ACTIVE.value), bool)
 
     def test_picker_bw_type_constant(self):
         """Pin the canonical picker type so the SELECT statement
@@ -330,9 +326,7 @@ class TestPureFormPipeline:
     order the route uses them. Pin the integration so a future
     refactor that moves the validation step around is conscious."""
 
-    def _process(
-        self, raw_option: str | None, media_ids: list[str]
-    ) -> dict | None:
+    def _process(self, raw_option: str | None, media_ids: list[str]) -> dict | None:
         """Run the pure pipeline ; return the snapshot OR None if
         the input would be rejected (matches the route's redirect-
         with-flash branch)."""

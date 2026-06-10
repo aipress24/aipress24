@@ -210,9 +210,7 @@ class TestCategorizeRoleAssignmentsOwner:
                 user_id=42,
             ),
         ]
-        result = _categorize_role_assignments(
-            assignments, user_loader=_loader_from({})
-        )
+        result = _categorize_role_assignments(assignments, user_loader=_loader_from({}))
         assert result["owner_info"] == {"email": "N/A", "full_name": "Inconnu"}
 
     def test_only_first_owner_wins(self):

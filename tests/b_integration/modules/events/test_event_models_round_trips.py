@@ -170,9 +170,7 @@ class TestPolymorphicIdentityRoundTrip:
                 sa.select(BaseContent.type)
                 .where(BaseContent.owner_id == owner.id)
                 .where(
-                    BaseContent.type.in_(
-                        [EXPECTED_IDENTITY[c] for c in EVENT_CLASSES]
-                    )
+                    BaseContent.type.in_([EXPECTED_IDENTITY[c] for c in EVENT_CLASSES])
                 )
             )
             .scalars()
