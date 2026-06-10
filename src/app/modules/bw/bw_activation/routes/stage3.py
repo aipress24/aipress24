@@ -712,7 +712,7 @@ def payment_cancel(bw_type: str):
         "Le paiement a été annulé. Vous pouvez réessayer quand vous le souhaitez.",
         "info",
     )
-    return redirect(url_for("bw_activation.payment_page", bw_type=bw_type))
+    return redirect(url_for("bw_activation.payment", bw_type=bw_type))
 
 
 def allowed_bw_product_list(bw_type: str) -> list[Product]:
