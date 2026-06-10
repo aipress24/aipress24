@@ -91,11 +91,11 @@ class RichTextField(Field):
 
 @frozen
 class SelectField(Field):
-    def extras(self):
+    def extras(self, *, choices_fn=None):
         key = self.spec["key"]
-        choices = get_choices()
+        choices = (choices_fn or get_choices)()
         if key in choices:
-            options = self.get_options(key)
+            options = self.get_options(key, choices_fn=choices_fn)
         else:
             options = {}
 
@@ -103,19 +103,19 @@ class SelectField(Field):
             "options": options,
         }
 
-    def get_options(self, key):
-        choices = get_choices()
+    def get_options(self, key, *, choices_fn=None):
+        choices = (choices_fn or get_choices)()
         # pyrefly: ignore [not-iterable]
         return [{"value": item, "label": item, "selected": ""} for item in choices[key]]
 
 
 @frozen
 class RichSelectField(Field):
-    def extras(self):
+    def extras(self, *, choices_fn=None):
         key = self.spec["key"]
-        choices = get_choices()
+        choices = (choices_fn or get_choices)()
         if key in choices:
-            options = self.get_options(key)
+            options = self.get_options(key, choices_fn=choices_fn)
         else:
             options = {}
 
@@ -124,8 +124,8 @@ class RichSelectField(Field):
             "value": "",
         }
 
-    def get_options(self, key):
-        choices = get_choices()
+    def get_options(self, key, *, choices_fn=None):
+        choices = (choices_fn or get_choices)()
         # pyrefly: ignore [not-iterable]
         return [{"value": item, "label": item, "selected": ""} for item in choices[key]]
 

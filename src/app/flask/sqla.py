@@ -11,14 +11,19 @@ from app.flask.extensions import db
 from app.lib.base62 import base62
 
 
-def get_obj(id: int | str, cls: type, options=None):
+def parse_id(id: int | str) -> int:
+    """Normalise an id-like input to an int.
+
+    Strings starting with "x" are treated as base62-encoded ids, other
+    strings are parsed as plain decimal integers. Anything that fails to
+    parse raises ``NotFound`` so callers don't have to wrap the call.
+    """
     match id:
         case str():
             try:
                 if id.startswith("x"):
-                    id = base62.decode(id)
-                else:
-                    id = int(id)
+                    return base62.decode(id)
+                return int(id)
             except (ValueError, TypeError):
                 # Non-numeric / non-base62 string — treat as a
                 # 404 rather than letting a 500 escape (crawlers,
@@ -26,11 +31,14 @@ def get_obj(id: int | str, cls: type, options=None):
                 msg = f"Can't match id {id}"
                 raise NotFound(msg) from None
         case int():
-            pass
+            return id
         case _:
             msg = f"Can't match id {id}"
             raise NotFound(msg)
 
+
+def get_obj(id: int | str, cls: type, options=None):
+    id = parse_id(id)
     stmt = select(cls).where(cls.id == id)  # type: ignore
     if options:
         stmt = stmt.options(options)
