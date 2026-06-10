@@ -754,6 +754,9 @@ def _make_customer_subscription_info(
     subinfo.subscription_id = data_obj["id"]
     customer_id = data_obj["customer"]
     customer = retrieve_customer(customer_id)
+    if customer is None:
+        warning(f"Stripe customer {customer_id} not retrievable")
+        return None
     subinfo.customer_email = customer["email"]
     subinfo.client_reference_id = data_obj.get("metadata", {}).get("bw_id", "")
 

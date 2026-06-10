@@ -113,9 +113,10 @@ def deduplicate_recipients(
     """
     unique: dict[int, User] = {}
     for u in recipients:
-        if u.id == sender_id:
+        user_id = int(u.id)
+        if user_id == sender_id:
             continue
-        unique.setdefault(u.id, u)
+        unique.setdefault(user_id, u)
     return unique
 
 
