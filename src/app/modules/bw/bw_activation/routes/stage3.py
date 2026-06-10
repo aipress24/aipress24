@@ -38,7 +38,10 @@ from app.modules.bw.bw_activation.models import (
     Subscription,
     SubscriptionStatus,
 )
-from app.modules.bw.bw_activation.user_utils import current_business_wall
+from app.modules.bw.bw_activation.user_utils import (
+    current_business_wall,
+    find_finalizable_bw_for_user,
+)
 from app.modules.bw.bw_activation.utils import (
     ERR_NO_ORGANISATION,
     ERR_NOT_MANAGER,
@@ -120,8 +123,14 @@ def confirmation_free():
     # creating anything new → user sees « Activation réussie » but
     # nothing was persisted, then « Accès non autorisé » on the
     # next click. Ref: bugs #0110, #0115, #0116, #0117.
+    #
+    # Bug #0071/2 : use `find_finalizable_bw_for_user` (not
+    # `current_business_wall`) so a DRAFT BW the user manages is
+    # findable here — otherwise the idempotency branch never fires
+    # for the « pre-checkout DRAFT, webhook never landed » shape
+    # and the route falls through to a 302 on the next request.
     user = cast("User", g.user)
-    existing = current_business_wall(user)
+    existing = find_finalizable_bw_for_user(user)
     if existing is not None and existing.status != BWStatus.CANCELLED.value:
         if is_bw_manager_or_admin(user, existing):
             # Bug #0071/2 : a DRAFT BW (e.g. pre-Stripe pre-checkout, or
@@ -420,7 +429,7 @@ def _calculate_price_total(price: Any, quantity: int) -> int | None:
             total += quantity * int(tier_unit)
         if tier_flat is not None:
             total += int(tier_flat)
-        return total if total else None
+        return total or None
 
     # Graduated (default) — tax-bracket style: each tier applies to a
     # slice of the quantity.
@@ -935,8 +944,13 @@ def confirmation_paid():
     # confirmation page (no duplicate creation). Otherwise drop a
     # potentially-stale `session["bw_id"]` so the new BW resolves
     # cleanly post-creation. Ref: bug #0116.
+    #
+    # Bug #0071/2 (paid mirror) : `find_finalizable_bw_for_user`
+    # (rather than `current_business_wall`) is what lets the DRAFT
+    # branch below fire. The recette-mode no-webhook case lands here
+    # with a DRAFT BW and the user expects « Activation Réussie ».
     user = cast("User", g.user)
-    existing = current_business_wall(user)
+    existing = find_finalizable_bw_for_user(user)
     if (
         existing is not None
         and existing.status != BWStatus.CANCELLED.value
