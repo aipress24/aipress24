@@ -315,6 +315,160 @@ def _select_product_for_quantity(products: list[Product], quantity: int) -> Prod
     return parsed_products[-1][1]
 
 
+# ===== Pure helpers (extracted for unit testing — Pattern A) =====
+#
+# These helpers are deliberately kept side-effect-free so they can be
+# exercised with plain dicts and stand-in classes (no Flask app, no
+# Stripe SDK, no DB). The imperative shell above calls into them.
+
+
+def _parse_quantity_from_session_value(raw: object, default: int = 1) -> int:
+    """Coerce a session-pricing value to a positive int.
+
+    The session may carry an `int`, a numeric `str` (form-roundtrip),
+    `None`, or a stray garbage value. Bug-class: a `ValueError` here
+    used to surface as a 500 on `/checkout` ; we now clamp to 1.
+    """
+    try:
+        quantity = int(raw) if raw is not None else default
+    except (ValueError, TypeError):
+        quantity = default
+    return max(1, quantity)
+
+
+def _extract_price_id(chosen_product: Any) -> str | None:
+    """Return the Stripe price ID embedded in a Product.
+
+    `default_price` may be either the raw price ID string (the common
+    case) or an expanded `{"id": ...}` dict when the caller passed
+    `expand=["default_price"]` to Stripe. Anything else (None,
+    missing key, dict without `id`) returns None so the caller can
+    redirect to `not_authorized` cleanly.
+    """
+    if isinstance(chosen_product, dict):
+        default_price = chosen_product.get("default_price")
+    else:
+        default_price = getattr(chosen_product, "default_price", None)
+
+    if isinstance(default_price, dict):
+        return default_price.get("id")
+    if isinstance(default_price, str) and default_price:
+        return default_price
+    return None
+
+
+def _filter_products_by_allowed_subs(
+    products: list[Any], allowed_values: set[str]
+) -> list[Any]:
+    """Keep only Stripe products whose `metadata.subs` is in `allowed_values`.
+
+    Metadata keys come back from Stripe with arbitrary casing
+    (`Subs`, `SUBS`, ...) — we lower-case the key set so a config
+    typo in the Dashboard doesn't silently filter out a paying tier.
+    Empty `allowed_values` short-circuits to an empty list (the
+    BW type isn't a paid tier ; checkout must not proceed).
+    """
+    if not allowed_values:
+        return []
+    results: list[Any] = []
+    for prod in products:
+        raw_metadata = prod.get("metadata", {}) if isinstance(prod, dict) else getattr(
+            prod, "metadata", {}
+        )
+        metadata_dict = dict(raw_metadata) if raw_metadata else {}
+        lowered = {str(k).lower(): v for k, v in metadata_dict.items()}
+        if lowered.get("subs", "") in allowed_values:
+            results.append(prod)
+    return results
+
+
+def _normalize_stripe_info_form(
+    form: dict[str, Any], fallback_email: str = ""
+) -> dict[str, str]:
+    """Strip whitespace and apply fallback email from a stripe-info form.
+
+    Pure helper so we can prove the contract without a Flask request
+    context. Keys mirror the form names POSTed by
+    `templates/bw_activation/stripe_info.html`.
+    """
+    return {
+        "siren": str(form.get("siren", "") or "").strip(),
+        "payer_email": str(form.get("payer_email", fallback_email) or "").strip(),
+        "company_name": str(form.get("company_name", "") or "").strip(),
+        "postal_address": str(form.get("postal_address", "") or "").strip(),
+        "tel_standard": str(form.get("tel_standard", "") or "").strip(),
+    }
+
+
+def _build_checkout_metadata(
+    bw_id: object, bw_type: str, user_id: object
+) -> dict[str, str]:
+    """Build the `metadata` dict shipped to Stripe Checkout.
+
+    Stripe stores metadata values as strings — coerce here so a
+    caller passing a UUID / int doesn't get a Stripe API rejection
+    at checkout time.
+    """
+    return {
+        "bw_id": str(bw_id),
+        "bw_type": bw_type,
+        "user_id": str(user_id),
+    }
+
+
+def _resolve_stripe_customer_kwargs(
+    stripe_customer_id: str | None, user_email: str | None
+) -> dict[str, str]:
+    """Decide between `customer=` (reuse) and `customer_email=` (new).
+
+    Reusing an existing Stripe customer ID (when known) keeps the
+    customer's payment methods and tax info ; otherwise we pass the
+    email so Stripe creates a new customer at checkout time. Bug
+    class : passing both would cause Stripe to error out.
+    """
+    if stripe_customer_id:
+        return {"customer": stripe_customer_id}
+    if user_email:
+        return {"customer_email": user_email}
+    return {}
+
+
+def _is_idempotent_confirmation_target(
+    existing: BusinessWall | None,
+    *,
+    is_manager: bool,
+) -> bool:
+    """True when `confirmation_free`/`confirmation_paid` should re-render
+    the success page instead of creating a fresh BW.
+
+    Pin the three-part rule explained in the route docstring (bugs
+    #0071/2, #0110, #0115, #0116, #0117, #0139) :
+
+    - existing must not be None
+    - existing must not be cancelled
+    - caller must be a manager / admin of the existing BW
+    """
+    if existing is None:
+        return False
+    if existing.status == BWStatus.CANCELLED.value:
+        return False
+    return is_manager
+
+
+def _should_finalise_draft(existing: BusinessWall | None) -> bool:
+    """True when an existing BW is in any non-ACTIVE non-CANCELLED state
+    and should be force-flipped to ACTIVE by the confirmation route.
+
+    Bug #0071/2 trap : a DRAFT BW (pre-Stripe pre-checkout) used to be
+    treated as « already activated » and the page rendered the
+    confirmation card without flipping the status. Returning True
+    here means the imperative shell will flip and link.
+    """
+    if existing is None:
+        return False
+    return existing.status not in (BWStatus.ACTIVE.value, BWStatus.CANCELLED.value)
+
+
 @bp.route("/checkout/<bw_type>", methods=["POST"])
 def checkout(bw_type: str):
     """Create a Stripe Checkout Session and redirect to checkout page."""
@@ -334,23 +488,13 @@ def checkout(bw_type: str):
     load_stripe_api_key()
 
     # For subscription Products, quantity only used for selecting the product
-    try:
-        quantity = int(session.get("pricing_value", 1))
-    except (ValueError, TypeError):
-        quantity = 1
-
-    quantity = max(1, quantity)
+    quantity = _parse_quantity_from_session_value(session.get("pricing_value", 1))
 
     # Automatically choose the product based on quantity
     chosen_product = _select_product_for_quantity(allowed_products, quantity)
 
-    # Extract the price ID
-    # it might be a dict due to expansion, or just the string ID)
-    default_price = chosen_product.get("default_price")
-    if isinstance(default_price, dict):
-        price_id = default_price.get("id")
-    else:
-        price_id = default_price
+    # Extract the price ID — it might be a dict due to expansion, or just the string ID
+    price_id = _extract_price_id(chosen_product)
 
     if not price_id:
         warn(f"No default price found for product {chosen_product.id}")
@@ -377,20 +521,14 @@ def checkout(bw_type: str):
         "success_url": success_url,
         "cancel_url": cancel_url,
         "client_reference_id": str(draft_bw.id),
-        "metadata": {
-            "bw_id": str(draft_bw.id),
-            "bw_type": bw_type,
-            "user_id": str(g.user.id),
-        },
+        "metadata": _build_checkout_metadata(draft_bw.id, bw_type, g.user.id),
         "automatic_tax": {"enabled": True},
     }
 
-    # Keep exsiting customer ID
+    # Keep existing customer ID when known, fall back to email otherwise
     org = draft_bw.get_organisation()
-    if org and org.stripe_customer_id:
-        checkout_kwargs["customer"] = org.stripe_customer_id
-    else:
-        checkout_kwargs["customer_email"] = g.user.email
+    customer_id = org.stripe_customer_id if org else None
+    checkout_kwargs.update(_resolve_stripe_customer_kwargs(customer_id, g.user.email))
 
     checkout_session = stripe.checkout.Session.create(**checkout_kwargs)
     return redirect(checkout_session.url, code=303)
@@ -419,18 +557,11 @@ def payment_cancel(bw_type: str):
 
 
 def allowed_bw_product_list(bw_type: str) -> list[Product]:
-    results: list[Product] = []
     allowed_values = set(BWTYPE_ALLOWED_PRODUCTS.get(bw_type, []))
     if not allowed_values:
-        return results
+        return []
     prods = fetch_bw_product_list()
-    for prod in prods:
-        raw_metadata = prod.get("metadata", {})
-        metadata_dict = dict(raw_metadata) if raw_metadata else {}
-        metadata_dict = {str(k).lower(): v for k, v in metadata_dict.items()}
-        if metadata_dict.get("subs", "") in allowed_values:
-            results.append(prod)
-    return results
+    return _filter_products_by_allowed_subs(list(prods), allowed_values)
 
 
 def _payment_live_enabled(bw_type: str, ctx: dict[str, Any]):
@@ -450,12 +581,7 @@ def _payment_live_enabled(bw_type: str, ctx: dict[str, Any]):
         return redirect(url_for("bw_activation.not_authorized"))
 
     # For subscription Products, quantity only used for selecting the product
-    try:
-        quantity = int(session.get("pricing_value", 1))
-    except (ValueError, TypeError):
-        quantity = 1
-
-    quantity = max(1, quantity)
+    quantity = _parse_quantity_from_session_value(session.get("pricing_value", 1))
 
     # Automatically choose the product based on quantity for display
     chosen_product = _select_product_for_quantity(allowed_products, quantity)
@@ -499,14 +625,15 @@ def stripe_info(bw_type: str):
 
         draft_bw = _get_or_create_draft_bw_for_checkout(user, bw_type)
         if draft_bw is not None:
-            draft_bw.siren = request.form.get("siren", "").strip()
-            draft_bw.payer_email = request.form.get(
-                "payer_email", user.email or ""
-            ).strip()
-            company_name = request.form.get("company_name", "").strip()
+            normalized = _normalize_stripe_info_form(
+                dict(request.form), fallback_email=user.email or ""
+            )
+            draft_bw.siren = normalized["siren"]
+            draft_bw.payer_email = normalized["payer_email"]
+            company_name = normalized["company_name"]
             draft_bw.name = company_name
-            draft_bw.postal_address = request.form.get("postal_address", "").strip()
-            draft_bw.tel_standard = request.form.get("tel_standard", "").strip()
+            draft_bw.postal_address = normalized["postal_address"]
+            draft_bw.tel_standard = normalized["tel_standard"]
             org = user.organisation
             if org and company_name:
                 # sync org.bw_name with new BW.name

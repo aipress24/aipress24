@@ -32,6 +32,29 @@ if TYPE_CHECKING:
     from app.models.auth import User
 
 
+def filter_active_manageable(manageable_bws):
+    """Pure: drop cancelled BWs from a list of manageables.
+
+    Extracted from `index()` so the « cancelled BWs do not count for
+    the auto-pick » rule can be pinned in unit tests. The dashboard
+    auto-pick (single active manageable BW → straight to dashboard,
+    several → /select-bw) depends on this filter to behave correctly
+    when a user has historical CANCELLED BWs lying around.
+    """
+    return [bw for bw in manageable_bws if bw.status != BWStatus.CANCELLED.value]
+
+
+def is_valid_bw_type(bw_type: str) -> bool:
+    """Pure: True iff `bw_type` is a known BW type.
+
+    Pinned as a tiny shim around the `bw_type in BW_TYPES` membership
+    check used by `select_subscription` — so a future split of
+    `BW_TYPES` into free / paid maps gets caught here rather than
+    silently widening the validator.
+    """
+    return bw_type in BW_TYPES
+
+
 def _check_active_bw_manager(user: User) -> Response | None:
     """Bug #0157: forbid reconfiguring an already-ACTIVE BW unless the
     user manages it.
@@ -91,9 +114,7 @@ def index():
 
     # Check all BWs the user can manage (owner, BWMi, BWMe, BWPRe, etc.)
     manageable_bws = get_manageable_business_walls_for_user(user)
-    active_manageable = [
-        bw for bw in manageable_bws if bw.status != BWStatus.CANCELLED.value
-    ]
+    active_manageable = filter_active_manageable(manageable_bws)
 
     if not active_manageable:
         # No manageable BW — check if org has an active BW but user lacks rights
@@ -149,7 +170,7 @@ def select_subscription(bw_type: str):
     if error_response := _check_valid_organisation(user):
         return error_response
 
-    if bw_type not in BW_TYPES:
+    if not is_valid_bw_type(bw_type):
         return redirect(url_for("bw_activation.confirm_subscription"))
 
     session["bw_type"] = bw_type
