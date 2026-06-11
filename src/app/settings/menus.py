@@ -189,6 +189,11 @@ ADMIN_MENU = [
         "icon": "shopping-cart",
     },
     {
+        "label": "Debug achats",
+        "endpoint": "admin.debug_achats",
+        "icon": "shopping-bag",
+    },
+    {
         "label": "Export DB",
         "endpoint": "/admin/export-db/",
         "icon": "database",
