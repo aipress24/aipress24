@@ -1,0 +1,65 @@
+{% extends "admin/layout/_base.j2" %}
+
+{% block main %}
+    <h1 class="text-2xl font-semibold text-gray-900 mb-6">Debug achats</h1>
+
+    <p class="text-sm text-gray-600 mb-4">Les 20 derniers achats d'articles</p>
+
+    {% if rows %}
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200 text-sm">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Acheteur</th>
+                        <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Titre article</th>
+                        <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">ID article</th>
+                        <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Auteur</th>
+                        <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">BW acheteur</th>
+                        <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">BW auteur</th>
+                        <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
+                        <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Statut</th>
+                        <th class="px-3 py-2 text-right text-xs font-medium text-gray-500 uppercase">Montant</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    {% for r in rows %}
+                        <tr class="hover:bg-gray-50">
+                            <td class="px-3 py-2 text-gray-900 whitespace-nowrap">{{ r.buyer_name }}</td>
+                            <td class="px-3 py-2 text-gray-900 max-w-xs truncate" title="{{ r.article_title }}">{{ r.article_title }}</td>
+                            <td class="px-3 py-2 text-gray-500 whitespace-nowrap">{{ r.article_id }}</td>
+                            <td class="px-3 py-2 text-gray-900 whitespace-nowrap">{{ r.author_name }}</td>
+                            <td class="px-3 py-2 text-gray-500 whitespace-nowrap">{{ r.buyer_bw_name or "—" }}</td>
+                            <td class="px-3 py-2 text-gray-500 whitespace-nowrap">{{ r.author_bw_name or "—" }}</td>
+                            <td class="px-3 py-2 text-gray-500 whitespace-nowrap">
+                                {% if r.purchase_date %}
+                                    {{ r.purchase_date.format("DD/MM/YYYY HH:mm") }}
+                                {% else %}
+                                    —
+                                {% endif %}
+                            </td>
+                            <td class="px-3 py-2 whitespace-nowrap">
+                                <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium
+                                             {% if r.status == 'paid' %}bg-green-100 text-green-800
+                                             {% elif r.status == 'pending' %}bg-yellow-100 text-yellow-800
+                                             {% elif r.status == 'failed' %}bg-red-100 text-red-800
+                                             {% elif r.status == 'refunded' %}bg-gray-100 text-gray-800
+                                             {% else %}bg-gray-100 text-gray-800{% endif %}">
+                                    {{ r.status }}
+                                </span>
+                            </td>
+                            <td class="px-3 py-2 text-right text-gray-900 whitespace-nowrap">
+                                {% if r.amount_cents is not none %}
+                                    {{ "%.2f"|format(r.amount_cents / 100) }} €
+                                {% else %}
+                                    —
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <p class="text-sm text-gray-600">Aucun achat enregistré.</p>
+    {% endif %}
+{% endblock %}
