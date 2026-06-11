@@ -189,11 +189,6 @@ ADMIN_MENU = [
         "icon": "shopping-cart",
     },
     {
-        "label": "Test achat",
-        "endpoint": "admin.test_achat",
-        "icon": "credit-card",
-    },
-    {
         "label": "Export DB",
         "endpoint": "/admin/export-db/",
         "icon": "database",
