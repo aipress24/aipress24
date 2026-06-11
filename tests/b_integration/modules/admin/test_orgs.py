@@ -23,8 +23,9 @@ class TestOrgsTable:
         columns = list(table.compose())
 
         expected_columns = [
-            {"name": "name", "label": "Nom", "width": 50},
-            {"name": "type", "label": "Type", "width": 20},
+            {"name": "name", "label": "Nom", "width": 35},
+            {"name": "bw_name", "label": "BW", "width": 30},
+            {"name": "type", "label": "Type", "width": 15},
             {"name": "karma", "label": "Réputation", "width": 8},
         ]
 
