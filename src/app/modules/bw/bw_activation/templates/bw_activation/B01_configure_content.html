@@ -70,6 +70,28 @@
                     </button>
                 {% endif %}
             </div>
+            {# Read-only billing identity, mirrored from Stripe (finances-02 §C). #}
+            {% set billing_org = business_wall.get_organisation() %}
+            {% if billing_org and (billing_org.billing_email or billing_org.billing_vat_number or billing_org.billing_address_line1) %}
+                <div class="mt-4 p-4 bg-gray-50 rounded-md border border-gray-200">
+                    <h3 class="text-sm font-semibold text-gray-700 mb-2">Coordonnées de facturation</h3>
+                    <dl class="text-sm text-gray-600 space-y-1">
+                        {% if billing_org.billing_email %}
+                            <div><dt class="inline font-medium">E-mail :</dt> <dd class="inline">{{ billing_org.billing_email }}</dd></div>
+                        {% endif %}
+                        {% if billing_org.billing_vat_number %}
+                            <div><dt class="inline font-medium">N° TVA :</dt> <dd class="inline">{{ billing_org.billing_vat_number }}</dd></div>
+                        {% endif %}
+                        {% if billing_org.billing_address_line1 %}
+                            <div>
+                                <dt class="inline font-medium">Adresse :</dt>
+                                <dd class="inline">{{ billing_org.billing_address_line1 }}{% if billing_org.billing_address_line2 %}, {{ billing_org.billing_address_line2 }}{% endif %}{% if billing_org.billing_postal_code or billing_org.billing_city %}, {{ billing_org.billing_postal_code }} {{ billing_org.billing_city }}{% endif %}{% if billing_org.billing_country %} ({{ billing_org.billing_country }}){% endif %}</dd>
+                            </div>
+                        {% endif %}
+                    </dl>
+                    <p class="mt-2 text-xs italic text-gray-400">Ces informations sont collectées et gérées via Stripe lors du paiement.</p>
+                </div>
+            {% endif %}
             <!-- Resiliation Confirmation Modal -->
             <div id="confirm_resiliation_popup"
                  data-modal-backdrop="static"
