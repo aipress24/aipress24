@@ -6,7 +6,7 @@
 
 from __future__ import annotations
 
-from collections.abc import Generator
+from collections.abc import Generator, Iterable
 from dataclasses import dataclass
 from typing import cast
 
@@ -169,7 +169,7 @@ def merge_expert_selection(existing: object, new_ids: list[int]) -> list[int]:
     return list(set(out))
 
 
-def parse_action_from_form(form_keys: object) -> str:
+def parse_action_from_form(form_keys: Iterable[str]) -> str:
     """Extract the form's action name. Pure.
 
     The form encodes the user's click as a key like ``action:confirm``
@@ -185,7 +185,7 @@ def parse_action_from_form(form_keys: object) -> str:
     return ""
 
 
-def parse_expert_ids_from_form(form_keys: object) -> list[int]:
+def parse_expert_ids_from_form(form_keys: Iterable[str]) -> list[int]:
     """Extract expert ids from form keys shaped ``expert:<int>``. Pure.
 
     The form uses keys like ``expert:42`` so the journalist can
@@ -253,9 +253,7 @@ def compute_tracked_form_keys(selectors: list[BaseSelector]) -> set[str]:
     must round-trip through state for the cascade UI). Pure."""
     selector_keys = {s.id for s in selectors}
     parent_keys = {
-        getattr(s, "parent_id", "")
-        for s in selectors
-        if getattr(s, "is_dual", False)
+        getattr(s, "parent_id", "") for s in selectors if getattr(s, "is_dual", False)
     }
     parent_keys.discard("")
     return selector_keys | parent_keys

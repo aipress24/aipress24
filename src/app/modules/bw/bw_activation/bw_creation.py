@@ -26,7 +26,7 @@ from app.modules.bw.bw_activation.models.subscription import SubscriptionStatus
 
 from .config import BW_TYPES
 
-StdDict = dict[str, str | int | float | bool | None]
+StdDict = dict[str, str | int | float | bool | datetime | None]
 
 
 if TYPE_CHECKING:
@@ -225,9 +225,7 @@ def _create_bw_record(session: MutableMapping, *, want_free: bool) -> bool:
     )
 
     subscription_service.create(
-        build_subscription_payload(
-            business_wall_id=business_wall.id, started_at=now
-        ),
+        build_subscription_payload(business_wall_id=business_wall.id, started_at=now),
         auto_commit=False,
     )
 
