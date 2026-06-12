@@ -194,6 +194,11 @@ ADMIN_MENU = [
         "icon": "shopping-bag",
     },
     {
+        "label": "Delete BWs",
+        "endpoint": "admin.delete_bws",
+        "icon": "trash-2",
+    },
+    {
         "label": "Export DB",
         "endpoint": "/admin/export-db/",
         "icon": "database",

@@ -1,0 +1,30 @@
+{% extends "admin/layout/_base.j2" %}
+
+{% block main %}
+    <h1 class="text-2xl font-semibold text-gray-900 mb-4">Suppression des Business Walls</h1>
+
+    <div class="bg-red-50 border border-red-200 rounded p-4 mb-6">
+        <p class="text-red-900 bold font-medium">
+            Cette action est irréversible.
+        </p>
+        <p class="text-red-700 mt-1">
+            Elle va supprimer <strong>{{ bw_count }}</strong> Business Wall(s) ainsi que toutes les données associées
+            (abonnements, contenus, rôles, partenariats, images).
+        </p>
+        <p class="text-red-700 mt-1">
+            Les champs <code>selected_bw_id</code>, <code>bw_id</code>, <code>bw_active</code> et <code>bw_name</code>
+            des utilisateurs et organisations seront réinitialisés.
+        </p>
+    </div>
+
+    <form action="{{ url_for('.delete_bws') }}" method="POST" class="flex items-center gap-4">
+        <a href="{{ url_for('admin.dashboard') }}"
+           class="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+            Annuler
+        </a>
+        <button type="submit"
+                class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500">
+            Supprimer tous les BW
+        </button>
+    </form>
+{% endblock %}
