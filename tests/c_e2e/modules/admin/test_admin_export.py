@@ -24,9 +24,16 @@ from app.modules.admin.views._export import (
     MixedBWOrgExporter,
     ModificationsExporter,
     OrganisationsExporter,
+    SalesLedgerExporter,
     UsersExporter,
 )
 from app.modules.bw.bw_activation.models import BusinessWall, BWStatus
+from app.modules.wire.models import (
+    ArticlePost,
+    ArticlePurchase,
+    PurchaseProduct,
+    PurchaseStatus,
+)
 
 if TYPE_CHECKING:
     from flask import Flask
@@ -512,6 +519,64 @@ class TestBusinessWallExporter:
     ):
         response = admin_client.get(
             url_for("admin.export_route", exporter_name="business_walls")
+        )
+        assert response.status_code in (200, 302)
+        if response.status_code == 200:
+            assert response.mimetype == "application/vnd.oasis.opendocument.spreadsheet"
+            assert response.data[:4] == b"PK\x03\x04"
+
+
+@pytest.fixture
+def paid_purchase(db_session: Session) -> ArticlePurchase:
+    """One PAID consultation, for the sales-ledger export."""
+    buyer = User(email=f"buyer-{uuid4().hex[:8]}@example.com", active=True)
+    db_session.add(buyer)
+    db_session.flush()
+    post = ArticlePost(title="Article vendu", owner_id=buyer.id)
+    db_session.add(post)
+    db_session.flush()
+    purchase = ArticlePurchase(
+        post_id=post.id,
+        owner_id=buyer.id,
+        product_type=PurchaseProduct.CONSULTATION,
+        status=PurchaseStatus.PAID,
+        amount_cents=1000,
+    )
+    purchase.paid_at = Arrow(2026, 6, 10, 8, 0)
+    db_session.add(purchase)
+    db_session.flush()
+    return purchase
+
+
+class TestSalesLedgerExporter:
+    """Test SalesLedgerExporter — flat PAID-purchase ledger (finances-02 §A)."""
+
+    def test_exporter_creates_document(
+        self, db_session: Session, paid_purchase: ArticlePurchase
+    ):
+        exporter = SalesLedgerExporter()
+        exporter.run()
+        assert len(exporter.document) > 0
+        assert exporter.document[:4] == b"PK\x03\x04"
+
+    def test_filename(self, db_session: Session, paid_purchase: ArticlePurchase):
+        exporter = SalesLedgerExporter()
+        exporter.run()
+        assert exporter.filename.startswith("ventes_a_l_acte_")
+        assert exporter.filename.endswith(".ods")
+
+    def test_fetch_data_returns_the_paid_purchase(
+        self, db_session: Session, paid_purchase: ArticlePurchase
+    ):
+        exporter = SalesLedgerExporter()
+        rows = exporter.fetch_data()
+        assert any(r.purchase_id == paid_purchase.id for r in rows)
+
+    def test_export_route(
+        self, admin_client: FlaskClient, paid_purchase: ArticlePurchase
+    ):
+        response = admin_client.get(
+            url_for("admin.export_route", exporter_name="sales_ledger")
         )
         assert response.status_code in (200, 302)
         if response.status_code == 200:

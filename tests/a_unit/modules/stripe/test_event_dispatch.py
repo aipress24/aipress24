@@ -220,16 +220,36 @@ class TestEventHandlerRegistry:
         assert callable(getattr(wh, "unmanaged_event", None))
 
     def test_invoice_and_customer_source_route_to_unmanaged(self) -> None:
-        """The post-june-2026 event reshuffle parked these three
-        events on `unmanaged_event` deliberately (we no longer act
-        on them). Pin the routing so a future refactor doesn't
-        silently start handling them with the wrong logic."""
+        """These events remain parked on `unmanaged_event` deliberately
+        (we don't act on them). Pin the routing so a future refactor
+        doesn't silently start handling them with the wrong logic."""
         for event_type in (
-            "invoice.payment_succeeded",
             "invoice_payment.paid",
             "customer.source.updated",
         ):
             assert _EVENT_HANDLER_NAMES[event_type] == "unmanaged_event"
+
+    def test_invoice_payment_events_route_to_dunning_handlers(self) -> None:
+        """`invoice.payment_failed` / `invoice.payment_succeeded` drive the
+        subscription auto-suspend / reactivate flow (finances-02 §B)."""
+        assert (
+            _EVENT_HANDLER_NAMES["invoice.payment_failed"]
+            == "on_invoice_payment_failed"
+        )
+        assert (
+            _EVENT_HANDLER_NAMES["invoice.payment_succeeded"]
+            == "on_invoice_payment_succeeded"
+        )
+
+    def test_customer_updated_routes_to_billing_mirror(self) -> None:
+        """`customer.updated` mirrors the Stripe billing identity onto the
+        Organisation (finances-02 §C)."""
+        assert _EVENT_HANDLER_NAMES["customer.updated"] == "on_customer_updated"
+
+    def test_charge_refunded_routes_to_refund_handler(self) -> None:
+        """`charge.refunded` flips the ArticlePurchase to REFUNDED
+        (finances-02 §D)."""
+        assert _EVENT_HANDLER_NAMES["charge.refunded"] == "on_charge_refunded"
 
 
 class TestUnmanagedEvent:

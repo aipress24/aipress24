@@ -32,8 +32,15 @@ from app.modules.bw.bw_activation.models import (
     SubscriptionStatus,
 )
 from app.modules.bw.bw_activation.models.business_wall import BWType
+from app.modules.bw.bw_activation.payment_notifications import notify_bw_payment_failed
+from app.modules.bw.bw_activation.subscription_lifecycle import (
+    clear_past_due,
+    is_recovery_needed,
+    mark_past_due,
+)
 from app.modules.stripe import blueprint
 from app.modules.wire.models import ArticlePurchase, PurchaseProduct, PurchaseStatus
+from app.services.stripe.customers import mirror_customer_to_org
 from app.services.stripe.prices import upsert_price_from_event
 from app.services.stripe.retriever import (
     retrieve_customer,
@@ -204,10 +211,15 @@ _EVENT_HANDLER_NAMES = {
     "price.created": "on_price_created",  # suivi juin 2026
     "price.updated": "on_price_updated",  # suivi juin 2026
     "price.deleted": "on_price_deleted",  # suivi juin 2026
-    # new event received (june 2026) :
-    "invoice.payment_succeeded": "unmanaged_event",  # suivi juin 2026
+    # Subscription dunning — auto-suspend / reactivate on payment.
+    # Spec: local-notes/specs/finances-02.md §B.
+    "invoice.payment_failed": "on_invoice_payment_failed",
+    "invoice.payment_succeeded": "on_invoice_payment_succeeded",
     "invoice_payment.paid": "unmanaged_event",  # suivi juin 2026
-    # customer
+    # Refunds — mirror a Stripe refund onto the ArticlePurchase (finances-02 §D).
+    "charge.refunded": "on_charge_refunded",
+    # customer — mirror billing identity onto the Organisation (finances-02 §C).
+    "customer.updated": "on_customer_updated",
     "customer.source.updated": "unmanaged_event",  # suivi juin 2026
 }
 
@@ -238,6 +250,14 @@ def _get_event_object(event: stripe.Event) -> object:
     info(f"on event:{event.id}, type={event.type}")
     data = event.data
     return data.object
+
+
+def _obj_get(obj: Any, key: str, default: Any = None) -> Any:
+    """Read `key` from a Stripe object, supporting both dict-like access
+    (mapping payloads, test stubs) and attribute access (Stripe CLI)."""
+    if hasattr(obj, "get"):
+        return obj.get(key, default)
+    return getattr(obj, key, default)
 
 
 def unmanaged_event(event: stripe.Event) -> None:
@@ -389,12 +409,124 @@ def _handle_price_event(event: stripe.Event, *, force_inactive: bool = False) ->
     db.session.commit()
 
 
+def _subscription_for_invoice_event(event: stripe.Event) -> Subscription | None:
+    """Resolve the local Subscription referenced by an invoice event, via the
+    Stripe subscription id carried on the invoice object."""
+    data_obj = _get_event_object(event)
+    sub_id = _obj_get(data_obj, "subscription")
+    if not sub_id:
+        return None
+    return db.session.execute(
+        sa_select(Subscription).where(Subscription.stripe_subscription_id == sub_id)
+    ).scalar_one_or_none()
+
+
+def on_invoice_payment_failed(event: stripe.Event) -> None:
+    """A subscription invoice failed → mark PAST_DUE, start the grace clock,
+    and send a dunning reminder once. The BW stays ACTIVE during the grace
+    window ; the nightly `flask bw suspend-overdue` job suspends it after the
+    window elapses. Spec: finances-02 §B. Idempotent."""
+    sub = _subscription_for_invoice_event(event)
+    if sub is None:
+        unmanaged_event(event)
+        return
+    was_past_due = sub.status == SubscriptionStatus.PAST_DUE.value
+    sub.status, sub.past_due_since = mark_past_due(
+        sub.status, sub.past_due_since, datetime.now(UTC)
+    )
+    db.session.commit()
+    if not was_past_due:
+        # A mail failure must never break webhook processing.
+        try:
+            notify_bw_payment_failed(sub)
+        except Exception as e:
+            warning(f"dunning mail failed for subscription {sub.id}: {e}")
+
+
+def on_invoice_payment_succeeded(event: stripe.Event) -> None:
+    """A subscription invoice was paid → clear PAST_DUE and reactivate a BW
+    suspended for non-payment. No-op on a normal renewal. Spec: finances-02 §B."""
+    sub = _subscription_for_invoice_event(event)
+    if sub is None:
+        unmanaged_event(event)
+        return
+    if not is_recovery_needed(sub.status, sub.past_due_since):
+        return
+    bw = sub.business_wall
+    bw_status = bw.status if bw is not None else BWStatus.ACTIVE.value
+    sub.status, new_bw_status = clear_past_due(sub.status, bw_status)
+    sub.past_due_since = None
+    if bw is not None:
+        bw.status = new_bw_status
+    db.session.commit()
+
+
+def _maybe_suspend_on_unpaid(data_obj) -> None:
+    """Safety net: if Stripe reports the subscription as `unpaid` (dunning
+    retries exhausted), suspend the BW immediately instead of waiting for the
+    nightly job. Spec: finances-02 §B."""
+    if _obj_get(data_obj, "status") != "unpaid":
+        return
+    sub_id = _obj_get(data_obj, "id")
+    if not sub_id:
+        return
+    sub = db.session.execute(
+        sa_select(Subscription).where(Subscription.stripe_subscription_id == sub_id)
+    ).scalar_one_or_none()
+    if sub is None:
+        return
+    sub.status = SubscriptionStatus.PAST_DUE.value
+    if sub.past_due_since is None:
+        sub.past_due_since = datetime.now(UTC)
+    bw = sub.business_wall
+    if bw is not None and bw.status == BWStatus.ACTIVE.value:
+        bw.status = BWStatus.SUSPENDED.value
+    db.session.commit()
+
+
+def on_charge_refunded(event: stripe.Event) -> None:
+    """A charge was refunded in Stripe → mark the matching ArticlePurchase
+    REFUNDED. The purchase aggregates already exclude REFUNDED, so the Vues /
+    Ventes counters update automatically. Spec: finances-02 §D."""
+    data_obj = _get_event_object(event)
+    payment_intent_id = _obj_get(data_obj, "payment_intent")
+    if not payment_intent_id:
+        return
+    purchase = db.session.execute(
+        sa_select(ArticlePurchase).where(
+            ArticlePurchase.stripe_payment_intent_id == payment_intent_id
+        )
+    ).scalar_one_or_none()
+    if purchase is None:
+        return
+    purchase.status = PurchaseStatus.REFUNDED
+    db.session.commit()
+
+
+def on_customer_updated(event: stripe.Event) -> None:
+    """Mirror the Stripe Customer billing identity (VAT, address, email)
+    onto its Organisation. No-op if the customer isn't bound to an org.
+    Spec: finances-02 §C."""
+    data_obj = _get_event_object(event)
+    customer_id = _obj_get(data_obj, "id")
+    if not customer_id:
+        return
+    org = db.session.execute(
+        sa_select(Organisation).where(Organisation.stripe_customer_id == customer_id)
+    ).scalar_one_or_none()
+    if org is None:
+        return
+    mirror_customer_to_org(org, data_obj)
+    db.session.commit()
+
+
 def on_customer_subscription_updated(event: stripe.Event) -> None:
     """Occurs whenever a subscription changes (e.g., switching from one
     plan to another, or changing the status from trial to active).
 
     data.object is a subscription"""
     data_obj = _get_event_object(event)
+    _maybe_suspend_on_unpaid(data_obj)
     subinfo = _make_customer_subscription_info(data_obj)
     subinfo.operation = "update"
     _register_bw_subscription(subinfo)

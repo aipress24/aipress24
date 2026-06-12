@@ -35,5 +35,10 @@
     href="{{ url_for('admin.export_route', exporter_name='mixed_org_bw') }}">
     Export mixte (Organisations + BW + Membres) </a>
 </div>
+<div>
+    - <a class="text-sm font-medium text-indigo-800 underline pl-1"
+    href="{{ url_for('admin.export_route', exporter_name='sales_ledger') }}">
+    Ventes à l'acte (transactions payées) </a>
+</div>
 
 {% endblock %}

@@ -29,15 +29,21 @@ import click
 from flask.cli import with_appcontext
 from flask_super.cli import group
 from loguru import logger
+from sqlalchemy import select
 from svcs.flask import container
 
+from app.flask.extensions import db
+from app.models.organisation import Organisation
 from app.services.emails import EmailService
+from app.services.stripe.customers import mirror_customer_to_org
 from app.services.stripe.prices import list_drifts, sync_all_prices
 from app.services.stripe.reconciliation import (
     reconcile_customers,
     reconcile_purchases,
     reconcile_subscriptions,
 )
+from app.services.stripe.retriever import retrieve_customer
+from app.services.stripe.utils import load_stripe_api_key
 
 # Resource name → drift-listing function. Single source of truth for
 # `verify <resource>` and `verify all`. Each function returns a list of
@@ -127,6 +133,29 @@ def sync_prices() -> None:
     """Re-sync every active Stripe Price into `stripe_price`."""
     n = sync_all_prices()
     click.echo(f"Synced {n} active price(s) from Stripe.")
+
+
+@sync.command("customers")
+@with_appcontext
+def sync_customers() -> None:
+    """Re-sync each bound Organisation's billing identity (email, VAT,
+    address) from its Stripe Customer. Spec: finances-02 §C."""
+    if not load_stripe_api_key():
+        click.echo("Stripe API key not configured; skipping.")
+        return
+    orgs = db.session.scalars(
+        select(Organisation).where(Organisation.stripe_customer_id.is_not(None))
+    ).all()
+    synced = 0
+    for org in orgs:
+        customer = retrieve_customer(org.stripe_customer_id, expand=["tax_ids"])
+        if customer is None or getattr(customer, "deleted", False):
+            continue
+        mirror_customer_to_org(org, customer)
+        synced += 1
+    if synced:
+        db.session.commit()
+    click.echo(f"Synced billing for {synced} organisation(s) from Stripe.")
 
 
 # ---------------------------------------------------------------------------

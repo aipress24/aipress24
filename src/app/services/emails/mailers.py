@@ -77,6 +77,28 @@ class BWRoleInvitationMail(EmailTemplate):
 
 
 @dataclass(kw_only=True)
+class BWPaymentFailedMail(EmailTemplate):
+    """
+    Dunning reminder to a BW manager when a subscription invoice payment
+    fails (finances-02 §B). The BW stays active during a grace window ;
+    this mail tells the manager to update their payment method before the
+    BW is suspended.
+
+    Args:
+        - sender (str): "contact@aipress24.com".
+        - recipient (str): BW manager's email.
+        - sender_mail (str): "contact@aipress24.com" (informative).
+        - bw_name (str): name of the Business Wall in arrears.
+        - grace_days (int): days left before suspension.
+    """
+
+    subject: str = "[Aipress24] Échec de paiement de votre abonnement Business Wall"
+    template_html: str = "bw_payment_failed.j2"
+    bw_name: str
+    grace_days: int
+
+
+@dataclass(kw_only=True)
 class BWPartnershipRevokedMail(EmailTemplate):
     """
     Notify a PR Agency owner that one of their clients has revoked the

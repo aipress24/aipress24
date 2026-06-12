@@ -63,6 +63,17 @@ class Organisation(IdMixin, LifeCycleMixin, Addressable, Base):
     # Spec: local-notes/specs/finances.md §3 (Customer = Organisation).
     stripe_customer_id: Mapped[str | None] = mapped_column(default=None)
 
+    # Local mirror of the Stripe Customer billing identity, collected by
+    # Stripe Checkout and synced back here (read-only on the app side).
+    # Spec: local-notes/specs/finances-02.md §C.
+    billing_email: Mapped[str | None] = mapped_column(default=None)
+    billing_vat_number: Mapped[str | None] = mapped_column(default=None)
+    billing_address_line1: Mapped[str | None] = mapped_column(default=None)
+    billing_address_line2: Mapped[str | None] = mapped_column(default=None)
+    billing_postal_code: Mapped[str | None] = mapped_column(default=None)
+    billing_city: Mapped[str | None] = mapped_column(default=None)
+    billing_country: Mapped[str | None] = mapped_column(default=None)
+
     members = relationship(
         User,
         primaryjoin="User.organisation_id == Organisation.id",

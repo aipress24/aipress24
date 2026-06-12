@@ -586,6 +586,18 @@ def _resolve_stripe_customer_kwargs(
     return {}
 
 
+def _add_billing_collection(checkout_kwargs: dict[str, Any]) -> None:
+    """Have Stripe Checkout collect the VAT number + billing address so the
+    Customer carries a B2B billing identity, mirrored back onto the
+    Organisation (finances-02 §C). `customer_update` is only valid when an
+    existing `customer` is reused — Stripe errors otherwise.
+    """
+    checkout_kwargs["tax_id_collection"] = {"enabled": True}
+    checkout_kwargs["billing_address_collection"] = "required"
+    if "customer" in checkout_kwargs:
+        checkout_kwargs["customer_update"] = {"address": "auto", "name": "auto"}
+
+
 def _is_idempotent_confirmation_target(
     existing: BusinessWall | None,
     *,
@@ -697,6 +709,7 @@ def checkout(bw_type: str):
     org = draft_bw.get_organisation()
     customer_id = org.stripe_customer_id if org else None
     checkout_kwargs.update(_resolve_stripe_customer_kwargs(customer_id, g.user.email))
+    _add_billing_collection(checkout_kwargs)
 
     checkout_session = stripe.checkout.Session.create(**checkout_kwargs)
     return redirect(checkout_session.url, code=303)
