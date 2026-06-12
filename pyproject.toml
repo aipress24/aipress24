@@ -211,6 +211,7 @@ dev = [
     "sqlalchemy-data-model-visualizer<1.0.0,>=0.1.3",
     "git-filter-repo>=2.47.0",
     "pytest-randomly>=4.1.0",
+    "tepyd>=0.5.0",
 ]
 
 [build-system]
@@ -430,3 +431,36 @@ bad-argument-type = "ignore"   # SQLAlchemy InstrumentedAttribute false positive
 bad-return = "ignore"
 bad-assignment = "ignore"
 missing-attribute = "ignore"
+
+# -----------------------------------------------------------------------------
+
+[tool.tepyd]
+src_root = "src/app"
+src_package = "app"
+units = ["modules/*", "*"]   # 27-unit granularity — correct for mass/cover
+
+[tool.tepyd.exclude]
+faker = "fake-data generators for seeding/tests — not production behaviour"
+"modules/tests" = "test/demo routes (views.py only), not a real feature module"
+
+[[tool.tepyd.tiers]]
+name = "a_unit"
+root = "tests/a_unit"
+label = "unit"
+target_share = 0.5   # see note — 0.6 is unrealistic for a UI-heavy app
+
+[[tool.tepyd.tiers]]
+name = "b_integration"
+root = "tests/b_integration"
+label = "integration"
+
+[[tool.tepyd.tiers]]
+name = "c_e2e"
+root = "tests/c_e2e"
+label = "http-e2e"
+
+# [[tool.tepyd.tiers]]
+# name = "e2e_playwright"
+# root = "e2e_playwright"
+# label = "browser"
+# strip_prefix = "modules/"

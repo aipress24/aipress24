@@ -346,6 +346,7 @@ dev = [
     { name = "selenium" },
     { name = "snoop" },
     { name = "sqlalchemy-data-model-visualizer" },
+    { name = "tepyd" },
     { name = "tomlkit" },
     { name = "ty" },
     { name = "typeguard" },
@@ -504,6 +505,7 @@ dev = [
     { name = "selenium" },
     { name = "snoop", specifier = ">=0.6,<1.0" },
     { name = "sqlalchemy-data-model-visualizer", specifier = ">=0.1.3,<1.0.0" },
+    { name = "tepyd", specifier = ">=0.5.0" },
     { name = "tomlkit", specifier = ">=0.13,<1.0" },
     { name = "ty", specifier = ">=0.0.0a7" },
     { name = "typeguard", specifier = ">=4.1,<5.0" },
@@ -4261,6 +4263,15 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/a3/4d/6a19536c50b849338fcbe9290d562b52cbdcf30d8963d3588a68a4107df1/tenacity-8.5.0.tar.gz", hash = "sha256:8bc6c0c8a09b31e6cad13c47afbed1a567518250a9a171418582ed8d9c20ca78", size = 47309, upload-time = "2024-07-05T07:25:31.836Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/d2/3f/8ba87d9e287b9d385a02a7114ddcef61b26f86411e121c9003eb509a1773/tenacity-8.5.0-py3-none-any.whl", hash = "sha256:b594c2a5945830c267ce6b79a166228323ed52718f30302c1359836112346687", size = 28165, upload-time = "2024-07-05T07:25:29.591Z" },
+]
+
+[[package]]
+name = "tepyd"
+version = "0.5.0"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/24/42/8edc709df3e4e9f49e190340ae007ed7402d71188c9127d2624854f37714/tepyd-0.5.0.tar.gz", hash = "sha256:81b0bc4cd47ead381b0f124ed92419f5cabc94354663d98154ad96060f1df63b", size = 46465, upload-time = "2026-06-10T17:46:29.432Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/bc/e9/014bf013112c1dee6d9c7676f7dbb4d9bad77dee7044f2cd5527b5b60ede/tepyd-0.5.0-py3-none-any.whl", hash = "sha256:9a4221420df4c3925e050450e8165d92759fd42b8c2e1f527801f73c38dbed61", size = 52920, upload-time = "2026-06-10T17:46:27.977Z" },
 ]
 
 [[package]]
