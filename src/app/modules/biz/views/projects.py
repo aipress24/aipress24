@@ -46,7 +46,7 @@ from app.modules.bw.bw_activation.user_utils import get_selected_business_wall_f
 from app.modules.kyc.dynform import CountrySelectField
 from app.modules.kyc.ontology_loader import get_choices as get_ontology_choices
 from app.modules.wip.pr_access import check_mission
-from app.services.taxonomies import get_taxonomy
+from app.services.taxonomies import get_full_taxonomy, get_taxonomy
 from app.signals import marketplace_published
 
 # Ticket #0198 — top-level project category, mirroring MissionCategory
@@ -90,9 +90,16 @@ def get_project_category_choices() -> list[tuple[str, str]]:
     Sourced from the `type_projets` taxonomy when populated, with the
     hardcoded triple as fallback. Always prefixes a blank entry so the
     select reads as optional.
+
+    Ticket #0202 — uses `get_full_taxonomy` (sort by `seq`) rather than
+    `get_taxonomy` (sort by `name`, alphabetical) so the canonical
+    business order Erick set in the admin — Journalisme(10),
+    Communication(20), Innovation(30) — actually reaches the form
+    instead of being re-sorted into alphabetical (Communication,
+    Innovation, Journalisme).
     """
     try:
-        rows = list(get_taxonomy("type_projets"))
+        rows = [name for _value, name in get_full_taxonomy("type_projets")]
     except Exception:
         rows = []
     return _build_category_choices(rows)
