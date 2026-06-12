@@ -61,9 +61,7 @@ class TestExtractFragmentByID:
         assert "HEADER" not in result
         assert "FOOTER" not in result
 
-    def test_returns_target_preserves_children(
-        self, htmx_request_context
-    ) -> None:
+    def test_returns_target_preserves_children(self, htmx_request_context) -> None:
         html = (
             "<html><body>"
             '<section id="card">'
@@ -126,11 +124,7 @@ class TestExtractFragmentBySelector:
         assert result == "<article><p>Hello</p></article>"
 
     def test_xpath_returns_first_match(self, htmx_request_context) -> None:
-        html = (
-            "<html><body>"
-            "<li>one</li><li>two</li><li>three</li>"
-            "</body></html>"
-        )
+        html = "<html><body><li>one</li><li>two</li><li>three</li></body></html>"
 
         result = extract_fragment(html, selector="//li")
 
@@ -140,9 +134,7 @@ class TestExtractFragmentBySelector:
 class TestExtractFragmentFailureFallback:
     """Cover the `except Exception: return html` fallback branch."""
 
-    def test_missing_id_returns_original_html(
-        self, htmx_request_context
-    ) -> None:
+    def test_missing_id_returns_original_html(self, htmx_request_context) -> None:
         html = "<html><body><div>no id here</div></body></html>"
 
         # No element with id="ghost" exists -> xpath result is empty list,
@@ -151,27 +143,21 @@ class TestExtractFragmentFailureFallback:
 
         assert result == html
 
-    def test_missing_selector_returns_original_html(
-        self, htmx_request_context
-    ) -> None:
+    def test_missing_selector_returns_original_html(self, htmx_request_context) -> None:
         html = "<html><body><div>content</div></body></html>"
 
         result = extract_fragment(html, selector="//section[@id='missing']")
 
         assert result == html
 
-    def test_empty_html_returns_empty_string(
-        self, htmx_request_context
-    ) -> None:
+    def test_empty_html_returns_empty_string(self, htmx_request_context) -> None:
         # Empty input: lxml.etree.fromstring raises XMLSyntaxError, which
         # is caught and the original empty string is returned.
         result = extract_fragment("", id="anything")
 
         assert result == ""
 
-    def test_malformed_xpath_returns_original(
-        self, htmx_request_context
-    ) -> None:
+    def test_malformed_xpath_returns_original(self, htmx_request_context) -> None:
         html = "<html><body><div>x</div></body></html>"
 
         # Syntactically invalid XPath raises XPathEvalError, caught by

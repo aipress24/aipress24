@@ -123,10 +123,8 @@ def _sujet_stub(
         titre=titre,
         contenu=contenu,
         brief=brief,
-        date_limite_validite=date_limite_validite
-        or datetime(2026, 12, 31, tzinfo=UTC),
-        date_parution_prevue=date_parution_prevue
-        or datetime(2026, 6, 30, tzinfo=UTC),
+        date_limite_validite=date_limite_validite or datetime(2026, 12, 31, tzinfo=UTC),
+        date_parution_prevue=date_parution_prevue or datetime(2026, 6, 30, tzinfo=UTC),
     )
 
 
@@ -178,9 +176,7 @@ class TestBuildCommandePayload:
     def test_dates_mirror_sujet(self):
         deadline = datetime(2026, 1, 31, tzinfo=UTC)
         publish = datetime(2026, 2, 15, tzinfo=UTC)
-        sujet = _sujet_stub(
-            date_limite_validite=deadline, date_parution_prevue=publish
-        )
+        sujet = _sujet_stub(date_limite_validite=deadline, date_parution_prevue=publish)
         payload = build_commande_payload(sujet, accepter_id=7)
         assert payload["date_limite_validite"] == deadline
         assert payload["date_parution_prevue"] == publish

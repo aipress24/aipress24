@@ -96,9 +96,7 @@ class TestApplyFilterPipeline:
 
     def test_single_selector_filter_applied(self) -> None:
         experts = [_expert(id=1), _expert(id=2), _expert(id=3)]
-        selector = _StubSelector(
-            "secteur", tags={"presse": {1, 3}, "media": {2}}
-        )
+        selector = _StubSelector("secteur", tags={"presse": {1, 3}, "media": {2}})
         result = apply_filter_pipeline(
             experts, state={"secteur": ["presse"]}, selectors=[selector]
         )
@@ -155,9 +153,7 @@ class TestApplyFilterPipeline:
         assert [e.id for e in result] == [3, 2, 1]
 
     def test_caps_at_max_count(self) -> None:
-        experts = [
-            _expert(id=i, last_name=f"E{i:03}") for i in range(200)
-        ]
+        experts = [_expert(id=i, last_name=f"E{i:03}") for i in range(200)]
         selector = _StubSelector("secteur", tags={"presse": set(range(200))})
         result = apply_filter_pipeline(
             experts,
@@ -193,9 +189,7 @@ class TestApplyFilterPipeline:
 class TestMergeFormStateIntoFilter:
     def test_does_not_mutate_input_state(self) -> None:
         original = {"secteur": ["presse"]}
-        result = merge_form_state_into_filter(
-            original, {}, tracked_keys={"secteur"}
-        )
+        result = merge_form_state_into_filter(original, {}, tracked_keys={"secteur"})
         # Input untouched ; result is a new dict.
         assert original == {"secteur": ["presse"]}
         assert result is not original
@@ -274,9 +268,7 @@ class TestMergeExpertSelection:
         """`selected_experts` should always be int ids — a legacy
         state where it was overwritten with strings or dicts gets
         cleaned silently."""
-        result = merge_expert_selection(
-            ["not-an-int", {"oops": True}, 42], [7]
-        )
+        result = merge_expert_selection(["not-an-int", {"oops": True}, 42], [7])
         assert sorted(result) == [7, 42]
 
     def test_existing_not_a_list_is_ignored(self) -> None:
@@ -316,9 +308,7 @@ class TestParseActionFromForm:
         """The format is `action:<name>` ; a `<name>` containing
         further colons (unlikely but) keeps everything after the
         first colon."""
-        assert (
-            parse_action_from_form(["action:bulk:confirm"]) == "bulk:confirm"
-        )
+        assert parse_action_from_form(["action:bulk:confirm"]) == "bulk:confirm"
 
 
 # ---------------------------------------------------------------------------
@@ -413,7 +403,9 @@ class TestBuildSectionsFromSelectors:
         Defensive : the UI must keep working through partial
         refactors."""
         # Only secteur + pays + fonction + metier — one per section.
-        selectors = [_StubSelector(i) for i in ("secteur", "pays", "fonction", "metier")]
+        selectors = [
+            _StubSelector(i) for i in ("secteur", "pays", "fonction", "metier")
+        ]
         sections = build_sections_from_selectors(selectors)
         assert [len(s.selectors) for s in sections] == [1, 1, 1, 1]
 
@@ -439,9 +431,7 @@ class TestComputeTrackedFormKeys:
         for the cascade UI to keep its selection across HTMX
         re-renders."""
         selectors = [
-            _StubSelector(
-                "ville", is_dual=True, parent_id="departement"
-            ),
+            _StubSelector("ville", is_dual=True, parent_id="departement"),
             _StubSelector("secteur"),
         ]
         assert compute_tracked_form_keys(selectors) == {

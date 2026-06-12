@@ -126,7 +126,9 @@ class TestNavCrumbsToLegacy:
         ],
     )
     def test_edge_values_round_trip(self, label, url, current):
-        result = nav_crumbs_to_legacy([BreadCrumb(label=label, url=url, current=current)])
+        result = nav_crumbs_to_legacy(
+            [BreadCrumb(label=label, url=url, current=current)]
+        )
         assert result[0]["name"] == label
         assert result[0]["href"] == url
         assert result[0]["current"] is current
