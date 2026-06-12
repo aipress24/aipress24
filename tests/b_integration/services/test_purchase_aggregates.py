@@ -11,6 +11,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+import arrow
 import pytest
 
 from app.models.auth import User
@@ -33,6 +34,7 @@ from app.modules.wire.services.purchase_aggregates import (
     get_user_purchase_total,
     get_user_sales_total,
     list_org_press_book,
+    list_paid_purchases,
     list_purchases_per_org,
     list_sales_per_media,
     list_user_press_book,
@@ -730,6 +732,144 @@ class TestListSalesPerMedia:
 
         result = list_sales_per_media()
         assert org.id not in {row[0] for row in result}
+
+
+class TestListPaidPurchases:
+    def test_lists_paid_only_with_flattened_fields(
+        self,
+        db_session: Session,
+        org: Organisation,
+        alice: User,
+        bob: User,
+    ):
+        """One row per PAID purchase, with buyer/media/article flattened.
+        PENDING and REFUNDED purchases are excluded."""
+        media = Organisation(name="Le Média")
+        db_session.add(media)
+        db_session.flush()
+        post = _make_post(db_session, bob)
+        post.title = "Mon article"
+        post.publisher_id = media.id
+        db_session.flush()
+
+        paid = _make_purchase(
+            db_session,
+            user=alice,
+            post=post,
+            amount_cents=1000,
+            status=PurchaseStatus.PAID,
+            product=PurchaseProduct.CESSION,
+        )
+        paid.paid_at = arrow.get("2026-06-10T10:00:00+00:00")
+        paid.currency = "EUR"
+        paid.stripe_payment_intent_id = "pi_123"
+        _make_purchase(
+            db_session,
+            user=alice,
+            post=post,
+            amount_cents=999,
+            status=PurchaseStatus.PENDING,
+        )
+        _make_purchase(
+            db_session,
+            user=alice,
+            post=post,
+            amount_cents=999,
+            status=PurchaseStatus.REFUNDED,
+        )
+        db_session.flush()
+
+        rows = list_paid_purchases()
+
+        assert len(rows) == 1
+        row = rows[0]
+        assert row.purchase_id == paid.id
+        assert row.product_type == "cession"
+        assert row.amount_cents == 1000
+        assert row.currency == "EUR"
+        assert row.buyer_email == "alice@acme.example"
+        assert row.buyer_org_name == "ACME Inc."
+        assert row.media_org_name == "Le Média"
+        assert row.article_id == post.id
+        assert row.article_title == "Mon article"
+        assert row.stripe_payment_intent_id == "pi_123"
+
+    def test_orders_by_paid_at_desc(self, db_session: Session, alice: User, bob: User):
+        post = _make_post(db_session, bob)
+        older = _make_purchase(
+            db_session,
+            user=alice,
+            post=post,
+            amount_cents=100,
+            status=PurchaseStatus.PAID,
+        )
+        older.paid_at = arrow.get("2026-06-01T00:00:00+00:00")
+        newer = _make_purchase(
+            db_session,
+            user=alice,
+            post=post,
+            amount_cents=200,
+            status=PurchaseStatus.PAID,
+        )
+        newer.paid_at = arrow.get("2026-06-09T00:00:00+00:00")
+        db_session.flush()
+
+        rows = list_paid_purchases()
+        assert [r.purchase_id for r in rows] == [newer.id, older.id]
+
+    def test_since_until_filter_on_paid_at(
+        self, db_session: Session, alice: User, bob: User
+    ):
+        post = _make_post(db_session, bob)
+        p_may = _make_purchase(
+            db_session,
+            user=alice,
+            post=post,
+            amount_cents=1,
+            status=PurchaseStatus.PAID,
+        )
+        p_may.paid_at = arrow.get("2026-05-15T00:00:00+00:00")
+        p_jun = _make_purchase(
+            db_session,
+            user=alice,
+            post=post,
+            amount_cents=1,
+            status=PurchaseStatus.PAID,
+        )
+        p_jun.paid_at = arrow.get("2026-06-15T00:00:00+00:00")
+        db_session.flush()
+
+        rows = list_paid_purchases(
+            since=arrow.get("2026-06-01T00:00:00+00:00"),
+            until=arrow.get("2026-06-30T00:00:00+00:00"),
+        )
+        assert [r.purchase_id for r in rows] == [p_jun.id]
+
+    def test_blank_names_when_no_org_or_publisher(self, db_session: Session):
+        """Buyer with no organisation, article with no publisher → the
+        name columns are empty strings, not a crash."""
+        loner = User(email="loner@example.com", active=True)
+        db_session.add(loner)
+        db_session.flush()
+        post = _make_post(db_session, loner)  # publisher_id stays None
+        paid = _make_purchase(
+            db_session,
+            user=loner,
+            post=post,
+            amount_cents=500,
+            status=PurchaseStatus.PAID,
+        )
+        paid.paid_at = arrow.get("2026-06-10T00:00:00+00:00")
+        db_session.flush()
+
+        rows = list_paid_purchases()
+        assert len(rows) == 1
+        assert rows[0].buyer_org_name == ""
+        assert rows[0].media_org_name == ""
+        assert rows[0].buyer_email == "loner@example.com"
+
+    def test_empty_when_no_paid_purchases(self, db_session: Session):
+        assert list_paid_purchases() == []
 
 
 class TestListPurchasesPerOrg:

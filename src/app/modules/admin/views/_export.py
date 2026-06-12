@@ -25,6 +25,10 @@ from app.models.auth import KYCProfile, User
 from app.models.organisation import Organisation
 from app.modules.admin import blueprint
 from app.modules.bw.bw_activation.models.business_wall import BusinessWall
+from app.modules.wire.services.purchase_aggregates import (
+    PaidPurchaseRow,
+    list_paid_purchases,
+)
 
 LOCALTZ = pytz.timezone(LOCAL_TZ)
 
@@ -877,6 +881,114 @@ class BusinessWallExporter(BaseExporter):
         super().make_sheet()
 
 
+class SalesLedgerExporter(BaseExporter):
+    """Export every PAID article purchase as a flat transaction ledger.
+
+    Matière première pour le calcul FPI et les virements aux médias, faits
+    hors application (cf. `specs/finances-02.md` §A). One row per purchase,
+    amounts in € HT.
+    """
+
+    sheet_name = "Ventes à l'acte"
+    columns: ClassVar[list] = [
+        "paid_at",
+        "product_type",
+        "amount_ht_eur",
+        "currency",
+        "buyer_email",
+        "buyer_org_name",
+        "media_org_name",
+        "article_id",
+        "article_title",
+        "stripe_payment_intent_id",
+    ]
+
+    _PRODUCT_LABELS: ClassVar[dict[str, str]] = {
+        "consultation": "Consultation",
+        "consultation_gift": "Consultation (cadeau)",
+        "justificatif": "Justificatif",
+        "cession": "Cession de droits",
+    }
+
+    @property
+    def title(self) -> str:
+        assert self.date_now is not None
+        dt = self.date_now.strftime("%d/%m/%Y")
+        return f"Ventes à l'acte (transactions payées) à la date: {dt}"
+
+    @property
+    def filename(self) -> str:
+        assert self.date_now is not None
+        return f"ventes_a_l_acte_{self.date_now.strftime('%Y-%m-%d')}.ods"
+
+    def init_columns_definition(self) -> None:
+        text3 = self.WIDTH_TEXT3
+        text4 = self.WIDTH_TEXT4
+        text6 = self.WIDTH_TEXT6
+        text8 = self.WIDTH_TEXT8
+        fields = [
+            FieldColumn("paid_at", "Date paiement", text4),
+            FieldColumn("product_type", "Produit", text4),
+            FieldColumn("amount_ht_eur", "Montant HT (€)", text3),
+            FieldColumn("currency", "Devise", self.WIDTH_SHORT),
+            FieldColumn("buyer_email", "Acheteur", text6),
+            FieldColumn("buyer_org_name", "Org. acheteuse", text6),
+            FieldColumn("media_org_name", "Média vendeur", text6),
+            FieldColumn("article_id", "Article ID", text3),
+            FieldColumn("article_title", "Article", text8),
+            FieldColumn("stripe_payment_intent_id", "Stripe PI", text6),
+        ]
+        self.columns_definition = {f.name: f for f in fields}
+
+    def cell_value(
+        self,
+        row: PaidPurchaseRow,
+        name: str,
+    ) -> str | datetime | int | float | None:
+        match name:
+            case "paid_at":
+                if row.paid_at is None:
+                    return ""
+                dt = getattr(row.paid_at, "datetime", row.paid_at)
+                return as_naive_localtz(dt)
+            case "product_type":
+                return self._PRODUCT_LABELS.get(row.product_type, row.product_type)
+            case "amount_ht_eur":
+                return row.amount_cents / 100
+            case "currency":
+                return row.currency
+            case "buyer_email":
+                return row.buyer_email
+            case "buyer_org_name":
+                return row.buyer_org_name
+            case "media_org_name":
+                return row.media_org_name
+            case "article_id":
+                return str(row.article_id)
+            case "article_title":
+                return row.article_title
+            case "stripe_payment_intent_id":
+                return row.stripe_payment_intent_id
+            case _:
+                msg = f"cell_value() Inconsistent key: {name}"
+                raise KeyError(msg)
+
+    def fetch_data(self) -> list[PaidPurchaseRow]:
+        return list_paid_purchases()
+
+    def purchase_row(self, row: PaidPurchaseRow) -> dict[str, Any]:
+        cells = [self.cell_value(row, name) for name in self.columns]
+        return {"row": cells, "style": "default_table_row"}
+
+    def do_content_lines(self) -> None:
+        for row in self.fetch_data():
+            self.sheet["table"].append(self.purchase_row(row))
+
+    def make_sheet(self) -> None:
+        self.date_now = datetime.now(tz=ZoneInfo(LOCAL_TZ))
+        super().make_sheet()
+
+
 class MixedBWOrgExporter(BaseExporter):
     """Export a 3-tab ODS: Organisations, Business Walls, Members.
 
@@ -1009,6 +1121,7 @@ EXPORTERS = {
     "organisations": OrganisationsExporter,
     "business_walls": BusinessWallExporter,
     "mixed_org_bw": MixedBWOrgExporter,
+    "sales_ledger": SalesLedgerExporter,
 }
 
 

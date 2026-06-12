@@ -17,16 +17,17 @@ move the row to `REFUNDED` and stop contributing.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, NamedTuple
 
 from sqlalchemy import func, select
+from sqlalchemy.orm import aliased
 
 from app.flask.extensions import db
 from app.models.auth import User
 from app.modules.wire.models import ArticlePurchase, PurchaseStatus
 
 if TYPE_CHECKING:
-    pass
+    from datetime import datetime
 
 
 def get_user_purchase_total(user_id: int | None) -> int:
@@ -412,3 +413,81 @@ def get_media_sales_total(media_org_id: int | None) -> int:
         .where(ArticlePurchase.status == PurchaseStatus.PAID)
     )
     return int(db.session.scalar(stmt) or 0)
+
+
+class PaidPurchaseRow(NamedTuple):
+    """One PAID `ArticlePurchase`, flattened for the admin sales-ledger
+    export. Amounts are in cents HT. Org names default to "" when the
+    buyer has no organisation or the article has no publisher."""
+
+    purchase_id: int
+    paid_at: datetime | None
+    product_type: str
+    amount_cents: int
+    currency: str
+    buyer_email: str
+    buyer_org_name: str
+    media_org_name: str
+    article_id: int
+    article_title: str
+    stripe_payment_intent_id: str
+
+
+def list_paid_purchases(
+    since: datetime | None = None, until: datetime | None = None
+) -> list[PaidPurchaseRow]:
+    """Return every PAID purchase as a flat ledger row, most recent first.
+
+    This is the raw material for the admin sales-ledger export (matière
+    première FPI, cf. `specs/finances-02.md` §A). One row per purchase —
+    not aggregated. Optional `since`/`until` filter on `paid_at`.
+    """
+    from app.models.organisation import Organisation
+    from app.modules.wire.models import Post
+
+    buyer_org = aliased(Organisation)
+    media_org = aliased(Organisation)
+
+    stmt = (
+        select(
+            ArticlePurchase.id,
+            ArticlePurchase.paid_at,
+            ArticlePurchase.product_type,
+            func.coalesce(ArticlePurchase.amount_cents, 0).label("amount_cents"),
+            ArticlePurchase.currency,
+            ArticlePurchase.stripe_payment_intent_id,
+            User.email,
+            buyer_org.name.label("buyer_org_name"),
+            media_org.name.label("media_org_name"),
+            Post.id.label("article_id"),
+            Post.title,
+        )
+        .select_from(ArticlePurchase)
+        .join(User, ArticlePurchase.owner_id == User.id)
+        .join(Post, ArticlePurchase.post_id == Post.id)
+        .outerjoin(buyer_org, User.organisation_id == buyer_org.id)
+        .outerjoin(media_org, Post.publisher_id == media_org.id)
+        .where(ArticlePurchase.status == PurchaseStatus.PAID)
+        .order_by(ArticlePurchase.paid_at.desc(), ArticlePurchase.id.desc())
+    )
+    if since is not None:
+        stmt = stmt.where(ArticlePurchase.paid_at >= since)
+    if until is not None:
+        stmt = stmt.where(ArticlePurchase.paid_at <= until)
+
+    return [
+        PaidPurchaseRow(
+            purchase_id=row.id,
+            paid_at=row.paid_at,
+            product_type=str(row.product_type),
+            amount_cents=int(row.amount_cents or 0),
+            currency=row.currency or "EUR",
+            buyer_email=row.email or "",
+            buyer_org_name=row.buyer_org_name or "",
+            media_org_name=row.media_org_name or "",
+            article_id=row.article_id,
+            article_title=row.title or "",
+            stripe_payment_intent_id=row.stripe_payment_intent_id or "",
+        )
+        for row in db.session.execute(stmt)
+    ]

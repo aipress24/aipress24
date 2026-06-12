@@ -87,6 +87,10 @@ class Subscription(UUIDAuditBase):
     started_at: Mapped[datetime | None] = mapped_column(nullable=True)
     expires_at: Mapped[datetime | None] = mapped_column(nullable=True)
     cancelled_at: Mapped[datetime | None] = mapped_column(nullable=True)
+    # Set when an invoice payment first fails (status → PAST_DUE). Drives the
+    # grace window before the BW is suspended. Cleared on payment success.
+    # Spec: local-notes/specs/finances-02.md §B.
+    past_due_since: Mapped[datetime | None] = mapped_column(nullable=True, default=None)
 
     # Billing address (stored as JSON-compatible fields)
     billing_first_name: Mapped[str] = mapped_column(String, default="")
