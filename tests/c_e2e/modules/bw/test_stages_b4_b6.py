@@ -174,6 +174,38 @@ class TestStageB6ContentRoutes:
             "(rendu deux fois = écrasement au POST, cf. bug #0099)"
         )
 
+    def test_configure_content_shows_billing_when_present(
+        self,
+        authenticated_owner_client: FlaskClient,
+        test_org: Organisation,
+        db_session: Session,
+    ) -> None:
+        """The billing identity mirrored from Stripe (finances-02 §C) is
+        shown read-only in the configure-content page."""
+        test_org.billing_email = "compta@press.example"
+        test_org.billing_vat_number = "FR12345678901"
+        test_org.billing_address_line1 = "1 rue de la Presse"
+        test_org.billing_city = "Paris"
+        test_org.billing_country = "FR"
+        db_session.commit()
+
+        response = authenticated_owner_client.get("/BW/configure-content")
+        assert response.status_code == 200
+        body = response.data.decode()
+        assert "Coordonnées de facturation" in body
+        assert "compta@press.example" in body
+        assert "FR12345678901" in body
+        assert "Paris" in body
+
+    def test_configure_content_hides_billing_when_absent(
+        self,
+        authenticated_owner_client: FlaskClient,
+    ) -> None:
+        """No mirrored billing data → the block is not rendered."""
+        response = authenticated_owner_client.get("/BW/configure-content")
+        assert response.status_code == 200
+        assert "Coordonnées de facturation" not in response.data.decode()
+
     def test_configure_content_post_syncs_name_and_bw_name(
         self,
         authenticated_owner_client: FlaskClient,
