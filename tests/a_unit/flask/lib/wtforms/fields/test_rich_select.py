@@ -45,8 +45,11 @@ class TestRichSelectFieldChoices:
         assert _LanguageForm().lang.key == "language"
 
     def test_distinct_keys_give_distinct_vocabularies(self) -> None:
-        langs = {v for v, _ in _LanguageForm().lang.choices}
-        mentions = {v for v, _ in _CopyrightForm().mention.choices}
+        lang_choices = _LanguageForm().lang.choices
+        mention_choices = _CopyrightForm().mention.choices
+        assert lang_choices and mention_choices  # Narrow away the None
+        langs = {v for v, _ in lang_choices}
+        mentions = {v for v, _ in mention_choices}
         # The two vocabularies have nothing in common — sanity-check
         # that the `key` lookup actually routes per field.
         assert langs.isdisjoint(mentions)
