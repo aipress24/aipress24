@@ -189,9 +189,9 @@ ADMIN_MENU = [
         "icon": "shopping-cart",
     },
     {
-        "label": "Test achat",
-        "endpoint": "admin.test_achat",
-        "icon": "credit-card",
+        "label": "Debug achats",
+        "endpoint": "admin.debug_achats",
+        "icon": "shopping-bag",
     },
     {
         "label": "Export DB",

@@ -239,6 +239,8 @@ def _create_bw_record(session: MutableMapping, *, want_free: bool) -> bool:
     if org:
         org.bw_active = business_wall.bw_type
         org.bw_id = business_wall.id
+        # Keep org.bw_name in sync with the BW name.
+        org.bw_name = business_wall.name or org.name or ""
 
     # commit do not happen in the utility fonction
     return True
