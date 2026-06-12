@@ -506,6 +506,8 @@ def _activate_bw_from_checkout(
         if org:
             org.bw_id = bw.id
             org.bw_active = bw.bw_type
+            # Sync the BW display name.
+            org.bw_name = bw.name or org.bw_name or org.name or ""
 
     bw.status = BWStatus.ACTIVE.value
     info(
