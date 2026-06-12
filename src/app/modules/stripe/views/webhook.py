@@ -699,15 +699,86 @@ def _get_bw_type_from_product(product: stripe.Product) -> str:
     return str(BWType.MEDIA.value)
 
 
+def extract_subscription_plan(data_obj: Any) -> Any:
+    """Pull the `plan` dict out of a Stripe `subscription` payload.
+
+    Stripe sends `plan` at the top level on legacy payloads, and nests
+    it inside `items.data[0].plan` on newer ones. The fallback makes
+    `_check_subscription_product` work with both shapes.
+
+    Pure : returns the dict (or None) without touching any I/O.
+    """
+    plan = data_obj.get("plan") if hasattr(data_obj, "get") else None
+    if plan:
+        return plan
+    items_container = data_obj.get("items", {}) if hasattr(data_obj, "get") else {}
+    items = items_container.get("data", []) if hasattr(items_container, "get") else []
+    if items:
+        first = items[0]
+        return first.get("plan") if hasattr(first, "get") else None
+    return None
+
+
+def extract_subscription_period(
+    data_obj: Any,
+) -> tuple[int | None, int | None]:
+    """Pull `(current_period_start, current_period_end)` out of a
+    Stripe `subscription` payload.
+
+    Same dual-shape rule as the plan : top-level first, then fall
+    back to `items[0]`. Returns `(0, 0)` when the fallback fires but
+    the items dict still lacks the keys — matches the legacy
+    behaviour the orchestrator relies on (the `_make_customer_subscription_info`
+    path doesn't tolerate None there).
+
+    Pure.
+    """
+    start = data_obj.get("current_period_start") if hasattr(data_obj, "get") else None
+    end = data_obj.get("current_period_end") if hasattr(data_obj, "get") else None
+    if start is not None and end is not None:
+        return start, end
+
+    items_container = data_obj.get("items", {}) if hasattr(data_obj, "get") else {}
+    items = items_container.get("data", []) if hasattr(items_container, "get") else []
+    if items:
+        first = items[0]
+        if hasattr(first, "get"):
+            return first.get("current_period_start", 0), first.get(
+                "current_period_end", 0
+            )
+    return start, end
+
+
+def should_apply_subscription_to_org(
+    user_org_id: Any, client_reference_id: Any
+) -> bool:
+    """Decide whether a Stripe subscription event should be allowed
+    to mutate the user's organisation. Pure security check.
+
+    A subscription event carries a `metadata.bw_id` (read into
+    `subinfo.client_reference_id` upstream) that names the BW the
+    Stripe object was created for. Before we let `_register_bw_subscription`
+    apply the event to the *current* user's org, this rule asserts the
+    org id matches. Without the match, a malicious or misconfigured
+    subscription event could mutate an unrelated org's `bw_active`
+    flag.
+
+    Returns True iff :
+
+    * `client_reference_id` is falsy (legacy event with no metadata —
+      always allowed), OR
+    * the string forms of `user_org_id` and `client_reference_id`
+      compare equal.
+    """
+    if not client_reference_id:
+        return True
+    return str(user_org_id) == str(client_reference_id)
+
+
 def _check_subscription_product(
     data_obj: dict[str, Any], subinfo: SubscriptionInfo
 ) -> bool:
-    plan = data_obj.get("plan")
-    if not plan:
-        # Fallback to first item if top-level plan is missing
-        items = data_obj.get("items", {}).get("data", [])
-        if items:
-            plan = items[0].get("plan")
+    plan = extract_subscription_plan(data_obj)
 
     if not plan:
         warning(f"no plan found in Stripe subscription {subinfo.subscription_id}")
@@ -766,15 +837,9 @@ def _make_customer_subscription_info(
     # data_obj is a stripe.Subscription
     subinfo.created = data_obj.get("created", 0)
 
-    # Try top-level first, then items[0]
-    subinfo.current_period_start = data_obj.get("current_period_start")
-    subinfo.current_period_end = data_obj.get("current_period_end")
-
-    if subinfo.current_period_start is None or subinfo.current_period_end is None:
-        items = data_obj.get("items", {}).get("data", [])
-        if items:
-            subinfo.current_period_start = items[0].get("current_period_start", 0)
-            subinfo.current_period_end = items[0].get("current_period_end", 0)
+    subinfo.current_period_start, subinfo.current_period_end = (
+        extract_subscription_period(data_obj)
+    )
 
     subinfo.quantity = data_obj.get("quantity", 1)
     # On status:
@@ -848,7 +913,7 @@ def _register_bw_subscription(subinfo: SubscriptionInfo | None) -> None:
         warning(f"{user} has no organisation")
         return
 
-    if subinfo.client_reference_id and str(org.id) != str(subinfo.client_reference_id):
+    if not should_apply_subscription_to_org(org.id, subinfo.client_reference_id):
         warning(f"{user} organisation ID is different from client_reference_id")
         return
 
