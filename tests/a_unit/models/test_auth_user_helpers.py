@@ -184,9 +184,7 @@ class TestMetiersAndTousMetiers:
         )
         assert user.metiers == ["A", "B"]
 
-    def test_tous_metiers_unions_principal_and_autres(
-        self, db: SQLAlchemy
-    ) -> None:
+    def test_tous_metiers_unions_principal_and_autres(self, db: SQLAlchemy) -> None:
         user = _make_user()
         user.profile = _make_profile(
             info_personnelle={
@@ -263,9 +261,7 @@ class TestAddAndRemoveRole:
         assert user.add_role(role) is True
         assert role in user.roles
 
-    def test_add_role_returns_false_when_already_present(
-        self, db: SQLAlchemy
-    ) -> None:
+    def test_add_role_returns_false_when_already_present(self, db: SQLAlchemy) -> None:
         user = _make_user()
         role = Role(name="MANAGER", description="m")
         user.roles = [role]
@@ -299,9 +295,7 @@ class TestAddAndRemoveRole:
         with pytest.raises(ValueError):
             user.remove_role(123)  # type: ignore[arg-type]
 
-    def test_remove_role_handles_inmemory_duplicates(
-        self, db: SQLAlchemy
-    ) -> None:
+    def test_remove_role_handles_inmemory_duplicates(self, db: SQLAlchemy) -> None:
         """Pre-2f7d18cf: ``list.remove() + break`` left a lingering
         duplicate. The current implementation rebuilds the list so all
         matches go in one pass.
@@ -359,9 +353,7 @@ class TestFirstCommunity:
             RoleEnum.ACADEMIC,
         ],
     )
-    def test_single_community_role(
-        self, db: SQLAlchemy, role_enum: RoleEnum
-    ) -> None:
+    def test_single_community_role(self, db: SQLAlchemy, role_enum: RoleEnum) -> None:
         user = _make_user()
         user.roles = [Role(name=role_enum.name, description="")]
         assert user.first_community() == role_enum
@@ -385,17 +377,13 @@ class TestFirstCommunity:
 class TestCurrentSelectedBwId:
     """The BW the user is acting on — falls back to their own org's BW."""
 
-    def test_returns_none_when_no_selection_and_no_org(
-        self, db: SQLAlchemy
-    ) -> None:
+    def test_returns_none_when_no_selection_and_no_org(self, db: SQLAlchemy) -> None:
         user = _make_user()
         user.selected_bw_id = None
         # No org assigned.
         assert user.current_selected_bw_id is None
 
-    def test_returns_own_org_bw_when_no_selection(
-        self, db: SQLAlchemy
-    ) -> None:
+    def test_returns_own_org_bw_when_no_selection(self, db: SQLAlchemy) -> None:
         own = uuid.uuid4()
         user = _make_user()
         user.selected_bw_id = None
@@ -432,9 +420,7 @@ class TestIsManagingAnotherBw:
         user.organisation = Organisation(name="own", bw_id=own)
         assert user.is_managing_another_bw is False
 
-    def test_true_when_selection_differs_from_own(
-        self, db: SQLAlchemy
-    ) -> None:
+    def test_true_when_selection_differs_from_own(self, db: SQLAlchemy) -> None:
         user = _make_user()
         user.selected_bw_id = uuid.uuid4()
         user.organisation = Organisation(name="own", bw_id=uuid.uuid4())
@@ -486,9 +472,7 @@ class TestKYCProfileListAccessors:
     def test_metiers_autres_empty_default(self, db: SQLAlchemy) -> None:
         assert _make_profile().metiers_autres == []
 
-    def test_secteurs_activite_concatenates_three_lists(
-        self, db: SQLAlchemy
-    ) -> None:
+    def test_secteurs_activite_concatenates_three_lists(self, db: SQLAlchemy) -> None:
         profile = _make_profile(
             info_professionnelle={
                 "secteurs_activite_medias_detail": ["m1"],
@@ -501,9 +485,7 @@ class TestKYCProfileListAccessors:
     def test_secteurs_activite_empty_default(self, db: SQLAlchemy) -> None:
         assert _make_profile().secteurs_activite == []
 
-    def test_toutes_fonctions_concatenates_four_lists(
-        self, db: SQLAlchemy
-    ) -> None:
+    def test_toutes_fonctions_concatenates_four_lists(self, db: SQLAlchemy) -> None:
         profile = _make_profile(
             match_making={
                 "fonctions_journalisme": ["j"],
@@ -718,9 +700,7 @@ class TestKYCProfileContactDetails:
     ``show_contact_details`` JSON, and ``parse_form_contact_details``
     reverses the operation. They're pure dict transforms."""
 
-    def test_all_contact_details_unchecked_by_default(
-        self, db: SQLAlchemy
-    ) -> None:
+    def test_all_contact_details_unchecked_by_default(self, db: SQLAlchemy) -> None:
         profile = _make_profile()
         data = profile.all_contact_details()
         # Every ContactTypeEnum value must appear as a key.
@@ -732,9 +712,7 @@ class TestKYCProfileContactDetails:
             assert entry["mobile"] == ""
             assert entry["email"] == ""
 
-    def test_all_contact_details_reflects_checked(
-        self, db: SQLAlchemy
-    ) -> None:
+    def test_all_contact_details_reflects_checked(self, db: SQLAlchemy) -> None:
         first = next(iter(ContactTypeEnum))
         profile = _make_profile(
             show_contact_details={
@@ -746,9 +724,7 @@ class TestKYCProfileContactDetails:
         assert data[first.name]["mobile"] == "checked"
         assert data[first.name]["email"] == "checked"
 
-    def test_parse_form_contact_details_round_trip(
-        self, db: SQLAlchemy
-    ) -> None:
+    def test_parse_form_contact_details_round_trip(self, db: SQLAlchemy) -> None:
         first = next(iter(ContactTypeEnum))
         profile = _make_profile()
         form = {f"mobile_{first.name}": "on"}

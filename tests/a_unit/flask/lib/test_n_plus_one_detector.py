@@ -91,7 +91,7 @@ class TestIsEnabled:
     @pytest.mark.parametrize(
         ("enabled", "debug", "expected"),
         [
-            (None, True, True),   # follow debug
+            (None, True, True),  # follow debug
             (None, False, False),  # follow debug
             (True, False, True),  # explicit override (production)
             (True, True, True),
@@ -210,13 +210,9 @@ class TestRequestBoundAccessors:
         with app.test_request_context("/"):
             g._query_tracker = QueryTracker()
             for i in range(4):
-                g._query_tracker.add_query(
-                    f"SELECT * FROM users WHERE id = {i}", None
-                )
+                g._query_tracker.add_query(f"SELECT * FROM users WHERE id = {i}", None)
             # Unrelated single query forms a different pattern
-            g._query_tracker.add_query(
-                "SELECT * FROM posts WHERE id = 1", None
-            )
+            g._query_tracker.add_query("SELECT * FROM posts WHERE id = 1", None)
 
             assert get_tracker() is g._query_tracker
             assert get_query_count() == 5
@@ -290,9 +286,7 @@ class TestCheckNPlusOne:
         with app.test_request_context("/"):
             g._query_tracker = QueryTracker()
             for i in range(5):
-                g._query_tracker.add_query(
-                    f"SELECT * FROM users WHERE id = {i}", None
-                )
+                g._query_tracker.add_query(f"SELECT * FROM users WHERE id = {i}", None)
             with pytest.raises(NPlusOneDetectedError) as exc_info:
                 _check_n_plus_one(app, object())
 

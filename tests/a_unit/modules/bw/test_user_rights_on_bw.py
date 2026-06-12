@@ -65,9 +65,7 @@ def _assignment(
 
 
 def _permission(*, permission_type: str, is_granted: bool = True) -> SimpleNamespace:
-    return SimpleNamespace(
-        permission_type=permission_type, is_granted=is_granted
-    )
+    return SimpleNamespace(permission_type=permission_type, is_granted=is_granted)
 
 
 # ---------------------------------------------------------------------------
@@ -104,9 +102,7 @@ class TestAcceptedRoles:
         user = _user(id=7)
         bw = _bw(
             owner_id=None,
-            role_assignments=[
-                _assignment(user_id=7, role_type=BWRoleType.BWMI.value)
-            ],
+            role_assignments=[_assignment(user_id=7, role_type=BWRoleType.BWMI.value)],
         )
         rights = get_user_rights_on_bw(user, bw)
         assert "Rôle : Business Wall Manager (internal)" in rights
@@ -372,10 +368,6 @@ class TestEmptyAndEdgeCases:
         post_owner = rights[1:]
         assert post_owner[0].startswith("Rôle :")
         # Mission lines come after the role line.
-        mission_indices = [
-            i for i, r in enumerate(rights) if r.startswith("Mission :")
-        ]
-        role_indices = [
-            i for i, r in enumerate(rights) if r.startswith("Rôle :")
-        ]
+        mission_indices = [i for i, r in enumerate(rights) if r.startswith("Mission :")]
+        role_indices = [i for i, r in enumerate(rights) if r.startswith("Rôle :")]
         assert min(role_indices) < min(mission_indices)

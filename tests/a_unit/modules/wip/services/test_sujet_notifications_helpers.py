@@ -116,9 +116,7 @@ class TestPickBwOwnerEmail:
         assert _pick_bw_owner_email(_orphan_org()) == ""
 
     def test_returns_owner_email_when_found(self):
-        org = _orphan_org(
-            members=[_stub_member(active=True, email="boss@lemonde.fr")]
-        )
+        org = _orphan_org(members=[_stub_member(active=True, email="boss@lemonde.fr")])
         assert _pick_bw_owner_email(org) == "boss@lemonde.fr"
 
     def test_returns_empty_when_only_inactive_members(self):

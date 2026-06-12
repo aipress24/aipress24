@@ -204,9 +204,7 @@ class TestResolveEntry:
     ) -> None:
         spec = {"label": "X", "endpoint": endpoint}
         resolver = fixed_url_resolver({"named.endpoint": "/resolved/"})
-        entry = _resolve_entry(
-            spec, path="/", user=FakeUser(), url_resolver=resolver
-        )
+        entry = _resolve_entry(spec, path="/", user=FakeUser(), url_resolver=resolver)
         assert entry is not None
         assert entry["url"] == expected_url
 

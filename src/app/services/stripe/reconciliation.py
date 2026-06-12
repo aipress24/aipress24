@@ -232,9 +232,7 @@ def reconcile_customers(
     for org in session.execute(stmt).scalars():
         customer_id = org.stripe_customer_id or ""
         customer = client.retrieve_customer(customer_id)
-        drift = detect_customer_drift(
-            customer_id=customer_id, stripe_customer=customer
-        )
+        drift = detect_customer_drift(customer_id=customer_id, stripe_customer=customer)
         if drift is not None:
             drifts.append(drift)
 

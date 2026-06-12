@@ -49,9 +49,7 @@ class TestSimpleRichSelectGetChoicesForJs:
 
     def test_string_values_round_trip(self) -> None:
         class _F(Form):
-            opt = SimpleRichSelectField(
-                choices=[("yes", "Yes"), ("no", "No")]
-            )
+            opt = SimpleRichSelectField(choices=[("yes", "Yes"), ("no", "No")])
 
         assert _F().opt.get_choices_for_js() == [
             ["yes", "Yes"],

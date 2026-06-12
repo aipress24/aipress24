@@ -235,16 +235,12 @@ class TestTemplateResponse:
             resp = TemplateResponse({}, "x")
         assert resp.context == {"json_data": {}}
 
-    def test_unknown_template_type_raises_value_error(
-        self, flask_app: Flask
-    ) -> None:
+    def test_unknown_template_type_raises_value_error(self, flask_app: Flask) -> None:
         with flask_app.app_context():
             with pytest.raises(ValueError):
                 TemplateResponse({}, template=12345)  # type: ignore[arg-type]
 
-    def test_method_enrich_context_uses_module_function(
-        self, flask_app: Flask
-    ) -> None:
+    def test_method_enrich_context_uses_module_function(self, flask_app: Flask) -> None:
         # The bound method `enrich_context` should delegate to the
         # module-level `enrich_context` and accept the same DI kwargs.
         with flask_app.app_context():
@@ -267,9 +263,7 @@ class TestTemplatedDecorator:
     """`templated` wraps a view function; if the view already returns a
     `Response`, that response should pass through untouched."""
 
-    def test_passthrough_when_view_returns_response(
-        self, flask_app: Flask
-    ) -> None:
+    def test_passthrough_when_view_returns_response(self, flask_app: Flask) -> None:
         sentinel = Response("already-rendered", status=201)
 
         @templated("ignored")
@@ -281,9 +275,7 @@ class TestTemplatedDecorator:
         assert result is sentinel
         assert result.status_code == 201
 
-    def test_wraps_dict_into_template_response(
-        self, flask_app: Flask
-    ) -> None:
+    def test_wraps_dict_into_template_response(self, flask_app: Flask) -> None:
         @templated("Hi {{ name }}!")
         def view():
             return {"name": "claude"}
@@ -293,9 +285,7 @@ class TestTemplatedDecorator:
         assert isinstance(result, TemplateResponse)
         assert result.get_data(as_text=True) == "Hi claude!"
 
-    def test_wrapper_forwards_args_and_kwargs(
-        self, flask_app: Flask
-    ) -> None:
+    def test_wrapper_forwards_args_and_kwargs(self, flask_app: Flask) -> None:
         @templated("{{ x }}-{{ y }}")
         def view(x, *, y):
             return {"x": x, "y": y}

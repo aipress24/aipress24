@@ -327,18 +327,14 @@ class TestReconcileSubscriptions:
 class TestReconcileCustomers:
     def test_known_customer_yields_no_drift(self, db_session: Session) -> None:
         _make_org(db_session, stripe_customer_id="cus_aligned")
-        fake = FakeStripeClient(
-            customers={"cus_aligned": stripe_obj(deleted=False)}
-        )
+        fake = FakeStripeClient(customers={"cus_aligned": stripe_obj(deleted=False)})
         assert reconcile_customers(client=fake) == []
 
     def test_missing_customer_yields_not_found(self, db_session: Session) -> None:
         _make_org(db_session, stripe_customer_id="cus_ghost")
         fake = FakeStripeClient(customers={})  # nothing matches
         drifts = reconcile_customers(client=fake)
-        assert drifts == [
-            CustomerDrift(customer_id="cus_ghost", issue="not_found")
-        ]
+        assert drifts == [CustomerDrift(customer_id="cus_ghost", issue="not_found")]
 
     def test_deleted_customer_is_reported(self, db_session: Session) -> None:
         """Stripe soft-delete pattern : the row comes back with
@@ -346,9 +342,7 @@ class TestReconcileCustomers:
         an operator knows the customer was killed upstream rather
         than never existed."""
         _make_org(db_session, stripe_customer_id="cus_dead")
-        fake = FakeStripeClient(
-            customers={"cus_dead": stripe_obj(deleted=True)}
-        )
+        fake = FakeStripeClient(customers={"cus_dead": stripe_obj(deleted=True)})
         drifts = reconcile_customers(client=fake)
         assert drifts == [CustomerDrift(customer_id="cus_dead", issue="deleted")]
 
@@ -445,9 +439,7 @@ class TestReconcilePurchases:
             stripe_checkout_session_id="cs_local_paid_stripe_no",
         )
         fake = FakeStripeClient(
-            sessions={
-                "cs_local_paid_stripe_no": stripe_obj(payment_status="unpaid")
-            }
+            sessions={"cs_local_paid_stripe_no": stripe_obj(payment_status="unpaid")}
         )
         drifts = reconcile_purchases(client=fake)
 

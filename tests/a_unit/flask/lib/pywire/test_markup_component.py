@@ -121,9 +121,7 @@ class TestMarkupComponentLegacyRegistry:
         assert isinstance(result, Markup)
         assert "args=()" in result
 
-    def test_exception_during_render_returns_markup_error(
-        self, fresh_registry
-    ) -> None:
+    def test_exception_during_render_returns_markup_error(self, fresh_registry) -> None:
         """A failing component must not propagate the exception (would
         500 the whole Jinja render). The fallback returns Markup with
         the exception message — visible but not load-bearing on the

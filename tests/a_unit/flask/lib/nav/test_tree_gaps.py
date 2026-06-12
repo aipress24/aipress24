@@ -160,9 +160,7 @@ class TestIsVisibleTo:
             url_rule="/y/",
             acl=[("allow", RoleEnum.ADMIN, "view")],
         )
-        assert (
-            node.is_visible_to(StubUser(role_names=(RoleEnum.ADMIN.name,))) is True
-        )
+        assert node.is_visible_to(StubUser(role_names=(RoleEnum.ADMIN.name,))) is True
 
     def test_unknown_directive_falls_through_to_default_deny(self):
         # Neither "Allow" nor "Deny" -> nothing matches -> default deny.
@@ -172,9 +170,7 @@ class TestIsVisibleTo:
             url_rule="/y/",
             acl=[("Maybe", RoleEnum.ADMIN, "view")],
         )
-        assert (
-            node.is_visible_to(StubUser(role_names=(RoleEnum.ADMIN.name,))) is False
-        )
+        assert node.is_visible_to(StubUser(role_names=(RoleEnum.ADMIN.name,))) is False
 
     def test_effective_acl_uses_inherited_when_no_own(self):
         node = NavNode(name="x.y", label="Y", url_rule="/y/")
@@ -230,9 +226,7 @@ class TestInferParent:
 
     def test_override_with_dot_returned_verbatim(self):
         tree = NavTree()
-        result = tree._infer_parent(
-            "/something/", "events", override="wire.article"
-        )
+        result = tree._infer_parent("/something/", "events", override="wire.article")
         assert result == "wire.article"
 
     def test_no_override_top_level_returns_section(self):
@@ -243,9 +237,7 @@ class TestInferParent:
     def test_no_override_unknown_parent_falls_back_to_section(self):
         tree = NavTree()
         # No entry in the index -> falls back to section root (line 277).
-        result = tree._infer_parent(
-            "/events/calendar/", "events", override=None
-        )
+        result = tree._infer_parent("/events/calendar/", "events", override=None)
         assert result == "events"
 
     def test_no_override_uses_url_index_when_available(self):
@@ -267,13 +259,9 @@ class TestInferParent:
 
     def test_no_override_static_segment_resolves_via_url_index(self):
         parent = NavNode(name="events.list", label="L", url_rule="/events/")
-        section = NavNode(
-            name="events", label="E", url_rule="/events", is_section=True
-        )
+        section = NavNode(name="events", label="E", url_rule="/events", is_section=True)
         tree = _make_tree(section, parent, sections=("events",))
-        result = tree._infer_parent(
-            "/events/calendar/", "events", override=None
-        )
+        result = tree._infer_parent("/events/calendar/", "events", override=None)
         assert result == "events.list"
 
 
@@ -464,9 +452,7 @@ class TestAclInheritance:
 
 class TestChildrenOf:
     def test_orders_by_order_then_label(self):
-        section = NavNode(
-            name="s", label="S", url_rule="/s", is_section=True
-        )
+        section = NavNode(name="s", label="S", url_rule="/s", is_section=True)
         # Same order -> tie-break by label alphabetically.
         b = NavNode(name="s.b", label="Beta", url_rule="/s/b/", parent="s", order=10)
         a = NavNode(name="s.a", label="Alpha", url_rule="/s/a/", parent="s", order=10)
@@ -480,9 +466,7 @@ class TestChildrenOf:
         assert names == ["s.first", "s.a", "s.b"]
 
     def test_hidden_children_excluded(self):
-        section = NavNode(
-            name="s", label="S", url_rule="/s", is_section=True
-        )
+        section = NavNode(name="s", label="S", url_rule="/s", is_section=True)
         visible = NavNode(name="s.v", label="V", url_rule="/s/v/", parent="s")
         hidden = NavNode(
             name="s.h",
@@ -498,9 +482,7 @@ class TestChildrenOf:
     def test_section_children_excluded(self):
         # Two sections, both "child" of root logically.  children_of should
         # never yield section nodes even when they share a parent name.
-        section = NavNode(
-            name="s", label="S", url_rule="/s", is_section=True
-        )
+        section = NavNode(name="s", label="S", url_rule="/s", is_section=True)
         sub_section = NavNode(
             name="t",
             label="T",
@@ -526,23 +508,15 @@ class TestBuildBreadcrumbs:
 
     def test_label_override_used_for_current(self):
         section = NavNode(name="s", label="S", url_rule="/s", is_section=True)
-        leaf = NavNode(
-            name="s.leaf", label="Leaf", url_rule="/s/leaf/", parent="s"
-        )
+        leaf = NavNode(name="s.leaf", label="Leaf", url_rule="/s/leaf/", parent="s")
         tree = _make_tree(section, leaf, sections=("s",))
-        crumbs = tree.build_breadcrumbs(
-            "s.leaf", {}, label_override="Dynamic Title"
-        )
+        crumbs = tree.build_breadcrumbs("s.leaf", {}, label_override="Dynamic Title")
         assert crumbs[-1].label == "Dynamic Title"
         assert crumbs[-1].current is True
 
     def test_parent_override_redirects_chain(self):
-        section_a = NavNode(
-            name="a", label="A", url_rule="/a", is_section=True
-        )
-        section_b = NavNode(
-            name="b", label="B", url_rule="/b", is_section=True
-        )
+        section_a = NavNode(name="a", label="A", url_rule="/a", is_section=True)
+        section_b = NavNode(name="b", label="B", url_rule="/b", is_section=True)
         page = NavNode(name="a.page", label="P", url_rule="/a/p/", parent="a")
         tree = _make_tree(section_a, section_b, page, sections=("a", "b"))
         # Force the parent to be "b" instead of "a".
@@ -553,9 +527,7 @@ class TestBuildBreadcrumbs:
 
     def test_missing_parent_in_chain_stops_walk(self):
         # leaf -> ghost (not in tree) -> walk stops.
-        leaf = NavNode(
-            name="s.leaf", label="L", url_rule="/s/leaf/", parent="ghost"
-        )
+        leaf = NavNode(name="s.leaf", label="L", url_rule="/s/leaf/", parent="ghost")
         tree = NavTree()
         tree._nodes[leaf.name] = leaf
         tree._build_url_index()
@@ -591,9 +563,7 @@ class TestIsActive:
     def test_descendant_is_active(self):
         section = NavNode(name="s", label="S", url_rule="/s", is_section=True)
         page = NavNode(name="s.page", label="P", url_rule="/s/p/", parent="s")
-        leaf = NavNode(
-            name="s.leaf", label="L", url_rule="/s/p/l/", parent="s.page"
-        )
+        leaf = NavNode(name="s.leaf", label="L", url_rule="/s/p/l/", parent="s.page")
         tree = _make_tree(section, page, leaf, sections=("s",))
         assert tree._is_active("s.page", "s.leaf") is True
         assert tree._is_active("s", "s.leaf") is True
@@ -727,7 +697,6 @@ class TestStaticMenus:
     def test_user_menu_filters_admin_link_for_non_admin(self, app: Flask) -> None:
         nav_tree = app.extensions["nav_tree"]
         with app.app_context(), app.test_request_context("/"):
-
             if not nav_tree._built:
                 nav_tree.build(app)
             flask_g.user = StubUser(role_names=())
@@ -741,7 +710,6 @@ class TestStaticMenus:
     def test_user_menu_shows_admin_link_for_admin(self, app: Flask) -> None:
         nav_tree = app.extensions["nav_tree"]
         with app.app_context(), app.test_request_context("/"):
-
             if not nav_tree._built:
                 nav_tree.build(app)
             flask_g.user = StubUser(role_names=(RoleEnum.ADMIN.name,))
@@ -753,7 +721,6 @@ class TestStaticMenus:
     def test_user_menu_anonymous_drops_role_gated_entries(self, app: Flask) -> None:
         nav_tree = app.extensions["nav_tree"]
         with app.app_context(), app.test_request_context("/"):
-
             if not nav_tree._built:
                 nav_tree.build(app)
             # Anonymous flow -- no g.user attribute.
@@ -768,7 +735,6 @@ class TestStaticMenus:
     def test_admin_menu_supports_direct_url_entries(self, app: Flask) -> None:
         nav_tree = app.extensions["nav_tree"]
         with app.app_context(), app.test_request_context("/"):
-
             if not nav_tree._built:
                 nav_tree.build(app)
             flask_g.user = StubUser(role_names=(RoleEnum.ADMIN.name,))
@@ -851,9 +817,7 @@ class TestBuildIdempotence:
         tree = NavTree()
         # Pre-mark as built and stash a sentinel; build() must short-circuit.
         tree._built = True
-        tree._nodes["sentinel"] = NavNode(
-            name="sentinel", label="X", url_rule="/x/"
-        )
+        tree._nodes["sentinel"] = NavNode(name="sentinel", label="X", url_rule="/x/")
         # An empty Flask app -- if build() ran, it would clear or repopulate.
         empty = Flask("nav_gap_idempotent")
         tree.build(empty)

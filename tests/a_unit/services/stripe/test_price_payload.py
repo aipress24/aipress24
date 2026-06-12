@@ -42,28 +42,20 @@ class TestExtractPricePayloadCoreFields:
         assert payload["id"] == "price_xyz"
 
     def test_product_id_is_copied(self):
-        payload = extract_price_payload(
-            _dict_payload(id="price_1", product="prod_abc")
-        )
+        payload = extract_price_payload(_dict_payload(id="price_1", product="prod_abc"))
         assert payload["product_id"] == "prod_abc"
 
     def test_unit_amount_cents_passed_through(self):
-        payload = extract_price_payload(
-            _dict_payload(id="price_1", unit_amount=2500)
-        )
+        payload = extract_price_payload(_dict_payload(id="price_1", unit_amount=2500))
         assert payload["unit_amount_cents"] == 2500
         assert isinstance(payload["unit_amount_cents"], int)
 
     def test_currency_passed_through(self):
-        payload = extract_price_payload(
-            _dict_payload(id="price_1", currency="usd")
-        )
+        payload = extract_price_payload(_dict_payload(id="price_1", currency="usd"))
         assert payload["currency"] == "usd"
 
     def test_active_bool_coerced(self):
-        payload = extract_price_payload(
-            _dict_payload(id="price_1", active=True)
-        )
+        payload = extract_price_payload(_dict_payload(id="price_1", active=True))
         assert payload["active"] is True
         assert isinstance(payload["active"], bool)
 
@@ -99,9 +91,7 @@ class TestExtractPricePayloadDefaults:
     def test_none_unit_amount_treated_as_zero(self):
         """Same shape via explicit None — Stripe sends `null` rather
         than the field being absent for free prices."""
-        payload = extract_price_payload(
-            _dict_payload(id="price_1", unit_amount=None)
-        )
+        payload = extract_price_payload(_dict_payload(id="price_1", unit_amount=None))
         assert payload["unit_amount_cents"] == 0
 
     def test_missing_currency_defaults_to_eur(self):
@@ -150,9 +140,7 @@ class TestExtractPricePayloadRecurring:
         assert payload["recurring_interval"] is None
 
     def test_explicit_none_recurring_yields_none_interval(self):
-        payload = extract_price_payload(
-            _dict_payload(id="price_1", recurring=None)
-        )
+        payload = extract_price_payload(_dict_payload(id="price_1", recurring=None))
         assert payload["recurring_interval"] is None
 
     def test_attr_style_recurring_object_supported(self):
@@ -178,9 +166,7 @@ class TestExtractPricePayloadMetadata:
         """`StripePrice.metadata_json` is a JSON column ; None would
         flush as `null`. Always store {} so downstream readers can
         treat it as « no metadata » without a None check."""
-        payload = extract_price_payload(
-            _dict_payload(id="price_1", metadata=None)
-        )
+        payload = extract_price_payload(_dict_payload(id="price_1", metadata=None))
         assert payload["metadata_json"] == {}
 
     def test_missing_metadata_defaults_to_empty_dict(self):

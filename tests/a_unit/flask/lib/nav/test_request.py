@@ -156,9 +156,7 @@ class TestCurrentSection:
             ("wire.article", "wire"),
         ],
     )
-    def test_returns_part_before_first_dot(
-        self, endpoint: str, expected: str
-    ) -> None:
+    def test_returns_part_before_first_dot(self, endpoint: str, expected: str) -> None:
         nav = NavRequest(endpoint, {})
         assert nav.current_section == expected
 
@@ -208,9 +206,7 @@ class TestBreadcrumbsDelegation:
         # Last crumb is the "current" one and should carry the override label
         assert crumbs[-1].label == "Custom Item Name"
 
-    def test_unknown_endpoint_returns_empty_list(
-        self, app_with_tree: Flask
-    ) -> None:
+    def test_unknown_endpoint_returns_empty_list(self, app_with_tree: Flask) -> None:
         with app_with_tree.test_request_context("/nope"):
             nav = NavRequest("does.not.exist", {})
             assert nav.breadcrumbs() == []
@@ -246,9 +242,7 @@ class TestMenuDelegation:
         assert isinstance(items, list)
         assert all(isinstance(m, MenuItem) for m in items)
 
-    def test_explicit_section_overrides_current(
-        self, app_with_tree: Flask
-    ) -> None:
+    def test_explicit_section_overrides_current(self, app_with_tree: Flask) -> None:
         with app_with_tree.test_request_context("/shop/items/3"):
             g.user = None
             nav = NavRequest("shop.item", {"id": 3})
@@ -271,9 +265,7 @@ class TestMenuDelegation:
         # endpoint state, but here both calls share the same endpoint)
         assert [m.label for m in implicit] == [m.label for m in explicit]
 
-    def test_menu_marks_current_endpoint_as_active(
-        self, app_with_tree: Flask
-    ) -> None:
+    def test_menu_marks_current_endpoint_as_active(self, app_with_tree: Flask) -> None:
         with app_with_tree.test_request_context("/shop/items/"):
             g.user = None
             nav = NavRequest("shop.items", {})

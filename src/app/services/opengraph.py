@@ -17,9 +17,7 @@ def to_opengraph(obj, *, _url_for: Callable | None = None) -> dict[str, str]:
     return to_opengraph_generic(obj, _url_for=_url_for)
 
 
-def to_opengraph_generic(
-    obj, *, _url_for: Callable | None = None
-) -> dict[str, str]:
+def to_opengraph_generic(obj, *, _url_for: Callable | None = None) -> dict[str, str]:
     if hasattr(obj, "name"):
         title = obj.name
     elif hasattr(obj, "title"):

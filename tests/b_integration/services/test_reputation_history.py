@@ -72,16 +72,24 @@ def _purge_test_artifacts(db_session: Session):
     non-test users (none today) would be unaffected.
     """
     yield
-    test_users = db_session.execute(
-        select(User).where(User.email.like(f"{_TEST_EMAIL_PREFIX}%"))
-    ).scalars().all()
+    test_users = (
+        db_session.execute(
+            select(User).where(User.email.like(f"{_TEST_EMAIL_PREFIX}%"))
+        )
+        .scalars()
+        .all()
+    )
     if not test_users:
         return
 
     user_ids = {u.id for u in test_users}
-    test_records = db_session.execute(
-        select(ReputationRecord).where(ReputationRecord.user_id.in_(user_ids))
-    ).scalars().all()
+    test_records = (
+        db_session.execute(
+            select(ReputationRecord).where(ReputationRecord.user_id.in_(user_ids))
+        )
+        .scalars()
+        .all()
+    )
     for record in test_records:
         db_session.delete(record)
     for u in test_users:
@@ -111,9 +119,7 @@ class TestNoise:
 
 
 class TestUpdateForUser:
-    def test_creates_record_for_first_call(
-        self, db_session: Session
-    ) -> None:
+    def test_creates_record_for_first_call(self, db_session: Session) -> None:
         user = _fresh_user(db_session, label="create")
         today = arrow.now().date()
 
@@ -145,9 +151,7 @@ class TestUpdateForUser:
         ).all()
         assert len(count) == 1
 
-    def test_writes_zero_karma_for_fresh_user(
-        self, db_session: Session
-    ) -> None:
+    def test_writes_zero_karma_for_fresh_user(self, db_session: Session) -> None:
         """A user with no follows / articles has compute_reputation == 0.
         Pin so a refactor that loses the « total » key (or returns
         None) doesn't silently write None to the value column."""
@@ -176,14 +180,11 @@ class TestUpdateForUser:
         db_session.flush()
 
         record = db_session.execute(
-            select(ReputationRecord)
-            .where(ReputationRecord.user_id == user.id)
+            select(ReputationRecord).where(ReputationRecord.user_id == user.id)
         ).scalar_one()
         assert user.karma == record.value
 
-    def test_stores_full_reputation_details_dict(
-        self, db_session: Session
-    ) -> None:
+    def test_stores_full_reputation_details_dict(self, db_session: Session) -> None:
         """The `details` JSON column carries the full breakdown
         compute_reputation returned — used by the history endpoint
         to render per-source contribution. Pin so a refactor that
@@ -195,16 +196,13 @@ class TestUpdateForUser:
         db_session.flush()
 
         record = db_session.execute(
-            select(ReputationRecord)
-            .where(ReputationRecord.user_id == user.id)
+            select(ReputationRecord).where(ReputationRecord.user_id == user.id)
         ).scalar_one()
         assert isinstance(record.details, dict)
         # `total` is always present in compute_reputation's return shape.
         assert "total" in record.details
 
-    def test_add_noise_perturbs_karma_within_bound(
-        self, db_session: Session
-    ) -> None:
+    def test_add_noise_perturbs_karma_within_bound(self, db_session: Session) -> None:
         """When the cron actor passes add_noise=True, the stored
         karma deviates from compute_reputation's raw total by
         at most ±0.1 (the _noise spread)."""
@@ -215,17 +213,14 @@ class TestUpdateForUser:
         db_session.flush()
 
         record = db_session.execute(
-            select(ReputationRecord)
-            .where(ReputationRecord.user_id == user.id)
+            select(ReputationRecord).where(ReputationRecord.user_id == user.id)
         ).scalar_one()
         # Raw fresh-user reputation is 0 ; noise puts us in [-0.1, 0.1].
         assert -0.1 <= record.value <= 0.1
         # And the user-side denormalised karma matches the record.
         assert user.karma == record.value
 
-    def test_distinct_dates_yield_distinct_records(
-        self, db_session: Session
-    ) -> None:
+    def test_distinct_dates_yield_distinct_records(self, db_session: Session) -> None:
         """The composite PK lets one user have many records (one per
         day). Pin so a refactor that switches to a single-row
         latest-only schema is conscious."""
@@ -237,10 +232,13 @@ class TestUpdateForUser:
         _update_for_user(user, yesterday)
         db_session.flush()
 
-        records = db_session.execute(
-            select(ReputationRecord)
-            .where(ReputationRecord.user_id == user.id)
-        ).scalars().all()
+        records = (
+            db_session.execute(
+                select(ReputationRecord).where(ReputationRecord.user_id == user.id)
+            )
+            .scalars()
+            .all()
+        )
         dates = sorted(r.date for r in records)
         assert dates == [yesterday, today]
 
@@ -251,9 +249,7 @@ class TestUpdateForUser:
 
 
 class TestUpdateReputations:
-    def test_writes_a_record_for_a_fresh_user(
-        self, db_session: Session
-    ) -> None:
+    def test_writes_a_record_for_a_fresh_user(self, db_session: Session) -> None:
         """The hourly cron must produce a record for every user
         present at run time. Pin the happy path."""
         user = _fresh_user(db_session, label="cron-fresh")
@@ -277,9 +273,7 @@ class TestUpdateReputations:
         history = get_reputation_history(user)
         assert len(history) == 1
 
-    def test_processes_multiple_users_independently(
-        self, db_session: Session
-    ) -> None:
+    def test_processes_multiple_users_independently(self, db_session: Session) -> None:
         """The loop must not abort on per-user failures (it commits
         per user). For two fresh users, both should get records."""
         alice = _fresh_user(db_session, label="alice")
@@ -312,15 +306,11 @@ class TestUpdateReputations:
 
 
 class TestGetReputationHistory:
-    def test_empty_for_user_with_no_records(
-        self, db_session: Session
-    ) -> None:
+    def test_empty_for_user_with_no_records(self, db_session: Session) -> None:
         user = _fresh_user(db_session, label="empty")
         assert get_reputation_history(user) == []
 
-    def test_returns_records_sorted_by_date(
-        self, db_session: Session
-    ) -> None:
+    def test_returns_records_sorted_by_date(self, db_session: Session) -> None:
         """The history endpoint renders a timeseries — the ordering
         contract is « ascending by date ». Pin so a refactor that
         flips desc doesn't silently invert the chart."""

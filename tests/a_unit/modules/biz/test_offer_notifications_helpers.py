@@ -251,14 +251,18 @@ class TestAbsoluteApplicationsUrl:
     def test_fallback_for_mission_offer(self, app: Flask):
         with app.app_context():
             app.config["SERVER_NAME"] = "aipress24.com"
-            result = _absolute_applications_url(_OfferLike(type_="mission_offer", id_=7))
+            result = _absolute_applications_url(
+                _OfferLike(type_="mission_offer", id_=7)
+            )
         assert result.endswith("/biz/missions/7/applications")
         assert result.startswith("https://aipress24.com")
 
     def test_fallback_for_project_offer(self, app: Flask):
         with app.app_context():
             app.config["SERVER_NAME"] = "aipress24.com"
-            result = _absolute_applications_url(_OfferLike(type_="project_offer", id_=8))
+            result = _absolute_applications_url(
+                _OfferLike(type_="project_offer", id_=8)
+            )
         assert result.endswith("/biz/projects/8/applications")
 
     def test_fallback_for_job_offer(self, app: Flask):

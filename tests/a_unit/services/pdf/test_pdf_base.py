@@ -82,9 +82,7 @@ class TestGeneratePdfAbsoluteTemplate:
             "<html><body><h1>{{ title }}</h1><p>{{ body }}</p></body></html>"
         )
 
-        result = generate_pdf(
-            {"title": "Hello", "body": "World"}, template_path
-        )
+        result = generate_pdf({"title": "Hello", "body": "World"}, template_path)
 
         # PDF magic ; weasyprint stamps it at byte zero.
         assert result.startswith(b"%PDF")
