@@ -30,7 +30,7 @@ import pytest
 
 from app.modules.wire.models import PurchaseProduct
 from app.modules.wire.views.purchase import (
-    _PRODUCT_STRIPE_MARKER,
+    _PRODUCT_TAXONOMY_FILTERS,
     MAX_GIFT_BENEFICIARIES,
     _build_checkout_metadata,
     _cents_to_eur,
@@ -396,39 +396,54 @@ class TestBuildCheckoutMetadata:
             assert isinstance(value, str)
 
 
-class TestProductStripeMarkerTable:
-    """The marker table is what `_select_price_id` keys off ; pin its
-    contents as a contract so a typo in a future PR is caught here
-    rather than at runtime in Stripe Checkout."""
+class TestProductTaxonomyFilters:
+    """The taxonomy filter table is what `_select_price_id` keys off ;
+    pin its contents as a contract so a typo in a future PR is caught
+    here rather than at runtime in Stripe Checkout."""
 
     def test_all_purchase_products_are_mapped(self):
         # If a new PurchaseProduct enum value is added, this assertion
-        # forces the developer to also register a marker — otherwise
-        # `_select_price_id` would silently return "" for it.
-        assert set(_PRODUCT_STRIPE_MARKER) == set(PurchaseProduct)
+        # forces the developer to also register taxonomy filters —
+        # otherwise `_select_price_id` would silently return "" for it.
+        assert set(_PRODUCT_TAXONOMY_FILTERS) == set(PurchaseProduct)
 
-    def test_consultation_and_gift_share_the_same_marker(self):
-        # Ticket #0194 — gift consultations reuse the regular
+    def test_consultation_and_gift_share_the_same_filters(self):
+        # Ticket #0194 — gift consultations reuse the regular paid
         # consultation Stripe product, with quantity = recipient count.
         assert (
-            _PRODUCT_STRIPE_MARKER[PurchaseProduct.CONSULTATION]
-            == _PRODUCT_STRIPE_MARKER[PurchaseProduct.CONSULTATION_GIFT]
+            _PRODUCT_TAXONOMY_FILTERS[PurchaseProduct.CONSULTATION]
+            == _PRODUCT_TAXONOMY_FILTERS[PurchaseProduct.CONSULTATION_GIFT]
         )
 
     @pytest.mark.parametrize(
         ("product", "expected"),
         [
-            (PurchaseProduct.CONSULTATION, ("article", "c-article")),
-            (PurchaseProduct.CONSULTATION_GIFT, ("article", "c-article")),
-            (PurchaseProduct.JUSTIFICATIF, ("product_type", "j-article")),
-            (PurchaseProduct.CESSION, ("article", "cd-article")),
+            (
+                PurchaseProduct.CONSULTATION,
+                {"domain": "consultation", "family": "article", "offer": "paid"},
+            ),
+            (
+                PurchaseProduct.CONSULTATION_GIFT,
+                {"domain": "consultation", "family": "article", "offer": "paid"},
+            ),
+            (
+                PurchaseProduct.JUSTIFICATIF,
+                {"domain": "certificate", "family": "article", "offer": "paid"},
+            ),
+            (
+                PurchaseProduct.CESSION,
+                {"domain": "license", "family": "article", "offer": "paid"},
+            ),
         ],
     )
-    def test_marker_values(self, product: PurchaseProduct, expected: tuple[str, str]):
-        assert _PRODUCT_STRIPE_MARKER[product] == expected
+    def test_taxonomy_filter_values(
+        self, product: PurchaseProduct, expected: dict[str, str]
+    ):
+        assert _PRODUCT_TAXONOMY_FILTERS[product] == expected
 
-    def test_markers_are_two_tuples_of_str(self):
-        for marker in _PRODUCT_STRIPE_MARKER.values():
-            assert isinstance(marker, tuple)
-            assert len(marker) == 2
-            assert all(isinstance(x, str) for x in marker)
+    def test_filters_are_dicts_of_str(self):
+        for filters in _PRODUCT_TAXONOMY_FILTERS.values():
+            assert isinstance(filters, dict)
+            assert all(
+                isinstance(k, str) and isinstance(v, str) for k, v in filters.items()
+            )
