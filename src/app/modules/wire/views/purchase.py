@@ -15,6 +15,7 @@ specs.
 
 from __future__ import annotations
 
+import unicodedata
 from typing import cast
 
 import stripe
@@ -50,6 +51,130 @@ _PRODUCT_TO_ENV: dict[PurchaseProduct, str] = {}
 # enough to block trivial DoS via a 10k-entry POST that would otherwise
 # blow through the giftable-check loop and Postgres parameter limits.
 MAX_GIFT_BENEFICIARIES = 50
+
+# Taxonomy filters used to pick the right Stripe product for each
+# one-off purchase type. See "notes/specs/taxo_produits.md".
+_PRODUCT_TAXONOMY_FILTERS: dict[PurchaseProduct, dict[str, str]] = {
+    PurchaseProduct.JUSTIFICATIF: {
+        "domain": "certificate",
+        "family": "article",
+        "offer": "paid",
+    },
+    PurchaseProduct.CONSULTATION: {
+        "domain": "consultation",
+        "family": "article",
+        "offer": "paid",
+    },
+    # Ticket #0194 — gift consultations reuse the same
+    # paid consultation Stripe product.
+    # Fixme: Does the free consultation product still exist ?
+    # The Stripe Checkout line item carries
+    # quantity = number of recipients.
+    PurchaseProduct.CONSULTATION_GIFT: {
+        "domain": "consultation",
+        "family": "article",
+        "offer": "paid",
+    },
+    PurchaseProduct.CESSION: {
+        "domain": "license",
+        "family": "article",
+        "offer": "paid",
+    },
+}
+
+# French genre labels (from the `news-genres` ontology) to taxonomy
+# genre values. The mapping is product-dependent because the taxonomy
+# uses `feature` for license/certificate products but `dossier` for
+# consultation products for the same French "Dossier" genre.
+_FRENCH_TO_TAXO_GENRE: dict[PurchaseProduct, dict[str, str]] = {
+    PurchaseProduct.JUSTIFICATIF: {
+        "actualite": "news",
+        "dossier": "feature",
+        "enquete": "survey",
+        "exclusivite": "exclu",
+        "interview": "itw",
+        "reportage": "report",
+    },
+    PurchaseProduct.CONSULTATION: {
+        "actualite": "news",
+        "dossier": "dossier",
+        "enquete": "survey",
+        "exclusivite": "exclu",
+        "interview": "itw",
+        "reportage": "report",
+    },
+    PurchaseProduct.CONSULTATION_GIFT: {
+        "actualite": "news",
+        "dossier": "dossier",
+        "enquete": "survey",
+        "exclusivite": "exclu",
+        "interview": "itw",
+        "reportage": "report",
+    },
+    PurchaseProduct.CESSION: {
+        "actualite": "news",
+        "dossier": "feature",
+        "enquete": "survey",
+        "exclusivite": "exclu",
+        "interview": "itw",
+        "reportage": "report",
+    },
+}
+
+# legacy fallback for products that have not been migrated to the new
+# taxonomy yet.
+_PRODUCT_LEGACY_PREFIX: dict[PurchaseProduct, str] = {
+    PurchaseProduct.JUSTIFICATIF: "certificate-",
+    PurchaseProduct.CONSULTATION: "c-article-",
+    PurchaseProduct.CONSULTATION_GIFT: "c-article-",
+    PurchaseProduct.CESSION: "article-licence-",
+}
+
+_PRODUCT_LEGACY_SUFFIX: dict[PurchaseProduct, dict[str, str]] = {
+    PurchaseProduct.JUSTIFICATIF: {
+        "news": "news",
+        "feature": "feature",
+        "survey": "survey",
+        "exclu": "exclusive",
+        "itw": "interview",
+        "report": "report",
+    },
+    PurchaseProduct.CONSULTATION: {
+        "news": "news",
+        "dossier": "dossier",
+        "survey": "surv",
+        "exclu": "exclu",
+        "itw": "itw",
+        "report": "reportage",
+    },
+    PurchaseProduct.CONSULTATION_GIFT: {
+        "news": "news",
+        "dossier": "dossier",
+        "survey": "surv",
+        "exclu": "exclu",
+        "itw": "itw",
+        "report": "reportage",
+    },
+    PurchaseProduct.CESSION: {
+        "news": "news",
+        "feature": "feature",
+        "survey": "survey",
+        "exclu": "exclu",
+        "itw": "itw",
+        "report": "report",
+    },
+}
+
+
+_TAXO_GENRE_VALUES = {
+    "news",
+    "feature",
+    "survey",
+    "exclu",
+    "itw",
+    "report",
+    "dossier",
+}
 
 
 @blueprint.route("/buy_modal/close", methods=["GET"])
@@ -344,8 +469,7 @@ def buy_gift(post_id: str):
         if e.strip()
     }
     if emails:
-        from sqlalchemy import func as sa_func
-        from sqlalchemy import select as sa_select
+        from sqlalchemy import func as sa_func, select as sa_select
 
         from app.models.auth import User as _User
 
@@ -507,26 +631,61 @@ def purchase_cancel(purchase_id: int):
 # ---------------------------------------------------------------------------
 
 
-# Marker used to pick the right Stripe product for each one-off
-# purchase type. Each product can additionally carry `metadata.genre`
-# (ticket #0192 — pricing par genre) ; when a `genre` is passed to
-# `_price_id_for`, the helper prefers the matching genre-specific
-# product and falls back to the flat lookup so existing single-product
-# setups keep working.
-_PRODUCT_STRIPE_MARKER: dict[PurchaseProduct, tuple[str, str]] = {
-    PurchaseProduct.JUSTIFICATIF: ("product_type", "j-article"),
-    PurchaseProduct.CONSULTATION: ("article", "c-article"),
-    # Ticket #0194 — gift consultations reuse the same Stripe product
-    # as a regular consultation (« Tarif Consultation d'article par
-    # destinataire »). The Stripe Checkout line item carries
-    # quantity = number of recipients.
-    PurchaseProduct.CONSULTATION_GIFT: ("article", "c-article"),
-    PurchaseProduct.CESSION: ("article", "cd-article"),
-}
+def _normalize_string(value: str) -> str:
+    """Lower-case and remove accents from a string."""
+    value = value.lower().strip()
+    return "".join(
+        c for c in unicodedata.normalize("NFKD", value) if not unicodedata.combining(c)
+    )
+
+
+def _post_genre_to_taxo(product: PurchaseProduct, genre: str) -> str | None:
+    """Convert a post genre (French ontology label) to a taxonomy genre.
+
+    Returns `None` when the input is empty.
+    """
+    genre = genre.strip()
+    if not genre:
+        return None
+    if genre in _TAXO_GENRE_VALUES:
+        return genre
+    normalized = _normalize_string(genre)
+    return _FRENCH_TO_TAXO_GENRE.get(product, {}).get(normalized)
+
+
+def _is_product_matching_taxonomy(
+    prod: stripe.Product, product: PurchaseProduct, taxo_genre: str | None
+) -> bool:
+    """Check whether a product matches the new taxonomy filters + genre."""
+    filters = _PRODUCT_TAXONOMY_FILTERS.get(product)
+    if not filters:
+        return False
+    metadata = prod.metadata
+    for key, value in filters.items():
+        if metadata.get(key) != value:
+            return False
+    return not (taxo_genre is not None and metadata.get("genre") != taxo_genre)
+
+
+def _is_product_matching_legacy(
+    prod: stripe.Product, product: PurchaseProduct, taxo_genre: str | None
+) -> bool:
+    """Check whether a product matches the deprecated combined `article` key."""
+    prefix = _PRODUCT_LEGACY_PREFIX.get(product)
+    if not prefix:
+        return False
+    article_value = prod.metadata.get("article", "")
+    if not article_value.startswith(prefix):
+        return False
+    if taxo_genre is None:
+        return True
+    suffix = article_value[len(prefix) :]
+    expected_suffix = _PRODUCT_LEGACY_SUFFIX.get(product, {}).get(taxo_genre)
+    return suffix == expected_suffix
 
 
 def _select_price_id(
-    products: list,
+    products: list[stripe.Product],
     product: PurchaseProduct,
     genre: str = "",
 ) -> str:
@@ -538,28 +697,36 @@ def _select_price_id(
     access to `.metadata` (mapping) and `.default_price` (object with
     `.id`, or falsy).
 
-    Returns "" when no candidate matches.
+    Returns "" when no candidate matches OR no default price.
     """
-    marker = _PRODUCT_STRIPE_MARKER.get(product)
-    warn("_select_price_id", "product", product, "marker", marker)
-    if marker is None:
-        return ""
-    key, value = marker
+    warn("_select_price_id", "product", product, "genre", genre)
+    taxo_genre = _post_genre_to_taxo(product, genre)
+    warn("taxo_genre", taxo_genre)
 
-    if genre:
+    # 1. New taxonomy, genre-specific when possible.
+    if taxo_genre is not None:
         for prod in products:
-            warn(prod.metadata.get(key), prod.metadata.get("genre"), prod.default_price)
             if (
-                prod.metadata.get(key) == value
-                and prod.metadata.get("genre") == genre
+                _is_product_matching_taxonomy(prod, product, taxo_genre)
                 and prod.default_price
             ):
                 return prod.default_price.id
 
-    # Back-compat fallback : flat lookup, no genre constraint.
+    # 2. New taxonomy, any genre in the same family.
     for prod in products:
-        warn(prod.metadata.get(key), prod.default_price)
-        if prod.metadata.get(key) == value and prod.default_price:
+        if _is_product_matching_taxonomy(prod, product, None) and prod.default_price:
+            return prod.default_price.id
+
+    # 3. Legacy combined-article metadata (pre-migration products).
+    if taxo_genre is not None:
+        for prod in products:
+            if (
+                _is_product_matching_legacy(prod, product, taxo_genre)
+                and prod.default_price
+            ):
+                return prod.default_price.id
+    for prod in products:
+        if _is_product_matching_legacy(prod, product, None) and prod.default_price:
             return prod.default_price.id
 
     return ""
@@ -574,14 +741,15 @@ def _price_id_for(
     """Resolve the Stripe price id for a given (product × genre).
 
     Strategy :
-    1. If `genre` is provided, look for a product matching both the
-       product-type marker AND `metadata.genre == genre`.
-    2. Otherwise (or if no genre-specific product exists), fall back
-       to any product matching the product-type marker — the pre-#0192
-       behaviour.
+    1. Look for a product matching the new taxonomy
+       (`domain`/`family`/`offer`) plus `metadata.genre` when the post
+       genre can be mapped to a taxonomy genre.
+    2. Fall back to any product in the same taxonomy family.
+    3. As a last resort, match the legacy combined `article` metadata
+       used before the taxonomy migration.
 
-    Returns "" when neither path finds a candidate (handled by the
-    caller with a flash).
+    Returns "" when none of the strategies finds a candidate (handled by
+    the caller with a flash).
 
     Pass an explicit `client` to inject a fake StripeClient — used by
     unit tests to seed canned products without monkeypatching. The
