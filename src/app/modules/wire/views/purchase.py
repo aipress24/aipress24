@@ -113,10 +113,15 @@ def buy_modal(post_id: str, product: str):
 
     amount_ht_eur: float | None = None
     if current_app.config.get("STRIPE_LIVE_ENABLED") and load_stripe_api_key():
-        price_id = _price_id_for(product_type, genre=getattr(post, "genre", "") or "")
+        warn("product_type", product_type)
+        genre = getattr(post, "genre", "") or ""
+        price_id = _price_id_for(product_type, genre=genre)
+        warn("genre", genre)
+        warn("price_id", price_id)
         if price_id:
             try:
                 price = stripe.Price.retrieve(price_id)
+                warn("price", price)
                 if price.unit_amount is not None:
                     amount_ht_eur = price.unit_amount / 100
             except stripe.error.StripeError as exc:
@@ -339,7 +344,8 @@ def buy_gift(post_id: str):
         if e.strip()
     }
     if emails:
-        from sqlalchemy import func as sa_func, select as sa_select
+        from sqlalchemy import func as sa_func
+        from sqlalchemy import select as sa_select
 
         from app.models.auth import User as _User
 
@@ -535,12 +541,14 @@ def _select_price_id(
     Returns "" when no candidate matches.
     """
     marker = _PRODUCT_STRIPE_MARKER.get(product)
+    warn("_select_price_id", "product", product, "marker", marker)
     if marker is None:
         return ""
     key, value = marker
 
     if genre:
         for prod in products:
+            warn(prod.metadata.get(key), prod.metadata.get("genre"), prod.default_price)
             if (
                 prod.metadata.get(key) == value
                 and prod.metadata.get("genre") == genre
@@ -550,6 +558,7 @@ def _select_price_id(
 
     # Back-compat fallback : flat lookup, no genre constraint.
     for prod in products:
+        warn(prod.metadata.get(key), prod.default_price)
         if prod.metadata.get(key) == value and prod.default_price:
             return prod.default_price.id
 
