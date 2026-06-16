@@ -238,15 +238,11 @@ def buy_modal(post_id: str, product: str):
 
     amount_ht_eur: float | None = None
     if current_app.config.get("STRIPE_LIVE_ENABLED") and load_stripe_api_key():
-        warn("product_type", product_type)
         genre = getattr(post, "genre", "") or ""
         price_id = _price_id_for(product_type, genre=genre)
-        warn("genre", genre)
-        warn("price_id", price_id)
         if price_id:
             try:
                 price = stripe.Price.retrieve(price_id)
-                warn("price", price)
                 if price.unit_amount is not None:
                     amount_ht_eur = price.unit_amount / 100
             except stripe.error.StripeError as exc:
@@ -699,9 +695,7 @@ def _select_price_id(
 
     Returns "" when no candidate matches OR no default price.
     """
-    warn("_select_price_id", "product", product, "genre", genre)
     taxo_genre = _post_genre_to_taxo(product, genre)
-    warn("taxo_genre", taxo_genre)
 
     # 1. New taxonomy, genre-specific when possible.
     if taxo_genre is not None:
