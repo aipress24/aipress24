@@ -36,13 +36,13 @@ def fetch_stripe_product_list(
 def fetch_bw_product_list(*, client: StripeClient | None = None) -> list[Product]:
     """Return the list of all active BW products available on Stripe.
 
-    Products filtered by the 'subs' metadata key."""
+    BW products have a "domain" key with value "bw"."""
     prods = fetch_stripe_product_list(active=True, client=client)
     results: list[Product] = []
     for prod in prods:
         raw_metadata = prod.get("metadata", {})
         metadata_dict = dict(raw_metadata) if raw_metadata else {}
-        keys = {str(k).lower() for k in metadata_dict}
-        if "subs" in keys:
+        metadata_dict = {k.lower(): v.lower() for k, v in metadata_dict.items()}
+        if metadata_dict.get("domain") == "bw":
             results.append(prod)
     return results

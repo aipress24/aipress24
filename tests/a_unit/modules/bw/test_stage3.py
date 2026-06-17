@@ -68,10 +68,14 @@ class _BwLike:
 
 
 def _stripe_prod(
-    *, subs: str = "", maximum: str | None = None, default_price: Any = "price_default"
+    *, ref: str = "", maximum: str | None = None, default_price: Any = "price_default"
 ) -> dict[str, Any]:
-    """Build a plain-dict Stripe-product fixture (the real one is dict-like)."""
-    meta: dict[str, Any] = {"subs": subs}
+    """Build a plain-dict Stripe-product fixture (the real one is dict-like).
+
+    The helper under test now uses the "reference" metadata key instead
+    of the deprecated "Subs" key.
+    """
+    meta: dict[str, Any] = {"reference": ref}
     if maximum is not None:
         meta["maximum"] = maximum
     return {"metadata": meta, "default_price": default_price}
@@ -180,35 +184,35 @@ class TestExtractPriceId:
 
 class TestFilterProductsByAllowedSubs:
     """The metadata filter is case-insensitive on the *key* so a typo
-    in the Stripe Dashboard (`Subs`/`SUBS`) doesn't silently drop a
-    paying tier. The *value* match remains exact."""
+    in the Stripe Dashboard (`Reference`/`REFERENCE`) doesn't silently
+    drop a paying tier. The *value* match remains exact."""
 
     def test_empty_allowed_returns_empty(self) -> None:
         """No allowed values → checkout must not proceed."""
-        prods = [_stripe_prod(subs="BW4T-Solo")]
+        prods = [_stripe_prod(ref="BW4T-Solo")]
         assert _filter_products_by_allowed_subs(prods, set()) == []
 
     def test_keeps_matching_subs(self) -> None:
-        p1 = _stripe_prod(subs="BW4T-Solo")
-        p2 = _stripe_prod(subs="BW4T-TPE")
-        p3 = _stripe_prod(subs="BW4T-PME")
+        p1 = _stripe_prod(ref="BW4T-Solo")
+        p2 = _stripe_prod(ref="BW4T-TPE")
+        p3 = _stripe_prod(ref="BW4T-PME")
         out = _filter_products_by_allowed_subs([p1, p2, p3], {"BW4T-Solo", "BW4T-PME"})
         assert p1 in out
         assert p3 in out
         assert p2 not in out
 
     def test_case_insensitive_metadata_keys(self) -> None:
-        """Stripe Dashboard typos like `Subs` / `SUBS` must still match."""
-        p = {"metadata": {"Subs": "BW4PR"}, "default_price": "price_1"}
+        """Stripe Dashboard typos like `Reference` / `REFERENCE` must still match."""
+        p = {"metadata": {"Reference": "BW4PR"}, "default_price": "price_1"}
         assert _filter_products_by_allowed_subs([p], {"BW4PR"}) == [p]
 
-        p2 = {"metadata": {"SUBS": "BW4PR"}, "default_price": "price_2"}
+        p2 = {"metadata": {"REFERENCE": "BW4PR"}, "default_price": "price_2"}
         assert _filter_products_by_allowed_subs([p2], {"BW4PR"}) == [p2]
 
     def test_value_match_remains_exact(self) -> None:
         """We lower-case the *key* but NOT the *value* — value match
         is exact (lowercase != uppercase BW code)."""
-        p = {"metadata": {"subs": "bw4pr"}, "default_price": "price_1"}
+        p = {"metadata": {"reference": "bw4pr"}, "default_price": "price_1"}
         assert _filter_products_by_allowed_subs([p], {"BW4PR"}) == []
 
     def test_missing_metadata_excluded(self) -> None:
@@ -235,22 +239,22 @@ class TestSelectProductForQuantity:
             _select_product_for_quantity([], 5)
 
     def test_picks_smallest_covering_tier(self) -> None:
-        small = _stripe_prod(subs="BW4T-Solo", maximum="9")
-        medium = _stripe_prod(subs="BW4T-TPE", maximum="49")
-        large = _stripe_prod(subs="BW4T-PME", maximum="249")
+        small = _stripe_prod(ref="BW4T-Solo", maximum="9")
+        medium = _stripe_prod(ref="BW4T-TPE", maximum="49")
+        large = _stripe_prod(ref="BW4T-PME", maximum="249")
         # quantity 5 fits the smallest tier
         out = _select_product_for_quantity([large, medium, small], 5)
         assert out is small
 
     def test_picks_next_tier_when_smaller_too_small(self) -> None:
-        small = _stripe_prod(subs="BW4T-Solo", maximum="9")
-        medium = _stripe_prod(subs="BW4T-TPE", maximum="49")
+        small = _stripe_prod(ref="BW4T-Solo", maximum="9")
+        medium = _stripe_prod(ref="BW4T-TPE", maximum="49")
         out = _select_product_for_quantity([small, medium], 10)
         assert out is medium
 
     def test_returns_largest_when_quantity_overflows(self) -> None:
-        small = _stripe_prod(subs="BW4T-Solo", maximum="9")
-        medium = _stripe_prod(subs="BW4T-TPE", maximum="49")
+        small = _stripe_prod(ref="BW4T-Solo", maximum="9")
+        medium = _stripe_prod(ref="BW4T-TPE", maximum="49")
         out = _select_product_for_quantity([small, medium], 9999)
         # quantity > all maxima → falls back to the largest tier
         assert out is medium
@@ -259,14 +263,14 @@ class TestSelectProductForQuantity:
         """A product without a `maximum` is treated as the unlimited
         tier — any quantity fits it. Bug class: a missing metadata
         key in Stripe used to crash with `TypeError: int(None)`."""
-        tiered = _stripe_prod(subs="BW4T-Solo", maximum="9")
-        unlimited = _stripe_prod(subs="BW4T-GE")  # no maximum
+        tiered = _stripe_prod(ref="BW4T-Solo", maximum="9")
+        unlimited = _stripe_prod(ref="BW4T-GE")  # no maximum
         out = _select_product_for_quantity([tiered, unlimited], 99999)
         assert out is unlimited
 
     def test_garbage_maximum_treated_as_infinity(self) -> None:
-        tiered = _stripe_prod(subs="BW4T-Solo", maximum="9")
-        garbage = _stripe_prod(subs="BW4T-GE", maximum="not-a-number")
+        tiered = _stripe_prod(ref="BW4T-Solo", maximum="9")
+        garbage = _stripe_prod(ref="BW4T-GE", maximum="not-a-number")
         out = _select_product_for_quantity([tiered, garbage], 99999)
         assert out is garbage
 
@@ -274,12 +278,31 @@ class TestSelectProductForQuantity:
     def test_alternative_case_for_maximum_key(self, alt_key: str) -> None:
         """The selector tolerates `Maximum` / `MAXIMUM` casings."""
         prod = {
-            "metadata": {"subs": "BW4T-Solo", alt_key: "9"},
+            "metadata": {"reference": "BW4T-Solo", alt_key: "9"},
             "default_price": "p",
         }
-        small = _stripe_prod(subs="BW4T-TPE", maximum="49")
+        small = _stripe_prod(ref="BW4T-TPE", maximum="49")
         out = _select_product_for_quantity([small, prod], 5)
         assert out is prod
+
+    def test_missing_maximum_with_stripe_like_product(self) -> None:
+        """A product without any "maximum" key is treated as unlimited."""
+
+        class _ProductWithoutMaximum:
+            def __init__(self, ref: str):
+                self.metadata = {"reference": ref}
+                self.default_price = "price_default"
+
+            def get(self, key: str, default: Any = None) -> Any:
+                if key == "metadata":
+                    return self.metadata
+                return default
+
+        unlimited = _ProductWithoutMaximum("BW4T-GE")
+        tiered = _ProductWithoutMaximum("BW4T-Solo")
+        tiered.metadata["maximum"] = "9"
+        out = _select_product_for_quantity([tiered, unlimited], 99999)
+        assert out is unlimited
 
 
 # ---------------------------------------------------------------------------
