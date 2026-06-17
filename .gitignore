@@ -19,6 +19,8 @@
 # Secret & local config
 /.env
 /etc/secrets.toml
+# Filled-in copy of scripts/hop3-config.example.sh (contains real Hop3 secrets)
+/scripts/hop3-config.local.sh
 /debug/
 .aider*
 /private
