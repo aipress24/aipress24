@@ -812,13 +812,13 @@ def _get_bw_type_from_product(product: stripe.Product) -> str:
     """Identify the BW type from Stripe product metadata."""
     metadata = product.metadata or {}
 
-    # New format: "Subs": "BW4PR", "BW4T-GE", etc.
-    subs = metadata.get("Subs")
-    if subs:
+    # New format: "reference": "BW4PR", "BW4T-GE", etc.
+    bw_reference = metadata.get("reference")
+    if bw_reference:
         from app.modules.bw.bw_activation.config import BWTYPE_ALLOWED_PRODUCTS
 
         for bw_type, products in BWTYPE_ALLOWED_PRODUCTS.items():
-            if subs in products:
+            if bw_reference in products:
                 return str(bw_type)
 
     # Old deprecated format fallback: "BW": "media", "agency", "com"
