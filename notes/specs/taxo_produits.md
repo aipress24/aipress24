@@ -3,7 +3,7 @@
    - les champs `domain`, `family`, `genre`, `offer` devraient suffire à identifier un produit unique.
    - le champ `reference` doit être unique.
    - le champs `maximum` n'est utilisé que pour les BW avec seuils de clients.
-   - les champs `Subs` et `article` sont obsolètes. Ils sont conservés tant qu'ils sont utilisés dans l'application.
+   - les champs `Subs` et `article` sont obsolètes. Ils ne sont plus censés être utilisés par l'application. Seule la taxonomie (`domain`, `family`, `genre`, `offer`) et les champs `reference`, `maximum` sont lus.
 
 
 | domain       | family          | genre   | offer | maximum | reference                           | Subs         | article                            |
