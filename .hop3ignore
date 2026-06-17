@@ -1,9 +1,10 @@
-.venv
-bootstrap_data
-db
-.git
-vite/node_modules
-icons/git
-icons/git/heroicons
-icons/git/lucide
-htmlcov
+# Anchored to the repo root so these never match a same-named directory under
+# src/ (an unanchored "db"/"bootstrap_data" would also drop source packages).
+.venv/
+/bootstrap_data/
+/db/
+/htmlcov/
+.git/
+vite/node_modules/
+/icons/git/
+AGENTS.md
