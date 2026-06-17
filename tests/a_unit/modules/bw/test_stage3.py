@@ -72,8 +72,7 @@ def _stripe_prod(
 ) -> dict[str, Any]:
     """Build a plain-dict Stripe-product fixture (the real one is dict-like).
 
-    The helper under test now uses the "reference" metadata key instead
-    of the deprecated "Subs" key.
+    The helper under test now uses the "reference" metadata key.
     """
     meta: dict[str, Any] = {"reference": ref}
     if maximum is not None:

@@ -318,38 +318,6 @@ class TestSelectPriceIdByGenre:
         )
 
 
-class TestSelectPriceIdLegacyFallback:
-    """Pre-migration products that still use the combined ``article``
-    metadata key (e.g. ``c-article-news``) are matched as a fallback."""
-
-    @pytest.mark.parametrize(
-        ("product", "article"),
-        [
-            (PurchaseProduct.CONSULTATION, "c-article-news"),
-            (PurchaseProduct.CONSULTATION_GIFT, "c-article-news"),
-            (PurchaseProduct.JUSTIFICATIF, "certificate-news"),
-            (PurchaseProduct.CESSION, "article-licence-news"),
-        ],
-    )
-    def test_legacy_article_lookup(self, product: PurchaseProduct, article: str):
-        products = [
-            _stripe_product(metadata={"article": article}, price_id="p_ok"),
-        ]
-        assert _select_price_id(products, product) == "p_ok"
-
-    def test_legacy_genre_specific_lookup(self):
-        products = [
-            _stripe_product(metadata={"article": "c-article-news"}, price_id="p_news"),
-            _stripe_product(
-                metadata={"article": "c-article-reportage"}, price_id="p_report"
-            ),
-        ]
-        assert (
-            _select_price_id(products, PurchaseProduct.CONSULTATION, genre="Reportage")
-            == "p_report"
-        )
-
-
 class TestBackToPost:
     """`_back_to_post` builds the article-detail URL or falls back to
     the wire index when the post is missing. Verified in a request
