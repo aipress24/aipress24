@@ -314,7 +314,8 @@ def _select_product_for_quantity(products: list[Product], quantity: int) -> Prod
             max_val = float("inf")
         parsed_products.append((max_val, p))
 
-    parsed_products.sort()
+    # Sort by maximum only; the Product objects are not comparable.
+    parsed_products.sort(key=lambda item: item[0])
 
     for max_val, p in parsed_products:
         if quantity <= max_val:
