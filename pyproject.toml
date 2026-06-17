@@ -59,7 +59,7 @@ dependencies = [
     # ORM & Database
     "sqlalchemy<3.0.0,>=2.0.25",
     "sqlalchemy-utils<1.0.0,>=0.41.1",
-    "advanced-alchemy>=1.9,<1.10",
+    "advanced-alchemy>=1.11,<1.12",
     "psycopg2<3.0.0,>=2.9.9",
     #
     "python-iso639>=2026",
