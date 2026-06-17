@@ -121,51 +121,6 @@ _FRENCH_TO_TAXO_GENRE: dict[PurchaseProduct, dict[str, str]] = {
     },
 }
 
-# legacy fallback for products that have not been migrated to the new
-# taxonomy yet.
-_PRODUCT_LEGACY_PREFIX: dict[PurchaseProduct, str] = {
-    PurchaseProduct.JUSTIFICATIF: "certificate-",
-    PurchaseProduct.CONSULTATION: "c-article-",
-    PurchaseProduct.CONSULTATION_GIFT: "c-article-",
-    PurchaseProduct.CESSION: "article-licence-",
-}
-
-_PRODUCT_LEGACY_SUFFIX: dict[PurchaseProduct, dict[str, str]] = {
-    PurchaseProduct.JUSTIFICATIF: {
-        "news": "news",
-        "feature": "feature",
-        "survey": "survey",
-        "exclu": "exclusive",
-        "itw": "interview",
-        "report": "report",
-    },
-    PurchaseProduct.CONSULTATION: {
-        "news": "news",
-        "dossier": "dossier",
-        "survey": "surv",
-        "exclu": "exclu",
-        "itw": "itw",
-        "report": "reportage",
-    },
-    PurchaseProduct.CONSULTATION_GIFT: {
-        "news": "news",
-        "dossier": "dossier",
-        "survey": "surv",
-        "exclu": "exclu",
-        "itw": "itw",
-        "report": "reportage",
-    },
-    PurchaseProduct.CESSION: {
-        "news": "news",
-        "feature": "feature",
-        "survey": "survey",
-        "exclu": "exclu",
-        "itw": "itw",
-        "report": "report",
-    },
-}
-
-
 _TAXO_GENRE_VALUES = {
     "news",
     "feature",
@@ -663,23 +618,6 @@ def _is_product_matching_taxonomy(
     return not (taxo_genre is not None and metadata.get("genre") != taxo_genre)
 
 
-def _is_product_matching_legacy(
-    prod: stripe.Product, product: PurchaseProduct, taxo_genre: str | None
-) -> bool:
-    """Check whether a product matches the deprecated combined `article` key."""
-    prefix = _PRODUCT_LEGACY_PREFIX.get(product)
-    if not prefix:
-        return False
-    article_value = prod.metadata.get("article", "")
-    if not article_value.startswith(prefix):
-        return False
-    if taxo_genre is None:
-        return True
-    suffix = article_value[len(prefix) :]
-    expected_suffix = _PRODUCT_LEGACY_SUFFIX.get(product, {}).get(taxo_genre)
-    return suffix == expected_suffix
-
-
 def _select_price_id(
     products: list[stripe.Product],
     product: PurchaseProduct,
@@ -711,18 +649,6 @@ def _select_price_id(
         if _is_product_matching_taxonomy(prod, product, None) and prod.default_price:
             return prod.default_price.id
 
-    # 3. Legacy combined-article metadata (pre-migration products).
-    if taxo_genre is not None:
-        for prod in products:
-            if (
-                _is_product_matching_legacy(prod, product, taxo_genre)
-                and prod.default_price
-            ):
-                return prod.default_price.id
-    for prod in products:
-        if _is_product_matching_legacy(prod, product, None) and prod.default_price:
-            return prod.default_price.id
-
     return ""
 
 
@@ -739,10 +665,8 @@ def _price_id_for(
        (`domain`/`family`/`offer`) plus `metadata.genre` when the post
        genre can be mapped to a taxonomy genre.
     2. Fall back to any product in the same taxonomy family.
-    3. As a last resort, match the legacy combined `article` metadata
-       used before the taxonomy migration.
 
-    Returns "" when none of the strategies finds a candidate (handled by
+    Returns "" when neither strategy finds a candidate (handled by
     the caller with a flash).
 
     Pass an explicit `client` to inject a fake StripeClient — used by
