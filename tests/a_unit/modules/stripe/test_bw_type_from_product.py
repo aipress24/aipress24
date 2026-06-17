@@ -9,7 +9,7 @@ This helper takes a Stripe `Product` and decides which Business Wall
 type it belongs to, based on the product's `metadata`. There are two
 formats :
 
-- **New** (`Subs`) : the metadata carries `Subs: "BW4PR"`,
+- **New** (`reference`) : the metadata carries `reference: "BW4PR"`,
   `"BW4T-GE"`, etc., and we look the value up in `BWTYPE_ALLOWED_PRODUCTS`.
 - **Old deprecated** (`BW`) : a free-form string like `"agency"`,
   `"media"`, `"com"` that we map to `BWType.PR` / `BWType.MEDIA`.
@@ -32,19 +32,19 @@ class _StripeProduct:
         self.metadata = metadata
 
 
-class TestNewSubsFormat:
-    """Modern `Subs` metadata key — looked up in
+class TestNewReferenceFormat:
+    """Up to date `reference` metadata key — looked up in
     `BWTYPE_ALLOWED_PRODUCTS` from `bw_activation/config.py`."""
 
     def test_pr_product_returns_pr_type(self):
-        product = _StripeProduct(metadata={"Subs": "BW4PR"})
+        product = _StripeProduct(metadata={"reference": "BW4PR"})
         assert _get_bw_type_from_product(product) == BWType.PR.value
 
     def test_transformers_product_returns_transformers(self):
         """Any of the BW4T-* sizes (Solo / TPE / PME / ETI / GE)
         resolves to TRANSFORMERS."""
         for size in ("BW4T-ETI", "BW4T-GE", "BW4T-PME", "BW4T-Solo", "BW4T-TPE"):
-            product = _StripeProduct(metadata={"Subs": size})
+            product = _StripeProduct(metadata={"reference": size})
             assert _get_bw_type_from_product(product) == (BWType.TRANSFORMERS.value), (
                 f"size {size!r} should map to TRANSFORMERS"
             )
@@ -57,16 +57,16 @@ class TestNewSubsFormat:
             "BW4L&E-Solo",
             "BW4L&E-TPE",
         ):
-            product = _StripeProduct(metadata={"Subs": size})
+            product = _StripeProduct(metadata={"reference": size})
             assert _get_bw_type_from_product(product) == (
                 BWType.LEADERS_EXPERTS.value
             ), f"size {size!r} should map to LEADERS_EXPERTS"
 
-    def test_unrecognised_subs_falls_through_to_default(self):
-        """A `Subs` value Stripe carries but our config doesn't know
+    def test_unrecognised_reference_falls_through_to_default(self):
+        """A `reference` value Stripe carries but our config doesn't know
         about should NOT crash — it falls through to the deprecated
         format check and finally to the MEDIA default."""
-        product = _StripeProduct(metadata={"Subs": "BW4Unknown-XL"})
+        product = _StripeProduct(metadata={"reference": "BW4Unknown-XL"})
         assert _get_bw_type_from_product(product) == BWType.MEDIA.value
 
 
@@ -122,11 +122,11 @@ class TestFallback:
         product = _StripeProduct(metadata={"BW": "totally-bogus"})
         assert _get_bw_type_from_product(product) == BWType.MEDIA.value
 
-    def test_subs_takes_priority_over_bw(self):
-        """A product carrying both keys at once : the modern `Subs`
+    def test_reference_takes_priority_over_bw(self):
+        """A product carrying both keys at once : the modern `reference`
         format wins (otherwise the migration would silently regress
         live subscriptions on transition products)."""
         product = _StripeProduct(
-            metadata={"Subs": "BW4PR", "BW": "media"},
+            metadata={"reference": "BW4PR", "BW": "media"},
         )
         assert _get_bw_type_from_product(product) == BWType.PR.value
