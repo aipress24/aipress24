@@ -514,12 +514,12 @@ def _preview_checkout_amount(
 def _filter_products_by_allowed_subs(
     products: list[Any], allowed_values: set[str]
 ) -> list[Any]:
-    """Keep only Stripe products whose `metadata.subs` is in `allowed_values`.
+    """Keep only Stripe products whose `metadata.reference` is in `allowed_values`.
 
     Metadata keys come back from Stripe with arbitrary casing
-    (`Subs`, `SUBS`, ...) — we lower-case the key set so a config
-    typo in the Dashboard doesn't silently filter out a paying tier.
-    Empty `allowed_values` short-circuits to an empty list (the
+    (`reference`, `Reference`, ...) — we lower-case the key set so a
+    config typo in the Dashboard doesn't silently filter out a paying
+    tier. Empty `allowed_values` short-circuits to an empty list (the
     BW type isn't a paid tier ; checkout must not proceed).
     """
     if not allowed_values:
@@ -533,7 +533,7 @@ def _filter_products_by_allowed_subs(
         )
         metadata_dict = dict(raw_metadata) if raw_metadata else {}
         lowered = {str(k).lower(): v for k, v in metadata_dict.items()}
-        if lowered.get("subs", "") in allowed_values:
+        if lowered.get("reference", "") in allowed_values:
             results.append(prod)
     return results
 
