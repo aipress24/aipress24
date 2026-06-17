@@ -33,9 +33,9 @@ from __future__ import annotations
 from types import SimpleNamespace
 
 import pytest
+
 from app.modules.wire.models import PurchaseProduct
 from app.modules.wire.views.purchase import _price_id_for, _select_price_id
-
 from tests.a_unit.services.stripe._fake_client import FakeStripeClient
 
 # ---------------------------------------------------------------------------
