@@ -281,6 +281,25 @@ class TestSelectProductForQuantity:
         out = _select_product_for_quantity([small, prod], 5)
         assert out is prod
 
+    def test_missing_maximum_with_stripe_like_product(self) -> None:
+        """A product without any "maximum" key is treated as unlimited."""
+
+        class _ProductWithoutMaximum:
+            def __init__(self, ref: str):
+                self.metadata = {"reference": ref}
+                self.default_price = "price_default"
+
+            def get(self, key: str, default: Any = None) -> Any:
+                if key == "metadata":
+                    return self.metadata
+                return default
+
+        unlimited = _ProductWithoutMaximum("BW4T-GE")
+        tiered = _ProductWithoutMaximum("BW4T-Solo")
+        tiered.metadata["maximum"] = "9"
+        out = _select_product_for_quantity([tiered, unlimited], 99999)
+        assert out is unlimited
+
 
 # ---------------------------------------------------------------------------
 # _normalize_stripe_info_form
