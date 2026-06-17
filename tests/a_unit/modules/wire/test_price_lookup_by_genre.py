@@ -33,9 +33,9 @@ from __future__ import annotations
 from types import SimpleNamespace
 
 import pytest
-
 from app.modules.wire.models import PurchaseProduct
 from app.modules.wire.views.purchase import _price_id_for, _select_price_id
+
 from tests.a_unit.services.stripe._fake_client import FakeStripeClient
 
 # ---------------------------------------------------------------------------
@@ -94,24 +94,45 @@ def _product_row(
 
 
 class TestSelectPriceIdBackCompat:
-    """Without a genre argument, behaviour matches the pre-#0192 flat
-    lookup : pick any product matching the type marker."""
+    """Without a genre argument, the selector falls back to the taxonomy
+    family lookup : pick any active product matching domain/family/offer."""
 
     def test_consultation_returns_default_price(self) -> None:
         products = [
-            _stub_product(metadata={"article": "c-article"}, price_id="p_c"),
+            _stub_product(
+                metadata={
+                    "domain": "consultation",
+                    "family": "article",
+                    "offer": "paid",
+                },
+                price_id="p_c",
+            ),
         ]
         assert _select_price_id(products, PurchaseProduct.CONSULTATION) == "p_c"
 
     def test_justificatif_returns_default_price(self) -> None:
         products = [
-            _stub_product(metadata={"product_type": "j-article"}, price_id="p_j"),
+            _stub_product(
+                metadata={
+                    "domain": "certificate",
+                    "family": "article",
+                    "offer": "paid",
+                },
+                price_id="p_j",
+            ),
         ]
         assert _select_price_id(products, PurchaseProduct.JUSTIFICATIF) == "p_j"
 
     def test_cession_returns_default_price(self) -> None:
         products = [
-            _stub_product(metadata={"article": "cd-article"}, price_id="p_d"),
+            _stub_product(
+                metadata={
+                    "domain": "license",
+                    "family": "article",
+                    "offer": "paid",
+                },
+                price_id="p_d",
+            ),
         ]
         assert _select_price_id(products, PurchaseProduct.CESSION) == "p_d"
 
@@ -120,7 +141,14 @@ class TestSelectPriceIdBackCompat:
         (the gift form just opens checkout with quantity = N). Pin so
         the gift flow can't silently bill against the wrong tier."""
         products = [
-            _stub_product(metadata={"article": "c-article"}, price_id="p_c"),
+            _stub_product(
+                metadata={
+                    "domain": "consultation",
+                    "family": "article",
+                    "offer": "paid",
+                },
+                price_id="p_c",
+            ),
         ]
         assert _select_price_id(products, PurchaseProduct.CONSULTATION_GIFT) == "p_c"
 
@@ -139,7 +167,14 @@ class TestSelectPriceIdBackCompat:
         must skip it and look for the next candidate, returning ""
         when none is left."""
         products = [
-            _stub_product(metadata={"article": "c-article"}, price_id=None),
+            _stub_product(
+                metadata={
+                    "domain": "consultation",
+                    "family": "article",
+                    "offer": "paid",
+                },
+                price_id=None,
+            ),
         ]
         assert _select_price_id(products, PurchaseProduct.CONSULTATION) == ""
 
@@ -149,31 +184,57 @@ class TestSelectPriceIdByGenre:
         """Two CONSULTATION products coexist : a generic one and an
         « enquete » one. The « enquete » lookup must pick the latter."""
         products = [
-            _stub_product(metadata={"article": "c-article"}, price_id="p_generic"),
             _stub_product(
-                metadata={"article": "c-article", "genre": "enquete"},
+                metadata={
+                    "domain": "consultation",
+                    "family": "article",
+                    "offer": "paid",
+                },
+                price_id="p_generic",
+            ),
+            _stub_product(
+                metadata={
+                    "domain": "consultation",
+                    "family": "article",
+                    "offer": "paid",
+                    "genre": "survey",
+                },
                 price_id="p_enquete",
             ),
         ]
         result = _select_price_id(
-            products, PurchaseProduct.CONSULTATION, genre="enquete"
+            products, PurchaseProduct.CONSULTATION, genre="Enquête"
         )
         assert result == "p_enquete"
 
     def test_falls_back_to_generic_when_no_genre_product(self) -> None:
         """An article tagged « interview » but no Stripe product for
-        that genre yet → use the generic c-article price."""
+        that genre yet → use the generic consultation price."""
         products = [
-            _stub_product(metadata={"article": "c-article"}, price_id="p_generic"),
+            _stub_product(
+                metadata={
+                    "domain": "consultation",
+                    "family": "article",
+                    "offer": "paid",
+                },
+                price_id="p_generic",
+            ),
         ]
         result = _select_price_id(
-            products, PurchaseProduct.CONSULTATION, genre="interview"
+            products, PurchaseProduct.CONSULTATION, genre="Interview"
         )
         assert result == "p_generic"
 
     def test_empty_genre_behaves_like_back_compat(self) -> None:
         products = [
-            _stub_product(metadata={"article": "c-article"}, price_id="p_generic"),
+            _stub_product(
+                metadata={
+                    "domain": "consultation",
+                    "family": "article",
+                    "offer": "paid",
+                },
+                price_id="p_generic",
+            ),
         ]
         result = _select_price_id(products, PurchaseProduct.CONSULTATION, genre="")
         assert result == "p_generic"
@@ -182,16 +243,28 @@ class TestSelectPriceIdByGenre:
         """A `genre=news` consultation lookup must not pick up a
         `genre=news` JUSTIFICATIF product."""
         products = [
-            # Justificatif (j-article) with genre=news.
+            # Justificatif with genre=news.
             _stub_product(
-                metadata={"product_type": "j-article", "genre": "news"},
+                metadata={
+                    "domain": "certificate",
+                    "family": "article",
+                    "offer": "paid",
+                    "genre": "news",
+                },
                 price_id="p_j_news",
             ),
             # Generic consultation, no genre.
-            _stub_product(metadata={"article": "c-article"}, price_id="p_c_generic"),
+            _stub_product(
+                metadata={
+                    "domain": "consultation",
+                    "family": "article",
+                    "offer": "paid",
+                },
+                price_id="p_c_generic",
+            ),
         ]
-        # CONSULTATION + genre=news has no c-article+news product,
-        # so it falls back to the generic c-article.
+        # CONSULTATION + genre=news has no consultation+news product,
+        # so it falls back to the generic consultation product.
         assert (
             _select_price_id(products, PurchaseProduct.CONSULTATION, genre="news")
             == "p_c_generic"
@@ -204,17 +277,29 @@ class TestSelectPriceIdByGenre:
 
     def test_genre_specific_skipped_when_default_price_missing(self) -> None:
         """A genre-specific product without a billable default_price
-        must fall through to the back-compat scan — otherwise an
+        must fall through to the family scan — otherwise an
         unbillable genre product would shadow a working generic."""
         products = [
             _stub_product(
-                metadata={"article": "c-article", "genre": "enquete"},
+                metadata={
+                    "domain": "consultation",
+                    "family": "article",
+                    "offer": "paid",
+                    "genre": "survey",
+                },
                 price_id=None,
             ),
-            _stub_product(metadata={"article": "c-article"}, price_id="p_generic"),
+            _stub_product(
+                metadata={
+                    "domain": "consultation",
+                    "family": "article",
+                    "offer": "paid",
+                },
+                price_id="p_generic",
+            ),
         ]
         result = _select_price_id(
-            products, PurchaseProduct.CONSULTATION, genre="enquete"
+            products, PurchaseProduct.CONSULTATION, genre="Enquête"
         )
         assert result == "p_generic"
 
@@ -225,23 +310,42 @@ class TestSelectPriceIdByGenre:
         more debuggable than « whichever Stripe returns first »."""
         products = [
             _stub_product(
-                metadata={"article": "c-article", "genre": "enquete"},
+                metadata={
+                    "domain": "consultation",
+                    "family": "article",
+                    "offer": "paid",
+                    "genre": "survey",
+                },
                 price_id="p_first",
             ),
             _stub_product(
-                metadata={"article": "c-article", "genre": "enquete"},
+                metadata={
+                    "domain": "consultation",
+                    "family": "article",
+                    "offer": "paid",
+                    "genre": "survey",
+                },
                 price_id="p_second",
             ),
         ]
         result = _select_price_id(
-            products, PurchaseProduct.CONSULTATION, genre="enquete"
+            products, PurchaseProduct.CONSULTATION, genre="Enquête"
         )
         assert result == "p_first"
 
-    @pytest.mark.parametrize("genre", ["news", "enquete", "exclusivite", "dossier"])
+    @pytest.mark.parametrize(
+        "genre", ["Actualité", "Enquête", "Exclusivité", "Dossier"]
+    )
     def test_falls_back_for_any_unknown_genre(self, genre: str) -> None:
         products = [
-            _stub_product(metadata={"article": "c-article"}, price_id="p_generic"),
+            _stub_product(
+                metadata={
+                    "domain": "consultation",
+                    "family": "article",
+                    "offer": "paid",
+                },
+                price_id="p_generic",
+            ),
         ]
         result = _select_price_id(products, PurchaseProduct.CONSULTATION, genre=genre)
         assert result == "p_generic"
@@ -263,7 +367,11 @@ class TestPriceIdForWithFakeClient:
             product_listing=[
                 _product_row(
                     "prod_c",
-                    metadata={"article": "c-article"},
+                    metadata={
+                        "domain": "consultation",
+                        "family": "article",
+                        "offer": "paid",
+                    },
                     price_id="p_c",
                 ),
             ]
@@ -275,18 +383,27 @@ class TestPriceIdForWithFakeClient:
             product_listing=[
                 _product_row(
                     "prod_generic",
-                    metadata={"article": "c-article"},
+                    metadata={
+                        "domain": "consultation",
+                        "family": "article",
+                        "offer": "paid",
+                    },
                     price_id="p_generic",
                 ),
                 _product_row(
                     "prod_enquete",
-                    metadata={"article": "c-article", "genre": "enquete"},
+                    metadata={
+                        "domain": "consultation",
+                        "family": "article",
+                        "offer": "paid",
+                        "genre": "survey",
+                    },
                     price_id="p_enquete",
                 ),
             ]
         )
         result = _price_id_for(
-            PurchaseProduct.CONSULTATION, genre="enquete", client=fake
+            PurchaseProduct.CONSULTATION, genre="Enquête", client=fake
         )
         assert result == "p_enquete"
 
@@ -295,13 +412,17 @@ class TestPriceIdForWithFakeClient:
             product_listing=[
                 _product_row(
                     "prod_generic",
-                    metadata={"article": "c-article"},
+                    metadata={
+                        "domain": "consultation",
+                        "family": "article",
+                        "offer": "paid",
+                    },
                     price_id="p_generic",
                 ),
             ]
         )
         result = _price_id_for(
-            PurchaseProduct.CONSULTATION, genre="interview", client=fake
+            PurchaseProduct.CONSULTATION, genre="Interview", client=fake
         )
         assert result == "p_generic"
 
@@ -313,8 +434,8 @@ class TestPriceIdForWithFakeClient:
         assert _price_id_for(PurchaseProduct.CONSULTATION, client=fake) == ""
 
     def test_unrelated_products_return_empty_string(self) -> None:
-        """Stripe products exist but none carries the right marker.
-        Pin that the back-compat scan doesn't accidentally match an
+        """Stripe products exist but none carries the right taxonomy.
+        Pin that the family scan doesn't accidentally match an
         unrelated product type."""
         fake = FakeStripeClient(
             product_listing=[

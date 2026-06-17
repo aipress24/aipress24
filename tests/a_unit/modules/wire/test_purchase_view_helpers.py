@@ -66,33 +66,59 @@ class TestBuyModalClose:
         assert isinstance(buy_modal_close(), str)
 
 
-class TestSelectPriceIdBackCompat:
-    """Without a genre argument, behaviour matches the pre-#0192 flat
-    lookup : pick any product matching the type marker."""
+class TestSelectPriceIdByTaxonomy:
+    """Products updated with the new taxonomy (notes/specs/taxo_produits.md)
+    are matched by domain/family/offer plus genre."""
 
     def test_consultation_returns_default_price(self):
         products = [
-            _stripe_product(metadata={"article": "c-article"}, price_id="p_c"),
+            _stripe_product(
+                metadata={
+                    "domain": "consultation",
+                    "family": "article",
+                    "offer": "paid",
+                },
+                price_id="p_c",
+            ),
         ]
         assert _select_price_id(products, PurchaseProduct.CONSULTATION) == "p_c"
 
-    def test_consultation_gift_shares_consultation_marker(self):
-        # The CONSULTATION_GIFT product reuses c-article — quantity on
-        # the Checkout line item carries the « N recipients » fan-out.
+    def test_consultation_gift_shares_consultation_taxonomy(self):
         products = [
-            _stripe_product(metadata={"article": "c-article"}, price_id="p_c"),
+            _stripe_product(
+                metadata={
+                    "domain": "consultation",
+                    "family": "article",
+                    "offer": "paid",
+                },
+                price_id="p_c",
+            ),
         ]
         assert _select_price_id(products, PurchaseProduct.CONSULTATION_GIFT) == "p_c"
 
     def test_justificatif_returns_default_price(self):
         products = [
-            _stripe_product(metadata={"product_type": "j-article"}, price_id="p_j"),
+            _stripe_product(
+                metadata={
+                    "domain": "certificate",
+                    "family": "article",
+                    "offer": "paid",
+                },
+                price_id="p_j",
+            ),
         ]
         assert _select_price_id(products, PurchaseProduct.JUSTIFICATIF) == "p_j"
 
     def test_cession_returns_default_price(self):
         products = [
-            _stripe_product(metadata={"article": "cd-article"}, price_id="p_d"),
+            _stripe_product(
+                metadata={
+                    "domain": "license",
+                    "family": "article",
+                    "offer": "paid",
+                },
+                price_id="p_d",
+            ),
         ]
         assert _select_price_id(products, PurchaseProduct.CESSION) == "p_d"
 
@@ -106,20 +132,44 @@ class TestSelectPriceIdBackCompat:
         assert _select_price_id([], PurchaseProduct.CONSULTATION) == ""
 
     def test_skips_products_without_default_price(self):
-        # A Stripe product with no default price (rare but legal — the
-        # admin forgot to set one) must not be picked.
         products = [
-            _stripe_product(metadata={"article": "c-article"}, price_id=None),
-            _stripe_product(metadata={"article": "c-article"}, price_id="p_ok"),
+            _stripe_product(
+                metadata={
+                    "domain": "consultation",
+                    "family": "article",
+                    "offer": "paid",
+                },
+                price_id=None,
+            ),
+            _stripe_product(
+                metadata={
+                    "domain": "consultation",
+                    "family": "article",
+                    "offer": "paid",
+                },
+                price_id="p_ok",
+            ),
         ]
         assert _select_price_id(products, PurchaseProduct.CONSULTATION) == "p_ok"
 
     def test_first_match_wins_when_multiple_candidates(self):
-        # Two valid c-article products shouldn't happen in practice but
-        # the helper must be deterministic about which it returns.
         products = [
-            _stripe_product(metadata={"article": "c-article"}, price_id="p_one"),
-            _stripe_product(metadata={"article": "c-article"}, price_id="p_two"),
+            _stripe_product(
+                metadata={
+                    "domain": "consultation",
+                    "family": "article",
+                    "offer": "paid",
+                },
+                price_id="p_one",
+            ),
+            _stripe_product(
+                metadata={
+                    "domain": "consultation",
+                    "family": "article",
+                    "offer": "paid",
+                },
+                price_id="p_two",
+            ),
         ]
         assert _select_price_id(products, PurchaseProduct.CONSULTATION) == "p_one"
 
@@ -127,33 +177,59 @@ class TestSelectPriceIdBackCompat:
 class TestSelectPriceIdByGenre:
     """Ticket #0192 — pricing par genre. A genre-tagged article must
     pick the matching Stripe product when available, fall back to the
-    generic c-article otherwise."""
+    family otherwise."""
 
     def test_genre_specific_price_wins_over_generic(self):
         products = [
-            _stripe_product(metadata={"article": "c-article"}, price_id="p_generic"),
             _stripe_product(
-                metadata={"article": "c-article", "genre": "enquete"},
+                metadata={
+                    "domain": "consultation",
+                    "family": "article",
+                    "offer": "paid",
+                },
+                price_id="p_generic",
+            ),
+            _stripe_product(
+                metadata={
+                    "domain": "consultation",
+                    "family": "article",
+                    "offer": "paid",
+                    "genre": "survey",
+                },
                 price_id="p_enquete",
             ),
         ]
         assert (
-            _select_price_id(products, PurchaseProduct.CONSULTATION, genre="enquete")
+            _select_price_id(products, PurchaseProduct.CONSULTATION, genre="Enquête")
             == "p_enquete"
         )
 
-    def test_falls_back_to_generic_when_no_genre_specific_product(self):
+    def test_falls_back_to_family_when_no_genre_specific_product(self):
         products = [
-            _stripe_product(metadata={"article": "c-article"}, price_id="p_generic"),
+            _stripe_product(
+                metadata={
+                    "domain": "consultation",
+                    "family": "article",
+                    "offer": "paid",
+                },
+                price_id="p_generic",
+            ),
         ]
         assert (
-            _select_price_id(products, PurchaseProduct.CONSULTATION, genre="interview")
+            _select_price_id(products, PurchaseProduct.CONSULTATION, genre="Interview")
             == "p_generic"
         )
 
-    def test_empty_genre_matches_generic_path(self):
+    def test_empty_genre_matches_family_path(self):
         products = [
-            _stripe_product(metadata={"article": "c-article"}, price_id="p_generic"),
+            _stripe_product(
+                metadata={
+                    "domain": "consultation",
+                    "family": "article",
+                    "offer": "paid",
+                },
+                price_id="p_generic",
+            ),
         ]
         assert (
             _select_price_id(products, PurchaseProduct.CONSULTATION, genre="")
@@ -161,14 +237,24 @@ class TestSelectPriceIdByGenre:
         )
 
     def test_genre_lookup_does_not_cross_product_types(self):
-        # A justificatif product tagged genre=news must not be picked
-        # for a CONSULTATION + genre=news lookup.
         products = [
             _stripe_product(
-                metadata={"product_type": "j-article", "genre": "news"},
+                metadata={
+                    "domain": "certificate",
+                    "family": "article",
+                    "offer": "paid",
+                    "genre": "news",
+                },
                 price_id="p_j_news",
             ),
-            _stripe_product(metadata={"article": "c-article"}, price_id="p_c_generic"),
+            _stripe_product(
+                metadata={
+                    "domain": "consultation",
+                    "family": "article",
+                    "offer": "paid",
+                },
+                price_id="p_c_generic",
+            ),
         ]
         assert (
             _select_price_id(products, PurchaseProduct.CONSULTATION, genre="news")
@@ -179,38 +265,95 @@ class TestSelectPriceIdByGenre:
             == "p_j_news"
         )
 
-    @pytest.mark.parametrize("genre", ["news", "enquete", "exclusivite", "dossier"])
-    def test_unknown_genre_falls_back_to_generic(self, genre: str):
+    @pytest.mark.parametrize(
+        "genre",
+        ["Actualité", "Enquête", "Exclusivité", "Dossier"],
+    )
+    def test_unknown_genre_falls_back_to_family(self, genre: str):
         products = [
-            _stripe_product(metadata={"article": "c-article"}, price_id="p_generic"),
+            _stripe_product(
+                metadata={
+                    "domain": "consultation",
+                    "family": "article",
+                    "offer": "paid",
+                },
+                price_id="p_generic",
+            ),
         ]
         assert (
             _select_price_id(products, PurchaseProduct.CONSULTATION, genre=genre)
             == "p_generic"
         )
 
+    def test_dossier_genre_maps_to_different_taxo_values_by_product(self):
+        """French "Dossier" becomes ``feature`` for cession/justificatif
+        but ``dossier`` for consultation."""
+        products = [
+            _stripe_product(
+                metadata={
+                    "domain": "consultation",
+                    "family": "article",
+                    "offer": "paid",
+                    "genre": "dossier",
+                },
+                price_id="p_c_dossier",
+            ),
+            _stripe_product(
+                metadata={
+                    "domain": "license",
+                    "family": "article",
+                    "offer": "paid",
+                    "genre": "feature",
+                },
+                price_id="p_d_feature",
+            ),
+        ]
+        assert (
+            _select_price_id(products, PurchaseProduct.CONSULTATION, genre="Dossier")
+            == "p_c_dossier"
+        )
+        assert (
+            _select_price_id(products, PurchaseProduct.CESSION, genre="Dossier")
+            == "p_d_feature"
+        )
+
+
+class TestSelectPriceIdLegacyFallback:
+    """Pre-migration products that still use the combined ``article``
+    metadata key (e.g. ``c-article-news``) are matched as a fallback."""
+
     @pytest.mark.parametrize(
-        ("product", "marker_key", "marker_value"),
+        ("product", "article"),
         [
-            (PurchaseProduct.CONSULTATION, "article", "c-article"),
-            (PurchaseProduct.CONSULTATION_GIFT, "article", "c-article"),
-            (PurchaseProduct.JUSTIFICATIF, "product_type", "j-article"),
-            (PurchaseProduct.CESSION, "article", "cd-article"),
+            (PurchaseProduct.CONSULTATION, "c-article-news"),
+            (PurchaseProduct.CONSULTATION_GIFT, "c-article-news"),
+            (PurchaseProduct.JUSTIFICATIF, "certificate-news"),
+            (PurchaseProduct.CESSION, "article-licence-news"),
         ],
     )
-    def test_each_product_resolves_via_its_own_marker(
-        self, product: PurchaseProduct, marker_key: str, marker_value: str
-    ):
+    def test_legacy_article_lookup(self, product: PurchaseProduct, article: str):
         products = [
-            _stripe_product(metadata={marker_key: marker_value}, price_id="p_ok"),
+            _stripe_product(metadata={"article": article}, price_id="p_ok"),
         ]
         assert _select_price_id(products, product) == "p_ok"
+
+    def test_legacy_genre_specific_lookup(self):
+        products = [
+            _stripe_product(metadata={"article": "c-article-news"}, price_id="p_news"),
+            _stripe_product(
+                metadata={"article": "c-article-reportage"}, price_id="p_report"
+            ),
+        ]
+        assert (
+            _select_price_id(products, PurchaseProduct.CONSULTATION, genre="Reportage")
+            == "p_report"
+        )
 
 
 class TestBackToPost:
     """`_back_to_post` builds the article-detail URL or falls back to
     the wire index when the post is missing. Verified in a request
-    context — `url_for` needs one. No mocks."""
+    context — `url_for` needs one."""
 
     def test_none_post_returns_wire_index(self, app):
         with app.test_request_context():
