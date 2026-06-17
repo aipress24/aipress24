@@ -501,7 +501,9 @@ def _preview_checkout_amount(
         customer_id = None
     checkout_kwargs.update(_resolve_stripe_customer_kwargs(customer_id, g.user.email))
     try:
-        preview_session = stripe.checkout.Session.create(**checkout_kwargs)
+        preview_session = _create_stripe_checkout_session(
+            checkout_kwargs, org, g.user.email
+        )
         return preview_session.amount_subtotal
     except Exception as exc:
         warn(f"Preview checkout session failed: {exc}")
@@ -596,6 +598,56 @@ def _add_billing_collection(checkout_kwargs: dict[str, Any]) -> None:
     checkout_kwargs["billing_address_collection"] = "required"
     if "customer" in checkout_kwargs:
         checkout_kwargs["customer_update"] = {"address": "auto", "name": "auto"}
+
+
+def _checkout_kwargs_without_customer(
+    checkout_kwargs: dict[str, Any], user_email: str | None
+) -> dict[str, Any]:
+    """Return a copy of checkout kwargs with the invalid customer removed.
+
+    Replaces "customer" + "customer_update" with "customer_email" so
+    Stripe creates a new Customer at checkout time.
+    """
+    kwargs = dict(checkout_kwargs)
+    kwargs.pop("customer", None)
+    kwargs.pop("customer_update", None)
+    kwargs.update(_resolve_stripe_customer_kwargs(None, user_email))
+    _add_billing_collection(kwargs)
+    return kwargs
+
+
+def _create_stripe_checkout_session(
+    checkout_kwargs: dict[str, Any],
+    organisation: Any | None,
+    user_email: str | None,
+) -> stripe.checkout.Session:
+    """Create a Stripe Checkout session, recovering from stale customer ids.
+
+    If the Organisation's stored "stripe_customer_id" no longer exists in
+    Stripe (deleted customer, environment switch, etc.), Stripe returns
+    "No such customer". In that case we clear the stored id, commit, and
+    retry with "customer_email" so a fresh Customer is created.
+    """
+    try:
+        return stripe.checkout.Session.create(**checkout_kwargs)
+    except stripe.error.InvalidRequestError as exc:
+        err_msg = str(exc)
+        if (
+            "No such customer" not in err_msg
+            or organisation is None
+            or not organisation.stripe_customer_id
+        ):
+            raise
+
+        warn(
+            f"Stored Stripe customer {organisation.stripe_customer_id} not found",
+            "clearing and creating a new customer at checkout.",
+        )
+        organisation.stripe_customer_id = None
+        db.session.commit()
+
+        retry_kwargs = _checkout_kwargs_without_customer(checkout_kwargs, user_email)
+        return stripe.checkout.Session.create(**retry_kwargs)
 
 
 def _is_idempotent_confirmation_target(
@@ -711,7 +763,9 @@ def checkout(bw_type: str):
     checkout_kwargs.update(_resolve_stripe_customer_kwargs(customer_id, g.user.email))
     _add_billing_collection(checkout_kwargs)
 
-    checkout_session = stripe.checkout.Session.create(**checkout_kwargs)
+    checkout_session = _create_stripe_checkout_session(
+        checkout_kwargs, org, g.user.email
+    )
     return redirect(checkout_session.url, code=303)
 
 
