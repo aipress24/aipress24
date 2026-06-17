@@ -69,12 +69,13 @@ class TestFetchStripeProductList:
 
 class TestFetchBwProductList:
     """`fetch_bw_product_list` filters the full product list to those
-    whose `metadata` dict has a `subs` key (case-insensitive)."""
+    whose `metadata` dict has a `domain` key with value `bw`
+    (case-insensitive)."""
 
-    def test_filters_to_subs_metadata_only(self) -> None:
+    def test_filters_to_domain_metadata_only(self) -> None:
         fake = FakeStripeClient(
             product_listing=[
-                _product("prod_bw", metadata={"Subs": "BW4PR"}),
+                _product("prod_bw", metadata={"domain": "bw"}),
                 _product("prod_other", metadata={"unrelated": "x"}),
                 _product("prod_no_meta", metadata={}),
             ]
@@ -83,14 +84,15 @@ class TestFetchBwProductList:
         ids = [p["id"] for p in result]
         assert ids == ["prod_bw"]
 
-    def test_metadata_key_match_is_case_insensitive(self) -> None:
-        """The SUT lowercases every metadata key before checking for
-        `subs`. Pin so a stripe-side rename to `SUBS` still matches."""
+    def test_metadata_key_and_value_match_is_case_insensitive(self) -> None:
+        """The SUT lowercases every metadata key/value before checking for
+        `domain: bw`. Pin so a stripe-side rename to `DOMAIN` or value
+        `BW` still matches."""
         fake = FakeStripeClient(
             product_listing=[
-                _product("prod_lower", metadata={"subs": "X"}),
-                _product("prod_upper", metadata={"SUBS": "X"}),
-                _product("prod_camel", metadata={"Subs": "X"}),
+                _product("prod_lower", metadata={"domain": "bw"}),
+                _product("prod_upper", metadata={"DOMAIN": "BW"}),
+                _product("prod_camel", metadata={"Domain": "Bw"}),
             ]
         )
         result = fetch_bw_product_list(client=fake)
@@ -103,7 +105,7 @@ class TestFetchBwProductList:
     def test_empty_listing_returns_empty(self) -> None:
         assert fetch_bw_product_list(client=FakeStripeClient()) == []
 
-    def test_no_subs_anywhere_returns_empty(self) -> None:
+    def test_no_bw_domain_anywhere_returns_empty(self) -> None:
         fake = FakeStripeClient(
             product_listing=[
                 _product("a", metadata={"k1": "v1"}),
@@ -120,7 +122,7 @@ class TestFetchBwProductList:
             product_listing=[
                 stripe_obj(
                     id="prod_sn",
-                    metadata={"Subs": "BW4PR"},
+                    metadata={"domain": "bw"},
                     name="SN product",
                     active=True,
                 ),
