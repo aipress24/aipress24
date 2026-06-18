@@ -528,14 +528,10 @@ class StripeDebug:
         # Provide a placeholder API key so `load_stripe_api_key`
         # doesn't bail. The real Stripe SDK won't be called.
         app.config.setdefault("STRIPE_SECRET_KEY", "sk_test_mock_inline")
-        # Placeholder Stripe price IDs for the one-off wire products
-        # (cf. wire/views/purchase.py:_PRODUCT_TO_ENV) and for the
-        # BW pricing tables. The mock doesn't validate — these just
-        # let the routes pass the `if not price_id: bail` guard.
+        # Placeholder Stripe price IDs for the BW pricing tables. The
+        # mock doesn't validate — these just let the routes pass the
+        # `if not price_id: bail` guard.
         for env in (
-            "STRIPE_PRICE_CONSULTATION",
-            "STRIPE_PRICE_JUSTIFICATIF",
-            "STRIPE_PRICE_CESSION",
             "STRIPE_PRICING_SUBS_MEDIA",
             "STRIPE_PRICING_SUBS_MICRO",
             "STRIPE_PRICING_SUBS_PR",

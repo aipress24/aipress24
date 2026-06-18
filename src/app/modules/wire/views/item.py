@@ -7,12 +7,17 @@
 from __future__ import annotations
 
 from collections.abc import Callable
+from decimal import Decimal
 from typing import TYPE_CHECKING, ClassVar, cast
 
 import arrow
 import sqlalchemy as sa
+import stripe
+import stripe.error
 from attr import field, frozen
-from flask import flash, g, redirect, render_template, request
+from babel.numbers import format_currency
+from cachetools import TTLCache
+from flask import current_app, flash, g, redirect, render_template, request
 from flask.views import MethodView
 from sqlalchemy.orm import selectinload
 from werkzeug import Response
@@ -22,6 +27,7 @@ from app.flask.lib.nav import nav
 from app.flask.lib.view_model import Wrapper
 from app.flask.routing import url_for
 from app.flask.sqla import get_obj
+from app.logging import warn
 from app.models.auth import User
 from app.models.organisation import Organisation
 from app.modules.kyc.field_label import (
@@ -30,10 +36,47 @@ from app.modules.kyc.field_label import (
 )
 from app.modules.swork.models import Comment
 from app.modules.wire import blueprint
-from app.modules.wire.models import ArticlePost, Post, PressReleasePost
+from app.modules.wire.models import (
+    ArticlePost,
+    Post,
+    PressReleasePost,
+    PurchaseProduct,
+)
+from app.modules.wire.views.purchase import _price_id_for
 from app.services.social_graph import SocialUser, adapt
+from app.services.stripe.utils import load_stripe_api_key
 from app.services.tagging import get_tags
 from app.services.tracking import record_view
+
+# Cache formatted Stripe price strings for the paywall button.
+_CONSULTATION_PRICE_CACHE: TTLCache[str, str] = TTLCache(maxsize=256, ttl=3600)
+
+
+def _fetch_consultation_price(price_id: str) -> str:
+    """Fetch a Stripe Price by id, format it for display, and cache it."""
+    cached = _CONSULTATION_PRICE_CACHE.get(price_id)
+    if cached is not None:
+        return cached
+
+    if not load_stripe_api_key():
+        return ""
+
+    try:
+        live_price = stripe.Price.retrieve(price_id)
+        if live_price.unit_amount is None:
+            return ""
+        amount = Decimal(live_price.unit_amount) / Decimal(100)
+        display = format_currency(
+            amount,
+            live_price.currency.upper(),
+            locale="fr_FR",
+        ).replace(" ", " ")
+    except stripe.error.StripeError as exc:
+        warn(f"item: failed to retrieve price {price_id}: {exc}")
+        return ""
+
+    _CONSULTATION_PRICE_CACHE[price_id] = display
+    return display
 
 
 class ItemDetailView(MethodView):
@@ -77,6 +120,14 @@ class ItemDetailView(MethodView):
         can_read_full = user_can_read_full(g.user, post)
         body_preview = post.content if can_read_full else truncate_body(post.content)
 
+        consultation_price_str = ""
+        if not can_read_full and current_app.config.get("STRIPE_LIVE_ENABLED"):
+            price_id = _price_id_for(
+                PurchaseProduct.CONSULTATION, genre=getattr(post, "genre", "") or ""
+            )
+            if price_id:
+                consultation_price_str = _fetch_consultation_price(price_id)
+
         return render_template(
             template,
             title=post.title,
@@ -85,6 +136,7 @@ class ItemDetailView(MethodView):
             can_cede=can_cede,
             can_read_full=can_read_full,
             body_preview=body_preview,
+            consultation_price_str=consultation_price_str,
         )
 
     def post(self, id: str) -> str | Response:

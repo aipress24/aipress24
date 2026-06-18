@@ -1,49 +1,49 @@
 <div
     class="md:flex md:items-center md:justify-between md:space-x-4 lg:border-b lg:pb-6"
 >
-  <div class="w-full">
-    <h1 class="aui-title">
-      {{ post.title }}
-    </h1>
+    <div class="w-full">
+        <h1 class="aui-title">
+            {{ post.title }}
+        </h1>
 
-    <p class="mt-2 text-sm text-gray-500">
-      Posté par
-      <a href="{{ url_for(post.author) }}"
-         class="font-medium text-gray-900">{{ post.author.full_name }}</a>,
-      le
-      {{ post.created_at.format("DD MMMM YYYY, à HH:mm", locale="fr") }}.
-      {% if post.modified_at %}
-        Dernière modification le
-        {{ post.modified_at.format("DD MMMM YYYY, à HH:mm", locale="fr") }}.
-      {% endif %}
-    </p>
+        <p class="mt-2 text-sm text-gray-500">
+            Posté par
+            <a href="{{ url_for(post.author) }}"
+               class="font-medium text-gray-900">{{ post.author.full_name }}</a>,
+            le
+            {{ post.created_at.format("DD MMMM YYYY, à HH:mm", locale="fr") }}.
+            {% if post.modified_at %}
+                Dernière modification le
+                {{ post.modified_at.format("DD MMMM YYYY, à HH:mm", locale="fr") }}.
+            {% endif %}
+        </p>
 
-    <div class="my-4">
-      {{ carousel(post, img_class="min-h-96") }}
-    </div>
+        <div class="my-4">
+            {{ carousel(post, img_class="min-h-96") }}
+        </div>
 
-    <div class="mt-5 content overflow-hidden {% if not can_read_full %}relative{% endif %}">
+        <div class="mt-5 content overflow-hidden {% if not can_read_full %}relative{% endif %}">
       {# Trix-rendered HTML on both branches — sanitize on render.
          Trix is a client widget and cannot be trusted as a
          server-side authority. #}
-      {{ body_preview|sanitize if body_preview is defined else post.content|sanitize }}
+            {{ body_preview|sanitize if body_preview is defined else post.content|sanitize }}
 
-      {% if not can_read_full and config.get("STRIPE_LIVE_ENABLED") %}
-        <div class="paywall-overlay pointer-events-none absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-white via-white/90 to-white/0"></div>
-        <div class="relative z-10 mt-6 p-6 border border-amber-300 rounded-lg bg-amber-50 text-center">
-          <p class="text-gray-800 mb-3">
-            Pour lire la suite, achetez un droit de consultation.
-          </p>
-          {% set post_id = post._model.id if post._model is defined else post.id %}
-          <form method="POST"
-                action="{{ url_for('wire.buy', post_id=post_id, product='consultation') }}">
-            <button type="submit"
-                    class="inline-flex items-center px-5 py-2 bg-amber-600 hover:bg-amber-700 text-white text-sm font-medium rounded-md">
-              Acheter la consultation — {{ config.get("STRIPE_PRICE_CONSULTATION") | stripe_price }}
-            </button>
-          </form>
+            {% if not can_read_full and config.get("STRIPE_LIVE_ENABLED") %}
+                <div class="paywall-overlay pointer-events-none absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-white via-white/90 to-white/0"></div>
+                <div class="relative z-10 mt-6 p-6 border border-amber-300 rounded-lg bg-amber-50 text-center">
+                    <p class="text-gray-800 mb-3">
+                        Pour lire la suite, achetez un droit de consultation.
+                    </p>
+                    {% set post_id = post._model.id if post._model is defined else post.id %}
+                    <form method="POST"
+                          action="{{ url_for('wire.buy', post_id=post_id, product='consultation') }}">
+                        <button type="submit"
+                                class="inline-flex items-center px-5 py-2 bg-amber-600 hover:bg-amber-700 text-white text-sm font-medium rounded-md">
+                            Acheter la consultation{% if consultation_price_str %} — {{ consultation_price_str }}{% endif %}
+                        </button>
+                    </form>
+                </div>
+            {% endif %}
         </div>
-      {% endif %}
     </div>
-  </div>
 </div>
