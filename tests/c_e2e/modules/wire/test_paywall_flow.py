@@ -8,7 +8,7 @@ from __future__ import annotations
 
 import uuid
 from typing import TYPE_CHECKING
-from unittest.mock import patch
+from unittest.mock import MagicMock, patch
 
 import arrow
 import pytest
@@ -25,6 +25,7 @@ from app.modules.wire.models import (
     PurchaseStatus,
 )
 from app.modules.wire.services.justificatif import generate_justificatif_pdf
+from app.modules.wire.views.item import _CONSULTATION_PRICE_CACHE
 from tests.c_e2e.conftest import make_authenticated_client
 
 if TYPE_CHECKING:
@@ -99,15 +100,77 @@ def article(db_session: Session, author: User) -> ArticlePost:
 def test_reader_sees_truncated_body_with_overlay(
     app: Flask, reader: User, article: ArticlePost
 ):
+    _CONSULTATION_PRICE_CACHE.clear()
     app.config["STRIPE_LIVE_ENABLED"] = True
     try:
         client = make_authenticated_client(app, reader)
-        response = client.get(f"/wire/{article.id}")
-        assert response.status_code == 200
-        body = response.data.decode()
-        assert "Acheter la consultation" in body
+        with (
+            patch(
+                "app.modules.wire.views.item.load_stripe_api_key",
+                return_value=True,
+            ),
+            patch(
+                "app.modules.wire.views.item._price_id_for",
+                return_value="price_consultation_test",
+            ),
+            patch(
+                "stripe.Price.retrieve",
+            ) as mock_price,
+        ):
+            mock_price.return_value = MagicMock(
+                unit_amount=350, currency="eur", recurring=None
+            )
+            response = client.get(f"/wire/{article.id}")
+            assert response.status_code == 200
+            body = response.data.decode()
+            assert "Acheter la consultation" in body
+            assert 'class="relative z-10 mt-6 p-6' in body
     finally:
         app.config["STRIPE_LIVE_ENABLED"] = False
+        _CONSULTATION_PRICE_CACHE.clear()
+
+
+def test_reader_sees_dynamic_consultation_price(
+    app: Flask, reader: User, article: ArticlePost
+):
+    """The paywall button reads the consultation price live from Stripe
+    (with a 1-hour cache) instead of the DB mirror."""
+    _CONSULTATION_PRICE_CACHE.clear()
+    app.config["STRIPE_LIVE_ENABLED"] = True
+    try:
+        client = make_authenticated_client(app, reader)
+        with (
+            patch(
+                "app.modules.wire.views.item._price_id_for",
+                return_value="price_consultation_test",
+            ),
+            patch(
+                "app.modules.wire.views.item.load_stripe_api_key",
+                return_value=True,
+            ),
+            patch(
+                "stripe.Price.retrieve",
+            ) as mock_price,
+        ):
+            mock_price.return_value = MagicMock(
+                unit_amount=350, currency="eur", recurring=None
+            )
+            response = client.get(f"/wire/{article.id}")
+            assert response.status_code == 200
+            body = response.data.decode()
+            assert "Acheter la consultation" in body
+            assert "3,50 €" in body
+            mock_price.assert_called_once_with("price_consultation_test")
+
+            # Second request within the cache TTL must not hit Stripe again.
+            response2 = client.get(f"/wire/{article.id}")
+            assert response2.status_code == 200
+            assert mock_price.call_count == 1
+        # The deprecated config key must no longer appear in the markup.
+        assert "STRIPE_PRICE_CONSULTATION" not in body
+    finally:
+        app.config["STRIPE_LIVE_ENABLED"] = False
+        _CONSULTATION_PRICE_CACHE.clear()
 
 
 def test_paid_consultation_shows_full_body(
@@ -156,7 +219,6 @@ def test_justificatif_generation_stores_pdf_and_emails(
     reader: User,
     article: ArticlePost,
 ):
-
     purchase = ArticlePurchase(
         post_id=article.id,
         owner_id=reader.id,
@@ -201,7 +263,6 @@ def test_justificatif_idempotent(
     reader: User,
     article: ArticlePost,
 ):
-
     purchase = ArticlePurchase(
         post_id=article.id,
         owner_id=reader.id,
@@ -235,7 +296,6 @@ def test_justificatif_skips_non_justificatif_purchase(
     reader: User,
     article: ArticlePost,
 ):
-
     purchase = ArticlePurchase(
         post_id=article.id,
         owner_id=reader.id,

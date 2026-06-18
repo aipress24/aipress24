@@ -276,4 +276,3 @@ def test_pre_mvp_post_still_buyable(app: Flask, db_session: Session, scenario: d
         assert response.status_code == 303
     finally:
         app.config["STRIPE_LIVE_ENABLED"] = False
-        app.config.pop("STRIPE_PRICE_CESSION", None)
