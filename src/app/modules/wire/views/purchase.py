@@ -40,10 +40,6 @@ from app.services.stripe._client import StripeClient
 from app.services.stripe.product import fetch_stripe_product_list
 from app.services.stripe.utils import load_stripe_api_key
 
-# Stripe Price ID per one-off product kind. Lives in env / Dynaconf:
-#   STRIPE_PRICE_CONSULTATION=price_...
-#   STRIPE_PRICE_JUSTIFICATIF=price_... - This is now handled dynamically.
-#   STRIPE_PRICE_CESSION=price_...
 _PRODUCT_TO_ENV: dict[PurchaseProduct, str] = {}
 
 # Upper bound on the recipient list of one CdAO (Consultation d'article
