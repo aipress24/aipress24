@@ -125,6 +125,8 @@ def test_reader_sees_truncated_body_with_overlay(
             body = response.data.decode()
             assert "Acheter la consultation" in body
             assert 'class="relative z-10 mt-6 p-6' in body
+            # Ticket #0212: paywall live + non-buyer → body is truncated.
+            assert body.count("Texte significatif") < 50
     finally:
         app.config["STRIPE_LIVE_ENABLED"] = False
         _CONSULTATION_PRICE_CACHE.clear()
@@ -200,12 +202,15 @@ def test_paid_consultation_shows_full_body(
 
 
 def test_flag_off_no_paywall_overlay(app: Flask, reader: User, article: ArticlePost):
-    """Flag off → article is fully visible, no overlay."""
+    """Flag off → article is fully visible, no overlay (ticket #0212)."""
     client = make_authenticated_client(app, reader)
     response = client.get(f"/wire/{article.id}")
     assert response.status_code == 200
     body = response.data.decode()
     assert "Acheter la consultation" not in body
+    # Ticket #0212: with the paywall off, a non-buyer reader sees the FULL
+    # body (no truncated dead-end), not a 300-char teaser with no buy CTA.
+    assert body.count("Texte significatif") >= 50
 
 
 # -----------------------------------------------------------------------------

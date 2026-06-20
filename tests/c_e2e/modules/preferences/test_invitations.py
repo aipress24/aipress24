@@ -522,8 +522,11 @@ class TestRevokedPartnershipRow:
             },
             follow_redirects=False,
         )
-        assert response.status_code == 200
-        assert "HX-Redirect" in response.headers
+        # Ticket #0169: the « Confirmer » button is a plain <form> POST, so
+        # the handler must return a real 302 (not Response('')+HX-Redirect,
+        # which a non-htmx form ignores → blank page).
+        assert response.status_code == 302
+        assert "/preferences/invitations" in response.headers["Location"]
         # The Partnership row is gone.
         assert db_session.get(Partnership, UUID(partnership_id)) is None
 

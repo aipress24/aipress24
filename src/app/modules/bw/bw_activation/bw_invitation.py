@@ -733,6 +733,13 @@ def invite_pr_provider(
     pr_owner = cast(User, get_obj(pr_bw.owner_id, User))
     send_partnership_invitation_mail(business_wall, pr_bw, pr_owner, partnership)
 
+    # Ticket #0169: also ring the invited agency owner's bell — without it
+    # they only discover the invitation by chance in /preferences/invitations.
+    try:
+        notify_partnership_invited(business_wall, pr_bw)
+    except Exception as exc:
+        report_failure("invite_pr_provider: in-app notification failed", exc)
+
     return True
 
 
@@ -855,6 +862,26 @@ def notify_partnership_revoked(
     message = (
         f"Fin du partenariat RP : {client_name} a mis fin au partenariat "
         f"avec votre PR Agency sur le Business Wall « {bw_name} »."
+    )
+    agency_owner = get_obj(partner_bw.owner_id, User)
+    if agency_owner is None:
+        return
+    notification_service = container.get(NotificationService)
+    notification_service.post(agency_owner, message, url="/preferences/invitations")
+
+
+def notify_partnership_invited(
+    business_wall: BusinessWall,
+    partner_bw: BusinessWall,
+) -> None:
+    """Post an in-app notification on the invited PR agency owner's bell
+    (ticket #0169)."""
+    client_org = business_wall.get_organisation()
+    client_name = client_org.name if client_org else "(client inconnu)"
+    bw_name = business_wall.name_safe or "(Nom inconnu)"
+    message = (
+        f"Invitation à un partenariat RP : {client_name} vous invite comme "
+        f"partenaire externe sur le Business Wall « {bw_name} »."
     )
     agency_owner = get_obj(partner_bw.owner_id, User)
     if agency_owner is None:

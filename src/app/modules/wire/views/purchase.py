@@ -291,19 +291,33 @@ def buy(post_id: str, product: str):
         _external=True,
     )
 
-    checkout = stripe.checkout.Session.create(
-        mode=mode,
-        customer_email=user.email,
-        line_items=[{"price": price_id, "quantity": 1}],
-        success_url=success_url,
-        cancel_url=cancel_url,
-        metadata={
-            "purchase_id": str(purchase.id),
-            "post_id": str(post.id),
-            "product_type": product_type.value,
-        },
-        automatic_tax={"enabled": True},
-    )
+    try:
+        checkout = stripe.checkout.Session.create(
+            mode=mode,
+            customer_email=user.email,
+            line_items=[{"price": price_id, "quantity": 1}],
+            success_url=success_url,
+            cancel_url=cancel_url,
+            metadata={
+                "purchase_id": str(purchase.id),
+                "post_id": str(post.id),
+                "product_type": product_type.value,
+            },
+            automatic_tax={"enabled": True},
+            # Ticket #0214: pin card so Stripe doesn't auto-present Link,
+            # whose SMS confirmation we can't deliver (no SMS backend).
+            payment_method_types=["card"],
+        )
+    except stripe.error.StripeError as exc:
+        warn(f"buy: Stripe Checkout creation failed: {exc}")
+        db.session.delete(purchase)
+        db.session.commit()
+        flash(
+            "La passerelle de paiement est momentanément indisponible. "
+            "Merci de réessayer dans un instant.",
+            "error",
+        )
+        return redirect(_back_to_post(post))
     return redirect(checkout.url, code=303)
 
 
@@ -535,6 +549,8 @@ def buy_gift(post_id: str):
                 "beneficiary_count": str(quantity),
             },
             automatic_tax={"enabled": True},
+            # Ticket #0214: pin card (no Link / SMS dead-end).
+            payment_method_types=["card"],
         )
     except stripe.error.StripeError as exc:
         warn(f"buy_gift: Stripe Checkout creation failed: {exc}")

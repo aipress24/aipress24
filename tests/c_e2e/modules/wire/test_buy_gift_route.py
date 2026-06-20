@@ -185,6 +185,8 @@ class TestBuyGiftFlow:
         assert kwargs["metadata"]["product_type"] == "consultation_gift"
         assert kwargs["metadata"]["beneficiary_count"] == "2"
         assert kwargs["metadata"]["purchase_id"] == str(purchase.id)
+        # Ticket #0214: card pinned so Stripe doesn't funnel into Link.
+        assert kwargs["payment_method_types"] == ["card"]
 
     def test_filters_out_recipients_who_already_have_access(
         self,
@@ -363,6 +365,80 @@ class TestBuyGiftFlow:
             )
         assert response.status_code in (302, 303)
         mock_create.assert_not_called()
+
+
+def _patch_stripe_buy(success_url: str = "https://stripe/checkout/x") -> tuple:
+    """Patch the Stripe boundary for the single-article `buy` route: price
+    id, api key, Price.retrieve (mode detection) and checkout creation."""
+    fake_session = MagicMock(url=success_url)
+    fake_price = MagicMock(recurring=None)  # one-off → mode="payment"
+    return (
+        patch(
+            "app.modules.wire.views.purchase._price_id_for",
+            return_value="price_consultation",
+        ),
+        patch(
+            "app.modules.wire.views.purchase.load_stripe_api_key",
+            return_value=True,
+        ),
+        patch("stripe.Price.retrieve", return_value=fake_price),
+        patch("stripe.checkout.Session.create", return_value=fake_session),
+    )
+
+
+class TestBuyRoute:
+    """POST /wire/<id>/buy/<product> — single-article consultation."""
+
+    def test_pins_card_payment_method(
+        self, app: Flask, buyer: User, article: ArticlePost
+    ):
+        """Ticket #0214: the Checkout session must restrict to card so
+        Stripe doesn't auto-present Link (SMS dead-end)."""
+        client = make_authenticated_client(app, buyer)
+        app.config["STRIPE_LIVE_ENABLED"] = True
+        try:
+            p1, p2, p3, p4 = _patch_stripe_buy()
+            with p1, p2, p3, p4 as mock_create:
+                response = client.post(
+                    f"/wire/{article.id}/buy/consultation", follow_redirects=False
+                )
+        finally:
+            app.config["STRIPE_LIVE_ENABLED"] = False
+
+        assert response.status_code == 303
+        assert mock_create.call_args.kwargs["payment_method_types"] == ["card"]
+
+    def test_stripe_error_redirects_and_drops_pending_purchase(
+        self, app: Flask, db_session: Session, buyer: User, article: ArticlePost
+    ):
+        """A Stripe failure must not leave a dead-end 500 + orphan PENDING
+        purchase — flash + redirect, row deleted (sibling of the gift guard)."""
+        client = make_authenticated_client(app, buyer)
+        app.config["STRIPE_LIVE_ENABLED"] = True
+        try:
+            p1, p2, p3, _ = _patch_stripe_buy()
+            with (
+                p1,
+                p2,
+                p3,
+                patch(
+                    "stripe.checkout.Session.create",
+                    side_effect=stripe_module.error.APIConnectionError("boom"),
+                ),
+            ):
+                response = client.post(
+                    f"/wire/{article.id}/buy/consultation", follow_redirects=False
+                )
+        finally:
+            app.config["STRIPE_LIVE_ENABLED"] = False
+
+        assert response.status_code in (302, 303)
+        assert (
+            db_session.query(ArticlePurchase)
+            .filter_by(owner_id=buyer.id, post_id=article.id)
+            .count()
+            == 0
+        )
 
 
 class TestBuyGiftValidation:

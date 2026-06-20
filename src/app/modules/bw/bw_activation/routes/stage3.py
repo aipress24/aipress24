@@ -756,6 +756,8 @@ def checkout(bw_type: str):
         "client_reference_id": str(draft_bw.id),
         "metadata": _build_checkout_metadata(draft_bw.id, bw_type, g.user.id),
         "automatic_tax": {"enabled": True},
+        # Ticket #0214: pin card (no Link / SMS dead-end).
+        "payment_method_types": ["card"],
     }
 
     # Keep existing customer ID when known, fall back to email otherwise
@@ -764,9 +766,21 @@ def checkout(bw_type: str):
     checkout_kwargs.update(_resolve_stripe_customer_kwargs(customer_id, g.user.email))
     _add_billing_collection(checkout_kwargs)
 
-    checkout_session = _create_stripe_checkout_session(
-        checkout_kwargs, org, g.user.email
-    )
+    # Ticket #0210: without this guard, any Stripe error (Stripe Tax not
+    # configured, missing product/price, bad key) bubbles up as a 500 and
+    # the user is stuck on a dead page after clicking « Procéder au paiement ».
+    try:
+        checkout_session = _create_stripe_checkout_session(
+            checkout_kwargs, org, g.user.email
+        )
+    except stripe.error.StripeError as exc:
+        warn(f"BW checkout Session.create failed: {exc}")
+        flash(
+            "Le paiement n'a pas pu être initié. Merci de réessayer ou de "
+            "contacter le support.",
+            "danger",
+        )
+        return redirect(url_for("bw_activation.payment", bw_type=bw_type))
     return redirect(checkout_session.url, code=303)
 
 
