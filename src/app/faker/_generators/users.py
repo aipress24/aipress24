@@ -518,7 +518,7 @@ class UserGenerator(BaseGenerator):
         self.counter += 1
 
         user.gender = random.choice(["M", "F"])
-        # pyrefly: ignore [bad-typed-dict-key]
+        # pyrefly: ignore [bad-index]
         gender = GENDERS[user.gender]
         user.first_name = self.person_faker.first_name(gender)
         user.last_name = self.person_faker.last_name(gender)

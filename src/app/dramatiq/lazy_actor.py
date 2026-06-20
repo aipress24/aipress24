@@ -28,6 +28,7 @@ class LazyActor:
             fn: Function to wrap as an actor.
             **kw: Keyword arguments for actor configuration.
         """
+        # pyrefly: ignore [read-only]
         self.fn = fn
         self.crontab = kw.pop("crontab", None)
         self.kw = kw
