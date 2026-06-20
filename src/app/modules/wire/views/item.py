@@ -118,7 +118,14 @@ class ItemDetailView(MethodView):
 
         can_cede = is_eligible_for_cession(g.user, post)
         can_read_full = user_can_read_full(g.user, post)
-        body_preview = post.content if can_read_full else truncate_body(post.content)
+        # Ticket #0212: only truncate when the paywall is actually live.
+        # Before go-live (flag off) a non-buyer can't purchase anyway, so a
+        # truncated body with no buy CTA is a dead-end — show the full text.
+        paywall_active = bool(current_app.config.get("STRIPE_LIVE_ENABLED"))
+        if can_read_full or not paywall_active:
+            body_preview = post.content
+        else:
+            body_preview = truncate_body(post.content)
 
         consultation_price_str = ""
         if not can_read_full and current_app.config.get("STRIPE_LIVE_ENABLED"):

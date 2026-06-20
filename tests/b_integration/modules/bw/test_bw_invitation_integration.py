@@ -1032,6 +1032,31 @@ class TestInvitePrProviderIntegration:
         assert partnerships[0].status == PartnershipStatus.INVITED.value
         assert partnerships[0].invited_at is not None
 
+    def test_invite_pr_provider_posts_in_app_notification(
+        self,
+        app_context,
+        db_session: Session,
+        media_bw: BusinessWall,
+        pr_bw: BusinessWall,
+        pr_owner: User,
+    ):
+        """Ticket #0169: the invited agency owner gets a bell notification,
+        not just an email — otherwise they only discover the invite by
+        chance in /preferences/invitations."""
+        with patch(
+            "app.modules.bw.bw_activation.bw_invitation.send_partnership_invitation_mail"
+        ):
+            invite_pr_provider(
+                media_bw, str(pr_bw.id), invited_by_user_id=media_bw.owner_id
+            )
+
+        notifications = (
+            db_session.query(Notification).filter_by(receiver_id=pr_owner.id).all()
+        )
+        assert len(notifications) == 1
+        assert "partenariat RP" in notifications[0].message
+        assert notifications[0].url == "/preferences/invitations"
+
     def test_invite_pr_provider_prevents_duplicate(
         self,
         app_context,

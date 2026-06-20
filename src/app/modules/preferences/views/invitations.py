@@ -8,7 +8,7 @@ from __future__ import annotations
 
 from typing import Any, cast
 
-from flask import Response, flash, g, render_template, request
+from flask import Response, flash, g, redirect, render_template, request
 from flask.views import MethodView
 from sqlalchemy import func, select
 
@@ -235,8 +235,11 @@ class InvitationsView(MethodView):
                     "Votre confirmation de fin de partenariat est bien enregistrée.",
                     "success",
                 )
-                response = Response("")
-                response.headers["HX-Redirect"] = url_for(".invitations")
+                # Ticket #0169: this button is a plain <form> POST (not htmx),
+                # so an HX-Redirect header is ignored and the browser renders
+                # the empty body as a blank page. A real 302 is followed
+                # natively and the success flash shows on the GET.
+                response = redirect(url_for(".invitations"))
             case _:
                 response = Response("")
                 response.headers["HX-Redirect"] = url_for(".home")
