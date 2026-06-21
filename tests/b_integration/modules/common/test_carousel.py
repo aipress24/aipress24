@@ -58,4 +58,6 @@ class TestCarouselSlidesMemoized:
             # → the (DB-loading) compute happens exactly once.
             assert carousel.get_slides() is slides
             assert carousel.slides is slides
-            assert carousel.alpine_data["slides"] is slides
+            alpine = carousel.alpine_data
+            assert isinstance(alpine, dict)
+            assert alpine["slides"] is slides

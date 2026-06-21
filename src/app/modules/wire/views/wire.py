@@ -184,7 +184,7 @@ def _annotate_paid_consultations(posts: list) -> None:
     counts = get_paid_consultations_counts(ids)
     for p in posts:
         if isinstance(p, ArticlePost):
-            p._paid_consultations_count = counts.get(p.id, 0)
+            p._paid_consultations_count = counts.get(int(p.id), 0)
 
 
 # Register the view
