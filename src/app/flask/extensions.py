@@ -19,6 +19,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_talisman import DEFAULT_CSP_POLICY, Talisman
 from flask_vite import Vite
 from loguru import logger
+from pagebar.flask import Pagebar
 from pytz import timezone
 
 from app.models.auth import Role, User
@@ -121,6 +122,7 @@ def register_extensions(app: Flask) -> None:
     # wakaq.init_app(app)
     setup_security(app, db)
     htmx.init_app(app)
+    Pagebar(app, package="aipress24-flask", unsafe=app.debug)
 
     if app.debug:
         setup_debug_toolbar(app)
