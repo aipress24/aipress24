@@ -10,6 +10,7 @@ from datetime import UTC, datetime
 from typing import TYPE_CHECKING, Any, cast
 
 import stripe
+import stripe.error
 from flask import (
     current_app,
     flash,
