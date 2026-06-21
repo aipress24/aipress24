@@ -332,17 +332,16 @@ class PostVMMixin(PostMixin):
         else:
             age = "(not set)"
 
-        publisher_type = self.get_publisher_type()
-
+        # `super().extra_attrs()` already builds author / tags / _url —
+        # don't recompute them here (each rebuilt UserVM re-queried the
+        # org, each get_tags() re-queried tag_application). Only override
+        # what actually differs for a published post.
         extra_attrs = super().extra_attrs()
         extra_attrs.update(
             {
                 "age": age,
-                "author": UserVM(post.owner),
-                "publisher_type": publisher_type,
+                "publisher_type": self.get_publisher_type(),
                 "comments": self.get_comments(),
-                "tags": get_tags(post),
-                "_url": url_for(post),
             }
         )
         return extra_attrs

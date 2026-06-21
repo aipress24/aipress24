@@ -158,6 +158,11 @@ def get_any_business_wall_for_organisation(org: Organisation) -> BusinessWall | 
 
 def get_active_business_wall_for_organisation(org: Organisation) -> BusinessWall | None:
     """Returns the active BusinessWall associated with this organisation."""
+    # Served from the transient `_active_bw` cache when a list view has
+    # pre-batched it (see `prefetch_active_business_walls`) — avoids one
+    # query per org on /swork/organisations/.
+    if "_active_bw" in org.__dict__:
+        return org.__dict__["_active_bw"]
     session = inspect(org).session
     if session is None:
         return None
@@ -169,6 +174,29 @@ def get_active_business_wall_for_organisation(org: Organisation) -> BusinessWall
         .where(BusinessWall.status == BWStatus.ACTIVE.value)
     )
     return session.execute(stmt).scalars().one_or_none()
+
+
+def prefetch_active_business_walls(orgs: list[Organisation]) -> None:
+    """Batch-load each org's active BusinessWall into a transient
+    `_active_bw` attribute, so `get_active_business_wall_for_organisation`
+    serves the whole list from memory instead of one query per org (the
+    N+1 on the /swork/organisations/ list — display name + logo each
+    re-fetched the BW)."""
+    bw_ids = [o.bw_id for o in orgs if o.bw_id]
+    bw_by_id = (
+        {
+            bw.id: bw
+            for bw in db.session.scalars(
+                select(BusinessWall)
+                .where(BusinessWall.id.in_(bw_ids))
+                .where(BusinessWall.status == BWStatus.ACTIVE.value)
+            )
+        }
+        if bw_ids
+        else {}
+    )
+    for org in orgs:
+        org.__dict__["_active_bw"] = bw_by_id.get(org.bw_id) if org.bw_id else None
 
 
 def pick_bw_display_name(active_bw, org, fallback: str) -> str:
@@ -230,6 +258,29 @@ def is_organisation_an_agency(org: Organisation) -> bool:
     #     .order_by(BusinessWall.created_at.desc())
     # )
     # return session.execute(stmt).scalars().first()
+
+
+def filter_agency_org_ids(orgs: list[Organisation]) -> set[int]:
+    """Batched `is_organisation_an_agency` : return the ids of the orgs in
+    `orgs` that are press agencies, using ONE BusinessWall query for the whole
+    list instead of one per org (N+1 on the wire Agences / Médias tabs)."""
+    candidates = [o for o in orgs if o.bw_active == "media" and o.bw_id is not None]
+    if not candidates:
+        return set()
+    bw_by_id = {
+        bw.id: bw
+        for bw in db.session.scalars(
+            select(BusinessWall)
+            .where(BusinessWall.id.in_([o.bw_id for o in candidates]))
+            .where(BusinessWall.status == BWStatus.ACTIVE.value)
+        )
+    }
+    return {
+        o.id
+        for o in candidates
+        if (bw := bw_by_id.get(o.bw_id)) is not None
+        and bw_type_marks_agency(bw.type_entreprise_media)
+    }
 
 
 def get_organisation_logo_url(org: Organisation) -> str:

@@ -12,18 +12,21 @@ from typing import ClassVar
 import sqlalchemy as sa
 from flask import g, session
 from pipe import groupby
-from sqlalchemy.orm import selectinload
+from sqlalchemy.orm import selectin_polymorphic, selectinload
 
+from app.flask.extensions import db
 from app.flask.sqla import get_multi
 from app.models.auth import User
 from app.models.lifecycle import PublicationStatus
 from app.models.organisation import Organisation
 from app.modules.bw.bw_activation.user_utils import (
-    is_organisation_an_agency,
+    filter_agency_org_ids,
 )
 from app.modules.wire.models import (
+    ArticlePost,
     ArticlePurchase,
     Post,
+    PressReleasePost,
     PurchaseStatus,
 )
 from app.services.social_graph import adapt
@@ -42,6 +45,16 @@ ALLOWED_FILTER_FIELDS = {
 }
 
 DEFAULT_POSTS_LIMIT = 30
+
+
+def _members_of_orgs(org_ids: set[int]) -> set[User]:
+    """All members of the given orgs in one query — batches what was a
+    per-org `org.members` lazy-load in the Agences / Médias tabs."""
+    if not org_ids:
+        return set()
+    return set(
+        db.session.scalars(sa.select(User).where(User.organisation_id.in_(org_ids)))
+    )
 
 
 def get_tabs() -> list[Tab]:
@@ -125,7 +138,24 @@ class Tab(abc.ABC):
             sa.select(Post)
             .where(Post.status == PublicationStatus.PUBLIC)
             .order_by(order)
-            .options(selectinload(Post.owner))
+            .options(
+                # Each card reads the author's org (name), profile (job
+                # title) and roles (community colour via profile_image) —
+                # all SELECT-per-card N+1s. Batch them with the author.
+                selectinload(Post.owner).options(
+                    selectinload(User.organisation),
+                    selectinload(User.profile),
+                    selectinload(User.roles),
+                ),
+                # The card also shows the publisher org ("Publié par …") —
+                # another SELECT-per-card relationship.
+                selectinload(Post.publisher),
+                # Batch-load the subclass columns (newsroom_id, publisher_type,
+                # …). The wall queries the base `Post`, but the cards are
+                # ArticlePost/PressReleasePost; accessing their subclass
+                # columns was a SELECT-per-card refresh (single-table poly).
+                selectin_polymorphic(Post, [ArticlePost, PressReleasePost]),
+            )
             .limit(DEFAULT_POSTS_LIMIT)
         )
 
@@ -163,11 +193,8 @@ class AgenciesTab(Tab):
 
     def get_authors(self):
         orgs: list[Organisation] = adapt(g.user).get_followees(cls=Organisation)
-        journalists: set[User] = set()
-        for org in orgs:
-            if is_organisation_an_agency(org):
-                journalists.update(list(org.members))
-        return journalists
+        agency_ids = filter_agency_org_ids(orgs)
+        return _members_of_orgs(agency_ids)
 
 
 class MediasTab(Tab):
@@ -178,11 +205,13 @@ class MediasTab(Tab):
 
     def get_authors(self):
         orgs: list[Organisation] = adapt(g.user).get_followees(cls=Organisation)
-        journalists: set[User] = set()
-        for org in orgs:
-            if org.bw_active == "media" and not is_organisation_an_agency(org):
-                journalists.update(list(org.members))
-        return journalists
+        agency_ids = filter_agency_org_ids(orgs)
+        media_ids = {
+            org.id
+            for org in orgs
+            if org.bw_active == "media" and org.id not in agency_ids
+        }
+        return _members_of_orgs(media_ids)
 
 
 class JournalistsTab(Tab):

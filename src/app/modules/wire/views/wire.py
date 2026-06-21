@@ -146,7 +146,9 @@ class WireTabView(MethodView):
             raise RuntimeError(msg)
 
         posts = active_tab.get_posts(filter_bar)
-        return self._filter_posts_by_tag(posts, filter_bar, get_tags)
+        posts = self._filter_posts_by_tag(posts, filter_bar, get_tags)
+        _annotate_paid_consultations(posts)
+        return posts
 
     def _filter_posts_by_tag(
         self, posts: list, filter_bar: FilterBar, get_tags: Callable
@@ -161,6 +163,28 @@ class WireTabView(MethodView):
             if tag in tags:
                 filtered_posts.append(post)
         return filtered_posts
+
+
+def _annotate_paid_consultations(posts: list) -> None:
+    """Batch the per-card « vues » counter into a single pair of queries.
+
+    The card VM (`post_card.ArticleVM`) otherwise calls
+    `get_paid_consultations_count(post.id)` per card — 2 queries each, the
+    N+1 behind the 90+ queries on /wire/tab/wall. We compute every count
+    once here and stash it on each post for the VM to read.
+    """
+    from app.modules.wire.models import ArticlePost
+    from app.modules.wire.services.purchase_aggregates import (
+        get_paid_consultations_counts,
+    )
+
+    ids = [p.id for p in posts if isinstance(p, ArticlePost)]
+    if not ids:
+        return
+    counts = get_paid_consultations_counts(ids)
+    for p in posts:
+        if isinstance(p, ArticlePost):
+            p._paid_consultations_count = counts.get(p.id, 0)
 
 
 # Register the view

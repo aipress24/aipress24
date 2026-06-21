@@ -75,6 +75,47 @@ def test_unwrap_extracts_model() -> None:
     assert unwrap(model) is model  # Non-wrapped returns same object
 
 
+def test_viewmodel_memoizes_extra_attrs() -> None:
+    """extra_attrs() is computed once per instance, not on every access
+    (the fix for the swork member-page N+1)."""
+    calls = []
+
+    class CountingVM(ViewModel):
+        def extra_attrs(self):
+            calls.append(1)
+            return {"a": 1, "b": 2}
+
+    vm = CountingVM(StubModel(name="x"))
+    _ = vm.a
+    _ = vm.b
+    _ = vm.a
+    _ = vm["b"]
+    assert len(calls) == 1
+
+
+def test_viewmodel_lazy_caches_factory() -> None:
+    """_lazy computes its factory once and caches the result, so a heavy
+    property read twice in a template runs one query, not two."""
+    factory_calls = []
+
+    class LazyVM(ViewModel):
+        def extra_attrs(self):
+            return {"light": 1}
+
+        @property
+        def heavy(self):
+            return self._lazy("heavy", self._compute_heavy)
+
+        def _compute_heavy(self):
+            factory_calls.append(1)
+            return [1, 2, 3]
+
+    vm = LazyVM(StubModel(name="x"))
+    assert vm.heavy == [1, 2, 3]
+    assert vm.heavy == [1, 2, 3]
+    assert len(factory_calls) == 1
+
+
 def test_wrapper_proxies_and_is_frozen() -> None:
     """Test Wrapper proxies attributes and is immutable."""
     model = StubModel(label="test", count=10)

@@ -149,7 +149,12 @@ def nom_orga_choices() -> list[str]:
     return get_taxonomy("groupes_cotes") + get_organisation_for_noms_orgas()
 
 
-@cached(cache=TTLCache(maxsize=25, ttl=600))
+# maxsize must comfortably exceed the number of DISTINCT ontologies in use
+# (ONTOLOGY_MAP + the KYC label map together reference ~40). At 25 the cache
+# thrashed : a member-profile render touches ~19 ontologies, which got evicted
+# by other pages and reloaded on every view (19 redundant tax_taxonomy
+# queries). Taxonomies are small static reference lists, so cache them all.
+@cached(cache=TTLCache(maxsize=256, ttl=3600))
 def get_ontology_content(ontology: str) -> list | dict:
     if ontology == "pays":
         return get_full_countries()

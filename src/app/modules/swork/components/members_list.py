@@ -51,7 +51,12 @@ class MembersList(BaseList):
                 User.deleted_at.is_(None),
             )
             .options(
+                # Cards + filters read job_title (→ profile) and the
+                # community badge (→ roles) per member — eager-load them so a
+                # list of ~100 members doesn't issue a query per member.
                 selectinload(User.organisation),
+                selectinload(User.profile),
+                selectinload(User.roles),
             )
             .limit(SWORK_LIST_LIMIT)
         )
@@ -101,7 +106,12 @@ class MembersList(BaseList):
                 User.deleted_at.is_(None),
             )
             .options(
+                # Cards + filters read job_title (→ profile) and the
+                # community badge (→ roles) per member — eager-load them so a
+                # list of ~100 members doesn't issue a query per member.
                 selectinload(User.organisation),
+                selectinload(User.profile),
+                selectinload(User.roles),
             )
         )
         users: list[User] = list(db.session.scalars(stmt))

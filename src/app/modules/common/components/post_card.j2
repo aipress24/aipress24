@@ -14,7 +14,17 @@
     </div>
 </div>
 
-{{ carousel(post) }}
+{# Feed cards show a single cover image via its URL (browser-lazy). The full
+   multi-image `carousel(post)` is kept for the detail pages — on a list it
+   loaded the newsroom article + every image blob per card (N+1). #}
+<a href="{{ url_for(post) }}">
+    <img
+        class="w-full min-h-64 object-cover text-neutral-600"
+        src="{{ post.image_url }}"
+        alt="{{ post.title }}"
+        loading="lazy"
+    />
+</a>
 
 <!-- text -->
 <div>

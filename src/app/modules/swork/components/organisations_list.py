@@ -21,6 +21,7 @@ from app.modules.bw.bw_activation.models.business_wall import BWStatus
 from app.modules.bw.bw_activation.user_utils import (
     get_active_business_wall_for_organisation,
     get_organisation_logo_url,
+    prefetch_active_business_walls,
 )
 from app.modules.kyc.field_label import country_code_to_country_name
 from app.modules.swork.common import Directory
@@ -59,6 +60,7 @@ class OrganisationsList(BaseList):
             org._bw_departement = getattr(row, "bw_departement", None)
             org._bw_ville = getattr(row, "bw_ville", None)
             orgs.append(org)
+        prefetch_active_business_walls(orgs)
         return orgs
 
     def _get_latest_bw_subquery(self):

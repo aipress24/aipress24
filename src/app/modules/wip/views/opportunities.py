@@ -20,10 +20,13 @@ from flask import (
     url_for,
 )
 from flask_login import current_user
+from sqlalchemy import select
+from sqlalchemy.orm import selectinload
 from svcs.flask import container
 from werkzeug import Response
 from werkzeug.exceptions import NotFound
 
+from app.flask.extensions import db
 from app.flask.lib.htmx import extract_fragment
 from app.flask.lib.nav import nav
 from app.logging import warn
@@ -173,11 +176,22 @@ def opportunities():
 
 def _render_avis_opportunites_tab():
     # Lazy import to avoid circular import
-    from app.modules.wip.models import ContactAvisEnqueteRepository
+    from app.modules.wip.models import ContactAvisEnquete
 
-    repo = container.get(ContactAvisEnqueteRepository)
-    contacts = repo.list()
-    contacts = [contact for contact in contacts if contact.expert == g.user]
+    # Filter in SQL (was: load ALL contacts then `c.expert == g.user` in
+    # Python, which lazy-loaded every contact's expert — N+1). Eager-load the
+    # avis (sort + title) and the journalist + their org (shown on each card).
+    stmt = (
+        select(ContactAvisEnquete)
+        .where(ContactAvisEnquete.expert_id == g.user.id)
+        .options(
+            selectinload(ContactAvisEnquete.avis_enquete),
+            selectinload(ContactAvisEnquete.journaliste).selectinload(
+                User.organisation
+            ),
+        )
+    )
+    contacts = list(db.session.scalars(stmt))
 
     contacts.sort(key=lambda c: c.avis_enquete.date_fin_enquete, reverse=True)
     contacts = contacts[:50]

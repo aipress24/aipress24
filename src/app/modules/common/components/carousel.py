@@ -4,7 +4,7 @@
 
 from __future__ import annotations
 
-from attr import frozen
+from attr import field, frozen
 from svcs.flask import container
 
 from app.flask.lib.pywire import Component, component
@@ -43,6 +43,8 @@ class Carousel(Component):
         | EventVM
     )
     img_class: str = "min-h-64"
+    # Memo holder (frozen instance — we mutate the list, never rebind it).
+    _slides_cache: list = field(init=False, factory=list)
 
     @property
     def alpine_data(self) -> JSON:
@@ -54,6 +56,15 @@ class Carousel(Component):
         return self.get_slides()
 
     def get_slides(self):
+        # `Component._get_context()` reads `get_slides`, `slides` and
+        # `alpine_data` separately, each of which loads the Communique /
+        # Article and its images. Memoize so the DB hit happens once per
+        # render (was 3× crm_communique + 3× crm_image on a press-release).
+        if not self._slides_cache:
+            self._slides_cache.append(self._compute_slides())
+        return self._slides_cache[0]
+
+    def _compute_slides(self):
         from advanced_alchemy.exceptions import NotFoundError
 
         info_type = self.post.__class__.__name__

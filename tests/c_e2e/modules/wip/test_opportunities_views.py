@@ -13,8 +13,10 @@ from typing import TYPE_CHECKING
 from unittest.mock import patch
 
 import pytest
+from sqlalchemy import event
 
 from app.enums import RoleEnum
+from app.flask.extensions import db
 from app.models.auth import KYCProfile, Role, User
 from app.models.lifecycle import PublicationStatus
 from app.models.organisation import Organisation
@@ -145,6 +147,68 @@ class TestOpportunitiesListPage:
         """Test opportunities page renders with no contacts."""
         response = logged_in_client.get("/wip/opportunities")
         assert response.status_code == 200
+
+    def test_opportunities_page_is_not_n_plus_one(
+        self,
+        logged_in_client: FlaskClient,
+        test_user: User,
+        db_session: Session,
+    ):
+        """The avis-opportunités tab must filter in SQL + eager-load, not
+        load every contact then lazy-load each one's journalist/avis (N+1)."""
+        now = datetime.now(UTC)
+        for i in range(8):
+            org = Organisation(name=f"Media opp {i}")
+            db_session.add(org)
+            db_session.flush()
+            journo = User(
+                email=f"journo_opp_{i}@example.com",
+                first_name=f"J{i}",
+                last_name="X",
+                active=True,
+            )
+            journo.organisation = org
+            db_session.add(journo)
+            db_session.flush()
+            avis = AvisEnquete(
+                titre=f"Enquête opp {i}",
+                contenu="…",
+                owner_id=journo.id,
+                media_id=org.id,
+                commanditaire_id=journo.id,
+                date_debut_enquete=now - timedelta(days=1),
+                date_fin_enquete=now + timedelta(days=i + 1),
+                date_bouclage=now + timedelta(days=10),
+                date_parution_prevue=now + timedelta(days=14),
+            )
+            db_session.add(avis)
+            db_session.flush()
+            db_session.add(
+                ContactAvisEnquete(
+                    avis_enquete_id=avis.id,
+                    journaliste_id=journo.id,
+                    expert_id=test_user.id,
+                    status=StatutAvis.EN_ATTENTE,
+                )
+            )
+        db_session.commit()
+
+        statements: list[str] = []
+
+        def _capture(conn, cursor, statement, parameters, context, executemany):
+            statements.append(statement)
+
+        event.listen(db.engine, "before_cursor_execute", _capture)
+        try:
+            response = logged_in_client.get("/wip/opportunities")
+        finally:
+            event.remove(db.engine, "before_cursor_execute", _capture)
+
+        assert response.status_code == 200
+        n = len(statements)
+        # 8 contacts from distinct journalists/orgs/avis. Filtered + eager —
+        # flat. The old load-all-then-Python-filter added ≥8 user loads.
+        assert n < 15, f"{n} SQL queries (N+1?):\n" + "\n".join(statements)
 
 
 class TestOpportunityDetail:
