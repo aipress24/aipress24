@@ -126,6 +126,7 @@ dependencies = [
     "libpass>=1.9.3",
     "cachetools>=7.0.3",
     "bleach>=6.3.0",
+    "pagebar>=0.1.1",
 ]
 description = ""
 
