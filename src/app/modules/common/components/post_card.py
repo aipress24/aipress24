@@ -65,6 +65,16 @@ class ArticleVM(Wrapper):
         summary = remove_markup(post.summary)
         if len(summary) > 200:
             summary = summary[0:197] + "..."
+        # On a list (the wall), the view batch-computes all counts in one
+        # pass and stashes them here, turning a 2-query-per-card N+1 into a
+        # single pair of queries. Fall back to the per-post query for any
+        # caller that didn't pre-compute (e.g. a standalone card render).
+        cached_views = getattr(post, "_paid_consultations_count", None)
+        views = (
+            cached_views
+            if cached_views is not None
+            else get_paid_consultations_count(post.id)
+        )
         return {
             "author": UserVM(post.owner),
             # Was: "summary": post.subheader,
@@ -77,7 +87,7 @@ class ArticleVM(Wrapper):
             # the count of *paying* readers, not the raw page-view
             # tally. `Post.view_count` is kept on the model for
             # back-compat but no longer surfaces here.
-            "views": get_paid_consultations_count(post.id),
+            "views": views,
             "image_url": self.get_image_url(),
             "_url": url_for(post),
         }
@@ -219,12 +229,8 @@ class UserVM(Wrapper):
         }
 
     def get_organisation(self) -> Organisation | None:
+        # Use the relationship (not a manual SELECT) so it can be
+        # eager-loaded on the wall — see selectinload(User.organisation)
+        # in wire/views/_tabs.py. Was a SELECT-per-card N+1.
         user = cast("User", self._model)
-        stmt = (
-            sa.select(Organisation)
-            .where(Organisation.id == user.organisation_id)
-            .order_by(Organisation.name)
-        )
-        result = db.session.scalar(stmt)
-        # assert result
-        return result
+        return user.organisation

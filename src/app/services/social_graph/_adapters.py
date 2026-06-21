@@ -36,7 +36,7 @@ class FollowableAdapter(Adapter):
     def _obj(self) -> User | Organisation:
         return self._get_adaptee()
 
-    def get_followers(self, order_by=None, limit=0) -> list[User]:
+    def get_followers(self, order_by=None, limit=0, options=None) -> list[User]:
         match self._obj:
             case User():
                 table = following_users_table
@@ -51,6 +51,8 @@ class FollowableAdapter(Adapter):
         ids = db.session.scalars(stmt1)
 
         stmt2 = sa.select(User).where(User.id.in_(ids))
+        if options:
+            stmt2 = stmt2.options(*options)
         if order_by is not None:
             stmt2 = stmt2.order_by(order_by)
         if limit:
@@ -108,7 +110,7 @@ class SocialUser(FollowableAdapter):
         return len(list(rows)) == 1
 
     def get_followees(
-        self, cls: type = User, order_by=None, limit=0
+        self, cls: type = User, order_by=None, limit=0, options=None
     ) -> list[User | Organisation]:
         assert cls in {User, Organisation}
 
@@ -123,6 +125,8 @@ class SocialUser(FollowableAdapter):
         ids = db.session.scalars(stmt1)
 
         stmt2: sa.Select = sa.select(cls).where(cls.id.in_(ids))
+        if options:
+            stmt2 = stmt2.options(*options)
         if order_by is not None:
             stmt2 = stmt2.order_by(order_by)
         if limit:

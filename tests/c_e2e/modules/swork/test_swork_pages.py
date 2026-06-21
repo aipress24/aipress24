@@ -272,7 +272,9 @@ class TestUserVM:
     def test_extra_attrs_returns_dict(
         self, app: Flask, db_session: Session, test_user_with_profile: User
     ):
-        """Test extra_attrs returns expected dictionary."""
+        """extra_attrs holds the cheap always-needed fields; the expensive
+        social-graph fields (followers/followees/posts/groups) are now lazy
+        properties, not eager dict keys (perf: avoid the N+1 fan-out)."""
         with app.test_request_context():
             g.user = test_user_with_profile
             vm = UserVM(test_user_with_profile)
@@ -284,11 +286,14 @@ class TestUserVM:
             assert "organisation_name" in attrs
             assert "image_url" in attrs
             assert "is_following" in attrs
-            assert "followers" in attrs
-            assert "followees" in attrs
-            assert "posts" in attrs
-            assert "groups" in attrs
             assert "banner_url" in attrs
+            # Now lazy properties, deliberately NOT in extra_attrs.
+            assert "followers" not in attrs
+            assert "posts" not in attrs
+            # …but still readable as attributes.
+            assert isinstance(vm.followers, list)
+            assert isinstance(vm.posts, list)
+            assert isinstance(vm.groups, list)
 
     def test_get_banner_url_default(
         self, app: Flask, db_session: Session, test_user_with_profile: User

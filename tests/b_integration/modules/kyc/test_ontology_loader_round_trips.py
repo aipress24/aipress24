@@ -32,7 +32,9 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 import pytest
+from sqlalchemy import event
 
+from app.flask.extensions import db
 from app.modules.kyc.ontology_loader import (
     ONTOLOGY_DB_LIST,
     ONTOLOGY_MAP,
@@ -218,3 +220,36 @@ class TestGetOntologyContentCacheInvalidation:
         get_ontology_content.cache.clear()
 
         assert get_ontology_content("langue") == [("fr", "Français")]
+
+
+class TestOntologyCacheSizing:
+    """The cache must hold the whole working set so a member-profile render
+    (~19 ontologies) isn't evicted by other pages and reloaded every view —
+    the 19× redundant `tax_taxonomy` queries on /swork/members/<id>."""
+
+    def test_working_set_is_not_evicted_under_load(self, db_session: Session) -> None:
+        _seed(db_session, "civilite", [("M", "", "m", 1)])
+        get_ontology_content("civilite")  # warm
+
+        # Touch many distinct ontologies — more than the old maxsize of 25.
+        for i in range(30):
+            get_ontology_content(f"dummy_taxo_{i}")
+
+        # civilite must still be cached (not evicted) → 0 queries on re-read.
+        seen: list[str] = []
+
+        def _capture(conn, cursor, statement, parameters, context, executemany):
+            if "tax_taxonomy" in statement:
+                seen.append(statement)
+
+        event.listen(db.engine, "before_cursor_execute", _capture)
+        try:
+            get_ontology_content("civilite")
+        finally:
+            event.remove(db.engine, "before_cursor_execute", _capture)
+
+        assert seen == [], "civilite was evicted — cache too small (thrashing)"
+
+    def test_cache_maxsize_covers_the_working_set(self) -> None:
+        # ONTOLOGY_MAP + the KYC label map reference ~40 distinct ontologies.
+        assert get_ontology_content.cache.maxsize >= 64

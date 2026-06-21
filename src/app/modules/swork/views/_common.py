@@ -11,12 +11,22 @@ from typing import TYPE_CHECKING, cast
 import sqlalchemy as sa
 from attr import define
 from flask import g
+from sqlalchemy.orm import selectinload
 
 from app.flask.extensions import db
 from app.flask.lib.view_model import ViewModel
 from app.models.auth import User
 from app.models.lifecycle import PublicationStatus
 from app.modules.swork.models import Group, group_members_table
+
+# Relationships a member CARD reads (job_title → profile, organisation_name →
+# organisation, community badge → roles). Eager-loaded so a list of follower /
+# followee cards doesn't issue a query per card.
+_CARD_LOAD_OPTIONS = (
+    selectinload(User.profile),
+    selectinload(User.organisation),
+    selectinload(User.roles),
+)
 
 # Lazy imports to avoid circular import
 # from app.services.social_graph import adapt
@@ -79,6 +89,18 @@ class PostVM(ViewModel):
 
 
 @define
+class FollowerCardVM(ViewModel):
+    """Light VM for a follower / followee card.
+
+    Its `extra_attrs` is empty on purpose : the card templates (`m_user_list`,
+    `member--aside.j2`) read only plain `User` fields/methods — `full_name`,
+    `job_title`, `organisation_name`, `organisation`, `photo_image_signed_url`,
+    `first_community` — which resolve via `__getattr__` on the wrapped User,
+    and `url_for(vm)` unwraps to the User. No social-graph fan-out per card.
+    """
+
+
+@define
 class UserVM(ViewModel):
     """ViewModel for User."""
 
@@ -94,18 +116,35 @@ class UserVM(ViewModel):
 
         user = self.user
 
+        # Only the cheap, always-needed fields. The expensive social-graph
+        # fan-out (followers / followees / posts / groups) is exposed as lazy
+        # memoized properties below — so reading e.g. `profile.name` no longer
+        # drags in those queries, and a member CARD (which reads only these
+        # light fields) stays cheap.
         return {
             "name": user.full_name,
             "job_title": user.job_title,
             "organisation_name": user.organisation_name,
             "image_url": user.photo_image_signed_url(),
             "is_following": adapt(g.user).is_following(user),
-            "followers": self.get_followers(),
-            "followees": self.get_followees(),
-            "posts": self.get_posts(),
-            "groups": self.get_groups(),
             "banner_url": self.get_banner_url(),
         }
+
+    @property
+    def followers(self) -> list:
+        return self._lazy("followers", self.get_followers)
+
+    @property
+    def followees(self) -> list:
+        return self._lazy("followees", self.get_followees)
+
+    @property
+    def posts(self) -> list:
+        return self._lazy("posts", self.get_posts)
+
+    @property
+    def groups(self) -> list:
+        return self._lazy("groups", self.get_groups)
 
     def get_groups(self) -> list[Group]:
         c = group_members_table.c
@@ -120,21 +159,26 @@ class UserVM(ViewModel):
         )
         return list(db.session.scalars(stmt2))
 
-    def get_followers(self, limit: int | None = None) -> list[UserVM]:
+    def get_followers(self, limit: int | None = None) -> list[FollowerCardVM]:
         from app.services.social_graph import adapt
 
         followers: list[User] = adapt(self.user).get_followers(
-            order_by=-User.karma, limit=limit
+            order_by=-User.karma, limit=limit, options=_CARD_LOAD_OPTIONS
         )
-        return UserVM.from_many(followers)
+        # Light cards, NOT recursive UserVMs : a follower card reads only plain
+        # User fields (name / job_title / org / photo), so wrapping each in a
+        # full UserVM (which would re-load that follower's own followers /
+        # posts / groups) was the N+1 explosion. The card's job_title / org /
+        # community-badge fields are eager-loaded above so they don't N+1.
+        return FollowerCardVM.from_many(followers)
 
-    def get_followees(self, limit: int | None = None) -> list[UserVM]:
+    def get_followees(self, limit: int | None = None) -> list[FollowerCardVM]:
         from app.services.social_graph import adapt
 
         followees: list[User] = adapt(self.user).get_followees(
-            order_by=-User.karma, limit=limit
+            order_by=-User.karma, limit=limit, options=_CARD_LOAD_OPTIONS
         )
-        return UserVM.from_many(followees)
+        return FollowerCardVM.from_many(followees)
 
     def get_posts(self) -> list[PostVM]:
         from sqlalchemy.orm import selectinload

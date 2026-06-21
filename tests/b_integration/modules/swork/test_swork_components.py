@@ -9,12 +9,15 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, ClassVar
 
 import pytest
-from sqlalchemy import false, select, true
+from sqlalchemy import event, false, select, true
 from sqlalchemy.orm import Session, selectinload
 
-from app.enums import OrganisationTypeEnum
-from app.models.auth import KYCProfile, User
+from app.enums import OrganisationTypeEnum, RoleEnum
+from app.flask.extensions import db
+from app.models.auth import KYCProfile, Role, User
 from app.models.organisation import Organisation
+from app.modules.bw.bw_activation.models import BusinessWall
+from app.modules.bw.bw_activation.models.business_wall import BWStatus
 from app.modules.swork.components.base import (
     BaseList,
     Filter,
@@ -346,6 +349,117 @@ class TestMembersListContext:
             ctx = members_list.context()
 
             assert isinstance(ctx["count"], int)
+
+
+class TestMembersListPerformance:
+    """The members list (~100 cards + filter facets) must eager-load each
+    member's profile / roles, not query them per member (was 355× kyc_profile
+    + 99× roles on /swork/members/)."""
+
+    @staticmethod
+    def _make_member(db_session: Session, role: Role, i: int) -> User:
+        org = Organisation(name=f"MemberPerfOrg {i}")
+        db_session.add(org)
+        db_session.flush()
+        profile = KYCProfile(contact_type="PRESSE", profile_label="Journaliste")
+        profile.show_contact_details = {}
+        user = User(
+            email=f"member_perf_{i}@example.com",
+            first_name=f"M{i}",
+            last_name="X",
+            active=True,
+        )
+        user.organisation = org
+        user.profile = profile
+        user.roles.append(role)
+        db_session.add_all([user, profile])
+        db_session.flush()
+        return user
+
+    def test_context_is_not_n_plus_one(self, app: Flask, db_session: Session):
+        role = db_session.query(Role).filter_by(
+            name=RoleEnum.PRESS_MEDIA.name
+        ).first() or Role(name=RoleEnum.PRESS_MEDIA.name, description="press")
+        db_session.add(role)
+        db_session.flush()
+        for i in range(15):
+            self._make_member(db_session, role, i)
+
+        statements: list[str] = []
+
+        def _capture(conn, cursor, statement, parameters, context, executemany):
+            statements.append(statement)
+
+        with app.test_request_context():
+            event.listen(db.engine, "before_cursor_execute", _capture)
+            try:
+                # context() builds the filter facets, which read each member's
+                # job_title (→ profile) and community (→ roles).
+                MembersList().context()
+            finally:
+                event.remove(db.engine, "before_cursor_execute", _capture)
+
+        n = len(statements)
+        # 15 members. Profile + roles + org are eager-loaded, so the count is
+        # a small constant; a per-member profile/roles load adds dozens.
+        assert n < 20, f"{n} SQL queries for the members list:\n" + "\n".join(
+            statements
+        )
+
+
+class TestOrganisationsListPerformance:
+    """The org list re-fetched each org's active BusinessWall twice (display
+    name + logo) → 2 queries per org (66× bw_business_wall on
+    /swork/organisations/). `prefetch_active_business_walls` batches them."""
+
+    @staticmethod
+    def _make_org_with_bw(db_session: Session, user: User, i: int) -> Organisation:
+        org = Organisation(name=f"OrgPerf {i}", bw_active="media")
+        db_session.add(org)
+        db_session.flush()
+        bw = BusinessWall(
+            organisation_id=org.id,
+            bw_type="media",
+            status=BWStatus.ACTIVE.value,
+            owner_id=user.id,
+            payer_id=user.id,
+            name=f"BW {i}",
+        )
+        db_session.add(bw)
+        db_session.flush()
+        org.bw_id = bw.id
+        db_session.flush()
+        return org
+
+    def test_get_orgs_is_not_n_plus_one(self, app: Flask, db_session: Session):
+        user = User(email="orgperf@example.com", first_name="O", last_name="P")
+        db_session.add(user)
+        db_session.flush()
+        for i in range(12):
+            self._make_org_with_bw(db_session, user, i)
+
+        statements: list[str] = []
+
+        def _capture(conn, cursor, statement, parameters, context, executemany):
+            statements.append(statement)
+
+        with app.test_request_context():
+            org_list = OrganisationsList()
+            orgs = org_list.get_orgs()
+            # Render the per-org VM fields that re-fetched the BW (name + logo).
+            event.listen(db.engine, "before_cursor_execute", _capture)
+            try:
+                for org in orgs:
+                    vm = OrgListOrgVM(org)
+                    _ = vm["display_name"]
+                    _ = vm["logo_url"]
+            finally:
+                event.remove(db.engine, "before_cursor_execute", _capture)
+
+        n = len(statements)
+        # BWs are prefetched in get_orgs(); rendering all VMs adds 0 queries.
+        # A per-org re-fetch would add 2× the org count.
+        assert n < 5, f"{n} SQL queries rendering org VMs:\n" + "\n".join(statements)
 
 
 class TestMembersListStaticMethods:

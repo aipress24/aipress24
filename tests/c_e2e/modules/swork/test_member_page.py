@@ -12,13 +12,17 @@ from typing import TYPE_CHECKING
 import arrow
 import pytest
 from flask import Flask, g
+from sqlalchemy import event
 
+from app.flask.extensions import db
 from app.models.auth import KYCProfile, User
 from app.models.lifecycle import PublicationStatus
+from app.models.organisation import Organisation
 from app.modules.swork.masked_fields import MaskFields
 from app.modules.swork.views._common import (
     MASK_FIELDS,
     MEMBER_TABS,
+    UserVM,
     filter_email_mobile,
 )
 from app.modules.wire.models import (
@@ -111,6 +115,86 @@ def authenticated_client(
         )
 
     return client
+
+
+def _make_follower(db_session: Session, i: int) -> User:
+    org = Organisation(name=f"FollowerOrg {i}")
+    db_session.add(org)
+    db_session.flush()
+    user = User(
+        email=f"follower_{i}@example.com",
+        first_name=f"F{i}",
+        last_name="X",
+        active=True,
+    )
+    user.photo = b""
+    user.organisation = org
+    db_session.add(user)
+    db_session.flush()
+    return user
+
+
+class TestMemberPagePerformance:
+    """The member profile must not N+1 over the viewed user's followers /
+    posts (was ~340 queries — a full recursive UserVM per follower, plus the
+    base recomputing extra_attrs on every attribute access)."""
+
+    def test_member_uservm_is_not_n_plus_one(
+        self,
+        app: Flask,
+        db_session: Session,
+        logged_user: User,
+        target_user: User,
+    ):
+        for i in range(15):
+            follower = _make_follower(db_session, i)
+            adapt(follower).follow(target_user)
+        for i in range(5):
+            db_session.add(
+                ArticlePost(
+                    title=f"Post {i}",
+                    content="x",
+                    status=PublicationStatus.PUBLIC,
+                    owner_id=target_user.id,
+                    published_at=arrow.utcnow(),
+                )
+            )
+        db_session.flush()
+
+        statements: list[str] = []
+
+        def _capture(conn, cursor, statement, parameters, context, executemany):
+            statements.append(statement)
+
+        with app.test_request_context():
+            g.user = logged_user
+            vm = UserVM(target_user)
+            event.listen(db.engine, "before_cursor_execute", _capture)
+            try:
+                # member--main.j2 reads several light attrs on the main VM.
+                # Before the memoization fix each of these re-ran the whole
+                # heavy bundle (followers/posts/groups).
+                for _ in range(3):
+                    _ = vm.name
+                    _ = vm.is_following
+                    _ = vm.job_title
+                    _ = vm.organisation_name
+                # The aside / followers tab iterates followers and reads only
+                # light fields per card — must NOT fan out per follower.
+                followers = vm.followers
+                for follower in followers:
+                    _ = follower.full_name
+                    _ = follower.job_title
+                # publications tab reads the posts.
+                _ = vm.posts
+            finally:
+                event.remove(db.engine, "before_cursor_execute", _capture)
+
+        n = len(statements)
+        # 15 followers + 5 posts. The recursion + per-access recompute made
+        # this ~340 and growing with followers; memoized + light cards it is a
+        # small constant. A reintroduced per-follower fan-out adds dozens.
+        assert n < 15, f"{n} SQL queries for the member VM:\n" + "\n".join(statements)
 
 
 # =============================================================================
