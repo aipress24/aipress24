@@ -16,11 +16,14 @@ from unittest.mock import MagicMock, patch
 import arrow
 import pytest
 import stripe as stripe_module
+<<<<<<< HEAD
+=======
 
 try:
-    from stripe.error import APIConnectionError, StripeError
+    from stripe.error import StripeError
 except ModuleNotFoundError:  # pragma: no cover - stripe>=15
-    from stripe._error import APIConnectionError, StripeError
+    from stripe._error import StripeError
+>>>>>>> 63d18d1a (tests: update tests to Stripe v15)
 
 from app.enums import RoleEnum
 from app.models.auth import Role, User
@@ -427,7 +430,7 @@ class TestBuyRoute:
                 p3,
                 patch(
                     "stripe.checkout.Session.create",
-                    side_effect=APIConnectionError("boom"),
+                    side_effect=stripe_module.error.APIConnectionError("boom"),
                 ),
             ):
                 response = client.post(
@@ -607,7 +610,7 @@ class TestBuyGiftStripeFailure:
                 ),
                 patch(
                     "stripe.checkout.Session.create",
-                    side_effect=APIConnectionError("boom"),
+                    side_effect=stripe_module.error.APIConnectionError("boom"),
                 ),
             ):
                 response = client.post(
