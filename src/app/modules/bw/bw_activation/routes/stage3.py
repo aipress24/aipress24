@@ -10,7 +10,12 @@ from datetime import UTC, datetime
 from typing import TYPE_CHECKING, Any, cast
 
 import stripe
-import stripe.error
+
+try:
+    from stripe.error import InvalidRequestError, StripeError
+except ModuleNotFoundError:  # pragma: no cover - stripe>=15
+    from stripe._error import InvalidRequestError, StripeError
+
 from flask import (
     current_app,
     flash,
@@ -632,7 +637,7 @@ def _create_stripe_checkout_session(
     """
     try:
         return stripe.checkout.Session.create(**checkout_kwargs)
-    except stripe.error.InvalidRequestError as exc:
+    except InvalidRequestError as exc:
         err_msg = str(exc)
         if (
             "No such customer" not in err_msg
@@ -774,7 +779,7 @@ def checkout(bw_type: str):
         checkout_session = _create_stripe_checkout_session(
             checkout_kwargs, org, g.user.email
         )
-    except stripe.error.StripeError as exc:
+    except StripeError as exc:
         warn(f"BW checkout Session.create failed: {exc}")
         flash(
             "Le paiement n'a pas pu être initié. Merci de réessayer ou de "

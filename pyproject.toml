@@ -76,7 +76,7 @@ dependencies = [
     # Full text search
     "wesh>=3.0.0,<4",
     "beautifulsoup4<5.0,>=4.12",
-    "stripe<13,>=12",
+    "stripe<16,>=12",
     # Queues
     "dramatiq<2.0.0,>=1.15.0",
     "dramatiq-pg<1.0.0,>=0.12.0",

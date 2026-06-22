@@ -24,9 +24,13 @@ from collections.abc import Iterable
 from typing import Any, Protocol
 
 import stripe
-import stripe.error  # explicit submodule import so ty can resolve stripe.error.StripeError
 from stripe import Customer, Event, Invoice, Price, Product, Subscription
 from stripe.checkout import Session
+
+try:
+    from stripe.error import StripeError
+except ModuleNotFoundError:  # pragma: no cover - stripe>=15
+    from stripe._error import StripeError
 
 
 def _warning(*args: Any) -> None:
@@ -104,7 +108,7 @@ class StripeSdkClient:
     def _safe_retrieve(klass: type, item_id: str, **kwargs: Any) -> Any | None:
         try:
             return klass.retrieve(item_id, **kwargs)
-        except stripe.error.StripeError as exc:
+        except StripeError as exc:
             _warning(f"Error retrieving {klass.__name__} for id {item_id}: {exc}")
             return None
 

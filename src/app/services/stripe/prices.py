@@ -120,26 +120,35 @@ def extract_price_payload(price_obj: Any) -> dict[str, Any]:
 def _attr_or_item_getter(obj: Any) -> Any:
     """Return a `.get(key, default=None)` callable for dict-like or attr-like.
 
-    Stripe SDK objects subclass dict; SimpleNamespace test fixtures only
-    expose attribute access. This handles both.
+    Stripe v15 objects are no longer dict subclasses but still support
+    bracket notation and attribute access.
     """
-    if hasattr(obj, "get"):
+    if obj is None:
+        return lambda k, d=None: d
+    if isinstance(obj, dict):
         return obj.get
-    return lambda k, d=None: getattr(obj, k, d)
+
+    def _get(key: str, default: Any = None) -> Any:
+        try:
+            return obj[key]
+        except (KeyError, TypeError):
+            return getattr(obj, key, default)
+
+    return _get
 
 
 def _coerce_metadata(raw_meta: Any) -> dict:
     """Normalise Stripe metadata into a plain dict.
 
-    Stripe SDK delivers a `StripeObject` (dict subclass with
-    `to_dict_recursive`); CLI/test fixtures pass a plain dict or `None`.
+    Stripe SDK delivers a `StripeObject` with `to_dict()`
+    CLI/test fixtures pass a plain dict or `None`.
     """
     if raw_meta is None:
         return {}
-    to_dict = getattr(raw_meta, "to_dict_recursive", None)
+    to_dict = getattr(raw_meta, "to_dict", None)
     if callable(to_dict):
         return to_dict()
-    if hasattr(raw_meta, "items"):
+    if isinstance(raw_meta, dict):
         return dict(raw_meta)
     return {}
 
