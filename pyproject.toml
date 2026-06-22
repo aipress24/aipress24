@@ -199,7 +199,7 @@ dev = [
     "pytest-watcher<1.0,>=0.4",
     "hypothesis",
     "nox",
-    "invoke<3.0.0,>=2.2.0",
+    "invoke>=2.2.0",
     # Coverage
     "coverage[toml]<8.0.0,>=7.4.0",
     "flask-coverage>=0.1.0 ; python_full_version >= '3.12'",
