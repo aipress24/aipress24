@@ -38,9 +38,12 @@ def _get(obj: Any, key: str, default: Any = None) -> Any:
     attribute access (SDK objects)."""
     if obj is None:
         return default
-    if hasattr(obj, "get"):
+    if isinstance(obj, dict):
         return obj.get(key, default)
-    return getattr(obj, key, default)
+    try:
+        return obj[key]
+    except (KeyError, TypeError):
+        return getattr(obj, key, default)
 
 
 def _first_tax_id(tax_ids: Any) -> str | None:

@@ -19,7 +19,12 @@ import unicodedata
 from typing import cast
 
 import stripe
-import stripe.error
+
+try:
+    from stripe.error import StripeError
+except ModuleNotFoundError:  # pragma: no cover - stripe>=15
+    from stripe._error import StripeError
+
 from flask import current_app, flash, g, redirect, render_template, request, url_for
 from werkzeug.exceptions import Forbidden, NotFound
 
@@ -196,7 +201,7 @@ def buy_modal(post_id: str, product: str):
                 price = stripe.Price.retrieve(price_id)
                 if price.unit_amount is not None:
                     amount_ht_eur = price.unit_amount / 100
-            except stripe.error.StripeError as exc:
+            except StripeError as exc:
                 warn(f"buy_modal: failed to retrieve price {price_id}: {exc}")
 
     vat_eur: float | None = None
@@ -266,7 +271,7 @@ def buy(post_id: str, product: str):
     try:
         price = stripe.Price.retrieve(price_id)
         mode = "subscription" if price.recurring else "payment"
-    except stripe.error.StripeError as e:
+    except StripeError as e:
         warn(f"Failed to retrieve Stripe price {price_id}: {e}")
         flash("Produit momentanément indisponible (erreur Stripe).", "error")
         return redirect(_back_to_post(post))
@@ -308,7 +313,7 @@ def buy(post_id: str, product: str):
             # whose SMS confirmation we can't deliver (no SMS backend).
             payment_method_types=["card"],
         )
-    except stripe.error.StripeError as exc:
+    except StripeError as exc:
         warn(f"buy: Stripe Checkout creation failed: {exc}")
         db.session.delete(purchase)
         db.session.commit()
@@ -356,7 +361,7 @@ def buy_modal_gift(post_id: str):
                 price = stripe.Price.retrieve(price_id)
                 if price.unit_amount is not None:
                     amount_ht_eur = price.unit_amount / 100
-            except stripe.error.StripeError as exc:
+            except StripeError as exc:
                 warn(f"buy_modal_gift: failed to retrieve price: {exc}")
 
     vat_eur: float | None = None
@@ -552,7 +557,7 @@ def buy_gift(post_id: str):
             # Ticket #0214: pin card (no Link / SMS dead-end).
             payment_method_types=["card"],
         )
-    except stripe.error.StripeError as exc:
+    except StripeError as exc:
         warn(f"buy_gift: Stripe Checkout creation failed: {exc}")
         db.session.query(ArticlePurchaseGift).filter_by(
             purchase_id=purchase.id

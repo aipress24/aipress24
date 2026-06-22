@@ -15,6 +15,11 @@ from uuid import UUID
 
 import stripe
 from flask import request
+
+try:
+    from stripe.error import SignatureVerificationError
+except ModuleNotFoundError:  # pragma: no cover - stripe>=15
+    from stripe._error import SignatureVerificationError
 from sqlalchemy import select as sa_select
 
 from app.actors.justificatif import generate_justificatif
@@ -122,11 +127,20 @@ def warning(*args: Any) -> None:
 
 def event_data_getter(data_obj):
     """Return a `.get(key, default=None)` callable that works on either
-    a Python dict (test fixtures) or a `stripe.Object` (live SDK), so
-    downstream extraction code doesn't have to branch."""
-    if hasattr(data_obj, "get"):
+    a Python dict (test fixtures) or a `stripe.Object` (Stripe SDK v15),
+    so downstream extraction code doesn't have to branch."""
+    if data_obj is None:
+        return lambda k, d=None: d
+    if isinstance(data_obj, dict):
         return data_obj.get
-    return lambda k, d=None: getattr(data_obj, k, d)
+
+    def _get(key, default=None):
+        try:
+            return data_obj[key]
+        except (KeyError, TypeError):
+            return getattr(data_obj, key, default)
+
+    return _get
 
 
 def extract_purchase_id(data_obj) -> str | None:
@@ -135,7 +149,8 @@ def extract_purchase_id(data_obj) -> str | None:
     missing or empty so the caller can short-circuit cleanly."""
     get = event_data_getter(data_obj)
     metadata = get("metadata") or {}
-    purchase_id = metadata.get("purchase_id")
+    metadata_get = event_data_getter(metadata)
+    purchase_id = metadata_get("purchase_id")
     return purchase_id or None
 
 
@@ -175,7 +190,7 @@ def webhooks():
         if STRIPE_RESPONSE_ALWAYS_200:
             return "", 200
         return msg, 400
-    except stripe.error.SignatureVerificationError:
+    except SignatureVerificationError:
         msg = "Error SignatureVerificationError"
         warning(msg)
         if STRIPE_RESPONSE_ALWAYS_200:
@@ -545,13 +560,8 @@ def on_checkout_session_completed(event: stripe.Event) -> None:
 
     data_obj = _get_event_object(event)
     # `data_obj` is a stripe.api_resources.checkout.Session; support both
-    # dict-like access (as per the mapping table in this file) and
-    # attribute access (as delivered by Stripe CLI simulations).
-    get = (
-        data_obj.get
-        if hasattr(data_obj, "get")
-        else lambda k, d=None: getattr(data_obj, k, d)
-    )
+    # dict-like access (test fixtures) and attribute/bracket access (SDK v15).
+    get = event_data_getter(data_obj)
 
     mode = get("mode")
     if mode == "payment":
@@ -563,7 +573,8 @@ def on_checkout_session_completed(event: stripe.Event) -> None:
         return
 
     session_id = get("id")
-    bw_id = get("client_reference_id") or (get("metadata") or {}).get("bw_id")
+    metadata = get("metadata") or {}
+    bw_id = get("client_reference_id") or event_data_getter(metadata)("bw_id")
     if not bw_id:
         warning(f"checkout.session.completed without bw_id: {session_id}")
         return
@@ -810,7 +821,7 @@ def _make_subscription_info(data_obj: dict[str, Any]) -> SubscriptionInfo:
 
 def _get_bw_type_from_product(product: stripe.Product) -> str:
     """Identify the BW type from Stripe product metadata."""
-    metadata = product.metadata or {}
+    metadata = _stripe_object_to_dict(product.metadata) or {}
 
     # New format: "reference": "BW4PR", "BW4T-GE", etc.
     bw_reference = metadata.get("reference")
@@ -833,6 +844,18 @@ def _get_bw_type_from_product(product: stripe.Product) -> str:
     return str(BWType.MEDIA.value)
 
 
+def _stripe_object_to_dict(obj: Any) -> dict:
+    """Convert a Stripe object or dict to a plain dict."""
+    if obj is None:
+        return {}
+    to_dict = getattr(obj, "to_dict", None)
+    if callable(to_dict):
+        return to_dict()
+    if isinstance(obj, dict):
+        return dict(obj)
+    return {}
+
+
 def extract_subscription_plan(data_obj: Any) -> Any:
     """Pull the `plan` dict out of a Stripe `subscription` payload.
 
@@ -842,14 +865,16 @@ def extract_subscription_plan(data_obj: Any) -> Any:
 
     Pure : returns the dict (or None) without touching any I/O.
     """
-    plan = data_obj.get("plan") if hasattr(data_obj, "get") else None
+    get = event_data_getter(data_obj)
+    plan = get("plan")
     if plan:
         return plan
-    items_container = data_obj.get("items", {}) if hasattr(data_obj, "get") else {}
-    items = items_container.get("data", []) if hasattr(items_container, "get") else []
+    items_container = get("items") or {}
+    items_get = event_data_getter(items_container)
+    items = items_get("data") or []
     if items:
         first = items[0]
-        return first.get("plan") if hasattr(first, "get") else None
+        return event_data_getter(first)("plan")
     return None
 
 
@@ -867,19 +892,19 @@ def extract_subscription_period(
 
     Pure.
     """
-    start = data_obj.get("current_period_start") if hasattr(data_obj, "get") else None
-    end = data_obj.get("current_period_end") if hasattr(data_obj, "get") else None
+    get = event_data_getter(data_obj)
+    start = get("current_period_start")
+    end = get("current_period_end")
     if start is not None and end is not None:
         return start, end
 
-    items_container = data_obj.get("items", {}) if hasattr(data_obj, "get") else {}
-    items = items_container.get("data", []) if hasattr(items_container, "get") else []
+    items_container = get("items") or {}
+    items_get = event_data_getter(items_container)
+    items = items_get("data") or []
     if items:
         first = items[0]
-        if hasattr(first, "get"):
-            return first.get("current_period_start", 0), first.get(
-                "current_period_end", 0
-            )
+        first_get = event_data_getter(first)
+        return first_get("current_period_start", 0), first_get("current_period_end", 0)
     return start, end
 
 
@@ -918,10 +943,11 @@ def _check_subscription_product(
         warning(f"no plan found in Stripe subscription {subinfo.subscription_id}")
         return False
 
-    subinfo.price_id = plan.get("id")
-    subinfo.nickname = plan.get("nickname")
-    subinfo.interval = plan.get("interval")
-    subinfo.product_id = plan.get("product")
+    plan_get = event_data_getter(plan)
+    subinfo.price_id = plan_get("id")
+    subinfo.nickname = plan_get("nickname")
+    subinfo.interval = plan_get("interval")
+    subinfo.product_id = plan_get("product")
 
     product = retrieve_product(subinfo.product_id)
     if not product:
@@ -931,11 +957,13 @@ def _check_subscription_product(
     subinfo.bw_type = _get_bw_type_from_product(product)
     subinfo.name = product.name
 
-    latest_invoice_id = data_obj.get("latest_invoice")
+    data_get = event_data_getter(data_obj)
+    latest_invoice_id = data_get("latest_invoice")
     if latest_invoice_id:
         latest_invoice = retrieve_invoice(latest_invoice_id)
         if latest_invoice:
-            subinfo.latest_invoice_url = latest_invoice.get("hosted_invoice_url") or ""
+            invoice_get = event_data_getter(latest_invoice)
+            subinfo.latest_invoice_url = invoice_get("hosted_invoice_url") or ""
 
     info(
         f"Stripe subscription for BW {subinfo.subscription_id}",
@@ -951,31 +979,35 @@ def _make_customer_subscription_info(
     subinfo = SubscriptionInfo()
     # info(pformat(data_obj))
 
+    data_get = event_data_getter(data_obj)
+
     # security
-    if data_obj.get("object") != "subscription":
+    if data_get("object") != "subscription":
         msg = f"Not a Subscription {data_obj}"
         raise ValueError(msg)
 
-    subinfo.subscription_id = data_obj["id"]
-    customer_id = data_obj["customer"]
+    subinfo.subscription_id = data_get("id")
+    customer_id = data_get("customer")
     customer = retrieve_customer(customer_id)
     if customer is None:
         warning(f"Stripe customer {customer_id} not retrievable")
         return None
-    subinfo.customer_email = customer["email"]
-    subinfo.client_reference_id = data_obj.get("metadata", {}).get("bw_id", "")
+    customer_get = event_data_getter(customer)
+    subinfo.customer_email = customer_get("email")
+    metadata = data_get("metadata") or {}
+    subinfo.client_reference_id = event_data_getter(metadata)("bw_id", "")
 
     if not _check_subscription_product(data_obj, subinfo):
         return None
 
     # data_obj is a stripe.Subscription
-    subinfo.created = data_obj.get("created", 0)
+    subinfo.created = data_get("created", 0)
 
     subinfo.current_period_start, subinfo.current_period_end = (
         extract_subscription_period(data_obj)
     )
 
-    subinfo.quantity = data_obj.get("quantity", 1)
+    subinfo.quantity = data_get("quantity", 1)
     # On status:
     #
     # Possible values are incomplete, incomplete_expired, trialing, active,

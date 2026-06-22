@@ -13,7 +13,12 @@ from typing import TYPE_CHECKING, ClassVar, cast
 import arrow
 import sqlalchemy as sa
 import stripe
-import stripe.error
+
+try:
+    from stripe.error import StripeError
+except ModuleNotFoundError:  # pragma: no cover - stripe>=15
+    from stripe._error import StripeError
+
 from attr import field, frozen
 from babel.numbers import format_currency
 from cachetools import TTLCache
@@ -71,7 +76,7 @@ def _fetch_consultation_price(price_id: str) -> str:
             live_price.currency.upper(),
             locale="fr_FR",
         ).replace(" ", " ")
-    except stripe.error.StripeError as exc:
+    except StripeError as exc:
         warn(f"item: failed to retrieve price {price_id}: {exc}")
         return ""
 

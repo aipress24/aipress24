@@ -16,7 +16,6 @@ from unittest.mock import MagicMock, patch
 import arrow
 import pytest
 import stripe as stripe_module
-import stripe.error
 
 from app.enums import RoleEnum
 from app.models.auth import Role, User
