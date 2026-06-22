@@ -24,13 +24,8 @@ from collections.abc import Iterable
 from typing import Any, Protocol
 
 import stripe
-from stripe import Customer, Event, Invoice, Price, Product, Subscription
+from stripe import Customer, Event, Invoice, Price, Product, StripeError, Subscription
 from stripe.checkout import Session
-
-try:
-    from stripe.error import StripeError
-except ModuleNotFoundError:  # pragma: no cover - stripe>=15
-    from stripe._error import StripeError
 
 
 def _warning(*args: Any) -> None:

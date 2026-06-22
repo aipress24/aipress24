@@ -4,6 +4,8 @@
 
 from __future__ import annotations
 
+from typing import Any
+
 from stripe import Product
 
 from app.services.stripe._client import StripeClient, default_client

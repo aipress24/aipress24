@@ -15,12 +15,7 @@ from unittest.mock import MagicMock, patch
 
 import arrow
 import pytest
-import stripe as stripe_module
-
-try:
-    from stripe.error import APIConnectionError, StripeError
-except ModuleNotFoundError:  # pragma: no cover - stripe>=15
-    from stripe._error import APIConnectionError, StripeError
+from stripe import APIConnectionError
 
 from app.enums import RoleEnum
 from app.models.auth import Role, User

@@ -13,18 +13,13 @@ from typing import TYPE_CHECKING, ClassVar, cast
 import arrow
 import sqlalchemy as sa
 import stripe
-
-try:
-    from stripe.error import StripeError
-except ModuleNotFoundError:  # pragma: no cover - stripe>=15
-    from stripe._error import StripeError
-
 from attr import field, frozen
 from babel.numbers import format_currency
 from cachetools import TTLCache
 from flask import current_app, flash, g, redirect, render_template, request
 from flask.views import MethodView
 from sqlalchemy.orm import selectinload
+from stripe import StripeError
 from werkzeug import Response
 
 from app.flask.extensions import db
