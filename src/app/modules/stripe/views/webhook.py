@@ -15,12 +15,8 @@ from uuid import UUID
 
 import stripe
 from flask import request
-
-try:
-    from stripe.error import SignatureVerificationError
-except ModuleNotFoundError:  # pragma: no cover - stripe>=15
-    from stripe._error import SignatureVerificationError
 from sqlalchemy import select as sa_select
+from stripe import SignatureVerificationError
 
 from app.actors.justificatif import generate_justificatif
 

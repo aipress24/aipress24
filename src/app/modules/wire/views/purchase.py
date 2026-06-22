@@ -19,13 +19,8 @@ import unicodedata
 from typing import cast
 
 import stripe
-
-try:
-    from stripe.error import StripeError
-except ModuleNotFoundError:  # pragma: no cover - stripe>=15
-    from stripe._error import StripeError
-
 from flask import current_app, flash, g, redirect, render_template, request, url_for
+from stripe import StripeError
 from werkzeug.exceptions import Forbidden, NotFound
 
 from app.flask.extensions import db
@@ -628,7 +623,8 @@ def _is_product_matching_taxonomy(
     filters = _PRODUCT_TAXONOMY_FILTERS.get(product)
     if not filters:
         return False
-    metadata = prod.metadata
+    # Stripe v15 stubs type `Product.metadata` loosely; it's a dict at runtime.
+    metadata = cast(dict, prod.metadata)
     for key, value in filters.items():
         if metadata.get(key) != value:
             return False

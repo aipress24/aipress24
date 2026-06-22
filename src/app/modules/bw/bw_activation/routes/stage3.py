@@ -10,12 +10,6 @@ from datetime import UTC, datetime
 from typing import TYPE_CHECKING, Any, cast
 
 import stripe
-
-try:
-    from stripe.error import InvalidRequestError, StripeError
-except ModuleNotFoundError:  # pragma: no cover - stripe>=15
-    from stripe._error import InvalidRequestError, StripeError
-
 from flask import (
     current_app,
     flash,
@@ -27,6 +21,7 @@ from flask import (
     url_for,
 )
 from sqlalchemy.orm import scoped_session
+from stripe import InvalidRequestError, StripeError
 from svcs.flask import container
 
 from app.flask.extensions import db
@@ -852,7 +847,7 @@ def _payment_live_enabled(bw_type: str, ctx: dict[str, Any]):
     # For flat-priced products the display price is unit_amount × 1;
     # for tiered products (BW4PR) it depends on the actual quantity.
     if hasattr(default_price, "get"):
-        _billing_scheme = default_price.get("billing_scheme")
+        _billing_scheme = cast(dict, default_price).get("billing_scheme")
     else:
         _billing_scheme = getattr(default_price, "billing_scheme", None)
 
