@@ -445,7 +445,7 @@ requires-dist = [
     { name = "tenacity", specifier = ">=8.5.0,<9" },
     { name = "toml", specifier = ">=0.10.2,<1.0.0" },
     { name = "tomli", specifier = ">=2.0.1,<3.0.0" },
-    { name = "weasyprint", specifier = ">=63,<64" },
+    { name = "weasyprint", specifier = ">=63" },
     { name = "webargs", specifier = ">=8.4.0,<9.0.0" },
     { name = "webbits", specifier = ">=0.1.2,<1.0.0" },
     { name = "werkzeug", specifier = ">=3.0.1,<4.0.0" },
@@ -4829,7 +4829,7 @@ wheels = [
 
 [[package]]
 name = "weasyprint"
-version = "63.1"
+version = "69.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "cffi" },
@@ -4841,9 +4841,9 @@ dependencies = [
     { name = "tinycss2" },
     { name = "tinyhtml5" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/2b/f0/1ac7d241b8cabaaf047278ef67b64869473a4e0a2218a1cbc0a6ffb0d8fd/weasyprint-63.1.tar.gz", hash = "sha256:cb424e63e8dd3f14195bfe5f203527646aa40a2f00ac819f9d39b8304cec0044", size = 491880, upload-time = "2024-12-10T15:51:29.034Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/59/53/dcc3885c2f7a47faa45f6b8b801412f5f9e055173a52801ef01c09943c5a/weasyprint-69.0.tar.gz", hash = "sha256:a7a32f39ca16bd82ef11de99c92ea4b5f14951c9033af035e451ce4f4ee0a88c", size = 1549834, upload-time = "2026-06-02T14:42:17.765Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/d5/39/9d63960b4545138d6c2c695795d77856e35f30d6e4bdc385c848c816d349/weasyprint-63.1-py3-none-any.whl", hash = "sha256:9d0319fe3ba553c9a77dc43a2d35b64a70c2b8809ad55a139a214803fde62bce", size = 299994, upload-time = "2024-12-10T15:51:25.757Z" },
+    { url = "https://files.pythonhosted.org/packages/93/cb/208525c6bd5033d7b2589b55e07bec23d9c61bb00703cbaf20ef52c3811f/weasyprint-69.0-py3-none-any.whl", hash = "sha256:475951cfd917014de6d4d005caff48c6aa867e7e42b80cd5b16a0484a1609ee6", size = 322872, upload-time = "2026-06-02T14:42:15.871Z" },
 ]
 
 [[package]]
@@ -4904,15 +4904,15 @@ wheels = [
 
 [[package]]
 name = "wesh"
-version = "3.1.1"
+version = "3.1.3"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "loguru" },
     { name = "orjson" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/3a/80/713c2e8af76bf239ad9eb7fdefcc0581482fb15611fe708e665e1caeae00/wesh-3.1.1.tar.gz", hash = "sha256:dda1f4a4d700660136c78be89571cb71f616a8b48a2307494828cdbe23435bee", size = 593704, upload-time = "2026-05-20T15:35:50.689Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/87/e9/151ec93b9bd7fc0633e41da4dd45957c269c22baaade7823b7ff53ab53ad/wesh-3.1.3.tar.gz", hash = "sha256:5c20506822443322bdb2672b2fbce1285e57bfa983f6b665704134bddf442ac6", size = 622531, upload-time = "2026-06-22T14:32:12.659Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/a5/05/271458eacb5b2f0950fcaa7c0cf2dbb30ae3201a5ab41a3da7c4504ad226/wesh-3.1.1-py3-none-any.whl", hash = "sha256:c5a46a8f63144c15ed6e4dc6a837f14f0f2b93466767da17b8052193cf110f73", size = 528513, upload-time = "2026-05-20T15:35:52.434Z" },
+    { url = "https://files.pythonhosted.org/packages/ce/10/186045fd742b1d83e6c8da88bf843f77883a08f25e16aea09d359324b51c/wesh-3.1.3-py3-none-any.whl", hash = "sha256:26988ccd87f123d7550b874c18dff226d538dc00d639808baac774f87473fc73", size = 531480, upload-time = "2026-06-22T14:32:11.151Z" },
 ]
 
 [[package]]
