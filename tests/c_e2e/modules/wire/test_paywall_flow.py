@@ -196,7 +196,7 @@ def test_paid_consultation_shows_full_body(
         response = client.get(f"/wire/{article.id}")
         assert response.status_code == 200
         body = response.data.decode()
-        assert "Droit de consultation" not in body
+        assert "Accéder au contenu complet de l'article" not in body
     finally:
         app.config["STRIPE_LIVE_ENABLED"] = False
 
