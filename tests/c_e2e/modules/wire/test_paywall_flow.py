@@ -123,7 +123,7 @@ def test_reader_sees_truncated_body_with_overlay(
             response = client.get(f"/wire/{article.id}")
             assert response.status_code == 200
             body = response.data.decode()
-            assert "Acheter la consultation" in body
+            assert "Droit de consultation" in body
             assert 'class="relative z-10 mt-6 p-6' in body
             # Ticket #0212: paywall live + non-buyer → body is truncated.
             assert body.count("Texte significatif") < 50
@@ -160,7 +160,7 @@ def test_reader_sees_dynamic_consultation_price(
             response = client.get(f"/wire/{article.id}")
             assert response.status_code == 200
             body = response.data.decode()
-            assert "Acheter la consultation" in body
+            assert "Droit de consultation" in body
             assert "3,50 €" in body
             mock_price.assert_called_once_with("price_consultation_test")
 
@@ -196,7 +196,7 @@ def test_paid_consultation_shows_full_body(
         response = client.get(f"/wire/{article.id}")
         assert response.status_code == 200
         body = response.data.decode()
-        assert "Acheter la consultation" not in body
+        assert "Droit de consultation" not in body
     finally:
         app.config["STRIPE_LIVE_ENABLED"] = False
 
@@ -207,7 +207,7 @@ def test_flag_off_no_paywall_overlay(app: Flask, reader: User, article: ArticleP
     response = client.get(f"/wire/{article.id}")
     assert response.status_code == 200
     body = response.data.decode()
-    assert "Acheter la consultation" not in body
+    assert "Droit de consultation" not in body
     # Ticket #0212: with the paywall off, a non-buyer reader sees the FULL
     # body (no truncated dead-end), not a 300-char teaser with no buy CTA.
     assert body.count("Texte significatif") >= 50
