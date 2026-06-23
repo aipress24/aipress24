@@ -134,6 +134,61 @@ def _has_received_consultation_gift(user_id: int, post_id: int) -> bool:
     return count > 0
 
 
+def get_user_purchase_info(
+    user: User | None,
+    post: Post,
+) -> dict[str, object] | None:
+    """Return purchase date info for the post.
+
+    Returns {"date": <Arrow>, "is_gift": bool} or None.
+    The date is paid_at when available, otherwise the purchase
+    timestamp.
+    """
+    if user is None or user.is_anonymous:
+        return None
+
+    # Direct purchase by the user (any paid product).
+    stmt = (
+        sa.select(ArticlePurchase)
+        .where(ArticlePurchase.owner_id == user.id)
+        .where(ArticlePurchase.post_id == post.id)
+        .where(ArticlePurchase.status == PurchaseStatus.PAID)
+        .order_by(
+            sa.func.coalesce(ArticlePurchase.paid_at, ArticlePurchase.timestamp).desc()
+        )
+        .limit(1)
+    )
+    purchase = db.session.scalar(stmt)
+    if purchase:
+        return {
+            "date": purchase.paid_at or purchase.timestamp,
+            "is_gift": False,
+        }
+
+    # Consultation offered by another user to the current user.
+    stmt = (
+        sa.select(ArticlePurchaseGift, ArticlePurchase)
+        .join(ArticlePurchase, ArticlePurchase.id == ArticlePurchaseGift.purchase_id)
+        .where(ArticlePurchaseGift.beneficiary_user_id == user.id)
+        .where(ArticlePurchase.post_id == post.id)
+        .where(ArticlePurchase.product_type == PurchaseProduct.CONSULTATION_GIFT)
+        .where(ArticlePurchase.status == PurchaseStatus.PAID)
+        .order_by(
+            sa.func.coalesce(ArticlePurchase.paid_at, ArticlePurchase.timestamp).desc()
+        )
+        .limit(1)
+    )
+    result = db.session.execute(stmt).first()
+    if result:
+        _, purchase = result
+        return {
+            "date": purchase.paid_at or purchase.timestamp,
+            "is_gift": True,
+        }
+
+    return None
+
+
 def truncate_body(html: str, limit: int = 300) -> str:
     """Return the first `limit` visible characters of `html`, preserving
     well-formed HTML.
