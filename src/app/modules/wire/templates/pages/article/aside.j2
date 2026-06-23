@@ -12,7 +12,8 @@
     <div id="purchase-modal"></div>
 
     <div class="space-y-3">
-      {# check droit de consultation or offert — when stripe live and the current user does not already have full read access. #}
+      {# Droit de consultation — only when the paywall is live and the
+         current user does not already have full read access. #}
         {% if not can_read_full and config.get("STRIPE_LIVE_ENABLED") %}
             <button type="button"
                     class="{{ btn_class }}"
@@ -26,8 +27,11 @@
                     <span class="ml-2 text-gray-500">{{ consultation_price_str }}</span>
                 {% endif %}
             </button>
+        {% endif %}
 
-        {# Ticket #0194 — Droit de consultation offerte #}
+      {# Ticket #0194 — Droit de consultation offerte. Always shown when the
+         paywall is live so a reader who already has access can still gift it. #}
+        {% if config.get("STRIPE_LIVE_ENABLED") %}
             <button type="button"
                     class="{{ btn_class }}"
                     title="Offrir cet article à d'autres membres d'AiPRESS24"
