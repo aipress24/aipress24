@@ -29,23 +29,14 @@ def fetch_stripe_product_list(
         client = default_client()
 
     for rp in client.list_products(active=active, expand=["data.default_price"]):
-        prod = Product()
-        prod.update(_stripe_object_to_dict(rp))
-        results.append(prod)
+        if isinstance(rp, Product):
+            results.append(rp)
+        elif isinstance(rp, dict):
+            results.append(Product.construct_from(rp, "product"))
+        else:
+            # SimpleNamespace / attribute-like test fixtures
+            results.append(Product.construct_from(vars(rp), "product"))
     return results
-
-
-def _stripe_object_to_dict(obj: Any) -> dict:
-    """Convert a Stripe object, SimpleNamespace, or dict to a plain dict."""
-    if isinstance(obj, dict):
-        return dict(obj)
-    to_dict = getattr(obj, "to_dict", None)
-    if callable(to_dict):
-        return to_dict()
-    try:
-        return vars(obj)
-    except TypeError:
-        return {}
 
 
 def fetch_bw_product_list(*, client: StripeClient | None = None) -> list[Product]:
