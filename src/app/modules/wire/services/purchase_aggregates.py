@@ -25,6 +25,9 @@ from sqlalchemy.orm import aliased
 from app.flask.extensions import db
 from app.models.auth import User
 from app.modules.wire.models import ArticlePurchase, PurchaseStatus
+from app.modules.wire.services.consultation_helpers import (
+    purchase_within_duration_clause,
+)
 
 if TYPE_CHECKING:
     from datetime import datetime
@@ -182,6 +185,7 @@ def _direct_consultation_count_stmt(post_id_predicate):
         .where(post_id_predicate(ArticlePurchase.post_id))
         .where(ArticlePurchase.product_type == PurchaseProduct.CONSULTATION)
         .where(ArticlePurchase.status == PurchaseStatus.PAID)
+        .where(purchase_within_duration_clause(ArticlePurchase.paid_at))
         .group_by(ArticlePurchase.post_id)
     )
 
@@ -205,6 +209,7 @@ def _gift_consultation_count_stmt(post_id_predicate):
         .where(post_id_predicate(ArticlePurchase.post_id))
         .where(ArticlePurchase.product_type == PurchaseProduct.CONSULTATION_GIFT)
         .where(ArticlePurchase.status == PurchaseStatus.PAID)
+        .where(purchase_within_duration_clause(ArticlePurchase.paid_at))
         .group_by(ArticlePurchase.post_id)
     )
 
@@ -224,6 +229,7 @@ def paid_consultation_count_subquery(post_id_col):
         .where(ArticlePurchase.post_id == post_id_col)
         .where(ArticlePurchase.product_type == PurchaseProduct.CONSULTATION)
         .where(ArticlePurchase.status == PurchaseStatus.PAID)
+        .where(purchase_within_duration_clause(ArticlePurchase.paid_at))
         .scalar_subquery()
     )
     gifted = (
@@ -236,6 +242,7 @@ def paid_consultation_count_subquery(post_id_col):
         .where(ArticlePurchase.post_id == post_id_col)
         .where(ArticlePurchase.product_type == PurchaseProduct.CONSULTATION_GIFT)
         .where(ArticlePurchase.status == PurchaseStatus.PAID)
+        .where(purchase_within_duration_clause(ArticlePurchase.paid_at))
         .scalar_subquery()
     )
     return direct + gifted
@@ -305,6 +312,7 @@ def is_consultation_giftable_to(beneficiary_user_id: int, post_id: int) -> bool:
         .where(ArticlePurchase.post_id == post_id)
         .where(ArticlePurchase.product_type == PurchaseProduct.CONSULTATION)
         .where(ArticlePurchase.status == PurchaseStatus.PAID)
+        .where(purchase_within_duration_clause(ArticlePurchase.paid_at))
     )
     if (db.session.scalar(direct_stmt) or 0) > 0:
         return False
@@ -320,6 +328,7 @@ def is_consultation_giftable_to(beneficiary_user_id: int, post_id: int) -> bool:
         .where(ArticlePurchase.post_id == post_id)
         .where(ArticlePurchase.product_type == PurchaseProduct.CONSULTATION_GIFT)
         .where(ArticlePurchase.status == PurchaseStatus.PAID)
+        .where(purchase_within_duration_clause(ArticlePurchase.paid_at))
     )
     return (db.session.scalar(gift_stmt) or 0) == 0
 
