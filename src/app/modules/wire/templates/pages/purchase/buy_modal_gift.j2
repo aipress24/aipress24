@@ -3,145 +3,144 @@
    recipient emails ; on Accepter the form POSTs to `/wire/<id>/buy_gift`. #}
 
 <div
-  id="purchase-modal-content"
-  class="fixed inset-0 z-50 overflow-y-auto"
-  role="dialog"
-  aria-modal="true"
-  x-data="{
-    emailsText: '',
-    get emailsList() {
-      return this.emailsText
-        .replace(/,/g, '\n')
-        .split('\n')
-        .map(e => e.trim())
-        .filter(e => e.length > 0);
-    },
-    get recipientCount() {
-      return this.emailsList.length;
-    },
-    get totalHt() {
-      return this.recipientCount * {{ amount_ht_eur or 0 }};
-    },
-    get totalTtc() {
-      return this.totalHt * 1.20;
-    }
-  }"
+    id="purchase-modal-content"
+    class="fixed inset-0 z-50 overflow-y-auto"
+    role="dialog"
+    aria-modal="true"
+    x-data="{
+            emailsText: '',
+            get emailsList() {
+            return this.emailsText
+            .replace(/,/g, '\n')
+            .split('\n')
+            .map(e => e.trim())
+            .filter(e => e.length > 0);
+            },
+            get recipientCount() {
+            return this.emailsList.length;
+            },
+            get totalHt() {
+            return this.recipientCount * {{ amount_ht_eur or 0 }};
+            },
+            get totalTtc() {
+            return this.totalHt * 1.20;
+            }
+            }"
 >
-  <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+    <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
     {# Backdrop — closes the modal on click. #}
-    <div
-      class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity"
-      hx-get="{{ url_for('wire.buy_modal_close') }}"
-      hx-target="#purchase-modal"
-      hx-swap="innerHTML"
-    ></div>
+        <div
+            class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity"
+            hx-get="{{ url_for('wire.buy_modal_close') }}"
+            hx-target="#purchase-modal"
+            hx-swap="innerHTML"
+        ></div>
 
     {# Modal panel. #}
-    <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
-      <form method="POST"
-            action="{{ url_for('wire.buy_gift', post_id=post.id) }}">
-        <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
-          <h3 class="text-lg leading-6 font-medium text-gray-900 mb-3">
-            Droit de consultation offerte
-          </h3>
+        <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+            <form method="POST"
+                  action="{{ url_for('wire.buy_gift', post_id=post.id) }}">
+                <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                    <h3 class="text-lg leading-6 font-medium text-gray-900 mb-3">
+                        Droit de consultation offerte
+                    </h3>
 
-          <p class="text-sm text-gray-700 mb-3">
-            Cet article a été réalisé par un journaliste professionnel.
-            En l'offrant en consultation gratuite à vos amis sur AiPRESS24,
-            vous contribuez à la bonne santé de la presse.
-          </p>
+                    <p class="text-sm text-gray-700 mb-3">
+                        Cet article a été réalisé par un journaliste professionnel.
+                        En l'offrant en consultation gratuite à vos amis sur AiPRESS24,
+                        vous contribuez à la bonne santé de la presse.
+                    </p>
 
-          <label class="block text-sm font-medium text-gray-900 mb-1"
-                 for="beneficiary_email_input">
-            Saisissez les e-mails de vos amis (un par ligne)
-          </label>
-          <textarea
-            id="beneficiary_email_input"
-            name="beneficiary_email"
-            rows="4"
-            x-model="emailsText"
-            placeholder="alice@example.com&#10;bob@example.com"
-            class="w-full rounded-md border-gray-300 shadow-sm focus:border-pink-500 focus:ring-pink-500 sm:text-sm">
-          </textarea>
+                    <label class="block text-sm font-medium text-gray-900 mb-1"
+                           for="beneficiary_email_input">
+                        Saisissez les e-mails de vos amis (un par ligne)
+                    </label>
+                    <textarea
+                        id="beneficiary_email_input"
+                        name="beneficiary_email"
+                        rows="4"
+                        x-model="emailsText"
+                        placeholder="alice@example.com&#10;bob@example.com"
+                        class="w-full rounded-md border-gray-300 shadow-sm focus:border-pink-500 focus:ring-pink-500 sm:text-sm">
+                    </textarea>
 
-          {% if amount_ht_eur is not none %}
-            <div class="bg-gray-50 border border-gray-200 rounded p-3 my-3 text-sm">
-              <div class="flex justify-between">
-                <span class="text-gray-600">Tarif par destinataire (HT)</span>
-                <span class="font-medium text-gray-900">{{ "%.2f"|format(amount_ht_eur) }} €</span>
-              </div>
-              <div class="flex justify-between">
-                <span class="text-gray-600">Nombre de destinataires</span>
-                <span class="font-medium text-gray-900" x-text="recipientCount"></span>
-              </div>
-              <div class="flex justify-between border-t border-gray-300 pt-1 mt-1">
-                <span class="font-medium text-gray-900">Total HT</span>
-                <span class="font-semibold text-gray-900">
-                  <span x-text="totalHt.toFixed(2)"></span> €
-                </span>
-              </div>
-              <div class="flex justify-between">
-                <span class="text-gray-600">TVA (20% estimée)</span>
-                <span class="text-gray-900">
-                  <span x-text="(totalHt * 0.20).toFixed(2)"></span> €
-                </span>
-              </div>
-              <div class="flex justify-between">
-                <span class="text-gray-900 font-medium">TTC estimé</span>
-                <span class="font-semibold text-gray-900">
-                  <span x-text="totalTtc.toFixed(2)"></span> €
-                </span>
-              </div>
-              <p class="text-xs text-gray-500 mt-2 italic">
-                La TVA réelle sera calculée précisément au paiement selon votre adresse de facturation.
-                Les destinataires qui possèdent déjà l'article ne seront pas facturés.
-              </p>
-            </div>
-          {% else %}
-            <p class="text-sm text-yellow-700 italic my-3">
-              Tarif indisponible — la passerelle de paiement n'est pas active.
-            </p>
-          {% endif %}
+                    {% if amount_ht_eur is not none %}
+                        <div class="bg-gray-50 border border-gray-200 rounded p-3 my-3 text-sm">
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">Tarif par destinataire (HT)</span>
+                                <span class="font-medium text-gray-900">{{ "%.2f"|format(amount_ht_eur) }} €</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">Nombre de destinataires</span>
+                                <span class="font-medium text-gray-900" x-text="recipientCount"></span>
+                            </div>
+                            <div class="flex justify-between border-t border-gray-300 pt-1 mt-1">
+                                <span class="font-medium text-gray-900">Total HT</span>
+                                <span class="font-semibold text-gray-900">
+                                    <span x-text="totalHt.toFixed(2)"></span> €
+                                </span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">TVA (20% estimée)</span>
+                                <span class="text-gray-900">
+                                    <span x-text="(totalHt * 0.20).toFixed(2)"></span> €
+                                </span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-900 font-medium">TTC estimé</span>
+                                <span class="font-semibold text-gray-900">
+                                    <span x-text="totalTtc.toFixed(2)"></span> €
+                                </span>
+                            </div>
+                            <p class="text-xs text-gray-500 mt-2 italic">
+                                La TVA réelle sera calculée précisément au paiement selon votre adresse de facturation.
+                                Les destinataires qui possèdent déjà l'article ne seront pas facturés.
+                            </p>
+                        </div>
+                    {% else %}
+                        <p class="text-sm text-yellow-700 italic my-3">
+                            Tarif indisponible — la passerelle de paiement n'est pas active.
+                        </p>
+                    {% endif %}
 
-          <div class="text-xs text-gray-600 space-y-1 mb-4">
-            <div>
-              Cumul de vos achats éditoriaux :
-              <span class="font-medium">{{ "%.2f"|format(user_cumul_eur) }} € HT</span>
-            </div>
-            <div>
-              Cumul des achats de votre organisation :
-              <span class="font-medium">{{ "%.2f"|format(org_cumul_eur) }} € HT</span>
-            </div>
-          </div>
+                    <div class="text-xs text-gray-600 space-y-1 mb-4">
+                        <div>
+                            Cumul de vos achats éditoriaux :
+                            <span class="font-medium">{{ "%.2f"|format(user_cumul_eur) }} € HT</span>
+                        </div>
+                        <div>
+                            Cumul des achats de votre organisation :
+                            <span class="font-medium">{{ "%.2f"|format(org_cumul_eur) }} € HT</span>
+                        </div>
+                    </div>
 
-          <p class="text-sm text-gray-700">
-            Chaque destinataire recevra la notification de votre cadeau et
-            accédera directement à l'article. Cette somme sera facturée et
-            débitée en fin de mois sur le compte de votre organisation.
-          </p>
+                    <p class="text-sm text-gray-700">
+                        Chaque destinataire recevra la notification de votre cadeau et
+                        accédera directement à l'article. Bonne lecture.
+                    </p>
+                </div>
+
+                <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse gap-2">
+                    <button type="submit"
+                            class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-pink-600 text-base font-medium text-white hover:bg-pink-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-pink-500 sm:ml-3 sm:w-auto sm:text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                            x-bind:disabled="recipientCount === 0 || !{{ 'true' if stripe_live else 'false' }}">
+                        Envoyer
+                    </button>
+
+                    <button type="button"
+                            hx-get="{{ url_for('wire.buy_modal_close') }}"
+                            hx-target="#purchase-modal"
+                            hx-swap="innerHTML"
+                            class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-pink-500 sm:mt-0 sm:w-auto sm:text-sm">
+                        Annuler
+                    </button>
+
+                    <a href="{{ url_for('wire.wire') }}"
+                       class="mt-3 sm:mt-0 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 sm:w-auto sm:text-sm">
+                        Retour à la plateforme
+                    </a>
+                </div>
+            </form>
         </div>
-
-        <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse gap-2">
-          <button type="submit"
-                  class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-pink-600 text-base font-medium text-white hover:bg-pink-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-pink-500 sm:ml-3 sm:w-auto sm:text-sm disabled:opacity-50 disabled:cursor-not-allowed"
-                  x-bind:disabled="recipientCount === 0 || !{{ 'true' if stripe_live else 'false' }}">
-            Envoyer
-          </button>
-
-          <button type="button"
-                  hx-get="{{ url_for('wire.buy_modal_close') }}"
-                  hx-target="#purchase-modal"
-                  hx-swap="innerHTML"
-                  class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-pink-500 sm:mt-0 sm:w-auto sm:text-sm">
-            Annuler
-          </button>
-
-          <a href="{{ url_for('wire.wire') }}"
-             class="mt-3 sm:mt-0 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 sm:w-auto sm:text-sm">
-            Retour à la plateforme
-          </a>
-        </div>
-      </form>
     </div>
-  </div>
 </div>
