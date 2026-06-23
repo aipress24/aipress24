@@ -30,9 +30,22 @@ def fetch_stripe_product_list(
 
     for rp in client.list_products(active=active, expand=["data.default_price"]):
         prod = Product()
-        prod.update(rp)
+        prod.update(_stripe_object_to_dict(rp))
         results.append(prod)
     return results
+
+
+def _stripe_object_to_dict(obj: Any) -> dict:
+    """Convert a Stripe object, SimpleNamespace, or dict to a plain dict."""
+    if isinstance(obj, dict):
+        return dict(obj)
+    to_dict = getattr(obj, "to_dict", None)
+    if callable(to_dict):
+        return to_dict()
+    try:
+        return vars(obj)
+    except TypeError:
+        return {}
 
 
 def fetch_bw_product_list(*, client: StripeClient | None = None) -> list[Product]:
