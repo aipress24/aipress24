@@ -44,7 +44,7 @@ TEMPLATE = """
 @blueprint.route("/billing")
 @nav(icon="credit-card", acl=[("Allow", RoleEnum.SELF, "view")])
 def billing():
-    """Facturation"""
+    """Ventes"""
     invoices = _get_invoices(g.user)
     lines = _make_lines(invoices)
     table = {
@@ -53,7 +53,7 @@ def billing():
     }
     return render_template(
         "wip/pages/billing.j2",
-        title="Mon historique de facturation",
+        title="Mon historique de ventes",
         table=table,
         menus={"secondary": get_secondary_menu("billing")},
     )
