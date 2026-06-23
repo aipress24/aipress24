@@ -12,29 +12,34 @@
     <div id="purchase-modal"></div>
 
     <div class="space-y-3">
-    {# Droit de consultation #}
-        <button type="button"
-                class="{{ btn_class }}"
-                title="Accéder au contenu complet de l'article"
-                hx-get="{{ url_for('wire.buy_modal', post_id=post_id, product='consultation') }}"
-                hx-target="#purchase-modal"
-                hx-swap="innerHTML">
-            {{ icon("eye", class="h-5 w-5 mr-2 text-gray-500") }}
-            Droit de consultation
-        </button>
+      {# check droit de consultation or offert — when stripe live and the current user does not already have full read access. #}
+        {% if not can_read_full and config.get("STRIPE_LIVE_ENABLED") %}
+            <button type="button"
+                    class="{{ btn_class }}"
+                    title="Accéder au contenu complet de l'article"
+                    hx-get="{{ url_for('wire.buy_modal', post_id=post_id, product='consultation') }}"
+                    hx-target="#purchase-modal"
+                    hx-swap="innerHTML">
+                {{ icon("eye", class="h-5 w-5 mr-2 text-gray-500") }}
+                Droit de consultation
+                {% if consultation_price_str %}
+                    <span class="ml-2 text-gray-500">{{ consultation_price_str }}</span>
+                {% endif %}
+            </button>
 
-    {# Ticket #0194 — Droit de consultation offerte #}
-        <button type="button"
-                class="{{ btn_class }}"
-                title="Offrir cet article à d'autres membres d'AiPRESS24"
-                hx-get="{{ url_for('wire.buy_modal_gift', post_id=post_id) }}"
-                hx-target="#purchase-modal"
-                hx-swap="innerHTML">
-            {{ icon("gift", class="h-5 w-5 mr-2 text-gray-500") }}
-            Droit de consultation offerte
-        </button>
+        {# Ticket #0194 — Droit de consultation offerte #}
+            <button type="button"
+                    class="{{ btn_class }}"
+                    title="Offrir cet article à d'autres membres d'AiPRESS24"
+                    hx-get="{{ url_for('wire.buy_modal_gift', post_id=post_id) }}"
+                    hx-target="#purchase-modal"
+                    hx-swap="innerHTML">
+                {{ icon("gift", class="h-5 w-5 mr-2 text-gray-500") }}
+                Droit de consultation offerte
+            </button>
+        {% endif %}
 
-    {# Justificatif de publication #}
+      {# Justificatif de publication #}
         <button type="button"
                 class="{{ btn_class }}"
                 title="Obtenir un justificatif officiel de publication"
@@ -45,8 +50,8 @@
             Justificatif de publication
         </button>
 
-    {# Droits de reproduction / Cession — hidden when clearly ineligible
-       per the article's frozen rights-sales policy. #}
+      {# Droits de reproduction / Cession — hidden when clearly ineligible
+         per the article's frozen rights-sales policy. #}
         {% if can_cede %}
             <button type="button"
                     class="{{ btn_class }}"
