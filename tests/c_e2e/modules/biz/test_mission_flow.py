@@ -130,6 +130,8 @@ class TestMissionDeposit:
                 "description": ("Une description suffisamment longue pour le test."),
                 "sector": "media",
                 "location": "Lyon",
+                # #0224 — category is now required on the form.
+                "category": "communication",
                 "budget_min": "500",
                 "budget_max": "1500",
             },
@@ -660,14 +662,16 @@ class TestMissionCategorySubtyping:
         assert mission.category.value == "journalisme"
         assert mission.subcategory == "Enquête"
 
-    def test_empty_category_stays_blank_for_back_compat(
+    def test_missing_category_is_rejected(
         self,
         app: Flask,
         emitter: User,
         db_session: Session,
     ):
-        """Missions created without a category (legacy callers, old
-        forms) must still publish — the new fields are optional."""
+        """Bug #0224 — category is required : a mission posted without one
+        must NOT be created (otherwise it'd be NULL and, if journalism,
+        leak past the Press & Media gate). The form re-renders (200)
+        rather than redirecting (302)."""
         client = make_authenticated_client(app, emitter)
         response = client.post(
             "/biz/missions/new",
@@ -680,16 +684,15 @@ class TestMissionCategorySubtyping:
             },
             follow_redirects=False,
         )
-        assert response.status_code == 302
+        # Validation failure re-renders the form (200), no redirect.
+        assert response.status_code == 200
 
         mission = (
             db_session.query(MissionOffer)
             .filter_by(title="Mission sans catégorie")
             .first()
         )
-        assert mission is not None
-        assert mission.category is None
-        assert mission.subcategory == ""
+        assert mission is None
 
     def test_new_form_template_offers_three_categories(
         self,

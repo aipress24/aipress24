@@ -82,6 +82,8 @@ def test_new_mission_goes_to_pending_when_moderation_on(
             data={
                 "title": "Mission en modération",
                 "description": "Description test suffisamment longue.",
+                # #0224 — category is now required on the form.
+                "category": "communication",
             },
         )
         mission = (

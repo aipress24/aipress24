@@ -129,14 +129,16 @@ class MissionOfferForm(Form):
         validators=[validators.InputRequired(), validators.Length(min=20)],
     )
     sector = StringField("Secteur", validators=[validators.Optional()])
-    # Bug #0185 — top-level category + per-category sub-type. Both
-    # are optional in the form layer to preserve back-compat with the
-    # existing tests / clients ; the UI strongly invites the user to
-    # fill them.
+    # Bug #0185 introduced the category ; #0224 makes it required so a
+    # new mission can't be created blank and — if it's a Journalism
+    # mission — slip past the Press & Media visibility gate (which keys
+    # on `category == JOURNALISME`).
     category = SelectField(
         "Type de mission",
         choices=_CATEGORY_CHOICES,
-        validators=[validators.Optional()],
+        validators=[
+            validators.InputRequired("Veuillez sélectionner un type de mission.")
+        ],
     )
     subcategory = StringField(
         "Sous-type",
@@ -281,8 +283,9 @@ def missions_new():
             if bw:
                 emitter_org_id = bw.organisation_id
 
-        # Bug #0185 — category is optional ; map the empty form
-        # value to None on the model.
+        # #0224 — the form now requires a category, so `category_value`
+        # is always a valid choice here ; the guards below stay as
+        # defence in depth.
         category_value = (form.category.data or "").strip()
         category: MissionCategory | None
         if category_value:
