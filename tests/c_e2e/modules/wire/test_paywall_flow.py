@@ -345,3 +345,49 @@ def test_me_purchases_lists_paid_only(
     body = response.data.decode()
     assert "Mes achats" in body
     assert "Article paywallable" in body
+
+
+# -----------------------------------------------------------------------------
+# Justificatif button visibility (Bug #0195)
+# -----------------------------------------------------------------------------
+
+
+def test_justificatif_button_hidden_when_paywall_inactive(
+    app: Flask, reader: User, article: ArticlePost
+):
+    """Bug #0195 — the JdP button is gated on STRIPE_LIVE_ENABLED so it
+    isn't a dead-end « Tarif indisponible » modal when Stripe is off."""
+    app.config["STRIPE_LIVE_ENABLED"] = False
+    client = make_authenticated_client(app, reader)
+    response = client.get(f"/wire/{article.id}")
+    assert response.status_code == 200
+    assert "Justificatif de publication" not in response.data.decode()
+
+
+def test_justificatif_button_shown_when_paywall_active(
+    app: Flask, reader: User, article: ArticlePost
+):
+    _CONSULTATION_PRICE_CACHE.clear()
+    app.config["STRIPE_LIVE_ENABLED"] = True
+    try:
+        client = make_authenticated_client(app, reader)
+        with (
+            patch(
+                "app.modules.wire.views.item.load_stripe_api_key",
+                return_value=True,
+            ),
+            patch(
+                "app.modules.wire.views.item._price_id_for",
+                return_value="price_justif_test",
+            ),
+            patch("stripe.Price.retrieve") as mock_price,
+        ):
+            mock_price.return_value = MagicMock(
+                unit_amount=1500, currency="eur", recurring=None
+            )
+            response = client.get(f"/wire/{article.id}")
+        assert response.status_code == 200
+        assert "Justificatif de publication" in response.data.decode()
+    finally:
+        app.config["STRIPE_LIVE_ENABLED"] = False
+        _CONSULTATION_PRICE_CACHE.clear()

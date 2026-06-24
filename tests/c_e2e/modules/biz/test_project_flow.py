@@ -179,6 +179,26 @@ def test_emitter_sees_project_applications(
     assert b"Motivation pour projet" in response.data
 
 
+def test_project_new_heading_is_generic_not_journalistic(
+    app: Flask,
+    emitter: User,
+):
+    """Bug #0206 — the generic publish page must not presume « projet
+    journalistique » ; the per-kind labels (communication / innovation /
+    journalistique) only appear once a category is picked."""
+    client = make_authenticated_client(app, emitter)
+    response = client.get("/biz/projects/new")
+    assert response.status_code == 200
+    body = response.data.decode()
+    # Old presumptuous heading gone ; neutral one present.
+    assert "Publier un projet journalistique" not in body
+    assert "Publier un projet" in body
+    # Per-category step labels are rendered (apostrophe-free ones checked
+    # to dodge HTML-entity escaping).
+    assert "Projet de communication" in body
+    assert "Projet journalistique" in body
+
+
 def test_project_form_offers_category_select_with_fallback(
     app: Flask,
     emitter: User,
