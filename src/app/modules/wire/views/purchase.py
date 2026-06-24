@@ -37,7 +37,7 @@ from app.modules.wire.models import (
     PurchaseStatus,
 )
 from app.services.stripe._client import StripeClient
-from app.services.stripe.product import fetch_stripe_product_list
+from app.services.stripe.product import _coerce_metadata, fetch_stripe_product_list
 from app.services.stripe.utils import load_stripe_api_key
 
 _PRODUCT_TO_ENV: dict[PurchaseProduct, str] = {}
@@ -623,8 +623,8 @@ def _is_product_matching_taxonomy(
     filters = _PRODUCT_TAXONOMY_FILTERS.get(product)
     if not filters:
         return False
-    # Stripe v15 stubs type `Product.metadata` loosely; it's a dict at runtime.
-    metadata = cast(dict, prod.metadata)
+    # Stripe v15 delivers metadata as a StripeObject, not a dict.
+    metadata = _coerce_metadata(prod.metadata)
     for key, value in filters.items():
         if metadata.get(key) != value:
             return False

@@ -112,12 +112,23 @@ class ItemDetailView(MethodView):
             is_eligible_for_cession,
         )
         from app.modules.wire.services.article_access import (
+            get_user_purchase_info,
+            has_paid_consultation,
+            has_received_consultation_gift,
             truncate_body,
             user_can_read_full,
         )
 
         can_cede = is_eligible_for_cession(g.user, post)
         can_read_full = user_can_read_full(g.user, post)
+        purchase_info = get_user_purchase_info(g.user, post)
+        user_has_paid_consultation = False
+        user_has_offered_consultation = False
+        if g.user and not g.user.is_anonymous:
+            user_has_paid_consultation = has_paid_consultation(g.user.id, post.id)
+            user_has_offered_consultation = has_received_consultation_gift(
+                g.user.id, post.id
+            )
         # Ticket #0212: only truncate when the paywall is actually live.
         # Before go-live (flag off) a non-buyer can't purchase anyway, so a
         # truncated body with no buy CTA is a dead-end — show the full text.
@@ -142,6 +153,9 @@ class ItemDetailView(MethodView):
             metadata_list=metadata_list,
             can_cede=can_cede,
             can_read_full=can_read_full,
+            user_has_paid_consultation=user_has_paid_consultation,
+            user_has_offered_consultation=user_has_offered_consultation,
+            purchase_info=purchase_info,
             body_preview=body_preview,
             consultation_price_str=consultation_price_str,
         )

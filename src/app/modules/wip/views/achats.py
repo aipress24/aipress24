@@ -63,15 +63,16 @@ def _list_user_purchases(user_id: int) -> list[dict]:
     """Build the rows displayed on /wip/achats.
 
     Pre-loads the `Post` for the title + buyer-facing URL so the
-    template doesn't fire N+1 queries. PAID first (most useful to the
-    buyer) then PENDING ; refunded rows are filtered out for now to
-    keep the screen tight — they can be re-introduced later if needed.
+    template doesn't fire N+1 queries. Only PAID and REFUNDED rows are
+    shown.
     """
     stmt = (
         select(ArticlePurchase)
         .options(selectinload(ArticlePurchase.post))
         .where(ArticlePurchase.owner_id == user_id)
-        .where(ArticlePurchase.status != PurchaseStatus.REFUNDED)
+        .where(
+            ArticlePurchase.status.in_([PurchaseStatus.PAID, PurchaseStatus.REFUNDED])
+        )
         .order_by(ArticlePurchase.timestamp.desc())
     )
     purchases = list(db.session.scalars(stmt))
@@ -92,6 +93,7 @@ def _list_user_purchases(user_id: int) -> list[dict]:
                 "amount_eur": (p.amount_cents or 0) / 100,
                 "status": str(p.status),
                 "is_paid": p.status == PurchaseStatus.PAID,
+                "is_refunded": p.status == PurchaseStatus.REFUNDED,
             }
         )
     return rows

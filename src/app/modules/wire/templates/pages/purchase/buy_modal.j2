@@ -4,116 +4,115 @@
    Annuler (htmx empty swap), Retour à la plateforme (link to /wire). #}
 
 {% set product_labels = {
-  "consultation": "Droit de consultation",
-  "justificatif": "Justificatif de publication",
-  "cession": "Droits de reproduction",
+"consultation": "Droit de consultation",
+"justificatif": "Justificatif de publication",
+"cession": "Droits de reproduction",
 } %}
 
 {% set product_messages = {
-  "consultation":
-    "Cet article a été réalisé par un journaliste professionnel. "
-    "En payer la consultation contribue à la bonne santé de la presse.",
-  "justificatif":
-    "Pour votre notoriété, vous pouvez acquérir ce justificatif de publication. "
-    "L'article s'affichera de façon permanente dans la rubrique « Press Book » "
-    "de votre profil et de votre organisation.",
-  "cession":
-    "Vous faites partie des éditeurs-acheteurs sélectionnés par l'auteur "
-    "et son organe de presse. En acquérir la licence d'exploitation pour "
-    "une publication contribue à la bonne santé de la presse.",
+"consultation":
+"Cet article a été réalisé par un journaliste professionnel. "
+"En payer la consultation contribue à la bonne santé de la presse.",
+"justificatif":
+"Pour votre notoriété, vous pouvez acquérir ce justificatif de publication. "
+"L'article s'affichera de façon permanente dans la rubrique « Press Book » "
+"de votre profil et de votre organisation.",
+"cession":
+"Vous faites partie des éditeurs-acheteurs sélectionnés par l'auteur "
+"et son organe de presse. En acquérir la licence d'exploitation pour "
+"une publication contribue à la bonne santé de la presse.",
 } %}
 
 <div
-  id="purchase-modal-content"
-  class="fixed inset-0 z-50 overflow-y-auto"
-  role="dialog"
-  aria-modal="true"
+    id="purchase-modal-content"
+    class="fixed inset-0 z-50 overflow-y-auto"
+    role="dialog"
+    aria-modal="true"
 >
-  <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+    <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
     {# Backdrop #}
-    <div
-      class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity"
-      hx-get="{{ url_for('wire.buy_modal_close') }}"
-      hx-target="#purchase-modal"
-      hx-swap="innerHTML"
-    ></div>
+        <div
+            class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity"
+            hx-get="{{ url_for('wire.buy_modal_close') }}"
+            hx-target="#purchase-modal"
+            hx-swap="innerHTML"
+        ></div>
 
     {# Modal panel #}
-    <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
-      <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
-        <h3 class="text-lg leading-6 font-medium text-gray-900 mb-3">
-          {{ product_labels.get(product_type.value, product_type.value) }}
-        </h3>
+        <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+            <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                <h3 class="text-lg leading-6 font-medium text-gray-900 mb-3">
+                    {{ product_labels.get(product_type.value, product_type.value) }}
+                </h3>
 
-        <p class="text-sm text-gray-700 mb-4">
-          {{ product_messages.get(product_type.value, "") }}
-        </p>
+                <p class="text-sm text-gray-700 mb-4">
+                    {{ product_messages.get(product_type.value, "") }}
+                </p>
 
-        {% if amount_ht_eur is not none %}
-          <div class="bg-gray-50 border border-gray-200 rounded p-3 mb-3 text-sm">
-            <div class="flex justify-between">
-              <span class="text-gray-600">Montant HT</span>
-              <span class="font-medium text-gray-900">{{ "%.2f"|format(amount_ht_eur) }} €</span>
-            </div>
-            <div class="flex justify-between">
-              <span class="text-gray-600">TVA (20% estimée)</span>
-              <span class="text-gray-900">{{ "%.2f"|format(vat_eur) }} €</span>
-            </div>
-            <div class="flex justify-between border-t border-gray-300 pt-1 mt-1">
-              <span class="font-medium text-gray-900">TTC</span>
-              <span class="font-semibold text-gray-900">{{ "%.2f"|format(ttc_eur) }} €</span>
-            </div>
-            <p class="text-xs text-gray-500 mt-2 italic">
-              La TVA réelle sera calculée précisément au paiement selon votre adresse de facturation.
-            </p>
-          </div>
-        {% else %}
-          <p class="text-sm text-yellow-700 italic mb-3">
-            Tarif indisponible — la passerelle de paiement n'est pas active.
-          </p>
-        {% endif %}
+                {% if amount_ht_eur is not none %}
+                    <div class="bg-gray-50 border border-gray-200 rounded p-3 mb-3 text-sm">
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Montant HT</span>
+                            <span class="font-medium text-gray-900">{{ "%.2f"|format(amount_ht_eur) }} €</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">TVA (20% estimée)</span>
+                            <span class="text-gray-900">{{ "%.2f"|format(vat_eur) }} €</span>
+                        </div>
+                        <div class="flex justify-between border-t border-gray-300 pt-1 mt-1">
+                            <span class="font-medium text-gray-900">TTC</span>
+                            <span class="font-semibold text-gray-900">{{ "%.2f"|format(ttc_eur) }} €</span>
+                        </div>
+                        <p class="text-xs text-gray-500 mt-2 italic">
+                            La TVA réelle sera calculée précisément au paiement selon votre adresse de facturation.
+                        </p>
+                    </div>
+                {% else %}
+                    <p class="text-sm text-yellow-700 italic mb-3">
+                        Tarif indisponible — la passerelle de paiement n'est pas active.
+                    </p>
+                {% endif %}
 
-        <div class="text-xs text-gray-600 space-y-1 mb-4">
-          <div>
-            Cumul de vos achats éditoriaux :
-            <span class="font-medium">{{ "%.2f"|format(user_cumul_eur) }} € HT</span>
-          </div>
-          <div>
-            Cumul des achats de votre organisation :
-            <span class="font-medium">{{ "%.2f"|format(org_cumul_eur) }} € HT</span>
-          </div>
+                <div class="text-xs text-gray-600 space-y-1 mb-4">
+                    <div>
+                        Cumul de vos achats éditoriaux :
+                        <span class="font-medium">{{ "%.2f"|format(user_cumul_eur) }} € HT</span>
+                    </div>
+                    <div>
+                        Cumul des achats de votre organisation :
+                        <span class="font-medium">{{ "%.2f"|format(org_cumul_eur) }} € HT</span>
+                    </div>
+                </div>
+
+                <p class="text-sm text-gray-700">
+                    Bonne lecture.
+                </p>
+            </div>
+
+            <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse gap-2">
+                <form method="POST"
+                      action="{{ url_for('wire.buy', post_id=post.id, product=product_type.value) }}"
+                      class="inline">
+                    <button type="submit"
+                            class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-pink-600 text-base font-medium text-white hover:bg-pink-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-pink-500 sm:ml-3 sm:w-auto sm:text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                            {% if not stripe_live %}disabled title="Paiement non actif"{% endif %}>
+                        Accepter
+                    </button>
+                </form>
+
+                <button type="button"
+                        hx-get="{{ url_for('wire.buy_modal_close') }}"
+                        hx-target="#purchase-modal"
+                        hx-swap="innerHTML"
+                        class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-pink-500 sm:mt-0 sm:w-auto sm:text-sm">
+                    Annuler
+                </button>
+
+                <a href="{{ url_for('wire.wire') }}"
+                   class="mt-3 sm:mt-0 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 sm:w-auto sm:text-sm">
+                    Retour à la plateforme
+                </a>
+            </div>
         </div>
-
-        <p class="text-sm text-gray-700">
-          Cette somme sera facturée et débitée en fin de mois sur le compte de votre organisation.
-          Bonne lecture.
-        </p>
-      </div>
-
-      <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse gap-2">
-        <form method="POST"
-              action="{{ url_for('wire.buy', post_id=post.id, product=product_type.value) }}"
-              class="inline">
-          <button type="submit"
-                  class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-pink-600 text-base font-medium text-white hover:bg-pink-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-pink-500 sm:ml-3 sm:w-auto sm:text-sm disabled:opacity-50 disabled:cursor-not-allowed"
-                  {% if not stripe_live %}disabled title="Paiement non actif"{% endif %}>
-            Accepter
-          </button>
-        </form>
-
-        <button type="button"
-                hx-get="{{ url_for('wire.buy_modal_close') }}"
-                hx-target="#purchase-modal"
-                hx-swap="innerHTML"
-                class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-pink-500 sm:mt-0 sm:w-auto sm:text-sm">
-          Annuler
-        </button>
-
-        <a href="{{ url_for('wire.wire') }}"
-           class="mt-3 sm:mt-0 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 sm:w-auto sm:text-sm">
-          Retour à la plateforme
-        </a>
-      </div>
     </div>
-  </div>
 </div>

@@ -35,6 +35,10 @@ from app.modules.wire.models import (
     PurchaseProduct,
     PurchaseStatus,
 )
+from app.modules.wire.services.consultation_helpers import (
+    consultation_access_cutoff,
+    purchase_within_duration_clause,
+)
 from app.services.roles import has_role
 
 if TYPE_CHECKING:
@@ -73,11 +77,11 @@ def user_can_read_full(
     if check_role(user, RoleEnum.ADMIN.name):
         return True
 
-    check_paid = paid_lookup or _has_paid_consultation
+    check_paid = paid_lookup or has_paid_consultation
     if check_paid(user.id, post.id):
         return True
 
-    check_gift = gift_lookup or _has_received_consultation_gift
+    check_gift = gift_lookup or has_received_consultation_gift
     return check_gift(user.id, post.id)
 
 
@@ -103,21 +107,25 @@ def _decide_can_read_full(
     return has_gift
 
 
-def _has_paid_consultation(user_id: int, post_id: int) -> bool:
+def has_paid_consultation(user_id: int, post_id: int) -> bool:
+    """True if `user_id` owns a currently valid PAID `CONSULTATION` on
+    `post_id` (within "ARTICLE_CONSULTATION_DURATION")."""
     stmt = (
         sa.select(sa.func.count(ArticlePurchase.id))
         .where(ArticlePurchase.owner_id == user_id)
         .where(ArticlePurchase.post_id == post_id)
         .where(ArticlePurchase.product_type == PurchaseProduct.CONSULTATION)
         .where(ArticlePurchase.status == PurchaseStatus.PAID)
+        .where(purchase_within_duration_clause(ArticlePurchase.paid_at))
     )
     count = db.session.scalar(stmt) or 0
     return count > 0
 
 
-def _has_received_consultation_gift(user_id: int, post_id: int) -> bool:
-    """Ticket #0194 — `user_id` was named as a beneficiary on a PAID
-    `CONSULTATION_GIFT` purchase targeting `post_id`."""
+def has_received_consultation_gift(user_id: int, post_id: int) -> bool:
+    """Ticket #0194 — `user_id` was named as a beneficiary on a currently
+    valid PAID `CONSULTATION_GIFT` purchase targeting `post_id` (within
+    "ARTICLE_CONSULTATION_DURATION")."""
     stmt = (
         sa.select(sa.func.count(ArticlePurchaseGift.id))
         .select_from(ArticlePurchaseGift)
@@ -129,9 +137,78 @@ def _has_received_consultation_gift(user_id: int, post_id: int) -> bool:
         .where(ArticlePurchase.post_id == post_id)
         .where(ArticlePurchase.product_type == PurchaseProduct.CONSULTATION_GIFT)
         .where(ArticlePurchase.status == PurchaseStatus.PAID)
+        .where(purchase_within_duration_clause(ArticlePurchase.paid_at))
     )
     count = db.session.scalar(stmt) or 0
     return count > 0
+
+
+def get_user_purchase_info(
+    user: User | None,
+    post: Post,
+) -> dict[str, object] | None:
+    """Return consultation access date info for the post.
+
+    Returns {"date": <Arrow>, "is_gift": bool} or None.
+    The date is paid_at when available, otherwise the purchase
+    timestamp. Only considers currently valid consultation access: a
+    paid CONSULTATION purchase or a received CONSULTATION_GIFT within
+    "ARTICLE_CONSULTATION_DURATION".
+    """
+    if user is None or user.is_anonymous:
+        return None
+
+    cutoff = consultation_access_cutoff()
+
+    # Direct paid consultation purchase by the user.
+    stmt = (
+        sa.select(ArticlePurchase)
+        .where(ArticlePurchase.owner_id == user.id)
+        .where(ArticlePurchase.post_id == post.id)
+        .where(ArticlePurchase.product_type == PurchaseProduct.CONSULTATION)
+        .where(ArticlePurchase.status == PurchaseStatus.PAID)
+        .where(
+            sa.func.coalesce(ArticlePurchase.paid_at, ArticlePurchase.timestamp)
+            >= cutoff
+        )
+        .order_by(
+            sa.func.coalesce(ArticlePurchase.paid_at, ArticlePurchase.timestamp).desc()
+        )
+        .limit(1)
+    )
+    purchase = db.session.scalar(stmt)
+    if purchase:
+        return {
+            "date": purchase.paid_at or purchase.timestamp,
+            "is_gift": False,
+        }
+
+    # Consultation offered by another user to the current user.
+    stmt = (
+        sa.select(ArticlePurchaseGift, ArticlePurchase)
+        .join(ArticlePurchase, ArticlePurchase.id == ArticlePurchaseGift.purchase_id)
+        .where(ArticlePurchaseGift.beneficiary_user_id == user.id)
+        .where(ArticlePurchase.post_id == post.id)
+        .where(ArticlePurchase.product_type == PurchaseProduct.CONSULTATION_GIFT)
+        .where(ArticlePurchase.status == PurchaseStatus.PAID)
+        .where(
+            sa.func.coalesce(ArticlePurchase.paid_at, ArticlePurchase.timestamp)
+            >= cutoff
+        )
+        .order_by(
+            sa.func.coalesce(ArticlePurchase.paid_at, ArticlePurchase.timestamp).desc()
+        )
+        .limit(1)
+    )
+    result = db.session.execute(stmt).first()
+    if result:
+        _, purchase = result
+        return {
+            "date": purchase.paid_at or purchase.timestamp,
+            "is_gift": True,
+        }
+
+    return None
 
 
 def truncate_body(html: str, limit: int = 300) -> str:

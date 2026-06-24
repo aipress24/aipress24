@@ -29,9 +29,13 @@ def fetch_stripe_product_list(
         client = default_client()
 
     for rp in client.list_products(active=active, expand=["data.default_price"]):
-        prod = Product()
-        prod.update(rp)
-        results.append(prod)
+        if isinstance(rp, Product):
+            results.append(rp)
+        elif isinstance(rp, dict):
+            results.append(Product.construct_from(rp, "product"))
+        else:
+            # SimpleNamespace / attribute-like test fixtures
+            results.append(Product.construct_from(vars(rp), "product"))
     return results
 
 

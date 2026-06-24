@@ -261,12 +261,24 @@
                 <h2 class="text-xl font-medium mb-2">Profil de l'organisation</h2>
                 <div>
                     <dt class="pt-2 text-sm font-medium text-gray-500">
-                        Nom
+                        Nom de l'organisation
                     </dt>
                     <dd>
-                        <h3 class="text-xl font-medium mb-2">{{org.name}}</h3>
+                        <h3 class="text-xl font-medium mb-2">{{ org.name }}</h3>
                     </dd>
                 </div>
+                {% if org.has_active_bw %}
+                    <div>
+                        <dt class="pt-2 text-sm font-medium text-gray-500">
+                            Nom du Business Wall
+                        </dt>
+                        <dd>
+                            <div class="mt-1 text-xl font-medium text-gray-900">
+                                {{ org.active_business_wall.name or org.active_business_wall.name_safe or 'non renseigné' }}
+                            </div>
+                        </dd>
+                    </div>
+                {% endif %}
                 <div>
                     <dt class="pt-2 text-sm font-medium text-gray-500">
                         Type
@@ -283,6 +295,16 @@
                         <div class="mt-1 text-sm text-gray-900">{{ org.count_members }}</div>
                     </dd>
                 </div>
+                {% if org.has_active_bw %}
+                    <div>
+                        <dt class="pt-2 text-sm font-medium text-gray-500">
+                            Email du propriétaire du BW
+                        </dt>
+                        <dd>
+                            <div class="mt-1 text-sm text-gray-900">{{ current_owner_email or 'inconnu' }}</div>
+                        </dd>
+                    </div>
+                {% endif %}
                 {% if not org.is_auto %}
                     <div>
                         <dt class="pt-2 text-sm font-medium text-gray-500">

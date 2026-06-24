@@ -122,7 +122,7 @@ class TestAchatsView:
         body = response.data.decode()
         assert "100.00" in body, "the cumul individuel must show 100.00 €"
 
-    def test_refunded_rows_not_in_total(
+    def test_refunded_rows_shown_but_not_in_total(
         self,
         logged_in_client: FlaskClient,
         db_session: Session,
@@ -143,8 +143,35 @@ class TestAchatsView:
         response = logged_in_client.get("/wip/achats")
         body = response.data.decode()
         assert "10.00" in body  # only the PAID 1000 cents → 10.00 €
-        # the refunded amount must not pollute the cumul
+        # the refunded row is displayed but does not pollute the cumul
+        assert "99.99" in body
+        assert "Remboursé" in body
+
+    def test_pending_rows_not_shown(
+        self,
+        logged_in_client: FlaskClient,
+        db_session: Session,
+        test_user: User,
+        post: ArticlePost,
+    ):
+        """A Stripe checkout was not finalised (PENDING), must not
+        appear in the buyer history."""
+        _add_paid(db_session, user=test_user, post=post, amount_cents=1000)
+        pending = ArticlePurchase(
+            post_id=post.id,
+            owner_id=test_user.id,
+            product_type=PurchaseProduct.CONSULTATION,
+            status=PurchaseStatus.PENDING,
+            amount_cents=9999,
+        )
+        db_session.add(pending)
+        db_session.commit()
+
+        response = logged_in_client.get("/wip/achats")
+        body = response.data.decode()
+        assert "10.00" in body
         assert "99.99" not in body
+        assert "En cours" not in body
 
     def test_anonymous_redirects_to_login(self, client: FlaskClient):
         response = client.get("/wip/achats", follow_redirects=False)

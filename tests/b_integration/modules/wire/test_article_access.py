@@ -9,6 +9,7 @@ from __future__ import annotations
 import uuid
 from typing import TYPE_CHECKING
 
+import arrow
 import pytest
 
 from app.enums import RoleEnum
@@ -25,6 +26,7 @@ from app.modules.wire.services.article_access import (
     truncate_body,
     user_can_read_full,
 )
+from app.settings.constants import ARTICLE_CONSULTATION_DURATION
 
 if TYPE_CHECKING:
     from sqlalchemy.orm import Session
@@ -106,6 +108,22 @@ def test_paid_consultation_unlocks(
     db_session.flush()
 
     assert user_can_read_full(reader, post) is True
+
+
+def test_expired_paid_consultation_does_not_unlock(
+    db_session: Session, reader: User, post: ArticlePost
+):
+    purchase = ArticlePurchase(
+        post_id=post.id,
+        owner_id=reader.id,
+        product_type=PurchaseProduct.CONSULTATION,
+        status=PurchaseStatus.PAID,
+        paid_at=arrow.utcnow().shift(days=-ARTICLE_CONSULTATION_DURATION - 1),
+    )
+    db_session.add(purchase)
+    db_session.flush()
+
+    assert user_can_read_full(reader, post) is False
 
 
 def test_pending_consultation_does_not_unlock(
