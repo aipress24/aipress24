@@ -26,6 +26,7 @@ from collections.abc import Callable
 from types import SimpleNamespace
 
 import click
+import stripe as stripe_sdk  # `stripe` is the click group below; alias the SDK.
 from flask.cli import with_appcontext
 from flask_super.cli import group
 from loguru import logger
@@ -37,6 +38,7 @@ from app.models.organisation import Organisation
 from app.services.emails import EmailService
 from app.services.stripe.customers import mirror_customer_to_org
 from app.services.stripe.prices import list_drifts, sync_all_prices
+from app.services.stripe.product import _coerce_metadata, fetch_stripe_product_list
 from app.services.stripe.reconciliation import (
     reconcile_customers,
     reconcile_purchases,
@@ -173,6 +175,66 @@ def reconcile() -> None:
         err=True,
     )
     _report_drifts("subscriptions", VERIFIERS["subscriptions"]())
+
+
+# ---------------------------------------------------------------------------
+# create-justificatif-product — set up the Stripe product backing JdP
+# ---------------------------------------------------------------------------
+
+# The metadata a Stripe product must carry so the JdP buy flow resolves it
+# (`_price_id_for(JUSTIFICATIF, …)` → `_is_product_matching_taxonomy`).
+# Mirror of `_PRODUCT_TAXONOMY_FILTERS[JUSTIFICATIF]` in wire/views/purchase.py;
+# the test `test_justificatif_metadata_matches_taxonomy_filter` guards drift.
+_JUSTIFICATIF_PRODUCT_METADATA = {
+    "domain": "certificate",
+    "family": "article",
+    "offer": "paid",
+}
+
+
+def _has_justificatif_product(products) -> bool:
+    """True iff an existing product already carries the JdP taxonomy
+    metadata — used to make product creation idempotent."""
+    for prod in products:
+        metadata = _coerce_metadata(prod.metadata)
+        if all(metadata.get(k) == v for k, v in _JUSTIFICATIF_PRODUCT_METADATA.items()):
+            return True
+    return False
+
+
+@stripe.command("create-justificatif-product")
+@click.option("--amount", type=int, default=1500, help="Price in cents (HT).")
+@click.option("--currency", default="eur", help="ISO currency code.")
+@click.option("--force", is_flag=True, help="Create even if one exists.")
+@with_appcontext
+def create_justificatif_product(amount: int, currency: str, force: bool) -> None:
+    """Create the Stripe Product backing « Justificatif de publication ».
+
+    Ticket #0195 — the JdP buy flow needs a Stripe product tagged with the
+    JdP taxonomy (domain=certificate / family=article / offer=paid) and a
+    default price, otherwise `_price_id_for` returns "" and the buy modal
+    shows « Tarif indisponible ». One product (no genre) serves every
+    genre via the taxonomy-family fallback in `_select_price_id`.
+
+    Idempotent: skips when a matching active product already exists,
+    unless --force is given.
+    """
+    if not load_stripe_api_key():
+        click.echo("Stripe API key not configured; aborting.", err=True)
+        sys.exit(1)
+
+    if not force and _has_justificatif_product(fetch_stripe_product_list(active=True)):
+        click.echo("A Justificatif product already exists; nothing to do.")
+        return
+
+    product = stripe_sdk.Product.create(
+        name="Justificatif de publication",
+        metadata=_JUSTIFICATIF_PRODUCT_METADATA,
+        default_price_data={"unit_amount": amount, "currency": currency},
+    )
+    click.echo(
+        f"Created Stripe product {product.id} ({amount / 100:.2f} {currency.upper()})."
+    )
 
 
 # ---------------------------------------------------------------------------
