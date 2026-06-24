@@ -9,12 +9,14 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 import pytest
+from sqlalchemy import text
 from sqlalchemy.exc import IntegrityError
 
 from app.models.lifecycle import PublicationStatus
 from app.modules.biz.models import (
     ApplicationStatus,
     MarketplaceContent,
+    MissionCategory,
     MissionOffer,
     MissionStatus,
     OfferApplication,
@@ -116,3 +118,47 @@ def test_application_cascade_delete(
     db_session.flush()
 
     assert db_session.get(OfferApplication, app_id) is None
+
+
+class TestJournalismCategoryBackfill:
+    """Migration b1c2d3e4f5a6 (#0224) — legacy NULL-category missions are
+    journalism and must be backfilled to JOURNALISME so the Press & Media
+    gate hides them. Only NULL rows are touched; explicit categories stay.
+    """
+
+    # Mirror of the migration's UPDATE — see migrations/versions/
+    # b1c2d3e4f5a6_backfill_journalism_mission_category.py. The cased
+    # 'JOURNALISME' (enum NAME, not the lowercase value) is the contract:
+    # the round-trip assert below would LookupError if it were wrong.
+    _BACKFILL = text(
+        "UPDATE mkp_mission_offer SET category = 'JOURNALISME' "
+        "WHERE category IS NULL"
+    )
+
+    def test_backfill_sets_null_to_journalisme_and_spares_explicit_categories(
+        self, db_session: Session, test_emitter, test_org
+    ):
+        legacy = _make_mission(db_session, test_emitter, test_org, category=None)
+        comm = _make_mission(
+            db_session,
+            test_emitter,
+            test_org,
+            category=MissionCategory.COMMUNICATION,
+        )
+        db_session.flush()
+        assert legacy.category is None
+
+        db_session.execute(self._BACKFILL)
+        db_session.expire_all()
+
+        # NULL legacy mission is now journalism — and reads back as the
+        # enum (proves the stored casing matches the ORM, no LookupError).
+        assert (
+            db_session.get(MissionOffer, legacy.id).category
+            == MissionCategory.JOURNALISME
+        )
+        # An explicit category is left untouched.
+        assert (
+            db_session.get(MissionOffer, comm.id).category
+            == MissionCategory.COMMUNICATION
+        )
