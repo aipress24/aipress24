@@ -131,8 +131,7 @@ class TestJournalismCategoryBackfill:
     # 'JOURNALISME' (enum NAME, not the lowercase value) is the contract:
     # the round-trip assert below would LookupError if it were wrong.
     _BACKFILL = text(
-        "UPDATE mkp_mission_offer SET category = 'JOURNALISME' "
-        "WHERE category IS NULL"
+        "UPDATE mkp_mission_offer SET category = 'JOURNALISME' WHERE category IS NULL"
     )
 
     def test_backfill_sets_null_to_journalisme_and_spares_explicit_categories(

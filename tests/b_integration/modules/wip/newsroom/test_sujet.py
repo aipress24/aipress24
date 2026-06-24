@@ -246,7 +246,11 @@ class TestCommandeVisibility:
             return [c.titre for c in ds.get_items()], ds.get_count()
 
     def test_commande_visible_to_both_author_and_redac_chef(
-        self, app, db_session: scoped_session, media_org: Organisation, author_user: User
+        self,
+        app,
+        db_session: scoped_session,
+        media_org: Organisation,
+        author_user: User,
     ):
         sujet = _make_sujet(db_session, media_id=media_org.id, owner_id=author_user.id)
         sujet.titre = "Commande 0225"
@@ -264,9 +268,7 @@ class TestCommandeVisibility:
         db_session.flush()
 
         # Journalist (owner) sees it.
-        author_titles, author_count = self._titles_and_count(
-            app, Commande, author_user
-        )
+        author_titles, author_count = self._titles_and_count(app, Commande, author_user)
         assert "Commande 0225" in author_titles
         assert author_count >= 1
 
