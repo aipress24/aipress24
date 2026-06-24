@@ -154,7 +154,10 @@ class TestSujetAcceptRoute:
             .all()
         )
         assert len(commandes) == 1
-        assert commandes[0].owner_id == redac_chef.id
+        # Bug #0225 — owner is the journalist author (so it shows in their
+        # newsroom); the rédac chef is the commanditaire.
+        assert commandes[0].owner_id == author.id
+        assert commandes[0].commanditaire_id == redac_chef.id
 
     def test_accept_route_refuses_non_redac_chef(
         self,

@@ -108,6 +108,7 @@ class TestValidateBasicAcceptance:
 
 def _sujet_stub(
     *,
+    owner_id: int = 3,
     media_id: int = 42,
     titre: str = "Sujet titre",
     contenu: str = "Sujet contenu",
@@ -119,6 +120,7 @@ def _sujet_stub(
     listed attributes, so a `SimpleNamespace` matches the contract
     without dragging in the Sujet ORM row (and its dependencies)."""
     return SimpleNamespace(
+        owner_id=owner_id,
         media_id=media_id,
         titre=titre,
         contenu=contenu,
@@ -136,15 +138,16 @@ class TestBuildCommandePayload:
         assert payload["titre"] == "Mon titre"
         assert payload["contenu"] == "<p>Mon contenu</p>"
 
-    def test_owner_and_commanditaire_both_set_to_accepter(self):
-        """The accepter (rédac chef) is BOTH the Commande's owner
-        (controls edits) AND the commanditaire (the customer behind
-        it). Pin so a future refactor that distinguishes the two
-        doesn't silently route the « who pays » column to the wrong
-        user."""
-        payload = build_commande_payload(_sujet_stub(), accepter_id=7)
+    def test_owner_is_author_commanditaire_is_accepter(self):
+        """Bug #0225 — the Commande's owner is the sujet's author (the
+        journalist who will execute it), the commanditaire is the
+        accepter (rédac chef who commissioned it). This is what makes
+        the commande show in BOTH newsrooms (`CommandeDataSource` ORs
+        the two). Before #0225 both were the accepter, so the
+        journalist never saw their accepted sujet."""
+        payload = build_commande_payload(_sujet_stub(owner_id=3), accepter_id=7)
 
-        assert payload["owner_id"] == 7
+        assert payload["owner_id"] == 3
         assert payload["commanditaire_id"] == 7
 
     def test_media_id_mirrors_sujet(self):

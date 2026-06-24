@@ -21,12 +21,14 @@ from typing import TYPE_CHECKING
 from unittest.mock import MagicMock
 
 import pytest
+from flask import g
 from svcs.flask import container
 
 from app.models.auth import KYCProfile, User
 from app.models.lifecycle import PublicationStatus
 from app.models.organisation import Organisation
 from app.modules.wip.crud.cbvs._forms import SujetForm
+from app.modules.wip.crud.cbvs.commandes import CommandeDataSource
 from app.modules.wip.crud.cbvs.sujets import (
     _SUJET_VIEW_TEMPLATE,
     SujetsTable,
@@ -182,7 +184,10 @@ class TestSujetAcceptAction:
         assert isinstance(commande, Commande)
         assert commande.titre == "Topic title"
         assert commande.contenu == "Topic content"
-        assert commande.owner_id == redac_chef.id
+        # Bug #0225 — owner is the journalist (sujet author) so it shows
+        # in their newsroom; the rédac chef is the commanditaire.
+        assert commande.owner_id == author_user.id
+        assert commande.commanditaire_id == redac_chef.id
         assert commande.media_id == media_org.id
         # (2) Sujet transitioned to ARCHIVED (no longer in « new » list).
         assert sujet.status == PublicationStatus.ARCHIVED
@@ -226,6 +231,56 @@ class TestSujetAcceptAction:
 
         with pytest.raises(ValueError, match="not PUBLIC|not in PUBLIC"):
             accept_sujet_as_commande(sujet, redac_chef)
+
+
+class TestCommandeVisibility:
+    """Bug #0225 — once a sujet is accepted, the resulting Commande must
+    show in BOTH the journalist's (owner) and the rédac chef's
+    (commanditaire) NEWSROOM/Commandes list — not just the rédac chef's."""
+
+    @staticmethod
+    def _titles_and_count(app, model_cls, user):
+        with app.test_request_context():
+            g.user = user
+            ds = CommandeDataSource(model_class=model_cls, q="")
+            return [c.titre for c in ds.get_items()], ds.get_count()
+
+    def test_commande_visible_to_both_author_and_redac_chef(
+        self, app, db_session: scoped_session, media_org: Organisation, author_user: User
+    ):
+        sujet = _make_sujet(db_session, media_id=media_org.id, owner_id=author_user.id)
+        sujet.titre = "Commande 0225"
+        sujet.publish()
+        db_session.flush()
+
+        redac_chef = User(email="rc0225@flounet.example", active=True)
+        redac_chef.profile = KYCProfile(profile_code="PM_DIR")
+        redac_chef.organisation = media_org
+        redac_chef.organisation_id = media_org.id
+        db_session.add(redac_chef)
+        db_session.flush()
+
+        accept_sujet_as_commande(sujet, redac_chef)
+        db_session.flush()
+
+        # Journalist (owner) sees it.
+        author_titles, author_count = self._titles_and_count(
+            app, Commande, author_user
+        )
+        assert "Commande 0225" in author_titles
+        assert author_count >= 1
+
+        # Rédac chef (commanditaire) sees it too.
+        rc_titles, rc_count = self._titles_and_count(app, Commande, redac_chef)
+        assert "Commande 0225" in rc_titles
+        assert rc_count >= 1
+
+        # An unrelated user sees nothing.
+        other = User(email="other0225@flounet.example", active=True)
+        db_session.add(other)
+        db_session.flush()
+        other_titles, _ = self._titles_and_count(app, Commande, other)
+        assert "Commande 0225" not in other_titles
 
 
 class TestSujetsTableActions:
