@@ -80,9 +80,13 @@ def build_commande_payload(sujet: Sujet, accepter_id: int) -> dict:
     Pure — no DB ; the orchestrator passes the result to
     `Commande(**payload)`. Encodes the business rules :
 
-    - `owner_id` AND `commanditaire_id` both = the accepter (the
-      rédac chef who clicked Accepter — they own the commande and
-      are the customer behind it).
+    - `owner_id` = the sujet's author (the journalist who proposed it
+      and will execute the commande — the « Auteur ») ;
+      `commanditaire_id` = the accepter (the rédac chef who
+      commissioned it). Bug #0225 : the commande must surface in BOTH
+      newsrooms — the journalist sees it as owner, the rédac chef as
+      commanditaire (see `CommandeDataSource`). Before #0225 both were
+      the accepter, so the journalist never saw their accepted sujet.
     - `media_id` mirrors the sujet's, so the new commande lives in
       the rédac chef's own newsroom.
     - `brief` defaults to "" when the author didn't fill one (NOT
@@ -93,7 +97,7 @@ def build_commande_payload(sujet: Sujet, accepter_id: int) -> dict:
       starting point ; the rédac chef can adjust before publishing.
     """
     return {
-        "owner_id": accepter_id,
+        "owner_id": sujet.owner_id,
         "media_id": sujet.media_id,
         "commanditaire_id": accepter_id,
         "titre": sujet.titre,

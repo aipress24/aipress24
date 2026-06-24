@@ -6,9 +6,11 @@ from __future__ import annotations
 
 from flask import Flask, g
 from flask_super.registry import register
+from sqlalchemy import func, or_, select
 from werkzeug import Response
 from werkzeug.exceptions import Forbidden
 
+from app.flask.extensions import db
 from app.flask.routing import url_for
 from app.logging import warn
 from app.modules.bw.bw_activation.user_utils import (
@@ -20,7 +22,38 @@ from app.modules.wip.pr_access import user_can_access_newsroom
 
 from ._base import BaseWipView
 from ._forms import CommandeForm
-from ._table import BaseTable
+from ._table import BaseDataSource, BaseTable
+
+
+class CommandeDataSource(BaseDataSource):
+    """Bug #0225 — a Commande must surface in BOTH newsrooms: the
+    journalist who authored the originating sujet (`owner_id`) AND the
+    rédac chef who accepted it (`commanditaire_id`). The generic
+    `owner_id == user` clause showed it only to the journalist."""
+
+    def _visibility_clause(self):
+        M = self.model_class
+        user = g.user
+        return or_(M.owner_id == user.id, M.commanditaire_id == user.id)
+
+    def _base_query(self):
+        M = self.model_class
+        stmt = select(M).where(self._visibility_clause()).where(M.deleted_at.is_(None))
+        if self.q:
+            stmt = stmt.where(M.titre.ilike(f"%{self.q}%"))
+        return stmt
+
+    def get_count(self) -> int:
+        M = self.model_class
+        stmt = (
+            select(func.count())
+            .select_from(M)
+            .where(self._visibility_clause())
+            .where(M.deleted_at.is_(None))
+        )
+        if self.q:
+            stmt = stmt.where(M.titre.ilike(f"%{self.q}%"))
+        return db.session.scalar(stmt) or 0
 
 
 class CommandesTable(BaseTable):
@@ -28,6 +61,9 @@ class CommandesTable(BaseTable):
 
     def __init__(self, q="") -> None:
         super().__init__(Commande, q)
+
+    def _make_datasource(self, model_class: type, q: str) -> BaseDataSource:
+        return CommandeDataSource(model_class=model_class, q=q)
 
     def url_for(self, obj, _action="get", **kwargs):  # type: ignore[override]
         return url_for(f"CommandesWipView:{_action}", id=obj.id, **kwargs)
