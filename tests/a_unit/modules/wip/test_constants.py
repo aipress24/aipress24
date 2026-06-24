@@ -252,7 +252,7 @@ class TestFrenchLabels:
         [
             ("dashboard", "Tableau de bord"),
             ("opportunities", "Opportunités"),
-            ("billing", "Facturation"),
+            ("billing", "Ventes"),
             ("achats", "Achats"),
             ("ventes", "Ventes"),
             ("performance", "Performance"),

@@ -10,6 +10,7 @@ import uuid
 from typing import TYPE_CHECKING
 
 import pytest
+from sqlalchemy import select
 
 from app.models.auth import KYCProfile, User
 
@@ -17,6 +18,11 @@ from app.models.auth import KYCProfile, User
 from app.models.organisation import Organisation
 from app.modules.admin.views._show_org import OrgVM
 from app.modules.bw.bw_activation.models import BusinessWall, BWStatus
+from app.modules.bw.bw_activation.models.role import (
+    BWRoleType,
+    InvitationStatus,
+    RoleAssignment,
+)
 
 if TYPE_CHECKING:
     from flask import Flask
@@ -61,6 +67,7 @@ def org_with_bw(db_session: Session, admin_user: User) -> Organisation:
         status=BWStatus.ACTIVE.value,
         owner_id=admin_user.id,
         payer_id=admin_user.id,
+        payer_is_owner=True,
         organisation_id=org.id,
     )
     db_session.add(bw)
@@ -86,6 +93,7 @@ def org_with_invitation(db_session: Session, admin_user: User) -> Organisation:
         status=BWStatus.ACTIVE.value,
         owner_id=admin_user.id,
         payer_id=admin_user.id,
+        payer_is_owner=True,
         organisation_id=org.id,
     )
     db_session.add(bw)
@@ -258,6 +266,158 @@ class TestShowOrgActions:
         )
 
         assert response.status_code in (200, 302)
+
+
+class TestChangeBWOwner:
+    """Tests for the change BW owner page."""
+
+    def test_change_bw_owner_page_accessible(
+        self,
+        admin_client: FlaskClient,
+        admin_user: User,
+        org_with_bw: Organisation,
+    ):
+        response = admin_client.get(f"/admin/show_org/{org_with_bw.id}/change_bw_owner")
+        assert response.status_code == 200
+        body = response.data.decode()
+        assert "Changer le BW owner du BW" in body
+        assert admin_user.email in body
+
+    def test_change_bw_owner_updates_owner_and_org(
+        self,
+        admin_client: FlaskClient,
+        admin_user: User,
+        org_with_bw: Organisation,
+        db_session: Session,
+    ):
+        unique_id = uuid.uuid4().hex[:8]
+        other_org = Organisation(name=f"Other Org {unique_id}")
+        db_session.add(other_org)
+        db_session.flush()
+
+        new_owner = User(
+            email=f"new-owner-{unique_id}@test.com",
+            first_name="New",
+            last_name="Owner",
+        )
+        new_owner.active = True
+        new_owner.organisation_id = other_org.id
+        db_session.add(new_owner)
+        db_session.flush()
+
+        # KYCProfile is required by set_user_organisation.
+        profile = KYCProfile(user=new_owner, profile_id="P001", match_making={})
+        db_session.add(profile)
+
+        # Give the current (admin) owner a BW_OWNER role so we can verify
+        # it is removed after the transfer.
+        admin_owner_role = RoleAssignment(
+            business_wall_id=org_with_bw.bw_id,
+            user_id=admin_user.id,
+            role_type=BWRoleType.BW_OWNER.value,
+            invitation_status=InvitationStatus.ACCEPTED.value,
+        )
+        db_session.add(admin_owner_role)
+        db_session.commit()
+
+        response = admin_client.post(
+            f"/admin/show_org/{org_with_bw.id}/change_bw_owner",
+            data={"new_owner_email": new_owner.email},
+            follow_redirects=True,
+        )
+        assert response.status_code == 200
+
+        bw = db_session.get(BusinessWall, org_with_bw.bw_id)
+        assert bw is not None
+        assert bw.owner_id == new_owner.id
+        assert bw.payer_id == new_owner.id
+
+        db_session.refresh(new_owner)
+        assert new_owner.organisation_id == org_with_bw.id
+
+        new_owner_role = db_session.scalar(
+            select(RoleAssignment).where(
+                RoleAssignment.business_wall_id == bw.id,
+                RoleAssignment.user_id == new_owner.id,
+                RoleAssignment.role_type == BWRoleType.BW_OWNER.value,
+            )
+        )
+        assert new_owner_role is not None
+
+        old_owner_role = db_session.scalar(
+            select(RoleAssignment).where(
+                RoleAssignment.business_wall_id == bw.id,
+                RoleAssignment.user_id == admin_user.id,
+                RoleAssignment.role_type == BWRoleType.BW_OWNER.value,
+            )
+        )
+        assert old_owner_role is None
+
+    def test_change_bw_owner_rejects_existing_bw_owner(
+        self,
+        admin_client: FlaskClient,
+        admin_user: User,
+        org_with_bw: Organisation,
+        db_session: Session,
+    ):
+        unique_id = uuid.uuid4().hex[:8]
+        other_org = Organisation(name=f"Other Org {unique_id}")
+        db_session.add(other_org)
+        db_session.flush()
+
+        existing_owner = User(
+            email=f"existing-owner-{unique_id}@test.com",
+            first_name="Existing",
+            last_name="Owner",
+        )
+        existing_owner.active = True
+        existing_owner.organisation_id = other_org.id
+        db_session.add(existing_owner)
+        db_session.flush()
+
+        other_bw = BusinessWall(
+            bw_type="media",
+            status=BWStatus.ACTIVE.value,
+            owner_id=existing_owner.id,
+            payer_id=existing_owner.id,
+            payer_is_owner=True,
+            organisation_id=other_org.id,
+        )
+        db_session.add(other_bw)
+        db_session.commit()
+
+        response = admin_client.post(
+            f"/admin/show_org/{org_with_bw.id}/change_bw_owner",
+            data={"new_owner_email": existing_owner.email},
+            follow_redirects=True,
+        )
+        assert response.status_code == 200
+        # Form is shown again so the admin can retry.
+        assert "Changer le BW owner du BW" in response.data.decode()
+
+        bw = db_session.get(BusinessWall, org_with_bw.bw_id)
+        assert bw is not None
+        assert bw.owner_id == admin_user.id
+
+    def test_change_bw_owner_unknown_email(
+        self,
+        admin_client: FlaskClient,
+        admin_user: User,
+        org_with_bw: Organisation,
+        db_session: Session,
+    ):
+        response = admin_client.post(
+            f"/admin/show_org/{org_with_bw.id}/change_bw_owner",
+            data={"new_owner_email": "unknown@example.com"},
+            follow_redirects=True,
+        )
+        assert response.status_code == 200
+        # The form is shown again so the admin can retry.
+        assert "Changer le BW owner du BW" in response.data.decode()
+
+        bw = db_session.get(BusinessWall, org_with_bw.bw_id)
+        assert bw is not None
+        assert bw.owner_id == admin_user.id
 
 
 class TestOrgVM:

@@ -78,7 +78,7 @@ MENU = [
     ),
     MenuEntry(
         name="billing",
-        label="Facturation",
+        label="Ventes",
         icon="credit-card",
         endpoint="wip.billing",
     ),

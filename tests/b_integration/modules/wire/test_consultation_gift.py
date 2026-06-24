@@ -11,6 +11,7 @@ from __future__ import annotations
 from datetime import UTC, datetime
 from typing import TYPE_CHECKING
 
+import arrow
 import pytest
 from sqlalchemy.exc import IntegrityError
 
@@ -27,6 +28,7 @@ from app.modules.wire.services.purchase_aggregates import (
     get_paid_consultations_count,
     is_consultation_giftable_to,
 )
+from app.settings.constants import ARTICLE_CONSULTATION_DURATION
 
 if TYPE_CHECKING:
     from sqlalchemy.orm import Session
@@ -75,14 +77,17 @@ def _gift_purchase(
     beneficiaries: list[User],
     amount_cents: int,
     status: PurchaseStatus = PurchaseStatus.PAID,
+    paid_at: datetime | None = None,
 ) -> ArticlePurchase:
+    if paid_at is None and status == PurchaseStatus.PAID:
+        paid_at = datetime.now(UTC)
     purchase = ArticlePurchase(
         post_id=post.id,
         owner_id=buyer.id,
         product_type=PurchaseProduct.CONSULTATION_GIFT,
         status=status,
         amount_cents=amount_cents,
-        paid_at=datetime.now(UTC) if status == PurchaseStatus.PAID else None,
+        paid_at=paid_at,
     )
     db_session.add(purchase)
     db_session.flush()
@@ -173,6 +178,25 @@ class TestPaywallGrantsAccessToBeneficiaries:
         )
         assert user_can_read_full(buyer, post) is False
 
+    def test_expired_gift_does_not_grant_access(
+        self,
+        db_session: Session,
+        buyer: User,
+        post: ArticlePost,
+        alice: User,
+    ):
+        """A paid gift older than ARTICLE_CONSULTATION_DURATION no longer
+        lifts the paywall."""
+        _gift_purchase(
+            db_session,
+            buyer=buyer,
+            post=post,
+            beneficiaries=[alice],
+            amount_cents=100,
+            paid_at=arrow.utcnow().shift(days=-ARTICLE_CONSULTATION_DURATION - 1),
+        )
+        assert user_can_read_full(alice, post) is False
+
 
 class TestVueCounterIncludesGifts:
     def test_gift_beneficiaries_count_toward_vue_counter(
@@ -247,6 +271,23 @@ class TestVueCounterIncludesGifts:
         )
         assert get_paid_consultations_count(post.id) == 0
 
+    def test_expired_gifts_do_not_count(
+        self,
+        db_session: Session,
+        buyer: User,
+        post: ArticlePost,
+        alice: User,
+    ):
+        _gift_purchase(
+            db_session,
+            buyer=buyer,
+            post=post,
+            beneficiaries=[alice],
+            amount_cents=100,
+            paid_at=arrow.utcnow().shift(days=-ARTICLE_CONSULTATION_DURATION - 1),
+        )
+        assert get_paid_consultations_count(post.id) == 0
+
 
 class TestIsConsultationGiftableTo:
     def test_giftable_to_a_fresh_recipient(
@@ -314,6 +355,44 @@ class TestIsConsultationGiftableTo:
             )
         )
         db_session.flush()
+        assert is_consultation_giftable_to(alice.id, post.id) is True
+
+    def test_giftable_again_after_expired_direct_consultation(
+        self,
+        db_session: Session,
+        post: ArticlePost,
+        alice: User,
+    ):
+        """An expired direct consultation no longer blocks a new gift."""
+        db_session.add(
+            ArticlePurchase(
+                post_id=post.id,
+                owner_id=alice.id,
+                product_type=PurchaseProduct.CONSULTATION,
+                status=PurchaseStatus.PAID,
+                amount_cents=100,
+                paid_at=arrow.utcnow().shift(days=-ARTICLE_CONSULTATION_DURATION - 1),
+            )
+        )
+        db_session.flush()
+        assert is_consultation_giftable_to(alice.id, post.id) is True
+
+    def test_giftable_again_after_expired_gift(
+        self,
+        db_session: Session,
+        buyer: User,
+        post: ArticlePost,
+        alice: User,
+    ):
+        """An expired gift no longer blocks a new gift to the same recipient."""
+        _gift_purchase(
+            db_session,
+            buyer=buyer,
+            post=post,
+            beneficiaries=[alice],
+            amount_cents=100,
+            paid_at=arrow.utcnow().shift(days=-ARTICLE_CONSULTATION_DURATION - 1),
+        )
         assert is_consultation_giftable_to(alice.id, post.id) is True
 
     def test_returns_true_for_unknown_input(self):

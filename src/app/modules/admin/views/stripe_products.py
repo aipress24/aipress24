@@ -113,7 +113,7 @@ def stripe_product_json(product_id: str):
     """Return the raw JSON of a Stripe product."""
     load_stripe_api_key()
     product = stripe.Product.retrieve(product_id)
-    product_json = json.dumps(product, indent=2)
+    product_json = json.dumps(product.to_dict(), indent=2, default=str)
     return (
         "<html><body style='margin:0; padding:20px; font-family:monospace;'>"
         f"<pre>{product_json}</pre>"
@@ -126,7 +126,7 @@ def stripe_price_json(price_id: str):
     """Return the raw JSON of a Stripe price."""
     load_stripe_api_key()
     price = stripe.Price.retrieve(price_id)
-    price_json = json.dumps(price, indent=2)
+    price_json = json.dumps(price.to_dict(), indent=2, default=str)
     return (
         "<html><body style='margin:0; padding:20px; font-family:monospace;'>"
         f"<pre>{price_json}</pre>"
