@@ -43,16 +43,20 @@
             </button>
         {% endif %}
 
-      {# Justificatif de publication #}
-        <button type="button"
-                class="{{ btn_class }}"
-                title="Obtenir un justificatif officiel de publication"
-                hx-get="{{ url_for('wire.buy_modal', post_id=post_id, product='justificatif') }}"
-                hx-target="#purchase-modal"
-                hx-swap="innerHTML">
-            {{ icon("document-check", class="h-5 w-5 mr-2 text-gray-500") }}
-            Justificatif de publication
-        </button>
+      {# Justificatif de publication — Bug #0195: gate on the live paywall
+         like the other paid actions, so it isn't a dead-end modal
+         ("Tarif indisponible") when Stripe isn't active. #}
+        {% if config.get("STRIPE_LIVE_ENABLED") %}
+            <button type="button"
+                    class="{{ btn_class }}"
+                    title="Obtenir un justificatif officiel de publication"
+                    hx-get="{{ url_for('wire.buy_modal', post_id=post_id, product='justificatif') }}"
+                    hx-target="#purchase-modal"
+                    hx-swap="innerHTML">
+                {{ icon("document-check", class="h-5 w-5 mr-2 text-gray-500") }}
+                Justificatif de publication
+            </button>
+        {% endif %}
 
       {# Droits de reproduction / Cession — hidden when clearly ineligible
          per the article's frozen rights-sales policy. #}
