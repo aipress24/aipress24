@@ -947,6 +947,54 @@ class TestJournalismVisibilityRestriction:
         assert count == 0
         mock_notify.assert_not_called()
 
+    # ---- Decision / lifecycle endpoints (Bug #0224) --------------------
+    #
+    # #0186 gated the listing / detail / apply / deposit, but left the
+    # select / reject / fill POST endpoints open — a non-journalist who
+    # guessed a mission id could drive its lifecycle. The gate fires
+    # right after `get_offer_or_404`, before any application lookup, so a
+    # dummy app_id still 404s on the mission (existence stays hidden).
+
+    def test_non_journalist_gets_404_on_journalism_mission_fill(
+        self,
+        app: Flask,
+        non_journalist_user: User,
+        journalism_mission: MissionOffer,
+    ):
+        client = make_authenticated_client(app, non_journalist_user)
+        response = client.post(
+            f"/biz/missions/{journalism_mission.id}/fill", follow_redirects=False
+        )
+        assert response.status_code == 404
+
+    def test_non_journalist_gets_404_on_journalism_application_select(
+        self,
+        app: Flask,
+        non_journalist_user: User,
+        journalism_mission: MissionOffer,
+    ):
+        client = make_authenticated_client(app, non_journalist_user)
+        response = client.post(
+            f"/biz/missions/{journalism_mission.id}/applications/999999/select",
+            data={"decision_message": "x"},
+            follow_redirects=False,
+        )
+        assert response.status_code == 404
+
+    def test_non_journalist_gets_404_on_journalism_application_reject(
+        self,
+        app: Flask,
+        non_journalist_user: User,
+        journalism_mission: MissionOffer,
+    ):
+        client = make_authenticated_client(app, non_journalist_user)
+        response = client.post(
+            f"/biz/missions/{journalism_mission.id}/applications/999999/reject",
+            data={"decision_message": "x"},
+            follow_redirects=False,
+        )
+        assert response.status_code == 404
+
     # ---- Posting -------------------------------------------------------
 
     def test_non_journalist_cannot_post_journalism_mission(

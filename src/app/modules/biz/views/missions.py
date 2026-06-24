@@ -427,6 +427,7 @@ def missions_applications(id: int):
 )
 def missions_application_select(id: int, app_id: int):
     mission = get_offer_or_404(MissionOffer, id)
+    _enforce_journalism_visibility(mission)  # Bug #0224
     message = (request.form.get("decision_message") or "").strip()
     return update_application_status(
         mission,
@@ -443,6 +444,7 @@ def missions_application_select(id: int, app_id: int):
 )
 def missions_application_reject(id: int, app_id: int):
     mission = get_offer_or_404(MissionOffer, id)
+    _enforce_journalism_visibility(mission)  # Bug #0224
     message = (request.form.get("decision_message") or "").strip()
     return update_application_status(
         mission,
@@ -456,4 +458,5 @@ def missions_application_reject(id: int, app_id: int):
 @blueprint.route("/missions/<int:id>/fill", methods=["POST"])
 def missions_fill(id: int):
     mission = get_offer_or_404(MissionOffer, id)
+    _enforce_journalism_visibility(mission)  # Bug #0224
     return mark_filled(mission, ".missions_detail")
