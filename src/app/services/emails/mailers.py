@@ -125,6 +125,32 @@ class BWPartnershipRevokedMail(EmailTemplate):
 
 
 @dataclass(kw_only=True)
+class BWPartnershipInvitationMail(EmailTemplate):
+    """
+    Invite a PR Agency owner to a RP partnership with a client BW
+    (ticket #0169). A dedicated mail — not the generic role-invitation —
+    so the agency owner understands they've gained a client and gets a
+    confirmation link.
+
+    Args:
+        - sender (str): usually "contact@aipress24.com".
+        - recipient (str): mail of the PR agency owner.
+        - sender_mail (str): client BW owner's email (informative).
+        - sender_full_name (str): client BW owner's full name.
+        - bw_name (str): name of the client's BusinessWall.
+        - client_name (str): name of the client organisation.
+        - confirmation_url (str): URL to confirm the partnership.
+    """
+
+    subject: str = "[Aipress24] Invitation à un partenariat RP"
+    template_html: str = "bw_partnership_invitation.j2"
+    sender_full_name: str
+    bw_name: str
+    client_name: str
+    confirmation_url: str
+
+
+@dataclass(kw_only=True)
 class PRPublicationNotificationMail(EmailTemplate):
     """Notify a client's BW owner that their PR agency has published on
     their behalf.
