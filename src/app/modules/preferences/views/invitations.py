@@ -18,7 +18,11 @@ from app.flask.sqla import get_obj
 from app.models.auth import User
 from app.models.invitation import Invitation
 from app.models.organisation import Organisation
-from app.modules.admin.utils import gc_all_auto_organisations, set_user_organisation
+from app.modules.admin.utils import (
+    gc_all_auto_organisations,
+    remove_user_organisation,
+    set_user_organisation,
+)
 from app.modules.bw.bw_activation.bw_invitation import BW_ROLE_TYPE_LABEL
 from app.modules.bw.bw_activation.models import (
     BusinessWall,
@@ -220,6 +224,13 @@ class InvitationsView(MethodView):
                 org_id = request.form["target"]
                 user = g.user
                 self._join_organisation(user, org_id)
+                response = Response("")
+                response.headers["HX-Redirect"] = url_for(".invitations")
+            case "leave_org":
+                # Ticket #0228 : a member who accepted by mistake must be
+                # able to leave their organisation.
+                user = cast(User, g.user)
+                self._leave_organisation(user, request.form.get("target", ""))
                 response = Response("")
                 response.headers["HX-Redirect"] = url_for(".invitations")
             case "ack_revoked_partnership":
@@ -477,6 +488,24 @@ class InvitationsView(MethodView):
         set_user_organisation(user, organisation)
         gc_all_auto_organisations()
         db.session.commit()
+
+    def _leave_organisation(self, user: User, org_id: str) -> None:
+        """Ticket #0228 : leave the user's current organisation.
+
+        Only the user's *own* current org can be left — guards against a
+        forged `target`. `remove_user_organisation` refuses (returns an
+        error string) when the user is the BW owner of the org, in which
+        case we surface it rather than orphaning the Business Wall.
+        """
+        target_org_id = parse_org_id(org_id)
+        if target_org_id is None or user.organisation_id != target_org_id:
+            return
+        if error := remove_user_organisation(user):
+            flash(error, "error")
+            return
+        gc_all_auto_organisations()
+        db.session.commit()
+        flash("Vous avez quitté l'organisation.", "success")
 
 
 # Register the view

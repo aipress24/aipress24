@@ -720,6 +720,62 @@ class TestInvitationsJoinOrgRequiresInvitation:
         assert invitations_test_user.organisation_id == inviting_org.id
 
 
+class TestLeaveOrganisation:
+    """Ticket #0228 — a member who accepted an org invitation by mistake
+    must be able to leave (remove themselves from the organisation)."""
+
+    @staticmethod
+    def _member(db_session: Session, org: Organisation) -> User:
+        profile = KYCProfile(contact_type="PRESSE")
+        profile.show_contact_details = {}
+        user = User(
+            email=f"leave_{uuid.uuid4().hex[:6]}@example.com",
+            first_name="L",
+            last_name="Member",
+            active=True,
+        )
+        user.organisation_id = org.id
+        user.profile = profile
+        db_session.add_all([user, profile])
+        db_session.commit()
+        return user
+
+    def test_leave_org_removes_membership(self, app: Flask, db_session: Session):
+        org = Organisation(name=f"Org-{uuid.uuid4().hex[:6]}")
+        db_session.add(org)
+        db_session.flush()
+        user = self._member(db_session, org)
+
+        client = make_authenticated_client(app, user)
+        response = client.post(
+            "/preferences/invitations",
+            data={"action": "leave_org", "target": str(org.id)},
+            follow_redirects=False,
+        )
+
+        assert response.status_code == 200
+        db_session.refresh(user)
+        assert user.organisation_id is None
+
+    def test_leave_org_ignores_a_forged_target(self, app: Flask, db_session: Session):
+        org = Organisation(name=f"Mine-{uuid.uuid4().hex[:6]}")
+        other = Organisation(name=f"Other-{uuid.uuid4().hex[:6]}")
+        db_session.add_all([org, other])
+        db_session.flush()
+        user = self._member(db_session, org)
+
+        client = make_authenticated_client(app, user)
+        # A target that isn't the user's own org must be a no-op.
+        client.post(
+            "/preferences/invitations",
+            data={"action": "leave_org", "target": str(other.id)},
+            follow_redirects=False,
+        )
+
+        db_session.refresh(user)
+        assert user.organisation_id == org.id
+
+
 class TestAcceptedRoleStaysVisible:
     """Bug: a BW role (e.g. BWPRi) that the user accepted vanished from
     /preferences/invitations because the page only listed PENDING role
