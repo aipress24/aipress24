@@ -889,11 +889,10 @@ def _payment_live_enabled(bw_type: str, ctx: dict[str, Any]):
     # If the Price object doesn't expose its tiers (observed with some
     # Stripe API versions / account configs), ask Stripe directly for the
     # amount by creating a throw-away Checkout Session.
-    if price_total is None and _billing_scheme == "tiered":
-        if price_id:
-            price_total = _preview_checkout_amount(
-                draft_bw, bw_type, price_id, checkout_quantity
-            )
+    if price_total is None and _billing_scheme == "tiered" and price_id:
+        price_total = _preview_checkout_amount(
+            draft_bw, bw_type, price_id, checkout_quantity
+        )
 
     ctx.update(
         {
