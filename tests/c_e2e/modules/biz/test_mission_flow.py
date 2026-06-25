@@ -183,6 +183,35 @@ class TestOfferApplication:
         assert application.status == ApplicationStatus.PENDING
         mock_notify.assert_called_once()
 
+    def test_application_posts_bell_to_emitter(
+        self,
+        app: Flask,
+        db_session: Session,
+        published_mission: MissionOffer,
+        emitter: User,
+        applicant: User,
+    ):
+        """Bug #0200 — a new candidacy must alert the emitter on the bell
+        (cloche), not only by e-mail."""
+        client = make_authenticated_client(app, applicant)
+        # Isolate the e-mail side so only the cloche is under test.
+        with patch(
+            "app.modules.biz.services.offer_notifications.MissionApplicationMail"
+        ) as mail_cls:
+            mail_cls.return_value.send.return_value = None
+            response = client.post(
+                f"/biz/missions/{published_mission.id}/apply",
+                data={"message": "Je postule"},
+                follow_redirects=False,
+            )
+
+        assert response.status_code == 302
+        notifs = container.get(NotificationService).get_notifications(emitter)
+        assert any(
+            applicant.full_name in n.message and published_mission.title in n.message
+            for n in notifs
+        ), "emitter must receive an in-app cloche for the new application (#0200)"
+
     def test_emitter_cannot_apply_to_own_mission(
         self,
         app: Flask,
