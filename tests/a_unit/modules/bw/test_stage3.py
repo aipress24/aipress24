@@ -50,6 +50,7 @@ from app.modules.bw.bw_activation.routes.stage3 import (
     _is_idempotent_confirmation_target,
     _normalize_stripe_info_form,
     _parse_quantity_from_session_value,
+    _resolve_payer_email,
     _resolve_stripe_customer_kwargs,
     _select_product_for_quantity,
     _should_finalise_draft,
@@ -65,6 +66,7 @@ class _BwLike:
     """Stand-in for a BusinessWall — only the attributes the helpers read."""
 
     status: str = BWStatus.DRAFT.value
+    payer_email: str = ""
 
 
 def _stripe_prod(
@@ -424,6 +426,29 @@ class TestResolveStripeCustomerKwargs:
         creates a guest checkout (instead of raising)."""
         assert _resolve_stripe_customer_kwargs(None, None) == {}
         assert _resolve_stripe_customer_kwargs("", "") == {}
+
+
+# ---------------------------------------------------------------------------
+# _resolve_payer_email
+# ---------------------------------------------------------------------------
+
+
+class TestResolvePayerEmail:
+    """When the BW payer differs from the BW owner, the
+    Stripe checkout must use the payer's email, not the
+    logged-in user's / owner's email."""
+
+    def test_uses_payer_email_when_different_from_owner(self) -> None:
+        bw = _BwLike(payer_email="payer@example.com")
+        assert _resolve_payer_email(bw, "owner@example.com") == "payer@example.com"
+
+    def test_falls_back_to_owner_email_when_payer_email_empty(self) -> None:
+        bw = _BwLike(payer_email="")
+        assert _resolve_payer_email(bw, "owner@example.com") == "owner@example.com"
+
+    def test_returns_none_when_both_missing(self) -> None:
+        bw = _BwLike(payer_email="")
+        assert _resolve_payer_email(bw, None) is None
 
 
 # ---------------------------------------------------------------------------
