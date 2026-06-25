@@ -113,7 +113,7 @@ def extract_price_payload(price_obj: Any) -> dict[str, Any]:
         "tax_behavior": str(get("tax_behavior") or "unspecified"),
         "nickname": get("nickname"),
         "recurring_interval": recurring_get("interval"),
-        "metadata_json": _coerce_metadata(get("metadata")),
+        "metadata_json": coerce_metadata(get("metadata")),
     }
 
 
@@ -137,7 +137,7 @@ def _attr_or_item_getter(obj: Any) -> Any:
     return _get
 
 
-def _coerce_metadata(raw_meta: Any) -> dict:
+def coerce_metadata(raw_meta: Any) -> dict:
     """Normalise Stripe metadata into a plain dict.
 
     Stripe SDK delivers a `StripeObject` with `to_dict()`

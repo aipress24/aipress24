@@ -47,7 +47,7 @@ def fetch_bw_product_list(*, client: StripeClient | None = None) -> list[Product
     results: list[Product] = []
     for prod in prods:
         raw_metadata = _get_stripe_attr(prod, "metadata") or {}
-        metadata_dict = _coerce_metadata(raw_metadata)
+        metadata_dict = coerce_metadata(raw_metadata)
         metadata_dict = {k.lower(): v.lower() for k, v in metadata_dict.items()}
         if metadata_dict.get("domain") == "bw":
             results.append(prod)
@@ -66,7 +66,7 @@ def _get_stripe_attr(obj: Any, key: str, default: Any = None) -> Any:
         return getattr(obj, key, default)
 
 
-def _coerce_metadata(raw_meta: Any) -> dict:
+def coerce_metadata(raw_meta: Any) -> dict:
     """Normalise Stripe metadata into a plain dict."""
     if raw_meta is None:
         return {}
