@@ -17,32 +17,34 @@ from click.testing import CliRunner
 
 from app.flask.cli.stripe import (
     _JUSTIFICATIF_PRODUCT_METADATA,
-    _has_justificatif_product,
+    _find_justificatif_product,
     create_justificatif_product,
 )
 from app.modules.wire.models import PurchaseProduct
 from app.modules.wire.views.purchase import _PRODUCT_TAXONOMY_FILTERS
 
 
-def _product(**metadata) -> SimpleNamespace:
-    return SimpleNamespace(metadata=dict(metadata))
+def _product(*, id="prod_x", default_price=None, **metadata) -> SimpleNamespace:
+    return SimpleNamespace(
+        id=id, metadata=dict(metadata), default_price=default_price
+    )
 
 
-class TestHasJustificatifProduct:
-    def test_empty_list_is_false(self):
-        assert _has_justificatif_product([]) is False
+class TestFindJustificatifProduct:
+    def test_empty_list_is_none(self):
+        assert _find_justificatif_product([]) is None
 
-    def test_detects_a_matching_product(self):
+    def test_returns_a_matching_product(self):
         # Extra metadata keys are fine — only the JdP filter keys matter.
         prod = _product(
             domain="certificate", family="article", offer="paid", genre="news"
         )
-        assert _has_justificatif_product([prod]) is True
+        assert _find_justificatif_product([prod]) is prod
 
     def test_ignores_a_non_matching_product(self):
         # A consultation product (different domain) must not count.
         prod = _product(domain="consultation", family="article", offer="paid")
-        assert _has_justificatif_product([prod]) is False
+        assert _find_justificatif_product([prod]) is None
 
 
 def test_justificatif_metadata_matches_taxonomy_filter():
@@ -78,8 +80,16 @@ class TestCreateJustificatifProductCLI:
         assert kwargs["default_price_data"] == {"unit_amount": 2000, "currency": "eur"}
         assert "prod_jdp_test" in result.output
 
-    def test_skips_when_a_product_already_exists(self, fresh_db, app):
-        existing = _product(domain="certificate", family="article", offer="paid")
+    def test_skips_and_reports_price_when_priced_product_exists(self, fresh_db, app):
+        # `default_price` as a price-id string is one of the shapes Stripe
+        # returns and `resolve_product_price` handles.
+        existing = _product(
+            id="prod_existing",
+            default_price="price_existing",
+            domain="certificate",
+            family="article",
+            offer="paid",
+        )
         with (
             patch("app.flask.cli.stripe.load_stripe_api_key", return_value=True),
             patch(
@@ -93,6 +103,28 @@ class TestCreateJustificatifProductCLI:
         assert result.exit_code == 0, result.output
         create.assert_not_called()
         assert "already exists" in result.output
+        assert "prod_existing" in result.output
+        assert "price_existing" in result.output
+
+    def test_warns_and_exits_nonzero_when_product_has_no_price(self, fresh_db, app):
+        # Metadata matches but there is NO usable price — a misconfiguration
+        # that would still show « Tarif indisponible » to buyers.
+        existing = _product(
+            id="prod_priceless", domain="certificate", family="article", offer="paid"
+        )
+        with (
+            patch("app.flask.cli.stripe.load_stripe_api_key", return_value=True),
+            patch(
+                "app.flask.cli.stripe.fetch_stripe_product_list",
+                return_value=[existing],
+            ),
+            patch("stripe.Product.create") as create,
+        ):
+            result = CliRunner().invoke(create_justificatif_product, [])
+
+        assert result.exit_code != 0
+        create.assert_not_called()
+        assert "no" in result.output.lower() and "price" in result.output.lower()
 
     def test_force_creates_even_when_one_exists(self, fresh_db, app):
         existing = _product(domain="certificate", family="article", offer="paid")
