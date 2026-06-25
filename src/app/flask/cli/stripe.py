@@ -38,7 +38,11 @@ from app.models.organisation import Organisation
 from app.services.emails import EmailService
 from app.services.stripe.customers import mirror_customer_to_org
 from app.services.stripe.prices import list_drifts, sync_all_prices
-from app.services.stripe.product import coerce_metadata, fetch_stripe_product_list
+from app.services.stripe.product import (
+    coerce_metadata,
+    fetch_stripe_product_list,
+    resolve_product_price,
+)
 from app.services.stripe.reconciliation import (
     reconcile_customers,
     reconcile_purchases,
@@ -192,14 +196,20 @@ _JUSTIFICATIF_PRODUCT_METADATA = {
 }
 
 
-def _has_justificatif_product(products) -> bool:
-    """True iff an existing product already carries the JdP taxonomy
-    metadata — used to make product creation idempotent."""
+def _find_justificatif_product(products):
+    """Return the first product already carrying the JdP taxonomy
+    metadata, or None — used to make product creation idempotent."""
     for prod in products:
         metadata = coerce_metadata(prod.metadata)
         if all(metadata.get(k) == v for k, v in _JUSTIFICATIF_PRODUCT_METADATA.items()):
-            return True
-    return False
+            return prod
+    return None
+
+
+def _product_id(prod) -> str:
+    if isinstance(prod, dict):
+        return str(prod.get("id", "?"))
+    return str(getattr(prod, "id", "?"))
 
 
 @stripe.command("create-justificatif-product")
@@ -217,15 +227,31 @@ def create_justificatif_product(amount: int, currency: str, force: bool) -> None
     genre via the taxonomy-family fallback in `_select_price_id`.
 
     Idempotent: skips when a matching active product already exists,
-    unless --force is given.
+    unless --force is given. On skip it resolves the existing product's
+    price and reports it — a product with NO active price is a
+    misconfiguration (JdP would still show « Tarif indisponible »), so it
+    exits non-zero rather than declaring victory.
     """
     if not load_stripe_api_key():
         click.echo("Stripe API key not configured; aborting.", err=True)
         sys.exit(1)
 
-    if not force and _has_justificatif_product(fetch_stripe_product_list(active=True)):
-        click.echo("A Justificatif product already exists; nothing to do.")
-        return
+    existing = _find_justificatif_product(fetch_stripe_product_list(active=True))
+    if existing is not None and not force:
+        price_id, _ = resolve_product_price(existing)
+        if price_id:
+            click.echo(
+                f"A Justificatif product already exists "
+                f"({_product_id(existing)} → {price_id}); nothing to do."
+            )
+            return
+        click.echo(
+            f"A Justificatif product exists ({_product_id(existing)}) but has NO "
+            "active price — JdP will show « Tarif indisponible ». Re-run with "
+            "--force to create a priced product.",
+            err=True,
+        )
+        sys.exit(1)
 
     product = stripe_sdk.Product.create(
         name="Justificatif de publication",
