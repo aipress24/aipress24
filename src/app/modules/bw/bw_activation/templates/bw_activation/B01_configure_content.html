@@ -858,6 +858,103 @@
                                    placeholder="https://www.votre-site.fr"
                                    class="block w-full rounded-md border-gray-300 shadow-sm focus:border-orange-600 focus:ring-orange-600 sm:text-sm px-4 py-2 border" />
                         </div>
+                        <div x-data="{ payerIsOwner: {{ business_wall.payer_is_owner | lower }} }">
+                            <h3 class="text-lg font-semibold text-orange-900 mb-4">
+                                Contact de Facturation
+                            </h3>
+                            <div class="relative flex items-start mb-4">
+                                <div class="flex h-6 items-center">
+                                    <input
+                                        id="payer_is_owner"
+                                        name="payer_is_owner"
+                                        type="checkbox"
+                                        value="on"
+                                        x-model="payerIsOwner"
+                                        {% if business_wall.payer_is_owner %}checked{% endif %}
+                                        class="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-600"
+                                    />
+                                </div>
+                                <div class="ml-3 text-sm leading-6">
+                                    <label for="payer_is_owner" class="font-medium text-gray-900">
+                                        Le payeur est le dirigeant (Owner).
+                                    </label>
+                                </div>
+                            </div>
+                            <div x-show="!payerIsOwner" x-transition class="grid grid-cols-1 gap-x-6 gap-y-4 sm:grid-cols-6">
+                                <div class="sm:col-span-3">
+                                    <label class="block text-sm font-medium text-gray-900 mb-2">
+                                        Prénom
+                                    </label>
+                                    <input
+                                        type="text"
+                                        name="payer_first_name"
+                                        value="{{ business_wall.payer_first_name or '' }}"
+                                        class="block w-full rounded-md border-gray-300 shadow-sm focus:border-orange-600 focus:ring-orange-600 sm:text-sm px-4 py-2 border"
+                                    />
+                                </div>
+                                <div class="sm:col-span-3">
+                                    <label class="block text-sm font-medium text-gray-900 mb-2">
+                                        Nom
+                                    </label>
+                                    <input
+                                        type="text"
+                                        name="payer_last_name"
+                                        value="{{ business_wall.payer_last_name or '' }}"
+                                        class="block w-full rounded-md border-gray-300 shadow-sm focus:border-orange-600 focus:ring-orange-600 sm:text-sm px-4 py-2 border"
+                                    />
+                                </div>
+                                <div class="sm:col-span-6">
+                                    <label class="block text-sm font-medium text-gray-900 mb-2">
+                                        Service
+                                    </label>
+                                    <input
+                                        type="text"
+                                        name="payer_service"
+                                        value="{{ business_wall.payer_service or '' }}"
+                                        placeholder="Ex: Service Comptabilité"
+                                        class="block w-full rounded-md border-gray-300 shadow-sm focus:border-orange-600 focus:ring-orange-600 sm:text-sm px-4 py-2 border"
+                                    />
+                                </div>
+                                <div class="sm:col-span-4">
+                                    <label class="block text-sm font-medium text-gray-900 mb-2">
+                                        Adresse e-mail de facturation
+                                    </label>
+                                    <input
+                                        type="email"
+                                        name="payer_email"
+                                        value="{{ business_wall.payer_email or '' }}"
+                                        placeholder="comptabilite@exemple.com"
+                                        class="block w-full rounded-md border-gray-300 shadow-sm focus:border-orange-600 focus:ring-orange-600 sm:text-sm px-4 py-2 border"
+                                    />
+                                </div>
+                                <div class="sm:col-span-2">
+                                    <label class="block text-sm font-medium text-gray-900 mb-2">
+                                        Téléphone
+                                    </label>
+                                    <input
+                                        type="tel"
+                                        name="payer_phone"
+                                        value="{{ business_wall.payer_phone or '' }}"
+                                        class="block w-full rounded-md border-gray-300 shadow-sm focus:border-orange-600 focus:ring-orange-600 sm:text-sm px-4 py-2 border"
+                                    />
+                                </div>
+                                <div class="sm:col-span-6">
+                                    <label class="block text-sm font-medium text-gray-900 mb-2">
+                                        Adresse de facturation (si différente)
+                                    </label>
+                                    <textarea
+                                        name="payer_address"
+                                        rows="3"
+                                        placeholder="123 rue de la République&#10;75001 Paris&#10;France"
+                                        class="block w-full rounded-md border-gray-300 shadow-sm focus:border-orange-600 focus:ring-orange-600 sm:text-sm px-4 py-2 border"
+                                    >{{ business_wall.payer_address or '' }}</textarea>
+                                    <p class="mt-1 text-xs text-gray-500">
+                                        Adresse postale pour l'envoi des factures
+                                        (si différente de l'adresse du siège)
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </fieldset>
                 <!-- Navigation -->
