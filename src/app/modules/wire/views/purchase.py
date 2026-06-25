@@ -37,7 +37,11 @@ from app.modules.wire.models import (
     PurchaseStatus,
 )
 from app.services.stripe._client import StripeClient
-from app.services.stripe.product import coerce_metadata, fetch_stripe_product_list
+from app.services.stripe.product import (
+    coerce_metadata,
+    fetch_stripe_product_list,
+    resolve_product_price,
+)
 from app.services.stripe.utils import load_stripe_api_key
 
 _PRODUCT_TO_ENV: dict[PurchaseProduct, str] = {}
@@ -642,25 +646,30 @@ def _select_price_id(
     tested without any Stripe SDK or live HTTP call. The shape each
     product must expose is the one the Stripe SDK gives us — attribute
     access to `.metadata` (mapping) and `.default_price` (object with
-    `.id`, or falsy).
+    `.id`, string ID, or missing).
 
-    Returns "" when no candidate matches OR no default price.
+    Uses "resolve_product_price" so a product whose "default_price"
+    isn't expanded (or isn't set) still resolves via a fallback to
+    "Price.list".
+
+    Returns "" when no candidate matches OR no active price.
     """
     taxo_genre = _post_genre_to_taxo(product, genre)
 
     # 1. New taxonomy, genre-specific when possible.
     if taxo_genre is not None:
         for prod in products:
-            if (
-                _is_product_matching_taxonomy(prod, product, taxo_genre)
-                and prod.default_price
-            ):
-                return prod.default_price.id
+            if _is_product_matching_taxonomy(prod, product, taxo_genre):
+                price_id, _ = resolve_product_price(prod)
+                if price_id:
+                    return price_id
 
     # 2. New taxonomy, any genre in the same family.
     for prod in products:
-        if _is_product_matching_taxonomy(prod, product, None) and prod.default_price:
-            return prod.default_price.id
+        if _is_product_matching_taxonomy(prod, product, None):
+            price_id, _ = resolve_product_price(prod)
+            if price_id:
+                return price_id
 
     return ""
 
