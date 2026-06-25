@@ -34,7 +34,11 @@ from app.modules.bw.bw_activation.models import (
     RolePermission,
 )
 from app.modules.bw.bw_activation.utils import bw_roles_ids
-from app.services.emails import BWPartnershipRevokedMail, BWRoleInvitationMail
+from app.services.emails import (
+    BWPartnershipInvitationMail,
+    BWPartnershipRevokedMail,
+    BWRoleInvitationMail,
+)
 from app.services.notifications import NotificationService
 
 BW_ROLE_TYPE_LABEL: dict[str, str] = {
@@ -730,8 +734,14 @@ def invite_pr_provider(
     db.session.add(partnership)
     db.session.flush()
 
-    pr_owner = cast(User, get_obj(pr_bw.owner_id, User))
-    send_partnership_invitation_mail(business_wall, pr_bw, pr_owner, partnership)
+    # Ticket #0169: e-mail the agency owner. Wrap it (like the revoke
+    # path) so a mail-transport hiccup is logged instead of silently
+    # swallowing the rest of the flow — and so it can't break the bell.
+    pr_owner = get_obj(pr_bw.owner_id, User)
+    try:
+        send_partnership_invitation_mail(business_wall, pr_bw, pr_owner, partnership)
+    except Exception as exc:
+        report_failure("invite_pr_provider: email failed", exc)
 
     # Ticket #0169: also ring the invited agency owner's bell — without it
     # they only discover the invitation by chance in /preferences/invitations.
@@ -746,10 +756,19 @@ def invite_pr_provider(
 def send_partnership_invitation_mail(
     business_wall: BusinessWall,
     pr_bw: BusinessWall,
-    invited_user: User,
+    invited_user: User | None,
     partnership: Partnership,
 ) -> None:
-    """Send invitation email to PR provider."""
+    """Send the partnership-invitation email to the PR agency owner.
+
+    Ticket #0169: uses a dedicated `BWPartnershipInvitationMail` (the
+    old code reused `BWRoleInvitationMail`, so the agency owner got an
+    email about a « rôle sur un Business Wall » rather than a
+    partnership). No-op when the owner has no resolvable address.
+    """
+    if invited_user is None or not invited_user.email:
+        warn(f"No recipient email for PR agency owner of BW {pr_bw.id}")
+        return
 
     current_user = cast("User", g.user)
     sender_mail = current_user.email
@@ -767,14 +786,13 @@ def send_partnership_invitation_mail(
         _external=True,
     )
 
-    invit_mail = BWRoleInvitationMail(
+    invit_mail = BWPartnershipInvitationMail(
         sender="contact@aipress24.com",
         recipient=invited_user.email,
         sender_mail=sender_mail,
         sender_full_name=sender_full_name,
         bw_name=bw_name,
         client_name=client_name,
-        role="PR Manager (external)",
         confirmation_url=confirmation_url,
     )
     invit_mail.send()

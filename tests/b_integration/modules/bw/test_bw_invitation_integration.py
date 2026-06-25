@@ -1149,6 +1149,51 @@ class TestInvitePrProviderIntegration:
             f"organisation '{client_org_name}' (#0123)"
         )
 
+    def test_invite_pr_provider_emails_agency_owner_partnership_subject(
+        self,
+        app,
+        db_session: Session,
+        media_bw: BusinessWall,
+        pr_bw: BusinessWall,
+        pr_owner: User,
+        media_owner: User,
+    ):
+        """Ticket #0169 — the invitation e-mail must (a) actually be
+        built (render succeeds — it isn't a template bug), (b) reach the
+        PR agency owner, and (c) be a dedicated *partnership* invitation,
+        not the generic « rôle sur un Business Wall »."""
+        captured: dict = {}
+
+        def _capture_email(*_args, **kwargs):
+            captured.update(kwargs)
+
+            class _Stub:
+                content_subtype = ""
+
+                def send(self):
+                    return None
+
+            return _Stub()
+
+        with (
+            app.test_request_context("/"),
+            patch(
+                "app.services.emails.base.EmailMessage",
+                side_effect=_capture_email,
+            ),
+        ):
+            g.user = media_owner
+            invite_pr_provider(
+                media_bw, str(pr_bw.id), invited_by_user_id=media_owner.id
+            )
+
+        # Non-empty ⇒ the body (= mail.render()) was produced without error.
+        assert captured, "partnership invitation e-mail was never built"
+        assert captured.get("to") == [pr_owner.email]
+        subject = captured.get("subject", "").lower()
+        assert "partenariat" in subject
+        assert "rôle" not in subject
+
 
 # -----------------------------------------------------------------------------
 # Tests: revoke_partnership
