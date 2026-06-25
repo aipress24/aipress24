@@ -50,7 +50,11 @@ from app.modules.bw.bw_activation.utils import (
     fill_session,
     is_bw_manager_or_admin,
 )
-from app.services.stripe.product import coerce_metadata, fetch_bw_product_list
+from app.services.stripe.product import (
+    coerce_metadata,
+    fetch_bw_product_list,
+    resolve_product_price,
+)
 from app.services.stripe.utils import (
     get_stripe_public_key,
     load_stripe_api_key,
@@ -307,7 +311,9 @@ def _select_product_for_quantity(products: list[Product], quantity: int) -> Prod
 
     parsed_products = []
     for p in products:
-        raw_metadata = p.get("metadata") if isinstance(p, dict) else getattr(p, "metadata", None)
+        raw_metadata = (
+            p.get("metadata") if isinstance(p, dict) else getattr(p, "metadata", None)
+        )
         meta = coerce_metadata(raw_metadata)
         max_str = meta.get("maximum") or meta.get("Maximum") or meta.get("MAXIMUM")
         try:
@@ -713,21 +719,17 @@ def checkout(bw_type: str):
     # Automatically choose the product based on quantity
     chosen_product = _select_product_for_quantity(allowed_products, quantity)
 
-    # Extract the price ID — it might be a dict due to expansion, or just the string ID
-    price_id = _extract_price_id(chosen_product)
+    # Extract the price ID
+    price_id, default_price = resolve_product_price(chosen_product)
 
     if not price_id:
-        warn(f"No default price found for product {chosen_product.id}")
+        product_id = _get_value(chosen_product, "id")
+        warn(f"No price found for product {product_id}")
         session["error"] = ERR_UNKNOWN_ACTION
         return redirect(url_for("bw_activation.not_authorized"))
 
     # For tiered/graduated prices (e.g. BW4PR) the quantity drives the
     # tier calculation ; for flat-priced products it stays at 1.
-    if isinstance(chosen_product, dict):
-        default_price = chosen_product.get("default_price")
-    else:
-        default_price = getattr(chosen_product, "default_price", None)
-
     if isinstance(default_price, dict):
         billing_scheme = default_price.get("billing_scheme")
     else:
@@ -840,15 +842,12 @@ def _payment_live_enabled(bw_type: str, ctx: dict[str, Any]):
     # Automatically choose the product based on quantity for display
     chosen_product = _select_product_for_quantity(allowed_products, quantity)
 
-    if isinstance(chosen_product, dict):
-        default_price = chosen_product.get("default_price")
-    else:
-        default_price = getattr(chosen_product, "default_price", None)
+    price_id, default_price = resolve_product_price(chosen_product)
 
     # For flat-priced products the display price is unit_amount × 1;
     # for tiered products (BW4PR) it depends on the actual quantity.
-    if hasattr(default_price, "get"):
-        _billing_scheme = cast(dict, default_price).get("billing_scheme")
+    if isinstance(default_price, dict):
+        _billing_scheme = default_price.get("billing_scheme")
     else:
         _billing_scheme = getattr(default_price, "billing_scheme", None)
 
@@ -863,7 +862,6 @@ def _payment_live_enabled(bw_type: str, ctx: dict[str, Any]):
     # Stripe API versions / account configs), ask Stripe directly for the
     # amount by creating a throw-away Checkout Session.
     if price_total is None and _billing_scheme == "tiered":
-        price_id = _extract_price_id(chosen_product)
         if price_id:
             price_total = _preview_checkout_amount(
                 draft_bw, bw_type, price_id, checkout_quantity
