@@ -508,10 +508,13 @@ def _preview_checkout_amount(
         customer_id = org.stripe_customer_id
     else:
         customer_id = None
-    checkout_kwargs.update(_resolve_stripe_customer_kwargs(customer_id, g.user.email))
+    payer_email = _resolve_payer_email(draft_bw, g.user.email)
+    checkout_kwargs.update(
+        _resolve_stripe_customer_kwargs_for_payer(customer_id, payer_email)
+    )
     try:
         preview_session = _create_stripe_checkout_session(
-            checkout_kwargs, org, g.user.email
+            checkout_kwargs, org, payer_email
         )
         return preview_session.amount_subtotal
     except Exception as exc:
@@ -595,6 +598,27 @@ def _resolve_stripe_customer_kwargs(
     if user_email:
         return {"customer_email": user_email}
     return {}
+
+
+def _resolve_payer_email(draft_bw: Any, fallback_email: str | None) -> str | None:
+    """Return the email Stripe Checkout should prefill, either
+    the payer-email if field exists, or fall back to owner email.
+    """
+    return draft_bw.payer_email or fallback_email
+
+
+def _resolve_stripe_customer_kwargs_for_payer(
+    customer_id: str | None, payer_email: str | None
+) -> dict[str, str]:
+    """Resolve Stripe customer kwargs so checkout prefills the payer email."""
+    if customer_id and payer_email:
+        try:
+            customer = stripe.Customer.retrieve(customer_id)
+            if customer and customer.get("email") == payer_email:
+                return {"customer": customer_id}
+        except InvalidRequestError:
+            pass
+    return _resolve_stripe_customer_kwargs(None, payer_email)
 
 
 def _add_billing_collection(checkout_kwargs: dict[str, Any]) -> None:
@@ -764,10 +788,14 @@ def checkout(bw_type: str):
         "payment_method_types": ["card"],
     }
 
-    # Keep existing customer ID when known, fall back to email otherwise
+    # Keep existing customer ID when known, fall back to the payer's email
+    # (possibly different from the BW owner / current user) otherwise.
     org = draft_bw.get_organisation()
     customer_id = org.stripe_customer_id if org else None
-    checkout_kwargs.update(_resolve_stripe_customer_kwargs(customer_id, g.user.email))
+    payer_email = _resolve_payer_email(draft_bw, g.user.email)
+    checkout_kwargs.update(
+        _resolve_stripe_customer_kwargs_for_payer(customer_id, payer_email)
+    )
     _add_billing_collection(checkout_kwargs)
 
     # Ticket #0210: without this guard, any Stripe error (Stripe Tax not
@@ -775,7 +803,7 @@ def checkout(bw_type: str):
     # the user is stuck on a dead page after clicking « Procéder au paiement ».
     try:
         checkout_session = _create_stripe_checkout_session(
-            checkout_kwargs, org, g.user.email
+            checkout_kwargs, org, payer_email
         )
     except StripeError as exc:
         warn(f"BW checkout Session.create failed: {exc}")
@@ -931,10 +959,20 @@ def stripe_info(bw_type: str):
     if user.organisation and user.organisation.name:
         default_name = user.organisation.name
 
+    # Preserve the payer email collected in stage 2 (nominate-contacts)
+    # so the stripe-info form doesn't silently revert to the owner's email.
+    draft_bw = _get_or_create_draft_bw_for_checkout(user, bw_type)
+    default_email = (
+        session.get("payer_email")
+        or (draft_bw.payer_email if draft_bw is not None else None)
+        or user.email
+        or ""
+    )
+
     ctx = {
         "bw_type": bw_type,
         "bw_info": bw_info,
-        "default_email": user.email or "",
+        "default_email": default_email,
         "default_name": default_name,
     }
     return render_template("bw_activation/stripe_info.html", **ctx)
@@ -961,8 +999,19 @@ def _get_or_create_draft_bw_for_checkout(
         .first()
     )
     if existing is not None:
+        # Backfill payer email from session if the draft was created before
+        # stage 2 collected it, or if stripe-info was skipped for this BW type.
+        payer_email_from_session = str(session.get("payer_email", "") or "").strip()
+        if not existing.payer_email and payer_email_from_session:
+            existing.payer_email = payer_email_from_session
+            db.session.commit()
         return existing
 
+    # Seed the draft with the payer email collected in stage 2, if any.
+    # The stripe-info form may refine it later, but this ensures the
+    # checkout path doesn't silently fall back to the owner's email when
+    # a distinct payer was nominated.
+    payer_email_from_session = str(session.get("payer_email", "") or "").strip()
     bw = BusinessWall(
         bw_type=bw_type,
         status=BWStatus.DRAFT.value,
@@ -970,6 +1019,7 @@ def _get_or_create_draft_bw_for_checkout(
         owner_id=int(user.id),
         payer_id=int(user.id),
         organisation_id=int(org.id),
+        payer_email=payer_email_from_session,
     )
     db.session.add(bw)
     db.session.flush()
