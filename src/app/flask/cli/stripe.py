@@ -38,7 +38,7 @@ from app.models.organisation import Organisation
 from app.services.emails import EmailService
 from app.services.stripe.customers import mirror_customer_to_org
 from app.services.stripe.prices import list_drifts, sync_all_prices
-from app.services.stripe.product import _coerce_metadata, fetch_stripe_product_list
+from app.services.stripe.product import coerce_metadata, fetch_stripe_product_list
 from app.services.stripe.reconciliation import (
     reconcile_customers,
     reconcile_purchases,
@@ -196,7 +196,7 @@ def _has_justificatif_product(products) -> bool:
     """True iff an existing product already carries the JdP taxonomy
     metadata — used to make product creation idempotent."""
     for prod in products:
-        metadata = _coerce_metadata(prod.metadata)
+        metadata = coerce_metadata(prod.metadata)
         if all(metadata.get(k) == v for k, v in _JUSTIFICATIF_PRODUCT_METADATA.items()):
             return True
     return False

@@ -50,7 +50,7 @@ from app.modules.bw.bw_activation.utils import (
     fill_session,
     is_bw_manager_or_admin,
 )
-from app.services.stripe.product import fetch_bw_product_list
+from app.services.stripe.product import coerce_metadata, fetch_bw_product_list
 from app.services.stripe.utils import (
     get_stripe_public_key,
     load_stripe_api_key,
@@ -528,11 +528,11 @@ def _filter_products_by_allowed_subs(
     results: list[Any] = []
     for prod in products:
         raw_metadata = (
-            prod.get("metadata", {})
+            prod.get("metadata")
             if isinstance(prod, dict)
-            else getattr(prod, "metadata", {})
+            else getattr(prod, "metadata", None)
         )
-        metadata_dict = dict(raw_metadata) if raw_metadata else {}
+        metadata_dict = coerce_metadata(raw_metadata)
         lowered = {str(k).lower(): v for k, v in metadata_dict.items()}
         if lowered.get("reference", "") in allowed_values:
             results.append(prod)
