@@ -105,14 +105,21 @@ class TestDescriptionField:
 
 
 class TestOptionalFields:
-    """All non-title / non-description fields are optional. Pin that
-    contract so a future « accidentally added InputRequired » is
+    """All non-title / non-description / non-category fields are optional.
+    Pin that contract so a future « accidentally added InputRequired » is
     caught — empty sector / location / budget should pass."""
 
     def test_all_optionals_empty_passes(self, app: Flask):
-        """A minimal valid form has only title + description. Every
+        """A minimal valid form has title + description + category. Every
         other field empty must not fail validation."""
-        form = _make_form(app, {"title": "Mission", "description": "x" * 30})
+        form = _make_form(
+            app,
+            {
+                "title": "Mission",
+                "description": "x" * 30,
+                "category": "journalisme",
+            },
+        )
         assert form.validate()
 
     def test_sector_optional(self, app: Flask):
@@ -147,16 +154,15 @@ class TestOptionalFields:
         form.validate()
         assert not form.deadline.errors
 
-    def test_category_optional(self, app: Flask):
-        """Erick spec'd category as optional (the UI strongly invites
-        but doesn't enforce). Pin so a future tightening that breaks
-        the back-compat path with old POSTs is visible."""
+    def test_category_required(self, app: Flask):
+        """Bug #0224: category is required. An empty category must fail
+        validation so blank missions can't be created."""
         form = _make_form(
             app,
             {"title": "M", "description": "x" * 30, "category": ""},
         )
-        form.validate()
-        assert not form.category.errors
+        assert not form.validate()
+        assert form.category.errors
 
     def test_subcategory_max_200(self, app: Flask):
         """The free-text subcategory has a 200-char ceiling matching
@@ -192,9 +198,9 @@ class TestCategoryValidation:
         assert not form.validate()
         assert form.category.errors
 
-    def test_blank_category_accepted(self, app: Flask):
-        """The blank choice IS one of the choices, so it validates.
-        Optional validators let the form pass overall."""
+    def test_blank_category_rejected(self, app: Flask):
+        """Bug #0224: the blank placeholder choice is not a valid value.
+        A mission must have a real category."""
         form = _make_form(
             app,
             {
@@ -203,8 +209,8 @@ class TestCategoryValidation:
                 "category": "",
             },
         )
-        assert form.validate()
-        assert not form.category.errors
+        assert not form.validate()
+        assert form.category.errors
 
     def test_canonical_categories_accepted(self, app: Flask):
         """Each of the three official categories must pass."""
