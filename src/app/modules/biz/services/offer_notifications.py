@@ -38,20 +38,37 @@ def notify_emitter_of_application(
     mission,
     application: OfferApplication,
 ) -> None:
-    """E-mail the offer owner when a new candidacy is submitted.
+    """Notify the offer owner when a new candidacy is submitted, by
+    BOTH in-app cloche and e-mail.
 
-    Silently skipped if no recipient e-mail can be resolved.
+    Bug #0200 — Erick : the emitter must be alerted on the bell, not
+    just by e-mail. The cloche links to the applications dashboard so
+    the emitter can accept / refuse straight away. The mail is still
+    skipped (with a warning) when no recipient address can be resolved.
     """
+    applicant = db.session.get(User, application.owner_id)
+    if applicant is None:
+        return
+
+    # In-app cloche to the offer owner — fired regardless of e-mail
+    # validity, non-fatal (a notification glitch must not block the mail).
+    emitter = db.session.get(User, mission.owner_id)
+    if emitter is not None:
+        message = (
+            f"Nouvelle candidature de {applicant.full_name} "
+            f"pour « {mission.title} »."
+        )
+        with contextlib.suppress(Exception):
+            container.get(NotificationService).post(
+                emitter, message, url=_absolute_applications_url(mission)
+            )
+
     recipient = _pick_emitter_email(mission)
     if not recipient:
         warn(
             f"No recipient e-mail for offer {mission.id}; "
-            f"skipping application notification"
+            f"skipping application notification e-mail"
         )
-        return
-
-    applicant = db.session.get(User, application.owner_id)
-    if applicant is None:
         return
 
     mail = MissionApplicationMail(
