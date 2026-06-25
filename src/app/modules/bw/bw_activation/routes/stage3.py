@@ -307,7 +307,8 @@ def _select_product_for_quantity(products: list[Product], quantity: int) -> Prod
 
     parsed_products = []
     for p in products:
-        meta = p.get("metadata", {})
+        raw_metadata = p.get("metadata") if isinstance(p, dict) else getattr(p, "metadata", None)
+        meta = coerce_metadata(raw_metadata)
         max_str = meta.get("maximum") or meta.get("Maximum") or meta.get("MAXIMUM")
         try:
             max_val = int(max_str)
