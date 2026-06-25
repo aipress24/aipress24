@@ -26,6 +26,7 @@ from app.lib.file_object_utils import create_file_object
 from app.lib.image_utils import extract_image_from_request
 from app.logging import warn
 from app.modules.bw.bw_activation import bp
+from app.modules.bw.bw_activation.bw_creation import coerce_payer_is_owner
 from app.modules.bw.bw_activation.config import BW_TYPES, taille_orga_for_employee_count
 from app.modules.bw.bw_activation.models.business_wall import BWStatus
 from app.modules.bw.bw_activation.models.subscription import SubscriptionStatus
@@ -465,6 +466,37 @@ def configure_content():
         if name_institution:
             business_wall.name_institution = name_institution
             modified = True
+
+        # Payer billing identity
+        payer_is_owner = coerce_payer_is_owner(request.form.get("payer_is_owner"))
+        if business_wall.payer_is_owner != payer_is_owner:
+            business_wall.payer_is_owner = payer_is_owner
+            modified = True
+        if payer_is_owner:
+            for field in (
+                "payer_first_name",
+                "payer_last_name",
+                "payer_service",
+                "payer_email",
+                "payer_phone",
+                "payer_address",
+            ):
+                if getattr(business_wall, field):
+                    setattr(business_wall, field, "")
+                    modified = True
+        else:
+            for field in (
+                "payer_first_name",
+                "payer_last_name",
+                "payer_service",
+                "payer_email",
+                "payer_phone",
+                "payer_address",
+            ):
+                value = request.form.get(field, "").strip()
+                if value != getattr(business_wall, field):
+                    setattr(business_wall, field, value)
+                    modified = True
 
         if modified:
             db.session.commit()
