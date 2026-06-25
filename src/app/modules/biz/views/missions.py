@@ -136,9 +136,7 @@ class MissionOfferForm(Form):
     category = SelectField(
         "Type de mission",
         choices=_CATEGORY_CHOICES,
-        validators=[
-            validators.InputRequired("Veuillez sélectionner un type de mission.")
-        ],
+        validators=[validators.Optional()],
     )
     subcategory = StringField(
         "Sous-type",
