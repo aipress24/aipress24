@@ -32,9 +32,9 @@
             </p>
         </td>
         <td class="px-3 py-2 text-sm">
-            {% if application.status.value == "SELECTED" %}
-                <span class="bg-green-100 text-green-700 text-xs px-2 py-1 rounded">Sélectionné</span>
-            {% elif application.status.value == "REJECTED" %}
+            {% if application.status.value == "selected" %}
+                <span class="bg-green-100 text-green-700 text-xs px-2 py-1 rounded">Accepté</span>
+            {% elif application.status.value == "rejected" %}
                 <span class="bg-red-100 text-red-700 text-xs px-2 py-1 rounded">Refusé</span>
             {% elif offer.mission_status.value == "filled" %}
                 <span class="bg-gray-200 text-gray-700 text-xs px-2 py-1 rounded">Pourvue</span>

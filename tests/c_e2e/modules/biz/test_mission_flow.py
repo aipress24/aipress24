@@ -287,6 +287,49 @@ class TestMissionDashboard:
         assert response.status_code == 200
         assert b"Ma candidature" in response.data
 
+    def test_decision_buttons_are_on_the_applications_page_not_the_detail(
+        self,
+        app: Flask,
+        db_session: Session,
+        published_mission: MissionOffer,
+        emitter: User,
+        applicant: User,
+    ):
+        """Bug #0200 — the emitter accepts/refuses a candidacy ON the
+        applications page (« page où la candidate donne sa réponse »),
+        with BOTH « Accepter » and « Refuser » present ; the detail page
+        carries no decision buttons."""
+        applicant_client = make_authenticated_client(app, applicant)
+        with patch(
+            "app.modules.biz.views._offers_common.notify_emitter_of_application"
+        ):
+            applicant_client.post(
+                f"/biz/missions/{published_mission.id}/apply",
+                data={"message": "Je postule"},
+            )
+        application = (
+            db_session.query(OfferApplication)
+            .filter_by(offer_id=published_mission.id)
+            .first()
+        )
+        emitter_client = make_authenticated_client(app, emitter)
+
+        # Applications page: both buttons + their endpoints.
+        apps = emitter_client.get(f"/biz/missions/{published_mission.id}/applications")
+        assert apps.status_code == 200
+        apps_body = apps.data.decode()
+        assert "Accepter" in apps_body
+        assert "Refuser" in apps_body
+        assert f"/applications/{application.id}/select" in apps_body
+        assert f"/applications/{application.id}/reject" in apps_body
+
+        # Detail page: no decision buttons (they belong on /applications).
+        detail = emitter_client.get(f"/biz/missions/{published_mission.id}")
+        assert detail.status_code == 200
+        detail_body = detail.data.decode()
+        assert f"/applications/{application.id}/select" not in detail_body
+        assert f"/applications/{application.id}/reject" not in detail_body
+
     def test_select_persists_decision_message_and_notifies(
         self,
         app: Flask,
