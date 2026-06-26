@@ -90,10 +90,10 @@ class TestCompleteActivationWorkflow:
             follow_redirects=False,
         )
         assert response.status_code in (302, 303)
-        assert "activate-free" in response.headers.get("Location", "")
+        assert "/BW/pricing/media" in response.headers.get("Location", "")
 
-        # Step 7: Free activation page loads
-        response = client.get("/BW/activate-free/media")
+        # Step 7: Pricing / activation page loads
+        response = client.get("/BW/pricing/media")
         assert response.status_code == 200
 
     def test_workflow_guards_prevent_skipping_steps(
@@ -118,6 +118,6 @@ class TestCompleteActivationWorkflow:
 
         # Try to skip to activation without confirming contacts
         client.post("/BW/select-subscription/media")
-        response = client.get("/BW/activate-free/media")
+        response = client.get("/BW/pricing/media")
         assert response.status_code in (302, 303)
         assert "nominate-contacts" in response.headers.get("Location", "")

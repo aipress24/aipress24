@@ -271,32 +271,30 @@ class TestStage2Routes:
 
 
 # =============================================================================
-# Stage 3: Activation Routes (Free)
+# Stage 3: Activation Routes (Free types use the unified checkout funnel)
 # =============================================================================
 
 
 class TestStage3FreeRoutes:
-    """Tests for Stage 3 routes (free activation)."""
+    """Tests for Stage 3 routes (free types use the unified pricing/payment flow)."""
 
-    def test_activate_free_page_requires_contacts(
+    def test_legacy_activate_free_page_redirects_to_pricing(
         self,
         authenticated_client: FlaskClient,
     ) -> None:
-        """Activate free should redirect if contacts not confirmed."""
-        # Confirm type but not contacts
+        """The legacy free activation page now redirects to the unified pricing page."""
         authenticated_client.post("/BW/select-subscription/media")
 
         response = authenticated_client.get("/BW/activate-free/media")
 
         assert response.status_code in (302, 303)
-        assert "nominate-contacts" in response.headers.get("Location", "")
+        assert "/BW/pricing/media" in response.headers.get("Location", "")
 
-    def test_activate_free_page_renders(
+    def test_legacy_activate_free_post_redirects_to_pricing(
         self,
         authenticated_client: FlaskClient,
     ) -> None:
-        """Activate free page should render when prerequisites met."""
-        # Complete steps 1 and 2
+        """The legacy free activation POST handler now redirects to pricing."""
         authenticated_client.post("/BW/select-subscription/media")
         authenticated_client.post(
             "/BW/submit-contacts",
@@ -309,38 +307,6 @@ class TestStage3FreeRoutes:
             },
         )
 
-        response = authenticated_client.get("/BW/activate-free/media")
-
-        assert response.status_code == 200
-
-    def test_activate_free_invalid_type_redirects(
-        self,
-        authenticated_client: FlaskClient,
-    ) -> None:
-        """Invalid or paid type should redirect."""
-        response = authenticated_client.get("/BW/activate-free/pr")
-
-        assert response.status_code in (302, 303)
-
-    def test_activate_free_without_cgv_returns_to_page(
-        self,
-        authenticated_client: FlaskClient,
-    ) -> None:
-        """Not accepting CGV should return to activation page."""
-        # Complete steps 1 and 2
-        authenticated_client.post("/BW/select-subscription/media")
-        authenticated_client.post(
-            "/BW/submit-contacts",
-            data={
-                "owner_first_name": "Jean",
-                "owner_last_name": "Dupont",
-                "owner_email": "jean@example.com",
-                "owner_phone": "+33612345678",
-                "same_as_owner": "on",
-            },
-        )
-
-        # Submit without cgv_accepted
         response = authenticated_client.post(
             "/BW/activate_free/media",
             data={},
@@ -348,124 +314,156 @@ class TestStage3FreeRoutes:
         )
 
         assert response.status_code in (302, 303)
-        assert "activate-free" in response.headers.get("Location", "")
+        assert "/BW/pricing/media" in response.headers.get("Location", "")
 
-    def test_confirmation_free_does_not_self_grant_owner_to_member(
+    def test_legacy_confirmation_free_redirects_to_pricing(
         self,
-        app: Flask,
-        db,
-        db_session: Session,
-        test_org: Organisation,
-        test_business_wall: BusinessWall,
+        authenticated_client: FlaskClient,
     ) -> None:
-        """Ticket #0139: a non-manager member of an org that already
-        has a BW must NOT be silently granted BW_OWNER by walking the
-        free-activation flow. `confirmation_free` is a GET whose only
-        guard is `session["bw_activated"]`; it used to create a
-        BW_OWNER RoleAssignment for any org member → privilege
-        escalation with no invitation/acceptance. It must now bail to
-        "not authorized" and create no role.
-        """
-        member = User(
-            email=_unique_email(),
-            first_name="Lorraine",
-            last_name="Abassie",
-            active=True,
-        )
-        member.organisation = test_org
-        member.organisation_id = test_org.id
-        db_session.add(member)
-        db_session.flush()
-
-        client = app.test_client()
-        with app.test_request_context():
-            login_user(member)
-            with client.session_transaction() as sess:
-                for key, value in session.items():
-                    sess[key] = value
-        with client.session_transaction() as sess:
-            sess["bw_activated"] = True
+        """The legacy free confirmation page now redirects to pricing."""
+        authenticated_client.post("/BW/select-subscription/media")
+        with authenticated_client.session_transaction() as sess:
             sess["bw_type"] = "media"
-            # `current_business_wall` resolves the org's existing BW
-            # via a selected/stale bw_id (the #0110/#0115/#0116 family).
-            sess["bw_id"] = str(test_business_wall.id)
 
-        response = client.get("/BW/confirmation/free", follow_redirects=False)
+        response = authenticated_client.get(
+            "/BW/confirmation/free", follow_redirects=False
+        )
 
         assert response.status_code in (302, 303)
-        assert "not-authorized" in response.headers.get("Location", "")
+        assert "/BW/pricing/media" in response.headers.get("Location", "")
 
-        # No role was granted to the member (the escalation is closed).
-        roles = db_session.query(RoleAssignment).filter_by(user_id=member.id).all()
-        assert roles == []
-
-    def test_confirmation_free_activates_existing_draft_bw(
+    def test_pricing_page_for_free_type_requires_contacts(
         self,
-        app: Flask,
-        db,
-        db_session: Session,
-        test_org: Organisation,
-        test_user_owner: User,
+        authenticated_client: FlaskClient,
     ) -> None:
-        """Ticket #0071 part 2 (Erick, 2026-05-21) : Jocelyne (PDG)
-        configures her BW from the avis-d'enquête gate, returns to
-        the opportunity page, but the gate is still showing. Root
-        cause : the BW exists in DRAFT (created by the paid-flow
-        Stripe pre-checkout helper, or because the webhook never
-        fired in this environment), and the activation flow's
-        idempotency check renders « Activation Réussie » for any
-        non-CANCELLED status — including DRAFT — without flipping
-        the BW to ACTIVE. The opportunity gate then uses
-        `get_active_business_wall_for_organisation` which requires
-        ACTIVE, so the banner persists.
+        """Pricing page for a free type should redirect if contacts not confirmed."""
+        authenticated_client.post("/BW/select-subscription/media")
 
-        Fix : when the idempotency check finds an existing DRAFT
-        (or SUSPENDED) BW that the user manages, finalize it
-        (status → ACTIVE) before rendering the confirmation page.
-        """
-        # DRAFT BW owned by the user — pre-payment state.
-        bw = BusinessWall(
-            bw_type="leaders_experts",
-            status=BWStatus.DRAFT.value,
-            is_free=False,
-            owner_id=test_user_owner.id,
-            payer_id=test_user_owner.id,
-            organisation_id=test_org.id,
+        response = authenticated_client.get("/BW/pricing/media")
+
+        assert response.status_code in (302, 303)
+        assert "nominate-contacts" in response.headers.get("Location", "")
+
+    def test_pricing_page_for_free_type_renders(
+        self,
+        authenticated_client: FlaskClient,
+    ) -> None:
+        """Pricing page for a free type should render when prerequisites met."""
+        authenticated_client.post("/BW/select-subscription/media")
+        authenticated_client.post(
+            "/BW/submit-contacts",
+            data={
+                "owner_first_name": "Jean",
+                "owner_last_name": "Dupont",
+                "owner_email": "jean@example.com",
+                "owner_phone": "+33612345678",
+                "same_as_owner": "on",
+            },
         )
-        db_session.add(bw)
-        db_session.flush()
-        test_org.bw_id = bw.id
-        db_session.add(
-            RoleAssignment(
-                business_wall_id=bw.id,
-                user_id=test_user_owner.id,
-                role_type=BWRoleType.BW_OWNER.value,
-                invitation_status=InvitationStatus.ACCEPTED.value,
-            )
-        )
-        db_session.commit()
 
-        client = app.test_client()
-        with app.test_request_context():
-            login_user(test_user_owner)
-            with client.session_transaction() as sess:
-                for key, value in session.items():
-                    sess[key] = value
-        with client.session_transaction() as sess:
-            sess["bw_activated"] = True
-            sess["bw_type"] = "leaders_experts"
-            sess["bw_id"] = str(bw.id)
+        response = authenticated_client.get("/BW/pricing/media")
 
-        response = client.get("/BW/confirmation/free", follow_redirects=False)
-        # 200 = idempotent confirmation page (BW finalized). 302 to
-        # « not-authorized » would mean the role guard misfired ; the
-        # user IS the owner here, so we expect 200.
         assert response.status_code == 200
 
-        db_session.refresh(bw)
-        assert bw.status == BWStatus.ACTIVE.value, (
-            "DRAFT BW must be finalised to ACTIVE on revisit (#0071/2)"
+    def test_set_pricing_free_type_without_cgv_returns_to_pricing(
+        self,
+        authenticated_client: FlaskClient,
+    ) -> None:
+        """Not accepting CGV should return to pricing page for free types."""
+        authenticated_client.post("/BW/select-subscription/media")
+        authenticated_client.post(
+            "/BW/submit-contacts",
+            data={
+                "owner_first_name": "Jean",
+                "owner_last_name": "Dupont",
+                "owner_email": "jean@example.com",
+                "owner_phone": "+33612345678",
+                "same_as_owner": "on",
+            },
         )
+
+        response = authenticated_client.post(
+            "/BW/set_pricing/media",
+            data={},
+            follow_redirects=False,
+        )
+
+        assert response.status_code in (302, 303)
+        assert "/BW/pricing/media" in response.headers.get("Location", "")
+
+    def test_set_pricing_free_type_with_cgv_goes_to_payment(
+        self,
+        authenticated_client: FlaskClient,
+    ) -> None:
+        """Accepting CGV should proceed to payment for free types."""
+        authenticated_client.post("/BW/select-subscription/media")
+        authenticated_client.post(
+            "/BW/submit-contacts",
+            data={
+                "owner_first_name": "Jean",
+                "owner_last_name": "Dupont",
+                "owner_email": "jean@example.com",
+                "owner_phone": "+33612345678",
+                "same_as_owner": "on",
+            },
+        )
+
+        response = authenticated_client.post(
+            "/BW/set_pricing/media",
+            data={"cgv_accepted": "on"},
+            follow_redirects=False,
+        )
+
+        assert response.status_code in (302, 303)
+        assert "/BW/payment/media" in response.headers.get("Location", "")
+
+    def test_payment_page_for_free_type_renders(
+        self,
+        authenticated_client: FlaskClient,
+    ) -> None:
+        """Payment page for a free type should render when pricing is set."""
+        authenticated_client.post("/BW/select-subscription/media")
+        authenticated_client.post(
+            "/BW/submit-contacts",
+            data={
+                "owner_first_name": "Jean",
+                "owner_last_name": "Dupont",
+                "owner_email": "jean@example.com",
+                "owner_phone": "+33612345678",
+                "same_as_owner": "on",
+            },
+        )
+        authenticated_client.post("/BW/set_pricing/media", data={"cgv_accepted": "on"})
+
+        response = authenticated_client.get("/BW/payment/media")
+
+        assert response.status_code == 200
+
+    def test_simulate_payment_for_free_type_activates(
+        self,
+        authenticated_client: FlaskClient,
+    ) -> None:
+        """Simulation mode should activate a free BW after pricing is set."""
+        authenticated_client.post("/BW/select-subscription/media")
+        authenticated_client.post(
+            "/BW/submit-contacts",
+            data={
+                "owner_first_name": "Jean",
+                "owner_last_name": "Dupont",
+                "owner_email": "jean@example.com",
+                "owner_phone": "+33612345678",
+                "same_as_owner": "on",
+            },
+        )
+        authenticated_client.post("/BW/set_pricing/media", data={"cgv_accepted": "on"})
+
+        response = authenticated_client.post(
+            "/BW/simulate_payment/media",
+            follow_redirects=False,
+        )
+
+        assert response.status_code in (302, 303)
+        assert "/BW/confirmation/paid" in response.headers.get("Location", "")
 
 
 # =============================================================================
@@ -510,14 +508,26 @@ class TestStage3PaidRoutes:
 
         assert response.status_code == 200
 
-    def test_pricing_page_rejects_free_type(
+    def test_pricing_page_renders_for_free_type(
         self,
         authenticated_client: FlaskClient,
     ) -> None:
-        """Pricing page should redirect for free types."""
+        """Pricing page should also render for free types (unified funnel)."""
+        authenticated_client.post("/BW/select-subscription/media")
+        authenticated_client.post(
+            "/BW/submit-contacts",
+            data={
+                "owner_first_name": "Jean",
+                "owner_last_name": "Dupont",
+                "owner_email": "jean@example.com",
+                "owner_phone": "+33612345678",
+                "same_as_owner": "on",
+            },
+        )
+
         response = authenticated_client.get("/BW/pricing/media")
 
-        assert response.status_code in (302, 303)
+        assert response.status_code == 200
 
     def test_set_pricing_without_cgv_redirects(
         self,

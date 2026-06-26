@@ -60,17 +60,18 @@ def parse_contacts_form(form: Mapping[str, str | None]) -> dict[str, str | None]
 def post_contacts_redirect_endpoint(bw_type: str) -> str:
     """Pure: decide which endpoint to redirect to after submit_contacts.
 
-    Free BW types land on the free-activation page; paid types land on
-    the pricing page. Extracted from `submit_contacts` so the dispatch
-    rule can be pinned without spinning up the Flask app.
+    All BW types now land on the pricing page; free types use a €0
+    Stripe subscription and skip the quantity input. Extracted from
+    `submit_contacts` so the dispatch rule can be pinned without
+    spinning up the Flask app.
 
     Raises:
         KeyError: if `bw_type` is not a known BW type — the route only
             calls this after writing `bw_type` to session via
             `select_subscription`, which validates against `BW_TYPES`.
     """
-    if BW_TYPES[bw_type]["free"]:
-        return "bw_activation.activate_free_page"
+    if bw_type not in BW_TYPES:
+        raise KeyError(bw_type)
     return "bw_activation.pricing_page"
 
 

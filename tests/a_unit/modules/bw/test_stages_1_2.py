@@ -33,7 +33,7 @@ from dataclasses import dataclass
 
 import pytest
 
-from app.modules.bw.bw_activation.config import BW_TYPES
+from app.modules.bw.bw_activation.config import BW_TYPES, DEPRECATED_BW_TYPES
 from app.modules.bw.bw_activation.models.business_wall import BWStatus, BWType
 from app.modules.bw.bw_activation.routes.stage1 import (
     filter_active_manageable,
@@ -69,8 +69,12 @@ class TestIsValidBwType:
     """
 
     @pytest.mark.parametrize("bw_type", [member.value for member in BWType])
-    def test_every_bw_type_member_is_valid(self, bw_type: str) -> None:
-        assert is_valid_bw_type(bw_type) is True
+    def test_every_bw_type_member_validity(self, bw_type: str) -> None:
+        """Deprecated types remain known (for existing BWs) but are
+        rejected for new subscriptions."""
+
+        expected = bw_type not in DEPRECATED_BW_TYPES
+        assert is_valid_bw_type(bw_type) is expected
 
     @pytest.mark.parametrize(
         "bad_value",
@@ -87,11 +91,12 @@ class TestIsValidBwType:
         assert is_valid_bw_type(bad_value) is False
 
     def test_validator_and_config_agree_on_set(self) -> None:
-        """The validator must accept exactly the keys present in
-        `BW_TYPES` — otherwise `select_subscription` and the
-        downstream `BW_TYPES[bw_type]["free"]` lookup would drift."""
+        """The validator accepts exactly the non-deprecated keys
+        present in "BW_TYPES"."""
+
         for key in BW_TYPES:
-            assert is_valid_bw_type(key) is True
+            expected = key not in DEPRECATED_BW_TYPES
+            assert is_valid_bw_type(key) is expected
 
 
 class TestFilterActiveManageable:
@@ -296,51 +301,18 @@ class TestParseContactsFormMissingFields:
 
 
 class TestPostContactsRedirectEndpoint:
-    """Pin the « free → activate / paid → pricing » dispatch.
+    """Pin the unified dispatch: every BW type now goes to pricing_page.
 
-    The stage-2 handler chooses the next stage purely from the
-    `BW_TYPES[bw_type]["free"]` flag. Adding a new BW type without
-    setting `free` would `KeyError` here at PR time — much better
-    than a 500 in production.
+    Free BW types used to land on activate_free_page; they now use the
+    same pricing/payment/checkout funnel as paid types.
     """
 
     @pytest.mark.parametrize(
         "bw_type",
-        [
-            BWType.MEDIA.value,
-            BWType.MICRO.value,
-            BWType.CORPORATE_MEDIA.value,
-            BWType.UNION.value,
-            BWType.ACADEMICS.value,
-        ],
+        [member.value for member in BWType],
     )
-    def test_free_types_redirect_to_activate_free_page(self, bw_type: str) -> None:
-        assert (
-            post_contacts_redirect_endpoint(bw_type)
-            == "bw_activation.activate_free_page"
-        )
-
-    @pytest.mark.parametrize(
-        "bw_type",
-        [
-            BWType.PR.value,
-            BWType.LEADERS_EXPERTS.value,
-            BWType.TRANSFORMERS.value,
-        ],
-    )
-    def test_paid_types_redirect_to_pricing_page(self, bw_type: str) -> None:
+    def test_all_types_redirect_to_pricing_page(self, bw_type: str) -> None:
         assert post_contacts_redirect_endpoint(bw_type) == "bw_activation.pricing_page"
-
-    def test_every_configured_type_is_classified(self) -> None:
-        """Every key present in `BW_TYPES` must be routable —
-        otherwise a user who picks a configured-but-unclassified
-        type lands on a 500 mid-activation."""
-        for bw_type in BW_TYPES:
-            endpoint = post_contacts_redirect_endpoint(bw_type)
-            assert endpoint in {
-                "bw_activation.activate_free_page",
-                "bw_activation.pricing_page",
-            }
 
     def test_unknown_type_raises_key_error(self) -> None:
         """The route only calls this helper after `select_subscription`

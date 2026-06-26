@@ -54,36 +54,12 @@
                                 {{ info.activation_text }}
                             </p>
 
-                            <form
-                                method="POST"
-                                action="{{ url_for('bw_activation.activate_free', bw_type=type_id) }}"
+                            <a
+                                href="{{ url_for('bw_activation.pricing_page', bw_type=type_id) }}"
+                                class="block w-full text-center rounded-md bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-700"
                             >
-                                <div class="mb-4">
-                                    <a
-                                        href="/page/CGV-BusinessWall"
-                                        target="_blank"
-                                    >Conditions Générales de vente</a
-                                        >
-
-                                        <label class="flex items-start">
-                                            <input
-                                                type="checkbox"
-                                                name="cgv_accepted"
-                                                required
-                                                class="mt-1 mr-3 h-5 w-5 text-blue-600"
-                                            />
-                                            <span class="text-xs text-gray-700"
-                                            >J'accepte les CGV</span
-                                                >
-                                            </label>
-                                        </div>
-                                        <button
-                                            type="submit"
-                                            class="w-full rounded-md bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-700"
-                                        >
-                                            Activer
-                                        </button>
-                                    </form>
+                                Activer
+                            </a>
                                 </div>
                             </div>
                 {% endfor %}
