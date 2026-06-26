@@ -81,6 +81,7 @@ class BWType(StrEnum):
     """Business Wall types."""
 
     MEDIA = "media"
+    NEWS_AGENCY = "news_agency"
     MICRO = "micro"
     CORPORATE_MEDIA = "corporate_media"
     UNION = "union"

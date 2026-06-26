@@ -45,7 +45,7 @@ from app.modules.bw.bw_activation.user_utils import (
 )
 from app.modules.bw.bw_activation.utils import (
     ERR_NO_ORGANISATION,
-    ERR_NOT_MANAGER,
+    # ERR_NOT_MANAGER,
     ERR_UNKNOWN_ACTION,
     fill_session,
     is_bw_manager_or_admin,
@@ -72,142 +72,26 @@ if TYPE_CHECKING:
 
 @bp.route("/activate-free/<bw_type>")
 def activate_free_page(bw_type: str):
-    """Step 3: Page for free BW activation with CGV acceptance."""
-    if bw_type not in BW_TYPES or not BW_TYPES[bw_type]["free"]:
-        return redirect(url_for("bw_activation.confirm_subscription"))
+    """Legacy free activation page: redirect to the unified pricing page.
 
-    if not session.get("bw_type_confirmed"):
-        return redirect(url_for("bw_activation.confirm_subscription"))
-
-    if not session.get("contacts_confirmed"):
-        return redirect(url_for("bw_activation.nominate_contacts"))
-
-    bw_info = BW_TYPES[bw_type]
-    return render_template(
-        "bw_activation/activate_free.html",
-        bw_type=bw_type,
-        bw_info=bw_info,
-    )
+    Free BW types use same pricing/payment/checkout funnel as
+    paid types, with a 0EUR Stripe subscription price.
+    """
+    return redirect(url_for("bw_activation.pricing_page", bw_type=bw_type))
 
 
 @bp.route("/activate_free/<bw_type>", methods=["POST"])
 def activate_free(bw_type: str):
-    """Process free Business Wall activation."""
-    if bw_type not in BW_TYPES or not BW_TYPES[bw_type]["free"]:
-        return redirect(url_for("bw_activation.index"))
-
-    cgv_accepted = request.form.get("cgv_accepted") == "on"
-    if cgv_accepted:
-        session["bw_type"] = bw_type
-        session["bw_activated"] = True
-        return redirect(url_for("bw_activation.confirmation_free"))
-
-    return redirect(url_for("bw_activation.activate_free_page", bw_type=bw_type))
+    """Legacy free activation handler: redirect to the unified pricing page."""
+    return redirect(url_for("bw_activation.pricing_page", bw_type=bw_type))
 
 
 @bp.route("/confirmation/free")
 def confirmation_free():
-    """Confirmation page for free BW activation."""
-    if not session.get("bw_activated") or not session.get("bw_type"):
-        return redirect(url_for("bw_activation.index"))
-
-    bw_type = session["bw_type"]
-    bw_info = BW_TYPES.get(bw_type, {})
-
-    # Idempotence guard : Firefox occasionally prefetches the
-    # /confirmation/free URL after the activate_free POST redirect,
-    # firing this handler twice while session["bw_activated"] is
-    # still set. Without this guard, `create_new_free_bw_record`
-    # would create two BW rows on a single user-visible navigation.
-    #
-    # We require the existing BW to be MANAGED by the current user
-    # — not merely « exists somewhere ». Without this strictness, a
-    # stale `session["bw_id"]` left over from a previous attempt
-    # (or from a different org the user briefly belonged to) made
-    # this idempotency check « find an existing BW » → bail without
-    # creating anything new → user sees « Activation réussie » but
-    # nothing was persisted, then « Accès non autorisé » on the
-    # next click. Ref: bugs #0110, #0115, #0116, #0117.
-    #
-    # Bug #0071/2 : use `find_finalizable_bw_for_user` (not
-    # `current_business_wall`) so a DRAFT BW the user manages is
-    # findable here — otherwise the idempotency branch never fires
-    # for the « pre-checkout DRAFT, webhook never landed » shape
-    # and the route falls through to a 302 on the next request.
-    user = cast("User", g.user)
-    existing = find_finalizable_bw_for_user(user)
-    if existing is not None and existing.status != BWStatus.CANCELLED.value:
-        if is_bw_manager_or_admin(user, existing):
-            # Bug #0071/2 : a DRAFT BW (e.g. pre-Stripe pre-checkout, or
-            # left dangling because the webhook never fired) used to be
-            # treated as « already activated » and the page rendered
-            # the confirmation card without flipping the status. The
-            # opportunity gate later rejected it (ACTIVE-only) and the
-            # user saw the same banner forever. Finalise the DRAFT
-            # here so the user's mental model (« j'ai configuré mon
-            # BW ») matches the underlying state.
-            if existing.status != BWStatus.ACTIVE.value:
-                existing.status = BWStatus.ACTIVE.value  # type: ignore[assignment]
-                # Link organisation to BW
-                org = existing.get_organisation()
-                if org:
-                    org.bw_id = existing.id
-                    org.bw_active = existing.bw_type
-                db.session.commit()
-            fill_session(existing)
-            return render_template(
-                "bw_activation/02_activation_gratuit_confirme.html",
-                bw_type=bw_type,
-                bw_info=bw_info,
-            )
-        # Bug #0139: a member of the BW's organisation who is NOT a
-        # manager must NOT be silently promoted to BW_OWNER here.
-        # `confirmation_free` is a GET whose only guard is
-        # `session["bw_activated"]` (set merely by accepting the CGV),
-        # so the previous auto-grant let any org member self-escalate
-        # to BW_OWNER with no invitation and no acceptance. We still
-        # must not create a duplicate BW for them
-        # (#0110/#0115/#0116/#0117) — so bail out to "not authorized".
-        # A role must be obtained through an explicit invitation +
-        # acceptance in the preferences flow, not by walking this URL.
-        org = existing.get_organisation()
-        if org and user in org.members:
-            warn(
-                f"confirmation_free: non-manager member {user.email} of "
-                f"org with BW {existing.id} — no role granted (#0139)"
-            )
-            session["error"] = ERR_NOT_MANAGER
-            return redirect(url_for("bw_activation.not_authorized"))
-    # Stale `session["bw_id"]` would otherwise prevent a fresh
-    # creation attempt from succeeding. Drop it so the new BW
-    # picked by `current_business_wall(user)` post-creation is the
-    # one we just made.
-    session.pop("bw_id", None)
-
-    # here create an actual BW instance
-    created = create_new_free_bw_record(session)
-    if created:
-        # Commit the transaction now
-        db_session = container.get(scoped_session)
-        db_session.commit()
-
-        # ensure  owner of the BW is member of the organisation
-        user = cast("User", g.user)
-        current_bw = current_business_wall(user)
-        if current_bw is not None:
-            # Pin the new BW into the session so /BW/dashboard
-            # resolves to it directly (instead of falling back to
-            # the org's previously-active BW, which may be stale).
-            fill_session(current_bw)
-            org = current_bw.get_organisation()
-            if org:
-                change_members_emails(org, f"{user.email}")
-
-        return render_template(
-            "bw_activation/02_activation_gratuit_confirme.html",
-            bw_type=bw_type,
-            bw_info=bw_info,
-        )
+    """Legacy free confirmation page: redirect to the unified pricing page."""
+    bw_type = session.get("bw_type")
+    if bw_type in BW_TYPES:
+        return redirect(url_for("bw_activation.pricing_page", bw_type=bw_type))
     return redirect(url_for("bw_activation.index"))
 
 
@@ -216,8 +100,12 @@ def confirmation_free():
 
 @bp.route("/pricing/<bw_type>")
 def pricing_page(bw_type: str):
-    """Step 3: Page for paid BW pricing information."""
-    if bw_type not in BW_TYPES or BW_TYPES[bw_type]["free"]:
+    """Step 3: Page for BW pricing / CGV acceptance.
+
+    All BW types use this page. Free types skip the quantity input and
+    proceed to a €0 Stripe checkout (or simulation).
+    """
+    if bw_type not in BW_TYPES:
         return redirect(url_for("bw_activation.confirm_subscription"))
 
     if not session.get("bw_type_confirmed"):
@@ -236,41 +124,47 @@ def pricing_page(bw_type: str):
 
 @bp.route("/set_pricing/<bw_type>", methods=["POST"])
 def set_pricing(bw_type: str):
-    """Set pricing information for paid BW."""
-    if bw_type not in BW_TYPES or BW_TYPES[bw_type]["free"]:
+    """Set pricing information and CGV acceptance for all BW types."""
+    if bw_type not in BW_TYPES:
         return redirect(url_for("bw_activation.index"))
 
-    # Validate CGV acceptance (required for paid types)
+    bw_info = BW_TYPES[bw_type]
+
+    # Validate CGV acceptance (required for all types)
     cgv_accepted = request.form.get("cgv_accepted") == "on"
     if not cgv_accepted:
         # CGV not accepted, redirect back to pricing page
         return redirect(url_for("bw_activation.pricing_page", bw_type=bw_type))
 
-    pricing_field = str(BW_TYPES[bw_type]["pricing_field"])
-    try:
-        pricing_value = int(request.form.get(pricing_field, "0"))
-        if pricing_value > 0:
-            session["bw_type"] = bw_type
-            session["pricing_value"] = pricing_value
-            session["cgv_accepted"] = True  # Store CGV acceptance
-            # Ticket #0182 — preserve the count across the
-            # activation funnel so stage B01 (`configure_content`)
-            # can pre-select the « Taille de l'organisation »
-            # dropdown without asking the user to type it again.
-            # `pricing_value` is wiped by `fill_session` after BW
-            # creation ; this companion key is not.
-            if pricing_field == "employee_count":
-                session["bw_employee_count"] = pricing_value
-            return redirect(url_for("bw_activation.payment", bw_type=bw_type))
-    except ValueError:
-        pass
+    # Free types (and PR) skip the quantity input and use their default.
+    pricing_value = 0
+    if bw_info.get("skip_pricing_input"):
+        pricing_value = int(bw_info.get("pricing_default", 1) or 1)
+    else:
+        pricing_field = str(bw_info["pricing_field"]).strip()
+        if pricing_field:
+            try:
+                pricing_value = int(request.form.get(pricing_field, "0"))
+            except ValueError:
+                return redirect(url_for("bw_activation.index"))
 
-    return redirect(url_for("bw_activation.index"))
+    session["bw_type"] = bw_type
+    session["pricing_value"] = pricing_value
+    session["cgv_accepted"] = True  # Store CGV acceptance
+    # Ticket #0182 — preserve the count across the
+    # activation funnel so stage B01 (`configure_content`)
+    # can pre-select the « Taille de l'organisation »
+    # dropdown without asking the user to type it again.
+    # `pricing_value` is wiped by `fill_session` after BW
+    # creation ; this companion key is not.
+    if bw_info.get("pricing_field") == "employee_count":
+        session["bw_employee_count"] = pricing_value
+    return redirect(url_for("bw_activation.payment", bw_type=bw_type))
 
 
 @bp.route("/payment/<bw_type>")
 def payment(bw_type: str):
-    """Payment page for paid BW.
+    """Payment page for all BW types.
 
     Two modes :
     - **Simulation** (default, flag `STRIPE_LIVE_ENABLED=False`) : form
@@ -279,8 +173,11 @@ def payment(bw_type: str):
       at the Pricing Table configured for this BW type. The widget
       creates the Checkout Session client-side and the
       `checkout.session.completed` webhook activates the BW.
+
+    Free types use the same page but display "activate for free"
+    and proceed to a 0EUR Stripe checkout.
     """
-    if bw_type not in BW_TYPES or BW_TYPES[bw_type]["free"]:
+    if bw_type not in BW_TYPES:
         return redirect(url_for("bw_activation.index"))
 
     if not session.get("pricing_value"):
@@ -614,7 +511,7 @@ def _resolve_stripe_customer_kwargs_for_payer(
     if customer_id and payer_email:
         try:
             customer = stripe.Customer.retrieve(customer_id)
-            if customer and customer.get("email") == payer_email:
+            if customer and getattr(customer, "email", None) == payer_email:
                 return {"customer": customer_id}
         except InvalidRequestError:
             pass
@@ -721,8 +618,11 @@ def _should_finalise_draft(existing: BusinessWall | None) -> bool:
 
 @bp.route("/checkout/<bw_type>", methods=["POST"])
 def checkout(bw_type: str):
-    """Create a Stripe Checkout Session and redirect to checkout page."""
-    if bw_type not in BW_TYPES or BW_TYPES[bw_type]["free"]:
+    """Create a Stripe Checkout Session and redirect to checkout page.
+
+    All BW types use this route.
+    """
+    if bw_type not in BW_TYPES:
         return redirect(url_for("bw_activation.index"))
 
     draft_bw = _get_or_create_draft_bw_for_checkout(g.user, bw_type)
@@ -1014,7 +914,7 @@ def _get_or_create_draft_bw_for_checkout(
     bw = BusinessWall(
         bw_type=bw_type,
         status=BWStatus.DRAFT.value,
-        is_free=False,
+        is_free=bool(BW_TYPES[bw_type].get("free", False)),
         owner_id=int(user.id),
         payer_id=int(user.id),
         organisation_id=int(org.id),
@@ -1039,19 +939,16 @@ def _get_or_create_draft_bw_for_checkout(
 
 @bp.route("/simulate_payment/<bw_type>", methods=["POST"])
 def simulate_payment(bw_type: str):
-    """Simulate payment and activate paid BW.
+    """Simulate payment and activate BW.
 
-    Dev-only shortcut for the days before real Stripe Checkout was
-    wired. Security VULN-002 : MUST be a no-op when `STRIPE_LIVE_ENABLED`
-    is on — otherwise any authenticated user can self-grant a paid BW
-    by POSTing here after a legitimate `/set_pricing/<bw_type>` POST
-    primed `session["pricing_value"]`. In live mode the only
-    activation path is the `checkout.session.completed` webhook.
+    Dev-only shortcut used when `STRIPE_LIVE_ENABLED` is off. Works for
+    all BW types, including free types that now go through the checkout
+    funnel. In live mode the only activation path is the  `checkout.session.completed` webhook.
     """
     if current_app.config.get("STRIPE_LIVE_ENABLED"):
         return redirect(url_for("bw_activation.index"))
 
-    if bw_type not in BW_TYPES or BW_TYPES[bw_type]["free"]:
+    if bw_type not in BW_TYPES:
         return redirect(url_for("bw_activation.index"))
 
     if session.get("pricing_value"):
@@ -1063,7 +960,7 @@ def simulate_payment(bw_type: str):
 
 @bp.route("/confirmation/paid")
 def confirmation_paid():
-    """Confirmation page for paid BW activation."""
+    """Confirmation page for BW activation after payment / checkout."""
     if not session.get("bw_activated") or not session.get("bw_type"):
         return redirect(url_for("bw_activation.index"))
 
@@ -1119,8 +1016,12 @@ def confirmation_paid():
         return redirect(url_for("bw_activation.payment", bw_type=bw_type))
 
     # here create an actual BW instance
-    created = create_new_paid_bw_record(session)
-    warn("paid created", created)
+    if bw_info.get("free"):
+        created = create_new_free_bw_record(session)
+        warn("free created", created)
+    else:
+        created = create_new_paid_bw_record(session)
+        warn("paid created", created)
     if created:
         # Commit the transaction now
         db_session = container.get(scoped_session)

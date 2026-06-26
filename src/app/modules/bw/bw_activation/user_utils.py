@@ -20,6 +20,7 @@ from app.logging import warn
 from app.models.auth import BW_TYPE_FONCTION_SOURCES
 from app.modules.admin.utils import Organisation
 from app.modules.bw.bw_activation.bw_invitation import BW_ROLE_TYPE_LABEL
+from app.modules.bw.bw_activation.config import DEPRECATED_BW_TYPES
 from app.modules.bw.bw_activation.models import (
     BusinessWall,
     BWRoleType,
@@ -38,7 +39,7 @@ StdDict = dict[str, str | int | float | bool | None | list[str]]
 if TYPE_CHECKING:
     from app.models.auth import User
 
-PROFILE_CODE_TO_BW2_TYPE: dict[ProfileEnum, BWType | str] = {
+PROFILE_CODE_TO_BW2_TYPE: dict[ProfileEnum, BWType] = {
     ProfileEnum.PM_DIR: BWType.MEDIA,
     ProfileEnum.PM_JR_CP_SAL: BWType.MEDIA,  # open to all employees
     ProfileEnum.PM_JR_PIG: BWType.MEDIA,  # open to all employees
@@ -140,7 +141,10 @@ def guess_best_bw_type(user: User) -> BWType:
         profile_code = ProfileEnum[profile.profile_code]
     except KeyError:
         return BWType.MEDIA  # type: ignore[invalid-return-type]  # ty:ignore[invalid-return-type]
-    return PROFILE_CODE_TO_BW2_TYPE.get(profile_code, BWType.MEDIA)  # type: ignore[invalid-return-type]  # ty:ignore[invalid-return-type]
+    guessed = PROFILE_CODE_TO_BW2_TYPE.get(profile_code, BWType.MEDIA)
+    if getattr(guessed, "value", guessed) in DEPRECATED_BW_TYPES:
+        return BWType.MEDIA  # type: ignore[invalid-return-type]
+    return guessed  # type: ignore[invalid-return-type]
 
 
 def get_any_business_wall_for_organisation(org: Organisation) -> BusinessWall | None:
@@ -367,12 +371,12 @@ def current_business_wall(user: User) -> BusinessWall | None:
 def find_finalizable_bw_for_user(user: User) -> BusinessWall | None:
     """Like `current_business_wall`, but ALSO returns DRAFT BWs.
 
-    Used by the `/BW/confirmation/free` and `/BW/confirmation/paid`
-    idempotency guards (#0071/2) : a BW that sits in DRAFT (pre-Stripe
-    pre-checkout, or because the webhook never fired) must be
-    findable by these routes so they can flip it to ACTIVE. The
-    default `current_business_wall` excludes DRAFT (the opportunity
-    gate and dashboard need ACTIVE-only) ; this variant includes it.
+    Used by the `/BW/confirmation/paid` idempotency guard (#0071/2) :
+    a BW that sits in DRAFT (pre-Stripe pre-checkout, or because the
+    webhook never fired) must be findable so the route can flip it to
+    ACTIVE. The default `current_business_wall` excludes DRAFT (the
+    opportunity gate and dashboard need ACTIVE-only) ; this variant
+    includes it.
 
     Mirrors the 3-stage lookup of `get_selected_business_wall_for_user`
     (selected_bw_id → session["bw_id"] → org default) ; only CANCELLED

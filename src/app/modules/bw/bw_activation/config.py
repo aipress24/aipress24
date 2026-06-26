@@ -64,6 +64,21 @@ BWTYPE_ALLOWED_PRODUCTS: dict[str, list[str]] = {
         "BW4L&E-TPE",
     ],
     BWType.PR.value: ["BW4PR"],
+    BWType.MEDIA.value: ["BW4Media"],
+    BWType.NEWS_AGENCY.value: ["BW4NA"],
+    # BW4Micro no longer exists in Stripe; micro BWs reuse the media product.
+    BWType.MICRO.value: ["BW4Media"],
+    BWType.CORPORATE_MEDIA.value: ["BW4CorporateMedia"],
+    BWType.UNION.value: ["BW4Union"],
+    BWType.ACADEMICS.value: ["BW4AC"],
+}
+
+# BW types that are no longer selectable for new subscriptions.
+# may still exist in the database or referenced by existing BWs.
+DEPRECATED_BW_TYPES: set[str] = {
+    BWType.MICRO.value,
+    BWType.CORPORATE_MEDIA.value,
+    BWType.UNION.value,
 }
 
 # Business Wall Types configuration
@@ -73,6 +88,11 @@ BW_TYPES: dict[str, dict[str, Any]] = {
         "name": "Business Wall for Media",
         "description": "Pour les organes de presse reconnus.",
         "free": True,
+        "skip_pricing_input": True,
+        "pricing_field": "",
+        "pricing_label": "",
+        "pricing_placeholder": "",
+        "pricing_default": 1,
         "rate_message": "Abonnement GRATUIT",
         "activation_text": "Approuver l'accord de diffusion sur AiPRESS24 + Business Wall CGV",
         "manager_role": "PR Manager",  # For confirmation messages
@@ -93,10 +113,46 @@ BW_TYPES: dict[str, dict[str, Any]] = {
             "Les informations que vous allez saisir seront vérifiées par les équipes d'AiPRESS24.",
         ],
     },
+    BWType.NEWS_AGENCY.value: {  # type: ignore [unresolved-attribute]
+        "name": "Business Wall for News Agency",
+        "description": "Cet abonnement est exclusivement réservé aux Agences de presse agréées par la Commission Paritaire des Publications et Agences de Presse (CPPAP).",
+        "free": True,
+        "skip_pricing_input": True,
+        "pricing_field": "",
+        "pricing_label": "",
+        "pricing_placeholder": "",
+        "pricing_default": 1,
+        "rate_message": "Abonnement GRATUIT",
+        "activation_text": "Approuver l'accord de diffusion sur AiPRESS24 + Business Wall CGV",
+        "manager_role": "PR Manager",  # For confirmation messages
+        "allows_self_management": False,  # Single-person orgs can self-assign roles
+        "newsroom_features": [
+            "Propositions de sujets aux rédacteurs en chef",
+            "Commandes de sujets de la part de rédacteurs en chef aux journalistes",
+            "Avis d'enquête des journalistes auprès des parties prenantes concernées",
+            "Justificatifs de publication sur AiPRESS24",
+            "Ventes de copyrights",
+        ],
+        "onboarding_messages": [
+            "Votre abonnement gratuit à Business Wall for News Agency (BW4NA) sera la vitrine sur AiPRESS24 de l'agence de presse que vous dirigez.",
+            "Vous ne pouvez créer qu'un seul Business Wall for News Agency par agence de presse sur AiPRESS24.",
+            "Pour bénéficier de votre Business Wall for News Agency, de l'accès aux fonctionnalités de NEWSROOM (propositions et commandes de sujets, Avis d'enquête digital, etc.) et pour commercialiser vos contenus journalistiques (consultations sur NEWS, Consultations Offertes, justificatifs de publication, revente de droits de reproduction, fonds mutualisé des Avis d'enquêtes), vous devrez approuver notre contrat de diffusion sur AiPRESS24.",
+            "Vous devrez aussi approuver nos Conditions générales de vente sur AiPRESS24.",
+            "Vous devez également déclarer et valider individuellement chaque  PR Agency ou chaque PR Consultant qui, le cas échéant, vous représentent sur AiPRESS24 et peuvent agir pour vous en tant que contact presse, publier vos communiqués de presse et vos événements.",
+            "Vos publications d'articles journalistiques sur AiPRESS24 seront accompagnées du macaron « Source Agence de presse » afin que les membres de la plateforme identifient bien votre organe de presse en tant qu'agence de presse agréée par la CPPAP.",
+            "Les informations que vous allez saisir seront vérifiées par les équipes d'AiPRESS24.",
+        ],
+    },
     BWType.MICRO.value: {  # type: ignore [unresolved-attribute]
         "name": "Business Wall for Micro",
         "description": "Pour les micro-entreprises de presse travaillant pour des organes de presse reconnus.",
+        "deprecated": True,
         "free": True,
+        "skip_pricing_input": True,
+        "pricing_field": "",
+        "pricing_label": "",
+        "pricing_placeholder": "",
+        "pricing_default": 1,
         "rate_message": "Abonnement GRATUIT",
         "activation_text": "Approuver l'accord de diffusion sur AiPRESS24 + Business Wall CGV",
         "manager_role": "PR Manager",
@@ -118,7 +174,13 @@ BW_TYPES: dict[str, dict[str, Any]] = {
     BWType.CORPORATE_MEDIA.value: {  # type: ignore [unresolved-attribute]
         "name": "Business Wall for Corporate Media",
         "description": "Pour les médias d'entreprise et institutionnels.",
+        "deprecated": True,
         "free": True,
+        "skip_pricing_input": True,
+        "pricing_field": "",
+        "pricing_label": "",
+        "pricing_placeholder": "",
+        "pricing_default": 1,
         "rate_message": "Abonnement GRATUIT",
         "activation_text": "Approuver les CGV de Business Wall sur AiPRESS24",
         "manager_role": "PR Manager",
@@ -138,7 +200,13 @@ BW_TYPES: dict[str, dict[str, Any]] = {
     BWType.UNION.value: {  # type: ignore [unresolved-attribute]
         "name": "Business Wall for Union",
         "description": "Pour les syndicats ou fédérations de la presse ou des médias, clubs de la presse ou associations de journalistes.",
+        "deprecated": True,
         "free": True,
+        "skip_pricing_input": True,
+        "pricing_field": "",
+        "pricing_label": "",
+        "pricing_placeholder": "",
+        "pricing_default": 1,
         "rate_message": "Abonnement GRATUIT",
         "activation_text": "Approuver les CGV de Business Wall sur AiPRESS24",
         "manager_role": "Press Manager",  # Different from other types
@@ -154,6 +222,11 @@ BW_TYPES: dict[str, dict[str, Any]] = {
         "name": "Business Wall for Academics",
         "description": "Pour les établissements de recherche ou d'enseignement supérieur.",
         "free": True,
+        "skip_pricing_input": True,
+        "pricing_field": "",
+        "pricing_label": "",
+        "pricing_placeholder": "",
+        "pricing_default": 1,
         "rate_message": "Abonnement GRATUIT",
         "activation_text": "Approuver les CGV de Business Wall sur AiPRESS24",
         "manager_role": "PR Manager",

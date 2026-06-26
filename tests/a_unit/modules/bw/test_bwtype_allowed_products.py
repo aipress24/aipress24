@@ -29,16 +29,15 @@ from app.modules.bw.bw_activation.models import BWType
 
 
 class TestBwtypeAllowedProducts:
-    def test_only_paid_bw_types_present(self):
-        """The dict carries TRANSFORMERS, LEADERS_EXPERTS, and PR
-        (the paid tiers). MEDIA / MICRO / CORPORATE_MEDIA / UNION
-        are free tiers — they don't appear here. Pin the asymmetry
-        so a future merge with the `BW_TYPES` dict doesn't silently
-        let free tiers be triggered by Stripe products."""
+    def test_all_bw_types_present(self):
+        """The dict carries every BW type (paid and free). Free tiers
+        now go through Stripe checkout with a 0 EUR price, so they need
+        an allowed product mapping too."""
         keys = set(BWTYPE_ALLOWED_PRODUCTS.keys())
-        assert BWType.TRANSFORMERS.value in keys
-        assert BWType.LEADERS_EXPERTS.value in keys
-        assert BWType.PR.value in keys
+        for member in BWType:
+            assert member.value in keys, (
+                f"BWType {member.value!r} is missing from BWTYPE_ALLOWED_PRODUCTS"
+            )
 
     def test_every_entry_is_a_non_empty_list(self):
         """Each BWType must have at least one product code, otherwise
@@ -62,20 +61,24 @@ class TestBwtypeAllowedProducts:
                     "see config.py docs."
                 )
 
-    def test_product_codes_are_unique_across_bw_types(self):
-        """No product code may belong to two BWTypes. Cross-type
-        leakage would make the Stripe-checkout-to-BW lookup
+    def test_product_codes_are_unique_or_explicitly_aliased(self):
+        """No product code may belong to two BWTypes, except for the
+        intentional micro→media alias (BW4Micro no longer exists in
+        Stripe, so micro reuses the media product). Cross-type leakage
+        would otherwise make the Stripe-checkout-to-BW lookup
         non-deterministic (depends on iteration order of the dict)."""
+        allowed_aliases = {("media", "micro")}
         seen: dict[str, str] = {}
         for bw_type, products in BWTYPE_ALLOWED_PRODUCTS.items():
             for code in products:
                 if code in seen:
-                    msg = (
+                    pair = tuple(sorted([seen[code], bw_type]))
+                    assert pair in allowed_aliases, (
                         f"product {code!r} appears under both "
                         f"BWType {seen[code]!r} and {bw_type!r}"
                     )
-                    raise AssertionError(msg)
-                seen[code] = bw_type
+                else:
+                    seen[code] = bw_type
 
     def test_pr_has_single_product(self):
         """PR (PR Agency) is a single-product tier — only `BW4PR`

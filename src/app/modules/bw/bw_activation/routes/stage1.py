@@ -12,7 +12,7 @@ from flask import current_app, g, redirect, render_template, session, url_for
 from werkzeug.wrappers import Response
 
 from app.modules.bw.bw_activation import bp
-from app.modules.bw.bw_activation.config import BW_TYPES
+from app.modules.bw.bw_activation.config import BW_TYPES, DEPRECATED_BW_TYPES
 from app.modules.bw.bw_activation.models.business_wall import BWStatus
 from app.modules.bw.bw_activation.user_utils import (
     current_business_wall,
@@ -45,14 +45,13 @@ def filter_active_manageable(manageable_bws):
 
 
 def is_valid_bw_type(bw_type: str) -> bool:
-    """Pure: True iff `bw_type` is a known BW type.
+    """Pure: True if "bw_type" is a known, non-deprecated BW type.
 
-    Pinned as a tiny shim around the `bw_type in BW_TYPES` membership
-    check used by `select_subscription` — so a future split of
-    `BW_TYPES` into free / paid maps gets caught here rather than
-    silently widening the validator.
+    Deprecated types are kept in `BW_TYPES` so existing BWs continue
+    to resolve, but they can no longer be selected for new
+    subscriptions.
     """
-    return bw_type in BW_TYPES
+    return bw_type in BW_TYPES and bw_type not in DEPRECATED_BW_TYPES
 
 
 def _check_active_bw_manager(user: User) -> Response | None:
@@ -122,8 +121,7 @@ def index():
         if org_bw and org_bw.status != BWStatus.CANCELLED.value:
             # Bug #0117: user belongs to an org with a BW but is not a manager.
             # Instead of blocking with "not authorized", redirect to the
-            # activation flow. confirmation_free will either add the user as
-            # owner (if they're an org member) or create a fresh BW.
+            # activation flow so they can request/accept a role invitation.
             session["suggested_bw_type"] = guess_best_bw_type(user).value
             return redirect(url_for("bw_activation.confirm_subscription"))
         # No BW at all — start activation flow
@@ -154,9 +152,14 @@ def confirm_subscription():
         return error_response
 
     suggested_type = session.get("suggested_bw_type", "media")
+    if suggested_type in DEPRECATED_BW_TYPES:
+        suggested_type = "media"
+    selectable_types = {
+        k: v for k, v in BW_TYPES.items() if k not in DEPRECATED_BW_TYPES
+    }
     return render_template(
         "bw_activation/00_confirm_subscription.html",
-        bw_types=BW_TYPES,
+        bw_types=selectable_types,
         suggested_bw_type=suggested_type,
     )
 
@@ -192,9 +195,12 @@ def activation_choice():
     if not session.get("bw_type_confirmed"):
         return redirect(url_for("bw_activation.confirm_subscription"))
 
+    selectable_types = {
+        k: v for k, v in BW_TYPES.items() if k not in DEPRECATED_BW_TYPES
+    }
     return render_template(
         "bw_activation/01_activation_choice.html",
-        bw_types=BW_TYPES,
+        bw_types=selectable_types,
         stripe_live_enabled=current_app.config.get("STRIPE_LIVE_ENABLED", False),
     )
 

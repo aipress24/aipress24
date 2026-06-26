@@ -315,7 +315,7 @@
                                    class="block w-full rounded-md border-gray-300 shadow-sm focus:border-green-600 focus:ring-green-600 sm:text-sm px-4 py-2 border" />
                         </div>
                         <!-- Type of organization - Dual select -->
-                        {% if bw_type in ['media', 'corporate_media', 'union', 'leaders_experts', 'transformers', 'academics'] %}
+                        {% if bw_type in ['media', 'news_agency', 'corporate_media', 'union', 'leaders_experts', 'transformers', 'academics'] %}
                             <div>
                                 <label class="block text-sm font-medium text-gray-900 mb-2">Type de votre organisation</label>
                                 <!-- Main category select -->
@@ -463,7 +463,7 @@
                             </div>
                         {% endif %}
                         <!-- Common fields: SIREN -->
-                        {% if bw_type in ['media', 'micro', 'corporate_media', 'union', 'pr', 'leaders_experts', 'transformers', 'academics'] %}
+                        {% if bw_type in ['media', 'news_agency', 'micro', 'corporate_media', 'union', 'pr', 'leaders_experts', 'transformers', 'academics'] %}
                             <div>
                                 <label class="block text-sm font-medium text-gray-900 mb-2">
                                     Numéro de SIREN
@@ -486,7 +486,7 @@
                             </div>
                         {% endif %}
                         <!-- Media-specific: CPPAP -->
-                        {% if bw_type == 'media' %}
+                        {% if bw_type in ['media', 'news_agency'] %}
                             <div>
                                 <label class="block text-sm font-medium text-gray-900 mb-2">Numéro de CPPAP / Agrément</label>
                                 <textarea name="agrement"
@@ -503,7 +503,6 @@
                                 <input type="text"
                                        name="name_official"
                                        value="{{ business_wall.name_official or '' }}"
-                                       placeholder="Le nom qui s'affichera sur votre Business Wall"
                                        class="block w-full rounded-md border-gray-300 shadow-sm focus:border-green-600 focus:ring-green-600 sm:text-sm px-4 py-2 border" />
                             </div>
                             <div>
@@ -597,7 +596,7 @@
                     <legend class="text-2xl font-semibold text-purple-800 border-b pb-3 mb-6 w-full">Description de l'Activité</legend>
                     <div class="space-y-6">
                         <!-- For Media types -->
-                        {% if bw_type in ['media', 'micro', 'corporate_media'] %}
+                        {% if bw_type in ['media', 'news_agency', 'micro', 'corporate_media'] %}
                             <div>
                                 <label class="block text-sm font-medium text-gray-900 mb-2">Type de presse</label>
                                 <select id="type_presse_et_media"
@@ -631,7 +630,7 @@
                                           class="block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-600 focus:ring-purple-600 sm:text-sm px-4 py-2 border">{{ business_wall.audience_cible or '' }}</textarea>
                                 <p class="mt-1 text-xs text-gray-500">Maximum 500 caractères</p>
                             </div>
-                            {% if bw_type in ['media', 'corporate_media'] %}
+                            {% if bw_type in ['media', 'news_agency', 'corporate_media'] %}
                                 <div>
                                     <label class="block text-sm font-medium text-gray-900 mb-2">Périodicité</label>
                                     <select id="periodicite"
