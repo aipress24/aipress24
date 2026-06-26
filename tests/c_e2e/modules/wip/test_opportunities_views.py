@@ -39,6 +39,13 @@ from app.modules.wip.models.newsroom.avis_enquete import (
     StatutAvis,
 )
 from app.modules.wip.views.opportunities import MediaOpportunity
+from app.modules.wire.models import (
+    ArticlePost,
+    ArticlePurchase,
+    ArticlePurchaseGift,
+    PurchaseProduct,
+    PurchaseStatus,
+)
 from tests.c_e2e.conftest import make_authenticated_client
 
 if TYPE_CHECKING:
@@ -1058,3 +1065,45 @@ class TestMarketplaceApplicationsInOpportunites:
         assert "Message secret" not in body, (
             "outsider must never see other applicants' messages (#0188)"
         )
+
+
+class TestOfferedConsultationsTab:
+    """Bug #0227 — WORK/OPPORTUNITÉS / « Consultations offertes » : a
+    persistent list of the articles offered to the current user."""
+
+    def test_tab_lists_a_gifted_article(self, logged_in_client, test_user, fresh_db):
+        session = fresh_db.session
+        giver = User(
+            email="giver0227@example.com",
+            first_name="G",
+            last_name="Iver",
+            active=True,
+        )
+        session.add(giver)
+        session.flush()
+        post = ArticlePost(title="Article offert à tester", owner_id=giver.id)
+        session.add(post)
+        session.flush()
+        purchase = ArticlePurchase(
+            post_id=post.id,
+            owner_id=giver.id,
+            product_type=PurchaseProduct.CONSULTATION_GIFT,
+            status=PurchaseStatus.PAID,
+        )
+        session.add(purchase)
+        session.flush()
+        session.add(
+            ArticlePurchaseGift(
+                purchase_id=purchase.id, beneficiary_user_id=test_user.id
+            )
+        )
+        session.commit()
+
+        response = logged_in_client.get("/wip/opportunities?tab=consultations")
+        assert response.status_code == 200
+        assert "Article offert à tester" in response.data.decode()
+
+    def test_tab_empty_state(self, logged_in_client, test_user):
+        response = logged_in_client.get("/wip/opportunities?tab=consultations")
+        assert response.status_code == 200
+        assert "Aucun article ne vous a été offert" in response.data.decode()
