@@ -38,7 +38,9 @@ from app.modules.wire.services.purchase_aggregates import (
     list_purchases_per_org,
     list_sales_per_media,
     list_user_press_book,
+    list_user_received_gifts,
 )
+from app.settings.constants import ARTICLE_CONSULTATION_DURATION
 
 if TYPE_CHECKING:
     from sqlalchemy.orm import Session
@@ -915,3 +917,76 @@ class TestListPurchasesPerOrg:
         assert org_ids_in_order.index(org.id) < org_ids_in_order.index(
             carol.organisation_id
         )
+
+
+class TestListUserReceivedGifts:
+    """Ticket #0227 — list the articles a user was offered (they are the
+    beneficiary of a PAID CONSULTATION_GIFT), for the persistent
+    WORK/OPPORTUNITÉS rubric."""
+
+    def test_lists_gifted_article_for_beneficiary_only(
+        self, db_session: Session, alice: User, bob: User
+    ):
+        post = _make_post(db_session, alice)
+        # Alice (giver) gifts a consultation of `post` to Bob (beneficiary).
+        purchase = _make_purchase(
+            db_session,
+            user=alice,
+            post=post,
+            amount_cents=100,
+            status=PurchaseStatus.PAID,
+            product=PurchaseProduct.CONSULTATION_GIFT,
+        )
+        db_session.add(
+            ArticlePurchaseGift(purchase_id=purchase.id, beneficiary_user_id=bob.id)
+        )
+        db_session.flush()
+
+        # The beneficiary sees the article ; the giver does not.
+        assert [p.id for p in list_user_received_gifts(bob.id)] == [post.id]
+        assert list_user_received_gifts(alice.id) == []
+
+    def test_pending_gift_is_not_listed(
+        self, db_session: Session, alice: User, bob: User
+    ):
+        post = _make_post(db_session, alice)
+        purchase = _make_purchase(
+            db_session,
+            user=alice,
+            post=post,
+            amount_cents=100,
+            status=PurchaseStatus.PENDING,
+            product=PurchaseProduct.CONSULTATION_GIFT,
+        )
+        db_session.add(
+            ArticlePurchaseGift(purchase_id=purchase.id, beneficiary_user_id=bob.id)
+        )
+        db_session.flush()
+        assert list_user_received_gifts(bob.id) == []
+
+    def test_expired_gift_is_not_listed(
+        self, db_session: Session, alice: User, bob: User
+    ):
+        """A gift past the consultation window drops off the list (it would
+        only lead to a paywall on click — keep the list actionable)."""
+        post = _make_post(db_session, alice)
+        purchase = _make_purchase(
+            db_session,
+            user=alice,
+            post=post,
+            amount_cents=100,
+            status=PurchaseStatus.PAID,
+            product=PurchaseProduct.CONSULTATION_GIFT,
+        )
+        # Expire it (coalesce(paid_at, timestamp) prefers paid_at).
+        purchase.paid_at = (
+            arrow.utcnow().shift(days=-ARTICLE_CONSULTATION_DURATION - 1).datetime
+        )
+        db_session.add(
+            ArticlePurchaseGift(purchase_id=purchase.id, beneficiary_user_id=bob.id)
+        )
+        db_session.flush()
+        assert list_user_received_gifts(bob.id) == []
+
+    def test_none_user_returns_empty(self, db_session: Session):
+        assert list_user_received_gifts(None) == []

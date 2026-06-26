@@ -260,12 +260,12 @@ class TestMarketplaceLabels:
             _marketplace_labels("unknown")
 
     def test_dispatch_table_covers_marketplace_tabs_only(self) -> None:
-        # The four `_OPPORTUNITES_TABS` are (avis + 3 marketplace).
-        # The marketplace dispatch table should cover exactly the 3
-        # marketplace tabs — `avis` is handled by a different code
-        # path and must NOT appear here.
+        # `_OPPORTUNITES_TABS` = avis + 3 marketplace + consultations (#0227).
+        # The marketplace dispatch table covers exactly the 3 marketplace
+        # tabs — `avis` and `consultations` are handled by their own code
+        # paths and must NOT appear here.
         all_tab_ids = {tab_id for tab_id, _ in _OPPORTUNITES_TABS}
-        assert set(_MARKETPLACE_TAB_LABELS) == all_tab_ids - {"avis"}
+        assert set(_MARKETPLACE_TAB_LABELS) == all_tab_ids - {"avis", "consultations"}
 
 
 class TestOpportunitesTabsConstant:
@@ -274,12 +274,18 @@ class TestOpportunitesTabsConstant:
 
     def test_tab_ids_in_expected_order(self) -> None:
         ids = [tab_id for tab_id, _ in _OPPORTUNITES_TABS]
-        assert ids == ["avis", "missions", "projects", "jobs"]
+        assert ids == ["avis", "missions", "projects", "jobs", "consultations"]
 
     def test_labels_are_french_strings(self) -> None:
         # Defensive : labels are user-facing French copy.
         labels = [label for _, label in _OPPORTUNITES_TABS]
-        assert labels == ["Avis d'enquête", "Missions", "Projets", "Emplois"]
+        assert labels == [
+            "Avis d'enquête",
+            "Missions",
+            "Projets",
+            "Emplois",
+            "Consultations offertes",
+        ]
 
     def test_tab_ids_are_unique(self) -> None:
         ids = [tab_id for tab_id, _ in _OPPORTUNITES_TABS]

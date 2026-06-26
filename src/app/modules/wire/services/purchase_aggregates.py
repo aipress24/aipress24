@@ -116,6 +116,43 @@ def list_user_press_book(user_id: int | None) -> list:
     return list(db.session.scalars(stmt).unique())
 
 
+def list_user_received_gifts(user_id: int | None) -> list:
+    """Ticket #0227 — every article the user was offered a *currently
+    valid* consultation for (they are the beneficiary of a PAID
+    CONSULTATION_GIFT, within the consultation duration window). Surfaced
+    in WORK/OPPORTUNITÉS / « Consultations d'articles offertes » so the
+    recipient can reach their gifts without hunting the email link.
+
+    The same validity window as `has_received_consultation_gift` is
+    applied, so a listed article is always actually readable (an expired
+    gift drops off the list rather than leading to a paywall on click).
+
+    Returns `ArticlePost` rows, newest gift first.
+    """
+    if not user_id:
+        return []
+    from app.modules.wire.models import (
+        ArticlePost,
+        ArticlePurchaseGift,
+        PurchaseProduct,
+    )
+
+    stmt = (
+        select(ArticlePost)
+        .join(ArticlePurchase, ArticlePurchase.post_id == ArticlePost.id)
+        .join(
+            ArticlePurchaseGift,
+            ArticlePurchaseGift.purchase_id == ArticlePurchase.id,
+        )
+        .where(ArticlePurchaseGift.beneficiary_user_id == user_id)
+        .where(ArticlePurchase.product_type == PurchaseProduct.CONSULTATION_GIFT)
+        .where(ArticlePurchase.status == PurchaseStatus.PAID)
+        .where(purchase_within_duration_clause(ArticlePurchase.paid_at))
+        .order_by(ArticlePurchase.paid_at.desc().nullslast())
+    )
+    return list(db.session.scalars(stmt).unique())
+
+
 def count_user_press_book(user_id: int | None) -> int:
     """Number of distinct articles in `user_id`'s Press Book."""
     if not user_id:

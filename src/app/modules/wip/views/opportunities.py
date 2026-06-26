@@ -51,6 +51,8 @@ _OPPORTUNITES_TABS = (
     ("missions", "Missions"),
     ("projects", "Projets"),
     ("jobs", "Emplois"),
+    # Ticket #0227 — persistent rubric for consultations offered to the user.
+    ("consultations", "Consultations offertes"),
 )
 
 _MARKETPLACE_TAB_LABELS: dict[str, tuple[str, str]] = {
@@ -169,9 +171,34 @@ def opportunities():
     candidacies + the candidacies they received on their offers.
     """
     tab = request.args.get("tab", "avis")
+    if tab == "consultations":
+        return _render_consultations_offertes_tab()
     if tab in {"missions", "projects", "jobs"}:
         return _render_marketplace_opportunites_tab(tab)
     return _render_avis_opportunites_tab()
+
+
+def _render_consultations_offertes_tab():
+    """Ticket #0227 — persistent list of the articles offered to the
+    current user (PAID CONSULTATION_GIFT beneficiary), with one-click
+    access to each. Complements the (non-persistent) cloche : a gift
+    recipient can always find their offered articles here."""
+    from app.modules.wire.services.purchase_aggregates import (
+        list_user_received_gifts,
+    )
+
+    user = g.user
+    if getattr(user, "is_anonymous", False):
+        return redirect(url_for("security.login", next=request.path))
+
+    articles = list_user_received_gifts(user.id)
+    return render_template(
+        "wip/pages/opportunities_consultations.j2",
+        title="Mes opportunités",
+        tabs=_build_opportunites_tabs("consultations"),
+        articles=articles,
+        menus={"secondary": get_secondary_menu("opportunities")},
+    )
 
 
 def _render_avis_opportunites_tab():
