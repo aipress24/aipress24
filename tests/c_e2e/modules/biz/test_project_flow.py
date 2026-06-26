@@ -160,6 +160,52 @@ def test_applicant_can_apply_to_project(
     mock_notify.assert_called_once()
 
 
+def test_project_decision_buttons_and_badge_on_applications_page(
+    app: Flask,
+    db_session: Session,
+    published_project: ProjectOffer,
+    emitter: User,
+    applicant: User,
+):
+    """Bug #0200 (MARKET/PROJECTS) — the emitter accepts/refuses on the
+    applications page with BOTH « Accepter » and « Refuser », and the
+    status badge reads « Accepté » after a decision. (The status
+    comparisons were case-broken — uppercase literal vs lowercase enum
+    value — so neither the buttons nor the badge rendered.)"""
+    applicant_client = make_authenticated_client(app, applicant)
+    with patch("app.modules.biz.views._offers_common.notify_emitter_of_application"):
+        applicant_client.post(
+            f"/biz/projects/{published_project.id}/apply",
+            data={"message": "Je postule"},
+        )
+    application = (
+        db_session.query(OfferApplication)
+        .filter_by(offer_id=published_project.id)
+        .first()
+    )
+    emitter_client = make_authenticated_client(app, emitter)
+
+    page = emitter_client.get(f"/biz/projects/{published_project.id}/applications")
+    assert page.status_code == 200
+    body = page.data.decode()
+    assert "Accepter" in body
+    assert "Refuser" in body
+    assert f"/applications/{application.id}/select" in body
+    assert f"/applications/{application.id}/reject" in body
+
+    # Accept it — the badge must then read « Accepté », not « En attente ».
+    with patch("app.modules.biz.services.offer_notifications.ApplicationSelectedMail"):
+        emitter_client.post(
+            f"/biz/projects/{published_project.id}"
+            f"/applications/{application.id}/select",
+            data={"decision_message": "Bravo"},
+        )
+    db_session.refresh(application)
+    assert application.status == ApplicationStatus.SELECTED
+    after = emitter_client.get(f"/biz/projects/{published_project.id}/applications")
+    assert "Accepté" in after.data.decode()
+
+
 def test_emitter_sees_project_applications(
     app: Flask,
     db_session: Session,

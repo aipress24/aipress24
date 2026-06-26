@@ -23,9 +23,9 @@
                 {{ app.created_at.format("DD/MM/YYYY HH:mm", locale="fr") if app.created_at else "" }}
               </div>
               <div>
-                {% if app.status.value == "SELECTED" %}
-                  <span class="bg-green-100 text-green-700 text-xs px-2 py-1 rounded">Sélectionné</span>
-                {% elif app.status.value == "REJECTED" %}
+                {% if app.status.value == "selected" %}
+                  <span class="bg-green-100 text-green-700 text-xs px-2 py-1 rounded">Accepté</span>
+                {% elif app.status.value == "rejected" %}
                   <span class="bg-red-100 text-red-700 text-xs px-2 py-1 rounded">Refusé</span>
                 {% else %}
                   <span class="bg-yellow-100 text-yellow-700 text-xs px-2 py-1 rounded">En attente</span>
@@ -52,12 +52,12 @@
               </div>
             {% endif %}
 
-            {% if app.status.value == "PENDING" %}
+            {% if app.status.value == "pending" %}
               <div class="mt-4 flex gap-2">
                 <form method="post" action="{{ url_for('.jobs_application_select', id=job.id, app_id=app.id) }}">
                   <button type="submit"
                           class="bg-green-600 hover:bg-green-700 text-white text-sm py-1 px-3 rounded">
-                    Sélectionner
+                    Accepter
                   </button>
                 </form>
                 <form method="post" action="{{ url_for('.jobs_application_reject', id=job.id, app_id=app.id) }}">
