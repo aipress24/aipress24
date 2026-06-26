@@ -55,8 +55,7 @@ def notify_emitter_of_application(
     emitter = db.session.get(User, mission.owner_id)
     if emitter is not None:
         message = (
-            f"Nouvelle candidature de {applicant.full_name} "
-            f"pour « {mission.title} »."
+            f"Nouvelle candidature de {applicant.full_name} pour « {mission.title} »."
         )
         with contextlib.suppress(Exception):
             container.get(NotificationService).post(

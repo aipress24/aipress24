@@ -25,9 +25,7 @@ from app.modules.wire.views.purchase import _PRODUCT_TAXONOMY_FILTERS
 
 
 def _product(*, id="prod_x", default_price=None, **metadata) -> SimpleNamespace:
-    return SimpleNamespace(
-        id=id, metadata=dict(metadata), default_price=default_price
-    )
+    return SimpleNamespace(id=id, metadata=dict(metadata), default_price=default_price)
 
 
 class TestFindJustificatifProduct:
