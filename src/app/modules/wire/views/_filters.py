@@ -58,25 +58,6 @@ FILTER_SPECS = [
     },
 ]
 
-FILTER_SPECS_COM = [
-    {
-        "id": "pays_zip_ville",
-        "label": "Pays",
-        "selector": "pays",
-        "label_function": country_code_to_country_name,
-    },
-    {
-        "id": "departement",
-        "label": "Département",
-        "selector": "departement",
-    },
-    {
-        "id": "ville",
-        "label": "Ville",
-        "selector": "ville",
-    },
-]
-
 FILTER_TAG_LABEL = {
     "sector": "secteur",
     "topic": "rubrique",
@@ -260,12 +241,15 @@ class FilterBar:
         return filter_set.get_filters()
 
     def get_filters_for_com(self) -> list[dict[str, Any]]:
+        # Ticket #0229 — communiqués carry the same secteur/rubrique/
+        # genre/thématique fields as articles (NewsMetadataMixin), so the
+        # COM tab gets the full FILTER_SPECS, not a geo-only subset.
         stmt = sa.select(PressReleasePost).where(
             PressReleasePost.status == PublicationStatus.PUBLIC
         )
         press_releases = get_multi(PressReleasePost, stmt)
 
-        filter_set = FilterSet(FILTER_SPECS_COM)
+        filter_set = FilterSet(FILTER_SPECS)
         filter_set.init(press_releases)
 
         return filter_set.get_filters()
