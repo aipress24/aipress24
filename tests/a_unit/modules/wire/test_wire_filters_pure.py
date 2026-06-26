@@ -9,7 +9,7 @@ WHY:
     the trivial add/remove/toggle/has/sort_by primitives on a hand-built
     state dict. It leaves several public surfaces UNTESTED :
 
-      * FILTER_SPECS_COM (press-release variant) and FILTER_SPECS_BY_ID
+      * FILTER_SPECS topical/geo coverage and FILTER_SPECS_BY_ID
         lookup invariants.
       * the `sorter` property — list-of-dicts with `selected` flags.
       * `active_filters` when the matched spec carries a `label_function`
@@ -28,7 +28,7 @@ These exercise the same public methods the existing tests touched, but
 through Flask's REAL request/session machinery via
 `app.test_request_context()` — that is not mocking, it is the supported
 public surface for in-process Flask testing. Pure-data paths
-(sorter, FILTER_SPECS_COM, etc.) are exercised by bypassing
+(sorter, FILTER_SPECS, etc.) are exercised by bypassing
 `FilterBar.__init__` with `object.__new__` and seeding `bar.state`
 directly, the same pattern the existing test file establishes.
 """
@@ -42,7 +42,6 @@ from werkzeug.exceptions import BadRequest
 from app.modules.wire.views._filters import (
     FILTER_SPECS,
     FILTER_SPECS_BY_ID,
-    FILTER_SPECS_COM,
     FILTER_TAG_LABEL,
     SORTER_OPTIONS,
     FilterBar,
@@ -57,34 +56,23 @@ def _bare_bar(state: dict | None = None, tab: str = "wall") -> FilterBar:
     return bar
 
 
-class TestFilterSpecsCom:
-    """`FILTER_SPECS_COM` is the press-release variant — three geo
-    filters, no sector/topic/genre/section."""
+class TestFilterSpecs:
+    """Ticket #0229 — the COM tab now shares FILTER_SPECS with the wall,
+    so the four topical filters (secteur/rubrique/genre/thématique) sit
+    alongside the geo ones. A journalist can narrow communiqués by
+    « secteur transport », not just by Pays/Département/Ville."""
 
-    def test_only_geo_filters(self) -> None:
-        ids = [spec["id"] for spec in FILTER_SPECS_COM]
-        assert ids == ["pays_zip_ville", "departement", "ville"]
+    def test_topical_filters_present(self) -> None:
+        ids = {spec["id"] for spec in FILTER_SPECS}
+        assert {"sector", "topic", "genre", "section"} <= ids
+
+    def test_geo_filters_present(self) -> None:
+        ids = {spec["id"] for spec in FILTER_SPECS}
+        assert {"pays_zip_ville", "departement", "ville"} <= ids
 
     def test_pays_spec_has_label_function(self) -> None:
-        pays_spec = next(s for s in FILTER_SPECS_COM if s["id"] == "pays_zip_ville")
+        pays_spec = next(s for s in FILTER_SPECS if s["id"] == "pays_zip_ville")
         assert callable(pays_spec["label_function"])
-
-    def test_non_pays_specs_have_no_label_function(self) -> None:
-        for spec in FILTER_SPECS_COM:
-            if spec["id"] != "pays_zip_ville":
-                assert "label_function" not in spec
-
-    @pytest.mark.parametrize(
-        ("spec_id", "expected_label"),
-        [
-            ("pays_zip_ville", "Pays"),
-            ("departement", "Département"),
-            ("ville", "Ville"),
-        ],
-    )
-    def test_labels(self, spec_id: str, expected_label: str) -> None:
-        spec = next(s for s in FILTER_SPECS_COM if s["id"] == spec_id)
-        assert spec["label"] == expected_label
 
 
 class TestFilterSpecsById:

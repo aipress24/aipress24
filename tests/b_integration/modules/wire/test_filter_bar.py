@@ -23,7 +23,6 @@ from app.modules.kyc.ontology_loader import get_ontology_content
 from app.modules.wire.models import ArticlePost, PressReleasePost
 from app.modules.wire.views._filters import (
     FILTER_SPECS,
-    FILTER_SPECS_COM,
     FilterBar,
 )
 from app.services.zip_codes import CountryEntry
@@ -104,6 +103,10 @@ def test_press_releases(
 ) -> list[PressReleasePost]:
     """Create test press releases."""
     releases = []
+    sectors = ["transport", "finance", "health"]
+    topics = ["news", "analysis", "opinion"]
+    genres = ["interview", "reportage", "tribune"]
+    sections = ["economie", "social", "culture"]
     for i in range(3):
         release = PressReleasePost(
             title=f"Press Release {i}",
@@ -112,6 +115,10 @@ def test_press_releases(
             publisher=test_org,
             owner=test_user,
             published_at=arrow.now(),
+            sector=sectors[i],
+            topic=topics[i],
+            genre=genres[i],
+            section=sections[i],
         )
         releases.append(release)
         db_session.add(release)
@@ -338,24 +345,34 @@ class TestFilterBarGetFilters:
             # Should have filters based on FILTER_SPECS
             assert isinstance(filters, list)
 
-    def test_get_filters_for_com_tab(
+    def test_get_filters_for_com_tab_exposes_topical_filters(
         self,
         app: Flask,
         db_session: Session,
         test_press_releases: list[PressReleasePost],
     ):
-        """Test get_filters returns filter specs for press releases."""
+        """Ticket #0229 — the « Idées & Comm » (communiqués) tab must offer
+        the secteur/rubrique/genre/thématique filters, not only the geo
+        ones. Eliane Kan wants to narrow communiqués to « secteur
+        transport », which the geo-only filter bar made impossible."""
         with app.test_request_context():
-            bar = FilterBar("com")
+            filters = FilterBar("com").get_filters()
 
-            filters = bar.get_filters()
+        by_id = {f["id"]: f for f in filters}
+        assert {"sector", "topic", "genre", "section"} <= set(by_id)
 
-            # Should have filters based on FILTER_SPECS_COM
-            assert isinstance(filters, list)
+        # The sector filter exposes the real values from the press
+        # releases — « transport » must be selectable, not absent.
+        sector_options = {opt["id"] for opt in by_id["sector"]["options"]}
+        assert "transport" in sector_options
 
-    def test_get_filters_uses_correct_spec_for_tab(
+    def test_com_and_wall_tabs_share_the_full_spec(
         self, app: Flask, db_session: Session
     ):
-        """Test that different tabs use different filter specs."""
-        # FILTER_SPECS has more items than FILTER_SPECS_COM
-        assert len(FILTER_SPECS) > len(FILTER_SPECS_COM)
+        """Both tabs now build their bar from FILTER_SPECS (ticket #0229)."""
+        with app.test_request_context():
+            com_ids = {f["id"] for f in FilterBar("com").get_filters()}
+            wall_ids = {f["id"] for f in FilterBar("wall").get_filters()}
+        expected = {s["id"] for s in FILTER_SPECS}
+        assert com_ids == expected
+        assert wall_ids == expected
