@@ -391,3 +391,24 @@ def test_justificatif_button_shown_when_paywall_active(
     finally:
         app.config["STRIPE_LIVE_ENABLED"] = False
         _CONSULTATION_PRICE_CACHE.clear()
+
+
+# -----------------------------------------------------------------------------
+# Anonymous gift-recipient login redirect preserves the destination (Bug #0227)
+# -----------------------------------------------------------------------------
+
+
+def test_anonymous_article_link_redirects_to_login_with_next(
+    app: Flask, client, article: ArticlePost
+):
+    """Bug #0227 — the whole /wire blueprint is login-gated. A logged-out
+    visitor hitting a protected article (e.g. the « consultation offerte »
+    link from the gift email) must be redirected to login WITH a next= back
+    to the article, so after auth they land on it (unlocked if offered) —
+    instead of being dropped on the dashboard with the URL lost."""
+    response = client.get(f"/wire/{article.id}", follow_redirects=False)
+    assert response.status_code == 302
+    location = response.headers["Location"]
+    assert "login" in location
+    # next= carries the article path back (encoding-agnostic check).
+    assert "next=" in location and f"/wire/{article.id}" in location
