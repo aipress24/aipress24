@@ -69,7 +69,12 @@ def inject_extensions() -> None:
 
 
 def handle_authentication_error(_e):
-    return redirect(url_for("security.login"))
+    # Ticket #0227: preserve the destination so a protected deep link hit
+    # while logged out (e.g. a « consultation offerte » article reached
+    # from the gift email) returns the user there after login, instead of
+    # dumping them on the default landing page (the « parcours du
+    # combattant » : se reconnecter, rouvrir un onglet, recoller l'URL).
+    return redirect(url_for("security.login", next=request.path))
 
 
 def authenticate_user() -> None:
