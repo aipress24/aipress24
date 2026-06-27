@@ -229,17 +229,17 @@ def _render_justificatifs_tab():
     paid_purchases = list(db.session.execute(paid_stmt).scalars())
 
     # Build rows from paid purchases.
-    purchases: list[dict] = []
-    for p in paid_purchases:
-        post = db.session.get(Post, p.post_id)
-        purchases.append(
-            {
-                "article_title": getattr(post, "title", "(article)"),
-                "article_url": f"/wire/item/{p.post_id}",
-                "date": p.paid_at or p.timestamp,
-                "is_paid": True,
-            }
-        )
+    purchases: list[dict] = [
+        {
+            "article_title": getattr(
+                db.session.get(Post, p.post_id), "title", "(article)"
+            ),
+            "article_url": f"/wire/item/{p.post_id}",
+            "date": p.paid_at or p.timestamp,
+            "is_paid": True,
+        }
+        for p in paid_purchases
+    ]
 
     # Pending invitations — bell notifications matching the JdP
     # message pattern. A presenter picks just the latest unread
@@ -265,7 +265,7 @@ def _render_justificatifs_tab():
     # Deduplicate by URL — keep the most recent per article.
     seen_urls: OrderedDict[str, dict] = OrderedDict()
     for n in notifications:
-        url = n.url or ""
+        url: str = str(n.url or "")
         if url not in seen_urls:
             seen_urls[url] = {
                 "message": n.message,

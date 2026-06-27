@@ -43,22 +43,12 @@
                     Missions activées
                 </legend>
                 <div class="space-y-2">
-                    {% set missions = ['press_release', 'events', 'missions', 'projects', 'internships', 'apprenticeships', 'doctoral'] %}
-                    {% set labels = {
-                        'press_release': 'Communiqué de presse',
-                        'events': 'Événements',
-                        'missions': 'Missions',
-                        'projects': 'Projets',
-                        'internships': 'Stages',
-                        'apprenticeships': 'Apprentissages',
-                        'doctoral': 'Doctorat',
-                    } %}
-                    {% for key in missions %}
+                    {% for key, label in mission_labels.items() %}
                         <label class="flex items-center gap-2">
                             <input type="checkbox" name="{{ key }}" value="y"
                                    {% if form[key].data %}checked{% endif %}
                                    class="rounded border-gray-300 text-orange-600 focus:ring-orange-500" />
-                            <span class="text-sm text-gray-700">{{ labels[key] }}</span>
+                            <span class="text-sm text-gray-700">{{ label }}</span>
                         </label>
                     {% endfor %}
                 </div>
