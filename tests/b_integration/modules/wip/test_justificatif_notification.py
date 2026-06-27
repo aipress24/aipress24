@@ -35,10 +35,6 @@ from app.modules.wip.services.newsroom.justificatif_notification import (
     list_journalist_avis_enquetes,
     notify_avis_participants_of_justificatif,
 )
-from app.modules.wip.views.opportunities import (
-    _article_title_for,
-    _user_name_for,
-)
 from app.modules.wire.models import ArticlePost
 from app.services.notifications import NotificationService
 
@@ -146,9 +142,7 @@ def article(
 
 
 @pytest.fixture
-def wip_article(
-    db_session: Session, journalist: User, media_org: Organisation
-):
+def wip_article(db_session: Session, journalist: User, media_org: Organisation):
     """A WIP `Article` (nrm_article table) — matches what
     `ArticlesWipView.notify` passes to the notification service and
     what `_article_title_for` reads back in the opportunities view."""
@@ -497,8 +491,12 @@ class TestRenderJustificatifsTab:
             .first()
         )
         assert invitation is not None
-        assert _article_title_for(invitation.article_id) == wip_article.titre
-        assert _user_name_for(invitation.journalist_id) == journalist.full_name
+        loaded_article = db_session.get(Article, invitation.article_id)
+        assert loaded_article is not None
+        assert loaded_article.titre == wip_article.titre
+        loaded_journalist = db_session.get(User, invitation.journalist_id)
+        assert loaded_journalist is not None
+        assert loaded_journalist.full_name == journalist.full_name
 
     def test_empty_invitation_count_for_user_with_none(
         self,
