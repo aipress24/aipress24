@@ -53,6 +53,8 @@ _OPPORTUNITES_TABS = (
     ("jobs", "Emplois"),
     # Ticket #0227 — persistent rubric for consultations offered to the user.
     ("consultations", "Consultations offertes"),
+    # Ticket #0195 — persistent list of JdP invitations received.
+    ("justificatifs", "Justificatifs de publication"),
 )
 
 _MARKETPLACE_TAB_LABELS: dict[str, tuple[str, str]] = {
@@ -173,6 +175,8 @@ def opportunities():
     tab = request.args.get("tab", "avis")
     if tab == "consultations":
         return _render_consultations_offertes_tab()
+    if tab == "justificatifs":
+        return _render_justificatifs_tab()
     if tab in {"missions", "projects", "jobs"}:
         return _render_marketplace_opportunites_tab(tab)
     return _render_avis_opportunites_tab()
@@ -197,6 +201,84 @@ def _render_consultations_offertes_tab():
         title="Mes opportunités",
         tabs=_build_opportunites_tabs("consultations"),
         articles=articles,
+        menus={"secondary": get_secondary_menu("opportunities")},
+    )
+
+
+def _render_justificatifs_tab():
+    """Ticket #0195 — persistent list of JdP invitations received by
+    the current user, plus their completed JdP purchases."""
+    from sqlalchemy import select as sa_select
+
+    from app.modules.wire.models import ArticlePurchase, Post, PurchaseStatus
+
+    user = g.user
+    if getattr(user, "is_anonymous", False):
+        return redirect(url_for("security.login", next=request.path))
+
+    # PAID JdP purchases — the user already bought the justificatif.
+    paid_stmt = (
+        sa_select(ArticlePurchase)
+        .where(
+            ArticlePurchase.owner_id == user.id,
+            ArticlePurchase.product_type == "justificatif",
+            ArticlePurchase.status == PurchaseStatus.PAID,
+        )
+        .order_by(ArticlePurchase.timestamp.desc())
+    )
+    paid_purchases = list(db.session.execute(paid_stmt).scalars())
+
+    # Build rows from paid purchases.
+    purchases: list[dict] = []
+    for p in paid_purchases:
+        post = db.session.get(Post, p.post_id)
+        purchases.append(
+            {
+                "article_title": getattr(post, "title", "(article)"),
+                "article_url": f"/wire/item/{p.post_id}",
+                "date": p.paid_at or p.timestamp,
+                "is_paid": True,
+            }
+        )
+
+    # Pending invitations — bell notifications matching the JdP
+    # message pattern. A presenter picks just the latest unread
+    # notification per distinct URL so the page isn't cluttered
+    # with repeated invites for the same article.
+    from collections import OrderedDict
+
+    from app.services.notifications._models import Notification
+
+    notif_stmt = (
+        sa_select(Notification)
+        .where(
+            Notification.receiver_id == user.id,
+            Notification.message.like("%a publié un article suite à votre participation%")
+        )
+        .order_by(Notification.timestamp.desc())
+        .limit(50)
+    )
+    notifications = list(db.session.execute(notif_stmt).scalars())
+
+    # Deduplicate by URL — keep the most recent per article.
+    seen_urls: OrderedDict[str, dict] = OrderedDict()
+    for n in notifications:
+        url = n.url or ""
+        if url not in seen_urls:
+            seen_urls[url] = {
+                "message": n.message,
+                "url": url,
+                "date": n.timestamp,
+                "is_read": bool(n.is_read),
+            }
+    invitations = list(seen_urls.values())
+
+    return render_template(
+        "wip/pages/opportunities_justificatifs.j2",
+        title="Mes opportunités",
+        tabs=_build_opportunites_tabs("justificatifs"),
+        invitations=invitations,
+        purchases=purchases,
         menus={"secondary": get_secondary_menu("opportunities")},
     )
 

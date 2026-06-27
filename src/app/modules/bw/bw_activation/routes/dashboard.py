@@ -8,7 +8,8 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, cast
 
-from flask import g, redirect, render_template, session, url_for
+from flask import flash, g, redirect, render_template, request, session, url_for
+from wtforms import BooleanField, Form, SelectField, StringField, validators
 
 from app.flask.extensions import db
 from app.modules.bw.bw_activation import bp
@@ -83,6 +84,91 @@ def dashboard():
         current_bw=current_bw,
         active_manageable=active_manageable,
         user_role_label=user_role_label,
+    )
+
+
+# --------------------------------------------------------------------
+# Edition de la configuration de base (ticket #0220)
+# --------------------------------------------------------------------
+
+_MISSION_LABELS: dict[str, str] = {
+    "press_release": "Communiqué de presse",
+    "events": "Événements",
+    "missions": "Missions",
+    "projects": "Projets",
+    "internships": "Stages",
+    "apprenticeships": "Apprentissages",
+    "doctoral": "Doctorat",
+}
+
+
+class BWConfigForm(Form):
+    name = StringField(
+        "Nom du Business Wall",
+        validators=[validators.Optional(), validators.Length(max=200)],
+    )
+    taille_orga = SelectField(
+        "Taille de l'organisation",
+        choices=[],
+        validate_choice=False,
+        validators=[validators.Optional()],
+    )
+    # Mission flags — one BooleanField per key in `_MISSION_LABELS`.
+    # The form reads the current BusinessWall.missions dict and gives
+    # each key its own checkbox.
+    press_release = BooleanField("Communiqué de presse")
+    events = BooleanField("Événements")
+    missions = BooleanField("Missions")
+    projects = BooleanField("Projets")
+    internships = BooleanField("Stages")
+    apprenticeships = BooleanField("Apprentissages")
+    doctoral = BooleanField("Doctorat")
+
+
+@bp.route("/edit-config", methods=["GET", "POST"])
+def edit_config():
+    """Ticket #0220 — allow BW managers to update the basic data
+    (name, workforce → pricing tier, missions) after activation."""
+    from app.services.taxonomies import get_taxonomy
+
+    user = cast("User", g.user)
+    current_bw = current_business_wall(user)
+    if current_bw is None:
+        return redirect(url_for("bw_activation.dashboard"))
+    if not is_bw_manager_or_admin(user, current_bw):
+        session["error"] = ERR_NOT_MANAGER
+        return redirect(url_for("bw_activation.not_authorized"))
+
+    form = BWConfigForm(request.form)
+    form.taille_orga.choices = [("", "---")] + [
+        (entry[0], entry[1]) for entry in get_taxonomy("taille_organisation")
+    ]
+
+    if request.method == "POST" and form.validate():
+        if form.name.data is not None and form.name.data.strip():
+            current_bw.name = form.name.data.strip()
+        if form.taille_orga.data:
+            current_bw.taille_orga = form.taille_orga.data
+        current_bw.missions = {
+            key: bool(getattr(form, key).data)
+            for key in _MISSION_LABELS
+        }
+        db.session.commit()
+        flash("Configuration mise à jour.", "success")
+        return redirect(url_for("bw_activation.dashboard"))
+
+    # GET — pre-fill from current BW.
+    if not form.is_submitted():
+        form.name.data = current_bw.name or ""
+        form.taille_orga.data = current_bw.taille_orga or ""
+        missions = current_bw.missions or {}
+        for key in _MISSION_LABELS:
+            getattr(form, key).data = bool(missions.get(key, False))
+
+    return render_template(
+        "bw_activation/edit_config.html",
+        bw=current_bw,
+        form=form,
     )
 
 

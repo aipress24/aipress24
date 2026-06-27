@@ -128,7 +128,12 @@ class MissionOfferForm(Form):
         "Description",
         validators=[validators.InputRequired(), validators.Length(min=20)],
     )
-    sector = StringField("Secteur", validators=[validators.Optional()])
+    sector = SelectField(
+        "Secteur d'activité",
+        choices=[],
+        validate_choice=False,
+        validators=[validators.Optional()],
+    )
     # Bug #0185 introduced the category ; #0224 makes it required so a
     # new mission can't be created blank and — if it's a Journalism
     # mission — slip past the Press & Media visibility gate (which keys
@@ -275,6 +280,7 @@ def missions_new():
 
     form = MissionOfferForm(request.form)
     form.pays_zip_ville.choices = get_ontology_choices("country_pays")
+    form.sector.choices = get_ontology_choices("multidual_secteurs_detail2")
     _populate_journalism_taxonomy_choices(form)
     if request.method == "POST" and form.validate():
         emitter_org_id = getattr(user, "organisation_id", None)

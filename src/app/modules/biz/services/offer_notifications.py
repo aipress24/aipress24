@@ -13,14 +13,13 @@
 
 from __future__ import annotations
 
-import contextlib
 from typing import TYPE_CHECKING
 
 from flask import current_app, url_for
 from svcs.flask import container
 
 from app.flask.extensions import db
-from app.logging import warn
+from app.logging import report_failure, warn
 from app.models.auth import User
 from app.services.emails import (
     ApplicationRejectedMail,
@@ -57,9 +56,15 @@ def notify_emitter_of_application(
         message = (
             f"Nouvelle candidature de {applicant.full_name} pour « {mission.title} »."
         )
-        with contextlib.suppress(Exception):
+        try:
             container.get(NotificationService).post(
                 emitter, message, url=_absolute_applications_url(mission)
+            )
+        except Exception as exc:
+            report_failure(
+                f"notify_emitter: in-app notification failed "
+                f"(mission {mission.id}, emitter {emitter.id})",
+                exc,
             )
 
     recipient = _pick_emitter_email(mission)
@@ -118,9 +123,15 @@ def _notify_applicant_decision(
     )
     if decision_message:
         in_app_message += f" Message : {decision_message}"
-    with contextlib.suppress(Exception):
+    try:
         container.get(NotificationService).post(
             applicant, in_app_message, url=offer_url
+        )
+    except Exception as exc:
+        report_failure(
+            f"notify_applicant_decision: in-app notification failed "
+            f"(application {application.id}, applicant {applicant.id})",
+            exc,
         )
 
     if not applicant.email:

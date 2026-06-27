@@ -143,7 +143,12 @@ class ProjectOfferForm(Form):
         "Description",
         validators=[validators.InputRequired(), validators.Length(min=20)],
     )
-    sector = StringField("Secteur", validators=[validators.Optional()])
+    sector = SelectField(
+        "Secteur d'activité",
+        choices=[],
+        validate_choice=False,
+        validators=[validators.Optional()],
+    )
     pays_zip_ville = CountrySelectField(
         name="pays_zip_ville",
         name2="pays_zip_ville_detail",
@@ -187,6 +192,7 @@ def projects_new():
 
     form = ProjectOfferForm(request.form)
     form.pays_zip_ville.choices = get_ontology_choices("country_pays")
+    form.sector.choices = get_ontology_choices("multidual_secteurs_detail2")
     form.project_category.choices = get_project_category_choices()
     if request.method == "POST" and form.validate():
         emitter_org_id = getattr(user, "organisation_id", None)
