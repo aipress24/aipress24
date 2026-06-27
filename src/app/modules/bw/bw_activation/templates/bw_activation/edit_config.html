@@ -1,0 +1,80 @@
+{% extends "layout.html" %}
+{% block title %}Modifier la configuration du Business Wall{% endblock %}
+{% block content %}
+<div class="max-w-2xl mx-auto">
+    <div class="bg-white p-8 rounded-2xl shadow-lg border border-gray-200">
+        <h1 class="text-2xl font-bold text-gray-900 mb-6">
+            Modifier les données de base
+        </h1>
+
+        {# ponytail: plain POST form, no HTMX, no Alpine. Add when BW
+           config grows beyond these 3 fields. #}
+        <form method="POST" class="space-y-6">
+            <div>
+                <label for="name" class="block text-sm font-medium text-gray-700">
+                    Nom du Business Wall
+                </label>
+                <input type="text" name="name" id="name"
+                       value="{{ form.name.data or '' }}"
+                       maxlength="200"
+                       class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500 sm:text-sm" />
+            </div>
+
+            <div>
+                <label for="taille_orga" class="block text-sm font-medium text-gray-700">
+                    Taille de l'organisation
+                </label>
+                <p class="text-xs text-gray-500 mb-1">
+                    Le tarif de votre Business Wall dépend de vos effectifs.
+                </p>
+                <select name="taille_orga" id="taille_orga"
+                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500 sm:text-sm">
+                    {% for value, label in form.taille_orga.choices %}
+                        <option value="{{ value }}"
+                                {% if form.taille_orga.data == value %}selected{% endif %}>
+                            {{ label }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <fieldset>
+                <legend class="block text-sm font-medium text-gray-700 mb-3">
+                    Missions activées
+                </legend>
+                <div class="space-y-2">
+                    {% set missions = ['press_release', 'events', 'missions', 'projects', 'internships', 'apprenticeships', 'doctoral'] %}
+                    {% set labels = {
+                        'press_release': 'Communiqué de presse',
+                        'events': 'Événements',
+                        'missions': 'Missions',
+                        'projects': 'Projets',
+                        'internships': 'Stages',
+                        'apprenticeships': 'Apprentissages',
+                        'doctoral': 'Doctorat',
+                    } %}
+                    {% for key in missions %}
+                        <label class="flex items-center gap-2">
+                            <input type="checkbox" name="{{ key }}" value="y"
+                                   {% if form[key].data %}checked{% endif %}
+                                   class="rounded border-gray-300 text-orange-600 focus:ring-orange-500" />
+                            <span class="text-sm text-gray-700">{{ labels[key] }}</span>
+                        </label>
+                    {% endfor %}
+                </div>
+            </fieldset>
+
+            <div class="flex gap-4 pt-4 border-t">
+                <button type="submit"
+                        class="rounded-md bg-orange-600 px-4 py-2 text-sm font-semibold text-white hover:bg-orange-700">
+                    Enregistrer
+                </button>
+                <a href="{{ url_for('bw_activation.dashboard') }}"
+                   class="rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">
+                    Annuler
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

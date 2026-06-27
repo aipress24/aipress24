@@ -47,6 +47,25 @@
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Ticket #0220 — edit basic BW data after activation -->
+                <div
+                    class="border border-gray-300 p-6 rounded-lg hover:shadow-md hover:border-orange-500 transition"
+                >
+                    <h2 class="text-xl font-semibold text-gray-800 mb-3">
+                        Modifier les données de base
+                    </h2>
+                    <p class="text-sm text-gray-600 mb-4">
+                        Modifiez le nom, les effectifs (tarif) et les
+                        missions de votre Business Wall.
+                    </p>
+                    <a
+                        href="{{ url_for('bw_activation.edit_config') }}"
+                        class="inline-block rounded-md bg-orange-600 px-4 py-2 text-sm font-semibold text-white hover:bg-orange-700"
+                    >
+                        Modifier →
+                    </a>
+                </div>
+
                 <!-- Stage 1: Configure BW Content -->
                 <div
                     class="border border-gray-300 p-6 rounded-lg hover:shadow-md hover:border-orange-500 transition"

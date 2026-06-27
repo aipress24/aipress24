@@ -256,3 +256,46 @@ class TestBooleanFields:
             },
         )
         assert form.physical_required.data is True
+
+
+class TestSectorField:
+    """Ticket #0230 — the sector field is now a SelectField backed by
+    the `secteur_detaille` ontology. Pin the contract so a future
+    revert to StringField is caught."""
+
+    def test_sector_is_select_field_not_string(self, app: Flask):
+        form = _make_form(
+            app,
+            {"title": "M", "description": "x" * 30, "category": "journalisme"},
+        )
+        from wtforms import SelectField
+
+        assert isinstance(form.sector, SelectField)
+
+    def test_sector_empty_passes(self, app: Flask):
+        """The field is optional — empty value must validate."""
+        form = _make_form(
+            app,
+            {
+                "title": "M",
+                "description": "x" * 30,
+                "category": "journalisme",
+                "sector": "",
+            },
+        )
+        assert form.validate()
+        assert not form.sector.errors
+
+    def test_sector_accepts_arbitrary_value(self, app: Flask):
+        """validate_choice=False — any ontology value passes."""
+        form = _make_form(
+            app,
+            {
+                "title": "M",
+                "description": "x" * 30,
+                "category": "journalisme",
+                "sector": "SPORT / Sport automobile",
+            },
+        )
+        assert form.validate()
+        assert not form.sector.errors

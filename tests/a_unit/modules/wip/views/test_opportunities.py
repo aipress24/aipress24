@@ -265,7 +265,11 @@ class TestMarketplaceLabels:
         # tabs — `avis` and `consultations` are handled by their own code
         # paths and must NOT appear here.
         all_tab_ids = {tab_id for tab_id, _ in _OPPORTUNITES_TABS}
-        assert set(_MARKETPLACE_TAB_LABELS) == all_tab_ids - {"avis", "consultations"}
+        assert set(_MARKETPLACE_TAB_LABELS) == all_tab_ids - {
+            "avis",
+            "consultations",
+            "justificatifs",
+        }
 
 
 class TestOpportunitesTabsConstant:
@@ -274,7 +278,14 @@ class TestOpportunitesTabsConstant:
 
     def test_tab_ids_in_expected_order(self) -> None:
         ids = [tab_id for tab_id, _ in _OPPORTUNITES_TABS]
-        assert ids == ["avis", "missions", "projects", "jobs", "consultations"]
+        assert ids == [
+            "avis",
+            "missions",
+            "projects",
+            "jobs",
+            "consultations",
+            "justificatifs",
+        ]
 
     def test_labels_are_french_strings(self) -> None:
         # Defensive : labels are user-facing French copy.
@@ -285,6 +296,7 @@ class TestOpportunitesTabsConstant:
             "Projets",
             "Emplois",
             "Consultations offertes",
+            "Justificatifs de publication",
         ]
 
     def test_tab_ids_are_unique(self) -> None:

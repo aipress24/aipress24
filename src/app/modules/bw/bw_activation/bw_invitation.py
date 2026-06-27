@@ -864,6 +864,13 @@ def revoke_partnership(
             send_partnership_revoked_mail(business_wall, partner_bw)
         except Exception as exc:
             report_failure("revoke_partnership: email failed", exc)
+            from flask import flash as _flash
+
+            _flash(
+                "Le partenariat a été révoqué, mais le mail de "
+                "notification n'a pas pu être envoyé au partenaire.",
+                "warning",
+            )
 
     return True
 
@@ -925,7 +932,14 @@ def send_partnership_revoked_mail(
     bw_name = business_wall.name_safe or "(Nom inconnu)"
 
     agency_owner = get_obj(partner_bw.owner_id, User)
-    if agency_owner is None or not agency_owner.email:
+    if agency_owner is None:
+        warn(f"send_partnership_revoked_mail: no owner for BW {partner_bw.id}")
+        return
+    if not agency_owner.email:
+        warn(
+            f"send_partnership_revoked_mail: owner {agency_owner.id} "
+            f"has no email"
+        )
         return
 
     partner_org = (
