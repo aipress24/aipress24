@@ -35,6 +35,9 @@ if TYPE_CHECKING:
     from app.modules.wip.models.newsroom.avis_enquete import AvisEnquete
     from app.modules.wire.models import ArticlePost
 
+from app.modules.wip.models.newsroom.justificatif_invitation import (
+    JustificatifInvitation,
+)
 
 DEFAULT_SENDER_EMAIL = "contact@aipress24.com"
 EM_DASH_FALLBACK = "—"
@@ -180,6 +183,18 @@ def notify_avis_participants_of_justificatif(
                 f"(article {article.id}, user {user_id})",
                 exc,
             )
+
+        # Ticket #0195 — persist a structured invitation row so the
+        # recipient's OPPORTUNITÉS/Justificatifs tab can find it
+        # without grepping Notification.message free text.
+        db.session.add(
+            JustificatifInvitation(
+                article_id=article.id,
+                recipient_id=recipient.id,
+                journalist_id=journalist.id,
+                avis_enquete_id=avis_enquete.id,
+            )
+        )
 
         if recipient.email:
             try:
