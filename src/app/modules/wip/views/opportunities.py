@@ -253,7 +253,9 @@ def _render_justificatifs_tab():
         sa_select(Notification)
         .where(
             Notification.receiver_id == user.id,
-            Notification.message.like("%a publié un article suite à votre participation%")
+            Notification.message.like(
+                "%a publié un article suite à votre participation%"
+            ),
         )
         .order_by(Notification.timestamp.desc())
         .limit(50)

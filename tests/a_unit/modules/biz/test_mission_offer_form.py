@@ -23,6 +23,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from werkzeug.datastructures import ImmutableMultiDict
+from wtforms import SelectField
 
 from app.modules.biz.views.missions import MissionOfferForm
 
@@ -268,8 +269,6 @@ class TestSectorField:
             app,
             {"title": "M", "description": "x" * 30, "category": "journalisme"},
         )
-        from wtforms import SelectField
-
         assert isinstance(form.sector, SelectField)
 
     def test_sector_empty_passes(self, app: Flask):
