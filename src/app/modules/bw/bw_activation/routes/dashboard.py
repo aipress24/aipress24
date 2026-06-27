@@ -168,6 +168,7 @@ def edit_config():
         "bw_activation/edit_config.html",
         bw=current_bw,
         form=form,
+        mission_labels=_MISSION_LABELS,
     )
 
 
