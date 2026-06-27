@@ -217,23 +217,30 @@ def _render_justificatifs_tab():
         return redirect(url_for("security.login", next=request.path))
 
     # PAID JdP purchases — the user already bought the justificatif.
-    paid_stmt = (
-        sa_select(ArticlePurchase)
-        .where(
-            ArticlePurchase.owner_id == user.id,
-            ArticlePurchase.product_type == "justificatif",
-            ArticlePurchase.status == PurchaseStatus.PAID,
-        )
-        .order_by(ArticlePurchase.timestamp.desc())
+    paid_purchases = list(
+        db.session.execute(
+            sa_select(ArticlePurchase)
+            .where(
+                ArticlePurchase.owner_id == user.id,
+                ArticlePurchase.product_type == "justificatif",
+                ArticlePurchase.status == PurchaseStatus.PAID,
+            )
+            .order_by(ArticlePurchase.timestamp.desc())
+        ).scalars()
     )
-    paid_purchases = list(db.session.execute(paid_stmt).scalars())
 
-    # Build rows from paid purchases.
+    # Bulk-resolve post titles (avoid N+1 `db.session.get(Post, …)`).
+    post_ids = {p.post_id for p in paid_purchases}
+    post_titles: dict[int, str] = {
+        r.id: r.title or "(article)"
+        for r in db.session.execute(
+            sa_select(Post).where(Post.id.in_(post_ids))
+        ).scalars()
+    }
+
     purchases: list[dict] = [
         {
-            "article_title": getattr(
-                db.session.get(Post, p.post_id), "title", "(article)"
-            ),
+            "article_title": post_titles.get(int(p.post_id), "(article)"),
             "article_url": f"/wire/item/{p.post_id}",
             "date": p.paid_at or p.timestamp,
             "is_paid": True,
@@ -243,25 +250,45 @@ def _render_justificatifs_tab():
 
     # Pending invitations — structured rows persisted by
     # `notify_avis_participants_of_justificatif`. No string matching.
+    from app.modules.wip.models.newsroom.article import Article
     from app.modules.wip.models.newsroom.justificatif_invitation import (
         JustificatifInvitation,
     )
 
-    inv_stmt = (
-        sa_select(JustificatifInvitation)
-        .where(JustificatifInvitation.recipient_id == user.id)
-        .order_by(JustificatifInvitation.timestamp.desc())
-        .limit(50)
+    invitation_rows = list(
+        db.session.execute(
+            sa_select(JustificatifInvitation)
+            .where(JustificatifInvitation.recipient_id == user.id)
+            .order_by(JustificatifInvitation.timestamp.desc())
+            .limit(50)
+        ).scalars()
     )
+
+    # Bulk-resolve article titles and journalist names.
+    article_ids = {inv.article_id for inv in invitation_rows}
+    journalist_ids = {inv.journalist_id for inv in invitation_rows}
+    article_titles: dict[int, str] = {
+        r.id: r.titre or "(article)"
+        for r in db.session.execute(
+            sa_select(Article).where(Article.id.in_(article_ids))
+        ).scalars()
+    }
+    journalist_names: dict[int, str] = {
+        r.id: r.full_name or "\u2014"
+        for r in db.session.execute(
+            sa_select(User).where(User.id.in_(journalist_ids))
+        ).scalars()
+    }
+
     invitations: list[dict] = [
         {
             "article_id": inv.article_id,
-            "article_title": _article_title_for(inv.article_id),
+            "article_title": article_titles.get(int(inv.article_id), "(article)"),
             "article_url": f"/wip/articles/{inv.article_id}",
-            "journalist_name": _user_name_for(inv.journalist_id),
+            "journalist_name": journalist_names.get(int(inv.journalist_id), "\u2014"),
             "date": inv.timestamp,
         }
-        for inv in db.session.execute(inv_stmt).scalars()
+        for inv in invitation_rows
     ]
 
     return render_template(
@@ -272,20 +299,6 @@ def _render_justificatifs_tab():
         purchases=purchases,
         menus={"secondary": get_secondary_menu("opportunities")},
     )
-
-
-def _article_title_for(article_id: int) -> str:
-    from app.modules.wip.models.newsroom.article import Article
-
-    article = db.session.get(Article, article_id)
-    return getattr(article, "titre", "(article)") if article else "(article)"
-
-
-def _user_name_for(user_id: int) -> str:
-    from app.models.auth import User
-
-    u = db.session.get(User, user_id)
-    return u.full_name if u else "\u2014"
 
 
 def _render_avis_opportunites_tab():

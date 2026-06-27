@@ -80,8 +80,10 @@ def manage_external_partners():
             if revoke_partnership(business_wall, revoke_bw_id):
                 warn("revoke_partnership success:", revoke_bw_id)
                 db.session.commit()
+                flash("Partenaire retiré.", "success")
             else:
                 warn("revoke_partnership failed:", revoke_bw_id)
+                flash("Échec du retrait du partenaire.", "error")
             return redirect(url_for("bw_activation.manage_external_partners"))
 
         selected_pr_id = request.form.get("pr_provider")

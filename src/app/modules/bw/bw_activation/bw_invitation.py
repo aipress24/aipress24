@@ -864,13 +864,6 @@ def revoke_partnership(
             send_partnership_revoked_mail(business_wall, partner_bw)
         except Exception as exc:
             report_failure("revoke_partnership: email failed", exc)
-            from flask import flash as _flash
-
-            _flash(
-                "Le partenariat a été révoqué, mais le mail de "
-                "notification n'a pas pu être envoyé au partenaire.",
-                "warning",
-            )
 
     return True
 
