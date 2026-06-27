@@ -33,10 +33,14 @@ from app.modules.bw.bw_activation.models import (
     RoleAssignment,
 )
 from app.modules.bw.bw_activation.models.business_wall import BWStatus
+from app.modules.wip.models.newsroom.article import Article
 from app.modules.wip.models.newsroom.avis_enquete import (
     AvisEnquete,
     ContactAvisEnquete,
     StatutAvis,
+)
+from app.modules.wip.services.newsroom.justificatif_notification import (
+    notify_avis_participants_of_justificatif,
 )
 from app.modules.wip.views.opportunities import MediaOpportunity
 from app.modules.wire.models import (
@@ -1107,3 +1111,81 @@ class TestOfferedConsultationsTab:
         response = logged_in_client.get("/wip/opportunities?tab=consultations")
         assert response.status_code == 200
         assert "Aucun article ne vous a été offert" in response.data.decode()
+
+
+class TestJustificatifsTab:
+    """Ticket #0195 — WORK/OPPORTUNITÉS / « Justificatifs de
+    publication » : persistent list of JdP invitations received."""
+
+    def test_tab_lists_invitation_after_notification(
+        self,
+        app,
+        fresh_db,
+        test_user: User,
+        test_org: Organisation,
+        journalist_user: User,
+    ):
+        """After a journalist notifies test_user of a publication,
+        the justificatifs tab shows the article."""
+
+        session = fresh_db.session
+
+        # WIP article authored by the journalist.
+        now = datetime.now(UTC)
+        article = Article(
+            titre="Article JdP e2e test",
+            owner_id=journalist_user.id,
+            media_id=test_org.id,
+            commanditaire_id=journalist_user.id,
+            status=PublicationStatus.PUBLIC,
+            published_at=now,
+            date_parution_prevue=now,
+        )
+        session.add(article)
+        session.flush()
+
+        # Avis d'enquête with test_user as contact.
+        avis = AvisEnquete(
+            titre="Enquête JdP e2e",
+            contenu="...",
+            owner_id=journalist_user.id,
+            media_id=test_org.id,
+            commanditaire_id=journalist_user.id,
+            date_debut_enquete=now - timedelta(days=7),
+            date_fin_enquete=now,
+            date_bouclage=now + timedelta(days=7),
+            date_parution_prevue=now + timedelta(days=14),
+        )
+        session.add(avis)
+        session.flush()
+        session.add(
+            ContactAvisEnquete(
+                avis_enquete_id=avis.id,
+                journaliste_id=journalist_user.id,
+                expert_id=test_user.id,
+            )
+        )
+        session.commit()
+
+        # Notify test_user — persists JustificatifInvitation rows.
+        notify_avis_participants_of_justificatif(
+            article=article,
+            avis_enquete=avis,
+            recipient_user_ids=[test_user.id],
+            journalist=journalist_user,
+            article_url="https://example.com/x",
+        )
+
+        client = make_authenticated_client(app, test_user)
+        response = client.get("/wip/opportunities?tab=justificatifs")
+        assert response.status_code == 200
+        html = response.data.decode()
+        assert "Article JdP e2e test" in html
+        assert journalist_user.full_name in html
+
+    def test_tab_empty_state(self, logged_in_client, test_user):
+        response = logged_in_client.get("/wip/opportunities?tab=justificatifs")
+        assert response.status_code == 200
+        html = response.data.decode()
+        assert "Aucune invitation" in html
+        assert "Aucune invitation ni justificatif" in html

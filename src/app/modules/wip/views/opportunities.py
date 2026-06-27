@@ -241,39 +241,28 @@ def _render_justificatifs_tab():
         for p in paid_purchases
     ]
 
-    # Pending invitations — bell notifications matching the JdP
-    # message pattern. A presenter picks just the latest unread
-    # notification per distinct URL so the page isn't cluttered
-    # with repeated invites for the same article.
-    from collections import OrderedDict
+    # Pending invitations — structured rows persisted by
+    # `notify_avis_participants_of_justificatif`. No string matching.
+    from app.modules.wip.models.newsroom.justificatif_invitation import (
+        JustificatifInvitation,
+    )
 
-    from app.services.notifications._models import Notification
-
-    notif_stmt = (
-        sa_select(Notification)
-        .where(
-            Notification.receiver_id == user.id,
-            Notification.message.like(
-                "%a publié un article suite à votre participation%"
-            ),
-        )
-        .order_by(Notification.timestamp.desc())
+    inv_stmt = (
+        sa_select(JustificatifInvitation)
+        .where(JustificatifInvitation.recipient_id == user.id)
+        .order_by(JustificatifInvitation.timestamp.desc())
         .limit(50)
     )
-    notifications = list(db.session.execute(notif_stmt).scalars())
-
-    # Deduplicate by URL — keep the most recent per article.
-    seen_urls: OrderedDict[str, dict] = OrderedDict()
-    for n in notifications:
-        url: str = str(n.url or "")
-        if url not in seen_urls:
-            seen_urls[url] = {
-                "message": n.message,
-                "url": url,
-                "date": n.timestamp,
-                "is_read": bool(n.is_read),
-            }
-    invitations = list(seen_urls.values())
+    invitations: list[dict] = [
+        {
+            "article_id": inv.article_id,
+            "article_title": _article_title_for(inv.article_id),
+            "article_url": f"/wip/articles/{inv.article_id}",
+            "journalist_name": _user_name_for(inv.journalist_id),
+            "date": inv.timestamp,
+        }
+        for inv in db.session.execute(inv_stmt).scalars()
+    ]
 
     return render_template(
         "wip/pages/opportunities_justificatifs.j2",
@@ -283,6 +272,20 @@ def _render_justificatifs_tab():
         purchases=purchases,
         menus={"secondary": get_secondary_menu("opportunities")},
     )
+
+
+def _article_title_for(article_id: int) -> str:
+    from app.modules.wip.models.newsroom.article import Article
+
+    article = db.session.get(Article, article_id)
+    return getattr(article, "titre", "(article)") if article else "(article)"
+
+
+def _user_name_for(user_id: int) -> str:
+    from app.models.auth import User
+
+    u = db.session.get(User, user_id)
+    return u.full_name if u else "\u2014"
 
 
 def _render_avis_opportunites_tab():

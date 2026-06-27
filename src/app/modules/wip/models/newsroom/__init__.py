@@ -25,6 +25,7 @@ from .avis_enquete import (
 )
 from .avis_notification_log import AvisNotificationLog
 from .commande import Commande
+from .justificatif_invitation import JustificatifInvitation
 from .notification_publication import (
     NotificationPublication,
     NotificationPublicationContact,
@@ -40,6 +41,7 @@ __all__ = [
     "ContactAvisEnquete",
     "Image",
     "ImageRepository",
+    "JustificatifInvitation",
     "NotificationPublication",
     "NotificationPublicationContact",
     "RDVStatus",

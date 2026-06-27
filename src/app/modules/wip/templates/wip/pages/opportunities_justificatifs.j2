@@ -46,15 +46,15 @@
                 <li class="py-3 px-4 flex items-start justify-between">
                     <div>
                         <a class="text-blue-600 hover:underline font-medium"
-                           href="{{ inv.url }}">
-                            {{ inv.message }}
+                           href="{{ inv.article_url }}">
+                            {{ inv.article_title }}
                         </a>
-                        {% if not inv.is_read %}
-                            <span class="ml-2 inline-block w-2 h-2 rounded-full bg-blue-500 align-middle"></span>
-                        {% endif %}
+                        <span class="ml-2 text-xs text-gray-500">
+                            par {{ inv.journalist_name }}
+                        </span>
                     </div>
                     <span class="text-xs text-gray-500 whitespace-nowrap ml-4">
-                        {{ inv.date.strftime("%d/%m/%Y") if inv.date else "—" }}
+                        {{ inv.date.strftime("%d/%m/%Y") if inv.date else "\u2014" }}
                     </span>
                 </li>
             {% endfor %}

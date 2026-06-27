@@ -15,20 +15,29 @@ from unittest.mock import patch
 
 import arrow
 import pytest
+from sqlalchemy import select as sa_select
 from svcs.flask import container
 
 from app.enums import RoleEnum
 from app.models.auth import Role, User
 from app.models.lifecycle import PublicationStatus
 from app.models.organisation import Organisation
+from app.modules.wip.models.newsroom.article import Article
 from app.modules.wip.models.newsroom.avis_enquete import (
     AvisEnquete,
     ContactAvisEnquete,
+)
+from app.modules.wip.models.newsroom.justificatif_invitation import (
+    JustificatifInvitation,
 )
 from app.modules.wip.services.newsroom.justificatif_notification import (
     list_avis_contacts,
     list_journalist_avis_enquetes,
     notify_avis_participants_of_justificatif,
+)
+from app.modules.wip.views.opportunities import (
+    _article_title_for,
+    _user_name_for,
 )
 from app.modules.wire.models import ArticlePost
 from app.services.notifications import NotificationService
@@ -134,6 +143,29 @@ def article(
     db_session.add(p)
     db_session.flush()
     return p
+
+
+@pytest.fixture
+def wip_article(
+    db_session: Session, journalist: User, media_org: Organisation
+):
+    """A WIP `Article` (nrm_article table) — matches what
+    `ArticlesWipView.notify` passes to the notification service and
+    what `_article_title_for` reads back in the opportunities view."""
+
+    now = arrow.utcnow()
+    a = Article(
+        titre="Article WIP tiré de l'enquête",
+        owner_id=journalist.id,
+        media_id=media_org.id,
+        commanditaire_id=journalist.id,
+        status=PublicationStatus.PUBLIC,
+        published_at=now,
+        date_parution_prevue=now,
+    )
+    db_session.add(a)
+    db_session.flush()
+    return a
 
 
 class TestNotifyAvisParticipantsOfJustificatif:
@@ -349,6 +381,40 @@ class TestNotifyAvisParticipantsOfJustificatif:
         db_session.refresh(avis)
         assert avis.justificatif_notifications_count == 0
 
+    def test_persists_structured_invitation_rows(
+        self,
+        app,
+        db_session: Session,
+        avis: AvisEnquete,
+        article: ArticlePost,
+        journalist: User,
+        expert_a: User,
+        expert_b: User,
+    ):
+        """Ticket #0195 — a JustificatifInvitation row is created
+        for each (article, recipient) pair so the opportunities tab
+        can query them without grepping Notification.message."""
+
+        with app.test_request_context("/"):
+            notify_avis_participants_of_justificatif(
+                article=article,
+                avis_enquete=avis,
+                recipient_user_ids=[expert_a.id, expert_b.id],
+                journalist=journalist,
+                article_url="https://example.com/x",
+            )
+
+        rows = (
+            db_session.query(JustificatifInvitation)
+            .filter(JustificatifInvitation.recipient_id.in_([expert_a.id, expert_b.id]))
+            .all()
+        )
+        assert len(rows) == 2
+        for r in rows:
+            assert r.article_id == article.id
+            assert r.journalist_id == journalist.id
+            assert r.avis_enquete_id == avis.id
+
 
 class TestListHelpers:
     def test_list_journalist_avis_enquetes_only_returns_owned(
@@ -398,3 +464,53 @@ class TestListHelpers:
         user_ids = {r["user_id"] for r in rows}
         assert expert_a.id in user_ids
         assert expert_b.id in user_ids
+
+
+class TestRenderJustificatifsTab:
+    """Ticket #0195 — the opportunities tab queries
+    `JustificatifInvitation` rows correctly."""
+
+    def test_invitation_rows_include_article_title_and_journalist(
+        self,
+        app,
+        db_session: Session,
+        avis: AvisEnquete,
+        wip_article,
+        journalist: User,
+        expert_a: User,
+    ):
+        """After notification, querying JustificatifInvitation
+        yields rows whose article ids resolve to the right title."""
+
+        with app.test_request_context("/"):
+            notify_avis_participants_of_justificatif(
+                article=wip_article,
+                avis_enquete=avis,
+                recipient_user_ids=[expert_a.id],
+                journalist=journalist,
+                article_url="https://example.com/x",
+            )
+
+        invitation = (
+            db_session.query(JustificatifInvitation)
+            .filter_by(recipient_id=expert_a.id)
+            .first()
+        )
+        assert invitation is not None
+        assert _article_title_for(invitation.article_id) == wip_article.titre
+        assert _user_name_for(invitation.journalist_id) == journalist.full_name
+
+    def test_empty_invitation_count_for_user_with_none(
+        self,
+        app,
+        db_session: Session,
+        expert_a: User,
+    ):
+        """A user with no JustificatifInvitation rows gets an empty list."""
+
+        with app.test_request_context("/"):
+            stmt = sa_select(JustificatifInvitation).where(
+                JustificatifInvitation.recipient_id == expert_a.id
+            )
+            rows = list(db_session.execute(stmt).scalars())
+        assert len(rows) == 0
