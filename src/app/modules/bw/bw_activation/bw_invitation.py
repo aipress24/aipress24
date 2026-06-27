@@ -936,10 +936,7 @@ def send_partnership_revoked_mail(
         warn(f"send_partnership_revoked_mail: no owner for BW {partner_bw.id}")
         return
     if not agency_owner.email:
-        warn(
-            f"send_partnership_revoked_mail: owner {agency_owner.id} "
-            f"has no email"
-        )
+        warn(f"send_partnership_revoked_mail: owner {agency_owner.id} has no email")
         return
 
     partner_org = (

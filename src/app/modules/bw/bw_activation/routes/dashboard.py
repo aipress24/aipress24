@@ -150,8 +150,7 @@ def edit_config():
         if form.taille_orga.data:
             current_bw.taille_orga = form.taille_orga.data
         current_bw.missions = {
-            key: bool(getattr(form, key).data)
-            for key in _MISSION_LABELS
+            key: bool(getattr(form, key).data) for key in _MISSION_LABELS
         }
         db.session.commit()
         flash("Configuration mise à jour.", "success")
