@@ -16,7 +16,7 @@ from typing import TYPE_CHECKING
 from unittest.mock import patch
 
 import pytest
-from flask import g
+from flask import g, get_flashed_messages
 from svcs.flask import container
 
 from app.enums import ProfileEnum
@@ -24,6 +24,7 @@ from app.models.auth import KYCProfile, User
 from app.models.organisation import Organisation
 from app.modules.bw.bw_activation.bw_invitation import (
     InvitationOutcomeCode,
+    _sender_identity,
     apply_bw_missions_to_pr_user,
     change_bwmi_emails,
     change_bwpri_emails,
@@ -1405,6 +1406,71 @@ class TestRevokePartnershipIntegration:
         captured_exc = mock_capture.call_args.args[0]
         assert isinstance(captured_exc, RuntimeError)
         assert str(captured_exc) == "smtp down"
+
+    def test_mail_failure_flashes_warning_to_user(
+        self,
+        app,
+        db_session: Session,
+        media_bw: BusinessWall,
+        pr_bw: BusinessWall,
+        media_owner: User,
+    ):
+        """Ticket #0169 Action 1 — when the revoked-partnership mail
+        fails, the user who triggered the revocation must see a visible
+        warning flash, not just a silent Sentry log."""
+        partnership = Partnership(
+            business_wall_id=media_bw.id,
+            partner_bw_id=str(pr_bw.id),
+            status=PartnershipStatus.ACTIVE.value,
+            invited_by_user_id=media_bw.owner_id,
+            invited_at=datetime.now(UTC),
+            accepted_at=datetime.now(UTC),
+        )
+        db_session.add(partnership)
+        db_session.flush()
+
+        with (
+            app.test_request_context("/"),
+            patch(
+                "app.modules.bw.bw_activation.bw_invitation"
+                ".send_partnership_revoked_mail",
+                side_effect=RuntimeError("smtp down"),
+            ),
+        ):
+            g.user = media_owner
+            result = revoke_partnership(media_bw, str(pr_bw.id))
+            flashes = get_flashed_messages(with_categories=True)
+
+        assert result is True
+        assert any(
+            category == "warning" and "n'a pas pu être envoyé" in message
+            for category, message in flashes
+        ), f"expected a warning flash about the un-sent mail, got {flashes}"
+
+
+class TestSenderIdentityFallback:
+    """Ticket #0169 — `_sender_identity` must never hand an empty sender
+    to the mailer. An anonymous or faker `g.user` with no email was the
+    #1 hypothesised cause of the un-sent partnership mail (SMTP rejects
+    an empty From)."""
+
+    def test_uses_user_email_when_present(self, app, media_owner: User):
+        with app.test_request_context("/"):
+            g.user = media_owner
+            sender_mail, sender_name = _sender_identity()
+        assert sender_mail == media_owner.email
+        assert sender_name == media_owner.full_name
+
+    def test_falls_back_when_user_has_no_email(self, app):
+        class _NoEmailUser:
+            email = ""
+            full_name = ""
+
+        with app.test_request_context("/"):
+            g.user = _NoEmailUser()
+            sender_mail, sender_name = _sender_identity()
+        assert sender_mail == "contact@aipress24.com"
+        assert sender_name == "AiPRESS24"
 
 
 class TestBwpriInvitationVisibleInPreferences:

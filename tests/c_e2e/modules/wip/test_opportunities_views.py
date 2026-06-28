@@ -1183,6 +1183,39 @@ class TestJustificatifsTab:
         assert "Article JdP e2e test" in html
         assert journalist_user.full_name in html
 
+    def test_tab_lists_a_paid_justificatif_purchase(
+        self,
+        app,
+        fresh_db,
+        test_user: User,
+        journalist_user: User,
+    ):
+        """Ticket #0195 — a PAID justificatif purchase must surface under
+        « Justificatifs acquis ». Regression: the query compared
+        `product_type` against the lowercase literal "justificatif" while
+        `Enum(PurchaseProduct)` stores the member name "JUSTIFICATIF", so
+        the acquired-justificatifs list was silently always empty."""
+        session = fresh_db.session
+        post = ArticlePost(title="Justif payé visible", owner_id=journalist_user.id)
+        session.add(post)
+        session.flush()
+        session.add(
+            ArticlePurchase(
+                post_id=post.id,
+                owner_id=test_user.id,
+                product_type=PurchaseProduct.JUSTIFICATIF,
+                status=PurchaseStatus.PAID,
+            )
+        )
+        session.commit()
+
+        client = make_authenticated_client(app, test_user)
+        response = client.get("/wip/opportunities?tab=justificatifs")
+        assert response.status_code == 200
+        html = response.data.decode()
+        assert "Justificatifs acquis" in html
+        assert "Justif payé visible" in html
+
     def test_tab_empty_state(self, logged_in_client, test_user):
         response = logged_in_client.get("/wip/opportunities?tab=justificatifs")
         assert response.status_code == 200
