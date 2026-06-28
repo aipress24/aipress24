@@ -13,7 +13,7 @@ from enum import StrEnum
 from typing import cast
 from uuid import UUID
 
-from flask import g, url_for
+from flask import flash, g, url_for
 from svcs.flask import container
 from werkzeug.exceptions import NotFound
 
@@ -381,15 +381,25 @@ def post_role_invitation_notification(
     notification_service.post(invited_user, message, url="/preferences/invitations")
 
 
+def _sender_identity() -> tuple[str, str]:
+    """Return the (email, full name) of the acting user for outgoing mail.
+
+    Ticket #0169: `g.user` may be anonymous or a faker account with no
+    email — an empty sender makes the SMTP send fail. Fall back to the
+    platform contact address so the mail still goes out.
+    """
+    user = g.user
+    sender_mail = getattr(user, "email", "") or "contact@aipress24.com"
+    sender_full_name = getattr(user, "full_name", "") or "AiPRESS24"
+    return sender_mail, sender_full_name
+
+
 def send_role_invitation_mail(
     business_wall: BusinessWall,
     invited_user: User,
     role: BWRoleType,
 ) -> None:
-
-    current_user = cast("User", g.user)
-    sender_mail = current_user.email
-    sender_full_name = current_user.full_name
+    sender_mail, sender_full_name = _sender_identity()
     # FIXME, maybe the business_wall has still not name
     bw_name = business_wall.name_safe or "(Nom inconnu)"
     bw_role = BW_ROLE_TYPE_LABEL.get(role.value, "(rôle inconnu)")
@@ -770,9 +780,7 @@ def send_partnership_invitation_mail(
         warn(f"No recipient email for PR agency owner of BW {pr_bw.id}")
         return
 
-    current_user = cast("User", g.user)
-    sender_mail = current_user.email
-    sender_full_name = current_user.full_name
+    sender_mail, sender_full_name = _sender_identity()
     bw_name = business_wall.name_safe or "(Nom inconnu)"
 
     # Bug 0123: include the client company name in the invitation email
@@ -864,6 +872,13 @@ def revoke_partnership(
             send_partnership_revoked_mail(business_wall, partner_bw)
         except Exception as exc:
             report_failure("revoke_partnership: email failed", exc)
+            # Ticket #0169: make the failure visible — the partnership is
+            # already revoked, but the partner won't get the email.
+            flash(
+                "Le partenariat a été révoqué, mais le mail de notification "
+                "n'a pas pu être envoyé au partenaire.",
+                "warning",
+            )
 
     return True
 
@@ -916,9 +931,7 @@ def send_partnership_revoked_mail(
     partnership (ticket #0169)."""
     from app.models.organisation import Organisation
 
-    current_user = cast("User", g.user)
-    sender_mail = current_user.email
-    sender_full_name = current_user.full_name
+    sender_mail, sender_full_name = _sender_identity()
 
     client_org = business_wall.get_organisation()
     client_name = client_org.name if client_org else "(client inconnu)"

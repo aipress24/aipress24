@@ -116,13 +116,13 @@ class BWConfigForm(Form):
     # Mission flags — one BooleanField per key in `_MISSION_LABELS`.
     # The form reads the current BusinessWall.missions dict and gives
     # each key its own checkbox.
-    press_release = BooleanField("Communiqué de presse")
-    events = BooleanField("Événements")
-    missions = BooleanField("Missions")
-    projects = BooleanField("Projets")
-    internships = BooleanField("Stages")
-    apprenticeships = BooleanField("Apprentissages")
-    doctoral = BooleanField("Doctorat")
+    press_release = BooleanField(_MISSION_LABELS["press_release"])
+    events = BooleanField(_MISSION_LABELS["events"])
+    missions = BooleanField(_MISSION_LABELS["missions"])
+    projects = BooleanField(_MISSION_LABELS["projects"])
+    internships = BooleanField(_MISSION_LABELS["internships"])
+    apprenticeships = BooleanField(_MISSION_LABELS["apprenticeships"])
+    doctoral = BooleanField(_MISSION_LABELS["doctoral"])
 
 
 @bp.route("/edit-config", methods=["GET", "POST"])

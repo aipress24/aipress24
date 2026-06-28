@@ -210,7 +210,12 @@ def _render_justificatifs_tab():
     the current user, plus their completed JdP purchases."""
     from sqlalchemy import select as sa_select
 
-    from app.modules.wire.models import ArticlePurchase, Post, PurchaseStatus
+    from app.modules.wire.models import (
+        ArticlePurchase,
+        Post,
+        PurchaseProduct,
+        PurchaseStatus,
+    )
 
     user = g.user
     if getattr(user, "is_anonymous", False):
@@ -222,7 +227,7 @@ def _render_justificatifs_tab():
             sa_select(ArticlePurchase)
             .where(
                 ArticlePurchase.owner_id == user.id,
-                ArticlePurchase.product_type == "justificatif",
+                ArticlePurchase.product_type == PurchaseProduct.JUSTIFICATIF,
                 ArticlePurchase.status == PurchaseStatus.PAID,
             )
             .order_by(ArticlePurchase.timestamp.desc())
