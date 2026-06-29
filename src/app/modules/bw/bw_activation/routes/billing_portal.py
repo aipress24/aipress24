@@ -15,7 +15,9 @@ from typing import cast
 
 import stripe
 from flask import current_app, flash, g, redirect, url_for
+from stripe import InvalidRequestError
 
+from app.flask.extensions import db
 from app.logging import warn
 from app.models.auth import User
 from app.modules.bw.bw_activation import bp
@@ -46,10 +48,27 @@ def billing_portal():
         flash("Configuration Stripe manquante.", "error")
         return redirect(url_for("bw_activation.dashboard"))
 
-    portal_session = stripe.billing_portal.Session.create(
-        customer=customer_id,
-        return_url=url_for("bw_activation.dashboard", _external=True),
-    )
+    try:
+        portal_session = stripe.billing_portal.Session.create(
+            customer=customer_id,
+            return_url=url_for("bw_activation.dashboard", _external=True),
+        )
+    except InvalidRequestError as exc:
+        err_msg = str(exc)
+        if "No such customer" in err_msg:
+            warn(
+                f"billing_portal: stored Stripe customer {customer_id} not found; "
+                "clearing stale reference."
+            )
+            _clear_stripe_customer_id(bw)
+            flash(
+                "Votre identifiant de client Stripe n'a pas été trouvé. La référence locale a été "
+                "réinitialisée. Si vous avez un abonnement payant, contactez le support.",
+                "error",
+            )
+            return redirect(url_for("bw_activation.dashboard"))
+        raise
+
     return redirect(portal_session.url, code=303)
 
 
@@ -65,3 +84,17 @@ def _resolve_stripe_customer_id(bw) -> str | None:
     if sub is not None and sub.stripe_customer_id:
         return sub.stripe_customer_id
     return None
+
+
+def _clear_stripe_customer_id(bw) -> None:
+    """Clear stale Stripe customer ids stored on the Organisation and/or
+    the BW Subscription so that the next checkout can create a new
+    customer id.
+    """
+    org = bw.get_organisation()
+    if org is not None and org.stripe_customer_id:
+        org.stripe_customer_id = None
+    sub = bw.subscription
+    if sub is not None and sub.stripe_customer_id:
+        sub.stripe_customer_id = None
+    db.session.commit()
