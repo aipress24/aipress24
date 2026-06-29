@@ -168,6 +168,36 @@ def accept_sujet_as_commande(sujet: Sujet, accepter: User) -> Commande:
     return commande
 
 
+def refuse_sujet(sujet: Sujet, refuser: User) -> None:
+    """Refuse a received sujet — archive it WITHOUT creating a Commande.
+
+    Ticket #0225 : the rédac chef may refuse a proposal, not only accept
+    it. Same authorization gate as acceptance (VULN-001) : only the rédac
+    chef of the target media, and only a PUBLIC (received) sujet.
+
+    Raises:
+        ValueError: if the refuser isn't authorised or the sujet isn't in
+            PUBLIC status.
+    """
+    validate_basic_acceptance(
+        accepter_org_id=refuser.organisation_id,
+        sujet_media_id=sujet.media_id,
+        sujet_status=sujet.status,
+    )
+
+    # Lazy import to keep the auth helper out of the cold-start path.
+    from app.modules.wip.crud.cbvs.sujets import _is_redac_chef_of_org
+
+    if not _is_redac_chef_of_org(refuser, sujet.media_id):
+        msg = (
+            "User is not authorized to refuse this sujet — only the "
+            "rédac chef of the target media may refuse (#0225)"
+        )
+        raise ValueError(msg)
+
+    sujet.status = PublicationStatus.ARCHIVED  # type: ignore[assignment]
+
+
 def notify_author_of_sujet_acceptance(
     *,
     author: User,
@@ -190,3 +220,23 @@ def notify_author_of_sujet_acceptance(
         container.get(NotificationService).post(author, message, url=commande_url)
     except Exception as exc:
         report_failure("sujet acceptance: in-app notification failed", exc)
+
+
+def notify_author_of_sujet_refusal(
+    *,
+    author: User,
+    refuser: User,
+    sujet_title: str,
+    sujet_url: str,
+) -> None:
+    """Post an in-app notification to the sujet author when the rédac
+    chef refuses their proposal (ticket #0225)."""
+    if not is_notification_eligible(author):
+        return
+    try:
+        message = (
+            f"Votre sujet « {sujet_title} » a été refusé par {refuser.full_name}."
+        )
+        container.get(NotificationService).post(author, message, url=sujet_url)
+    except Exception as exc:
+        report_failure("sujet refusal: in-app notification failed", exc)

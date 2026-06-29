@@ -234,6 +234,74 @@ class TestSujetClochePersistsAcrossTeardown:
         )
 
 
+class TestSujetRefuseRoute:
+    """Ticket #0225 (Erick 2026-06-27) — « Rajouter, pour le journaliste
+    exécutant, le refus du sujet [...] en notification à la cloche ».
+
+    The rédac chef must be able to REFUSE a received sujet (not only
+    accept it). Refusing archives the sujet (no Commande) and posts a
+    committed bell to the author. Same authorization gate as accept.
+    """
+
+    def test_refuse_archives_sujet_and_notifies_author(
+        self,
+        app: Flask,
+        db_session: Session,
+        test_org: Organisation,
+        redac_chef: User,
+        author: User,
+    ):
+        sujet = _make_sujet(db_session, owner_id=author.id, media_id=test_org.id)
+        db_session.commit()
+        sujet_id = sujet.id
+        author_id = author.id
+
+        client = make_authenticated_client(app, redac_chef)
+        resp = client.get(
+            url_for("SujetsWipView:refuse", id=sujet.id),
+            follow_redirects=False,
+        )
+        assert resp.status_code in (302, 303)
+
+        db.session.remove()  # simulate teardown — the cloche must be COMMITTED
+        sujet_after = db.session.get(Sujet, sujet_id)
+        assert sujet_after.status == PublicationStatus.ARCHIVED
+        # Refusal must NOT create a Commande.
+        assert (
+            db.session.query(Commande).filter_by(titre="Topic title").all() == []
+        )
+        notifs = (
+            db.session.query(Notification).filter_by(receiver_id=author_id).all()
+        )
+        assert any("refusé" in n.message for n in notifs), (
+            "author must get a committed « refusé » cloche (#0225)"
+        )
+
+    def test_refuse_denies_non_redac_chef(
+        self,
+        app: Flask,
+        db_session: Session,
+        test_org: Organisation,
+        ordinary_journalist: User,
+        author: User,
+    ):
+        """An ordinary journalist at the target media (not a rédac chef)
+        must not be able to refuse — same VULN-001 guard as accept."""
+        sujet = _make_sujet(db_session, owner_id=author.id, media_id=test_org.id)
+        db_session.commit()
+        sujet_id = sujet.id
+
+        client = make_authenticated_client(app, ordinary_journalist)
+        resp = client.get(
+            url_for("SujetsWipView:refuse", id=sujet.id),
+            follow_redirects=False,
+        )
+        assert resp.status_code in (302, 303, 403, 404)
+
+        db.session.remove()
+        assert db.session.get(Sujet, sujet_id).status == PublicationStatus.PUBLIC
+
+
 class TestSujetAcceptRoute:
     def test_accept_creates_commande_archives_sujet_redirects_to_commandes(
         self,
