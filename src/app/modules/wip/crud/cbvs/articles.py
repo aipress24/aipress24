@@ -18,6 +18,7 @@ from flask_classful import route
 from flask_super.registry import register
 from markupsafe import Markup
 from sqlalchemy_utils.types.arrow import arrow
+from werkzeug import Response
 from werkzeug.exceptions import Forbidden, NotFound
 
 from app.flask.extensions import db
@@ -258,6 +259,7 @@ class ArticlesWipView(BaseWipView):
     def get(self, id):
         """Step « Voir » — wrapped with the #0154 step-nav bar."""
         model = self._get_model(id)
+        self._require_author(model)
         title = f"{self.label_view} '{model.title}'"
         ctx = self._view_ctx(model, title=title, mode="view")
         ctx["article"] = model
@@ -267,6 +269,7 @@ class ArticlesWipView(BaseWipView):
     def edit(self, id):
         """Step « Modifier » — wrapped with the #0154 step-nav bar."""
         model = self._get_model(id)
+        self._require_author(model)
         title = f"{self.label_edit} '{model.title}'"
         ctx = self._view_ctx(model, title=title)
         ctx["article"] = model
@@ -283,6 +286,7 @@ class ArticlesWipView(BaseWipView):
     def publish(self, id):
         repo = self._get_repo()
         article = cast("Article", self._get_model(id))
+        self._require_author(article)
 
         # Use business method to publish (includes validation)
         try:
@@ -301,6 +305,7 @@ class ArticlesWipView(BaseWipView):
     def unpublish(self, id):
         repo = self._get_repo()
         article = cast("Article", self._get_model(id))
+        self._require_author(article)
 
         # Use business method to unpublish (includes validation)
         try:
@@ -314,6 +319,55 @@ class ArticlesWipView(BaseWipView):
         db.session.commit()
         flash("L'article a été dépublié")
         return redirect(self._url_for("index"))
+
+    @templated(_ARTICLE_MODIFIER_TEMPLATE)
+    def post(self) -> Response | dict:
+        """Enforce author ownership on update."""
+        repo = self._get_repo()
+        form_data = request.form
+
+        if form_data["_action"] == "cancel":
+            return redirect(self._url_for("index"))
+
+        # Security: check ownership before any form processing / template
+        # rendering, so a forged update POST for another author's article
+        # is rejected immediately.
+        if id := request.form.get("id"):
+            model = cast("Article", self._get_model(id))
+            self._require_author(model)
+        else:
+            model = self.model_class()
+            model.owner = g.user
+            model.commanditaire_id = g.user.id
+
+            if media_id_str := request.form.get("media_id"):
+                org_id = int(media_id_str)
+                model.media_id = int(org_id)
+
+        form = self.form_class(form_data)
+        self._make_media_choices(form)
+
+        if not form.validate():
+            return self._view_ctx(form=form)
+
+        form.populate_obj(model)
+
+        if hasattr(model, "pays_zip_ville"):
+            model.pays_zip_ville_detail = request.form.get("pays_zip_ville_detail", "")
+
+        if hasattr(model, "media_id"):
+            model.media_id = int(model.media_id)
+
+        self._post_update_model(model)
+        repo.add(model, auto_commit=True)
+
+        flash("Enregistré")
+        return redirect(self._url_for("index"))
+
+    def _require_author(self, article: Article) -> None:
+        """Security: WIP article pages are private to the author."""
+        if article.owner_id != g.user.id:
+            raise Forbidden
 
     @route("/<int:id>/notify/", methods=["GET", "POST"])
     def notify(self, id: int):
