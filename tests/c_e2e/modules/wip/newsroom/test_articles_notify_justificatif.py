@@ -385,3 +385,103 @@ class TestNotifyForm:
         # Refused → redirect with error flash, notify never called.
         assert response.status_code in (302, 303)
         mock_notify.assert_not_called()
+
+
+class TestArticleAccessControl:
+    """Security: WIP article pages are private to the author."""
+
+    @pytest.fixture
+    def foreign_article(
+        self, fresh_db, test_user: User, test_org: Organisation
+    ) -> Article:
+        """Article owned by another journalist."""
+        db = fresh_db.session
+        other = User(email=_email(), first_name="Other", last_name="Other", active=True)
+        db.add(other)
+        db.commit()
+        now_arrow = arrow.utcnow()
+        article = Article(
+            titre="Other's article",
+            contenu="<p>Contenu.</p>",
+            owner_id=other.id,
+            publisher_id=test_org.id,
+            commanditaire_id=other.id,
+            media_id=test_org.id,
+            status=PublicationStatus.PUBLIC,
+            published_at=now_arrow,
+            date_parution_prevue=now_arrow,
+        )
+        db.add(article)
+        db.commit()
+        return article
+
+    def test_non_author_cannot_view_article(
+        self,
+        app: Flask,
+        test_user: User,
+        foreign_article: Article,
+    ) -> None:
+        client = make_authenticated_client(app, test_user)
+        response = client.get(
+            url_for("ArticlesWipView:get", id=foreign_article.id),
+            follow_redirects=False,
+        )
+        assert response.status_code == 403
+
+    def test_non_author_cannot_edit_article(
+        self,
+        app: Flask,
+        test_user: User,
+        foreign_article: Article,
+    ) -> None:
+        client = make_authenticated_client(app, test_user)
+        response = client.get(
+            url_for("ArticlesWipView:edit", id=foreign_article.id),
+            follow_redirects=False,
+        )
+        assert response.status_code == 403
+
+    def test_non_author_cannot_publish_article(
+        self,
+        app: Flask,
+        test_user: User,
+        foreign_article: Article,
+    ) -> None:
+        client = make_authenticated_client(app, test_user)
+        response = client.get(
+            url_for("ArticlesWipView:publish", id=foreign_article.id),
+            follow_redirects=False,
+        )
+        assert response.status_code == 403
+
+    def test_non_author_cannot_unpublish_article(
+        self,
+        app: Flask,
+        test_user: User,
+        foreign_article: Article,
+    ) -> None:
+        client = make_authenticated_client(app, test_user)
+        response = client.get(
+            url_for("ArticlesWipView:unpublish", id=foreign_article.id),
+            follow_redirects=False,
+        )
+        assert response.status_code == 403
+
+    def test_non_author_cannot_update_article(
+        self,
+        app: Flask,
+        test_user: User,
+        foreign_article: Article,
+    ) -> None:
+        client = make_authenticated_client(app, test_user)
+        response = client.post(
+            url_for("ArticlesWipView:post"),
+            data={
+                "id": str(foreign_article.id),
+                "_action": "save",
+                "titre": "Hacked title",
+                "contenu": "<p>Hacked.</p>",
+            },
+            follow_redirects=False,
+        )
+        assert response.status_code == 403
