@@ -17,4 +17,4 @@ MAX_CONTENT_LENGTH = 32 * 1024 * 1024
 # other form fields. Cf. bugs/resolus/0106.
 MAX_FORM_MEMORY_SIZE = 12 * 1024 * 1024
 # Duration of the right to read an article after purchase (in days)
-ARTICLE_CONSULTATION_DURATION = 30
+ARTICLE_CONSULTATION_DURATION = 365
