@@ -140,7 +140,7 @@ def edit_config():
         return redirect(url_for("bw_activation.not_authorized"))
 
     form = BWConfigForm(request.form)
-    form.taille_orga.choices = [("", "---")] + get_full_taxonomy("taille_organisation")
+    form.taille_orga.choices = [("", "---"), *get_full_taxonomy("taille_organisation")]
 
     if request.method == "POST" and form.validate():
         if form.name.data is not None and form.name.data.strip():
