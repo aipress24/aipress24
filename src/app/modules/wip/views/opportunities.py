@@ -210,7 +210,9 @@ def _render_justificatifs_tab():
     the current user, plus their completed JdP purchases."""
     from sqlalchemy import select as sa_select
 
+    from app.lib.base62 import base62
     from app.modules.wire.models import (
+        ArticlePost,
         ArticlePurchase,
         Post,
         PurchaseProduct,
@@ -246,7 +248,7 @@ def _render_justificatifs_tab():
     purchases: list[dict] = [
         {
             "article_title": post_titles.get(int(p.post_id), "(article)"),
-            "article_url": f"/wire/item/{p.post_id}",
+            "article_url": f"/wire/item/{base62.encode(p.post_id)}",
             "date": p.paid_at or p.timestamp,
             "is_paid": True,
         }
@@ -285,11 +287,29 @@ def _render_justificatifs_tab():
         ).scalars()
     }
 
+    # Ticket #0231 \u2014 link to the NEWS article (where the recipient can buy
+    # the justificatif), NOT the WIP newsroom editor `/wip/articles/...`
+    # (the author's private workspace ; sending a solicited third party
+    # there risks data corruption). The invitation stores the WIP article
+    # id ; resolve the wire ArticlePost by `newsroom_id`.
+    wire_post_by_newsroom: dict[int, int] = {
+        nid: pid
+        for pid, nid in db.session.execute(
+            sa_select(ArticlePost.id, ArticlePost.newsroom_id).where(
+                ArticlePost.newsroom_id.in_(article_ids)
+            )
+        )
+    }
+
+    def _news_url(article_id: int) -> str:
+        post_id = wire_post_by_newsroom.get(article_id)
+        return f"/wire/item/{base62.encode(post_id)}" if post_id else ""
+
     invitations: list[dict] = [
         {
             "article_id": inv.article_id,
             "article_title": article_titles.get(int(inv.article_id), "(article)"),
-            "article_url": f"/wip/articles/{inv.article_id}",
+            "article_url": _news_url(int(inv.article_id)),
             "journalist_name": journalist_names.get(int(inv.journalist_id), "\u2014"),
             "date": inv.timestamp,
         }

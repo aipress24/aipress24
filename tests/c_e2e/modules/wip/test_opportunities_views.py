@@ -17,6 +17,7 @@ from sqlalchemy import event
 
 from app.enums import RoleEnum
 from app.flask.extensions import db
+from app.lib.base62 import base62
 from app.models.auth import KYCProfile, Role, User
 from app.models.lifecycle import PublicationStatus
 from app.models.organisation import Organisation
@@ -1215,6 +1216,74 @@ class TestJustificatifsTab:
         html = response.data.decode()
         assert "Justificatifs acquis" in html
         assert "Justif payé visible" in html
+
+    def test_invitation_links_to_news_article_not_newsroom(
+        self,
+        app,
+        fresh_db,
+        test_user: User,
+        test_org: Organisation,
+        journalist_user: User,
+    ):
+        """Ticket #0231 — the invitation must link to the NEWS article
+        (/wire/...) where the recipient can buy the justificatif, NOT the
+        WIP newsroom editor (/wip/articles/...). Landing a solicited third
+        party in the author's private workspace risks data corruption."""
+        session = fresh_db.session
+        now = datetime.now(UTC)
+        article = Article(
+            titre="JdP link test",
+            owner_id=journalist_user.id,
+            media_id=test_org.id,
+            commanditaire_id=journalist_user.id,
+            status=PublicationStatus.PUBLIC,
+            published_at=now,
+            date_parution_prevue=now,
+        )
+        session.add(article)
+        session.flush()
+        # The published wire post NEWS serves, linked to the WIP article.
+        post = ArticlePost(
+            title="JdP link test",
+            owner_id=journalist_user.id,
+            newsroom_id=article.id,
+        )
+        session.add(post)
+        session.flush()
+        avis = AvisEnquete(
+            titre="Enquête JdP link",
+            contenu="...",
+            owner_id=journalist_user.id,
+            media_id=test_org.id,
+            commanditaire_id=journalist_user.id,
+            date_debut_enquete=now - timedelta(days=7),
+            date_fin_enquete=now,
+            date_bouclage=now + timedelta(days=7),
+            date_parution_prevue=now + timedelta(days=14),
+        )
+        session.add(avis)
+        session.flush()
+        session.add(
+            ContactAvisEnquete(
+                avis_enquete_id=avis.id,
+                journaliste_id=journalist_user.id,
+                expert_id=test_user.id,
+            )
+        )
+        session.commit()
+
+        notify_avis_participants_of_justificatif(
+            article=article,
+            avis_enquete=avis,
+            recipient_user_ids=[test_user.id],
+            journalist=journalist_user,
+            article_url="https://example.com/x",
+        )
+
+        client = make_authenticated_client(app, test_user)
+        html = client.get("/wip/opportunities?tab=justificatifs").data.decode()
+        assert f"/wire/item/{base62.encode(post.id)}" in html
+        assert f"/wip/articles/{article.id}" not in html
 
     def test_tab_empty_state(self, logged_in_client, test_user):
         response = logged_in_client.get("/wip/opportunities?tab=justificatifs")

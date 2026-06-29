@@ -15,6 +15,7 @@ import pytest
 from svcs.flask import container
 
 from app.enums import RoleEnum
+from app.flask.extensions import db
 from app.models.auth import Role, User
 from app.models.lifecycle import PublicationStatus
 from app.models.organisation import Organisation
@@ -26,6 +27,7 @@ from app.modules.biz.models import (
     OfferApplication,
 )
 from app.services.notifications import NotificationService
+from app.services.notifications._models import Notification
 from tests.c_e2e.conftest import make_authenticated_client
 
 if TYPE_CHECKING:
@@ -260,6 +262,91 @@ class TestOfferApplication:
             .count()
         )
         assert count == 1
+
+
+class TestNotificationClochePersistsAcrossTeardown:
+    """Bug #0200 (Erick 2026-06-29) — « reçoit le mail mais pas la cloche ».
+
+    `NotificationService.post()` only does `repo.add()` (no commit). The
+    decision/application routes commit their state change BEFORE calling
+    the notify helper, then redirect with no second commit — so at request
+    teardown (`session.remove()`) the freshly-added Notification row is
+    rolled back. The mail (immediate I/O) goes out, the bell never
+    persists.
+
+    These tests reproduce production by simulating teardown with
+    `db.session.remove()` and then querying COMMITTED state. The existing
+    bell tests miss the bug because they read the still-open request
+    session, which holds the (uncommitted) row.
+    """
+
+    def test_emitter_cloche_persists_after_teardown(
+        self,
+        app: Flask,
+        db_session: Session,
+        published_mission: MissionOffer,
+        emitter: User,
+        applicant: User,
+    ):
+        emitter_id = emitter.id
+        client = make_authenticated_client(app, applicant)
+        with patch(
+            "app.modules.biz.services.offer_notifications.MissionApplicationMail"
+        ):
+            resp = client.post(
+                f"/biz/missions/{published_mission.id}/apply",
+                data={"message": "Je postule"},
+            )
+        assert resp.status_code == 302
+
+        db.session.remove()  # simulate request teardown
+        notifs = (
+            db.session.query(Notification).filter_by(receiver_id=emitter_id).all()
+        )
+        assert notifs, "emitter new-application cloche was rolled back (#0200)"
+
+    def test_applicant_decision_cloche_persists_after_teardown(
+        self,
+        app: Flask,
+        db_session: Session,
+        published_mission: MissionOffer,
+        emitter: User,
+        applicant: User,
+    ):
+        applicant_id = applicant.id
+        applicant_client = make_authenticated_client(app, applicant)
+        with patch(
+            "app.modules.biz.views._offers_common.notify_emitter_of_application"
+        ):
+            applicant_client.post(
+                f"/biz/missions/{published_mission.id}/apply",
+                data={"message": "Je postule"},
+            )
+        application = (
+            db_session.query(OfferApplication)
+            .filter_by(offer_id=published_mission.id, owner_id=applicant_id)
+            .one()
+        )
+        app_id = application.id
+
+        emitter_client = make_authenticated_client(app, emitter)
+        with patch(
+            "app.modules.biz.services.offer_notifications.ApplicationSelectedMail"
+        ):
+            resp = emitter_client.post(
+                f"/biz/missions/{published_mission.id}"
+                f"/applications/{app_id}/select",
+                data={"decision_message": "Bravo"},
+            )
+        assert resp.status_code == 302
+
+        db.session.remove()  # simulate request teardown
+        notifs = (
+            db.session.query(Notification).filter_by(receiver_id=applicant_id).all()
+        )
+        assert any("sélectionnée" in n.message for n in notifs), (
+            "applicant accept/reject cloche was rolled back (#0200)"
+        )
 
 
 class TestMissionDashboard:
