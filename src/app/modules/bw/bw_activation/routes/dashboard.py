@@ -155,7 +155,7 @@ def edit_config():
         return redirect(url_for("bw_activation.dashboard"))
 
     # GET — pre-fill from current BW.
-    if not form.is_submitted():
+    if request.method == "GET":
         form.name.data = current_bw.name or ""
         form.taille_orga.data = current_bw.taille_orga or ""
         missions = current_bw.missions or {}
