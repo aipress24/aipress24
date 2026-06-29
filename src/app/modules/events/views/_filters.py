@@ -5,7 +5,7 @@
 from __future__ import annotations
 
 from collections.abc import Callable
-from json import JSONDecodeError, dumps, loads
+from json import dumps, loads
 from typing import TYPE_CHECKING
 
 import sqlalchemy as sa
@@ -126,7 +126,7 @@ class FilterBar:
     def get_state(self) -> dict:
         try:
             state_json = session["events:state"]
-        except (JSONDecodeError, KeyError):
+        except KeyError:
             return {}
         else:
             return loads(state_json)
