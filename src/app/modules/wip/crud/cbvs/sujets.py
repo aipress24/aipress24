@@ -32,6 +32,8 @@ from app.modules.wip.pr_access import (
 from app.modules.wip.services.newsroom.sujet_accept import (
     accept_sujet_as_commande,
     notify_author_of_sujet_acceptance,
+    notify_author_of_sujet_refusal,
+    refuse_sujet,
 )
 from app.modules.wip.services.sujet_notifications import (
     notify_media_of_sujet_proposition,
@@ -254,6 +256,9 @@ class SujetsTable(BaseTable):
             and user_org_id == item.media_id
         ):
             actions.append({"label": "Accepter", "url": self.url_for(item, "accept")})
+            # Ticket #0225 — the rédac chef can also refuse (archives the
+            # sujet, no Commande, notifies the author).
+            actions.append({"label": "Refuser", "url": self.url_for(item, "refuse")})
         actions.append({"label": "Supprimer", "url": self.url_for(item, "delete")})
         return actions
 
@@ -491,6 +496,30 @@ class SujetsWipView(BaseWipView):
             db.session.commit()
         flash("Sujet accepté : une commande a été créée et l'auteur a été notifié.")
         return redirect(url_for("CommandesWipView:index"))
+
+    def refuse(self, id):
+        """Ticket #0225 : the rédac chef refuses a received sujet — archive
+        it (no Commande) and notify the author (bell)."""
+        sujet = cast("Sujet", self._get_model(id))
+        try:
+            refuse_sujet(sujet, g.user)
+        except ValueError as e:
+            flash(str(e), "error")
+            return redirect(self._url_for("get", id=id))
+        db.session.commit()
+
+        author = getattr(sujet, "owner", None)
+        if author is not None:
+            notify_author_of_sujet_refusal(
+                author=author,
+                refuser=g.user,
+                sujet_title=sujet.titre,
+                sujet_url=_absolute_url_for("SujetsWipView:get", id=sujet.id),
+            )
+            # Persist the in-app cloche the notify helper added (Bug #0225).
+            db.session.commit()
+        flash("Sujet refusé : l'auteur a été notifié.")
+        return redirect(self._url_for("index"))
 
 
 def _absolute_url_for(endpoint: str, **values) -> str:
