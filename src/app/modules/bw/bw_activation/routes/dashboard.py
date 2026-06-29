@@ -162,9 +162,11 @@ def edit_config():
         for key in _MISSION_LABELS:
             getattr(form, key).data = bool(missions.get(key, False))
 
+    bw_info = BW_TYPES.get(current_bw.bw_type, {})
     return render_template(
         "bw_activation/edit_config.html",
         bw=current_bw,
+        bw_info=bw_info,
         form=form,
         mission_labels=_MISSION_LABELS,
     )
