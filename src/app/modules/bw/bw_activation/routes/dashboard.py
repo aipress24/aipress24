@@ -26,6 +26,7 @@ from app.modules.bw.bw_activation.utils import (
     fill_session,
     is_bw_manager_or_admin,
 )
+from app.services.taxonomies import get_full_taxonomy
 
 if TYPE_CHECKING:
     from app.models.auth import User
@@ -129,7 +130,6 @@ class BWConfigForm(Form):
 def edit_config():
     """Ticket #0220 — allow BW managers to update the basic data
     (name, workforce → pricing tier, missions) after activation."""
-    from app.services.taxonomies import get_taxonomy
 
     user = cast("User", g.user)
     current_bw = current_business_wall(user)
@@ -140,9 +140,7 @@ def edit_config():
         return redirect(url_for("bw_activation.not_authorized"))
 
     form = BWConfigForm(request.form)
-    form.taille_orga.choices = [("", "---")] + [
-        (entry[0], entry[1]) for entry in get_taxonomy("taille_organisation")
-    ]
+    form.taille_orga.choices = [("", "---")] + get_full_taxonomy("taille_organisation")
 
     if request.method == "POST" and form.validate():
         if form.name.data is not None and form.name.data.strip():
