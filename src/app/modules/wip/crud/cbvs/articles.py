@@ -23,6 +23,7 @@ from werkzeug.exceptions import Forbidden, NotFound
 from app.flask.extensions import db
 from app.flask.lib.templates import templated
 from app.flask.routing import url_for
+from app.lib.base62 import base62
 from app.lib.file_object_utils import create_file_object
 from app.lib.image_utils import extract_image_from_request
 from app.logging import warn
@@ -369,12 +370,22 @@ class ArticlesWipView(BaseWipView):
                 flash("Enquête introuvable.", "error")
                 return redirect(self._url_for("index"))
 
+            # The public /wire/<id> URL uses the wire ArticlePost id,
+            from app.modules.wire.models import ArticlePost
+
+            article_post = (
+                db.session.query(ArticlePost)
+                .filter(ArticlePost.newsroom_id == article.id)
+                .first()
+            )
+            post_id = article_post.id if article_post is not None else article.id
+
             notified = notify_avis_participants_of_justificatif(
                 article=article,
                 avis_enquete=avis,
                 recipient_user_ids=recipient_ids,
                 journalist=user,
-                article_url=_absolute_url_for("ArticlesWipView:get", id=article.id),
+                article_url=_absolute_url_for("wire.item", id=base62.encode(post_id)),
             )
             # Commit before redirect. The service only flushes the
             # counter increment + in-app notifications ; without this

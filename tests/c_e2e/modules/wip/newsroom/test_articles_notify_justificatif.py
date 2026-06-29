@@ -17,6 +17,7 @@ import arrow
 import pytest
 
 from app.flask.routing import url_for
+from app.lib.base62 import base62
 from app.models.auth import User
 from app.models.lifecycle import PublicationStatus
 from app.models.organisation import Organisation
@@ -26,6 +27,8 @@ from app.modules.wip.models.newsroom.avis_enquete import (
     ContactAvisEnquete,
 )
 from app.modules.wip.services.newsroom import justificatif_notification
+from app.modules.wire.models import ArticlePost
+from app.signals import article_published
 from tests.c_e2e.conftest import make_authenticated_client
 
 if TYPE_CHECKING:
@@ -44,15 +47,23 @@ def published_article(fresh_db, test_user: User, test_org: Organisation) -> Arti
     # stored `titre` column. Several `nrm_article` columns are NOT NULL.
     a = Article(
         titre="Article publié",
+        contenu="<p>Contenu de l'article.</p>",
         owner_id=test_user.id,
         publisher_id=test_org.id,
         commanditaire_id=test_user.id,
         media_id=test_org.id,
-        status=PublicationStatus.PUBLIC,
-        published_at=now_arrow,
+        status=PublicationStatus.DRAFT,
         date_parution_prevue=now_arrow,
     )
     db.add(a)
+    db.commit()
+    # Publishing triggers the signal that creates the public
+    # ArticlePost on /wire. The justificatif notification must link
+    # to the ArticlePost id, not the newsroom Article id.
+    a.publish(publisher_id=test_org.id)
+    db.commit()
+
+    article_published.send(a)
     db.commit()
     return a
 
@@ -163,6 +174,11 @@ class TestNotifyForm:
         assert kwargs["recipient_user_ids"] == [expert.id]
         assert kwargs["avis_enquete"].id == avis.id
         assert kwargs["article"].id == published_article.id
+        article_post = ArticlePost.query.filter(
+            ArticlePost.newsroom_id == published_article.id
+        ).one()
+        expected_path = url_for("wire.item", id=base62.encode(article_post.id))
+        assert kwargs["article_url"].endswith(expected_path)
 
     def test_post_without_avis_flashes_error(
         self,
