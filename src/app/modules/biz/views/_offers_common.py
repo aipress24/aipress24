@@ -107,6 +107,10 @@ def handle_apply(offer, *, detail_endpoint: str, cv_url: str = ""):
     db.session.commit()
 
     notify_emitter_of_application(mission=offer, application=application)
+    # Persist the in-app cloche the notify helper added — it only
+    # `repo.add()`s, so without this commit the request teardown rolls
+    # it back (mail goes out, bell doesn't). Bug #0200.
+    db.session.commit()
 
     flash("Candidature envoyée.", "success")
     return redirect(url_for(detail_endpoint, id=offer.id))
@@ -159,6 +163,10 @@ def update_application_status(
             notify_applicant_selected(offer=offer, application=application)
         elif new_status == ApplicationStatus.REJECTED:
             notify_applicant_rejected(offer=offer, application=application)
+        # Persist the in-app cloche the notify helper added — it only
+        # `repo.add()`s, so without this commit the request teardown
+        # rolls it back (mail goes out, bell doesn't). Bug #0200.
+        db.session.commit()
 
     flash(f"Candidature {new_status.value}.", "success")
     return redirect(url_for(redirect_endpoint, id=offer.id))

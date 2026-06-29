@@ -414,6 +414,10 @@ class SujetsWipView(BaseWipView):
                 report_failure(
                     f"Sujet proposition notif failed (sujet {sujet.id})", exc
                 )
+            # Persist the in-app cloche the notify helper added — it only
+            # `repo.add()`s, so without this commit the request teardown
+            # rolls it back (mail goes out, bell doesn't). Bug #0225.
+            db.session.commit()
 
         flash("Le sujet a été publié et envoyé au média sélectionné.")
         return redirect(self._url_for("index"))
@@ -481,6 +485,10 @@ class SujetsWipView(BaseWipView):
                     report_failure(
                         f"sujet acceptance mail failed (sujet {sujet.id})", exc
                     )
+            # Persist the in-app cloche the notify helper added — it only
+            # `repo.add()`s, so without this commit the request teardown
+            # rolls it back (mail goes out, bell doesn't). Bug #0225.
+            db.session.commit()
         flash("Sujet accepté : une commande a été créée et l'auteur a été notifié.")
         return redirect(url_for("CommandesWipView:index"))
 

@@ -15,12 +15,14 @@ from unittest.mock import patch
 import pytest
 
 from app.enums import RoleEnum
+from app.flask.extensions import db
 from app.flask.routing import url_for
 from app.models.auth import KYCProfile, Role, User
 from app.models.lifecycle import PublicationStatus
 from app.models.organisation import Organisation
 from app.modules.wip.models.newsroom.commande import Commande
 from app.modules.wip.models.newsroom.sujet import Sujet
+from app.services.notifications._models import Notification
 from tests.c_e2e.conftest import make_authenticated_client
 
 if TYPE_CHECKING:
@@ -28,7 +30,13 @@ if TYPE_CHECKING:
     from sqlalchemy.orm import Session
 
 
-def _make_sujet(db_session, *, owner_id: int, media_id: int) -> Sujet:
+def _make_sujet(
+    db_session,
+    *,
+    owner_id: int,
+    media_id: int,
+    status: PublicationStatus = PublicationStatus.PUBLIC,
+) -> Sujet:
     now = datetime.now(UTC)
     sujet = Sujet(
         owner_id=owner_id,
@@ -36,7 +44,7 @@ def _make_sujet(db_session, *, owner_id: int, media_id: int) -> Sujet:
         commanditaire_id=owner_id,
         titre="Topic title",
         contenu="Topic content",
-        status=PublicationStatus.PUBLIC,
+        status=status,
         date_limite_validite=now + timedelta(days=7),
         date_parution_prevue=now + timedelta(days=14),
     )
@@ -116,6 +124,114 @@ def author(db_session: Session) -> User:
     db_session.add(user)
     db_session.flush()
     return user
+
+
+@pytest.fixture
+def author_journalist(db_session: Session) -> User:
+    """The journalist author, WITH the PRESS_MEDIA role (so they pass the
+    newsroom gate to publish their own sujet) and in their own org."""
+    role = db_session.query(Role).filter_by(name=RoleEnum.PRESS_MEDIA.name).first()
+    if role is None:
+        role = Role(name=RoleEnum.PRESS_MEDIA.name, description="journalist")
+        db_session.add(role)
+        db_session.flush()
+    org = Organisation(name="Fake-Author Press Org")
+    db_session.add(org)
+    db_session.flush()
+    user = User(
+        email="claude-author@example.com",
+        first_name="Claude",
+        last_name="Etchegoyen",
+        active=True,
+    )
+    user.profile = KYCProfile(profile_code="PM_JR_CP_SAL")
+    user.organisation = org
+    user.organisation_id = org.id
+    user.roles.append(role)
+    db_session.add(user)
+    db_session.flush()
+    return user
+
+
+class TestSujetClochePersistsAcrossTeardown:
+    """Bug #0225 (Erick 2026-06-27) — « reçoit le mail mais pas la cloche ».
+
+    Same root cause as #0200 : `NotificationService.post()` only
+    `repo.add()`s ; the publish/accept routes commit their state change
+    BEFORE calling the notify helper, then redirect with no second commit,
+    so the cloche row is rolled back at request teardown. Reproduced by
+    simulating teardown (`db.session.remove()`) then asserting COMMITTED
+    state. The existing route tests miss it because they patch the notify
+    helper entirely.
+    """
+
+    def test_proposition_cloche_persists_after_teardown(
+        self,
+        app: Flask,
+        db_session: Session,
+        test_org: Organisation,
+        redac_chef: User,
+        author_journalist: User,
+    ):
+        """Publishing a DRAFT sujet to a media must leave the rédac chef a
+        COMMITTED bell, not just an email."""
+        sujet = _make_sujet(
+            db_session,
+            owner_id=author_journalist.id,
+            media_id=test_org.id,
+            status=PublicationStatus.DRAFT,
+        )
+        db_session.commit()
+        redac_chef_id = redac_chef.id
+
+        client = make_authenticated_client(app, author_journalist)
+        with patch(
+            "app.modules.wip.services.sujet_notifications"
+            ".SujetPropositionNotificationMail"
+        ):
+            resp = client.get(
+                url_for("SujetsWipView:publish", id=sujet.id),
+                follow_redirects=False,
+            )
+        assert resp.status_code in (302, 303)
+
+        db.session.remove()  # simulate request teardown
+        notifs = (
+            db.session.query(Notification).filter_by(receiver_id=redac_chef_id).all()
+        )
+        assert any("proposé" in n.message for n in notifs), (
+            "sujet proposition cloche was rolled back — not committed (#0225)"
+        )
+
+    def test_acceptance_cloche_persists_after_teardown(
+        self,
+        app: Flask,
+        db_session: Session,
+        test_org: Organisation,
+        redac_chef: User,
+        author: User,
+    ):
+        """Accepting a sujet must leave the author a COMMITTED bell."""
+        sujet = _make_sujet(db_session, owner_id=author.id, media_id=test_org.id)
+        db_session.commit()
+        author_id = author.id
+
+        client = make_authenticated_client(app, redac_chef)
+        # cloche fires for real ; only the route's e-mail is patched.
+        with patch("app.services.emails.SujetAcceptanceNotificationMail.send"):
+            resp = client.get(
+                url_for("SujetsWipView:accept", id=sujet.id),
+                follow_redirects=False,
+            )
+        assert resp.status_code in (302, 303)
+
+        db.session.remove()  # simulate request teardown
+        notifs = (
+            db.session.query(Notification).filter_by(receiver_id=author_id).all()
+        )
+        assert any("accepté" in n.message for n in notifs), (
+            "sujet acceptance cloche was rolled back — not committed (#0225)"
+        )
 
 
 class TestSujetAcceptRoute:
