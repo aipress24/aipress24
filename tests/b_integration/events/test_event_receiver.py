@@ -7,7 +7,6 @@
 from __future__ import annotations
 
 from typing import TYPE_CHECKING
-from unittest.mock import patch
 
 import pytest
 from arrow import now
@@ -82,20 +81,6 @@ def test_event(db_session: Session, test_user: User) -> Event:
     db_session.add(event)
     db_session.flush()
     return event
-
-
-@pytest.fixture(autouse=True)
-def mock_commit():
-    """Mock db.session.commit to preserve test transaction isolation."""
-    with patch("app.modules.events.event_receiver.db.session.commit"):
-        yield
-
-
-@pytest.fixture(autouse=True)
-def mock_print():
-    """Mock print statements to avoid test output clutter."""
-    with patch("builtins.print"):
-        yield
 
 
 class TestEventTypeToCategory:

@@ -7,7 +7,6 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from unittest.mock import patch
 
 from app.ui.geoloc import offer_geoloc_label
 
@@ -25,25 +24,27 @@ class TestStructuredCases:
             pays_zip_ville="FRA",
             pays_zip_ville_detail="FRA / 75001 Paris",
         )
-        with (
-            patch("app.ui.geoloc.country_code_to_label", return_value="France"),
-            patch("app.ui.geoloc.country_zip_code_to_city", return_value="75001 Paris"),
-        ):
-            assert offer_geoloc_label(offer) == "75001 Paris, France"
+        label = offer_geoloc_label(
+            offer,
+            _country_resolver=lambda _c: "France",
+            _city_resolver=lambda _d: "75001 Paris",
+        )
+        assert label == "75001 Paris, France"
 
     def test_only_country_set_yields_country_alone(self) -> None:
         offer = _FakeOffer(pays_zip_ville="FRA")
-        with patch("app.ui.geoloc.country_code_to_label", return_value="France"):
-            assert offer_geoloc_label(offer) == "France"
+        label = offer_geoloc_label(offer, _country_resolver=lambda _c: "France")
+        assert label == "France"
 
     def test_unknown_country_falls_through_to_legacy(self) -> None:
         offer = _FakeOffer(pays_zip_ville="???", location="Brest")
-        with (
-            patch("app.ui.geoloc.country_code_to_label", return_value=""),
-            patch("app.ui.geoloc.country_zip_code_to_city", return_value=""),
-        ):
-            # Helpers return empty: no structured label, fall back to location.
-            assert offer_geoloc_label(offer) == "Brest"
+        # Helpers return empty: no structured label, fall back to location.
+        label = offer_geoloc_label(
+            offer,
+            _country_resolver=lambda _c: "",
+            _city_resolver=lambda _d: "",
+        )
+        assert label == "Brest"
 
 
 class TestLegacyFallback:
