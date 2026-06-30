@@ -248,7 +248,7 @@ def _render_justificatifs_tab():
     purchases: list[dict] = [
         {
             "article_title": post_titles.get(int(p.post_id), "(article)"),
-            "article_url": f"/wire/item/{base62.encode(p.post_id)}",
+            "article_url": url_for("wire.item", id=base62.encode(p.post_id)),
             "date": p.paid_at or p.timestamp,
             "is_paid": True,
         }
@@ -303,7 +303,7 @@ def _render_justificatifs_tab():
 
     def _news_url(article_id: int) -> str:
         post_id = wire_post_by_newsroom.get(article_id)
-        return f"/wire/item/{base62.encode(post_id)}" if post_id else ""
+        return url_for("wire.item", id=base62.encode(post_id)) if post_id else ""
 
     invitations: list[dict] = [
         {
