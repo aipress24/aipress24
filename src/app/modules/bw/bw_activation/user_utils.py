@@ -684,3 +684,25 @@ def get_representing_agency_org_ids_for_client(client_org: Organisation) -> list
         .where(BusinessWall.organisation_id.is_not(None))
     ).scalars()
     return [org_id for org_id in rows if org_id is not None]
+
+
+def user_affiliated_with_org_clause(user_id: int, org_id: int):
+    """Return a SQLAlchemy clause that is true when a User
+    is affiliated with "org_id" through a Business Wall
+    (owner or accepted member).
+    """
+    owner_exists = (
+        select(BusinessWall.id)
+        .where(BusinessWall.owner_id == user_id)
+        .where(BusinessWall.organisation_id == org_id)
+    ).exists()
+
+    member_exists = (
+        select(RoleAssignment.id)
+        .join(BusinessWall, RoleAssignment.business_wall_id == BusinessWall.id)
+        .where(RoleAssignment.user_id == user_id)
+        .where(RoleAssignment.invitation_status == InvitationStatus.ACCEPTED.value)
+        .where(BusinessWall.organisation_id == org_id)
+    ).exists()
+
+    return owner_exists | member_exists
