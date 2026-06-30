@@ -124,6 +124,13 @@ def fresh_db(app: Flask):
     _db.session.rollback()
     _db.session.remove()
     _db.engine.dispose()
+    # Leave an empty schema behind. `fresh_db` clears committed E2E data by
+    # disposing the engine — which, on sqlite ``:memory:`` (StaticPool, a
+    # single connection), tears down the whole database. Without recreating
+    # the tables, the NEXT test — possibly a b_integration / a_unit test that
+    # relies on the session-scoped schema — would hit "no such table". The
+    # fixture must clean up after itself: a clean, ready-to-use schema.
+    _db.create_all()
 
 
 @pytest.fixture(autouse=True)

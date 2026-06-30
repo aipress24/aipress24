@@ -286,7 +286,9 @@ class ExpertFilterService:
         # None and resolves the real services from the container ; tests
         # pass stubs (a dict for the session store, a fake repo) so they
         # don't have to patch the DI container.
-        self._session = session if session is not None else container.get(SessionService)
+        self._session = (
+            session if session is not None else container.get(SessionService)
+        )
         self._session_key: str = ""
         self._user_repo = (
             user_repo if user_repo is not None else container.get(UserRepository)
