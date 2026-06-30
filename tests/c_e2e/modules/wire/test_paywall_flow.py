@@ -18,6 +18,9 @@ from app.lib.file_object_utils import create_file_object
 from app.models.auth import Role, User
 from app.models.lifecycle import PublicationStatus
 from app.models.organisation import Organisation
+from app.modules.wip.models.newsroom.justificatif_invitation import (
+    JustificatifInvitation,
+)
 from app.modules.wire.models import (
     ArticlePost,
     ArticlePurchase,
@@ -365,9 +368,21 @@ def test_justificatif_button_hidden_when_paywall_inactive(
 
 
 def test_justificatif_button_shown_when_paywall_active(
-    app: Flask, reader: User, article: ArticlePost
+    app: Flask, db_session: Session, reader: User, article: ArticlePost
 ):
     _CONSULTATION_PRICE_CACHE.clear()
+    # Button only shown when the reader was invited by the journalist.
+    article.newsroom_id = article.id
+    db_session.add(
+        JustificatifInvitation(
+            article_id=article.id,
+            recipient_id=reader.id,
+            journalist_id=article.owner_id,
+            avis_enquete_id=article.id,
+        )
+    )
+    db_session.commit()
+
     app.config["STRIPE_LIVE_ENABLED"] = True
     try:
         client = make_authenticated_client(app, reader)
