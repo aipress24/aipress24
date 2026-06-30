@@ -22,6 +22,7 @@ from app.modules.biz.models import (
     OfferApplication,
     ProjectOffer,
 )
+from app.services.notifications._models import Notification
 from tests.c_e2e.conftest import make_authenticated_client
 
 if TYPE_CHECKING:
@@ -138,17 +139,15 @@ def test_applicant_can_apply_to_project(
     app: Flask,
     db_session: Session,
     published_project: ProjectOffer,
+    emitter: User,
     applicant: User,
 ):
     client = make_authenticated_client(app, applicant)
-    with patch(
-        "app.modules.biz.views._offers_common.notify_emitter_of_application"
-    ) as mock_notify:
-        response = client.post(
-            f"/biz/projects/{published_project.id}/apply",
-            data={"message": "Intéressé par cette enquête."},
-            follow_redirects=False,
-        )
+    response = client.post(
+        f"/biz/projects/{published_project.id}/apply",
+        data={"message": "Intéressé par cette enquête."},
+        follow_redirects=False,
+    )
     assert response.status_code == 302
     application = (
         db_session.query(OfferApplication)
@@ -157,7 +156,8 @@ def test_applicant_can_apply_to_project(
     )
     assert application is not None
     assert application.status == ApplicationStatus.PENDING
-    mock_notify.assert_called_once()
+    # Applying notified the emitter — a cloche row was committed.
+    assert db_session.query(Notification).filter_by(receiver_id=emitter.id).count() >= 1
 
 
 def test_project_decision_buttons_and_badge_on_applications_page(
@@ -173,11 +173,10 @@ def test_project_decision_buttons_and_badge_on_applications_page(
     comparisons were case-broken — uppercase literal vs lowercase enum
     value — so neither the buttons nor the badge rendered.)"""
     applicant_client = make_authenticated_client(app, applicant)
-    with patch("app.modules.biz.views._offers_common.notify_emitter_of_application"):
-        applicant_client.post(
-            f"/biz/projects/{published_project.id}/apply",
-            data={"message": "Je postule"},
-        )
+    applicant_client.post(
+        f"/biz/projects/{published_project.id}/apply",
+        data={"message": "Je postule"},
+    )
     application = (
         db_session.query(OfferApplication)
         .filter_by(offer_id=published_project.id)
@@ -194,12 +193,10 @@ def test_project_decision_buttons_and_badge_on_applications_page(
     assert f"/applications/{application.id}/reject" in body
 
     # Accept it — the badge must then read « Accepté », not « En attente ».
-    with patch("app.modules.biz.services.offer_notifications.ApplicationSelectedMail"):
-        emitter_client.post(
-            f"/biz/projects/{published_project.id}"
-            f"/applications/{application.id}/select",
-            data={"decision_message": "Bravo"},
-        )
+    emitter_client.post(
+        f"/biz/projects/{published_project.id}/applications/{application.id}/select",
+        data={"decision_message": "Bravo"},
+    )
     db_session.refresh(application)
     assert application.status == ApplicationStatus.SELECTED
     after = emitter_client.get(f"/biz/projects/{published_project.id}/applications")
@@ -214,11 +211,10 @@ def test_emitter_sees_project_applications(
     applicant: User,
 ):
     applicant_client = make_authenticated_client(app, applicant)
-    with patch("app.modules.biz.views._offers_common.notify_emitter_of_application"):
-        applicant_client.post(
-            f"/biz/projects/{published_project.id}/apply",
-            data={"message": "Motivation pour projet"},
-        )
+    applicant_client.post(
+        f"/biz/projects/{published_project.id}/apply",
+        data={"message": "Motivation pour projet"},
+    )
     emitter_client = make_authenticated_client(app, emitter)
     response = emitter_client.get(f"/biz/projects/{published_project.id}/applications")
     assert response.status_code == 200
@@ -321,11 +317,10 @@ def test_project_select_persists_decision_message_and_notifies(
     """Ticket #0200 — same accept/reject + decision_message flow as
     Missions, applied to Projects."""
     applicant_client = make_authenticated_client(app, applicant)
-    with patch("app.modules.biz.views._offers_common.notify_emitter_of_application"):
-        applicant_client.post(
-            f"/biz/projects/{published_project.id}/apply",
-            data={"message": "Je postule au projet."},
-        )
+    applicant_client.post(
+        f"/biz/projects/{published_project.id}/apply",
+        data={"message": "Je postule au projet."},
+    )
     application = (
         db_session.query(OfferApplication)
         .filter_by(offer_id=published_project.id)
@@ -334,24 +329,16 @@ def test_project_select_persists_decision_message_and_notifies(
     assert application is not None
 
     emitter_client = make_authenticated_client(app, emitter)
-    with patch(
-        "app.modules.biz.services.offer_notifications.ApplicationSelectedMail"
-    ) as mail_cls:
-        mail_cls.return_value.send.return_value = None
-        emitter_client.post(
-            f"/biz/projects/{published_project.id}"
-            f"/applications/{application.id}/select",
-            data={"decision_message": "Vous êtes pris pour le projet."},
-            follow_redirects=False,
-        )
+    emitter_client.post(
+        f"/biz/projects/{published_project.id}/applications/{application.id}/select",
+        data={"decision_message": "Vous êtes pris pour le projet."},
+        follow_redirects=False,
+    )
 
     db_session.refresh(application)
     assert application.status == ApplicationStatus.SELECTED
+    # The decision message is persisted on the application (state, not a mock).
     assert application.decision_message == "Vous êtes pris pour le projet."
-    assert mail_cls.called
-    assert mail_cls.call_args.kwargs["decision_message"] == (
-        "Vous êtes pris pour le projet."
-    )
 
 
 def test_project_fill_blocks_new_applications(
@@ -367,11 +354,10 @@ def test_project_fill_blocks_new_applications(
     assert published_project.mission_status == MissionStatus.FILLED
 
     applicant_client = make_authenticated_client(app, applicant)
-    with patch("app.modules.biz.views._offers_common.notify_emitter_of_application"):
-        applicant_client.post(
-            f"/biz/projects/{published_project.id}/apply",
-            data={"message": "Trop tard"},
-        )
+    applicant_client.post(
+        f"/biz/projects/{published_project.id}/apply",
+        data={"message": "Trop tard"},
+    )
     count = (
         db_session.query(OfferApplication)
         .filter_by(offer_id=published_project.id)

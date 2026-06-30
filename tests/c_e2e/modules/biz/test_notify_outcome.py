@@ -8,7 +8,6 @@ from __future__ import annotations
 
 import uuid
 from typing import TYPE_CHECKING
-from unittest.mock import patch
 
 import pytest
 
@@ -22,6 +21,7 @@ from app.modules.biz.models import (
     MissionStatus,
     OfferApplication,
 )
+from app.services.notifications._models import Notification
 from tests.c_e2e.conftest import make_authenticated_client
 
 if TYPE_CHECKING:
@@ -91,53 +91,53 @@ def scenario(db_session: Session, press_role: Role) -> dict:
     }
 
 
-def test_selecting_application_emails_applicant(
+def test_selecting_application_notifies_applicant(
     app: Flask, db_session: Session, scenario: dict
 ):
+    applicant_id = scenario["applicant"].id
     emitter_client = make_authenticated_client(app, scenario["emitter"])
-    with patch(
-        "app.modules.biz.views._offers_common.notify_applicant_selected"
-    ) as mock_selected:
-        response = emitter_client.post(
-            f"/biz/missions/{scenario['mission'].id}"
-            f"/applications/{scenario['application'].id}/select"
-        )
+    response = emitter_client.post(
+        f"/biz/missions/{scenario['mission'].id}"
+        f"/applications/{scenario['application'].id}/select"
+    )
     assert response.status_code == 302
-    mock_selected.assert_called_once()
     db_session.refresh(scenario["application"])
     assert scenario["application"].status == ApplicationStatus.SELECTED
+    # The applicant got a committed « sélectionnée » cloche (state, not a mock).
+    notifs = db_session.query(Notification).filter_by(receiver_id=applicant_id).all()
+    assert any("sélectionnée" in n.message for n in notifs)
 
 
-def test_rejecting_application_emails_applicant(
+def test_rejecting_application_notifies_applicant(
     app: Flask, db_session: Session, scenario: dict
 ):
+    applicant_id = scenario["applicant"].id
     emitter_client = make_authenticated_client(app, scenario["emitter"])
-    with patch(
-        "app.modules.biz.views._offers_common.notify_applicant_rejected"
-    ) as mock_rejected:
-        response = emitter_client.post(
-            f"/biz/missions/{scenario['mission'].id}"
-            f"/applications/{scenario['application'].id}/reject"
-        )
+    response = emitter_client.post(
+        f"/biz/missions/{scenario['mission'].id}"
+        f"/applications/{scenario['application'].id}/reject"
+    )
     assert response.status_code == 302
-    mock_rejected.assert_called_once()
     db_session.refresh(scenario["application"])
     assert scenario["application"].status == ApplicationStatus.REJECTED
+    notifs = db_session.query(Notification).filter_by(receiver_id=applicant_id).all()
+    assert any("non retenue" in n.message for n in notifs)
 
 
-def test_resending_same_status_does_not_reemail(
+def test_resending_same_status_does_not_renotify(
     app: Flask, db_session: Session, scenario: dict
 ):
-    # Pre-mark as SELECTED, then hit select again — should not re-email.
+    # Pre-mark as SELECTED, then hit select again — should not re-notify.
     scenario["application"].status = ApplicationStatus.SELECTED
     db_session.commit()
+    applicant_id = scenario["applicant"].id
 
     emitter_client = make_authenticated_client(app, scenario["emitter"])
-    with patch(
-        "app.modules.biz.views._offers_common.notify_applicant_selected"
-    ) as mock_selected:
-        emitter_client.post(
-            f"/biz/missions/{scenario['mission'].id}"
-            f"/applications/{scenario['application'].id}/select"
-        )
-    mock_selected.assert_not_called()
+    emitter_client.post(
+        f"/biz/missions/{scenario['mission'].id}"
+        f"/applications/{scenario['application'].id}/select"
+    )
+    # No state transition → no new cloche for the applicant.
+    assert (
+        db_session.query(Notification).filter_by(receiver_id=applicant_id).count() == 0
+    )

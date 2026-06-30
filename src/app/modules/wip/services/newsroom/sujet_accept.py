@@ -234,9 +234,7 @@ def notify_author_of_sujet_refusal(
     if not is_notification_eligible(author):
         return
     try:
-        message = (
-            f"Votre sujet « {sujet_title} » a été refusé par {refuser.full_name}."
-        )
+        message = f"Votre sujet « {sujet_title} » a été refusé par {refuser.full_name}."
         container.get(NotificationService).post(author, message, url=sujet_url)
     except Exception as exc:
         report_failure("sujet refusal: in-app notification failed", exc)

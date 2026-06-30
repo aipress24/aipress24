@@ -160,17 +160,15 @@ class TestOfferApplication:
         app: Flask,
         db_session: Session,
         published_mission: MissionOffer,
+        emitter: User,
         applicant: User,
     ):
         client = make_authenticated_client(app, applicant)
-        with patch(
-            "app.modules.biz.views._offers_common.notify_emitter_of_application"
-        ) as mock_notify:
-            response = client.post(
-                f"/biz/missions/{published_mission.id}/apply",
-                data={"message": "Je suis intéressé par cette pige."},
-                follow_redirects=False,
-            )
+        response = client.post(
+            f"/biz/missions/{published_mission.id}/apply",
+            data={"message": "Je suis intéressé par cette pige."},
+            follow_redirects=False,
+        )
 
         assert response.status_code == 302
         application = (
@@ -183,7 +181,11 @@ class TestOfferApplication:
         )
         assert application is not None
         assert application.status == ApplicationStatus.PENDING
-        mock_notify.assert_called_once()
+        # Applying notified the emitter — a cloche row was committed.
+        assert (
+            db_session.query(Notification).filter_by(receiver_id=emitter.id).count()
+            >= 1
+        )
 
     def test_application_posts_bell_to_emitter(
         self,
@@ -196,16 +198,11 @@ class TestOfferApplication:
         """Bug #0200 — a new candidacy must alert the emitter on the bell
         (cloche), not only by e-mail."""
         client = make_authenticated_client(app, applicant)
-        # Isolate the e-mail side so only the cloche is under test.
-        with patch(
-            "app.modules.biz.services.offer_notifications.MissionApplicationMail"
-        ) as mail_cls:
-            mail_cls.return_value.send.return_value = None
-            response = client.post(
-                f"/biz/missions/{published_mission.id}/apply",
-                data={"message": "Je postule"},
-                follow_redirects=False,
-            )
+        response = client.post(
+            f"/biz/missions/{published_mission.id}/apply",
+            data={"message": "Je postule"},
+            follow_redirects=False,
+        )
 
         assert response.status_code == 302
         notifs = container.get(NotificationService).get_notifications(emitter)
@@ -242,17 +239,14 @@ class TestOfferApplication:
         applicant: User,
     ):
         client = make_authenticated_client(app, applicant)
-        with patch(
-            "app.modules.biz.views._offers_common.notify_emitter_of_application"
-        ):
-            client.post(
-                f"/biz/missions/{published_mission.id}/apply",
-                data={"message": "Première"},
-            )
-            client.post(
-                f"/biz/missions/{published_mission.id}/apply",
-                data={"message": "Deuxième"},
-            )
+        client.post(
+            f"/biz/missions/{published_mission.id}/apply",
+            data={"message": "Première"},
+        )
+        client.post(
+            f"/biz/missions/{published_mission.id}/apply",
+            data={"message": "Deuxième"},
+        )
         count = (
             db_session.query(OfferApplication)
             .filter_by(
@@ -290,19 +284,14 @@ class TestNotificationClochePersistsAcrossTeardown:
     ):
         emitter_id = emitter.id
         client = make_authenticated_client(app, applicant)
-        with patch(
-            "app.modules.biz.services.offer_notifications.MissionApplicationMail"
-        ):
-            resp = client.post(
-                f"/biz/missions/{published_mission.id}/apply",
-                data={"message": "Je postule"},
-            )
+        resp = client.post(
+            f"/biz/missions/{published_mission.id}/apply",
+            data={"message": "Je postule"},
+        )
         assert resp.status_code == 302
 
         db.session.remove()  # simulate request teardown
-        notifs = (
-            db.session.query(Notification).filter_by(receiver_id=emitter_id).all()
-        )
+        notifs = db.session.query(Notification).filter_by(receiver_id=emitter_id).all()
         assert notifs, "emitter new-application cloche was rolled back (#0200)"
 
     def test_applicant_decision_cloche_persists_after_teardown(
@@ -315,13 +304,10 @@ class TestNotificationClochePersistsAcrossTeardown:
     ):
         applicant_id = applicant.id
         applicant_client = make_authenticated_client(app, applicant)
-        with patch(
-            "app.modules.biz.views._offers_common.notify_emitter_of_application"
-        ):
-            applicant_client.post(
-                f"/biz/missions/{published_mission.id}/apply",
-                data={"message": "Je postule"},
-            )
+        applicant_client.post(
+            f"/biz/missions/{published_mission.id}/apply",
+            data={"message": "Je postule"},
+        )
         application = (
             db_session.query(OfferApplication)
             .filter_by(offer_id=published_mission.id, owner_id=applicant_id)
@@ -330,14 +316,10 @@ class TestNotificationClochePersistsAcrossTeardown:
         app_id = application.id
 
         emitter_client = make_authenticated_client(app, emitter)
-        with patch(
-            "app.modules.biz.services.offer_notifications.ApplicationSelectedMail"
-        ):
-            resp = emitter_client.post(
-                f"/biz/missions/{published_mission.id}"
-                f"/applications/{app_id}/select",
-                data={"decision_message": "Bravo"},
-            )
+        resp = emitter_client.post(
+            f"/biz/missions/{published_mission.id}/applications/{app_id}/select",
+            data={"decision_message": "Bravo"},
+        )
         assert resp.status_code == 302
 
         db.session.remove()  # simulate request teardown
@@ -359,13 +341,10 @@ class TestMissionDashboard:
         applicant: User,
     ):
         applicant_client = make_authenticated_client(app, applicant)
-        with patch(
-            "app.modules.biz.views._offers_common.notify_emitter_of_application"
-        ):
-            applicant_client.post(
-                f"/biz/missions/{published_mission.id}/apply",
-                data={"message": "Ma candidature"},
-            )
+        applicant_client.post(
+            f"/biz/missions/{published_mission.id}/apply",
+            data={"message": "Ma candidature"},
+        )
 
         emitter_client = make_authenticated_client(app, emitter)
         response = emitter_client.get(
@@ -387,13 +366,10 @@ class TestMissionDashboard:
         with BOTH « Accepter » and « Refuser » present ; the detail page
         carries no decision buttons."""
         applicant_client = make_authenticated_client(app, applicant)
-        with patch(
-            "app.modules.biz.views._offers_common.notify_emitter_of_application"
-        ):
-            applicant_client.post(
-                f"/biz/missions/{published_mission.id}/apply",
-                data={"message": "Je postule"},
-            )
+        applicant_client.post(
+            f"/biz/missions/{published_mission.id}/apply",
+            data={"message": "Je postule"},
+        )
         application = (
             db_session.query(OfferApplication)
             .filter_by(offer_id=published_mission.id)
@@ -432,13 +408,10 @@ class TestMissionDashboard:
         in-app cloche."""
         # Submit application.
         applicant_client = make_authenticated_client(app, applicant)
-        with patch(
-            "app.modules.biz.views._offers_common.notify_emitter_of_application"
-        ):
-            applicant_client.post(
-                f"/biz/missions/{published_mission.id}/apply",
-                data={"message": "Je postule"},
-            )
+        applicant_client.post(
+            f"/biz/missions/{published_mission.id}/apply",
+            data={"message": "Je postule"},
+        )
         application = (
             db_session.query(OfferApplication)
             .filter_by(offer_id=published_mission.id)
@@ -448,29 +421,20 @@ class TestMissionDashboard:
 
         # Emitter selects with a custom message.
         emitter_client = make_authenticated_client(app, emitter)
-        with patch(
-            "app.modules.biz.services.offer_notifications.ApplicationSelectedMail"
-        ) as mail_cls:
-            mail_cls.return_value.send.return_value = None
-            response = emitter_client.post(
-                f"/biz/missions/{published_mission.id}"
-                f"/applications/{application.id}/select",
-                data={"decision_message": "Bravo, vous êtes pris."},
-                follow_redirects=False,
-            )
+        response = emitter_client.post(
+            f"/biz/missions/{published_mission.id}"
+            f"/applications/{application.id}/select",
+            data={"decision_message": "Bravo, vous êtes pris."},
+            follow_redirects=False,
+        )
 
         assert response.status_code == 302
         db_session.refresh(application)
         assert application.status == ApplicationStatus.SELECTED
+        # The decision message is persisted on the application (state, not a mock).
         assert application.decision_message == "Bravo, vous êtes pris."
 
-        # The mailer received the message.
-        assert mail_cls.called
-        assert mail_cls.call_args.kwargs["decision_message"] == (
-            "Bravo, vous êtes pris."
-        )
-
-        # And the in-app cloche fired for the applicant.
+        # And the in-app cloche fired for the applicant, carrying the message.
         notifs = container.get(NotificationService).get_notifications(applicant)
         assert any(
             published_mission.title in n.message
@@ -487,13 +451,10 @@ class TestMissionDashboard:
         applicant: User,
     ):
         applicant_client = make_authenticated_client(app, applicant)
-        with patch(
-            "app.modules.biz.views._offers_common.notify_emitter_of_application"
-        ):
-            applicant_client.post(
-                f"/biz/missions/{published_mission.id}/apply",
-                data={"message": "Je postule"},
-            )
+        applicant_client.post(
+            f"/biz/missions/{published_mission.id}/apply",
+            data={"message": "Je postule"},
+        )
         application = (
             db_session.query(OfferApplication)
             .filter_by(offer_id=published_mission.id)
@@ -502,24 +463,20 @@ class TestMissionDashboard:
         assert application is not None
 
         emitter_client = make_authenticated_client(app, emitter)
-        with patch(
-            "app.modules.biz.services.offer_notifications.ApplicationRejectedMail"
-        ) as mail_cls:
-            mail_cls.return_value.send.return_value = None
-            emitter_client.post(
-                f"/biz/missions/{published_mission.id}"
-                f"/applications/{application.id}/reject",
-                data={"decision_message": "Désolé, profil non retenu."},
-                follow_redirects=False,
-            )
+        emitter_client.post(
+            f"/biz/missions/{published_mission.id}"
+            f"/applications/{application.id}/reject",
+            data={"decision_message": "Désolé, profil non retenu."},
+            follow_redirects=False,
+        )
 
         db_session.refresh(application)
         assert application.status == ApplicationStatus.REJECTED
+        # The decision message is persisted on the application (state, not a mock).
         assert application.decision_message == "Désolé, profil non retenu."
-        assert mail_cls.called
-        assert mail_cls.call_args.kwargs["decision_message"] == (
-            "Désolé, profil non retenu."
-        )
+        # And the in-app cloche fired for the applicant, carrying the message.
+        notifs = container.get(NotificationService).get_notifications(applicant)
+        assert any("Désolé, profil non retenu." in n.message for n in notifs)
 
     def test_emitter_can_select_application(
         self,
@@ -530,13 +487,10 @@ class TestMissionDashboard:
         applicant: User,
     ):
         applicant_client = make_authenticated_client(app, applicant)
-        with patch(
-            "app.modules.biz.views._offers_common.notify_emitter_of_application"
-        ):
-            applicant_client.post(
-                f"/biz/missions/{published_mission.id}/apply",
-                data={"message": "Test"},
-            )
+        applicant_client.post(
+            f"/biz/missions/{published_mission.id}/apply",
+            data={"message": "Test"},
+        )
         application = (
             db_session.query(OfferApplication)
             .filter_by(offer_id=published_mission.id)
@@ -568,13 +522,10 @@ class TestMissionDashboard:
         assert published_mission.mission_status == MissionStatus.FILLED
 
         applicant_client = make_authenticated_client(app, applicant)
-        with patch(
-            "app.modules.biz.views._offers_common.notify_emitter_of_application"
-        ):
-            applicant_client.post(
-                f"/biz/missions/{published_mission.id}/apply",
-                data={"message": "Trop tard"},
-            )
+        applicant_client.post(
+            f"/biz/missions/{published_mission.id}/apply",
+            data={"message": "Trop tard"},
+        )
 
         count = (
             db_session.query(OfferApplication)
@@ -743,13 +694,10 @@ class TestApplicantCardsOnApplicationsPage:
 
         for a in (a1, a2):
             client = make_authenticated_client(app, a)
-            with patch(
-                "app.modules.biz.views._offers_common.notify_emitter_of_application"
-            ):
-                client.post(
-                    f"/biz/missions/{published_mission.id}/apply",
-                    data={"message": f"Candidature de {a.first_name}."},
-                )
+            client.post(
+                f"/biz/missions/{published_mission.id}/apply",
+                data={"message": f"Candidature de {a.first_name}."},
+            )
 
         emitter_client = make_authenticated_client(app, emitter)
         response = emitter_client.get(
@@ -1090,14 +1038,11 @@ class TestJournalismVisibilityRestriction:
         db_session: Session,
     ):
         client = make_authenticated_client(app, non_journalist_user)
-        with patch(
-            "app.modules.biz.views._offers_common.notify_emitter_of_application"
-        ) as mock_notify:
-            response = client.post(
-                f"/biz/missions/{journalism_mission.id}/apply",
-                data={"message": "Test interdit"},
-                follow_redirects=False,
-            )
+        response = client.post(
+            f"/biz/missions/{journalism_mission.id}/apply",
+            data={"message": "Test interdit"},
+            follow_redirects=False,
+        )
         # Either 404 (consistent with the detail gate) or 403 — what
         # matters is no application is persisted and no mail is sent.
         assert response.status_code in (302, 403, 404)
@@ -1107,7 +1052,8 @@ class TestJournalismVisibilityRestriction:
             .count()
         )
         assert count == 0
-        mock_notify.assert_not_called()
+        # No application → no notification either (state, not a mock).
+        assert db_session.query(Notification).count() == 0
 
     # ---- Decision / lifecycle endpoints (Bug #0224) --------------------
     #
