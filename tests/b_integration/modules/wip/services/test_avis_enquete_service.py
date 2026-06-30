@@ -1406,12 +1406,11 @@ class TestSuggestColleague:
         journaliste, expert, colleague, _, enquete, contact = self._setup(db_session)
 
         service = AvisEnqueteService(db_session=db_session)
-        with patch("app.services.emails.base.EmailMessage"):
-            new_contact = service.suggest_colleague(
-                contact=contact,
-                colleague=colleague,
-                url_builder=lambda c: f"/opp/{c.id}",
-            )
+        new_contact = service.suggest_colleague(
+            contact=contact,
+            colleague=colleague,
+            url_builder=lambda c: f"/opp/{c.id}",
+        )
 
         assert new_contact.expert_id == colleague.id
         assert new_contact.journaliste_id == journaliste.id
@@ -1423,25 +1422,23 @@ class TestSuggestColleague:
         _, _, _, outsider, _, contact = self._setup(db_session)
 
         service = AvisEnqueteService(db_session=db_session)
-        with patch("app.services.emails.base.EmailMessage"):
-            with pytest.raises(ValueError, match="not an eligible colleague"):
-                service.suggest_colleague(
-                    contact=contact,
-                    colleague=outsider,
-                    url_builder=lambda c: f"/opp/{c.id}",
-                )
+        with pytest.raises(ValueError, match="not an eligible colleague"):
+            service.suggest_colleague(
+                contact=contact,
+                colleague=outsider,
+                url_builder=lambda c: f"/opp/{c.id}",
+            )
 
     def test_suggest_colleague_rejects_self(self, db_session) -> None:
         _, expert, _, _, _, contact = self._setup(db_session)
 
         service = AvisEnqueteService(db_session=db_session)
-        with patch("app.services.emails.base.EmailMessage"):
-            with pytest.raises(ValueError, match="not an eligible colleague"):
-                service.suggest_colleague(
-                    contact=contact,
-                    colleague=expert,
-                    url_builder=lambda c: f"/opp/{c.id}",
-                )
+        with pytest.raises(ValueError, match="not an eligible colleague"):
+            service.suggest_colleague(
+                contact=contact,
+                colleague=expert,
+                url_builder=lambda c: f"/opp/{c.id}",
+            )
 
     def test_suggest_colleague_rejects_duplicate(self, db_session) -> None:
         journaliste, _, colleague, _, enquete, contact = self._setup(db_session)
@@ -1451,13 +1448,12 @@ class TestSuggestColleague:
         )
 
         service = AvisEnqueteService(db_session=db_session)
-        with patch("app.services.emails.base.EmailMessage"):
-            with pytest.raises(ValueError, match="not an eligible colleague"):
-                service.suggest_colleague(
-                    contact=contact,
-                    colleague=colleague,
-                    url_builder=lambda c: f"/opp/{c.id}",
-                )
+        with pytest.raises(ValueError, match="not an eligible colleague"):
+            service.suggest_colleague(
+                contact=contact,
+                colleague=colleague,
+                url_builder=lambda c: f"/opp/{c.id}",
+            )
 
     def test_suggest_colleague_sends_email_with_suggester_name(
         self, db_session

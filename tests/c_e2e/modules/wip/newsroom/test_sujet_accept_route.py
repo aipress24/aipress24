@@ -218,11 +218,10 @@ class TestSujetClochePersistsAcrossTeardown:
 
         client = make_authenticated_client(app, redac_chef)
         # cloche fires for real ; only the route's e-mail is patched.
-        with patch("app.services.emails.SujetAcceptanceNotificationMail.send"):
-            resp = client.get(
-                url_for("SujetsWipView:accept", id=sujet.id),
-                follow_redirects=False,
-            )
+        resp = client.get(
+            url_for("SujetsWipView:accept", id=sujet.id),
+            follow_redirects=False,
+        )
         assert resp.status_code in (302, 303)
 
         db.session.remove()  # simulate request teardown

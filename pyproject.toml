@@ -442,6 +442,7 @@ missing-attribute = "ignore"
 src_root = "src/app"
 src_package = "app"
 units = ["modules/*", "*"]   # 27-unit granularity — correct for mass/cover
+shared = ["models", "settings"]   # never count as leaks
 
 [tool.tepyd.exclude]
 faker = "fake-data generators for seeding/tests — not production behaviour"

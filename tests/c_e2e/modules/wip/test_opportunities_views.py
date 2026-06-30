@@ -10,7 +10,6 @@ import re
 import uuid
 from datetime import UTC, datetime, timedelta
 from typing import TYPE_CHECKING
-from unittest.mock import patch
 
 import pytest
 from sqlalchemy import event
@@ -346,16 +345,13 @@ class TestOpportunityResponse:
         db_session: Session,
     ):
         """Test accepting an opportunity."""
-        with patch(
-            "app.modules.wip.views.opportunities.send_avis_enquete_acceptance_email"
-        ):
-            response = logged_in_client.post(
-                f"/wip/opportunities/{test_contact.id}",
-                data={
-                    "reponse1": "oui",
-                    "contribution": "I can help with AI topics",
-                },
-            )
+        response = logged_in_client.post(
+            f"/wip/opportunities/{test_contact.id}",
+            data={
+                "reponse1": "oui",
+                "contribution": "I can help with AI topics",
+            },
+        )
 
         assert response.status_code == 302  # Redirect
         assert "/wip/opportunities" in response.location
@@ -375,16 +371,13 @@ class TestOpportunityResponse:
         db_session: Session,
     ):
         """Test accepting with press relation option."""
-        with patch(
-            "app.modules.wip.views.opportunities.send_avis_enquete_acceptance_email"
-        ):
-            response = logged_in_client.post(
-                f"/wip/opportunities/{test_contact.id}",
-                data={
-                    "reponse1": "oui_relation_presse",
-                    "contribution": "Contact my PR team",
-                },
-            )
+        response = logged_in_client.post(
+            f"/wip/opportunities/{test_contact.id}",
+            data={
+                "reponse1": "oui_relation_presse",
+                "contribution": "Contact my PR team",
+            },
+        )
 
         assert response.status_code == 302
 
@@ -425,17 +418,14 @@ class TestOpportunityResponse:
         )
         db_session.commit()
 
-        with patch(
-            "app.modules.wip.views.opportunities.send_avis_enquete_acceptance_email"
-        ):
-            response = logged_in_client.post(
-                f"/wip/opportunities/{test_contact.id}",
-                data={
-                    "reponse1": "oui_relation_presse",
-                    "contribution": "Contact my PR team",
-                    "email_relation_presse": "layelle-bwpri@example.com",
-                },
-            )
+        response = logged_in_client.post(
+            f"/wip/opportunities/{test_contact.id}",
+            data={
+                "reponse1": "oui_relation_presse",
+                "contribution": "Contact my PR team",
+                "email_relation_presse": "layelle-bwpri@example.com",
+            },
+        )
         assert response.status_code == 302
         db_session.refresh(test_contact)
         assert test_contact.email_relation_presse == "layelle-bwpri@example.com"
@@ -451,17 +441,14 @@ class TestOpportunityResponse:
         """Ticket #0075/2 : a POST carrying an email NOT in the valid
         set (form tampering) must fall back to the service's pick,
         never persist the arbitrary address."""
-        with patch(
-            "app.modules.wip.views.opportunities.send_avis_enquete_acceptance_email"
-        ):
-            response = logged_in_client.post(
-                f"/wip/opportunities/{test_contact.id}",
-                data={
-                    "reponse1": "oui_relation_presse",
-                    "contribution": "Contact my PR team",
-                    "email_relation_presse": "attacker@evil.com",
-                },
-            )
+        response = logged_in_client.post(
+            f"/wip/opportunities/{test_contact.id}",
+            data={
+                "reponse1": "oui_relation_presse",
+                "contribution": "Contact my PR team",
+                "email_relation_presse": "attacker@evil.com",
+            },
+        )
         assert response.status_code == 302
         db_session.refresh(test_contact)
         assert test_contact.email_relation_presse != "attacker@evil.com"
@@ -475,13 +462,10 @@ class TestOpportunityResponse:
         db_session: Session,
     ):
         """Test refusing an opportunity."""
-        with patch(
-            "app.modules.wip.views.opportunities.send_avis_enquete_acceptance_email"
-        ):
-            response = logged_in_client.post(
-                f"/wip/opportunities/{test_contact.id}",
-                data={"reponse1": "non"},
-            )
+        response = logged_in_client.post(
+            f"/wip/opportunities/{test_contact.id}",
+            data={"reponse1": "non"},
+        )
 
         assert response.status_code == 302
 
@@ -514,19 +498,13 @@ class TestOpportunityResponse:
         db_session.add(colleague)
         db_session.commit()
 
-        with (
-            patch(
-                "app.modules.wip.views.opportunities.send_avis_enquete_acceptance_email"
-            ),
-            patch("app.services.emails.base.EmailMessage"),
-        ):
-            response = logged_in_client.post(
-                f"/wip/opportunities/{test_contact.id}",
-                data={
-                    "reponse1": "non-mais",
-                    "suggested_colleague_id": str(colleague.id),
-                },
-            )
+        response = logged_in_client.post(
+            f"/wip/opportunities/{test_contact.id}",
+            data={
+                "reponse1": "non-mais",
+                "suggested_colleague_id": str(colleague.id),
+            },
+        )
 
         assert response.status_code == 302
 
@@ -668,17 +646,14 @@ class TestOpportunityResponseRequiresActiveBW:
     ):
         """POSTing a response when the expert's org has no active BW
         must NOT mutate the contact's status."""
-        with patch(
-            "app.modules.wip.views.opportunities.send_avis_enquete_acceptance_email"
-        ):
-            response = logged_in_client.post(
-                f"/wip/opportunities/{test_contact.id}",
-                data={
-                    "reponse1": "oui",
-                    "contribution": "I can help",
-                },
-                follow_redirects=False,
-            )
+        response = logged_in_client.post(
+            f"/wip/opportunities/{test_contact.id}",
+            data={
+                "reponse1": "oui",
+                "contribution": "I can help",
+            },
+            follow_redirects=False,
+        )
 
         # Either a redirect back to the opportunity / opportunities page
         # or a 200 with the banner — never a silent persistence.
