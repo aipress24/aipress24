@@ -6,6 +6,8 @@
 
 from __future__ import annotations
 
+from collections.abc import Sequence
+
 from app.models.auth import KYCProfile, User
 from app.modules.wip.services.newsroom.expert_filter import (
     MAX_SELECTABLE_EXPERTS,
@@ -40,10 +42,10 @@ class _StubUserRepo:
     the svcs container.
     """
 
-    def __init__(self, experts: list | None = None) -> None:
+    def __init__(self, experts: Sequence[User] | None = None) -> None:
         self._experts = experts or []
 
-    def list(self, **_kwargs):
+    def list(self, **_kwargs) -> Sequence[User]:
         return self._experts
 
 
@@ -1338,7 +1340,9 @@ class TestStateManagement:
                 "secteur": ["Tech", "Finance"],
             },
         ):
-            service = ExpertFilterService(session={}, user_repo=_StubUserRepo([expert1]))
+            service = ExpertFilterService(
+                session={}, user_repo=_StubUserRepo([expert1])
+            )
 
             # Call the internal method directly
             service._update_state_from_request()
@@ -1367,7 +1371,9 @@ class TestStateManagement:
                 "secteur": ["Agriculture / Viticulture"],
             },
         ):
-            service = ExpertFilterService(session={}, user_repo=_StubUserRepo([expert1]))
+            service = ExpertFilterService(
+                session={}, user_repo=_StubUserRepo([expert1])
+            )
 
             service._update_state_from_request()
 
