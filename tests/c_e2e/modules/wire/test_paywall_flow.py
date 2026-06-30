@@ -408,6 +408,58 @@ def test_justificatif_button_shown_when_paywall_active(
         _CONSULTATION_PRICE_CACHE.clear()
 
 
+def test_justificatif_button_hidden_and_date_shown_after_purchase(
+    app: Flask, db_session: Session, reader: User, article: ArticlePost
+):
+    """Once the justificatif is bought, hide button, show purchase date."""
+    _CONSULTATION_PRICE_CACHE.clear()
+    article.newsroom_id = article.id
+    db_session.add(
+        JustificatifInvitation(
+            article_id=article.id,
+            recipient_id=reader.id,
+            journalist_id=article.owner_id,
+            avis_enquete_id=article.id,
+        )
+    )
+    db_session.add(
+        ArticlePurchase(
+            post_id=article.id,
+            owner_id=reader.id,
+            product_type=PurchaseProduct.JUSTIFICATIF,
+            status=PurchaseStatus.PAID,
+            amount_cents=1500,
+        )
+    )
+    db_session.commit()
+
+    app.config["STRIPE_LIVE_ENABLED"] = True
+    try:
+        client = make_authenticated_client(app, reader)
+        with (
+            patch(
+                "app.modules.wire.views.item.load_stripe_api_key",
+                return_value=True,
+            ),
+            patch(
+                "app.modules.wire.views.item._price_id_for",
+                return_value="price_consultation_test",
+            ),
+            patch("stripe.Price.retrieve") as mock_price,
+        ):
+            mock_price.return_value = MagicMock(
+                unit_amount=350, currency="eur", recurring=None
+            )
+            response = client.get(f"/wire/{article.id}")
+        body = response.data.decode()
+        assert response.status_code == 200
+        assert "Justificatif de publication" not in body
+        assert "Justificatif acheté le" in body
+    finally:
+        app.config["STRIPE_LIVE_ENABLED"] = False
+        _CONSULTATION_PRICE_CACHE.clear()
+
+
 # -----------------------------------------------------------------------------
 # Anonymous gift-recipient login redirect preserves the destination (Bug #0227)
 # -----------------------------------------------------------------------------
