@@ -6,7 +6,9 @@
 
 from __future__ import annotations
 
-from unittest.mock import MagicMock, patch
+from types import SimpleNamespace
+
+from flask import g
 
 from app.modules.wip.views._tables import (
     RecentContentsDataSource,
@@ -19,42 +21,34 @@ class TestGetName:
     """Tests for the get_name helper function."""
 
     def test_get_name_with_obj(self):
-        """Test get_name returns object name."""
-        obj = MagicMock()
-        obj.name = "Test Name"
-        assert get_name(obj) == "Test Name"
+        """get_name returns the object's name."""
+        assert get_name(SimpleNamespace(name="Test Name")) == "Test Name"
 
     def test_get_name_with_none(self):
-        """Test get_name returns empty string for None."""
+        """get_name returns an empty string for None."""
         assert get_name(None) == ""
 
     def test_get_name_with_exception(self):
-        """Test get_name handles exceptions."""
-        # Create object that raises exception when accessing name
-        obj = MagicMock()
-        type(obj).name = property(
-            lambda self: (_ for _ in ()).throw(Exception("error"))
-        )
-        # Should return empty string on exception
-        result = get_name(obj)
-        assert result == ""
+        """get_name swallows an attribute access that raises."""
+
+        class _Raises:
+            @property
+            def name(self):
+                raise RuntimeError
+
+        assert get_name(_Raises()) == ""
 
 
 class TestRecentContentsDataSource:
     """Tests for RecentContentsDataSource."""
 
     def test_query_filters_by_owner(self, app):
-        """Test query filters by current user."""
+        """query() builds an owner-filtered Select from g.user."""
         with app.test_request_context():
-            with patch("app.modules.wip.views._tables.g") as mock_g:
-                mock_user = MagicMock()
-                mock_user.id = 123
-                mock_g.user = mock_user
-
-                ds = RecentContentsDataSource()
-                query = ds.query()
-                # Should return a Select statement
-                assert query is not None
+            g.user = SimpleNamespace(id=123)
+            query = RecentContentsDataSource().query()
+        assert query is not None
+        assert "owner_id" in str(query)
 
 
 class TestRecentContentsTable:
