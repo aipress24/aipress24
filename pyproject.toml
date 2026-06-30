@@ -216,6 +216,7 @@ dev = [
     "git-filter-repo>=2.47.0",
     "pytest-randomly>=4.1.0",
     "tepyd>=0.5.0",
+    "pyright>=1.1.411",
 ]
 
 [build-system]

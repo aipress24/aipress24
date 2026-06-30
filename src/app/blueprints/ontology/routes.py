@@ -84,9 +84,9 @@ def create():
     if form.validate_on_submit():
         create_entry(
             taxonomy_name=taxonomy_name,
-            name=form.name.data,
-            category=form.category.data,
-            value=form.value.data,
+            name=form.name.data or "",
+            category=form.category.data or "",
+            value=form.value.data or "",
             seq=form.seq.data or 0,
         )
         db.session.commit()
@@ -114,9 +114,9 @@ def edit(entry_id: int):
     if form.validate_on_submit():
         update_entry(
             taxonomy_name=entry.taxonomy_name,
-            name=form.name.data,
-            category=form.category.data,
-            value=form.value.data,
+            name=form.name.data or "",
+            category=form.category.data or "",
+            value=form.value.data or "",
             seq=form.seq.data or 0,
         )
         db.session.commit()
