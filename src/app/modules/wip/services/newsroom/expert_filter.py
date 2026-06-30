@@ -277,10 +277,20 @@ class ExpertFilterService:
         service.save_state()
     """
 
-    def __init__(self) -> None:
-        self._session = container.get(SessionService)
+    def __init__(
+        self,
+        session: SessionService | None = None,
+        user_repo: UserRepository | None = None,
+    ) -> None:
+        # `session` / `user_repo` are injectable — production leaves them
+        # None and resolves the real services from the container ; tests
+        # pass stubs (a dict for the session store, a fake repo) so they
+        # don't have to patch the DI container.
+        self._session = session if session is not None else container.get(SessionService)
         self._session_key: str = ""
-        self._user_repo = container.get(UserRepository)
+        self._user_repo = (
+            user_repo if user_repo is not None else container.get(UserRepository)
+        )
         self._state: FilterState = {}
         self._all_experts: list[User] | None = None
         self._selectors: list[BaseSelector] | None = None

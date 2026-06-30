@@ -6,8 +6,6 @@
 
 from __future__ import annotations
 
-from unittest.mock import MagicMock, patch
-
 from app.models.auth import KYCProfile, User
 from app.modules.wip.services.newsroom.expert_filter import (
     MAX_SELECTABLE_EXPERTS,
@@ -33,6 +31,20 @@ from app.modules.wip.services.newsroom.expert_selectors import (
     TypePresseMediasSelector,
     VilleSelector,
 )
+
+
+class _StubUserRepo:
+    """Stub UserRepository: `.list(...)` returns a fixed list of experts.
+
+    Injected into ExpertFilterService so the tests don't have to patch
+    the svcs container.
+    """
+
+    def __init__(self, experts: list | None = None) -> None:
+        self._experts = experts or []
+
+    def list(self, **_kwargs):
+        return self._experts
 
 
 def _create_expert_with_profile(
@@ -1304,24 +1316,12 @@ class TestStateManagement:
             db_session, "e1@test.com", secteurs=["Tech"]
         )
 
-        with patch(
-            "app.modules.wip.services.newsroom.expert_filter.container"
-        ) as mock_container:
-            mock_session: dict = {}
-            mock_user_repo = MagicMock()
-            mock_user_repo.list.return_value = [expert1]
+        service = ExpertFilterService(session={}, user_repo=_StubUserRepo([expert1]))
 
-            mock_container.get.return_value = mock_session
+        avis_enquete_id = "abcdef"
+        service._set_session_key(avis_enquete_id)
 
-            service = ExpertFilterService()
-            service._session = mock_session
-            service._user_repo = mock_user_repo
-
-            # initialize session key
-            avis_enquete_id = "abcdef"
-            service._set_session_key(avis_enquete_id)
-
-            assert service._session_key == f"newsroom:ciblage{avis_enquete_id}"
+        assert service._session_key == f"newsroom:ciblage{avis_enquete_id}"
 
     def test_update_state_from_htmx_request(self, db_session, app) -> None:
         """State is updated from HTMX request data."""
@@ -1330,29 +1330,15 @@ class TestStateManagement:
         )
 
         # Simulate HTMX POST request with selector change
-        with (
-            app.test_request_context(
-                method="POST",
-                headers={"HX-Request": "true"},
-                data={
-                    "selector_change": "secteur",
-                    "secteur": ["Tech", "Finance"],
-                },
-            ),
-            patch(
-                "app.modules.wip.services.newsroom.expert_filter.container"
-            ) as mock_container,
+        with app.test_request_context(
+            method="POST",
+            headers={"HX-Request": "true"},
+            data={
+                "selector_change": "secteur",
+                "secteur": ["Tech", "Finance"],
+            },
         ):
-            mock_session: dict = {}
-            mock_user_repo = MagicMock()
-            mock_user_repo.list.return_value = [expert1]
-
-            mock_container.get.return_value = mock_session
-
-            service = ExpertFilterService()
-            service._session = mock_session
-            service._user_repo = mock_user_repo
-            service._state = {}
+            service = ExpertFilterService(session={}, user_repo=_StubUserRepo([expert1]))
 
             # Call the internal method directly
             service._update_state_from_request()
@@ -1372,29 +1358,16 @@ class TestStateManagement:
             db_session, "e1@test.com", secteurs=["Tech"]
         )
 
-        with (
-            app.test_request_context(
-                method="POST",
-                headers={"HX-Request": "true"},
-                data={
-                    "selector_change": "secteur_parent",
-                    "secteur_parent": ["Agriculture"],
-                    "secteur": ["Agriculture / Viticulture"],
-                },
-            ),
-            patch(
-                "app.modules.wip.services.newsroom.expert_filter.container"
-            ) as mock_container,
+        with app.test_request_context(
+            method="POST",
+            headers={"HX-Request": "true"},
+            data={
+                "selector_change": "secteur_parent",
+                "secteur_parent": ["Agriculture"],
+                "secteur": ["Agriculture / Viticulture"],
+            },
         ):
-            mock_session: dict = {}
-            mock_user_repo = MagicMock()
-            mock_user_repo.list.return_value = [expert1]
-            mock_container.get.return_value = mock_session
-
-            service = ExpertFilterService()
-            service._session = mock_session
-            service._user_repo = mock_user_repo
-            service._state = {}
+            service = ExpertFilterService(session={}, user_repo=_StubUserRepo([expert1]))
 
             service._update_state_from_request()
 
@@ -1406,25 +1379,14 @@ class TestStateManagement:
     def test_update_state_ignores_non_htmx_request(self, db_session, app) -> None:
         """State is NOT updated from non-HTMX requests."""
         # Request without HX-Request header
-        with (
-            app.test_request_context(
-                method="POST",
-                data={
-                    "selector_change": "secteur",
-                    "secteur": ["Tech"],
-                },
-            ),
-            patch(
-                "app.modules.wip.services.newsroom.expert_filter.container"
-            ) as mock_container,
+        with app.test_request_context(
+            method="POST",
+            data={
+                "selector_change": "secteur",
+                "secteur": ["Tech"],
+            },
         ):
-            mock_session: dict = {}
-            mock_container.get.return_value = mock_session
-
-            service = ExpertFilterService()
-            service._session = mock_session
-            service._user_repo = MagicMock()
-            service._state = {}
+            service = ExpertFilterService(session={}, user_repo=_StubUserRepo())
 
             service._update_state_from_request()
 
@@ -1439,35 +1401,26 @@ class TestStateManagement:
         )
 
         # Simulate HTMX POST request with selector change
-        with (
-            app.test_request_context(
-                method="POST",
-                headers={"HX-Request": "true"},
-                data={
-                    "selector_change": "secteur",
-                    "secteur": ["Tech", "Finance"],
-                },
-            ),
-            patch(
-                "app.modules.wip.services.newsroom.expert_filter.container"
-            ) as mock_container,
+        # Both services share ONE session store (the same dict).
+        session: dict = {}
+        with app.test_request_context(
+            method="POST",
+            headers={"HX-Request": "true"},
+            data={
+                "selector_change": "secteur",
+                "secteur": ["Tech", "Finance"],
+            },
         ):
-            mock_session: dict = {}
-            mock_user_repo = MagicMock()
-            mock_user_repo.list.return_value = [expert1]
-
-            mock_container.get.return_value = mock_session
-
-            service1 = ExpertFilterService()
-            service1._session = mock_session
-            service1._user_repo = mock_user_repo
+            service1 = ExpertFilterService(
+                session=session, user_repo=_StubUserRepo([expert1])
+            )
             avis_enquete_id_1 = "abcdef1"
             service1._set_session_key(avis_enquete_id_1)
             service1._restore_state()
 
-            service2 = ExpertFilterService()
-            service2._session = mock_session
-            service2._user_repo = mock_user_repo
+            service2 = ExpertFilterService(
+                session=session, user_repo=_StubUserRepo([expert1])
+            )
             avis_enquete_id_2 = "abcdef2"
             service2._set_session_key(avis_enquete_id_2)
             service2._restore_state()
@@ -1481,25 +1434,15 @@ class TestStateManagement:
     def test_update_state_clears_dependent_selectors(self, db_session, app) -> None:
         """Changing a selector clears dependent selectors."""
         # When pays changes, departement and ville should be cleared
-        with (
-            app.test_request_context(
-                method="POST",
-                headers={"HX-Request": "true"},
-                data={
-                    "selector_change": "pays",
-                    "pays": ["BE"],  # Changed from FR to BE
-                },
-            ),
-            patch(
-                "app.modules.wip.services.newsroom.expert_filter.container"
-            ) as mock_container,
+        with app.test_request_context(
+            method="POST",
+            headers={"HX-Request": "true"},
+            data={
+                "selector_change": "pays",
+                "pays": ["BE"],  # Changed from FR to BE
+            },
         ):
-            mock_session: dict = {}
-            mock_container.get.return_value = mock_session
-
-            service = ExpertFilterService()
-            service._session = mock_session
-            service._user_repo = MagicMock()
+            service = ExpertFilterService(session={}, user_repo=_StubUserRepo())
             # Pre-existing state with FR, departement 75, ville Paris
             service._state = {
                 "pays": ["FR"],
@@ -1545,24 +1488,13 @@ class TestExpertSelection:
         expert1 = _create_expert_with_profile(db_session, "e1@test.com")
         expert2 = _create_expert_with_profile(db_session, "e2@test.com")
 
-        with (
-            app.test_request_context(
-                method="POST",
-                data={f"expert:{expert2.id}": "on"},
-            ),
-            patch(
-                "app.modules.wip.services.newsroom.expert_filter.container"
-            ) as mock_container,
+        with app.test_request_context(
+            method="POST",
+            data={f"expert:{expert2.id}": "on"},
         ):
-            mock_session: dict = {}
-            mock_user_repo = MagicMock()
-            mock_user_repo.list.return_value = [expert1, expert2]
-
-            mock_container.get.return_value = mock_session
-
-            service = ExpertFilterService()
-            service._session = mock_session
-            service._user_repo = mock_user_repo
+            service = ExpertFilterService(
+                session={}, user_repo=_StubUserRepo([expert1, expert2])
+            )
             service._state = {"selected_experts": [expert1.id]}
             service.add_experts_from_request()
 
@@ -1575,24 +1507,13 @@ class TestExpertSelection:
         expert1 = _create_expert_with_profile(db_session, "e1@test.com")
         expert2 = _create_expert_with_profile(db_session, "e2@test.com")
 
-        with (
-            app.test_request_context(
-                method="POST",
-                data={f"expert:{expert2.id}": "on"},
-            ),
-            patch(
-                "app.modules.wip.services.newsroom.expert_filter.container"
-            ) as mock_container,
+        with app.test_request_context(
+            method="POST",
+            data={f"expert:{expert2.id}": "on"},
         ):
-            mock_session: dict = {}
-            mock_user_repo = MagicMock()
-            mock_user_repo.list.return_value = [expert1, expert2]
-
-            mock_container.get.return_value = mock_session
-
-            service = ExpertFilterService()
-            service._session = mock_session
-            service._user_repo = mock_user_repo
+            service = ExpertFilterService(
+                session={}, user_repo=_StubUserRepo([expert1, expert2])
+            )
             service._state = {"selected_experts": [expert1.id]}
             service.update_experts_from_request()
 
