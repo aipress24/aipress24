@@ -111,6 +111,9 @@ class ItemDetailView(MethodView):
         from app.modules.bw.bw_activation.rights_policy import (
             is_eligible_for_cession,
         )
+        from app.modules.wip.models.newsroom.justificatif_invitation import (
+            JustificatifInvitation,
+        )
         from app.modules.wire.services.article_access import (
             get_user_purchase_info,
             has_paid_consultation,
@@ -146,6 +149,24 @@ class ItemDetailView(MethodView):
             if price_id:
                 consultation_price_str = _fetch_consultation_price(price_id)
 
+        # Justificatif button is only shown when current user was explicitly
+        # invited by the journalist for this article.
+        has_justificatif_invitation = False
+        if (
+            isinstance(post, ArticlePost)
+            and g.user
+            and not g.user.is_anonymous
+            and post.newsroom_id
+        ):
+            has_justificatif_invitation = bool(
+                db.session.scalar(
+                    sa.select(JustificatifInvitation.id)
+                    .where(JustificatifInvitation.article_id == post.newsroom_id)
+                    .where(JustificatifInvitation.recipient_id == g.user.id)
+                    .limit(1)
+                )
+            )
+
         return render_template(
             template,
             title=post.title,
@@ -158,6 +179,7 @@ class ItemDetailView(MethodView):
             purchase_info=purchase_info,
             body_preview=body_preview,
             consultation_price_str=consultation_price_str,
+            has_justificatif_invitation=has_justificatif_invitation,
         )
 
     def post(self, id: str) -> str | Response:
