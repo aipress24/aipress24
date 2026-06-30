@@ -226,9 +226,7 @@ class TestSujetClochePersistsAcrossTeardown:
         assert resp.status_code in (302, 303)
 
         db.session.remove()  # simulate request teardown
-        notifs = (
-            db.session.query(Notification).filter_by(receiver_id=author_id).all()
-        )
+        notifs = db.session.query(Notification).filter_by(receiver_id=author_id).all()
         assert any("accepté" in n.message for n in notifs), (
             "sujet acceptance cloche was rolled back — not committed (#0225)"
         )
@@ -267,12 +265,8 @@ class TestSujetRefuseRoute:
         sujet_after = db.session.get(Sujet, sujet_id)
         assert sujet_after.status == PublicationStatus.ARCHIVED
         # Refusal must NOT create a Commande.
-        assert (
-            db.session.query(Commande).filter_by(titre="Topic title").all() == []
-        )
-        notifs = (
-            db.session.query(Notification).filter_by(receiver_id=author_id).all()
-        )
+        assert db.session.query(Commande).filter_by(titre="Topic title").all() == []
+        notifs = db.session.query(Notification).filter_by(receiver_id=author_id).all()
         assert any("refusé" in n.message for n in notifs), (
             "author must get a committed « refusé » cloche (#0225)"
         )

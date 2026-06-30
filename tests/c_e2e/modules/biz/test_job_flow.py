@@ -8,7 +8,6 @@ from __future__ import annotations
 
 import uuid
 from typing import TYPE_CHECKING
-from unittest.mock import patch
 
 import pytest
 
@@ -23,6 +22,7 @@ from app.modules.biz.models import (
     MissionStatus,
     OfferApplication,
 )
+from app.services.notifications._models import Notification
 from tests.c_e2e.conftest import make_authenticated_client
 
 if TYPE_CHECKING:
@@ -134,20 +134,18 @@ def test_applicant_can_apply_to_job_with_cv_url(
     app: Flask,
     db_session: Session,
     published_job: JobOffer,
+    emitter: User,
     applicant: User,
 ):
     client = make_authenticated_client(app, applicant)
-    with patch(
-        "app.modules.biz.views._offers_common.notify_emitter_of_application"
-    ) as mock_notify:
-        response = client.post(
-            f"/biz/jobs/{published_job.id}/apply",
-            data={
-                "message": "Intéressé par le poste.",
-                "cv_url": "https://example.com/cv.pdf",
-            },
-            follow_redirects=False,
-        )
+    response = client.post(
+        f"/biz/jobs/{published_job.id}/apply",
+        data={
+            "message": "Intéressé par le poste.",
+            "cv_url": "https://example.com/cv.pdf",
+        },
+        follow_redirects=False,
+    )
     assert response.status_code == 302
     application = (
         db_session.query(OfferApplication)
@@ -157,7 +155,8 @@ def test_applicant_can_apply_to_job_with_cv_url(
     assert application is not None
     assert application.cv_url == "https://example.com/cv.pdf"
     assert application.status == ApplicationStatus.PENDING
-    mock_notify.assert_called_once()
+    # Applying notified the emitter — a cloche row was committed.
+    assert db_session.query(Notification).filter_by(receiver_id=emitter.id).count() >= 1
 
 
 def test_job_fill_blocks_new_applications(
@@ -173,11 +172,10 @@ def test_job_fill_blocks_new_applications(
     assert published_job.mission_status == MissionStatus.FILLED
 
     applicant_client = make_authenticated_client(app, applicant)
-    with patch("app.modules.biz.views._offers_common.notify_emitter_of_application"):
-        applicant_client.post(
-            f"/biz/jobs/{published_job.id}/apply",
-            data={"message": "Trop tard"},
-        )
+    applicant_client.post(
+        f"/biz/jobs/{published_job.id}/apply",
+        data={"message": "Trop tard"},
+    )
     count = (
         db_session.query(OfferApplication).filter_by(offer_id=published_job.id).count()
     )
