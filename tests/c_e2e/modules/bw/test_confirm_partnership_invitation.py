@@ -13,12 +13,12 @@ from __future__ import annotations
 import uuid
 from datetime import UTC, datetime
 from typing import TYPE_CHECKING
-from unittest.mock import patch
 
 from app.modules.bw.bw_activation.models import (
     BWRoleType,
     Partnership,
     PartnershipStatus,
+    RoleAssignment,
 )
 from tests.c_e2e.conftest import make_authenticated_client
 from tests.c_e2e.modules.bw.conftest import create_bw_test_data
@@ -141,26 +141,27 @@ class TestConfirmPartnershipInvitationPost:
         )
         client = make_authenticated_client(app, data["pr_owner"])
 
-        with patch(
-            "app.modules.bw.bw_activation.routes.confirm_partnership_invitation.apply_bw_missions_to_pr_user"
-        ) as mock_apply:
-            url = f"/BW/confirm-partnership-invitation/{data['media_bw'].id}/{data['partnership'].id}"
-            response = client.post(
-                url, data={"action": "accept"}, follow_redirects=False
-            )
+        url = f"/BW/confirm-partnership-invitation/{data['media_bw'].id}/{data['partnership'].id}"
+        response = client.post(url, data={"action": "accept"}, follow_redirects=False)
+        assert response.status_code == 302
 
-            assert response.status_code == 302
-            mock_apply.assert_called_once()
-            # Verify correct arguments
-            call_args = mock_apply.call_args
-            assert call_args[0][1].id == data["pr_owner"].id
-            assert call_args[0][2] == BWRoleType.BWPRE
-
-        # Verify status was updated
         fresh_db.session.expire_all()
         partnership = fresh_db.session.get(Partnership, data["partnership"].id)
         assert partnership.status == PartnershipStatus.ACTIVE.value
         assert partnership.accepted_at is not None
+        # Accepting creates a BWPRE role assignment for the PR owner and
+        # applies the BW missions to it — assert that committed state
+        # rather than the call args of a mocked helper.
+        role = (
+            fresh_db.session.query(RoleAssignment)
+            .filter_by(
+                business_wall_id=data["media_bw"].id,
+                user_id=data["pr_owner"].id,
+                role_type=BWRoleType.BWPRE.value,
+            )
+            .one()
+        )
+        assert len(role.permissions) > 0
 
     def test_reject_partnership_updates_status(self, app: Flask, fresh_db):
         """Rejecting a partnership updates status to REJECTED."""
@@ -172,19 +173,22 @@ class TestConfirmPartnershipInvitationPost:
         )
         client = make_authenticated_client(app, data["pr_owner"])
 
-        with patch(
-            "app.modules.bw.bw_activation.routes.confirm_partnership_invitation.apply_bw_missions_to_pr_user"
-        ) as mock_apply:
-            url = f"/BW/confirm-partnership-invitation/{data['media_bw'].id}/{data['partnership'].id}"
-            response = client.post(
-                url, data={"action": "reject"}, follow_redirects=False
-            )
+        url = f"/BW/confirm-partnership-invitation/{data['media_bw'].id}/{data['partnership'].id}"
+        response = client.post(url, data={"action": "reject"}, follow_redirects=False)
+        assert response.status_code == 302
 
-            assert response.status_code == 302
-            mock_apply.assert_not_called()
-
-        # Verify status was updated
         fresh_db.session.expire_all()
         partnership = fresh_db.session.get(Partnership, data["partnership"].id)
         assert partnership.status == PartnershipStatus.REJECTED.value
         assert partnership.rejected_at is not None
+        # Rejecting creates no BWPRE role assignment for the PR owner.
+        assert (
+            fresh_db.session.query(RoleAssignment)
+            .filter_by(
+                business_wall_id=data["media_bw"].id,
+                user_id=data["pr_owner"].id,
+                role_type=BWRoleType.BWPRE.value,
+            )
+            .count()
+            == 0
+        )

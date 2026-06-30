@@ -54,6 +54,10 @@ def _make_media_bw(db_session: Session, owner: User, org: Organisation) -> Busin
     )
     db_session.add(bw)
     db_session.commit()
+    # Link the BW to its owner so the real `current_business_wall`
+    # resolver returns it (stage 1: the user's explicitly-selected BW).
+    owner.selected_bw_id = bw.id
+    db_session.commit()
     return bw
 
 
@@ -119,21 +123,19 @@ def test_settings_page_owner_can_save(app: Flask, db_session: Session, scenario:
     # Owner of seller_bw saves a blacklist policy.
     client = make_authenticated_client(app, scenario["seller"])
 
-    with patch(
-        "app.modules.bw.bw_activation.routes.rights_policy.current_business_wall",
-        return_value=scenario["seller_bw"],
-    ):
-        response = client.post(
-            "/BW/rights-policy",
-            data={
-                "option": "blacklist",
-                "media_ids": [
-                    str(scenario["buyer_bw"].id),
-                    "00000000-0000-0000-0000-000000000999",
-                ],
-            },
-            follow_redirects=False,
-        )
+    # No patch needed: the seller owns the only BW in their org, so the
+    # real `current_business_wall` resolver returns seller_bw.
+    response = client.post(
+        "/BW/rights-policy",
+        data={
+            "option": "blacklist",
+            "media_ids": [
+                str(scenario["buyer_bw"].id),
+                "00000000-0000-0000-0000-000000000999",
+            ],
+        },
+        follow_redirects=False,
+    )
     assert response.status_code == 302
     db_session.refresh(scenario["seller_bw"])
     assert scenario["seller_bw"].rights_sales_policy == {
