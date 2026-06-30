@@ -13,7 +13,6 @@ from __future__ import annotations
 import uuid
 from datetime import UTC, datetime
 from typing import TYPE_CHECKING
-from unittest.mock import patch
 
 from app.modules.bw.bw_activation.models import (
     BWRoleType,
@@ -137,22 +136,17 @@ class TestConfirmRoleInvitationPost:
         )
         client = make_authenticated_client(app, data["pr_owner"])
 
-        with patch(
-            "app.modules.bw.bw_activation.routes.confirm_role_invitation.apply_bw_missions_to_pr_user"
-        ) as mock_apply:
-            url = f"/BW/confirm-role-invitation/{data['media_bw'].id}/{BWRoleType.BWPRI.value}/{data['pr_owner'].id}"
-            response = client.post(
-                url, data={"action": "accept"}, follow_redirects=False
-            )
+        url = f"/BW/confirm-role-invitation/{data['media_bw'].id}/{BWRoleType.BWPRI.value}/{data['pr_owner'].id}"
+        response = client.post(url, data={"action": "accept"}, follow_redirects=False)
+        assert response.status_code == 302
 
-            assert response.status_code == 302
-            mock_apply.assert_called_once()
-
-        # Verify status was updated
+        # Accepting a PR role applies the BW missions as RolePermission
+        # rows — assert that committed state, not a mock call.
         fresh_db.session.expire_all()
         role = fresh_db.session.get(RoleAssignment, data["role_assignment"].id)
         assert role.invitation_status == InvitationStatus.ACCEPTED.value
         assert role.accepted_at is not None
+        assert len(role.permissions) > 0
 
     def test_accept_internal_role_does_not_trigger_missions(self, app: Flask, fresh_db):
         """Accepting an internal role (BWMI) does NOT trigger mission application."""
@@ -164,21 +158,15 @@ class TestConfirmRoleInvitationPost:
         )
         client = make_authenticated_client(app, data["pr_owner"])
 
-        with patch(
-            "app.modules.bw.bw_activation.routes.confirm_role_invitation.apply_bw_missions_to_pr_user"
-        ) as mock_apply:
-            url = f"/BW/confirm-role-invitation/{data['media_bw'].id}/{BWRoleType.BWMI.value}/{data['pr_owner'].id}"
-            response = client.post(
-                url, data={"action": "accept"}, follow_redirects=False
-            )
+        url = f"/BW/confirm-role-invitation/{data['media_bw'].id}/{BWRoleType.BWMI.value}/{data['pr_owner'].id}"
+        response = client.post(url, data={"action": "accept"}, follow_redirects=False)
+        assert response.status_code == 302
 
-            assert response.status_code == 302
-            mock_apply.assert_not_called()
-
-        # Verify status was updated
+        # An internal role applies no PR missions — no RolePermission rows.
         fresh_db.session.expire_all()
         role = fresh_db.session.get(RoleAssignment, data["role_assignment"].id)
         assert role.invitation_status == InvitationStatus.ACCEPTED.value
+        assert role.permissions == []
 
     def test_reject_updates_status(self, app: Flask, fresh_db):
         """Rejecting an invitation updates status to REJECTED."""
@@ -189,22 +177,16 @@ class TestConfirmRoleInvitationPost:
         )
         client = make_authenticated_client(app, data["pr_owner"])
 
-        with patch(
-            "app.modules.bw.bw_activation.routes.confirm_role_invitation.apply_bw_missions_to_pr_user"
-        ) as mock_apply:
-            url = f"/BW/confirm-role-invitation/{data['media_bw'].id}/{BWRoleType.BWPRI.value}/{data['pr_owner'].id}"
-            response = client.post(
-                url, data={"action": "reject"}, follow_redirects=False
-            )
+        url = f"/BW/confirm-role-invitation/{data['media_bw'].id}/{BWRoleType.BWPRI.value}/{data['pr_owner'].id}"
+        response = client.post(url, data={"action": "reject"}, follow_redirects=False)
+        assert response.status_code == 302
 
-            assert response.status_code == 302
-            mock_apply.assert_not_called()
-
-        # Verify status was updated
+        # Rejecting applies no missions — no RolePermission rows.
         fresh_db.session.expire_all()
         role = fresh_db.session.get(RoleAssignment, data["role_assignment"].id)
         assert role.invitation_status == InvitationStatus.REJECTED.value
         assert role.rejected_at is not None
+        assert role.permissions == []
 
 
 class TestDashboardButtonVisibility:

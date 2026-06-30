@@ -10,12 +10,15 @@ the full e2e partnership setup of CM-2.
 
 from __future__ import annotations
 
-from types import SimpleNamespace
 from typing import TYPE_CHECKING
 from unittest.mock import patch
 
 from app.models.auth import User
 from app.models.organisation import Organisation
+from app.modules.bw.bw_activation.models.business_wall import (
+    BusinessWall,
+    BWStatus,
+)
 from app.modules.wip.services.pr_notifications import (
     _pick_bw_owner_email,
     notify_client_of_pr_publication,
@@ -110,12 +113,9 @@ class TestPickBwOwnerEmail:
             email="member@example.com",
             organisation_id=org.id,
         )
-        with patch(
-            "app.modules.bw.bw_activation.user_utils."
-            "get_active_business_wall_for_organisation",
-            return_value=None,
-        ):
-            assert _pick_bw_owner_email(org) == member.email
+        # Org has no BW (`bw_id` is None) → the real resolver returns None,
+        # so `_pick_bw_owner_email` falls back to the first active member.
+        assert _pick_bw_owner_email(org) == member.email
 
     def test_skips_inactive_members_in_fallback(self, db: SQLAlchemy) -> None:
         """Inactive members are skipped — returns "" if no active
@@ -133,12 +133,8 @@ class TestPickBwOwnerEmail:
         )
         db.session.add(inactive)
         db.session.flush()
-        with patch(
-            "app.modules.bw.bw_activation.user_utils."
-            "get_active_business_wall_for_organisation",
-            return_value=None,
-        ):
-            assert _pick_bw_owner_email(org) == ""
+        # Org has no BW → real resolver returns None ; no active member → "".
+        assert _pick_bw_owner_email(org) == ""
 
     def test_returns_bw_owner_email_when_resolvable(self, db: SQLAlchemy) -> None:
         """When the BW has an owner with an email, return that
@@ -151,10 +147,18 @@ class TestPickBwOwnerEmail:
             email="bw-owner@example.com",
             organisation_id=org.id,
         )
-        bw_stub = SimpleNamespace(owner_id=owner.id)
-        with patch(
-            "app.modules.bw.bw_activation.user_utils."
-            "get_active_business_wall_for_organisation",
-            return_value=bw_stub,
-        ):
-            assert _pick_bw_owner_email(org) == owner.email
+        # A real active BW owned by `owner` → resolver returns the owner's
+        # email (the preferred path), no patching of the resolver needed.
+        bw = BusinessWall(
+            bw_type="media",
+            status=BWStatus.ACTIVE.value,
+            owner_id=owner.id,
+            payer_id=owner.id,
+            organisation_id=org.id,
+            name="Org BW",
+        )
+        db.session.add(bw)
+        db.session.flush()
+        org.bw_id = bw.id
+        db.session.flush()
+        assert _pick_bw_owner_email(org) == owner.email
