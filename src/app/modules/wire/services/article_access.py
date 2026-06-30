@@ -211,6 +211,37 @@ def get_user_purchase_info(
     return None
 
 
+def get_user_justificatif_purchase_info(
+    user: User | None,
+    post: Post,
+) -> dict[str, object] | None:
+    """Return justificatif purchase date info for the post.
+
+    Returns {"date": <Arrow>, "is_gift": bool} or None.
+    """
+    if user is None or user.is_anonymous:
+        return None
+
+    stmt = (
+        sa.select(ArticlePurchase)
+        .where(ArticlePurchase.owner_id == user.id)
+        .where(ArticlePurchase.post_id == post.id)
+        .where(ArticlePurchase.product_type == PurchaseProduct.JUSTIFICATIF)
+        .where(ArticlePurchase.status == PurchaseStatus.PAID)
+        .order_by(
+            sa.func.coalesce(ArticlePurchase.paid_at, ArticlePurchase.timestamp).desc()
+        )
+        .limit(1)
+    )
+    purchase = db.session.scalar(stmt)
+    if purchase:
+        return {
+            "date": purchase.paid_at or purchase.timestamp,
+            "is_gift": False,
+        }
+    return None
+
+
 def truncate_body(html: str, limit: int = 300) -> str:
     """Return the first `limit` visible characters of `html`, preserving
     well-formed HTML.

@@ -115,6 +115,7 @@ class ItemDetailView(MethodView):
             JustificatifInvitation,
         )
         from app.modules.wire.services.article_access import (
+            get_user_justificatif_purchase_info,
             get_user_purchase_info,
             has_paid_consultation,
             has_received_consultation_gift,
@@ -125,6 +126,7 @@ class ItemDetailView(MethodView):
         can_cede = is_eligible_for_cession(g.user, post)
         can_read_full = user_can_read_full(g.user, post)
         purchase_info = get_user_purchase_info(g.user, post)
+        justificatif_purchase_info = get_user_justificatif_purchase_info(g.user, post)
         user_has_paid_consultation = False
         user_has_offered_consultation = False
         if g.user and not g.user.is_anonymous:
@@ -177,6 +179,7 @@ class ItemDetailView(MethodView):
             user_has_paid_consultation=user_has_paid_consultation,
             user_has_offered_consultation=user_has_offered_consultation,
             purchase_info=purchase_info,
+            justificatif_purchase_info=justificatif_purchase_info,
             body_preview=body_preview,
             consultation_price_str=consultation_price_str,
             has_justificatif_invitation=has_justificatif_invitation,
