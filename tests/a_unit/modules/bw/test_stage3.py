@@ -39,11 +39,13 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from typing import Any
+from unittest.mock import patch
 
 import pytest
 
 from app.modules.bw.bw_activation.bw_product import (
     _filter_products_by_allowed_subs,
+    recommended_subscription,
     select_product_for_quantity,
 )
 from app.modules.bw.bw_activation.models import BWStatus
@@ -341,6 +343,58 @@ class TestNormalizeStripeInfoForm:
         assert out["company_name"] == ""
         assert out["postal_address"] == ""
         assert out["tel_standard"] == ""
+
+
+# ---------------------------------------------------------------------------
+# recommended_subscription
+# ---------------------------------------------------------------------------
+
+
+class TestRecommendedSubscription:
+    """Helper that combines product lookup + tier selection."""
+
+    def test_unknown_bw_type_returns_none(self) -> None:
+        out = recommended_subscription("not-a-type", 50)
+        assert out["product"] is None
+        assert out["tier"] is None
+        assert out["error"] == "unknown_bw_type"
+
+    def test_recommends_transformers_tier(self) -> None:
+        products = [
+            _stripe_prod(ref="BW4T-TPE", maximum="9"),
+            _stripe_prod(ref="BW4T-PME", maximum="249"),
+            _stripe_prod(ref="BW4T-ETI", maximum="4999"),
+            _stripe_prod(ref="BW4T-GE", maximum="999999"),
+        ]
+        with patch(
+            "app.modules.bw.bw_activation.bw_product.fetch_bw_product_list",
+            return_value=products,
+        ):
+            out = recommended_subscription("transformers", 500)
+        assert out["tier"] == "ETI"
+        assert out["reference"] == "BW4T-ETI"
+        assert out["product"] is products[2]
+
+    def test_defaults_quantity_to_one(self) -> None:
+        products = [
+            _stripe_prod(ref="BW4L&E-Solo", maximum="1"),
+            _stripe_prod(ref="BW4L&E-TPE", maximum="9"),
+        ]
+        with patch(
+            "app.modules.bw.bw_activation.bw_product.fetch_bw_product_list",
+            return_value=products,
+        ):
+            out = recommended_subscription("leaders_experts")
+        assert out["tier"] == "Solo"
+
+    def test_returns_no_products_for_free_type(self) -> None:
+        with patch(
+            "app.modules.bw.bw_activation.bw_product.fetch_bw_product_list",
+            return_value=[],
+        ):
+            out = recommended_subscription("media", 1)
+        assert out["product"] is None
+        assert out["error"] == "no_products"
 
     def test_fallback_email_applied_when_form_missing(self) -> None:
         out = _normalize_stripe_info_form({}, fallback_email="me@example.com")
