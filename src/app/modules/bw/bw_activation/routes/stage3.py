@@ -32,6 +32,7 @@ from app.modules.bw.bw_activation.bw_creation import (
     create_new_free_bw_record,
     create_new_paid_bw_record,
 )
+from app.modules.bw.bw_activation.bw_product import select_product_for_quantity
 from app.modules.bw.bw_activation.config import BW_TYPES, BWTYPE_ALLOWED_PRODUCTS
 from app.modules.bw.bw_activation.models import (
     BusinessWall,
@@ -198,36 +199,6 @@ def payment(bw_type: str):
 
 def _payment_simulation(_bw_type: str, ctx: dict[str, Any]):
     return render_template("bw_activation/payment.html", **ctx)
-
-
-def _select_product_for_quantity(products: list[Product], quantity: int) -> Product:
-    """Select the product whose 'maximum' metadata is >= quantity."""
-    if not products:
-        msg = "Empty list of products"
-        raise ValueError(msg)
-
-    parsed_products = []
-    for p in products:
-        raw_metadata = (
-            p.get("metadata") if isinstance(p, dict) else getattr(p, "metadata", None)
-        )
-        meta = coerce_metadata(raw_metadata)
-        max_str = meta.get("maximum") or meta.get("Maximum") or meta.get("MAXIMUM")
-        try:
-            max_val = int(max_str)
-        except (ValueError, TypeError):
-            max_val = float("inf")
-        parsed_products.append((max_val, p))
-
-    # Sort by maximum only; the Product objects are not comparable.
-    parsed_products.sort(key=lambda item: item[0])
-
-    for max_val, p in parsed_products:
-        if quantity <= max_val:
-            return p
-
-    # if no threshold found send back the largest product
-    return parsed_products[-1][1]
 
 
 # ===== Pure helpers (extracted for unit testing — Pattern A) =====
@@ -641,7 +612,7 @@ def checkout(bw_type: str):
     quantity = _parse_quantity_from_session_value(session.get("pricing_value", 1))
 
     # Automatically choose the product based on quantity
-    chosen_product = _select_product_for_quantity(allowed_products, quantity)
+    chosen_product = select_product_for_quantity(allowed_products, quantity)
 
     # Extract the price ID
     price_id, default_price = resolve_product_price(chosen_product)
@@ -768,7 +739,7 @@ def _payment_live_enabled(bw_type: str, ctx: dict[str, Any]):
     quantity = _parse_quantity_from_session_value(session.get("pricing_value", 1))
 
     # Automatically choose the product based on quantity for display
-    chosen_product = _select_product_for_quantity(allowed_products, quantity)
+    chosen_product = select_product_for_quantity(allowed_products, quantity)
 
     price_id, default_price = resolve_product_price(chosen_product)
 

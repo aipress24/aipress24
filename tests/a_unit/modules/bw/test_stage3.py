@@ -18,7 +18,7 @@ deserve fast, isolated tests :
   (string vs expanded dict) for `default_price`.
 - ``_filter_products_by_allowed_subs`` — case-insensitive metadata
   filter, the heart of `allowed_bw_product_list`.
-- ``_select_product_for_quantity`` — chooses the cheapest product
+- ``select_product_for_quantity`` — chooses the cheapest product
   whose `metadata.maximum` covers the requested quantity.
 - ``_normalize_stripe_info_form`` — strips form values, applies
   fallback email.
@@ -43,6 +43,7 @@ from typing import Any
 import pytest
 
 from app.modules.bw.bw_activation.models import BWStatus
+from app.modules.bw.bw_activation.bw_product import select_product_for_quantity
 from app.modules.bw.bw_activation.routes.stage3 import (
     _build_checkout_metadata,
     _extract_price_id,
@@ -52,7 +53,6 @@ from app.modules.bw.bw_activation.routes.stage3 import (
     _parse_quantity_from_session_value,
     _resolve_payer_email,
     _resolve_stripe_customer_kwargs,
-    _select_product_for_quantity,
     _should_finalise_draft,
 )
 
@@ -227,7 +227,7 @@ class TestFilterProductsByAllowedSubs:
 
 
 # ---------------------------------------------------------------------------
-# _select_product_for_quantity
+# select_product_for_quantity
 # ---------------------------------------------------------------------------
 
 
@@ -237,26 +237,26 @@ class TestSelectProductForQuantity:
 
     def test_empty_products_raises(self) -> None:
         with pytest.raises(ValueError, match="Empty list of products"):
-            _select_product_for_quantity([], 5)
+            select_product_for_quantity([], 5)
 
     def test_picks_smallest_covering_tier(self) -> None:
         small = _stripe_prod(ref="BW4T-Solo", maximum="9")
         medium = _stripe_prod(ref="BW4T-TPE", maximum="49")
         large = _stripe_prod(ref="BW4T-PME", maximum="249")
         # quantity 5 fits the smallest tier
-        out = _select_product_for_quantity([large, medium, small], 5)
+        out = select_product_for_quantity([large, medium, small], 5)
         assert out is small
 
     def test_picks_next_tier_when_smaller_too_small(self) -> None:
         small = _stripe_prod(ref="BW4T-Solo", maximum="9")
         medium = _stripe_prod(ref="BW4T-TPE", maximum="49")
-        out = _select_product_for_quantity([small, medium], 10)
+        out = select_product_for_quantity([small, medium], 10)
         assert out is medium
 
     def test_returns_largest_when_quantity_overflows(self) -> None:
         small = _stripe_prod(ref="BW4T-Solo", maximum="9")
         medium = _stripe_prod(ref="BW4T-TPE", maximum="49")
-        out = _select_product_for_quantity([small, medium], 9999)
+        out = select_product_for_quantity([small, medium], 9999)
         # quantity > all maxima → falls back to the largest tier
         assert out is medium
 
@@ -266,13 +266,13 @@ class TestSelectProductForQuantity:
         key in Stripe used to crash with `TypeError: int(None)`."""
         tiered = _stripe_prod(ref="BW4T-Solo", maximum="9")
         unlimited = _stripe_prod(ref="BW4T-GE")  # no maximum
-        out = _select_product_for_quantity([tiered, unlimited], 99999)
+        out = select_product_for_quantity([tiered, unlimited], 99999)
         assert out is unlimited
 
     def test_garbage_maximum_treated_as_infinity(self) -> None:
         tiered = _stripe_prod(ref="BW4T-Solo", maximum="9")
         garbage = _stripe_prod(ref="BW4T-GE", maximum="not-a-number")
-        out = _select_product_for_quantity([tiered, garbage], 99999)
+        out = select_product_for_quantity([tiered, garbage], 99999)
         assert out is garbage
 
     @pytest.mark.parametrize("alt_key", ["Maximum", "MAXIMUM"])
@@ -283,7 +283,7 @@ class TestSelectProductForQuantity:
             "default_price": "p",
         }
         small = _stripe_prod(ref="BW4T-TPE", maximum="49")
-        out = _select_product_for_quantity([small, prod], 5)
+        out = select_product_for_quantity([small, prod], 5)
         assert out is prod
 
     def test_missing_maximum_with_stripe_like_product(self) -> None:
@@ -302,7 +302,7 @@ class TestSelectProductForQuantity:
         unlimited = _ProductWithoutMaximum("BW4T-GE")
         tiered = _ProductWithoutMaximum("BW4T-Solo")
         tiered.metadata["maximum"] = "9"
-        out = _select_product_for_quantity([tiered, unlimited], 99999)
+        out = select_product_for_quantity([tiered, unlimited], 99999)
         assert out is unlimited
 
 
