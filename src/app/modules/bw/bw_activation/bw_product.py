@@ -12,10 +12,47 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any
 
-from app.services.stripe.product import coerce_metadata
+from app.modules.bw.bw_activation.config import BWTYPE_ALLOWED_PRODUCTS
+from app.services.stripe.product import coerce_metadata, fetch_bw_product_list
 
 if TYPE_CHECKING:
     from stripe import Product
+
+
+def allowed_bw_product_list(bw_type: str) -> list[Product]:
+    """Return the Stripe products eligible for a given BW type."""
+    allowed_values = set(BWTYPE_ALLOWED_PRODUCTS.get(bw_type, []))
+    if not allowed_values:
+        return []
+    prods = fetch_bw_product_list()
+    return _filter_products_by_allowed_subs(list(prods), allowed_values)
+
+
+def _filter_products_by_allowed_subs(
+    products: list[Any], allowed_values: set[str]
+) -> list[Any]:
+    """Keep only Stripe products whose `metadata.reference` is in `allowed_values`.
+
+    Metadata keys come back from Stripe with arbitrary casing
+    (`reference`, `Reference`, ...) — we lower-case the key set so a
+    config typo in the Dashboard doesn't silently filter out a paying
+    tier. Empty `allowed_values` short-circuits to an empty list (the
+    BW type isn't a paid tier ; checkout must not proceed).
+    """
+    if not allowed_values:
+        return []
+    results: list[Any] = []
+    for prod in products:
+        raw_metadata = (
+            prod.get("metadata")
+            if isinstance(prod, dict)
+            else getattr(prod, "metadata", None)
+        )
+        metadata_dict = coerce_metadata(raw_metadata)
+        lowered = {str(k).lower(): v for k, v in metadata_dict.items()}
+        if lowered.get("reference", "") in allowed_values:
+            results.append(prod)
+    return results
 
 
 def select_product_for_quantity(products: list[Product], quantity: int) -> Product:

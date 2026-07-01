@@ -42,12 +42,14 @@ from typing import Any
 
 import pytest
 
+from app.modules.bw.bw_activation.bw_product import (
+    _filter_products_by_allowed_subs,
+    select_product_for_quantity,
+)
 from app.modules.bw.bw_activation.models import BWStatus
-from app.modules.bw.bw_activation.bw_product import select_product_for_quantity
 from app.modules.bw.bw_activation.routes.stage3 import (
     _build_checkout_metadata,
     _extract_price_id,
-    _filter_products_by_allowed_subs,
     _is_idempotent_confirmation_target,
     _normalize_stripe_info_form,
     _parse_quantity_from_session_value,
