@@ -45,8 +45,10 @@
 
       {# Justificatif de publication — Bug #0195: gate on the live paywall
          like the other paid actions, so it isn't a dead-end modal
-         ("Tarif indisponible") when Stripe isn't active. #}
-        {% if config.get("STRIPE_LIVE_ENABLED") %}
+         ("Tarif indisponible") when Stripe isn't active.
+         Additionally only show the button to users who were explicitly invited by
+         the journalist to buy this justificatif. #}
+        {% if config.get("STRIPE_LIVE_ENABLED") and has_justificatif_invitation and not justificatif_purchase_info %}
             <button type="button"
                     class="{{ btn_class }}"
                     title="Obtenir un justificatif officiel de publication"
@@ -119,6 +121,16 @@
                             >
                     {% endif %}
                 </li>
+            {% endif %}
+
+            {% if justificatif_purchase_info %}
+                <li class="flex items-center space-x-2">
+                    {{ icon("document-check", class="h-5 w-5 text-gray-400") }}
+                    <span class="text-gray-900 text-sm font-medium"
+                    >Justificatif acheté le <time datetime="{{ justificatif_purchase_info.date.isoformat() }}"
+                        >{{ justificatif_purchase_info.date.format("DD MMMM YYYY, à HH:mm", locale="fr") }}</time></span
+                        >
+                    </li>
             {% endif %}
 
             <li>

@@ -49,6 +49,12 @@
                     {{ product_messages.get(product_type.value, "") }}
                 </p>
 
+                {% if product_type.value == "consultation" %}
+                    <p class="text-sm text-gray-700 mb-4">
+                        Le droit de consultation a une durée de {{ article_consultation_duration }} jours.
+                    </p>
+                {% endif %}
+
                 {% if amount_ht_eur is not none %}
                     <div class="bg-gray-50 border border-gray-200 rounded p-3 mb-3 text-sm">
                         <div class="flex justify-between">

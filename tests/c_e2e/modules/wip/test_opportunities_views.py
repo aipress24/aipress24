@@ -1257,7 +1257,7 @@ class TestJustificatifsTab:
 
         client = make_authenticated_client(app, test_user)
         html = client.get("/wip/opportunities?tab=justificatifs").data.decode()
-        assert f"/wire/item/{base62.encode(post.id)}" in html
+        assert f"/wire/{base62.encode(post.id)}" in html
         assert f"/wip/articles/{article.id}" not in html
 
     def test_tab_empty_state(self, logged_in_client, test_user):

@@ -16,6 +16,11 @@ import pytest
 
 from app.models.auth import User
 from app.models.organisation import Organisation
+from app.modules.bw.bw_activation.models.business_wall import BusinessWall
+from app.modules.bw.bw_activation.models.role import (
+    InvitationStatus,
+    RoleAssignment,
+)
 from app.modules.wire.models import (
     ArticlePost,
     ArticlePurchase,
@@ -673,6 +678,59 @@ class TestListOrgPressBook:
         assert list_org_press_book(0) == []
         assert count_org_press_book(None) == 0
         assert count_org_press_book(0) == 0
+
+    def test_includes_bw_affiliate_justificatif_purchases(
+        self,
+        db_session: Session,
+        org: Organisation,
+    ) -> None:
+        """A user who is a BW owner or accepted BW member of `org`
+        contributes their JUSTIFICATIF purchases to the org's Press Book
+        even when their `User.organisation_id` is not set to `org`."""
+        # User is NOT a traditional member of `org`.
+        user = User(
+            email="bw-member@example.com",
+            first_name="BW",
+            last_name="Member",
+            active=True,
+        )
+        user.organisation_id = None
+        db_session.add(user)
+        db_session.flush()
+
+        # But user has an accepted role in a BW attached to `org`.
+        bw = BusinessWall(
+            bw_type="media",
+            status="active",
+            owner_id=user.id,
+            payer_id=user.id,
+            organisation_id=org.id,
+            is_free=True,
+        )
+        db_session.add(bw)
+        db_session.flush()
+        db_session.add(
+            RoleAssignment(
+                business_wall_id=bw.id,
+                user_id=user.id,
+                role_type="BW_OWNER",
+                invitation_status=InvitationStatus.ACCEPTED.value,
+            )
+        )
+
+        post = _make_post(db_session, user)
+        _make_purchase(
+            db_session,
+            user=user,
+            post=post,
+            amount_cents=1,
+            status=PurchaseStatus.PAID,
+            product=PurchaseProduct.JUSTIFICATIF,
+        )
+
+        rows = list_org_press_book(org.id)
+        assert [p.id for p in rows] == [post.id]
+        assert count_org_press_book(org.id) == 1
 
 
 class TestListSalesPerMedia:
