@@ -32,8 +32,11 @@ from app.modules.bw.bw_activation.bw_creation import (
     create_new_free_bw_record,
     create_new_paid_bw_record,
 )
-from app.modules.bw.bw_activation.bw_product import select_product_for_quantity
-from app.modules.bw.bw_activation.config import BW_TYPES, BWTYPE_ALLOWED_PRODUCTS
+from app.modules.bw.bw_activation.bw_product import (
+    allowed_bw_product_list,
+    select_product_for_quantity,
+)
+from app.modules.bw.bw_activation.config import BW_TYPES
 from app.modules.bw.bw_activation.models import (
     BusinessWall,
     BWStatus,
@@ -51,11 +54,7 @@ from app.modules.bw.bw_activation.utils import (
     fill_session,
     is_bw_manager_or_admin,
 )
-from app.services.stripe.product import (
-    coerce_metadata,
-    fetch_bw_product_list,
-    resolve_product_price,
-)
+from app.services.stripe.product import resolve_product_price
 from app.services.stripe.utils import (
     get_stripe_public_key,
     load_stripe_api_key,
@@ -390,33 +389,6 @@ def _preview_checkout_amount(
         return None
 
 
-def _filter_products_by_allowed_subs(
-    products: list[Any], allowed_values: set[str]
-) -> list[Any]:
-    """Keep only Stripe products whose `metadata.reference` is in `allowed_values`.
-
-    Metadata keys come back from Stripe with arbitrary casing
-    (`reference`, `Reference`, ...) — we lower-case the key set so a
-    config typo in the Dashboard doesn't silently filter out a paying
-    tier. Empty `allowed_values` short-circuits to an empty list (the
-    BW type isn't a paid tier ; checkout must not proceed).
-    """
-    if not allowed_values:
-        return []
-    results: list[Any] = []
-    for prod in products:
-        raw_metadata = (
-            prod.get("metadata")
-            if isinstance(prod, dict)
-            else getattr(prod, "metadata", None)
-        )
-        metadata_dict = coerce_metadata(raw_metadata)
-        lowered = {str(k).lower(): v for k, v in metadata_dict.items()}
-        if lowered.get("reference", "") in allowed_values:
-            results.append(prod)
-    return results
-
-
 def _normalize_stripe_info_form(
     form: dict[str, Any], fallback_email: str = ""
 ) -> dict[str, str]:
@@ -707,14 +679,6 @@ def payment_cancel(bw_type: str):
         "info",
     )
     return redirect(url_for("bw_activation.payment", bw_type=bw_type))
-
-
-def allowed_bw_product_list(bw_type: str) -> list[Product]:
-    allowed_values = set(BWTYPE_ALLOWED_PRODUCTS.get(bw_type, []))
-    if not allowed_values:
-        return []
-    prods = fetch_bw_product_list()
-    return _filter_products_by_allowed_subs(list(prods), allowed_values)
 
 
 def _payment_live_enabled(bw_type: str, ctx: dict[str, Any]):
