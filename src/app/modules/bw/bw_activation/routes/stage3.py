@@ -62,8 +62,6 @@ from app.services.stripe.utils import (
 )
 
 if TYPE_CHECKING:
-    from stripe import Product
-
     from app.models.auth import User
 
 
