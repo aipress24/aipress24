@@ -12,7 +12,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any
 
-from app.modules.bw.bw_activation.config import BWTYPE_ALLOWED_PRODUCTS
+from app.modules.bw.bw_activation.config import BW_TYPES, BWTYPE_ALLOWED_PRODUCTS
 from app.services.stripe.product import coerce_metadata, fetch_bw_product_list
 
 if TYPE_CHECKING:
@@ -53,6 +53,44 @@ def _filter_products_by_allowed_subs(
         if lowered.get("reference", "") in allowed_values:
             results.append(prod)
     return results
+
+
+def recommended_subscription(
+    bw_type: str, quantity: int | None = None
+) -> dict[str, object]:
+    """Return the recommended Stripe product for a BW subscription.
+
+    Args:
+        bw_type: One of the BW_TYPES keys ("transformers",
+            "leaders_experts").
+        quantity: Number of employees/clients. Default to 1.
+
+    Returns:
+        A dict with at least "product" and "tier" keys.
+    """
+    if bw_type not in BW_TYPES:
+        return {"product": None, "tier": None, "error": "unknown_bw_type"}
+
+    products = allowed_bw_product_list(bw_type)
+    if not products:
+        return {"product": None, "tier": None, "error": "no_products"}
+
+    if quantity is None or quantity < 1:
+        quantity = 1
+    product = select_product_for_quantity(products, quantity)
+
+    raw_metadata = (
+        product.get("metadata")
+        if isinstance(product, dict)
+        else getattr(product, "metadata", None)
+    )
+    metadata = coerce_metadata(raw_metadata)
+    reference = metadata.get("reference") or metadata.get("Reference") or ""
+
+    # Derive a human tier suffix (e.g. "BW4T-PME" -> "PME")
+    tier = reference.split("-")[-1] if reference and "-" in reference else reference
+
+    return {"product": product, "tier": tier, "reference": reference}
 
 
 def select_product_for_quantity(products: list[Product], quantity: int) -> Product:
