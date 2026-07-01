@@ -18,6 +18,8 @@ from app.services.stripe.product import coerce_metadata, fetch_bw_product_list
 if TYPE_CHECKING:
     from stripe import Product
 
+    from app.modules.bw.bw_activation.models.business_wall import BusinessWall
+
 
 def allowed_bw_product_list(bw_type: str) -> list[Product]:
     """Return the Stripe products eligible for a given BW type."""
@@ -91,6 +93,141 @@ def recommended_subscription(
     tier = reference.split("-")[-1] if reference and "-" in reference else reference
 
     return {"product": product, "tier": tier, "reference": reference}
+
+
+def evaluate_subscription(
+    current_bw: BusinessWall,
+    quantity: int | None,
+) -> dict[str, object]:
+    """Compare the current BW subscription against the recommended one.
+
+    Args:
+        current_bw: The existing BusinessWall (with a "bw_type").
+        quantity: New employee count. None or negative defaults
+            to the value stored on the BW's subscription if available,
+            otherwise to 1.
+
+    Returns:
+        A dict:
+        - "ok": True if no change is needed, False otherwise.
+        - "message": some clear str information.
+        - "current_product": current Stripe Product (or None).
+        - "recommended_product": recommended Stripe Product (or None).
+        - "recommended_tier": tier suffix (e.g. "PME").
+        - "recommended_reference": product reference (e.g. "BW4T-PME").
+
+    For free BW types or BW types with no Stripe products the helper
+    returns ok=True because there is no paid subscription to evaluate.
+    """
+    bw_type = current_bw.bw_type
+    if bw_type not in BW_TYPES:
+        return {
+            "ok": True,
+            "message": "Aucun changement",
+            "current_product": None,
+            "recommended_product": None,
+            "recommended_tier": None,
+            "recommended_reference": None,
+        }
+
+    if BW_TYPES[bw_type].get("free"):
+        return {
+            "ok": True,
+            "message": "Aucun changement",
+            "current_product": None,
+            "recommended_product": None,
+            "recommended_tier": None,
+            "recommended_reference": None,
+        }
+
+    # Resolve current product from subscription metadata if available.
+    current_product: Product | None = None
+    sub = current_bw.subscription
+    if sub is not None and sub.stripe_subscription_id:
+        try:
+            import stripe as _stripe
+
+            stripe_sub = _stripe.Subscription.retrieve(
+                sub.stripe_subscription_id, expand=["items.data.plan.product"]
+            )
+            items = getattr(stripe_sub, "items", None)
+            if items and items.data:
+                first_item = items.data[0]
+                plan = getattr(first_item, "plan", None)
+                if plan:
+                    current_product = getattr(plan, "product", None)
+        except Exception:
+            current_product = None
+
+    current_reference = ""
+    if sub is not None and sub.pricing_tier and sub.pricing_tier != "via_pricing_table":
+        allowed_refs = set(BWTYPE_ALLOWED_PRODUCTS.get(bw_type, []))
+        for ref in allowed_refs:
+            if ref.endswith(f"-{sub.pricing_tier}") or ref == sub.pricing_tier:
+                current_reference = ref
+                break
+
+    if quantity is None or quantity <= 0:
+        if (
+            sub is not None
+            and hasattr(sub, "pricing_value")
+            and sub.pricing_value is not None
+        ):
+            quantity = int(sub.pricing_value)
+        else:
+            quantity = 1
+
+    recommendation = recommended_subscription(bw_type, quantity)
+    recommended_product = recommendation.get("product")
+    recommended_reference = recommendation.get("reference") or ""
+    recommended_tier = recommendation.get("tier")
+
+    # Build current product from reference fallback if Stripe lookup failed.
+    if current_product is None and current_reference:
+        products = allowed_bw_product_list(bw_type)
+        for p in products:
+            raw_metadata = (
+                p.get("metadata")
+                if isinstance(p, dict)
+                else getattr(p, "metadata", None)
+            )
+            meta = coerce_metadata(raw_metadata)
+            ref = meta.get("reference") or meta.get("Reference") or ""
+            if ref == current_reference:
+                current_product = p
+                break
+
+    same = bool(
+        current_product is not None
+        and recommended_product is not None
+        and _product_id(current_product) == _product_id(recommended_product)
+    )
+
+    if same:
+        return {
+            "ok": True,
+            "message": "Aucun changement",
+            "current_product": current_product,
+            "recommended_product": recommended_product,
+            "recommended_tier": recommended_tier,
+            "recommended_reference": recommended_reference,
+        }
+
+    return {
+        "ok": False,
+        "message": "Changement d'abonnement recommandé",
+        "current_product": current_product,
+        "recommended_product": recommended_product,
+        "recommended_tier": recommended_tier,
+        "recommended_reference": recommended_reference,
+    }
+
+
+def _product_id(product: Product) -> str:
+    """Return the id of a Stripe product or product-like dict."""
+    if isinstance(product, dict):
+        return str(product.get("id", ""))
+    return str(getattr(product, "id", ""))
 
 
 def select_product_for_quantity(products: list[Product], quantity: int) -> Product:
