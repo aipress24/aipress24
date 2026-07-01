@@ -43,6 +43,7 @@ from app.services.stripe.product import (
     resolve_product_price,
 )
 from app.services.stripe.utils import load_stripe_api_key
+from app.settings.constants import ARTICLE_CONSULTATION_DURATION
 
 _PRODUCT_TO_ENV: dict[PurchaseProduct, str] = {}
 
@@ -220,6 +221,7 @@ def buy_modal(post_id: str, product: str):
         org_cumul_eur=get_org_purchase_total(getattr(user, "organisation_id", None))
         / 100,
         stripe_live=bool(current_app.config.get("STRIPE_LIVE_ENABLED")),
+        article_consultation_duration=ARTICLE_CONSULTATION_DURATION,
     )
 
 
@@ -379,6 +381,7 @@ def buy_modal_gift(post_id: str):
         org_cumul_eur=get_org_purchase_total(getattr(user, "organisation_id", None))
         / 100,
         stripe_live=bool(current_app.config.get("STRIPE_LIVE_ENABLED")),
+        article_consultation_duration=ARTICLE_CONSULTATION_DURATION,
     )
 
 

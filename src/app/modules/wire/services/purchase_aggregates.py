@@ -19,7 +19,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, NamedTuple
 
-from sqlalchemy import func, select
+from sqlalchemy import func, or_, select
 from sqlalchemy.orm import aliased
 
 from app.flask.extensions import db
@@ -170,21 +170,30 @@ def count_user_press_book(user_id: int | None) -> int:
 
 def list_org_press_book(org_id: int | None) -> list:
     """The Press Book of an organisation = the aggregated Press Books of
-    its members. Erick #0195 : « ainsi que sur le Business Wall de votre
-    organisation ». Duplicate articles (multiple members owning the
-    same justificatif) are de-duplicated by ORM identity via
-    `.unique()` — `SELECT DISTINCT` would conflict with the ORDER BY
-    on `paid_at` under Postgres (which requires the ORDER BY columns
-    to be in the SELECT list)."""
+    its members AND of BW affiliates. Erick #0195 : « ainsi que sur le
+    Business Wall de votre organisation ». A justificatif bought by a
+    user who is a BW owner/member of this org therefore appears here.
+
+    Duplicate articles (multiple members owning the same justificatif)
+    are de-duplicated by ORM identity via `.unique()` — `SELECT DISTINCT`
+    would conflict with the ORDER BY on `paid_at` under Postgres (which
+    requires the ORDER BY columns to be in the SELECT list)."""
     if not org_id:
         return []
+    # cyclic import protection
+    from app.modules.bw.bw_activation.user_utils import user_affiliated_with_org_clause
     from app.modules.wire.models import ArticlePost, PurchaseProduct
 
     stmt = (
         select(ArticlePost)
         .join(ArticlePurchase, ArticlePurchase.post_id == ArticlePost.id)
         .join(User, ArticlePurchase.owner_id == User.id)
-        .where(User.organisation_id == org_id)
+        .where(
+            or_(
+                User.organisation_id == org_id,
+                user_affiliated_with_org_clause(User.id, org_id),
+            )
+        )
         .where(ArticlePurchase.product_type == PurchaseProduct.JUSTIFICATIF)
         .where(ArticlePurchase.status == PurchaseStatus.PAID)
         .order_by(ArticlePurchase.paid_at.desc().nullslast())
@@ -196,13 +205,20 @@ def count_org_press_book(org_id: int | None) -> int:
     """Number of distinct articles in the organisation's Press Book."""
     if not org_id:
         return 0
+    # cyclic import protection
+    from app.modules.bw.bw_activation.user_utils import user_affiliated_with_org_clause
     from app.modules.wire.models import PurchaseProduct
 
     stmt = (
         select(func.count(func.distinct(ArticlePurchase.post_id)))
         .select_from(ArticlePurchase)
         .join(User, ArticlePurchase.owner_id == User.id)
-        .where(User.organisation_id == org_id)
+        .where(
+            or_(
+                User.organisation_id == org_id,
+                user_affiliated_with_org_clause(User.id, org_id),
+            )
+        )
         .where(ArticlePurchase.product_type == PurchaseProduct.JUSTIFICATIF)
         .where(ArticlePurchase.status == PurchaseStatus.PAID)
     )
