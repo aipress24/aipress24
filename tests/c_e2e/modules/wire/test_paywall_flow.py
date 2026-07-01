@@ -18,6 +18,7 @@ from app.lib.file_object_utils import create_file_object
 from app.models.auth import Role, User
 from app.models.lifecycle import PublicationStatus
 from app.models.organisation import Organisation
+from app.modules.wip.models.newsroom.avis_enquete import AvisEnquete
 from app.modules.wip.models.newsroom.justificatif_invitation import (
     JustificatifInvitation,
 )
@@ -367,20 +368,42 @@ def test_justificatif_button_hidden_when_paywall_inactive(
     assert "Justificatif de publication" not in response.data.decode()
 
 
-def test_justificatif_button_shown_when_paywall_active(
-    app: Flask, db_session: Session, reader: User, article: ArticlePost
-):
-    _CONSULTATION_PRICE_CACHE.clear()
-    # Button only shown when the reader was invited by the journalist.
+def _create_avis_and_invitation(
+    db_session: Session, article: ArticlePost, reader: User
+) -> None:
+    """Create a real AvisEnquete + JustificatifInvitation so the reader
+    is an invited recipient. Both FKs must point at real rows."""
     article.newsroom_id = article.id
+    now = arrow.utcnow()
+    avis = AvisEnquete(
+        titre="Enquête liée",
+        contenu="...",
+        owner_id=article.owner_id,
+        media_id=article.publisher_id,
+        commanditaire_id=article.owner_id,
+        date_debut_enquete=now.shift(days=-7).datetime,
+        date_fin_enquete=now.datetime,
+        date_bouclage=now.shift(days=7).datetime,
+        date_parution_prevue=now.shift(days=14).datetime,
+    )
+    db_session.add(avis)
+    db_session.flush()
     db_session.add(
         JustificatifInvitation(
             article_id=article.id,
             recipient_id=reader.id,
             journalist_id=article.owner_id,
-            avis_enquete_id=article.id,
+            avis_enquete_id=avis.id,
         )
     )
+
+
+def test_justificatif_button_shown_when_paywall_active(
+    app: Flask, db_session: Session, reader: User, article: ArticlePost
+):
+    _CONSULTATION_PRICE_CACHE.clear()
+    # Button only shown when the reader was invited by the journalist.
+    _create_avis_and_invitation(db_session, article, reader)
     db_session.commit()
 
     app.config["STRIPE_LIVE_ENABLED"] = True
@@ -413,15 +436,7 @@ def test_justificatif_button_hidden_and_date_shown_after_purchase(
 ):
     """Once the justificatif is bought, hide button, show purchase date."""
     _CONSULTATION_PRICE_CACHE.clear()
-    article.newsroom_id = article.id
-    db_session.add(
-        JustificatifInvitation(
-            article_id=article.id,
-            recipient_id=reader.id,
-            journalist_id=article.owner_id,
-            avis_enquete_id=article.id,
-        )
-    )
+    _create_avis_and_invitation(db_session, article, reader)
     db_session.add(
         ArticlePurchase(
             post_id=article.id,
