@@ -435,7 +435,15 @@ class ExpertFilterService:
         pre-filter (thematic match + recent activity).
         """
         if self._all_experts is None:
-            experts = self._user_repo.list(active=True)
+            # Exclude profileless active users (incomplete sign-up) : every
+            # expert selector reads `expert.profile.<attr>`, so a NULL
+            # profile would crash the ciblage screen — and an expert with
+            # no KYC profile can't be matched to an avis anyway.
+            # Exclude profileless active users (incomplete sign-up) : every
+            # expert selector reads `expert.profile.<attr>`, so a NULL
+            # profile would crash the ciblage screen — and an expert with
+            # no KYC profile can't be matched to an avis anyway.
+            experts = [e for e in self._user_repo.list(active=True) if e.profile]
             if self._avis_enquete is not None:
                 from app.modules.wip.services.newsroom.avis_matching import (
                     match_experts_to_avis,

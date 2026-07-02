@@ -318,6 +318,7 @@ DEP004 = ['hypothesis', 'openpyxl', "flask_debugtoolbar"]
 # -----------------------------------------------------------------------------
 
 [tool.pyright]
+include = ["src"]
 exclude = [
     '.nox',
     'tests',
@@ -327,7 +328,6 @@ exclude = [
     'tmp',
     "src/app/modules/superadmin",
 ]
-include = ["src"]
 
 # False positives
 reportPrivateImportUsage = false
@@ -342,13 +342,14 @@ reportIncompatibleVariableOverride = false
 
 [tool.ty.src]
 exclude = [
-    "tests",
+    "tests-e2e/**/*.py",
+    "scripts/**/*.py",
+    "icons/**/*.py",
+    "*.py",
     # FIXME later
-    # "src/app/modules/wip/**/*.py",
-    "src/app/modules/wip/forms/business_wall/business_wall_form.py",
-    "src/app/modules/stripe/**/*.py",
     "src/app/modules/kyc/**/*.py",
 ]
+
 [tool.ty.rules]
 unused-type-ignore-comment = "ignore"
 unused-ignore-comment = "ignore"
@@ -356,6 +357,38 @@ invalid-argument-type = "ignore"
 invalid-assignment = "ignore"
 invalid-method-override = "ignore"
 unresolved-attribute = "ignore"
+
+# -----------------------------------------------------------------------------
+
+[tool.pyrefly]
+project-includes = ["src"]
+project-excludes = [
+    ".nox",
+    "tests",
+    "sandbox",
+    "doc",
+    "scripts",
+    "tmp",
+]
+infer-with-first-use = false
+
+[tool.pyrefly.errors]
+bad-override = "ignore"
+bad-argument-type = "ignore"   # SQLAlchemy InstrumentedAttribute false positives
+bad-return = "ignore"
+bad-assignment = "ignore"
+missing-attribute = "ignore"
+
+# -----------------------------------------------------------------------------
+
+[tool.zuban]
+# strict = true
+# disallow_untyped_defs = true
+# warn_unreachable = true
+# allow_untyped_globals = false
+# check_untyped_defs = false
+# follow_untyped_imports = true
+exclude_gitignore = true
 
 # -----------------------------------------------------------------------------
 
@@ -414,28 +447,6 @@ skip_empty = true
 
 [tool.coverage.html]
 show_contexts = true
-
-# -----------------------------------------------------------------------------
-
-[tool.pyrefly]
-project-includes = ["src"]
-project-excludes = [
-    ".nox",
-    "tests",
-    "sandbox",
-    "doc",
-    "scripts",
-    "tmp",
-    "src/app/modules/superadmin",
-]
-infer-with-first-use = false
-
-[tool.pyrefly.errors]
-bad-override = "ignore"
-bad-argument-type = "ignore"   # SQLAlchemy InstrumentedAttribute false positives
-bad-return = "ignore"
-bad-assignment = "ignore"
-missing-attribute = "ignore"
 
 # -----------------------------------------------------------------------------
 

@@ -172,6 +172,11 @@ class TestMetierFonctionProxy:
         )
         assert user.metier_fonction == "expert sécurité"
 
+    def test_for_bw_returns_empty_when_profile_is_none(self, db: SQLAlchemy) -> None:
+        """`metier_fonction_for_bw` must not crash on a profileless user."""
+        user = _make_user()
+        assert user.metier_fonction_for_bw("media") == ""
+
 
 class TestMetiersAndTousMetiers:
     """``User.metiers`` and ``User.tous_metiers`` aggregate the
@@ -197,6 +202,18 @@ class TestMetiersAndTousMetiers:
     def test_tous_metiers_with_empty_lists(self, db: SQLAlchemy) -> None:
         user = _make_user()
         user.profile = _make_profile()
+        assert user.tous_metiers == set()
+
+    def test_metiers_returns_empty_when_profile_is_none(self, db: SQLAlchemy) -> None:
+        """A profileless user must not crash `metiers` (was an unguarded
+        `self.profile.metiers` next to guarded siblings)."""
+        user = _make_user()
+        assert user.metiers == []
+
+    def test_tous_metiers_returns_empty_when_profile_is_none(
+        self, db: SQLAlchemy
+    ) -> None:
+        user = _make_user()
         assert user.tous_metiers == set()
 
 
