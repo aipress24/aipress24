@@ -141,12 +141,34 @@ class OrgContactsTab(Tab):
 
     @property
     def label(self) -> str:
-        stmt = (
-            select(func.count())
-            .select_from(User)
-            .where(User.organisation_id == self.org.id)
-        )
-        count = db.session.execute(stmt).scalar()
+        active_bw = get_active_business_wall_for_organisation(self.org)
+        if active_bw is not None:
+            from app.modules.bw.bw_activation.models.role import (
+                InvitationStatus,
+                RoleAssignment,
+            )
+
+            count_query = (
+                select(func.count(func.distinct(User.id)))
+                .select_from(User)
+                .join(RoleAssignment, User.id == RoleAssignment.user_id)
+                .where(RoleAssignment.business_wall_id == active_bw.id)
+                .where(
+                    RoleAssignment.invitation_status == InvitationStatus.ACCEPTED.value
+                )
+            )
+            if active_bw.owner_id is not None:
+                count_query = count_query.where(User.id != active_bw.owner_id)
+            count = int(db.session.execute(count_query).scalar() or 0)
+            if active_bw.owner_id is not None:
+                count += 1
+        else:
+            stmt = (
+                select(func.count())
+                .select_from(User)
+                .where(User.organisation_id == self.org.id)
+            )
+            count = int(db.session.execute(stmt).scalar() or 0)
         return f"Contacts ({count})"
 
     def guard(self) -> bool:
@@ -336,9 +358,47 @@ class OrgVM(ViewModel):
         }
 
     def get_members(self) -> list[User]:
-        return list(
-            db.session.scalars(select(User).where(User.organisation_id == self.org.id))
+        """Return members to display on the organisation page.
+
+        When the org has an active Business Wall, display the BW
+        members (owner + accepted role assignments) rather than the
+        legacy organisation members.
+        """
+        bw = self.bw
+        if bw is None:
+            return list(
+                db.session.scalars(
+                    select(User).where(User.organisation_id == self.org.id)
+                )
+            )
+
+        # Owner first, then accepted role holders, preserving role order.
+        from app.modules.bw.bw_activation.models.role import (
+            InvitationStatus,
+            RoleAssignment,
         )
+
+        user_ids: list[int] = []
+        if bw.owner_id:
+            user_ids.append(bw.owner_id)
+
+        stmt = (
+            select(User)
+            .join(RoleAssignment, User.id == RoleAssignment.user_id)
+            .where(RoleAssignment.business_wall_id == bw.id)
+            .where(RoleAssignment.invitation_status == InvitationStatus.ACCEPTED.value)
+            .where(User.id != bw.owner_id)
+            .order_by(RoleAssignment.role_type, User.last_name, User.first_name)
+        )
+        members = list(db.session.scalars(stmt))
+
+        # Load owner explicitly to keep deterministic ordering.
+        owner = db.session.get(User, bw.owner_id) if bw.owner_id else None
+        result: list[User] = []
+        if owner is not None:
+            result.append(owner)
+        result.extend(members)
+        return result
 
     def _got_cover_image(self) -> bool:
         if self.bw is not None:
