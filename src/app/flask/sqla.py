@@ -39,7 +39,7 @@ def parse_id(id: int | str) -> int:
 
 def get_obj(id: int | str, cls: type, options=None):
     id = parse_id(id)
-    stmt = select(cls).where(cls.id == id)  # type: ignore
+    stmt = select(cls).where(cls.id == id)
     if options:
         stmt = stmt.options(options)
     result = db.session.execute(stmt)

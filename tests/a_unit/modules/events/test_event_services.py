@@ -150,7 +150,7 @@ class TestGetParticipants:
     def test_raises_error_for_invalid_type(self) -> None:
         """Test raises error for non-EventPost object."""
         with pytest.raises((TypeError, AssertionError, TypeCheckError)):
-            get_participants("not an event")  # type: ignore
+            get_participants("not an event")
 
     def test_only_returns_participants_for_specific_event(
         self, db: SQLAlchemy, owner: User

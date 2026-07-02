@@ -351,12 +351,12 @@ exclude = [
 ]
 
 [tool.ty.rules]
-unused-type-ignore-comment = "ignore"
-unused-ignore-comment = "ignore"
+# unused-type-ignore-comment = "ignore"
+# unused-ignore-comment = "ignore"
 invalid-argument-type = "ignore"
 invalid-assignment = "ignore"
 invalid-method-override = "ignore"
-unresolved-attribute = "ignore"
+# unresolved-attribute = "ignore"
 
 # -----------------------------------------------------------------------------
 

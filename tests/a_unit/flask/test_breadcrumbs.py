@@ -27,7 +27,7 @@ def test_breadcrumb_is_frozen() -> None:
     crumb = BreadCrumb(label="Test", url="/test")
 
     with pytest.raises(Exception):  # FrozenInstanceError
-        crumb.label = "Changed"  # type: ignore
+        crumb.label = "Changed"
 
 
 def test_breadcrumb_equality() -> None:

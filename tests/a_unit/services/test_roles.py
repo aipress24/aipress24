@@ -173,8 +173,8 @@ class TestHasRole:
 
         user = AnonymousUser()
 
-        assert has_role(user, "admin") is False  # type: ignore
-        assert has_role(user, ["admin", "moderator"]) is False  # type: ignore
+        assert has_role(user, "admin") is False
+        assert has_role(user, ["admin", "moderator"]) is False
 
     def test_has_role_unsupported_type(self, db: SQLAlchemy) -> None:
         """Test that unsupported role types raise ValueError."""
@@ -183,7 +183,7 @@ class TestHasRole:
         db.session.flush()
 
         with pytest.raises(ValueError, match="Match failed"):
-            has_role(user, 123)  # type: ignore
+            has_role(user, 123)
 
         with pytest.raises(ValueError, match="Match failed"):
-            has_role(user, {"role": "admin"})  # type: ignore
+            has_role(user, {"role": "admin"})

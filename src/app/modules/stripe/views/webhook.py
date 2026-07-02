@@ -1120,11 +1120,11 @@ def _update_organisation_subscription_info(
 
 #     possible_bw = PROFILE_CODE_TO_BW_TYPE.get(profile_code, [])
 #     if not possible_bw:
-#         return BWTypeEnum.ORGANISATION  # type: ignore
+#         return BWTypeEnum.ORGANISATION
 #     if len(possible_bw) == 1:
 #         return possible_bw[0]
 #     # here the only double possibility is:
 #     # [BWTypeEnum.MEDIA, BWTypeEnum.AGENCY]
 #     if org.bw_active == BWType.PR.value:
-#         return BWTypeEnum.AGENCY  # type: ignore
-#     return BWTypeEnum.MEDIA  # type: ignore
+#         return BWTypeEnum.AGENCY
+#     return BWTypeEnum.MEDIA
