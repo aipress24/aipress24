@@ -6,19 +6,15 @@ target-version = "py311"
 
 exclude = [
     "migrations/",
-    "src/app/modules/wip/crud/cbvs/_forms.py",
-    "src/app/modules/superadmin",
-    "src/app/modules/wallet",
     "scripts/",
     "doc/",
     "data/",
     "not-used-yet/",
     "debug/",
+    "e2e_playwright/",
     #
     "docker/run.py",
     "tests-e2e/",
-    "e2e_playwright/",
-    "features/steps/steps.py",
     "gunicorn.conf.py",
     "icons/tasks.py",
     "nua/nua-install-build-agent.py",
@@ -87,9 +83,11 @@ lint.ignore = [
 "src/app/faker/**/*.py" = [
     "S311", # Standard pseudo-random generators are not suitable for cryptographic purposes
 ]
+"src/app/modules/wip/crud/cbvs/**/*.py" = [
+    "RUF012", # Mutable default value for class attribute
+]
 "tests/**/*.py" = [
     "ANN", # flake8-annotations
-    "C901", #   	complex-structure
     "INP001", #  implicit-namespace-package
     "S105", #    hardcoded-password-string
     "S106", #    hardcoded-password-func-arg
