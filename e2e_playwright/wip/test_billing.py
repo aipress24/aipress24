@@ -72,9 +72,10 @@ def test_billing_get_csv_unknown_id_returns_404(
 def test_billing_get_pdf_missing_invoice_id_query(
     page: Page, base_url: str, profile, login
 ) -> None:
-    """``GET /wip/billing/get_pdf`` without the ``invoice_id``
-    query arg : the route's `request.args["invoice_id"]` raises
-    BadRequest → 400 (or 500 depending on global error handler)."""
+    """``GET /wip/billing/get_pdf`` without the ``invoice_id`` query arg
+    (stale link, bare URL, bot scan) returns a clean 404 — the same as a
+    non-existent invoice — rather than an unhandled BadRequestKeyError
+    (which the dev config surfaced as a 500)."""
     p = profile("PRESS_MEDIA")
     login(p)
     resp = page.goto(
@@ -83,7 +84,4 @@ def test_billing_get_pdf_missing_invoice_id_query(
     )
     if resp is None:
         pytest.skip("no response")
-    # Werkzeug raises BadRequest for missing required args → 400.
-    # Some globally-installed error handlers may recast as 500 ;
-    # accept either as long as it's not 200 (which would be a bug).
-    assert resp.status in (400, 500), f"expected 400/500, got {resp.status}"
+    assert resp.status == 404, f"expected 404, got {resp.status}"
