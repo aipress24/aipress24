@@ -529,6 +529,56 @@ class TestStage3PaidRoutes:
 
         assert response.status_code == 200
 
+    def test_confirmation_paid_finalises_draft_bw(
+        self,
+        authenticated_client: FlaskClient,
+        db_session: Session,
+        test_org: Organisation,
+        test_user_media: User,
+    ) -> None:
+        """#0071/2 — a DRAFT BW (Stripe webhook never fired, or recette
+        no-webhook mode) must flip to ACTIVE when its manager revisits
+        /BW/confirmation/paid, and the org must be linked to it, so the
+        opportunity gate (ACTIVE-only) stops blocking. Both the free and
+        paid funnels now converge here, so this single route is the whole
+        finalisation surface — hence the source-grep guard that expected
+        the branch in two places was retired for this state assertion."""
+        draft = BusinessWall(
+            bw_type="media",
+            status=BWStatus.DRAFT.value,
+            is_free=True,
+            owner_id=test_user_media.id,
+            payer_id=test_user_media.id,
+            organisation_id=test_org.id,
+        )
+        db_session.add(draft)
+        db_session.flush()
+        db_session.add(
+            RoleAssignment(
+                business_wall_id=draft.id,
+                user_id=test_user_media.id,
+                role_type=BWRoleType.BW_OWNER.value,
+                invitation_status=InvitationStatus.ACCEPTED.value,
+            )
+        )
+        db_session.commit()
+
+        # Shape the session the way the funnel leaves it before the
+        # confirmation revisit: activated flag + type + the pinned BW.
+        with authenticated_client.session_transaction() as sess:
+            sess["bw_activated"] = True
+            sess["bw_type"] = "media"
+            sess["bw_id"] = str(draft.id)
+
+        response = authenticated_client.get("/BW/confirmation/paid")
+
+        assert response.status_code == 200
+        db_session.expire_all()
+        refreshed = db_session.get(BusinessWall, draft.id)
+        assert refreshed.status == BWStatus.ACTIVE.value
+        db_session.refresh(test_org)
+        assert test_org.bw_id == draft.id
+
     def test_set_pricing_without_cgv_redirects(
         self,
         authenticated_client: FlaskClient,

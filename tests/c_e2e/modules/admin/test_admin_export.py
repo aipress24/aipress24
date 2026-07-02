@@ -336,6 +336,26 @@ class TestInscriptionsExporter:
         # Should have at least the test users created recently
         assert len(data) >= 3
 
+    def test_run_survives_user_without_profile(self, db_session: Session):
+        """Regression : a recently-submitted user with no KYCProfile must
+        not 500 the whole export (`/admin/export/inscription`). Profile-
+        derived columns render blank instead of raising AttributeError on
+        `None.get_all_bw_trigger()`."""
+        user = User(email=f"noprofile-{uuid4().hex[:8]}@example.com")
+        user.photo = b""
+        user.active = True
+        user.submited_at = datetime.now(tz=UTC) - timedelta(days=1)
+        # Deliberately no KYCProfile attached.
+        db_session.add(user)
+        db_session.flush()
+        assert user.profile is None
+
+        exporter = InscriptionsExporter()
+        exporter.run()
+
+        # A valid ODS document was produced (PK zip signature).
+        assert exporter.document[:4] == b"PK\x03\x04"
+
 
 class TestModificationsExporter:
     """Test ModificationsExporter class."""

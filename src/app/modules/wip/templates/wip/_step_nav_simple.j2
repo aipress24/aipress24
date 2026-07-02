@@ -27,7 +27,7 @@
       >
         ← Retourner à la liste des {{ list_label }}
       </a>
-      {% if current == "modifier" %}
+      {% if current == "modifier" and model and model.id %}
         <a
           href="{{ url_for(view_name ~ ':get', id=model.id) }}"
           class="text-sm font-semibold leading-6 text-gray-900 hover:text-gray-700"
@@ -36,7 +36,7 @@
         </a>
       {% endif %}
     </div>
-    {% if current == "voir" %}
+    {% if current == "voir" and model and model.id %}
       <a
         href="{{ url_for(view_name ~ ':edit', id=model.id) }}"
         class="rounded-md bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-blue-700"

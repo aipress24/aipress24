@@ -912,18 +912,15 @@ def confirmation_paid():
     # with a DRAFT BW and the user expects « Activation Réussie ».
     user = cast("User", g.user)
     existing = find_finalizable_bw_for_user(user)
-    if (
-        existing is not None
-        and existing.status != BWStatus.CANCELLED.value
-        and is_bw_manager_or_admin(user, existing)
-    ):
-        # Bug #0071/2 : same DRAFT-stays-DRAFT trap as confirmation_free.
-        # A paid BW pre-checkout sits in DRAFT until the Stripe webhook
-        # flips it ; when the webhook fails (or doesn't exist, like in
-        # recette), the user comes back here and the « Activation
-        # Réussie » card lied. Flip the status here too so the gate on
-        # /wip/opportunities/ stops blocking.
-        if existing.status != BWStatus.ACTIVE.value:
+    is_manager = existing is not None and is_bw_manager_or_admin(user, existing)
+    if _is_idempotent_confirmation_target(existing, is_manager=is_manager):
+        assert existing is not None  # guaranteed by the guard above
+        # Bug #0071/2 : a paid BW pre-checkout sits in DRAFT until the
+        # Stripe webhook flips it ; when the webhook fails (or doesn't
+        # exist, like in recette), the user comes back here and the
+        # « Activation Réussie » card lied. Flip the status here so the
+        # gate on /wip/opportunities/ stops blocking.
+        if _should_finalise_draft(existing):
             existing.status = BWStatus.ACTIVE.value  # type: ignore[assignment]
             # Link organisation to BW
             org = existing.get_organisation()

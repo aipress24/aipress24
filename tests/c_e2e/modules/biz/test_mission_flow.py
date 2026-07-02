@@ -26,8 +26,10 @@ from app.modules.biz.models import (
     MissionStatus,
     OfferApplication,
 )
+from app.modules.kyc.ontology_loader import get_ontology_content
 from app.services.notifications import NotificationService
 from app.services.notifications._models import Notification
+from app.services.taxonomies._models import TaxonomyEntry
 from tests.c_e2e.conftest import make_authenticated_client
 
 if TYPE_CHECKING:
@@ -118,6 +120,46 @@ class TestMissionsListing:
 
 
 class TestMissionDeposit:
+    def test_new_form_renders_sector_optgroups(
+        self,
+        app: Flask,
+        emitter: User,
+        db_session: Session,
+    ):
+        """#0230 — rendering the deposit form must not crash on the sector
+        field. The dual-select ontology is a {"field1", "field2"} dict;
+        feeding the whole dict to a flat SelectField made wtforms do
+        `choices[0]` on a dict → KeyError. The `field2` sub-dict renders
+        as optgroups instead."""
+        db_session.add_all(
+            [
+                TaxonomyEntry(
+                    taxonomy_name="secteur_detaille",
+                    category="ADMINISTRATION PUBLIQUE",
+                    value="ADMINISTRATION PUBLIQUE / Affaires maritimes",
+                    name="ADMINISTRATION PUBLIQUE / Affaires maritimes",
+                    seq=1,
+                ),
+                TaxonomyEntry(
+                    taxonomy_name="secteur_detaille",
+                    category="BTP",
+                    value="BTP / Génie civil",
+                    name="BTP / Génie civil",
+                    seq=2,
+                ),
+            ]
+        )
+        db_session.commit()
+        get_ontology_content.cache_clear()
+
+        client = make_authenticated_client(app, emitter)
+        response = client.get("/biz/missions/new")
+
+        assert response.status_code == 200
+        html = response.data.decode()
+        assert '<optgroup label="ADMINISTRATION PUBLIQUE">' in html
+        assert "ADMINISTRATION PUBLIQUE / Affaires maritimes" in html
+
     def test_emitter_can_post_mission(
         self,
         app: Flask,

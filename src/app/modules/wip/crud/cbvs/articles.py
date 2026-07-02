@@ -348,7 +348,13 @@ class ArticlesWipView(BaseWipView):
         self._make_media_choices(form)
 
         if not form.validate():
-            return self._view_ctx(form=form)
+            # The error re-render uses `_ARTICLE_MODIFIER_TEMPLATE`, whose
+            # step-nav needs `article` in the context (like get/edit set).
+            # On a failed create `model` is a fresh, unsaved Article
+            # (id is None) — the step-nav guards on `model.id`.
+            ctx = self._view_ctx(form=form)
+            ctx["article"] = model
+            return ctx
 
         form.populate_obj(model)
 

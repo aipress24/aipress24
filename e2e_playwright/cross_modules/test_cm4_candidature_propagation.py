@@ -44,6 +44,13 @@ def _redirect_re(resource: str) -> re.Pattern[str]:
     return re.compile(rf"/biz/{resource}/(\d+)$")
 
 
+# #0224 — the mission form now requires a `category` (non-Journalism
+# here to dodge the PRESS_MEDIA visibility gate) ; projects/jobs don't.
+_OFFER_REQUIRED_FIELDS = {
+    "missions": {"category": "communication"},
+}
+
+
 @pytest.mark.mutates_db
 @pytest.mark.parallel_unsafe
 @pytest.mark.parametrize(
@@ -86,6 +93,7 @@ def test_cm4_application_triggers_owner_notification(
             f"Description CM-4 — {marker}. Test de propagation "
             "candidature → notifications. Description >= 20 chars."
         ),
+        **_OFFER_REQUIRED_FIELDS.get(resource, {}),
     }
     create_resp = page.evaluate(
         """async (args) => {

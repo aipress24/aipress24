@@ -30,6 +30,9 @@ import pytest
 
 from app.modules.swork.components.base import FilterOption
 from app.modules.swork.components.members_list import (
+    FilterByCityOrm,
+    FilterByCountryOrm,
+    FilterByDeptOrm,
     FilterByTailleOrganisation,
     FilterByTypeAgenceRP,
     FilterByTypeEntrepriseMedia,
@@ -97,6 +100,28 @@ def test_taille_orga_selector_returns_empty_filteroption_when_no_profile():
     assert isinstance(result, FilterOption)
     assert result.option == ""
     assert result.code == ""
+
+
+def test_country_orm_selector_returns_empty_filteroption_when_no_profile():
+    """Regression : `FilterByCountryOrm.selector` used to read
+    `user.profile.country` with no guard, so building the members-list
+    filters over a user with no KYCProfile raised AttributeError
+    ('NoneType' has no attribute 'country'). It now returns
+    `FilterOption("", "")` like its siblings."""
+    user = _user_with_profile(_profile_is_none=True)
+    result = FilterByCountryOrm().selector(user)
+    assert isinstance(result, FilterOption)
+    assert result.option == ""
+    assert result.code == ""
+
+
+@pytest.mark.parametrize("filter_cls", [FilterByDeptOrm, FilterByCityOrm])
+def test_dept_city_orm_selector_returns_empty_str_when_no_profile(filter_cls):
+    """Regression companion : the dept/ville ORM filters read
+    `user.profile.<attr>` directly and must return `""` (falsy, so the
+    base drops it) rather than crash when the profile is missing."""
+    user = _user_with_profile(_profile_is_none=True)
+    assert filter_cls().selector(user) == ""
 
 
 # ── FilterByTypeOrganisation ─────────────────────────────────────────

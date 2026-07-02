@@ -412,7 +412,7 @@ class InscriptionsExporter(BaseExporter):
     def cell_value(
         self,
         user: User,
-        profile: KYCProfile,
+        profile: KYCProfile | None,
         name: str,
     ) -> str | datetime | int | bool | None:
         value = self._get_cell_value_raw(user, profile, name)
@@ -425,7 +425,7 @@ class InscriptionsExporter(BaseExporter):
             case _:
                 return cast(str | int | bool | None, value)
 
-    def _get_cell_value_raw(self, user: User, profile: KYCProfile, name: str):
+    def _get_cell_value_raw(self, user: User, profile: KYCProfile | None, name: str):
         """Get raw cell value before formatting."""
         # Handle special cases first
         match name:
@@ -436,6 +436,8 @@ class InscriptionsExporter(BaseExporter):
             case "roles":
                 return [x.name for x in getattr(user, name)]
             case "bw_trigger":
+                if profile is None:
+                    return []
                 return [
                     BW_TRIGGER_LABEL.get(x, x) for x in profile.get_all_bw_trigger()
                 ]
@@ -443,21 +445,26 @@ class InscriptionsExporter(BaseExporter):
                 # Handle grouped attributes via lookup
                 return self._get_grouped_attr(user, profile, name)
 
-    def _get_grouped_attr(self, user: User, profile: KYCProfile, name: str):
-        """Get value from grouped attributes."""
+    def _get_grouped_attr(self, user: User, profile: KYCProfile | None, name: str):
+        """Get value from grouped attributes.
+
+        A user without a KYCProfile (incomplete sign-up) yields blank
+        cells for every profile-derived column rather than crashing the
+        whole export.
+        """
         match name:
             case _ if name in self._USER_ATTRS:
                 return getattr(user, name)
             case _ if name in self._PROFILE_ATTRS:
-                return getattr(profile, name)
+                return getattr(profile, name) if profile else None
             case _ if name in self._INFO_PERSONNELLE_ATTRS:
-                return profile.info_personnelle.get(name)
+                return profile.info_personnelle.get(name) if profile else None
             case _ if name in self._INFO_PRO_ATTRS:
-                return profile.info_professionnelle.get(name)
+                return profile.info_professionnelle.get(name) if profile else None
             case _ if name in self._MATCH_MAKING_ATTRS:
-                return profile.match_making.get(name)
+                return profile.match_making.get(name) if profile else None
             case _ if name in self._INFO_HOBBY_ATTRS:
-                return profile.info_hobby.get(name)
+                return profile.info_hobby.get(name) if profile else None
             case _:
                 msg = f"cell_value() non managed key: {name!r}"
                 raise KeyError(msg)
