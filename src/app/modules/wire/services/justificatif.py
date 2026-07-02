@@ -21,7 +21,7 @@ left to b_integration tests that exercise the real DB + WeasyPrint.
 from __future__ import annotations
 
 from importlib import resources as rso
-from typing import Any
+from typing import Any, TypeGuard
 
 from flask import render_template_string
 from weasyprint import HTML
@@ -102,8 +102,12 @@ def _is_already_generated(purchase: Any) -> bool:
     return getattr(purchase, "pdf_file", None) is not None
 
 
-def _buyer_can_receive(buyer: Any | None) -> bool:
-    """Pure : true iff the buyer is loaded AND has an email."""
+def _buyer_can_receive(buyer: User | None) -> TypeGuard[User]:
+    """Pure : true iff the buyer is loaded AND has an email.
+
+    A `TypeGuard` so callers narrow `buyer` to `User` past the check —
+    no cast needed at the `buyer.email` use sites.
+    """
     if buyer is None:
         return False
     return bool(getattr(buyer, "email", "") or "")

@@ -90,6 +90,9 @@ class BaseTable(Table):
     id = "articles-table"
     q: str
     data_source: BaseDataSource
+    #: Set by the CBV layer (`_make_table`) for the HTMX table template.
+    _action_url: str = ""
+    _new_url: str = ""
 
     def __init__(self, model_class: type, q: str = "") -> None:
         self.q = q

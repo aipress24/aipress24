@@ -6,6 +6,7 @@ from __future__ import annotations
 
 import abc
 from operator import itemgetter
+from typing import TYPE_CHECKING, cast
 
 from arrow import now
 from flask import flash, g, redirect, request, url_for
@@ -31,6 +32,9 @@ from app.modules.wip.menu import make_menu
 from app.services.context import Context
 from app.services.menus import MenuService
 from app.services.repositories import Repository
+
+if TYPE_CHECKING:
+    from app.modules.kyc.lib.country_select import CountrySelectField
 
 # language=jinja2
 LIST_TEMPLATE = """
@@ -213,8 +217,8 @@ class BaseWipView(FlaskView, abc.ABC):
 
     def _make_table(self, q="") -> BaseTable:
         table = self.table_class(q)  # type: ignore[arg-type]
-        table._action_url = self._url_for("htmx")  # type: ignore[attr-defined]
-        table._new_url = f"/wip/{self.route_base}/new/"  # type: ignore[attr-defined]
+        table._action_url = self._url_for("htmx")
+        table._new_url = f"/wip/{self.route_base}/new/"
         return table
 
     # Exposed methods
@@ -328,13 +332,13 @@ class BaseWipView(FlaskView, abc.ABC):
         self._make_country_choices(form)
 
         if hasattr(form, "pays_zip_ville"):
+            # The concrete form field is a CountrySelectField, but the
+            # generic `form_class` types it as a bare WTForms field.
+            pzv = cast("CountrySelectField", form.pays_zip_ville)
             # load second data field
             if model:
-                form.pays_zip_ville.data2 = model.pays_zip_ville_detail  # type: ignore[attr-defined]
-            if mode == "view":
-                form.pays_zip_ville.lock = 1  # type: ignore[attr-defined]
-            else:
-                form.pays_zip_ville.lock = 0  # type: ignore[attr-defined]
+                pzv.data2 = model.pays_zip_ville_detail
+            pzv.lock = 1 if mode == "view" else 0
 
         # Bug #0135 : delegate the branching to a pure helper. The
         # shell only resolves the runtime inputs (current user, its

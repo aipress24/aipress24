@@ -52,6 +52,7 @@ def notify_cession_purchase(purchase_id: int) -> None:
     post = purchase.post
     if not _should_notify_cession(purchase, buyer, post):
         return
+    assert buyer is not None  # guaranteed by _should_notify_cession
 
     author = db.session.get(User, post.owner_id)
     media_name = _author_media_name(author)

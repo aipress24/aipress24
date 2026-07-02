@@ -201,7 +201,7 @@ class InviteDecision:
 
     action: InviteAction
     outcome_code: InvitationOutcomeCode
-    existing: object | None = None
+    existing: RoleAssignment | None = None
 
 
 def decide_invite_outcome(
@@ -335,6 +335,7 @@ def invite_user_role(
 
     if decision.action == InviteAction.RESURRECT:
         existing = decision.existing
+        assert existing is not None  # RESURRECT always carries the row
         existing.invitation_status = InvitationStatus.PENDING.value
         existing.invited_at = datetime.now(UTC)
         existing.accepted_at = None
