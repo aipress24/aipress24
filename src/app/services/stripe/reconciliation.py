@@ -179,6 +179,7 @@ def reconcile_subscriptions(
     """
     if session is None:
         session = db.session
+        assert session
 
     if client is None:
         if not load_stripe_api_key():
@@ -221,6 +222,7 @@ def reconcile_customers(
     """
     if session is None:
         session = db.session
+        assert session
     if client is None:
         if not load_stripe_api_key():
             warn("reconcile_customers: STRIPE_SECRET_KEY missing, skipping")
@@ -251,6 +253,7 @@ def reconcile_purchases(
     """
     if session is None:
         session = db.session
+        assert session
     if client is None:
         if not load_stripe_api_key():
             warn("reconcile_purchases: STRIPE_SECRET_KEY missing, skipping")

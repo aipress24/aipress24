@@ -4,11 +4,18 @@
 
 from __future__ import annotations
 
+from typing import Any, Protocol, cast
+
 from sqlalchemy import select
+from sqlalchemy.orm import Mapped
 from werkzeug.exceptions import NotFound
 
 from app.flask.extensions import db
 from app.lib.base62 import base62
+
+
+class _HasId(Protocol):
+    id: Mapped[Any]
 
 
 def parse_id(id: int | str) -> int:
@@ -39,7 +46,8 @@ def parse_id(id: int | str) -> int:
 
 def get_obj(id: int | str, cls: type, options=None):
     id = parse_id(id)
-    stmt = select(cls).where(cls.id == id)
+    m = cast("type[_HasId]", cls)
+    stmt = select(m).where(m.id == id)
     if options:
         stmt = stmt.options(options)
     result = db.session.execute(stmt)

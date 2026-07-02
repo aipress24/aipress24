@@ -56,7 +56,7 @@ from app.services.auth import AuthService
 
 from ._base import BaseWipView
 from ._forms import AvisEnqueteForm
-from ._table import BaseDataSource, BaseTable
+from ._table import BaseDataSource, BaseTable, WipContentModel
 
 if TYPE_CHECKING:
     from app.models.auth import User
@@ -65,7 +65,8 @@ if TYPE_CHECKING:
 
 class AvisEnqueteDataSource(BaseDataSource):
     def get_order_by(self):
-        return self.model_class.modified_at.desc().nullslast()  # type: ignore[attr-defined]
+        M = cast(type[WipContentModel], self.model_class)
+        return M.modified_at.desc().nullslast()
 
 
 class AvisEnqueteTable(BaseTable):

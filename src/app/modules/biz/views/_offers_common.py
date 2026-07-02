@@ -13,9 +13,10 @@ checks. Per-type view modules delegate here.
 from __future__ import annotations
 
 from datetime import datetime
-from typing import Any, cast
+from typing import Any, Protocol, cast
 
 from flask import flash, g, redirect, request, url_for
+from sqlalchemy.orm import Mapped
 from werkzeug.exceptions import Forbidden, NotFound
 
 from app.flask.extensions import db
@@ -33,6 +34,13 @@ from app.modules.biz.services.offer_notifications import (
 )
 
 
+class _OfferModel(Protocol):
+    """Columns `get_offer_or_404` reads for its visibility check."""
+
+    status: Mapped[Any]
+    owner_id: Mapped[int]
+
+
 def get_offer_or_404(model: type, id: int):
     """Load an offer of the given type, enforce visibility rules.
 
@@ -43,11 +51,15 @@ def get_offer_or_404(model: type, id: int):
     offer = db.session.get(model, id)
     if offer is None:
         raise NotFound
-    if offer.status == PublicationStatus.PUBLIC:
+    # `model` is a bare `type`, so `db.session.get` yields an untyped row ;
+    # view it through `_OfferModel` for the visibility columns without
+    # changing the returned object's type.
+    o = cast("_OfferModel", offer)
+    if o.status == PublicationStatus.PUBLIC:
         return offer
-    if offer.status == PublicationStatus.PENDING:
+    if o.status == PublicationStatus.PENDING:
         user = cast(User, g.user)
-        if not user.is_anonymous and user.id == offer.owner_id:
+        if not user.is_anonymous and user.id == o.owner_id:
             return offer
     raise NotFound
 
