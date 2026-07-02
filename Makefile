@@ -117,8 +117,7 @@ lint/ruff:
 lint:
 	ruff check
 	vulture --min-confidence 80 src
-	ty check src/app
-	ty check tests
+	ty check src tests
 	pyrefly check src/app
 	lint-imports
 	# deptry src
