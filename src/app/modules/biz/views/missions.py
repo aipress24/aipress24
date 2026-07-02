@@ -284,7 +284,8 @@ def missions_new():
     # a flat SelectField needs the `field2` sub-dict, which WTForms renders
     # as optgroups (category → detailed sectors). Passing the whole dict
     # crashes wtforms (`choices[0]` on a dict → KeyError).
-    form.sector.choices = get_ontology_choices("multidual_secteurs_detail2")["field2"]
+    sector_choices = cast(dict, get_ontology_choices("multidual_secteurs_detail2"))
+    form.sector.choices = sector_choices["field2"]
     _populate_journalism_taxonomy_choices(form)
     if request.method == "POST" and form.validate():
         emitter_org_id = getattr(user, "organisation_id", None)
