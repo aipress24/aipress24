@@ -6,6 +6,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, cast
 
+import arrow
 from flask import (
     Flask,
     flash,
@@ -16,7 +17,6 @@ from flask import (
 )
 from flask_classful import route
 from flask_super.registry import register
-from sqlalchemy_utils.types.arrow import arrow
 from werkzeug.exceptions import Forbidden, NotFound
 from werkzeug.wrappers import Response
 
@@ -215,7 +215,7 @@ class EventsWipView(BaseWipView):
 
         if not model.status:
             model.status = PublicationStatus.DRAFT  # type: ignore[assignment]
-            model.published_at = arrow.now("Europe/Paris")  # type: ignore[assignment,union-attr]
+            model.published_at = arrow.now("Europe/Paris")
         event_updated.send(model)
 
     def publish(self, id):

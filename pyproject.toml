@@ -356,7 +356,7 @@ exclude = [
 invalid-argument-type = "ignore"
 invalid-assignment = "ignore"
 invalid-method-override = "ignore"
-# unresolved-attribute = "ignore"
+unresolved-attribute = "ignore"
 
 # -----------------------------------------------------------------------------
 
