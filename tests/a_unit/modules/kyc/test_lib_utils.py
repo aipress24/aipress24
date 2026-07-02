@@ -52,7 +52,7 @@ class TestConvertToTomChoicesJs:
     def test_raises_type_error_for_invalid_type(self) -> None:
         """Test raises TypeError for invalid input type."""
         with pytest.raises((TypeError, TypeCheckError)):
-            convert_to_tom_choices_js("invalid")  # type: ignore
+            convert_to_tom_choices_js("invalid")
 
 
 class TestConvertToTomOptgroupsJs:
@@ -84,7 +84,7 @@ class TestConvertToTomOptgroupsJs:
     def test_raises_type_error_for_invalid_type(self) -> None:
         """Test raises TypeError for invalid input type."""
         with pytest.raises((TypeError, TypeCheckError)):
-            convert_to_tom_optgroups_js("invalid")  # type: ignore
+            convert_to_tom_optgroups_js("invalid")
 
 
 class TestDictToGroupTomChoices:

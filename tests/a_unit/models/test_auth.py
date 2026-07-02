@@ -171,7 +171,7 @@ class TestUserHasRole:
         db.session.flush()
 
         with pytest.raises(ValueError):
-            user.has_role(123)  # type: ignore
+            user.has_role(123)
 
 
 class TestUserAddRole:
@@ -260,7 +260,7 @@ class TestUserRemoveRole:
         db.session.flush()
 
         with pytest.raises(ValueError):
-            user.remove_role(123)  # type: ignore
+            user.remove_role(123)
 
     def test_remove_role_handles_in_memory_duplicates(self, db: SQLAlchemy) -> None:
         """Regression for commit 2f7d18cf — `User.remove_role` previously

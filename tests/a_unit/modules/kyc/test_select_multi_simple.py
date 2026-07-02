@@ -41,7 +41,7 @@ def test_convert_to_tom_choices_js_with_dict() -> None:
 def test_convert_to_tom_choices_js_invalid_type() -> None:
     """Test convert_to_tom_choices_js raises TypeError for invalid input."""
     with pytest.raises((TypeError, TypeCheckError)):
-        convert_to_tom_choices_js("invalid")  # type: ignore
+        convert_to_tom_choices_js("invalid")
 
 
 def test_dict_to_group_tom_choices() -> None:

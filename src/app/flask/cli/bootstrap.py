@@ -79,7 +79,7 @@ def bootstrap_roles() -> None:
         return
 
     print("Creating roles...")
-    for role_enum in RoleEnum:  # type: ignore
+    for role_enum in RoleEnum:
         role = Role(name=role_enum.name, description=role_enum.value)
         repo.add(role, auto_commit=True)
 

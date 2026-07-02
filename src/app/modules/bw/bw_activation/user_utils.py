@@ -140,7 +140,7 @@ def guess_best_bw_type(user: User) -> BWType:
     try:
         profile_code = ProfileEnum[profile.profile_code]
     except KeyError:
-        return BWType.MEDIA  # type: ignore[invalid-return-type]  # ty:ignore[invalid-return-type]
+        return BWType.MEDIA  # type: ignore[invalid-return-type]
     guessed = PROFILE_CODE_TO_BW2_TYPE.get(profile_code, BWType.MEDIA)
     if getattr(guessed, "value", guessed) in DEPRECATED_BW_TYPES:
         return BWType.MEDIA  # type: ignore[invalid-return-type]
