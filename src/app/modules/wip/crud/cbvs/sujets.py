@@ -41,7 +41,7 @@ from app.modules.wip.services.sujet_notifications import (
 
 from ._base import BaseWipView
 from ._forms import SujetForm
-from ._table import BaseDataSource, BaseTable
+from ._table import BaseDataSource, BaseTable, WipContentModel
 
 # language=jinja2
 # Bug #0132 (2026-05-14): the chief editor wants the author mention
@@ -137,21 +137,21 @@ class SujetDataSource(BaseDataSource):
         # chef qualification.
         if not _is_redac_chef_of_org(user, org_id):
             return None
-        M = self.model_class
+        M = cast(type[WipContentModel], self.model_class)
         return and_(
             M.media_id == org_id,
             M.status == PublicationStatus.PUBLIC,
         )
 
     def _visibility_clause(self):
-        M = self.model_class
+        M = cast(type[WipContentModel], self.model_class)
         user: User = g.user
         own = M.owner_id == user.id
         media = self._media_recipient_clause()
         return or_(own, media) if media is not None else own
 
     def _base_query(self):
-        M = self.model_class
+        M = cast(type[WipContentModel], self.model_class)
         # Eager-load owner + media so the table renderer doesn't fire N+1
         # queries when reading author / media name on each row.
         stmt = (
@@ -165,7 +165,7 @@ class SujetDataSource(BaseDataSource):
         return stmt
 
     def get_count(self) -> int:
-        M = self.model_class
+        M = cast(type[WipContentModel], self.model_class)
         stmt = (
             select(func.count())
             .select_from(M)

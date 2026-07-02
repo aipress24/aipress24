@@ -4,6 +4,8 @@
 
 from __future__ import annotations
 
+from typing import cast
+
 from flask import Flask, g
 from flask_super.registry import register
 from sqlalchemy import func, or_, select
@@ -22,7 +24,7 @@ from app.modules.wip.pr_access import user_can_access_newsroom
 
 from ._base import BaseWipView
 from ._forms import CommandeForm
-from ._table import BaseDataSource, BaseTable
+from ._table import BaseDataSource, BaseTable, WipContentModel
 
 
 class CommandeDataSource(BaseDataSource):
@@ -32,19 +34,19 @@ class CommandeDataSource(BaseDataSource):
     `owner_id == user` clause showed it only to the journalist."""
 
     def _visibility_clause(self):
-        M = self.model_class
+        M = cast(type[WipContentModel], self.model_class)
         user = g.user
         return or_(M.owner_id == user.id, M.commanditaire_id == user.id)
 
     def _base_query(self):
-        M = self.model_class
+        M = cast(type[WipContentModel], self.model_class)
         stmt = select(M).where(self._visibility_clause()).where(M.deleted_at.is_(None))
         if self.q:
             stmt = stmt.where(M.titre.ilike(f"%{self.q}%"))
         return stmt
 
     def get_count(self) -> int:
-        M = self.model_class
+        M = cast(type[WipContentModel], self.model_class)
         stmt = (
             select(func.count())
             .select_from(M)

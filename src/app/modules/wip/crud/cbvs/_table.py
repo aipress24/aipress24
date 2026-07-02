@@ -4,14 +4,37 @@
 
 from __future__ import annotations
 
+from typing import Any, Protocol, cast
+
 from attr import define, field
 from flask import g, request
 from sqlalchemy import func, select
+from sqlalchemy.orm import Mapped
 
 from app.flask.extensions import db
 from app.models.auth import User
 from app.models.mixins import LifeCycleMixin, Owned
 from app.modules.wip.components import DataSource, Table
+
+
+class WipContentModel(Protocol):
+    """Structural type for the mapped models the WIP CRUD datasources
+    query. The generic bases receive the concrete model as `model_class`
+    (a bare `type`) ; casting to this Protocol lets the shared queries
+    reference the columns every WIP content model exposes without an
+    `Any`-typed model or per-column `type: ignore`."""
+
+    id: Mapped[int]
+    owner_id: Mapped[int]
+    commanditaire_id: Mapped[int]
+    media_id: Mapped[Any]
+    status: Mapped[Any]
+    owner: Mapped[Any]
+    media: Mapped[Any]
+    titre: Mapped[str]
+    created_at: Mapped[Any]
+    modified_at: Mapped[Any]
+    deleted_at: Mapped[Any]
 
 
 def get_name(obj):
@@ -31,23 +54,22 @@ class BaseDataSource(DataSource):
         self.offset = request.args.get("offset", 0, type=int)
 
     def _base_query(self):
-        M = self.model_class
-        assert issubclass(M, Owned | LifeCycleMixin)
+        assert issubclass(self.model_class, Owned | LifeCycleMixin)
+        M = cast(type[WipContentModel], self.model_class)
 
         user: User = g.user
 
-        stmt = (
-            select(M).where(M.owner_id == user.id).where(M.deleted_at.is_(None))  # type: ignore[union-attr]
-        )
+        stmt = select(M).where(M.owner_id == user.id).where(M.deleted_at.is_(None))
         # no ordering the results here.
 
         if self.q:
-            stmt = stmt.where(M.titre.ilike(f"%{self.q}%"))  # type: ignore[union-attr]
+            stmt = stmt.where(M.titre.ilike(f"%{self.q}%"))
 
         return stmt
 
     def get_order_by(self):
-        return self.model_class.created_at.desc()  # type: ignore[attr-defined]
+        M = cast(type[WipContentModel], self.model_class)
+        return M.created_at.desc()
 
     def get_items(self):
         query = (
@@ -59,16 +81,16 @@ class BaseDataSource(DataSource):
         return list(db.session.scalars(query))
 
     def get_count(self) -> int:
-        M = self.model_class
+        M = cast(type[WipContentModel], self.model_class)
         user: User = g.user
         stmt = (
             select(func.count())
             .select_from(M)
             .where(M.owner_id == user.id)
-            .where(M.deleted_at.is_(None))  # type: ignore[attr-defined]
+            .where(M.deleted_at.is_(None))
         )
         if self.q:
-            stmt = stmt.where(M.titre.ilike(f"%{self.q}%"))  # type: ignore[attr-defined]
+            stmt = stmt.where(M.titre.ilike(f"%{self.q}%"))
 
         return db.session.scalar(stmt) or 0
 
