@@ -218,10 +218,14 @@ class User(LifeCycleMixin, Addressable, UserMixin, Base):
 
     @hybrid_property
     def metiers(self) -> list[str]:
+        if self.profile is None:
+            return []
         return self.profile.metiers
 
     @hybrid_property
     def tous_metiers(self) -> set[str]:
+        if self.profile is None:
+            return set()
         return set(self.profile.metiers + self.profile.metiers_autres)
 
     @hybrid_property
@@ -232,6 +236,8 @@ class User(LifeCycleMixin, Addressable, UserMixin, Base):
 
     def metier_fonction_for_bw(self, bw_type: str | None) -> str:
         """Fonction contextualisée au type de BW (cf. bug #0107)."""
+        if self.profile is None:
+            return ""
         return self.profile.metier_fonction_for_bw(bw_type)
 
     @hybrid_property

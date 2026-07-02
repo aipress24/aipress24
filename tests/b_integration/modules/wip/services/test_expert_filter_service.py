@@ -1325,6 +1325,29 @@ class TestStateManagement:
 
         assert service._session_key == f"newsroom:ciblage{avis_enquete_id}"
 
+    def test_get_all_experts_excludes_profileless_users(self, db_session) -> None:
+        """Regression : the candidate pool must drop active users with no
+        KYCProfile. Every selector reads `expert.profile.<attr>`, so a
+        NULL profile would crash the ciblage screen (same class as the
+        members-list bug) — and a profileless expert can't be matched to
+        an avis anyway."""
+        expert = _create_expert_with_profile(
+            db_session, "e1@test.com", secteurs=["Tech"]
+        )
+        profileless = User(email="noprofile@test.com", active=True)
+        profileless.photo = b""
+        db_session.add(profileless)
+        db_session.flush()
+        assert profileless.profile is None
+
+        service = ExpertFilterService(
+            session={}, user_repo=_StubUserRepo([expert, profileless])
+        )
+        pool_ids = {e.id for e in service._get_all_experts()}
+
+        assert expert.id in pool_ids
+        assert profileless.id not in pool_ids
+
     def test_update_state_from_htmx_request(self, db_session, app) -> None:
         """State is updated from HTMX request data."""
         expert1 = _create_expert_with_profile(
