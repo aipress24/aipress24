@@ -169,7 +169,7 @@ class ArticlesTable(BaseTable):
             f'<a href="{url_for("ArticlesWipView:get", id=obj.id)}">{obj.title}</a>'
         )
 
-    def url_for(self, obj, _action="get", **kwargs):  # type: ignore[override]
+    def url_for(self, obj, _action="get", **kwargs):
         return url_for(f"ArticlesWipView:{_action}", id=obj.id, **kwargs)
 
     def get_actions(self, item):

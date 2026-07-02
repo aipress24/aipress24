@@ -53,5 +53,5 @@ class RecentContentsTable(Table):
     ]
     data_source = RecentContentsDataSource()
 
-    def url_for(self, obj, **kwargs):  # type: ignore[override]
+    def url_for(self, obj, _action="get", **kwargs):
         return url_for("wip.contents", id=obj.id, mode="update", **kwargs)

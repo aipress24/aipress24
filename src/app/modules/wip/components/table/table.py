@@ -53,8 +53,11 @@ class Table:
         template = self.get_template(template_name)
         return Markup(template.render(table=self))
 
-    def url_for(self, object, _action="get", **kwargs):
-        return url_for(object, **kwargs)
+    def url_for(self, obj, /, _action="get", **kwargs):
+        # `obj` is positional-only (leading name no longer shadows the
+        # builtin `object`, and subclasses may name it freely without
+        # tripping the Liskov param-name check).
+        return url_for(obj, **kwargs)
 
     @property
     def pagination(self):

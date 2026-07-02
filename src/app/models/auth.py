@@ -261,12 +261,12 @@ class User(LifeCycleMixin, Addressable, UserMixin, Base):
         raise RuntimeError(msg)
 
     # Override Flask-Security
-    def has_role(self, role: str | RoleEnum | Role) -> bool:  # type: ignore[override]
+    def has_role(self, role: str | RoleEnum | RoleMixin) -> bool:
         """Returns `True` if the user identifies with the specified role.
 
         :param role: A role name or `Role` instance"""
         match role:
-            case Role():
+            case RoleMixin():
                 return role in self.roles
             case RoleEnum():
                 return role.name in (role.name for role in self.roles)
