@@ -98,7 +98,7 @@ def build_mail_kwargs(
     journalist: User,
     media_name: str,
     article_url: str,
-) -> dict[str, str]:
+) -> dict[str, Any]:
     """Assemble the kwargs payload for `JustificatifInvitationMail`.
 
     Returns a dict so tests can pin the field routing contract without

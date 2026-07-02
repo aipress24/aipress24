@@ -4,6 +4,8 @@
 
 from __future__ import annotations
 
+from typing import Any, cast
+
 import sqlalchemy as sa
 from sqlalchemy import orm
 from sqlalchemy.orm import Mapped, mapped_column
@@ -31,7 +33,9 @@ class NewsroomCommonMixin(IdMixin, LifeCycleMixin, Owned):
 
     @orm.declared_attr
     def publisher(cls):
-        return orm.relationship(Organisation, foreign_keys=[cls.publisher_id])  # type: ignore[list-item]
+        return orm.relationship(
+            Organisation, foreign_keys=cast(Any, [cls.publisher_id])
+        )
 
     # Titre
     titre: Mapped[str] = mapped_column(default="")
@@ -56,7 +60,7 @@ class NewsroomCommonMixin(IdMixin, LifeCycleMixin, Owned):
 
     @orm.declared_attr
     def media(cls):
-        return orm.relationship(Organisation, foreign_keys=[cls.media_id])  # type: ignore[list-item]
+        return orm.relationship(Organisation, foreign_keys=cast(Any, [cls.media_id]))
 
     # Temp hack
     @property

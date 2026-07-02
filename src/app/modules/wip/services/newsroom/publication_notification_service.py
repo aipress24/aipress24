@@ -36,7 +36,7 @@ from __future__ import annotations
 
 from collections.abc import Callable, Iterable
 from datetime import UTC, datetime, timedelta
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 from flask_super.decorators import service
 from sqlalchemy import func, select
@@ -188,7 +188,7 @@ def build_mail_kwargs(
     article_url: str,
     message: str,
     opportunities_url: str,
-) -> dict[str, str]:
+) -> dict[str, Any]:
     """Assemble the kwargs payload for `PublicationNotificationMail`.
 
     Returns a dict so tests can pin the contract without going through

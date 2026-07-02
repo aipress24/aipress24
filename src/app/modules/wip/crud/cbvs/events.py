@@ -17,6 +17,7 @@ from flask import (
 )
 from flask_classful import route
 from flask_super.registry import register
+from sqlalchemy.orm import Session
 from werkzeug.exceptions import Forbidden, NotFound
 from werkzeug.wrappers import Response
 
@@ -300,7 +301,7 @@ class EventsWipView(BaseWipView):
 
     def _add_image(self, event: Event):
         event_repo = self._get_repo()
-        image_repo = EventImageRepository(session=db.session)  # type: ignore[arg-type]
+        image_repo = EventImageRepository(session=cast(Session, db.session))
 
         # Handle both regular file upload and base64 data URL from cropper
         result: UploadedImageData | None = extract_image_from_request(

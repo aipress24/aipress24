@@ -5,6 +5,7 @@
 from __future__ import annotations
 
 import abc
+from collections.abc import Callable
 from operator import itemgetter
 from typing import TYPE_CHECKING, cast
 
@@ -216,7 +217,11 @@ class BaseWipView(FlaskView, abc.ABC):
         return html
 
     def _make_table(self, q="") -> BaseTable:
-        table = self.table_class(q)  # type: ignore[arg-type]
+        # Subclass tables override `__init__(self, q="")` and hard-code
+        # their model, so `table_class` is called with just `q` — a
+        # narrower shape than the base `__init__(model_class, q)`.
+        table_factory = cast(Callable[[str], BaseTable], self.table_class)
+        table = table_factory(q)
         table._action_url = self._url_for("htmx")
         table._new_url = f"/wip/{self.route_base}/new/"
         return table

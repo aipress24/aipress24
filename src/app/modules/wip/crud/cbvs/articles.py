@@ -18,6 +18,7 @@ from flask import (
 from flask_classful import route
 from flask_super.registry import register
 from markupsafe import Markup
+from sqlalchemy.orm import Session
 from werkzeug import Response
 from werkzeug.exceptions import Forbidden, NotFound
 
@@ -505,7 +506,7 @@ class ArticlesWipView(BaseWipView):
 
     def _add_image(self, article: Article):
         article_repo = self._get_repo()
-        image_repo = ImageRepository(session=db.session)  # type: ignore[arg-type]
+        image_repo = ImageRepository(session=cast(Session, db.session))
 
         # Handle both regular file upload and base64 data URL from cropper
         result: UploadedImageData | None = extract_image_from_request(

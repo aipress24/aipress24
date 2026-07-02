@@ -16,6 +16,7 @@ from flask import (
 )
 from flask_classful import route
 from flask_super.registry import register
+from sqlalchemy.orm import Session
 from werkzeug.exceptions import Forbidden, NotFound
 from werkzeug.wrappers import Response
 
@@ -348,7 +349,7 @@ class CommuniquesWipView(BaseWipView):
 
     def _add_image(self, communique: Communique):
         communique_repo = self._get_repo()
-        image_repo = ComImageRepository(session=db.session)  # type: ignore[arg-type]
+        image_repo = ComImageRepository(session=cast(Session, db.session))
 
         # Handle both regular file upload and base64 data URL from cropper
         result: UploadedImageData | None = extract_image_from_request(
