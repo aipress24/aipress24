@@ -32,7 +32,7 @@ from app.modules.wip.models.newsroom.avis_notification_log import (
 if TYPE_CHECKING:
     from collections.abc import Mapping
 
-    from sqlalchemy.orm import Session
+    from sqlalchemy.orm import Session, scoped_session
 
     from app.modules.wip.models.newsroom.avis_enquete import AvisEnquete
 
@@ -75,7 +75,7 @@ def match_experts_to_avis(
 
 
 def experts_over_notification_cap(
-    session: Session,
+    session: Session | scoped_session[Session],
     experts: list[User],
     *,
     cap: int = NOTIFICATION_CAP,
@@ -104,7 +104,7 @@ def experts_over_notification_cap(
 
 
 def partition_by_cap(
-    session: Session,
+    session: Session | scoped_session[Session],
     experts: list[User],
     *,
     cap: int = NOTIFICATION_CAP,
@@ -145,7 +145,7 @@ def _mail_debug_active(config: Mapping[str, object] | None = None) -> bool:
 
 
 def record_notifications(
-    session: Session,
+    session: Session | scoped_session[Session],
     experts: list[User],
     avis: AvisEnquete | None,
 ) -> None:
