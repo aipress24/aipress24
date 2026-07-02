@@ -88,7 +88,11 @@ def billing_get_csv():
 
 def _get_invoice() -> Invoice:
     """Get invoice by ID from request args."""
-    invoice_id = request.args["invoice_id"]
+    # A missing/blank `invoice_id` (stale link, bare URL, bot scan) is a
+    # 404 like a non-existent invoice — not an unhandled BadRequestKeyError.
+    invoice_id = request.args.get("invoice_id")
+    if not invoice_id:
+        raise NotFound
     stmt = select(Invoice).where(Invoice.id == invoice_id)
     invoice = db.session.scalar(stmt)
     if not invoice:

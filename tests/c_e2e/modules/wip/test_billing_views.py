@@ -148,6 +148,17 @@ class TestBillingPdfDownload:
         response = logged_in_client.get("/wip/billing/get_pdf?invoice_id=99999")
         assert response.status_code == 404
 
+    def test_download_pdf_missing_invoice_id_is_404_not_500(
+        self,
+        logged_in_client: FlaskClient,
+        test_user: User,
+    ):
+        """Regression : a bare `/wip/billing/get_pdf` (no invoice_id —
+        stale link, bot scan) must 404 like a missing invoice, not raise
+        an unhandled BadRequestKeyError (`request.args["invoice_id"]`)."""
+        response = logged_in_client.get("/wip/billing/get_pdf")
+        assert response.status_code == 404
+
     def test_download_pdf_unauthorized(
         self,
         logged_in_client: FlaskClient,

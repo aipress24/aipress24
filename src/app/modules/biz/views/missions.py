@@ -280,7 +280,11 @@ def missions_new():
 
     form = MissionOfferForm(request.form)
     form.pays_zip_ville.choices = get_ontology_choices("country_pays")
-    form.sector.choices = get_ontology_choices("multidual_secteurs_detail2")
+    # #0230 — the dual-select helper returns {"field1": ..., "field2": ...};
+    # a flat SelectField needs the `field2` sub-dict, which WTForms renders
+    # as optgroups (category → detailed sectors). Passing the whole dict
+    # crashes wtforms (`choices[0]` on a dict → KeyError).
+    form.sector.choices = get_ontology_choices("multidual_secteurs_detail2")["field2"]
     _populate_journalism_taxonomy_choices(form)
     if request.method == "POST" and form.validate():
         emitter_org_id = getattr(user, "organisation_id", None)

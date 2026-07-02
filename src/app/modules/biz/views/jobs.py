@@ -110,7 +110,9 @@ def jobs_new():
 
     form = JobOfferForm(request.form)
     form.pays_zip_ville.choices = get_ontology_choices("country_pays")
-    form.sector.choices = get_ontology_choices("multidual_secteurs_detail2")
+    # #0230 — see missions_new: use the `field2` sub-dict so WTForms renders
+    # optgroups instead of crashing on the dual-select {"field1", "field2"}.
+    form.sector.choices = get_ontology_choices("multidual_secteurs_detail2")["field2"]
     if request.method == "POST" and form.validate():
         contract_type = ContractType(form.contract_type.data or ContractType.CDI.value)
 

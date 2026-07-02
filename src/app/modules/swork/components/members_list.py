@@ -492,6 +492,8 @@ class FilterByCountryOrm(Filter):
     label = "Pays"
 
     def selector(self, user: User) -> FilterOption:
+        if not user.profile:
+            return FilterOption("", "")
         code = user.profile.country
         return FilterOption(country_code_to_country_name(code), code)
 
@@ -521,6 +523,8 @@ class FilterByDeptOrm(Filter):
     label = "Département"
 
     def selector(self, user: User) -> str:
+        if not user.profile:
+            return ""
         return user.profile.departement
 
     def apply(self, stmt, state):
@@ -538,6 +542,8 @@ class FilterByCityOrm(Filter):
     label = "Ville"
 
     def selector(self, user: User) -> str:
+        if not user.profile:
+            return ""
         return user.profile.ville
 
     def apply(self, stmt, state):

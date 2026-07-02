@@ -492,7 +492,7 @@ def _block_db_writes_on_prod(request, base_url):
 
 
 @pytest.fixture(scope="session", autouse=True)
-def _profiles_loaded_on_target(base_url, profiles):
+def _profiles_loaded_on_target(base_url, profiles, browser):
     """Skip the whole suite when the target DB doesn't know the test
     profiles.
 
@@ -505,39 +505,40 @@ def _profiles_loaded_on_target(base_url, profiles):
     Earlier httpx attempts failed where Playwright succeeded — likely
     a Flask-Security CSRF / cookie subtlety we don't need to debug
     when we can just use the same engine the real tests use.
+
+    It reuses pytest-playwright's session `browser` fixture : opening a
+    second `sync_playwright()` here raises "Sync API inside the asyncio
+    loop" (the plugin's greenlet loop is already running), which used to
+    get swallowed as a bogus "Cannot reach" skip for the entire suite.
     """
     if not base_url or not profiles:
         return
     probe = next((p for p in profiles if p["email"] not in KNOWN_BROKEN), None)
     if probe is None:
         return
+    page = browser.new_page()
     try:
-        from playwright.sync_api import sync_playwright
-
-        with sync_playwright() as pw:
-            browser = pw.firefox.launch(headless=True)
-            try:
-                page = browser.new_page()
-                page.set_default_timeout(15_000)
-                page.goto(f"{base_url}/auth/login", wait_until="domcontentloaded")
-                page.fill('input[name="email"]', probe["email"])
-                page.fill('input[name="password"]', probe["password"])
-                page.click('button[type="submit"], input[type="submit"]')
-                page.wait_for_load_state("domcontentloaded")
-                if "/auth/login" in page.url:
-                    pytest.skip(
-                        f"Login failed for first CSV profile "
-                        f"{probe['email']} on {base_url}. Either point "
-                        "`--base-url` at a target where the CSV accounts "
-                        "exist (production), or check your local DB has "
-                        "them with the original passwords (no recent "
-                        "--update with a different "
-                        "FLASK_SECURITY_PASSWORD_SALT)."
-                    )
-            finally:
-                browser.close()
-    except Exception as e:
-        pytest.skip(f"Cannot reach {base_url} : {e}")
+        page.set_default_timeout(15_000)
+        try:
+            page.goto(f"{base_url}/auth/login", wait_until="domcontentloaded")
+        except Exception as e:
+            pytest.skip(f"Cannot reach {base_url} : {e}")
+        page.fill('input[name="email"]', probe["email"])
+        page.fill('input[name="password"]', probe["password"])
+        page.click('button[type="submit"], input[type="submit"]')
+        page.wait_for_load_state("domcontentloaded")
+        if "/auth/login" in page.url:
+            pytest.skip(
+                f"Login failed for first CSV profile "
+                f"{probe['email']} on {base_url}. Either point "
+                "`--base-url` at a target where the CSV accounts "
+                "exist (production), or check your local DB has "
+                "them with the original passwords (no recent "
+                "--update with a different "
+                "FLASK_SECURITY_PASSWORD_SALT)."
+            )
+    finally:
+        page.close()
 
 
 @pytest.fixture(scope="session")

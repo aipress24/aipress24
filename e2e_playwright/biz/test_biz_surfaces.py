@@ -53,6 +53,15 @@ _PRESS_MEDIA = "PRESS_MEDIA"
 _BIZ_TABS = ("stories", "missions", "projects", "jobs")
 _OFFER_TYPES = ("missions", "projects", "jobs")
 
+# Extra form fields each offer type requires beyond title/description.
+# #0224 made the mission `category` mandatory (so a blank mission can't
+# slip past the Journalism visibility gate) ; projects/jobs keep their
+# category optional. "communication" is a non-Journalism category, so
+# it avoids the PRESS_MEDIA gate that keys on JOURNALISME.
+_OFFER_REQUIRED_FIELDS = {
+    "missions": {"category": "communication"},
+}
+
 # Detail URL pattern : /biz/<resource>/<int>
 _OFFER_DETAIL_RE = {
     resource: re.compile(rf"/biz/{resource}/(\d+)$") for resource in _OFFER_TYPES
@@ -310,6 +319,7 @@ def test_biz_offer_create_then_detail_renders(
             f"Description de test e2e — {marker} — généré "
             f"automatiquement par e2e_playwright/biz/."
         ),
+        **_OFFER_REQUIRED_FIELDS.get(resource, {}),
     }
     # POST and follow the 302 → /biz/<resource>/<new_id> via
     # the JS fetch (same-origin redirects are followed by default).

@@ -61,6 +61,36 @@ def published_article(
     return article
 
 
+class TestArticlesCreateValidation:
+    """Regression : a create POST that omits the required fields (dates,
+    genre/section/topic/sector selects) must re-render the form with
+    errors, NOT 500.
+
+    The article view overrides `post` with `_ARTICLE_MODIFIER_TEMPLATE`,
+    whose step-nav needs `article` in the context (like get/edit set) and
+    a persisted model. On a failed *create* the model is a fresh, unsaved
+    Article (id is None), so the error path used to raise
+    `UndefinedError: 'article' is undefined`."""
+
+    def test_create_without_required_fields_rejects_cleanly(
+        self, logged_in_client: FlaskClient
+    ):
+        response = logged_in_client.post(
+            "/wip/articles/",
+            data={
+                "_action": "save",
+                "titre": "no-date-article",
+                "chapo": "Chapô",
+                "contenu": "<p>Test</p>",
+                "copyright": "all-rights-reserved",
+            },
+            follow_redirects=False,
+        )
+        # Form rejected and re-rendered (not a 302 save, not a 500).
+        assert response.status_code == 200
+        assert b"This field is required" in response.data
+
+
 class TestArticlesIndex:
     """Tests for the articles index view."""
 

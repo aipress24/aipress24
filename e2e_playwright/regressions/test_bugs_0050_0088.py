@@ -18,8 +18,9 @@ Bugs covered :
 - **#0070** — Avis enquête phase breadcrumbs (commit `24ff45d1`).
 - **#0071 part 1** — pas de fallback « contact@aipress24.com » dans
   le form d'opportunité.
-- **#0071 part 2** — DRAFT BW finalised on confirmation_free /
-  confirmation_paid revisit so Jocelyne sees the gate cleared.
+- **#0071 part 2** — DRAFT BW finalised on the confirmation revisit
+  so Jocelyne sees the gate cleared (runtime guard lives in
+  ``tests/c_e2e/modules/bw/test_bw_routes.py``).
 - **#0075 part 2** — `press_officer_emails` surfaces internal BWPRi
   + external BWPRe partners in the dropdown.
 - **#0075 part 3** — « Non, mais je suggère » radio always clickable.
@@ -380,38 +381,13 @@ def test_bug_0071_no_dead_end_colleague_fallback() -> None:
 
 
 # ─── #0071 (part 2) ───────────────────────────────────────────────
-
-
-def test_bug_0071_part2_draft_bw_activates_on_confirmation_revisit() -> None:
-    """Bug #0071 part 2 — Erick 2026-05-21 : Jocelyne configures her
-    BW from the avis-d'enquête gate, returns to the opportunity page,
-    but the gate is still showing. Root cause : the activation flow's
-    idempotency check accepted any non-CANCELLED status (including
-    DRAFT) and rendered « Activation Réussie » without finalising the
-    BW. The opportunity gate later rejected DRAFT (ACTIVE-only) and
-    the banner persisted.
-
-    The fix flips DRAFT → ACTIVE when the user comes back through
-    confirmation_free / confirmation_paid as a manager. Source-level
-    guard ; runtime coverage in
-    ``tests/c_e2e/modules/bw/test_bw_routes.py::TestStage3FreeRoutes::
-    test_confirmation_free_activates_existing_draft_bw``.
-    """
-    from pathlib import Path
-
-    stage3 = (
-        Path(__file__).resolve().parent.parent.parent
-        / "src/app/modules/bw/bw_activation/routes"
-        / "stage3.py"
-    )
-    assert stage3.exists()
-    content = stage3.read_text()
-    # The finalisation branch must be present in both confirmation_free
-    # and confirmation_paid.
-    assert content.count("existing.status = BWStatus.ACTIVE.value") >= 2, (
-        "stage3.py must finalise DRAFT BWs in both confirmation_free "
-        "and confirmation_paid — bug #0071/2 regressed."
-    )
+#
+# The DRAFT → ACTIVE finalisation on confirmation revisit is guarded by
+# a state-based runtime test, not a source grep : the free and paid
+# funnels were unified so the branch legitimately lives in one place
+# (`confirmation_paid`) now. See
+# ``tests/c_e2e/modules/bw/test_bw_routes.py::TestStage3PaidRoutes::
+# test_confirmation_paid_finalises_draft_bw``.
 
 
 # ─── #0075 (part 2) ───────────────────────────────────────────────
