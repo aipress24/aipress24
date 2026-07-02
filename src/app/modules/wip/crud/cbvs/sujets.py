@@ -219,7 +219,7 @@ class SujetsTable(BaseTable):
     def _make_datasource(self, model_class: type, q: str) -> BaseDataSource:
         return SujetDataSource(model_class=model_class, q=q)
 
-    def url_for(self, obj, _action="get", **kwargs):  # type: ignore[override]
+    def url_for(self, obj, _action="get", **kwargs):
         return url_for(f"SujetsWipView:{_action}", id=obj.id, **kwargs)
 
     def get_actions(self, item):

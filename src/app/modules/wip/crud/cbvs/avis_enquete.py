@@ -76,7 +76,7 @@ class AvisEnqueteTable(BaseTable):
         super().__init__(AvisEnquete, q)
         self.data_source = AvisEnqueteDataSource(AvisEnquete, q)
 
-    def url_for(self, obj, _action="get", **kwargs):  # type: ignore[override]
+    def url_for(self, obj, _action="get", **kwargs):
         return url_for(f"AvisEnqueteWipView:{_action}", id=obj.id, **kwargs)
 
     def get_columns(self):
