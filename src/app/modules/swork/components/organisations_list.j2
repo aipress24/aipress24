@@ -1,75 +1,75 @@
 {% macro selector(filter) %}
-<div
-    wire:key="{{ filter.id }}"
-    x-data="{
-        open: false,
-        toggle() {
-            if (this.open) {
+    <div
+        wire:key="{{ filter.id }}"
+        x-data="{
+                open: false,
+                toggle() {
+                if (this.open) {
                 return this.close();
-            }
-            this.open = true;
-        },
-        close(focusAfter) {
-            this.open = false;
-            focusAfter && focusAfter.focus();
-        }
-    }"
-    x-on:keydown.escape.prevent.stop="close($refs.button)"
-    class="relative"
->
-    <!-- Button -->
-    <button
-        x-ref="button"
-        x-on:click="toggle()"
-        :aria-expanded="open"
-        aria-controls="dropdown-panel-{{ filter.id }}"
-        type="button"
-        class="bg-white border text-gray-600 border-gray-200 rounded px-4 py-2 focus:outline-none focus:ring-4 focus:ring-aqua-400"
+                }
+                this.open = true;
+                },
+                close(focusAfter) {
+                this.open = false;
+                focusAfter && focusAfter.focus();
+                }
+                }"
+        x-on:keydown.escape.prevent.stop="close($refs.button)"
+        class="relative"
     >
-        <span>{{ filter.label }}</span>
-        <span aria-hidden="true">&darr;</span>
-    </button>
+    <!-- Button -->
+        <button
+            x-ref="button"
+            x-on:click="toggle()"
+            :aria-expanded="open"
+            aria-controls="dropdown-panel-{{ filter.id }}"
+            type="button"
+            class="bg-white border text-gray-600 border-gray-200 rounded px-4 py-2 focus:outline-none focus:ring-4 focus:ring-aqua-400"
+        >
+            <span>{{ filter.label }}</span>
+            <span aria-hidden="true">&darr;</span>
+        </button>
 
     <!-- Panel -->
-    <div
-        x-ref="panel"
-        x-show="open"
-        x-transition.origin.top.left
-        x-on:click.outside="close($refs.button)"
-        id="dropdown-panel-{{ filter.id }}"
-        style="display: none"
-        class="max-h-[32rem] w-[24rem] overflow-auto absolute z-20 rounded shadow-lg left-0 mt-2 bg-white border border-gray-200"
-    >
-        <div class="p-4 grid grid-cols-1 gap-6">
-            {% for option in filter.options %}
-            <div class="col-span-1">
-                <div class="">
-                    <div class="space-y-2">
-                        <label
-                            for="selector.{{ filter.id }}-{{ loop.index0 }}"
-                            class="flex items-center space-x-2 rtl:space-x-reverse cursor-pointer"
-                        >
-                            <input
-                                id="selector.{{ filter.id }}-{{ loop.index0 }}"
-                                type="checkbox"
-                                autocomplete="off"
-                                wire:model="filter_states.{{ filter.id }}.{{ loop.index0 }}"
-                                wire:click="action_apply_filters"
-                                class="text-primary-600 transition duration-75 rounded shadow-sm focus:border-primary-500 focus:ring-2 focus:ring-primary-500 disabled:opacity-70 border-gray-300"
-                            />
-                            <span
-                                class="text-sm font-medium leading-4 text-gray-700"
-                            >
-                                {{ option }}
-                            </span>
-                        </label>
+        <div
+            x-ref="panel"
+            x-show="open"
+            x-transition.origin.top.left
+            x-on:click.outside="close($refs.button)"
+            id="dropdown-panel-{{ filter.id }}"
+            style="display: none"
+            class="max-h-[32rem] w-[24rem] overflow-auto absolute z-20 rounded shadow-lg left-0 mt-2 bg-white border border-gray-200"
+        >
+            <div class="p-4 grid grid-cols-1 gap-6">
+                {% for option in filter.options %}
+                    <div class="col-span-1">
+                        <div class="">
+                            <div class="space-y-2">
+                                <label
+                                    for="selector.{{ filter.id }}-{{ loop.index0 }}"
+                                    class="flex items-center space-x-2 rtl:space-x-reverse cursor-pointer"
+                                >
+                                    <input
+                                        id="selector.{{ filter.id }}-{{ loop.index0 }}"
+                                        type="checkbox"
+                                        autocomplete="off"
+                                        wire:model="filter_states.{{ filter.id }}.{{ loop.index0 }}"
+                                        wire:click="action_apply_filters"
+                                        class="text-primary-600 transition duration-75 rounded shadow-sm focus:border-primary-500 focus:ring-2 focus:ring-primary-500 disabled:opacity-70 border-gray-300"
+                                    />
+                                    <span
+                                        class="text-sm font-medium leading-4 text-gray-700"
+                                    >
+                                        {{ option }}
+                                    </span>
+                                </label>
+                            </div>
+                        </div>
                     </div>
-                </div>
+                {% endfor %}
             </div>
-            {% endfor %}
         </div>
     </div>
-</div>
 {% endmacro %}
 
 <div wire:id="{{ this._id }}">
@@ -107,29 +107,29 @@
                 class="flex flex-row items-center flex-wrap mb-4 gap-2 text-gray-700"
             >
                 {% for filter in filters %}
-                <div wire:key="{{ filter.id }}">{{ selector(filter) }}</div>
+                    <div wire:key="{{ filter.id }}">{{ selector(filter) }}</div>
                 {% endfor %}
             </div>
         </div>
 
         <div class="mb-5 flex flex-wrap gap-2">
             {% for filter in active_filters %}
-            <span
-                wire:key="active-filter-{{ filter.filter_id }}-{{ filter.option_value }}"
-                class="inline-flex items-center rounded text-sm font-medium text-gray-600 bg-gray-200 my-1 py-1 px-2"
-            >
                 <span
+                    wire:key="active-filter-{{ filter.filter_id }}-{{ filter.option_value }}"
+                    class="inline-flex items-center rounded text-sm font-medium text-gray-600 bg-gray-200 my-1 py-1 px-2"
+                >
+                    <span
                     >{{ filter.filter_label }}: {{ filter.option_value }}</span
-                >
-                <button
-                    type="button"
-                    wire:click="action_remove_filter('{{ filter.filter_id }}', '{{ filter.option_value }}')"
-                    class="ml-1 hover:bg-gray-300"
-                    aria-hidden="true"
-                >
-                    ✖
-                </button>
-            </span>
+                        >
+                        <button
+                            type="button"
+                            wire:click="action_remove_filter('{{ filter.filter_id }}', '{{ filter.option_value }}')"
+                            class="ml-1 hover:bg-gray-300"
+                            aria-hidden="true"
+                        >
+                            ✖
+                        </button>
+                    </span>
             {% endfor %}
         </div>
     </div>
@@ -143,50 +143,50 @@
             aria-label="Organisations"
         >
             {% for letter in directory.keys() %}
-            <div class="relative">
-                <div
-                    class="z-10 sticky top-0 border-t border-b border-gray-200 bg-gray-50 px-6 py-1 text-sm font-medium text-gray-500"
-                >
-                    <h3>{{ letter }}</h3>
-                </div>
+                <div class="relative">
+                    <div
+                        class="z-10 sticky top-0 border-t border-b border-gray-200 bg-gray-50 px-6 py-1 text-sm font-medium text-gray-500"
+                    >
+                        <h3>{{ letter }}</h3>
+                    </div>
 
-                <ul
-                    role="list"
-                    class="relative z-0 divide-y divide-gray-200"
-                >
-                    {% for org in directory[letter] %}
-                    <li>
-                        <a
-                            href="{{ url_for(org.org) }}"
-                            class="px-6 py-5 flex items-center space-x-3 hover:bg-gray-50"
-                        >
-                            <div class="flex-shrink-0">
-                                <img
-                                    class="h-10 w-10 rounded-full"
-                                    src="{{ org.logo_url }}"
-                                    alt=""
-                                />
-                            </div>
-                            <div class="flex-1 min-w-0">
+                    <ul
+                        role="list"
+                        class="relative z-0 divide-y divide-gray-200"
+                    >
+                        {% for entry in directory[letter] %}
+                            <li>
+                                <a
+                                    href="{{ entry.url }}"
+                                    class="px-6 py-5 flex items-center space-x-3 hover:bg-gray-50"
+                                >
+                                    <div class="flex-shrink-0">
+                                        <img
+                                            class="h-10 w-10 rounded-full"
+                                            src="{{ entry.logo_url }}"
+                                            alt=""
+                                        />
+                                    </div>
+                                    <div class="flex-1 min-w-0">
                                 <!-- Extend touch target to entire panel -->
-                                <span
-                                    class="inset-0"
-                                    aria-hidden="true"
-                                />
-                                <p class="text-sm font-medium text-gray-900">
-                                    {{ org.bw_name or org.name }}
-                                </p>
+                                        <span
+                                            class="inset-0"
+                                            aria-hidden="true"
+                                        />
+                                        <p class="text-sm font-medium text-gray-900">
+                                            {{ entry.name }}
+                                        </p>
                                 <!--
                     <p class="text-sm text-gray-500 truncate">
                       {# org.org.formatted_address or '' #}
                     </p>
                     -->
-                            </div>
-                        </a>
-                    </li>
-                    {% endfor %}
-                </ul>
-            </div>
+                                    </div>
+                                </a>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                </div>
             {% endfor %}
         </nav>
     </div>
