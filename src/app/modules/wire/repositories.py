@@ -8,13 +8,13 @@ from __future__ import annotations
 
 from flask_super.decorators import service
 
-from app.services.repositories import Repository
+from app.services.repositories import PublishableRepository
 
 from .models import ArticlePost, PressReleasePost
 
 
 @service
-class ArticlePostRepository(Repository[ArticlePost]):
+class ArticlePostRepository(PublishableRepository[ArticlePost]):
     """Repository for ArticlePost model."""
 
     model_type = ArticlePost
@@ -25,7 +25,7 @@ class ArticlePostRepository(Repository[ArticlePost]):
 
 
 @service
-class PressReleasePostRepository(Repository[PressReleasePost]):
+class PressReleasePostRepository(PublishableRepository[PressReleasePost]):
     """Repository for PressReleasePost model."""
 
     model_type = PressReleasePost
