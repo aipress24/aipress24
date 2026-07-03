@@ -81,7 +81,7 @@
                             {% if profile.organisation_name %}
                                 <a
                                     class="text-base font-medium text-gray-500 hover:text-gray-700 truncate flex items-center"
-                                    href="{{ url_for(profile.organisation) }}"
+                                    href="{{ profile.organisation_url }}"
                                 >
                                     {{ icon("building-office", class="h-4 w-4 mr-1") }}
                                     {{ profile.organisation_name }}
@@ -137,7 +137,7 @@
                     {% if profile.organisation_name %}
                         <a
                             class="text-base font-medium text-gray-500 hover:text-gray-700 truncate flex items-center"
-                            href="{{ url_for(profile.organisation) }}"
+                            href="{{ profile.organisation_url }}"
                         >
                             {{ icon("building-office", class="h-4 w-4 mr-1") }}
                             {{ profile.organisation_name }}
