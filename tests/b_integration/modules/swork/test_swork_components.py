@@ -446,20 +446,92 @@ class TestOrganisationsListPerformance:
         with app.test_request_context():
             org_list = OrganisationsList()
             orgs = org_list.get_orgs()
-            # Render the per-org VM fields that re-fetched the BW (name + logo).
+            # Render the directory entries (name + logo + url) used by the template.
             event.listen(db.engine, "before_cursor_execute", _capture)
             try:
-                for org in orgs:
-                    vm = OrgListOrgVM(org)
-                    _ = vm["display_name"]
-                    _ = vm["logo_url"]
+                for entry in orgs:
+                    _ = entry.name
+                    _ = entry.logo_url
+                    _ = entry.url
             finally:
                 event.remove(db.engine, "before_cursor_execute", _capture)
 
-        n = len(statements)
-        # BWs are prefetched in get_orgs(); rendering all VMs adds 0 queries.
-        # A per-org re-fetch would add 2× the org count.
-        assert n < 5, f"{n} SQL queries rendering org VMs:\n" + "\n".join(statements)
+        # BWs are selected together with organisations, so accessing
+        # the pre-built entry attributes should not trigger more queries.
+        assert len(statements) == 0
+
+
+class TestOrgDirectoryEntry:
+    """Test OrgDirectoryEntry produced by OrganisationsList."""
+
+    def test_bw_name_differs_creates_two_entries(
+        self, app: Flask, db_session: Session, test_user_with_profile: User
+    ):
+        """When a BW name differs from the org name, two entries are returned."""
+        user = test_user_with_profile
+        org = Organisation(name="Strada Transports")
+        db_session.add(org)
+        db_session.flush()
+        bw = BusinessWall(
+            organisation_id=org.id,
+            bw_type="leaders_experts",
+            status=BWStatus.ACTIVE.value,
+            owner_id=user.id,
+            payer_id=user.id,
+            name="Fake-Strada Transports",
+        )
+        db_session.add(bw)
+        db_session.flush()
+        org.bw_id = bw.id
+
+        with app.test_request_context():
+            org_list = OrganisationsList()
+            entries = org_list.get_orgs()
+
+        names = {e.name for e in entries if e.organisation.id == org.id}
+        assert names == {"Strada Transports", "Fake-Strada Transports"}
+
+    def test_bw_name_same_as_org_creates_one_entry(
+        self, app: Flask, db_session: Session, test_user_with_profile: User
+    ):
+        """When the BW name equals the org name, only one entry is returned."""
+        user = test_user_with_profile
+        org = Organisation(name="Strada Transports")
+        db_session.add(org)
+        db_session.flush()
+        bw = BusinessWall(
+            organisation_id=org.id,
+            bw_type="media",
+            status=BWStatus.ACTIVE.value,
+            owner_id=user.id,
+            payer_id=user.id,
+            name="Strada Transports",
+        )
+        db_session.add(bw)
+        db_session.flush()
+        org.bw_id = bw.id
+
+        with app.test_request_context():
+            org_list = OrganisationsList()
+            entries = org_list.get_orgs()
+
+        org_entries = [e for e in entries if e.organisation.id == org.id]
+        assert len(org_entries) == 1
+        assert org_entries[0].name == "Strada Transports"
+
+    def test_auto_org_without_bw_creates_one_entry(
+        self, app: Flask, db_session: Session, test_organisation: Organisation
+    ):
+        """An organisation without a BW yields a directory entry."""
+        test_organisation.bw_id = None
+
+        with app.test_request_context():
+            org_list = OrganisationsList()
+            entries = org_list.get_orgs()
+
+        org_entries = [e for e in entries if e.organisation.id == test_organisation.id]
+        assert len(org_entries) == 1
+        assert org_entries[0].name == test_organisation.name
 
 
 class TestMembersListStaticMethods:
@@ -820,8 +892,8 @@ class TestOrgsDirectory:
     """Test OrgsDirectory class."""
 
     def test_vm_class(self):
-        """Test OrgsDirectory has correct vm_class."""
-        assert OrgsDirectory.vm_class == OrgListOrgVM
+        """Test OrgsDirectory has no VM wrapper (entries pre-built)."""
+        assert OrgsDirectory.vm_class is None
 
 
 class TestMembersSecteurFilterLabel:
