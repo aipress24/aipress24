@@ -130,7 +130,7 @@ dependencies = [
     "cachetools>=7.0.3",
     "bleach>=6.3.0",
     "pagebar>=0.1.1",
-    "flask-smorest>=0.47.0",
+    "flask-smorest<1.0,>=0.47.0",
 ]
 description = ""
 
@@ -341,6 +341,11 @@ reportIncompatibleMethodOverride = false
 reportIncompatibleVariableOverride = false
 
 # -----------------------------------------------------------------------------
+
+[tool.ty.environment]
+# The standalone API SDK lives outside src/; add it to the import search path
+# so ty can resolve `aipress24_client` (its test inserts this at runtime).
+extra-paths = ["sdk/python"]
 
 [tool.ty.src]
 exclude = [

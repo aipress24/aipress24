@@ -6,12 +6,15 @@ from __future__ import annotations
 
 from typing import Any, Protocol, cast
 
+from flask import g
 from sqlalchemy import select
 from sqlalchemy.orm import Mapped
 from werkzeug.exceptions import NotFound
 
+from app.enums import RoleEnum
 from app.flask.extensions import db
 from app.lib.base62 import base62
+from app.models.lifecycle import PublicationStatus
 
 
 class _HasId(Protocol):
@@ -56,6 +59,30 @@ def get_obj(id: int | str, cls: type, options=None):
         msg = f"Can't match id {id}"
         raise NotFound(msg)
     return obj
+
+
+def get_public_obj(id: int | str, cls: type, options=None):
+    """Like :func:`get_obj`, but 404 a non-public content row.
+
+    A public content-detail page must not serve DRAFT / unpublished / taken-down
+    content (only status==PUBLIC rows appear in the portal listings). Access
+    parity is preserved: the current user can still reach their *own* not-yet-
+    public content, and admins can reach any (for moderation); everyone else
+    gets a 404, exactly as if the row did not exist.
+    """
+    obj = get_obj(id, cls, options=options)
+    if getattr(obj, "status", None) == PublicationStatus.PUBLIC:
+        return obj
+
+    user = getattr(g, "user", None)
+    if user is not None and not user.is_anonymous:
+        from app.services.roles import has_role
+
+        if getattr(obj, "owner_id", None) == user.id or has_role(user, RoleEnum.ADMIN):
+            return obj
+
+    msg = f"Not public: {id}"
+    raise NotFound(msg)
 
 
 def get_multi(cls: type, stmt=None, options=None, limit: int | None = None) -> list:

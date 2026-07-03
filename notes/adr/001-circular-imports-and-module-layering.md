@@ -1,12 +1,13 @@
 # ADR 001: Resolving Circular Imports Through Improved Module Layering
 
-## Status
+**Status**: Superseded
+**Type**: Architecture
+**Created**: 2025-12-24
+**Authors**: Stefane Fermigier <sf@abilian.com>
+**Superseded-By**: ADR 002
+**Related-ADRs**: 002
 
-Superseded by ADR 002
-
-The immediate circular import issues were resolved by implementing the navigation refactoring
-described in ADR 002. The architectural recommendations in this ADR remain valid for future
-consideration.
+> The immediate circular-import issues were resolved by the navigation refactoring described in ADR 002. The architectural recommendations in this ADR remain valid for future consideration.
 
 ## Context
 

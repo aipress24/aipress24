@@ -1,8 +1,12 @@
 # ADR 002: Navigation System Refactoring - From Page Classes to Flask Views
 
-## Status
+**Status**: Accepted
+**Type**: Architecture
+**Created**: 2025-12-24
+**Authors**: Stefane Fermigier <sf@abilian.com>
+**Related-ADRs**: 001, 003
 
-Accepted (Implemented)
+> Implemented. Supersedes the custom Page system and resolves the circular-import tension described in ADR 001.
 
 ## Context
 

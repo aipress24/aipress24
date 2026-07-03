@@ -9,9 +9,13 @@ Repositories provide CRUD operations and query methods for models.
 
 from __future__ import annotations
 
+import uuid
+from collections.abc import Sequence
+
+from advanced_alchemy.filters import LimitOffset, OrderBy
 from advanced_alchemy.repository import SQLAlchemySyncRepository
 
-from .business_wall import BusinessWall
+from .business_wall import BusinessWall, BWStatus
 from .content import BWContent
 from .partnership import Partnership
 from .role import RoleAssignment, RolePermission
@@ -22,6 +26,23 @@ class BusinessWallRepository(SQLAlchemySyncRepository[BusinessWall]):
     """Repository for BusinessWall model."""
 
     model_type = BusinessWall
+
+    def list_active(
+        self, *, limit: int, offset: int
+    ) -> tuple[Sequence[BusinessWall], int]:
+        """One page of active (public) Business Walls plus the total count."""
+        return self.list_and_count(
+            BusinessWall.status == BWStatus.ACTIVE.value,
+            LimitOffset(limit, offset),
+            OrderBy(BusinessWall.created_at, "desc"),
+        )
+
+    def get_active(self, identifier: uuid.UUID) -> BusinessWall | None:
+        """A single active Business Wall, or None if not active."""
+        return self.get_one_or_none(
+            BusinessWall.id == identifier,
+            BusinessWall.status == BWStatus.ACTIVE.value,
+        )
 
 
 class SubscriptionRepository(SQLAlchemySyncRepository[Subscription]):

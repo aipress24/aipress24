@@ -277,6 +277,12 @@ class EventsWipView(BaseWipView):
         flash("L'événement a été dépublié")
         return redirect(self._url_for("index"))
 
+    def _post_delete_model(self, model) -> None:
+        # Deleting a published source must take its public event mirror down too:
+        # re-emit the unpublish signal so the mirror flips to DRAFT and is
+        # de-indexed. The receiver no-ops if the source was never published.
+        event_unpublished.send(model)
+
     @route("/<int:id>/images/", methods=["GET", "POST"])
     def images(self, id: int):
         event = cast("Event", self._get_model(id))

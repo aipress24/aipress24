@@ -15,7 +15,7 @@ sujets).
 
 from __future__ import annotations
 
-from collections.abc import Callable
+from collections.abc import Callable, Iterable
 from typing import TYPE_CHECKING
 
 from werkzeug.exceptions import Forbidden
@@ -170,6 +170,26 @@ def _bw_grants_mission(bw, user_id, mission: PermissionType) -> bool:
                     return True
 
     return False
+
+
+def pr_manager_missing_mission(
+    bws: Iterable[BusinessWall], user_id: int, mission: PermissionType
+) -> bool:
+    """True if `user_id` is a PR manager on `bws` but none grants `mission`.
+
+    Reproduces the room ``before_request`` gate (acting as a PR manager without
+    the granular mission) for a caller that targets an organisation's Business
+    Wall(s) *directly*, rather than the session-selected one — the public API's
+    on-behalf publish path. If the user holds a PR-manager role (``BWPRi`` /
+    ``BWPRe``) on any of the org's Business Walls, they must also hold `mission`
+    on at least one of them; reaching the org purely via ownership or an agency
+    partnership (no PR-manager role) returns ``False`` (no mission required),
+    matching the portal — where only a *delegated* PR manager is mission-gated.
+    """
+    role_bws = [bw for bw in bws if _bw_grants_pr_manager_role(bw, user_id)]
+    return bool(role_bws) and not any(
+        _bw_grants_mission(bw, user_id, mission) for bw in role_bws
+    )
 
 
 def check_mission(

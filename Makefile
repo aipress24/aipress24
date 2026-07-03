@@ -185,6 +185,14 @@ fix-hard:
 	ruff check --fix --unsafe-fixes
 
 
+## Regenerate the public-API client SDK from the OpenAPI spec
+.PHONY: api-sdk
+api-sdk:
+	uv run python sdk/python/export_spec.py sdk/python/openapi.json
+	uv run python sdk/python/generate.py sdk/python/openapi.json
+	uv run ruff format sdk/python/aipress24_client/_generated.py
+
+
 #
 #  Build and deploy
 #
