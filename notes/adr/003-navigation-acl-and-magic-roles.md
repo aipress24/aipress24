@@ -1,8 +1,12 @@
 # ADR 003: Navigation ACL System and Magic Roles
 
-## Status
+**Status**: Accepted
+**Type**: Architecture
+**Created**: 2025-12-24
+**Authors**: Stefane Fermigier <sf@abilian.com>
+**Related-ADRs**: 002
 
-**Implemented** (All phases complete - 2024-12)
+> Implemented — all phases complete (see the Implementation Plan section).
 
 ## Context
 

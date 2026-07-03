@@ -1,0 +1,17 @@
+# Copyright (c) 2025, Abilian SAS & TCA
+# SPDX-License-Identifier: AGPL-3.0-only
+[project]
+name = "aipress24-client"
+version = "0.1.0"
+description = "Dependency-free Python client for the AIpress24 public API (/api/v1)"
+readme = "README.md"
+requires-python = ">=3.9"
+license = { text = "AGPL-3.0-only" }
+dependencies = []
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["aipress24_client"]

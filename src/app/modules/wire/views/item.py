@@ -26,7 +26,7 @@ from app.flask.extensions import db
 from app.flask.lib.nav import nav
 from app.flask.lib.view_model import Wrapper
 from app.flask.routing import url_for
-from app.flask.sqla import get_obj
+from app.flask.sqla import get_public_obj
 from app.logging import warn
 from app.models.auth import User
 from app.models.organisation import Organisation
@@ -85,7 +85,7 @@ class ItemDetailView(MethodView):
     decorators: ClassVar[list] = [nav(parent="wire", label="Article")]
 
     def get(self, id: str):
-        post = get_obj(id, Post)
+        post = get_public_obj(id, Post)
 
         match post:
             case ArticlePost():
@@ -186,7 +186,7 @@ class ItemDetailView(MethodView):
         )
 
     def post(self, id: str) -> str | Response:
-        post = get_obj(id, Post)
+        post = get_public_obj(id, Post)
         action = request.form["action"]
 
         match action:

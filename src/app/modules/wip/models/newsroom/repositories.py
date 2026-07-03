@@ -7,7 +7,7 @@ from __future__ import annotations
 from advanced_alchemy.repository import SQLAlchemySyncRepository
 from flask_super.decorators import service
 
-from app.services.repositories import Repository
+from app.services.repositories import OwnedRepository, Repository
 
 from .article import Article, Image
 from .avis_enquete import AvisEnquete, ContactAvisEnquete
@@ -23,7 +23,7 @@ from .sujet import Sujet
 # Newsroom models
 #
 @service
-class ArticleRepository(Repository[Article]):
+class ArticleRepository(OwnedRepository[Article]):
     model_type = Article
 
 
@@ -34,7 +34,7 @@ class ImageRepository(SQLAlchemySyncRepository[Image]):
 
 
 @service
-class AvisEnqueteRepository(Repository[AvisEnquete]):
+class AvisEnqueteRepository(OwnedRepository[AvisEnquete]):
     model_type = AvisEnquete
 
 
