@@ -58,6 +58,11 @@
                                     Business Wall: {{ org.bw_name }}
                                 </p>
                             {% endif %}
+                            {% if org.bw_media_name %}
+                                <p class="text-lg font-bold text-gray-900 truncate mt-1">
+                                    Média: {{ org.bw_media_name }}
+                                </p>
+                            {% endif %}
                         </div>
 
                         <div
@@ -91,6 +96,11 @@
                     {% if org.bw_name %}
                         <p class="text-lg font-bold text-gray-900 truncate mt-1">
                             Business Wall: {{ org.bw_name }}
+                        </p>
+                    {% endif %}
+                    {% if org.bw_media_name %}
+                        <p class="text-lg font-bold text-gray-900 truncate mt-1">
+                            Média: {{ org.bw_media_name }}
                         </p>
                     {% endif %}
                 </div>
