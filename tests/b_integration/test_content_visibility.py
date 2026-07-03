@@ -101,22 +101,19 @@ def test_events_repo_lists_only_published(db_session: Session) -> None:
     assert rows[0].title == "pub"
 
 
-def test_biz_repo_lists_only_published(db_session: Session) -> None:
+def test_biz_repo_lists_public_by_status_only(db_session: Session) -> None:
+    # Marketplace content has no published_at; visibility is status alone, so a
+    # PUBLIC offer with no published_at must still be listed.
     user = _user(db_session)
     db_session.add_all(
         [
-            MissionOffer(
-                owner=user,
-                title="pub",
-                status=PublicationStatus.PUBLIC,
-                published_at=arrow.utcnow(),
-            ),
+            MissionOffer(owner=user, title="pub", status=PublicationStatus.PUBLIC),
             MissionOffer(owner=user, title="draft", status=PublicationStatus.DRAFT),
         ]
     )
     db_session.flush()
 
-    rows, total = MissionOfferRepository(session=db_session).list_published(
+    rows, total = MissionOfferRepository(session=db_session).list_public(
         limit=50, offset=0
     )
     assert total == 1

@@ -7,7 +7,7 @@ from __future__ import annotations
 from advanced_alchemy.repository import SQLAlchemySyncRepository
 from flask_super.decorators import service
 
-from app.services.repositories import Repository
+from app.services.repositories import OwnedRepository
 
 from .communique import ComImage, Communique
 
@@ -16,7 +16,7 @@ from .communique import ComImage, Communique
 # Commroom models
 #
 @service
-class CommuniqueRepository(Repository[Communique]):
+class CommuniqueRepository(OwnedRepository[Communique]):
     model_type = Communique
 
 

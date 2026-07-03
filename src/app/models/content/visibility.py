@@ -28,6 +28,17 @@ if TYPE_CHECKING:
     from sqlalchemy.sql.elements import ColumnElement
 
 
+def public_filters(model: type) -> list[ColumnElement[bool]]:
+    """Return the status-only visibility filter (``status == PUBLIC``).
+
+    This is the query-level counterpart of ``is_public`` for **marketplace**
+    content, which — unlike posts and events — has no publication timestamp or
+    expiry, so its visibility is decided by ``status`` alone (see
+    ``search.adapters.is_public`` for ``MarketplaceContent``).
+    """
+    return [model.status == PublicationStatus.PUBLIC]
+
+
 def published_filters(
     model: type,
     *,

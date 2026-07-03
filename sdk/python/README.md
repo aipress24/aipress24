@@ -2,7 +2,13 @@
 
 A tiny, **dependency-free** client for the AIpress24 public API (`/api/v1`). It
 uses only the Python standard library, so you can `pip install` it or just vendor
-the single `aipress24_client/__init__.py` file.
+the `aipress24_client/` package.
+
+The transport (`Client`, `Page`, `ApiError`) is hand-written and stable. The
+drift-prone parts — the collection list and the per-resource typed models
+(`aipress24_client/_generated.py`) — are **generated from the OpenAPI spec**:
+run `make api-sdk` from the repo root to regenerate. A test asserts the
+committed file stays in sync with the spec, so the client can't silently drift.
 
 ## Install
 

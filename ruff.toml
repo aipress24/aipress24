@@ -81,6 +81,9 @@ lint.ignore = [
 "src/**/*.py" = [
     "PLC0415", #	import-outside-top-level
 ]
+"sdk/python/*.py" = [
+    "INP001", #  standalone SDK build scripts (generate.py, export_spec.py)
+]
 "src/app/faker/**/*.py" = [
     "S311", # Standard pseudo-random generators are not suitable for cryptographic purposes
 ]

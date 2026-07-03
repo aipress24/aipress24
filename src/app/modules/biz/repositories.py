@@ -3,49 +3,81 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 """Repositories for the marketplace (biz) module.
 
-All marketplace offers and products are ``Publishable`` sub-classes of
-``MarketplaceContent``, so visibility-gated reads come from the shared
-``PublishableRepository`` (expiry column ``expired_at``). These give the biz
-module the same repository layer the other content modules already have.
+Marketplace content (offers and products) is visible on ``status`` alone — it
+has no publication timestamp or expiry, unlike wire posts and events — so
+these use the status-only ``public_filters`` (matching
+``search.adapters.is_public(MarketplaceContent)``), not the lifecycle
+``PublishableRepository``. This gives the biz module the repository layer the
+other content modules already have.
 """
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
+from advanced_alchemy.filters import LimitOffset, OrderBy
+from advanced_alchemy.repository.typing import ModelT
 from flask_super.decorators import service
 
-from app.services.repositories import PublishableRepository
+from app.models.content.visibility import public_filters
+from app.services.repositories import OwnedRepository, Repository
 
 from .models._offers import JobOffer, MissionOffer, ProjectOffer
 from .models._products import EditorialProduct
 
+if TYPE_CHECKING:
+    from collections.abc import Sequence
 
+    from sqlalchemy.sql.elements import ColumnElement
+
+
+class MarketplaceRepository(Repository[ModelT]):
+    """Base for marketplace repositories: status-only public visibility."""
+
+    def list_public(
+        self, *extra_filters: ColumnElement[bool], limit: int, offset: int
+    ) -> tuple[Sequence[ModelT], int]:
+        """One page of publicly visible rows (newest first) plus the total.
+
+        ``extra_filters`` lets a caller add view-specific constraints (e.g. the
+        journalism-visibility rule) without re-stating the status gate.
+        """
+        return self.list_and_count(
+            *public_filters(self.model_type),
+            *extra_filters,
+            LimitOffset(limit, offset),
+            OrderBy(self.model_type.created_at, "desc"),
+        )
+
+    def get_public(self, identifier: object) -> ModelT | None:
+        return self.get_one_or_none(
+            self.model_type.id == identifier, *public_filters(self.model_type)
+        )
+
+
+# Marketplace repos are both status-only public (`list_public`, for the site)
+# and owner-scoped (`list_owned`/`get_owned`, for the /api/v1/me tier).
 @service
-class MissionOfferRepository(PublishableRepository[MissionOffer]):
-    """Repository for MissionOffer, with visibility-gated reads."""
-
+class MissionOfferRepository(
+    MarketplaceRepository[MissionOffer], OwnedRepository[MissionOffer]
+):
     model_type = MissionOffer
-    expiry_attr = "expired_at"
 
 
 @service
-class ProjectOfferRepository(PublishableRepository[ProjectOffer]):
-    """Repository for ProjectOffer, with visibility-gated reads."""
-
+class ProjectOfferRepository(
+    MarketplaceRepository[ProjectOffer], OwnedRepository[ProjectOffer]
+):
     model_type = ProjectOffer
-    expiry_attr = "expired_at"
 
 
 @service
-class JobOfferRepository(PublishableRepository[JobOffer]):
-    """Repository for JobOffer, with visibility-gated reads."""
-
+class JobOfferRepository(MarketplaceRepository[JobOffer], OwnedRepository[JobOffer]):
     model_type = JobOffer
-    expiry_attr = "expired_at"
 
 
 @service
-class EditorialProductRepository(PublishableRepository[EditorialProduct]):
-    """Repository for EditorialProduct, with visibility-gated reads."""
-
+class EditorialProductRepository(
+    MarketplaceRepository[EditorialProduct], OwnedRepository[EditorialProduct]
+):
     model_type = EditorialProduct
-    expiry_attr = "expired_at"

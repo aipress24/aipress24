@@ -5,9 +5,11 @@
 from __future__ import annotations
 
 from ._base import Repository
+from ._owned import OwnedRepository
 from ._publishable import PublishableRepository
 
 __all__ = [
+    "OwnedRepository",
     "PublishableRepository",
     "Repository",
 ]

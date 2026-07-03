@@ -411,6 +411,10 @@ class BaseWipView(FlaskView, abc.ABC):
             return redirect(self._url_for("index"))
 
         model.deleted_at = now(LOCAL_TZ)
+        # Before the commit, let subclasses tear down anything derived from this
+        # source (e.g. the public wire/event mirror), so the mirror change is
+        # persisted atomically with the soft-delete.
+        self._post_delete_model(model)
         repo.update(model, auto_commit=True)
 
         flash(self.msg_delete_ok)
@@ -420,6 +424,15 @@ class BaseWipView(FlaskView, abc.ABC):
 
     def _post_update_model(self, model) -> None:
         """Implemented in subclass, if neeeded"""
+
+    def _post_delete_model(self, model) -> None:
+        """Hook run on soft-delete, before commit.
+
+        Subclasses whose source publishes a public "mirror" (wire articles /
+        press releases, events) override this to take the mirror down, so a
+        deleted source is no longer served by the News portal, the public API,
+        or the search index.
+        """
 
     def _url_for(self, _action="get", **kwargs):
         class_name = self.__class__.__name__

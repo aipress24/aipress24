@@ -16,7 +16,7 @@ from werkzeug import Response
 from app.flask.extensions import db
 from app.flask.lib.nav import nav
 from app.flask.routing import url_for
-from app.flask.sqla import get_obj
+from app.flask.sqla import get_public_obj
 from app.models.auth import User
 from app.modules.events import blueprint
 from app.modules.events.models import EventPost
@@ -38,7 +38,7 @@ class EventDetailView(MethodView):
     decorators: ClassVar[list] = [nav(parent="events", label="Événement")]
 
     def get(self, id: int):
-        event_obj = get_obj(id, EventPost)
+        event_obj = get_public_obj(id, EventPost)
         view_model = EventDetailVM(event_obj)
 
         # Record view
@@ -59,7 +59,7 @@ class EventDetailView(MethodView):
         return render_template("pages/event.j2", **ctx)
 
     def post(self, id: int) -> Response | str:
-        event_obj = get_obj(id, EventPost)
+        event_obj = get_public_obj(id, EventPost)
         action = request.form.get("action", "")
         user = g.user
 

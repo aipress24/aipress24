@@ -29,11 +29,13 @@ TOKEN_PREFIX = "a24_"  # noqa: S105 - a public identifier prefix, not a secret
 
 
 class Scope(StrEnum):
-    """Coarse, read-only capabilities a token may be granted."""
+    """Coarse capabilities a token may be granted."""
 
     READ_CONTENT = "read:content"  # articles, press releases, events
     READ_ORGANISATIONS = "read:organisations"  # organisations, business walls
     READ_DIRECTORY = "read:directory"  # personal member profiles
+    READ_SELF = "read:self"  # the token owner's own private data (/me)
+    WRITE_CONTENT = "write:content"  # author/publish the owner's own content
 
 
 ALL_SCOPES: list[str] = [s.value for s in Scope]
