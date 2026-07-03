@@ -9,6 +9,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Any, cast
 
 from flask import g, redirect, render_template, request, session, url_for
+from sqlalchemy import select
 from werkzeug import Response
 
 from app.flask.extensions import db
@@ -19,6 +20,10 @@ from app.modules.admin.org_email_utils import change_members_emails
 from app.modules.bw.bw_activation import bp
 from app.modules.bw.bw_activation.bw_invitation import ensure_roles_membership
 from app.modules.bw.bw_activation.config import BW_TYPES
+from app.modules.bw.bw_activation.models.role import (
+    InvitationStatus,
+    RoleAssignment,
+)
 from app.modules.bw.bw_activation.user_utils import current_business_wall
 from app.modules.bw.bw_activation.utils import (
     ERR_BW_NOT_FOUND,
@@ -49,7 +54,7 @@ def manage_organisation_members():
     if not session.get("bw_activated") or not session.get("bw_type"):
         return redirect(url_for("bw_activation.index"))
 
-    bw_type = session["bw_type"]
+    bw_type = current_bw.bw_type
     bw_info: dict[str, Any] = BW_TYPES.get(bw_type, {})
 
     org = current_bw.get_organisation()
@@ -78,7 +83,25 @@ def manage_organisation_members():
             db.session.commit()
             return response
 
-    members = list(org.members) if org else []
+    # Display the Business Wall members (owner + accepted role assignments),
+    # not the raw organisation employees, so the page matches the BW identity.
+    members: list[User] = []
+    if current_bw.owner_id:
+        owner = get_obj(current_bw.owner_id, User)
+        if owner:
+            members.append(owner)
+
+    role_user_ids = db.session.scalars(
+        select(RoleAssignment.user_id)
+        .where(RoleAssignment.business_wall_id == current_bw.id)
+        .where(RoleAssignment.invitation_status == InvitationStatus.ACCEPTED.value)
+        .where(RoleAssignment.user_id != current_bw.owner_id)
+    ).all()
+    if role_user_ids:
+        members.extend(
+            db.session.scalars(select(User).where(User.id.in_(role_user_ids))).all()
+        )
+
     warn(members)
 
     return render_template(
