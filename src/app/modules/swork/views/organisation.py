@@ -347,6 +347,7 @@ class OrgVM(ViewModel):
             "description": self._get_description(),
             "bw_gallery_images": self._get_bw_gallery_images(),
             "bw_name": self._get_bw_name(),
+            "bw_media_name": self._get_bw_media_name(),
         }
         self._cached_attrs_time = time()
         return self._cached_attrs
@@ -363,6 +364,18 @@ class OrgVM(ViewModel):
         if self.bw is not None:
             return self.bw.name or ""
         return ""
+
+    def _get_bw_media_name(self) -> str:
+        """Return media title name for media BWs, else empty."""
+        if self.bw is None:
+            return ""
+        return (
+            self.bw.name_press
+            or self.bw.name_official
+            or self.bw.name_entity
+            or self.bw.name_group
+            or ""
+        )
 
     def get_members(self) -> list[User]:
         """Return members to display on the organisation page.
