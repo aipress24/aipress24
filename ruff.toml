@@ -7,6 +7,7 @@ target-version = "py311"
 exclude = [
     "migrations/",
     "scripts/",
+    "bin/",
     "doc/",
     "data/",
     "not-used-yet/",

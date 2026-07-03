@@ -8,7 +8,7 @@ import re
 from typing import Any, ClassVar, cast
 
 from flask_super.registry import register
-from sqlalchemy import String, cast as sqla_cast, false, or_, select, true
+from sqlalchemy import String, cast as sqla_cast, or_, select
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import selectinload
 from sqlalchemy.sql import Select
@@ -18,6 +18,7 @@ from app.flask.extensions import db
 # from app.logging import warn
 from app.models.auth import KYCProfile, User
 from app.models.organisation import Organisation
+from app.models.repositories import UserRepository
 from app.modules.kyc.field_label import country_code_to_country_name
 from app.modules.swork.common import Directory
 from app.modules.swork.settings import SWORK_LIST_LIMIT
@@ -45,11 +46,7 @@ class MembersList(BaseList):
     def get_base_statement(self) -> Select:
         return (
             select(User)
-            .where(
-                User.active == true(),
-                User.is_clone == false(),
-                User.deleted_at.is_(None),
-            )
+            .where(*UserRepository.public_member_filters())
             .options(
                 # Cards + filters read job_title (→ profile) and the
                 # community badge (→ roles) per member — eager-load them so a
@@ -100,11 +97,7 @@ class MembersList(BaseList):
     def get_filters(self):
         stmt = (
             select(User)
-            .where(
-                User.active == true(),
-                User.is_clone == false(),
-                User.deleted_at.is_(None),
-            )
+            .where(*UserRepository.public_member_filters())
             .options(
                 # Cards + filters read job_title (→ profile) and the
                 # community badge (→ roles) per member — eager-load them so a

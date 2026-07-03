@@ -75,6 +75,7 @@ def test_all_unparameterized_endpoints(app: Flask, fresh_db: SQLAlchemy) -> None
     ignore_prefixes = [
         "/_",
         "/admin/",
+        "/api/v1",  # token-authenticated public API: 401 without a bearer token
         "/static/",
         "/auth/",
         "/debug/",
