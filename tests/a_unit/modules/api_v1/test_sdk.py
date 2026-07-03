@@ -29,10 +29,18 @@ class StubClient(Client):
     def __init__(self, responses: dict) -> None:
         super().__init__(token="a24_secret", base_url="https://ex.test")
         self.responses = responses
-        self.calls: list[tuple[str, dict]] = []
+        self.calls: list[dict] = []
 
-    def _open(self, url: str, headers: dict) -> tuple[int, bytes]:
-        self.calls.append((url, headers))
+    def _open(
+        self,
+        url: str,
+        headers: dict,
+        method: str = "GET",
+        data: bytes | None = None,
+    ) -> tuple[int, bytes]:
+        self.calls.append(
+            {"url": url, "headers": headers, "method": method, "data": data}
+        )
         status, body = self.responses[url]
         return status, json.dumps(body).encode()
 
@@ -60,7 +68,7 @@ def test_list_sends_bearer_header() -> None:
     page = client.articles()
     assert [item["id"] for item in page] == [1]
     assert page.total == 1
-    assert client.calls[0][1]["Authorization"] == "Bearer a24_secret"
+    assert client.calls[0]["headers"]["Authorization"] == "Bearer a24_secret"
 
 
 def test_iter_follows_next_links() -> None:
@@ -102,3 +110,32 @@ def test_error_response_raises_api_error() -> None:
         client.members()
     assert excinfo.value.status == 403
     assert excinfo.value.payload["message"] == "no scope"
+
+
+def test_create_posts_json_body() -> None:
+    url = "https://ex.test/api/v1/me/press-releases"
+    client = StubClient({url: (201, {"id": 7, "titre": "Hi", "status": "draft"})})
+    result = client.create("me/press-releases", {"titre": "Hi"})
+    assert result["id"] == 7
+    call = client.calls[0]
+    assert call["method"] == "POST"
+    assert json.loads(call["data"]) == {"titre": "Hi"}
+    assert call["headers"]["Content-Type"] == "application/json"
+
+
+def test_publish_and_delete_use_the_right_verbs() -> None:
+    pub = "https://ex.test/api/v1/me/press-releases/7/publish"
+    dele = "https://ex.test/api/v1/me/press-releases/7"
+    client = StubClient({pub: (200, {"id": 7, "status": "public"}), dele: (204, {})})
+    assert client.publish("me/press-releases", 7)["status"] == "public"
+    client.delete("me/press-releases", 7)
+    methods = {call["url"]: call["method"] for call in client.calls}
+    assert methods[pub] == "POST"
+    assert methods[dele] == "DELETE"
+
+
+def test_me_targets_the_self_endpoint() -> None:
+    url = "https://ex.test/api/v1/me"
+    client = StubClient({url: (200, {"id": 1, "email": "me@example.com"})})
+    assert client.me()["email"] == "me@example.com"
+    assert client.calls[0]["method"] == "GET"

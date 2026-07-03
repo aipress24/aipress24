@@ -19,10 +19,11 @@ pip install ./sdk/python          # from a checkout
 
 ## Authentication
 
-The API is read-only and authenticated with a **bearer token**. Ask an AIpress24
-administrator to issue one (they run `flask api-token issue --email you@example.com`).
-A token carries scopes — `read:content`, `read:organisations`, `read:directory` —
-and can be revoked at any time.
+The API is authenticated with a **bearer token**. Ask an AIpress24 administrator
+to issue one (they run `flask api-token issue --email you@example.com`). A token
+carries scopes — `read:content`, `read:organisations`, `read:directory`,
+`read:self` (your own `/me` data) and `write:content` (author & publish your own
+content) — and can be revoked at any time.
 
 ## Usage
 
@@ -54,7 +55,7 @@ except ApiError as exc:
     print(exc.status, exc.payload)
 ```
 
-## Resources (v1, read-only)
+## Public read resources
 
 | Method | Endpoint | Scope |
 |---|---|---|
@@ -64,6 +65,28 @@ except ApiError as exc:
 | `organisations()` / `organisation(id)` | `/api/v1/organisations` | `read:organisations` |
 | `business_walls()` / `business_wall(id)` | `/api/v1/business-walls` | `read:organisations` |
 | `members()` / `member(id)` | `/api/v1/members` | `read:directory` |
+
+## Owner-scoped data & writes (`/me`)
+
+`me()` returns your own profile (`read:self`). Your own records — in any status,
+including drafts — are read generically (`read:self`), and the content types can
+be authored and published (`write:content`). `collection` is a path segment such
+as `me/press-releases`, `me/articles` or `me/events`.
+
+| Method | Endpoint | Scope |
+|---|---|---|
+| `me()` | `GET /api/v1/me` | `read:self` |
+| `list("me/articles")` / `get_one("me/articles", id)` | own articles (also `me/press-releases`, `me/events`, `me/enquiry-notices`, `me/missions`, `me/projects`, `me/jobs`, `me/products`) | `read:self` |
+| `create(collection, data)` | `POST /api/v1/{collection}` | `write:content` |
+| `update(collection, id, data)` | `PATCH /api/v1/{collection}/{id}` | `write:content` |
+| `publish(collection, id)` / `unpublish(collection, id)` | `POST …/{id}/publish` \| `/unpublish` | `write:content` |
+| `delete(collection, id)` | `DELETE /api/v1/{collection}/{id}` | `write:content` |
+
+```python
+# Author a press release on your own behalf, then publish it.
+pr = api.create("me/press-releases", {"titre": "Acme launches …", "contenu": "<p>…</p>"})
+api.publish("me/press-releases", pr["id"])
+```
 
 Interactive documentation (OpenAPI) is served live at
 `https://aipress24.com/api/v1/docs` (Swagger UI) and `/api/v1/redoc`, with the raw
