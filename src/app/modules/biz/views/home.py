@@ -9,20 +9,24 @@ from __future__ import annotations
 import sqlalchemy as sa
 from flask import g, render_template, request
 from sqlalchemy.orm import InstrumentedAttribute
+from svcs.flask import container
 
 from app.enums import RoleEnum
 from app.flask.extensions import db
 from app.flask.routing import url_for
-from app.flask.sqla import get_multi
 from app.models.lifecycle import PublicationStatus
 from app.modules.biz import blueprint
 from app.modules.biz.models import (
     EditorialProduct,
-    JobOffer,
     MarketplaceContent,
     MissionCategory,
     MissionOffer,
-    ProjectOffer,
+)
+from app.modules.biz.repositories import (
+    EditorialProductRepository,
+    JobOfferRepository,
+    MissionOfferRepository,
+    ProjectOfferRepository,
 )
 from app.modules.biz.views._common import (
     FILTER_SPECS,
@@ -46,51 +50,41 @@ def biz():
 
 
 def _get_objs() -> list[MarketplaceContent]:
-    """Get marketplace objects for display (limited to 30)."""
+    """Get marketplace objects for display (limited to 30, newest first).
+
+    Delegates the "publicly visible" gate to the marketplace repositories
+    (status-only, per ``is_public(MarketplaceContent)``) rather than restating
+    it inline.
+    """
     current_tab = request.args.get("current_tab", "stories")
     match current_tab:
         case "stories":
-            stmt = (
-                sa.select(EditorialProduct)
-                .where(EditorialProduct.status == PublicationStatus.PUBLIC)
-                .limit(30)
-            )
-            return get_multi(EditorialProduct, stmt)
+            repo = container.get(EditorialProductRepository)
+            rows, _ = repo.list_public(limit=30, offset=0)
+            return list(rows)
         case "missions":
-            stmt = (
-                sa.select(MissionOffer)
-                .where(MissionOffer.status == PublicationStatus.PUBLIC)
-                .order_by(MissionOffer.created_at.desc())
-                .limit(30)
-            )
-            # Bug #0186 — Journalism missions are visible only to
-            # PRESS_MEDIA. Other communities don't get to know what
-            # journalists post. NULL category (back-compat) stays
-            # visible to everyone.
+            # Bug #0186 — Journalism missions are visible only to PRESS_MEDIA.
+            # Other communities don't get to know what journalists post. NULL
+            # category (back-compat) stays visible to everyone.
+            extra = []
             if not has_role(g.user, RoleEnum.PRESS_MEDIA):
-                stmt = stmt.where(
+                extra.append(
                     sa.or_(
                         MissionOffer.category.is_(None),
                         MissionOffer.category != MissionCategory.JOURNALISME,
                     )
                 )
-            return get_multi(MissionOffer, stmt)
+            repo = container.get(MissionOfferRepository)
+            rows, _ = repo.list_public(*extra, limit=30, offset=0)
+            return list(rows)
         case "projects":
-            stmt = (
-                sa.select(ProjectOffer)
-                .where(ProjectOffer.status == PublicationStatus.PUBLIC)
-                .order_by(ProjectOffer.created_at.desc())
-                .limit(30)
-            )
-            return get_multi(ProjectOffer, stmt)
+            repo = container.get(ProjectOfferRepository)
+            rows, _ = repo.list_public(limit=30, offset=0)
+            return list(rows)
         case "jobs":
-            stmt = (
-                sa.select(JobOffer)
-                .where(JobOffer.status == PublicationStatus.PUBLIC)
-                .order_by(JobOffer.created_at.desc())
-                .limit(30)
-            )
-            return get_multi(JobOffer, stmt)
+            repo = container.get(JobOfferRepository)
+            rows, _ = repo.list_public(limit=30, offset=0)
+            return list(rows)
         case _:
             return []
 

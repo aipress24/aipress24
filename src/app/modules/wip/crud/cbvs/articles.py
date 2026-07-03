@@ -321,6 +321,12 @@ class ArticlesWipView(BaseWipView):
         flash("L'article a été dépublié")
         return redirect(self._url_for("index"))
 
+    def _post_delete_model(self, model) -> None:
+        # Deleting a published source must take its public wire mirror down too:
+        # re-emit the unpublish signal so the mirror flips to DRAFT and is
+        # de-indexed. The receiver no-ops if the source was never published.
+        article_unpublished.send(model)
+
     @templated(_ARTICLE_MODIFIER_TEMPLATE)
     def post(self) -> Response | dict:
         """Enforce author ownership on update."""

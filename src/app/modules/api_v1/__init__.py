@@ -11,8 +11,11 @@ paths — see :func:`register_on_app`.
 
 Design summary:
 
-- **Read-only** in v1. The only write is a best-effort ``last_used_at`` stamp
-  on the authenticating token.
+- **Mostly read**: every collection is a scoped GET. The only writes are the
+  owner-scoped authoring endpoints under ``/me`` (create/update/publish a
+  press release), which require the ``write:content`` scope and reuse the
+  Com'room domain authorization + publication state machine (see
+  :mod:`.writes`).
 - **Token auth** via ``Authorization: Bearer <token>`` (see :mod:`.security`);
   session cookies are ignored, so the API is not CSRF-exposed.
 - **Scoped**: each resource requires a capability scope on the token.

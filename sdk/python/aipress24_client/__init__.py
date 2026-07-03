@@ -26,22 +26,16 @@ import urllib.request
 from collections.abc import Iterator
 from typing import Any
 
-__all__ = ["ApiError", "Client", "Page"]
+# COLLECTIONS and the per-resource TypedDict models are generated from the
+# OpenAPI spec (see ../generate.py); a unit test keeps them in sync.
+from ._generated import COLLECTIONS
+
+__all__ = ["COLLECTIONS", "ApiError", "Client", "Page"]
 
 __version__ = "0.1.0"
 
 DEFAULT_BASE_URL = "https://aipress24.com"
 API_PREFIX = "/api/v1"
-
-# Collection name -> whether it requires the read:directory scope (informational).
-COLLECTIONS = (
-    "articles",
-    "press-releases",
-    "events",
-    "organisations",
-    "business-walls",
-    "members",
-)
 
 
 class ApiError(Exception):
