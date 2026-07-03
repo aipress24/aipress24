@@ -130,6 +130,7 @@ dependencies = [
     "cachetools>=7.0.3",
     "bleach>=6.3.0",
     "pagebar>=0.1.1",
+    "flask-smorest>=0.47.0",
 ]
 description = ""
 

@@ -1,0 +1,65 @@
+# Copyright (c) 2023-2024, Abilian SAS
+#
+# SPDX-License-Identifier: BSD-3-Clause
+
+image: ubuntu/26.04
+
+packages:
+    # Build tools
+    - software-properties-common
+    - build-essential
+    - make
+    - gcc
+    - g++
+    - fish
+    # Python
+    - python3-dev
+    - python3-pip
+    - python3-wheel
+    # Libraries for databases
+    - libsqlite3-dev
+    - libpq-dev
+    # Other libraries
+    - libffi-dev
+    - libbz2-dev
+    # Probably needed to move to runtime
+    - libpango-1.0-0
+    - libpango1.0-dev
+    - libpangocairo-1.0-0
+    - libpangoft2-1.0-0
+    - libpangoxft-1.0-0
+    - libharfbuzz-gobject0
+
+tasks:
+    - setup: |
+          sudo pip install --break-system-packages -U uv nox
+          cd aipress24
+          uv sync --frozen
+
+    - lint: |
+          cd aipress24
+          uv run make lint
+
+    - test: |
+          cd aipress24
+          uv run make test-sqlite
+
+    # - test-wth-typeguard: |
+    #       cd aipress24
+    #       uv run pytest tests --typeguard-packages=app tests
+
+    # TODO: test with postgresql
+
+    - nox-test: |
+          cd aipress24
+          uv run nox -e tests-3.12
+          # TODO: postgres
+
+    - nox-lint: |
+          cd aipress24
+          uv run nox -e lint
+
+triggers:
+    - action: email
+      condition: failure
+      to: builds@fermigier.com
