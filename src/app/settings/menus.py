@@ -199,6 +199,11 @@ ADMIN_MENU = [
         "icon": "trash-2",
     },
     {
+        "label": "Debug relink BW/orgs",
+        "endpoint": "admin.relink_bws",
+        "icon": "link",
+    },
+    {
         "label": "Export DB",
         "endpoint": "/admin/export-db/",
         "icon": "database",
