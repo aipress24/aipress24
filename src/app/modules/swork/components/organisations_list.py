@@ -5,6 +5,7 @@
 from __future__ import annotations
 
 import re
+from dataclasses import dataclass
 from typing import Any, ClassVar, cast
 
 from attr import define
@@ -15,13 +16,13 @@ from sqlalchemy.sql import Select
 
 from app.flask.extensions import db
 from app.flask.lib.view_model import ViewModel
+from app.flask.routing import url_for
 from app.models.organisation import Organisation
 from app.modules.bw.bw_activation.models import BusinessWall
 from app.modules.bw.bw_activation.models.business_wall import BWStatus
 from app.modules.bw.bw_activation.user_utils import (
     get_active_business_wall_for_organisation,
     get_organisation_logo_url,
-    prefetch_active_business_walls,
 )
 from app.modules.kyc.field_label import country_code_to_country_name
 from app.modules.swork.common import Directory
@@ -30,13 +31,30 @@ from app.modules.swork.settings import SWORK_LIST_LIMIT
 from .base import BaseList, Filter, FilterOption
 
 
+@dataclass(frozen=True)
+class OrgDirectoryEntry:
+    """Single line in the organisations directory.
+
+    - An organisation without a Business Wall yields one entry.
+    - An organisation with a Business Wall whose name differs from the
+      organisation name yields two entries (organisation name and Business
+      Wall name), both pointing to the same organisation/BW page.
+    """
+
+    name: str
+    url: str
+    logo_url: str
+    organisation: Organisation
+    business_wall: BusinessWall | None = None
+
+
 @register
 class OrganisationsList(BaseList):
     """Filterable list of organisations."""
 
     def context(self) -> dict[str, Any]:
         orgs = self.get_orgs()
-        org_count = len(orgs)
+        org_count = len({entry.organisation.id for entry in orgs})
         directory = OrgsDirectory(orgs)
 
         return {
@@ -48,20 +66,42 @@ class OrganisationsList(BaseList):
             "active_filters": self.get_active_filters(),
         }
 
-    def get_orgs(self) -> list[Organisation]:
-        """Fetch organisations and attach BusinessWall data if found."""
+    def get_orgs(self) -> list[OrgDirectoryEntry]:
+        """Fetch organisations and build lisst of OrgDirectoryEntry."""
         stmt = self.make_stmt()
         results = db.session.execute(stmt).all()
-        orgs = []
+        entries: list[OrgDirectoryEntry] = []
         for row in results:
             org = row[0]
-            org._bw_name = getattr(row, "bw_name", None)
-            org._bw_pays_zip_ville = getattr(row, "bw_pays_zip_ville", None)
-            org._bw_departement = getattr(row, "bw_departement", None)
-            org._bw_ville = getattr(row, "bw_ville", None)
-            orgs.append(org)
-        prefetch_active_business_walls(orgs)
-        return orgs
+            bw = row[1] if len(row) > 1 else None
+            logo_url = get_organisation_logo_url(org) or ""
+            org_url = url_for(org)
+
+            entries.append(
+                OrgDirectoryEntry(
+                    name=org.name,
+                    url=org_url,
+                    logo_url=logo_url,
+                    organisation=org,
+                    business_wall=bw,
+                )
+            )
+
+            if (
+                bw is not None
+                and bw.name
+                and bw.name.strip().lower() != org.name.strip().lower()
+            ):
+                entries.append(
+                    OrgDirectoryEntry(
+                        name=bw.name,
+                        url=org_url,
+                        logo_url=logo_url,
+                        organisation=org,
+                        business_wall=bw,
+                    )
+                )
+        return entries
 
     def _get_latest_bw_subquery(self):
         """Get subquery for latest active BusinessWall per organisation."""
@@ -82,10 +122,7 @@ class OrganisationsList(BaseList):
         return (
             select(
                 Organisation,
-                BusinessWall.name.label("bw_name"),
-                BusinessWall.pays_zip_ville.label("bw_pays_zip_ville"),
-                BusinessWall.departement.label("bw_departement"),
-                BusinessWall.ville.label("bw_ville"),
+                BusinessWall,
             )
             .outerjoin(
                 latest_bw_sub,
@@ -418,4 +455,4 @@ class OrgVM(ViewModel):
 
 
 class OrgsDirectory(Directory):
-    vm_class = OrgVM
+    vm_class = None
