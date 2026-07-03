@@ -346,6 +346,7 @@ class OrgVM(ViewModel):
             "site_url": self._get_site_url(),
             "description": self._get_description(),
             "bw_gallery_images": self._get_bw_gallery_images(),
+            "bw_name": self._get_bw_name(),
         }
         self._cached_attrs_time = time()
         return self._cached_attrs
@@ -356,6 +357,12 @@ class OrgVM(ViewModel):
         return self._get_cached_attrs() | {
             "is_following": adapt(g.user).is_following(self.org)
         }
+
+    def _get_bw_name(self) -> str:
+        """Return Business Wall name or empty string."""
+        if self.bw is not None:
+            return self.bw.name or ""
+        return ""
 
     def get_members(self) -> list[User]:
         """Return members to display on the organisation page.

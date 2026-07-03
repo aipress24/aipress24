@@ -53,6 +53,11 @@
                             <h1 class="text-2xl font-bold text-gray-900 truncate">
                                 {{ org.name }}
                             </h1>
+                            {% if org.bw_name %}
+                                <p class="text-lg font-bold text-gray-900 truncate mt-1">
+                                    Business Wall: {{ org.bw_name }}
+                                </p>
+                            {% endif %}
                         </div>
 
                         <div
@@ -83,6 +88,11 @@
                     <h1 class="text-2xl font-bold text-gray-900 truncate">
                         {{ org.name }}
                     </h1>
+                    {% if org.bw_name %}
+                        <p class="text-lg font-bold text-gray-900 truncate mt-1">
+                            Business Wall: {{ org.bw_name }}
+                        </p>
+                    {% endif %}
                 </div>
             </div>
         </div>
