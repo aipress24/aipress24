@@ -15,6 +15,7 @@ from sqlalchemy.orm import selectinload
 
 from app.flask.extensions import db
 from app.flask.lib.view_model import ViewModel
+from app.flask.routing import url_for
 from app.models.auth import User
 from app.models.lifecycle import PublicationStatus
 from app.modules.swork.models import Group, group_members_table
@@ -112,19 +113,29 @@ class UserVM(ViewModel):
         return self.user.cover_image_signed_url()
 
     def extra_attrs(self):
+        from app.modules.bw.bw_activation.user_utils import (
+            get_active_business_wall_for_organisation,
+        )
         from app.services.social_graph import adapt
 
         user = self.user
 
-        # Only the cheap, always-needed fields. The expensive social-graph
-        # fan-out (followers / followees / posts / groups) is exposed as lazy
-        # memoized properties below — so reading e.g. `profile.name` no longer
-        # drags in those queries, and a member CARD (which reads only these
-        # light fields) stays cheap.
+        # Resolve the active Business Wall for the organisation so the
+        # member page can display and link to the BW when one exists.
+        org = user.organisation
+        active_bw = None
+        if org is not None:
+            active_bw = get_active_business_wall_for_organisation(org)
+
         return {
             "name": user.full_name,
             "job_title": user.job_title,
-            "organisation_name": user.organisation_name,
+            "organisation_name": (
+                active_bw.name
+                if active_bw and active_bw.name
+                else user.organisation_name
+            ),
+            "organisation_url": url_for(user.organisation),
             "image_url": user.photo_image_signed_url(),
             "is_following": adapt(g.user).is_following(user),
             "banner_url": self.get_banner_url(),
