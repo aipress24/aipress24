@@ -50,9 +50,7 @@ from app.modules.bw.bw_activation.models.role import (
     RoleAssignment,
 )
 from app.modules.bw.bw_activation.user_utils import (
-    current_business_wall,
     get_active_business_wall_for_organisation,
-    get_manageable_business_walls_for_user,
 )
 from app.modules.bw.bw_activation.utils import fill_session, is_bw_manager_or_admin
 
