@@ -77,7 +77,7 @@
                             Organisation: <strong>{{ org.name }}</strong><br>
                             BW Type: <strong>{{ org.active_business_wall.bw_type }}</strong>
                         </p>
-                        <a href="{{ url_for('bw_activation.dashboard') }}"
+                        <a href="{{ url_for('admin.admin_bw_dashboard', uid=org.id) }}"
                            data-modal-hide="admin_bw_access_confirm"
                            class="text-white bg-red-600 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 dark:focus:ring-red-800 font-medium rounded-lg text-sm inline-flex items-center px-5 py-2.5 text-center"
                         >Continuer vers le BW</a>

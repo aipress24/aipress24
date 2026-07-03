@@ -18,7 +18,7 @@ from __future__ import annotations
 from datetime import UTC, datetime
 from typing import ClassVar, cast
 
-from flask import Response, flash, redirect, render_template, request, url_for
+from flask import Response, flash, g, redirect, render_template, request, url_for
 from flask.views import MethodView
 from sqlalchemy import select
 
@@ -50,8 +50,11 @@ from app.modules.bw.bw_activation.models.role import (
     RoleAssignment,
 )
 from app.modules.bw.bw_activation.user_utils import (
+    current_business_wall,
     get_active_business_wall_for_organisation,
+    get_manageable_business_walls_for_user,
 )
+from app.modules.bw.bw_activation.utils import fill_session, is_bw_manager_or_admin
 
 
 class ShowOrgView(MethodView):
@@ -266,3 +269,48 @@ def change_bw_owner(uid: str):
         active_bw=active_bw,
         current_owner_email=current_owner_email,
     )
+
+
+@blueprint.route("/show_org/<uid>/bw-dashboard", methods=["GET"])
+@nav(parent="orgs", icon="clipboard-document-check", label="Gérer le BW")
+def admin_bw_dashboard(uid: str):
+    """Admin access to a specific org's BW dashboard.
+
+    Switches the admin user's session to the active BW of the given
+    organisation, then redirects to the BW dashboard.
+    """
+    org = cast(Organisation, get_obj(uid, Organisation))
+    active_bw = get_active_business_wall_for_organisation(org)
+    if active_bw is None:
+        flash("Aucun Business Wall actif pour cette organisation.", "error")
+        return redirect(url_for("admin.show_org", uid=uid))
+
+    user = cast(User, g.user)
+
+    # Admins bypass manager checks, but still need a valid management path.
+    fill_session(active_bw)
+    if not is_bw_manager_or_admin(user, active_bw):
+        # Persist an accepted BW_OWNER role assignment for the admin so
+        # the dashboard guard passes. This is the admin override path.
+        existing = db.session.scalar(
+            select(RoleAssignment).where(
+                RoleAssignment.business_wall_id == active_bw.id,
+                RoleAssignment.user_id == user.id,
+                RoleAssignment.role_type == BWRoleType.BW_OWNER.value,
+            )
+        )
+        if existing is None:
+            db.session.add(
+                RoleAssignment(
+                    business_wall_id=active_bw.id,
+                    user_id=user.id,
+                    role_type=BWRoleType.BW_OWNER.value,
+                    invitation_status=InvitationStatus.ACCEPTED.value,
+                )
+            )
+        else:
+            existing.invitation_status = InvitationStatus.ACCEPTED.value
+        db.session.commit()
+        fill_session(active_bw)
+
+    return redirect(url_for("bw_activation.dashboard"))
