@@ -77,7 +77,12 @@ class Page:
 
 
 class Client:
-    """A read-only client for ``/api/v1``."""
+    """A client for the AIpress24 public API (``/api/v1``).
+
+    Reads are available to any valid token (subject to its scopes); the
+    owner-scoped ``/me`` reads need ``read:self`` and the authoring/publishing
+    writes need ``write:content``.
+    """
 
     def __init__(
         self,
@@ -91,8 +96,16 @@ class Client:
 
     # --- low-level HTTP (override _open in tests) -------------------------
 
-    def _open(self, url: str, headers: dict[str, str]) -> tuple[int, bytes]:
-        request = urllib.request.Request(url, headers=headers, method="GET")  # noqa: S310
+    def _open(
+        self,
+        url: str,
+        headers: dict[str, str],
+        method: str = "GET",
+        data: bytes | None = None,
+    ) -> tuple[int, bytes]:
+        request = urllib.request.Request(  # noqa: S310
+            url, headers=headers, method=method, data=data
+        )
         try:
             with urllib.request.urlopen(request, timeout=self.timeout) as response:  # noqa: S310
                 return response.status, response.read()
@@ -113,13 +126,23 @@ class Client:
                 url = url + sep + urllib.parse.urlencode(clean)
         return url
 
-    def _request(self, path: str, params: dict[str, Any] | None = None) -> dict:
+    def _request(
+        self,
+        path: str,
+        params: dict[str, Any] | None = None,
+        method: str = "GET",
+        json_body: dict[str, Any] | None = None,
+    ) -> dict:
         url = self._url(path, params)
         headers = {
             "Authorization": f"Bearer {self.token}",
             "Accept": "application/json",
         }
-        status, raw = self._open(url, headers)
+        data: bytes | None = None
+        if json_body is not None:
+            data = json.dumps(json_body).encode("utf-8")
+            headers["Content-Type"] = "application/json"
+        status, raw = self._open(url, headers, method=method, data=data)
         try:
             body = json.loads(raw) if raw else {}
         except ValueError:
@@ -186,3 +209,34 @@ class Client:
 
     def member(self, identifier: int) -> dict:
         return self.get_one("members", identifier)
+
+    # --- owner-scoped self & writes --------------------------------------
+    # The `/me` reads need `read:self`; create/update/publish/delete need
+    # `write:content`. `collection` is a path segment such as
+    # "me/press-releases", "me/articles" or "me/events".
+
+    def me(self) -> dict:
+        """Fetch the authenticated user's own profile (``GET /me``)."""
+        return self._request(f"{API_PREFIX}/me")
+
+    def create(self, collection: str, data: dict[str, Any]) -> dict:
+        """Create a resource (``POST /{collection}``)."""
+        return self._request(collection, method="POST", json_body=data)
+
+    def update(self, collection: str, identifier: Any, data: dict[str, Any]) -> dict:
+        """Partially update a resource (``PATCH /{collection}/{id}``)."""
+        return self._request(
+            f"{collection}/{identifier}", method="PATCH", json_body=data
+        )
+
+    def delete(self, collection: str, identifier: Any) -> None:
+        """Delete a resource (``DELETE /{collection}/{id}``)."""
+        self._request(f"{collection}/{identifier}", method="DELETE")
+
+    def publish(self, collection: str, identifier: Any) -> dict:
+        """Publish a resource (``POST /{collection}/{id}/publish``)."""
+        return self._request(f"{collection}/{identifier}/publish", method="POST")
+
+    def unpublish(self, collection: str, identifier: Any) -> dict:
+        """Unpublish a resource (``POST /{collection}/{id}/unpublish``)."""
+        return self._request(f"{collection}/{identifier}/unpublish", method="POST")
