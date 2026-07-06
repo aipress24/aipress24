@@ -19,7 +19,11 @@ from app.models.organisation import Organisation
 from app.modules.admin import blueprint
 from app.modules.bw.bw_activation.models import BusinessWall
 from app.modules.bw.bw_activation.models.business_wall import BWStatus
-from app.modules.bw.bw_activation.models.role import InvitationStatus, RoleAssignment
+from app.modules.bw.bw_activation.models.role import (
+    BWRoleType,
+    InvitationStatus,
+    RoleAssignment,
+)
 
 
 def _canonical_org_for_bw(bw: BusinessWall) -> Organisation:
@@ -68,6 +72,7 @@ def _relink_bws() -> dict[str, int]:
     fixed_org_bw = 0
     fixed_user_org = 0
     fixed_user_selected = 0
+    fixed_owner_roles = 0
     stale_orgs = 0
 
     for bw in active_bws:
@@ -98,6 +103,28 @@ def _relink_bws() -> dict[str, int]:
             if owner.selected_bw_id != bw.id:
                 owner.selected_bw_id = bw.id
                 fixed_user_selected += 1
+
+        # Ensure BW owner has an accepted BW_OWNER role assignment.
+        if owner:
+            owner_role_exists = db.session.scalar(
+                select(RoleAssignment.id)
+                .where(RoleAssignment.business_wall_id == bw.id)
+                .where(RoleAssignment.user_id == owner.id)
+                .where(RoleAssignment.role_type == BWRoleType.BW_OWNER.value)
+                .where(
+                    RoleAssignment.invitation_status == InvitationStatus.ACCEPTED.value
+                )
+            )
+            if not owner_role_exists:
+                db.session.add(
+                    RoleAssignment(
+                        business_wall_id=bw.id,
+                        user_id=owner.id,
+                        role_type=BWRoleType.BW_OWNER.value,
+                        invitation_status=InvitationStatus.ACCEPTED.value,
+                    )
+                )
+                fixed_owner_roles += 1
 
         # Accepted role members -> Org
         member_ids = db.session.scalars(
@@ -136,6 +163,7 @@ def _relink_bws() -> dict[str, int]:
         "fixed_org_bw": fixed_org_bw,
         "fixed_user_org": fixed_user_org,
         "fixed_user_selected": fixed_user_selected,
+        "fixed_owner_roles": fixed_owner_roles,
         "stale_orgs": stale_orgs,
     }
 
@@ -152,6 +180,7 @@ def relink_bws():
             f"{summary['fixed_org_bw']} Org→BW, "
             f"{summary['fixed_user_org']} User→Org, "
             f"{summary['fixed_user_selected']} selected BW, "
+            f"{summary['fixed_owner_roles']} owner roles, "
             f"{summary['stale_orgs']} stale orgs cleared.",
             "success",
         )
