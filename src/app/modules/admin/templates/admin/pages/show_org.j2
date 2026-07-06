@@ -147,8 +147,11 @@
                                 BW Type: {{ org.active_business_wall.bw_type }}<br>
                                 Statut actuel: {{ org.active_business_wall.status }}
                             </p>
-                            <p class="text-sm text-gray-500 mb-4">
-                                Cette action suspendra le Business Wall. Il pourra être réactivé plus tard en reprenant un abonnement.
+                            <p class="text-sm text-gray-700 mb-2">
+                                Le BW <strong>{{ org.active_business_wall.name or org.active_business_wall.name_safe or 'non renseigné' }}</strong> va être désactivé.
+                            </p>
+                            <p class="text-sm text-gray-700 mb-4">
+                                Son abonnement Stripe va être arrêté.
                             </p>
                             <button
                                 data-modal-hide="deactivate_bw_confirm"
