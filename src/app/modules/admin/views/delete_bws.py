@@ -11,7 +11,7 @@ from flask import flash, redirect, render_template, request, url_for
 from sqlalchemy import update
 
 from app.flask.extensions import db
-from app.flask.lib.nav import nav
+from app.flask.lib.nav import nav  # noqa: F401
 from app.logging import warn
 from app.models.auth import User
 from app.models.organisation import Organisation
@@ -86,7 +86,10 @@ def _remove_all_bw() -> int:
 
 
 @blueprint.route("/delete-bws", methods=["GET", "POST"])
-@nav(parent="index", icon="trash-2", label="Delete BWs")
+# Disabled from the admin menu for security.
+# Route is kept for emergency use only.
+# Re-enable by uncommenting the @nav line.
+# @nav(parent="index", icon="trash-2", label="Delete BWs")
 def delete_bws():
     """Confirmation page for deletion."""
     bw_count = db.session.query(BusinessWall).count()
