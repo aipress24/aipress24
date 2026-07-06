@@ -100,10 +100,10 @@ class TestIsValidBwType:
 
 
 class TestFilterActiveManageable:
-    """Pin the « ignore CANCELLED BWs » rule that drives the index()
-    auto-pick.
+    """Pin the « ignore CANCELLED and SUSPENDED BWs » rule that drives
+    the index() auto-pick.
 
-    A user with several historical CANCELLED BWs plus a single
+    A user with several historical CANCELLED/SUSPENDED BWs plus a single
     ACTIVE one must land on the dashboard (length == 1 path), not on
     the /select-bw page. The filter is what makes that happen.
     """
@@ -117,23 +117,32 @@ class TestFilterActiveManageable:
         kept = filter_active_manageable([cancelled, active])
         assert kept == [active]
 
+    def test_drops_suspended(self) -> None:
+        suspended = _BwRow(status=BWStatus.SUSPENDED.value)
+        active = _BwRow(status=BWStatus.ACTIVE.value)
+        kept = filter_active_manageable([suspended, active])
+        assert kept == [active]
+
     @pytest.mark.parametrize(
         "status",
         [
             BWStatus.DRAFT.value,
             BWStatus.ACTIVE.value,
-            BWStatus.SUSPENDED.value,
         ],
     )
     def test_non_cancelled_statuses_are_kept(self, status: str) -> None:
-        """DRAFT / ACTIVE / SUSPENDED must all reach the auto-pick —
-        a user mid-reconfiguration (DRAFT) or temporarily-suspended
-        should still land on their BW dashboard."""
+        """DRAFT / ACTIVE must reach the auto-pick — a user mid-
+        reconfiguration (DRAFT) should still land on their BW dashboard.
+        """
         row = _BwRow(status=status)
         assert filter_active_manageable([row]) == [row]
 
     def test_only_cancelled_yields_empty(self) -> None:
         rows = [_BwRow(status=BWStatus.CANCELLED.value) for _ in range(3)]
+        assert filter_active_manageable(rows) == []
+
+    def test_only_suspended_yields_empty(self) -> None:
+        rows = [_BwRow(status=BWStatus.SUSPENDED.value) for _ in range(3)]
         assert filter_active_manageable(rows) == []
 
     def test_preserves_relative_order(self) -> None:

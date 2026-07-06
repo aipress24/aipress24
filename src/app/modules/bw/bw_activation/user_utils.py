@@ -327,8 +327,9 @@ def get_selected_business_wall_for_user(user: User) -> BusinessWall | None:
     Checks the user for an explicitly selected BW, then the session,
     then falls back to the user's organisation default BW.
 
-    DRAFT BWs are excluded — a BW that hasn't been activated (or whose
-    Stripe checkout hasn't completed) must not be taken into account.
+    DRAFT and CANCELLED BWs are excluded. A SUSPENDED BW is returned so
+    the user can see why their dashboard is unavailable; the dashboard
+    route then redirects to the activation index.
     """
     _non_selectable = {BWStatus.DRAFT.value, BWStatus.CANCELLED.value}
 
@@ -489,6 +490,10 @@ def get_manageable_business_walls_for_user(user: User) -> list[BusinessWall]:
        BW. Without this branch, a PR Agency owner (Alfred Delarue's
        case) only saw their own agency BW in /BW/select-bw and could
        never switch into a client's surface to publish CPs / events.
+
+    DRAFT and CANCELLED BWs are excluded. SUSPENDED BWs are kept so the
+    user can see them in the selector, but the dashboard route will
+    redirect away from them.
     """
     from app.modules.bw.bw_activation.models import Partnership
 
