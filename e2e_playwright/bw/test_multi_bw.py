@@ -58,7 +58,9 @@ def test_select_bw_get_lists_multiple_bws(
 
     Asserts the listing has >1 BW (otherwise the route auto-
     redirects to /BW/dashboard and we can't verify the listing).
-    Skips if the seed user only has one manageable BW left."""
+    Skips if the seed user has <=1 *active* manageable BW left —
+    either the single-BW dashboard auto-redirect, or (0 active) the
+    activation-tunnel redirect a no-BW user gets."""
     p = profile(_ERICK_COMMUNITY)
     login(p)
 
@@ -69,9 +71,21 @@ def test_select_bw_get_lists_multiple_bws(
             "has only one manageable BW. Multi-BW path uncovered."
         )
     if "/BW/select-bw" not in page.url:
+        # 0 active manageable BWs → the route forwards the user into the BW
+        # activation tunnel (e.g. /BW/confirm-subscription), exactly as it does
+        # for a no-BW user. On a long-lived target the seed user's BW
+        # subscriptions can lapse, so this is a seed-state condition — skip like
+        # the single-BW case above, don't fail. A redirect *outside* the /BW/
+        # flow (e.g. a bounce to /auth/login) is still a genuine failure.
+        if "/BW/" in page.url:
+            pytest.skip(
+                f"select-bw : redirected into the BW activation tunnel "
+                f"({page.url}) — the seed user has no active manageable BW. "
+                "Multi-BW path uncovered."
+            )
         pytest.fail(
-            f"select-bw GET : unexpected URL {page.url} — neither "
-            "the listing page nor the dashboard auto-redirect."
+            f"select-bw GET : unexpected URL {page.url} — neither the listing "
+            "page, the dashboard, nor the BW activation tunnel."
         )
 
     bw_ids = _list_bw_ids_on_select_page(page)
