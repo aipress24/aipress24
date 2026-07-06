@@ -58,7 +58,15 @@ def dashboard():
     user = cast("User", g.user)
     current_bw = current_business_wall(user)
     if current_bw:
-        if current_bw.status in (BWStatus.CANCELLED.value, BWStatus.DRAFT.value):
+        if current_bw.status in (
+            BWStatus.CANCELLED.value,
+            BWStatus.DRAFT.value,
+            BWStatus.SUSPENDED.value,
+        ):
+            session.pop("bw_id", None)
+            if not user.is_anonymous and user.selected_bw_id == current_bw.id:
+                user.selected_bw_id = None
+                db.session.commit()
             return redirect(url_for("bw_activation.index"))
         fill_session(current_bw)
         if not is_bw_manager_or_admin(user, current_bw):

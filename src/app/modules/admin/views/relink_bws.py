@@ -74,6 +74,7 @@ def _relink_bws() -> dict[str, int]:
     fixed_user_selected = 0
     fixed_owner_roles = 0
     stale_orgs = 0
+    cleared_user_selected = 0
 
     for bw in active_bws:
         org = _canonical_org_for_bw(bw)
@@ -139,7 +140,7 @@ def _relink_bws() -> dict[str, int]:
                 user.organisation_id = org.id
                 fixed_user_org += 1
 
-    # Clean orgs
+    # Clean orgs pointing to a non-active BW
     for org in db.session.scalars(
         select(Organisation).where(
             Organisation.bw_id.is_not(None),
@@ -156,6 +157,19 @@ def _relink_bws() -> dict[str, int]:
             org.bw_name = ""
             stale_orgs += 1
 
+    # Clean users pointing to a non-active BW (prevents suspended BW owners
+    # from still accessing the dashboard).
+    for user in db.session.scalars(
+        select(User).where(User.selected_bw_id.is_not(None))
+    ):
+        if user.selected_bw_id not in active_bw_ids:
+            warn(
+                f"Clear selected_bw_id for user {user.id} ({user.email}): "
+                f"BW {user.selected_bw_id} is not active"
+            )
+            user.selected_bw_id = None
+            cleared_user_selected += 1
+
     db.session.commit()
     return {
         "active_bws": len(active_bws),
@@ -165,6 +179,7 @@ def _relink_bws() -> dict[str, int]:
         "fixed_user_selected": fixed_user_selected,
         "fixed_owner_roles": fixed_owner_roles,
         "stale_orgs": stale_orgs,
+        "cleared_user_selected": cleared_user_selected,
     }
 
 
@@ -181,7 +196,8 @@ def relink_bws():
             f"{summary['fixed_user_org']} User→Org, "
             f"{summary['fixed_user_selected']} selected BW, "
             f"{summary['fixed_owner_roles']} owner roles, "
-            f"{summary['stale_orgs']} stale orgs cleared.",
+            f"{summary['stale_orgs']} stale orgs cleared, "
+            f"{summary['cleared_user_selected']} user selected BW cleared.",
             "success",
         )
         return redirect(url_for("admin.relink_bws"))

@@ -33,15 +33,19 @@ if TYPE_CHECKING:
 
 
 def filter_active_manageable(manageable_bws):
-    """Pure: drop cancelled BWs from a list of manageables.
+    """Pure: drop cancelled or suspended BWs from a list of manageables.
 
-    Extracted from `index()` so the « cancelled BWs do not count for
-    the auto-pick » rule can be pinned in unit tests. The dashboard
+    Extracted from `index()` so the « cancelled/suspended BWs do not count
+    for the auto-pick » rule can be pinned in unit tests. The dashboard
     auto-pick (single active manageable BW → straight to dashboard,
     several → /select-bw) depends on this filter to behave correctly
-    when a user has historical CANCELLED BWs lying around.
+    when a user has historical CANCELLED or SUSPENDED BWs lying around.
     """
-    return [bw for bw in manageable_bws if bw.status != BWStatus.CANCELLED.value]
+    return [
+        bw
+        for bw in manageable_bws
+        if bw.status not in (BWStatus.CANCELLED.value, BWStatus.SUSPENDED.value)
+    ]
 
 
 def is_valid_bw_type(bw_type: str) -> bool:
@@ -118,7 +122,7 @@ def index():
     if not active_manageable:
         # No manageable BW — check if org has an active BW but user lacks rights
         org_bw = get_business_wall_for_user(user)
-        if org_bw and org_bw.status != BWStatus.CANCELLED.value:
+        if org_bw and org_bw.status == BWStatus.ACTIVE.value:
             # Bug #0117: user belongs to an org with a BW but is not a manager.
             # Instead of blocking with "not authorized", redirect to the
             # activation flow so they can request/accept a role invitation.

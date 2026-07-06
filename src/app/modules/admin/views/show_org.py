@@ -115,6 +115,10 @@ class ShowOrgView(MethodView):
                     # Clear organisation BW fields
                     org.bw_active = ""
                     org.bw_id = None
+                    # clear the owner's selected_bw_id
+                    owner = db.session.get(User, active_bw.owner_id)
+                    if owner and owner.selected_bw_id == active_bw.id:
+                        owner.selected_bw_id = None
                     db.session.commit()
                 response.headers["HX-Redirect"] = current_url
 
