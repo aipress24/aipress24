@@ -32,6 +32,7 @@ class OrgVM(ViewModel):
     def extra_attrs(self):
         members = self.get_members()
         active_bw = self.get_active_business_wall()
+        inactive_bw = self.get_inactive_business_wall()
         return {
             "members": members,
             "count_members": len(self.org.members),
@@ -40,20 +41,44 @@ class OrgVM(ViewModel):
             "address_formatted": self.org.formatted_address,
             "active_business_wall": active_bw,
             "has_active_bw": active_bw is not None,
-            "has_bw_record": self.has_bw_record(),
+            "inactive_business_wall": inactive_bw,
+            "has_inactive_bw": inactive_bw is not None,
+            "has_bw_record": self._compute_has_bw_record(),
         }
 
-    def has_bw_record(self) -> bool:
-        """Check if ANY BusinessWall record exists for this organisation."""
+    def _compute_has_bw_record(self) -> bool:
+        """Check if an ACTIVE BusinessWall record exists for this organisation.
+
+        Only active BWs block organisation deletion; suspended, cancelled or
+        draft BWs are considered inactive and do not prevent cleanup of the Org.
+        """
+        from app.modules.bw.bw_activation.models.business_wall import BWStatus
+
         try:
             stmt = (
                 select(func.count())
                 .select_from(BusinessWall)
                 .where(BusinessWall.organisation_id == self.org.id)
+                .where(BusinessWall.status == BWStatus.ACTIVE.value)
             )
             return (db.session.scalar(stmt) or 0) > 0
         except NoInspectionAvailable:
             return False
+
+    def get_inactive_business_wall(self) -> BusinessWall | None:
+        """Return the most recent non-active BW linked to this organisation."""
+        from app.modules.bw.bw_activation.models.business_wall import BWStatus
+
+        try:
+            stmt = (
+                select(BusinessWall)
+                .where(BusinessWall.organisation_id == self.org.id)
+                .where(BusinessWall.status != BWStatus.ACTIVE.value)
+                .order_by(BusinessWall.created_at.desc())
+            )
+            return db.session.scalar(stmt)
+        except NoInspectionAvailable:
+            return None
 
     def get_active_business_wall(self) -> BusinessWall | None:
         """Get the active BusinessWall associated with this organisation."""

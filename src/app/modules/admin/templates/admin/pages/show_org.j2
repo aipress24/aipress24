@@ -58,7 +58,11 @@
         <div class="mt-4 mb-4 flex items-center justify-end gap-x-6">
             {% if org.has_bw_record %}
                 <p class="text-sm text-gray-500 italic">
-                    Impossible de supprimer l'organisation car elle a un Business Wall associé.
+                    Impossible de supprimer l'organisation car elle a un Business Wall actif.
+                </p>
+            {% elif org.has_inactive_bw %}
+                <p class="text-sm text-gray-500 italic">
+                    Cette organisation a un BW inactif "{{ org.inactive_business_wall.name or org.inactive_business_wall.name_safe or '' }}".
                 </p>
             {% endif %}
             <button
@@ -66,7 +70,7 @@
                 id="delete_org_button"
                 {% if org.has_bw_record %}
                     disabled
-                    title="Impossible de supprimer une organisation avec un Business Wall"
+                    title="Impossible de supprimer une organisation avec un Business Wall actif"
                 {% else %}
                     data-modal-target="delete_org_confirm"
                     data-modal-toggle="delete_org_confirm"
