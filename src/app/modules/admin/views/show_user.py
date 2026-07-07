@@ -28,6 +28,7 @@ from app.modules.admin.utils import gc_organisation, remove_user_organisation
 from app.modules.bw.bw_activation.bw_invitation import BW_ROLE_TYPE_LABEL
 from app.modules.bw.bw_activation.models import (
     BusinessWall,
+    BWStatus,
     Partnership,
     PartnershipStatus,
     RoleAssignment,
@@ -104,15 +105,21 @@ class ShowUserView(MethodView):
         return render_template("admin/pages/show_user.j2", **context)
 
     def _get_owned_bws(self, user: User) -> list[BusinessWall]:
-        """Return BW owned by this user."""
-        stmt = select(BusinessWall).where(BusinessWall.owner_id == user.id)
+        """Return active BWs owned by this user."""
+        stmt = (
+            select(BusinessWall)
+            .where(BusinessWall.owner_id == user.id)
+            .where(BusinessWall.status == BWStatus.ACTIVE.value)
+        )
         return list(db.session.scalars(stmt))
 
     def _get_role_assignments(self, user: User) -> list[RoleAssignment]:
-        """Return all role assignments for this user."""
+        """Return active role assignments for this user."""
         stmt = (
             select(RoleAssignment)
+            .join(BusinessWall, RoleAssignment.business_wall_id == BusinessWall.id)
             .where(RoleAssignment.user_id == user.id)
+            .where(BusinessWall.status == BWStatus.ACTIVE.value)
             .order_by(RoleAssignment.invited_at.desc())
         )
         return list(db.session.scalars(stmt))
