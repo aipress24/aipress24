@@ -305,10 +305,23 @@
                 {% if org.has_active_bw %}
                     <div>
                         <dt class="pt-2 text-sm font-medium text-gray-500">
-                            Email du propriétaire du BW
+                            Propriétaire du BW
                         </dt>
                         <dd>
-                            <div class="mt-1 text-sm text-gray-900">{{ current_owner_email or 'inconnu' }}</div>
+                            <div class="mt-1 text-sm text-gray-900">
+                                {% if current_owner_email %}
+                                    {% if current_owner_id %}
+                                        <a href="{{ url_for('admin.show_user', uid=current_owner_id) }}"
+                                           class="text-blue-600 hover:text-blue-800 hover:underline">
+                                            {{ current_owner_full_name }} &lt;{{ current_owner_email }}&gt;
+                                        </a>
+                                    {% else %}
+                                        {{ current_owner_full_name }} &lt;{{ current_owner_email }}&gt;
+                                    {% endif %}
+                                {% else %}
+                                    inconnu
+                                {% endif %}
+                            </div>
                         </dd>
                     </div>
                 {% endif %}
