@@ -27,7 +27,7 @@ def test_breadcrumb_is_frozen() -> None:
     crumb = BreadCrumb(label="Test", url="/test")
 
     with pytest.raises(Exception):  # FrozenInstanceError
-        crumb.label = "Changed"
+        crumb.label = "Changed"  # pyrefly: ignore[read-only]  # the point of the test
 
 
 def test_breadcrumb_equality() -> None:

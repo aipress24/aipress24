@@ -968,8 +968,10 @@ class TestListPurchasesPerOrg:
 
         result = list_purchases_per_org()
         totals = {row[0]: row[2] for row in result}
-        assert totals[org.id] == 8000
-        assert totals[carol.organisation_id] == 5000
+        # org.id / .organisation_id read as InstrumentedAttribute (no SQLAlchemy
+        # support in pyrefly); they are plain ints at runtime.
+        assert totals[org.id] == 8000  # pyrefly: ignore[bad-index]
+        assert totals[carol.organisation_id] == 5000  # pyrefly: ignore[bad-index]
         # Order : ACME (8 000) before Other Co. (5 000).
         org_ids_in_order = [row[0] for row in result]
         assert org_ids_in_order.index(org.id) < org_ids_in_order.index(

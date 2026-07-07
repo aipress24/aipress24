@@ -41,6 +41,7 @@ from typing import Any
 import pytest
 from sqlalchemy import select
 
+from app.models.mixins import Addressable
 from app.models.organisation import Organisation
 from app.modules.swork.components.base import (
     Filter,
@@ -268,9 +269,7 @@ class TestFilterBase:
 # ── FilterByCity ─────────────────────────────────────────────────────
 
 
-class _AddressableUser(
-    __import__("app.models.mixins", fromlist=["Addressable"]).Addressable
-):
+class _AddressableUser(Addressable):
     """Minimal `Addressable` subclass for selector tests.
 
     We don't need SQLAlchemy mapping here — we just need an instance

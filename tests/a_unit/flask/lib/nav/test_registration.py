@@ -23,6 +23,8 @@ from __future__ import annotations
 
 import sys
 import types
+from collections.abc import Callable
+from typing import Any, cast
 
 import pytest
 from flask import Blueprint, Flask, g
@@ -243,12 +245,16 @@ class TestBeforeRequestHooks:
 # ---------------------------------------------------------------------------
 
 
-def _get_context_processor(app: Flask):
-    """Return the single nav context processor registered on ``app``."""
+def _get_context_processor(app: Flask) -> Callable[[], dict[str, Any]]:
+    """Return the single nav context processor registered on ``app``.
+
+    (Flask types context processors as possibly-async — annotate the concrete
+    sync shape so call sites can index the returned dict.)"""
     procs = app.template_context_processors.get(None, [])
     # The last one we appended is the nav one. App default app_context_processor
-    # is index 0; nav is the most-recently-added.
-    return procs[-1]
+    # is index 0; nav is the most-recently-added. Flask types the processor as
+    # possibly-async; ours is sync — cast to the concrete shape.
+    return cast(Callable[[], dict[str, Any]], procs[-1])
 
 
 class TestContextProcessor:

@@ -151,6 +151,9 @@ class TestGetOntologyContentDualSelect:
 
         result = get_ontology_content("secteur_detaille")
 
+        # `get_ontology_content` returns `list | dict`; a dual-select ontology
+        # yields the dict shape — narrow so the key access below type-checks.
+        assert isinstance(result, dict)
         assert result["field1"] == [("Finance", "Finance"), ("Santé", "Santé")]
         assert result["field2"] == {
             "Finance": [["bank", "Banque"], ["ins", "Assurance"]],

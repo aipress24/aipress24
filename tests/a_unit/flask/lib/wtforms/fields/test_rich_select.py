@@ -38,7 +38,9 @@ class TestRichSelectFieldChoices:
         assert form.lang.choices
         # `_choices` is shaped (value, value) so the JS renderer can
         # mirror it without extra plumbing.
-        assert all(v == label for v, label in form.lang.choices)
+        # WTForms types `choices` as a union that includes 3-tuples; ours are
+        # 2-tuples (value, value) — hence the unpack ignores below.
+        assert all(v == label for v, label in form.lang.choices)  # pyrefly: ignore[bad-unpacking]
         assert ("Français", "Français") in form.lang.choices
 
     def test_key_stored_on_field(self) -> None:
@@ -48,8 +50,8 @@ class TestRichSelectFieldChoices:
         lang_choices = _LanguageForm().lang.choices
         mention_choices = _CopyrightForm().mention.choices
         assert lang_choices and mention_choices  # Narrow away the None
-        langs = {v for v, _ in lang_choices}
-        mentions = {v for v, _ in mention_choices}
+        langs = {v for v, _ in lang_choices}  # pyrefly: ignore[bad-unpacking]
+        mentions = {v for v, _ in mention_choices}  # pyrefly: ignore[bad-unpacking]
         # The two vocabularies have nothing in common — sanity-check
         # that the `key` lookup actually routes per field.
         assert langs.isdisjoint(mentions)

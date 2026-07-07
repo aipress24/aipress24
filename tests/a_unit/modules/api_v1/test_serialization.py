@@ -7,6 +7,7 @@ from __future__ import annotations
 
 from datetime import UTC, datetime, timedelta
 from types import SimpleNamespace
+from typing import Any
 
 from app.modules.api_v1.models import ApiToken
 from app.modules.api_v1.schemas import ArticleSchema, MemberSchema, page_links
@@ -48,7 +49,9 @@ def _article() -> SimpleNamespace:
 
 
 def test_article_schema_allowlist_and_links() -> None:
-    out = ArticleSchema().dump(_article())
+    # marshmallow's `dump()` is typed loosely (a list-ish union); for a single
+    # object it returns a dict — annotate so the key access below type-checks.
+    out: dict[str, Any] = ArticleSchema().dump(_article())
 
     assert out["id"] == 123
     assert out["kind"] == "article"
@@ -82,7 +85,7 @@ def test_member_schema_redacts_pii() -> None:
     )
     member.photo_image_signed_url = lambda *a, **k: "/img.png"
 
-    out = MemberSchema().dump(member)
+    out: dict[str, Any] = MemberSchema().dump(member)
 
     for leaked in ("email", "tel_mobile", "password", "fs_uniquifier", "is_clone"):
         assert leaked not in out
