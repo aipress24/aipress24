@@ -40,9 +40,11 @@ from app.modules.admin.utils import (
     toggle_org_active,
 )
 from app.modules.admin.views._show_org import OrgVM
+from app.modules.bw.bw_activation.bw_cancellation import (
+    cancel_business_wall_from_app,
+)
 from app.modules.bw.bw_activation.models import (
     BusinessWall,
-    BWStatus,
 )
 from app.modules.bw.bw_activation.models.role import (
     BWRoleType,
@@ -108,18 +110,20 @@ class ShowOrgView(MethodView):
                 response.headers["HX-Redirect"] = current_url
 
             case "deactivate_bw":
-                # Set the active BusinessWall to inactive (SUSPENDED)
                 active_bw = get_active_business_wall_for_organisation(org)
                 if active_bw:
-                    active_bw.status = BWStatus.SUSPENDED.value
-                    # Clear organisation BW fields
-                    org.bw_active = ""
-                    org.bw_id = None
-                    # clear the owner's selected_bw_id
-                    owner = db.session.get(User, active_bw.owner_id)
-                    if owner and owner.selected_bw_id == active_bw.id:
-                        owner.selected_bw_id = None
-                    db.session.commit()
+                    result = cancel_business_wall_from_app(active_bw, commit=False)
+                    if result.get("success"):
+                        flash(
+                            f"Le Business Wall a été désactivé. "
+                            f"{result.get('cleared_users_count', 0)} utilisateur(s) mis à jour.",
+                            "success",
+                        )
+                    else:
+                        flash(
+                            f"Échec de la désactivation : {result.get('reason')}",
+                            "error",
+                        )
                 response.headers["HX-Redirect"] = current_url
 
             case "delete_org":
