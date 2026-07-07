@@ -6,7 +6,7 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Protocol
 
 import click
 from flask.cli import with_appcontext
@@ -37,7 +37,17 @@ def _get_user_by_email(email: str) -> User | None:
     return db.session.scalar(stmt)
 
 
-def _create_mock_user_with_roles(role_names: list[str]) -> object:
+class _FilterUser(Protocol):
+    """Structural type of a user the ACL filter can act on — the CLI mock
+    below, or a real ``User``: only what the nav filtering actually touches."""
+
+    is_anonymous: bool
+    roles: list
+
+    def has_role(self, role: object) -> bool: ...
+
+
+def _create_mock_user_with_roles(role_names: list[str]) -> _FilterUser:
     """Create a mock user object with specified roles for ACL checking."""
     from app.enums import RoleEnum
     from app.models.auth import Role

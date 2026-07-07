@@ -155,7 +155,7 @@ class TestImmutability:
     def test_cannot_delete_field(self) -> None:
         section = SelectorSection(title="T", selectors=[])
         with pytest.raises(dataclasses.FrozenInstanceError):
-            del section.title
+            del section.title  # pyrefly: ignore[read-only]  # the point of the test
 
     def test_selectors_list_itself_is_not_deep_frozen(self) -> None:
         """Defensive note, not a wish: ``frozen=True`` freezes the

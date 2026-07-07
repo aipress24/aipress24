@@ -365,10 +365,16 @@ unresolved-attribute = "ignore"
 # -----------------------------------------------------------------------------
 
 [tool.pyrefly]
-project-includes = ["src"]
+project-includes = ["src", "tests"]
+# Extra module-resolution roots (pytest adds these to sys.path at runtime;
+# pyrefly needs them told explicitly):
+#  - "." so `tests.*` absolute imports resolve
+#    (`from tests.c_e2e.conftest import make_authenticated_client`);
+#  - "sdk/python" so the standalone SDK (`aipress24_client`, `generate`) resolves
+#    in its tests (mirrors `[tool.ty] extra-paths`).
+search-path = [".", "sdk/python"]
 project-excludes = [
     ".nox",
-    "tests",
     "sandbox",
     "doc",
     "scripts",
@@ -382,6 +388,16 @@ bad-argument-type = "ignore"   # SQLAlchemy InstrumentedAttribute false positive
 bad-return = "ignore"
 bad-assignment = "ignore"
 missing-attribute = "ignore"
+# `property.fget`/`.fset` are typed `Callable | None` in typeshed, so calling a
+# getter directly (`Model.some_prop.fget(stub)` — a common pattern in the model
+# unit tests) trips this. Every occurrence in this codebase is that idiom.
+not-callable = "ignore"
+# Pyrefly has no SQLAlchemy support, so instance attribute access on a mapped
+# column (`org.name`, `model.titre`) is typed as `InstrumentedAttribute[str]`
+# rather than `str`. In a membership test (`model.name in rendered_html`) that
+# surfaces here. Every occurrence is that false positive (see also the
+# InstrumentedAttribute note on bad-argument-type above).
+unsupported-operation = "ignore"
 
 # -----------------------------------------------------------------------------
 

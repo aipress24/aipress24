@@ -209,7 +209,8 @@ class TestCreateTaxonomyForm:
             form = CreateTaxonomyForm(data={"name": "test_taxonomy"})
             assert not form.validate()
             assert "name" in form.errors
-            assert "already exists" in form.errors["name"][0]
+            # WTForms types `form.errors[key]` as a union not indexable by int.
+            assert "already exists" in form.errors["name"][0]  # pyrefly: ignore[bad-index]
 
 
 class TestListEntriesRoute:

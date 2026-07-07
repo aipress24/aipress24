@@ -157,7 +157,7 @@ def _flash_invitation_outcomes(outcomes: list[InvitationOutcome]) -> None:
 def _categorize_role_assignments(
     assignments,
     user_loader,
-) -> dict[str, list | dict[str, str]]:
+) -> dict[str, Any]:
     """Categorize BW role assignments into owner / BWMi / BWPRi buckets.
 
     Pure-ish helper — all DB access goes through `user_loader`, a

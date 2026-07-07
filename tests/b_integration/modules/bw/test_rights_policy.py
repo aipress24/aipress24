@@ -139,7 +139,9 @@ def test_snapshot_not_overwritten_on_subsequent_edit(
     )
     db_session.add(post)
     db_session.flush()
-    first_snapshot = dict(post.rights_sales_snapshot or {})
+    # rights_sales_snapshot reads as InstrumentedAttribute (no SQLAlchemy
+    # support in pyrefly); it is a dict|None at runtime.
+    first_snapshot = dict(post.rights_sales_snapshot or {})  # pyrefly: ignore[no-matching-overload]
 
     # Editor changes policy after publishing.
     seller_bw.rights_sales_policy = {"option": "none", "media_ids": []}

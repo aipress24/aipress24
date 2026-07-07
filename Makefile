@@ -118,7 +118,7 @@ lint:
 	ruff check
 	vulture --min-confidence 80 src
 	ty check src tests
-	pyrefly check src/app
+	pyrefly check src/app tests
 	lint-imports
 	# deptry src
 	# mypy --show-error-codes src
