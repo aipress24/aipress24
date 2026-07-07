@@ -26,6 +26,7 @@ from app.models.auth import User
 from app.models.organisation import Organisation
 from app.modules.admin.invitations import add_invited_users
 from app.modules.admin.utils import get_user_per_email
+from app.modules.bw.bw_activation.bw_creation import ensure_bw_owner_role
 from app.modules.bw.bw_activation.models import (
     BusinessWall,
     BWStatus,
@@ -649,6 +650,7 @@ def _activate_bw_from_checkout(
             org.bw_name = bw.name or org.bw_name or org.name or ""
 
     bw.status = BWStatus.ACTIVE.value
+    ensure_bw_owner_role(bw)
     info(
         f"BW {bw.id} activated via Stripe Checkout "
         f"(customer={customer_id}, subscription={subscription_id})"

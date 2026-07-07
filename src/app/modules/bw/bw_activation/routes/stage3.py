@@ -31,6 +31,7 @@ from app.modules.bw.bw_activation import bp
 from app.modules.bw.bw_activation.bw_creation import (
     create_new_free_bw_record,
     create_new_paid_bw_record,
+    ensure_bw_owner_role,
 )
 from app.modules.bw.bw_activation.bw_product import (
     allowed_bw_product_list,
@@ -927,6 +928,7 @@ def confirmation_paid():
             if org:
                 org.bw_id = existing.id
                 org.bw_active = existing.bw_type
+            ensure_bw_owner_role(existing)
             db.session.commit()
         fill_session(existing)
         return render_template(
