@@ -11,6 +11,7 @@ from datetime import UTC, datetime
 from typing import TYPE_CHECKING, Any, cast
 
 from flask import g
+from sqlalchemy import select as sa_select
 from svcs.flask import container
 
 from app.flask.extensions import db
@@ -21,7 +22,11 @@ from app.modules.bw.bw_activation.models import (
     RoleAssignmentService,
     SubscriptionService,
 )
-from app.modules.bw.bw_activation.models.role import BWRoleType, InvitationStatus
+from app.modules.bw.bw_activation.models.role import (
+    BWRoleType,
+    InvitationStatus,
+    RoleAssignment,
+)
 from app.modules.bw.bw_activation.models.subscription import SubscriptionStatus
 
 from .config import BW_TYPES
@@ -129,6 +134,45 @@ def build_subscription_payload(
         "monthly_price": 0.0,
         "annual_price": 0.0,
     }
+
+
+def ensure_bw_owner_role(bw, user_id: int | None = None) -> RoleAssignment | None:
+    """Ensure the BW owner has an accepted BW_OWNER role assignment.
+
+    Idempotent.
+
+    Args:
+        bw: The BusinessWall whose owner needs the role.
+        user_id: Optional user id to assign. Defaults to "bw.owner_id".
+
+    Returns:
+        The existing or newly-created RoleAssignment, or None if no user id
+        could be determined.
+    """
+    owner_id = user_id if user_id is not None else getattr(bw, "owner_id", None)
+    if owner_id is None:
+        return None
+
+    existing = db.session.scalar(
+        sa_select(RoleAssignment)
+        .where(RoleAssignment.business_wall_id == bw.id)
+        .where(RoleAssignment.user_id == owner_id)
+        .where(RoleAssignment.role_type == BWRoleType.BW_OWNER.value)
+        .where(RoleAssignment.invitation_status == InvitationStatus.ACCEPTED.value)
+    )
+    if existing is not None:
+        return existing
+
+    role = RoleAssignment(
+        business_wall_id=bw.id,
+        user_id=owner_id,
+        role_type=BWRoleType.BW_OWNER.value,
+        invitation_status=InvitationStatus.ACCEPTED.value,
+        accepted_at=datetime.now(UTC),
+    )
+    db.session.add(role)
+    db.session.flush()
+    return role
 
 
 def build_owner_role_payload(
