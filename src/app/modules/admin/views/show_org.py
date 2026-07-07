@@ -72,15 +72,21 @@ class ShowOrgView(MethodView):
         org = cast(Organisation, get_obj(uid, Organisation))
         active_bw = get_active_business_wall_for_organisation(org)
         current_owner_email = ""
+        current_owner_id = None
+        current_owner_full_name = ""
         if active_bw:
             current_owner = db.session.get(User, active_bw.owner_id)
             current_owner_email = current_owner.email if current_owner else ""
+            current_owner_id = current_owner.id if current_owner else None
+            current_owner_full_name = current_owner.full_name if current_owner else ""
 
         return render_template(
             "admin/pages/show_org.j2",
             title="Informations sur l'organisation",
             org=OrgVM(org),
             current_owner_email=current_owner_email,
+            current_owner_id=current_owner_id,
+            current_owner_full_name=current_owner_full_name,
         )
 
     def post(self, uid: str) -> Response:
