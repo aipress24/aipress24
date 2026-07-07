@@ -56,7 +56,14 @@
             <dt class="text-sm font-medium text-gray-500">Business Wall</dt>
             <dd class="mb-2 text-sm text-gray-900">
                 {% if active_bw %}
-                    {{ active_bw.name_safe }} ({{ LABELS_BW_TYPE_V2.get(active_bw.bw_type, active_bw.bw_type) }})
+                    {% if active_bw.organisation_id %}
+                        <a href="{{ url_for('admin.show_org', uid=active_bw.organisation_id) }}"
+                           class="text-blue-600 hover:text-blue-800 hover:underline">
+                            {{ active_bw.name_safe }} ({{ LABELS_BW_TYPE_V2.get(active_bw.bw_type, active_bw.bw_type) }})
+                        </a>
+                    {% else %}
+                        {{ active_bw.name_safe }} ({{ LABELS_BW_TYPE_V2.get(active_bw.bw_type, active_bw.bw_type) }})
+                    {% endif %}
                 {% else %}
                     pas de BusinessWall
                 {% endif %}
