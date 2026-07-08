@@ -67,7 +67,11 @@ class TestBwtypeAllowedProducts:
         Stripe, so micro reuses the media product). Cross-type leakage
         would otherwise make the Stripe-checkout-to-BW lookup
         non-deterministic (depends on iteration order of the dict)."""
-        allowed_aliases = {("media", "micro")}
+        allowed_aliases = {
+            ("media", "micro"),
+            ("corporate_media", "media"),
+            ("media", "union"),
+        }
         seen: dict[str, str] = {}
         for bw_type, products in BWTYPE_ALLOWED_PRODUCTS.items():
             for code in products:
