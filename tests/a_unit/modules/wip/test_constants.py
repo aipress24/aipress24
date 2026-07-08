@@ -201,9 +201,8 @@ class TestMenuInvariants:
             "eventroom",
             "opportunities",
             "bw-activation",
-            "billing",
-            "achats",
             "ventes",
+            "achats",
             "performance",
         }
         missing = expected - names
@@ -252,9 +251,8 @@ class TestFrenchLabels:
         [
             ("dashboard", "Tableau de bord"),
             ("opportunities", "Opportunités"),
-            ("billing", "Ventes"),
-            ("achats", "Achats"),
             ("ventes", "Ventes"),
+            ("achats", "Achats"),
             ("performance", "Performance"),
             ("bw-activation", "Business Wall"),
         ],
