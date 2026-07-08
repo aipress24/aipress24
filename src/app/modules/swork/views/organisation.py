@@ -348,6 +348,9 @@ class OrgVM(ViewModel):
             "bw_gallery_images": self._get_bw_gallery_images(),
             "bw_name": self._get_bw_name(),
             "bw_media_name": self._get_bw_media_name(),
+            "bw_group_name": self._get_bw_grouo_name(),
+            "bw_entity_name": self._get_bw_entity_name(),
+            "bw_official_name": self._get_bw_official_name(),
         }
         self._cached_attrs_time = time()
         return self._cached_attrs
@@ -361,21 +364,33 @@ class OrgVM(ViewModel):
 
     def _get_bw_name(self) -> str:
         """Return Business Wall name or empty string."""
-        if self.bw is not None:
-            return self.bw.name or ""
-        return ""
-
-    def _get_bw_media_name(self) -> str:
-        """Return media title name for media BWs, else empty."""
         if self.bw is None:
             return ""
-        return (
-            self.bw.name_press
-            or self.bw.name_official
-            or self.bw.name_entity
-            or self.bw.name_group
-            or ""
-        )
+        return self.bw.name or ""
+
+    def _get_bw_media_name(self) -> str:
+        """Return media title name for media BWs or empty string."""
+        if self.bw is None:
+            return ""
+        return self.bw.name_press or ""
+
+    def _get_bw_grouo_name(self) -> str:
+        """Return BW group name or empty string."""
+        if self.bw is None:
+            return ""
+        return self.bw.name_group or ""
+
+    def _get_bw_entity_name(self) -> str:
+        """Return BW entity name or empty string."""
+        if self.bw is None:
+            return ""
+        return self.bw.name_entity or ""
+
+    def _get_bw_official_name(self) -> str:
+        """Return BW official name or empty string."""
+        if self.bw is None:
+            return ""
+        return self.bw.name_official or ""
 
     def get_members(self) -> list[User]:
         """Return members to display on the organisation page.

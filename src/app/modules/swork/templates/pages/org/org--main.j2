@@ -63,6 +63,21 @@
                                     Média: {{ org.bw_media_name }}
                                 </p>
                             {% endif %}
+                            {% if org.bw_group_name %}
+                                <p class="text-lg font-bold text-gray-900 truncate mt-1">
+                                    Groupe: {{ org.bw_group_name }}
+                                </p>
+                            {% endif %}
+                            {% if org.bw_entity_name %}
+                                <p class="text-lg font-bold text-gray-900 truncate mt-1">
+                                    Entité: {{ org.bw_entity_name }}
+                                </p>
+                            {% endif %}
+                            {% if org.bw_official_name %}
+                                <p class="text-lg font-bold text-gray-900 truncate mt-1">
+                                    Nom officiel: {{ org.bw_official_name }}
+                                </p>
+                            {% endif %}
                         </div>
 
                         <div
@@ -101,6 +116,21 @@
                     {% if org.bw_media_name %}
                         <p class="text-lg font-bold text-gray-900 truncate mt-1">
                             Média: {{ org.bw_media_name }}
+                        </p>
+                    {% endif %}
+                    {% if org.bw_group_name %}
+                        <p class="text-lg font-bold text-gray-900 truncate mt-1">
+                            Groupe: {{ org.bw_group_name }}
+                        </p>
+                    {% endif %}
+                    {% if org.bw_entity_name %}
+                        <p class="text-lg font-bold text-gray-900 truncate mt-1">
+                            Entité: {{ org.bw_entity_name }}
+                        </p>
+                    {% endif %}
+                    {% if org.bw_official_name %}
+                        <p class="text-lg font-bold text-gray-900 truncate mt-1">
+                            Nom officiel: {{ org.bw_official_name }}
                         </p>
                     {% endif %}
                 </div>
