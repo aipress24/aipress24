@@ -8,7 +8,6 @@ from __future__ import annotations
 
 from . import (
     achats,
-    billing,
     comroom,
     dashboard,
     delegate,
@@ -25,7 +24,6 @@ from . import (
 
 __all__ = [
     "achats",
-    "billing",
     "comroom",
     "dashboard",
     "delegate",
