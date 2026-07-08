@@ -66,17 +66,19 @@ BWTYPE_ALLOWED_PRODUCTS: dict[str, list[str]] = {
     BWType.PR.value: ["BW4PR"],
     BWType.MEDIA.value: ["BW4Media"],
     BWType.NEWS_AGENCY.value: ["BW4NA"],
-    # BW4Micro no longer exists in Stripe; micro BWs reuse the media product.
-    BWType.MICRO.value: ["BW4Media"],
-    BWType.CORPORATE_MEDIA.value: ["BW4CorporateMedia"],
-    BWType.UNION.value: ["BW4Union"],
+    # BW4Micro exists again in Stripe; micro BWs reuse the micro (if available) or media product.
+    BWType.MICRO.value: ["BW4Micro", "BW4Media"],
+    # BW4CorporateMedia product does not exists, use Media
+    BWType.CORPORATE_MEDIA.value: ["BW4Media"],
+    # BW4Union product does not exists, use Media
+    BWType.UNION.value: ["BW4Media"],
     BWType.ACADEMICS.value: ["BW4AC"],
 }
 
 # BW types that are no longer selectable for new subscriptions.
 # may still exist in the database or referenced by existing BWs.
 DEPRECATED_BW_TYPES: set[str] = {
-    BWType.MICRO.value,
+    # BWType.MICRO.value,
     BWType.CORPORATE_MEDIA.value,
     BWType.UNION.value,
 }
@@ -146,7 +148,7 @@ BW_TYPES: dict[str, dict[str, Any]] = {
     BWType.MICRO.value: {  # type: ignore [unresolved-attribute]
         "name": "Business Wall for Micro",
         "description": "Pour les micro-entreprises de presse travaillant pour des organes de presse reconnus.",
-        "deprecated": True,
+        "deprecated": False,
         "free": True,
         "skip_pricing_input": True,
         "pricing_field": "",

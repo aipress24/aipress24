@@ -90,10 +90,10 @@ class TestCanonicalProfileMappings:
             (ProfileEnum.PM_DIR.name, BWType.MEDIA),
             (ProfileEnum.PM_JR_CP_SAL.name, BWType.MEDIA),
             (ProfileEnum.PM_JR_PIG.name, BWType.MEDIA),
-            # micro, corporate_media and union are deprecated; those
+            (ProfileEnum.PM_JR_CP_ME.name, BWType.MICRO),
+            (ProfileEnum.PM_JR_ME.name, BWType.MICRO),
+            # corporate_media and union are deprecated; those
             # profiles now default to media.
-            (ProfileEnum.PM_JR_CP_ME.name, BWType.MEDIA),
-            (ProfileEnum.PM_JR_ME.name, BWType.MEDIA),
             (ProfileEnum.PM_DIR_INST.name, BWType.MEDIA),
             (ProfileEnum.PM_DIR_SYND.name, BWType.MEDIA),
             (ProfileEnum.PR_DIR.name, BWType.PR),
@@ -101,7 +101,7 @@ class TestCanonicalProfileMappings:
             (ProfileEnum.XP_DIR_ANY.name, BWType.LEADERS_EXPERTS),
             (ProfileEnum.TP_DIR_ORG.name, BWType.TRANSFORMERS),
             (ProfileEnum.AC_DIR.name, BWType.ACADEMICS),
-            (ProfileEnum.AC_ST.name, BWType.MEDIA),
+            (ProfileEnum.AC_ST.name, BWType.MICRO),
         ],
     )
     def test_profile_code_routes_to_expected_type(self, profile_code, expected):
