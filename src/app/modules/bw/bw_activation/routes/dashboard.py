@@ -168,6 +168,7 @@ def edit_config():
             result = change_bw_subscription_tier(current_bw, quantity)
             if result.get("success"):
                 db.session.commit()
+                session["subscription_change_success"] = True
                 flash(result["message"], "success")
             else:
                 db.session.rollback()
@@ -197,6 +198,8 @@ def edit_config():
         subscription_message and "Aucun changement" not in subscription_message
     )
 
+    show_success_modal = session.pop("subscription_change_success", False)
+
     return render_template(
         "bw_activation/edit_config.html",
         bw=current_bw,
@@ -205,6 +208,7 @@ def edit_config():
         mission_labels=_MISSION_LABELS,
         subscription_message=subscription_message,
         subscription_show_change=subscription_show_change,
+        show_success_modal=show_success_modal,
     )
 
 
