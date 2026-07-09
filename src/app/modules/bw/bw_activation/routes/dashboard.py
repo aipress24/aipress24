@@ -211,10 +211,23 @@ def _evaluate_subscription_message(current_bw, taille_orga: str | None) -> str:
 
     quantity = _quantity_from_taille_orga(taille_orga)
     evaluation = evaluate_subscription(current_bw, quantity)
+
+    current_tier = evaluation.get("current_tier") or ""
+    lines = []
+    if current_tier:
+        lines.append(f"La catégorie actuelle de l'abonnement est {current_tier}.")
+    else:
+        lines.append("La catégorie actuelle de l'abonnement n'est pas disponible.")
+
     if evaluation.get("ok"):
-        return "Aucun changement d'abonnement requis."
-    recommended_tier = evaluation.get("recommended_tier") or ""
-    return f"Un changement vers la catégorie d'abonnement {recommended_tier} est souhaitable."
+        lines.append("Aucun changement d'abonnement requis.")
+    else:
+        recommended_tier = evaluation.get("recommended_tier") or ""
+        lines.append(
+            f"Un changement vers la catégorie d'abonnement {recommended_tier} est souhaitable."
+        )
+
+    return " ".join(lines)
 
 
 @bp.route("/evaluate-config-subscription", methods=["GET"])

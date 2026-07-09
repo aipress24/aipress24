@@ -12,8 +12,11 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any
 
+import stripe
+
 from app.modules.bw.bw_activation.config import BW_TYPES, BWTYPE_ALLOWED_PRODUCTS
 from app.services.stripe.product import coerce_metadata, fetch_bw_product_list
+from app.services.stripe.utils import load_stripe_api_key
 
 if TYPE_CHECKING:
     from stripe import Product
@@ -145,17 +148,16 @@ def evaluate_subscription(
     sub = current_bw.subscription
     if sub is not None and sub.stripe_subscription_id:
         try:
-            import stripe as _stripe
-
-            stripe_sub = _stripe.Subscription.retrieve(
-                sub.stripe_subscription_id, expand=["items.data.plan.product"]
-            )
-            items = getattr(stripe_sub, "items", None)
-            if items and items.data:
-                first_item = items.data[0]
-                plan = getattr(first_item, "plan", None)
-                if plan:
-                    current_product = getattr(plan, "product", None)
+            if load_stripe_api_key():
+                stripe_sub = stripe.Subscription.retrieve(
+                    sub.stripe_subscription_id, expand=["items.data.plan.product"]
+                )
+                items = getattr(stripe_sub, "items", None)
+                if items and items.data:
+                    first_item = items.data[0]
+                    plan = getattr(first_item, "plan", None)
+                    if plan:
+                        current_product = getattr(plan, "product", None)
         except Exception:
             current_product = None
 
@@ -166,6 +168,27 @@ def evaluate_subscription(
             if ref.endswith(f"-{sub.pricing_tier}") or ref == sub.pricing_tier:
                 current_reference = ref
                 break
+
+    current_tier = ""
+    if current_reference:
+        current_tier = (
+            current_reference.split("-")[-1]
+            if "-" in current_reference
+            else current_reference
+        )
+    elif current_product is not None:
+        raw_metadata = (
+            current_product.get("metadata")
+            if isinstance(current_product, dict)
+            else getattr(current_product, "metadata", None)
+        )
+        meta = coerce_metadata(raw_metadata)
+        ref = meta.get("reference") or meta.get("Reference") or ""
+        current_tier = ref.split("-")[-1] if "-" in ref else ref
+    elif (
+        sub is not None and sub.pricing_tier and sub.pricing_tier != "via_pricing_table"
+    ):
+        current_tier = sub.pricing_tier
 
     if quantity is None or quantity <= 0:
         if (
@@ -208,6 +231,7 @@ def evaluate_subscription(
             "ok": True,
             "message": "Aucun changement",
             "current_product": current_product,
+            "current_tier": current_tier,
             "recommended_product": recommended_product,
             "recommended_tier": recommended_tier,
             "recommended_reference": recommended_reference,
@@ -217,6 +241,7 @@ def evaluate_subscription(
         "ok": False,
         "message": "Changement d'abonnement recommandé",
         "current_product": current_product,
+        "current_tier": current_tier,
         "recommended_product": recommended_product,
         "recommended_tier": recommended_tier,
         "recommended_reference": recommended_reference,
