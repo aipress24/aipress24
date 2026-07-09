@@ -298,7 +298,8 @@ class TestCreateNewPaidBwRecord:
         sub = subs[0]
         assert sub.status == SubscriptionStatus.ACTIVE.value
         assert sub.pricing_field == "N/A"
-        assert sub.pricing_tier == "N/A"
+        # Paid BWs without an employee count default to TPE (1 employee).
+        assert sub.pricing_tier == "TPE"
         assert float(sub.monthly_price) == 0.0
         assert float(sub.annual_price) == 0.0
         assert sub.started_at is not None

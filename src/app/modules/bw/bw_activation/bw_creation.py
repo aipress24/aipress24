@@ -29,7 +29,7 @@ from app.modules.bw.bw_activation.models.role import (
 )
 from app.modules.bw.bw_activation.models.subscription import SubscriptionStatus
 
-from .config import BW_TYPES
+from .config import BW_TYPES, taille_orga_for_employee_count
 
 StdDict = dict[str, str | int | float | bool | datetime | None]
 
@@ -118,19 +118,18 @@ def build_bw_payload(
 
 
 def build_subscription_payload(
-    *, business_wall_id: Any, started_at: datetime
+    *, business_wall_id: Any, started_at: datetime, pricing_tier: str = "N/A"
 ) -> StdDict:
     """Map a new BW's subscription onto the `SubscriptionService.create`
-    payload. Free + paid BWs use identical defaults today (pricing
-    `"N/A"`, 0.0 prices) ; if/when paid BWs grow real pricing, the
-    diff lands here, not in two parallel callers.
+    payload. Free BWs have "N/A" tier, paid callers can pass the tier
+    derived from the employee count.
     """
     return {
         "business_wall_id": business_wall_id,
         "status": SubscriptionStatus.ACTIVE.value,
         "started_at": started_at,
         "pricing_field": "N/A",
-        "pricing_tier": "N/A",
+        "pricing_tier": pricing_tier,
         "monthly_price": 0.0,
         "annual_price": 0.0,
     }
@@ -268,8 +267,23 @@ def _create_bw_record(session: MutableMapping, *, want_free: bool) -> bool:
         auto_commit=False,
     )
 
+    pricing_tier = "N/A"
+    if not want_free:
+        employee_count = (
+            session.get("bw_employee_count") or session.get("pricing_value") or 1
+        )
+        try:
+            employee_count = int(employee_count)
+        except (ValueError, TypeError):
+            employee_count = 1
+        pricing_tier = taille_orga_for_employee_count(employee_count) or "N/A"
+
     subscription_service.create(
-        build_subscription_payload(business_wall_id=business_wall.id, started_at=now),
+        build_subscription_payload(
+            business_wall_id=business_wall.id,
+            started_at=now,
+            pricing_tier=pricing_tier,
+        ),
         auto_commit=False,
     )
 
