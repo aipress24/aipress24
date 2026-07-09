@@ -25,6 +25,7 @@ from app.modules.bw.bw_activation.models import (
     BWStatus,
     SubscriptionStatus,
 )
+from app.modules.bw.bw_activation.models.role import RoleAssignment
 from app.modules.bw.bw_activation.stripe_subs_cancellation import (
     cancel_stripe_subscription,
 )
@@ -66,6 +67,21 @@ def _clear_users_selected_bw(bw_id: UUID) -> int:
     return len(stale_users)
 
 
+def _clear_role_assignments_for_bw(bw_id: UUID) -> int:
+    """Delete role assignments (invitations) related to a Business Wall.
+
+    Returns the number of role assignments deleted.
+    """
+    assignments = list(
+        db.session.scalars(
+            db.select(RoleAssignment).where(RoleAssignment.business_wall_id == bw_id)
+        ).all()
+    )
+    for assignment in assignments:
+        db.session.delete(assignment)
+    return len(assignments)
+
+
 def close_business_wall_locally(
     bw: BusinessWall,
     commit: bool = True,
@@ -79,13 +95,15 @@ def close_business_wall_locally(
         commit: Whether to "db.session.commit()" at the end.
 
     Returns:
-        Result dict with "success", "reason" and the number of users whose
-        "selected_bw_id" was cleared (cleared_users_count).
+        Result dict with "success", "reason", the number of users whose
+        "selected_bw_id" was cleared (cleared_users_count) and the number of
+        role assignments removed (cleared_role_assignments_count).
     """
     result: dict[str, bool | str | int | None] = {
         "success": False,
         "reason": None,
         "cleared_users_count": 0,
+        "cleared_role_assignments_count": 0,
     }
 
     if bw is None:
@@ -96,6 +114,7 @@ def close_business_wall_locally(
     _local_subscription_cancel(bw.subscription)
     _clear_organisation_bw_link(bw)
     result["cleared_users_count"] = _clear_users_selected_bw(bw.id)
+    result["cleared_role_assignments_count"] = _clear_role_assignments_for_bw(bw.id)
 
     if commit:
         db.session.commit()
@@ -124,6 +143,7 @@ def cancel_business_wall_from_app(
         "stripe_cancelled": False,
         "reason": None,
         "cleared_users_count": 0,
+        "cleared_role_assignments_count": 0,
     }
 
     if bw is None:
@@ -150,6 +170,9 @@ def cancel_business_wall_from_app(
     result["success"] = local_result["success"]
     result["reason"] = local_result.get("reason")
     result["cleared_users_count"] = local_result.get("cleared_users_count", 0)
+    result["cleared_role_assignments_count"] = local_result.get(
+        "cleared_role_assignments_count", 0
+    )
 
     return result
 
