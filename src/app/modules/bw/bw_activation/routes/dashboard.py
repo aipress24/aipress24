@@ -18,6 +18,7 @@ from app.modules.bw.bw_activation.bw_product import evaluate_subscription
 from app.modules.bw.bw_activation.config import BW_TYPES
 from app.modules.bw.bw_activation.models import InvitationStatus
 from app.modules.bw.bw_activation.models.business_wall import BWStatus
+from app.modules.bw.bw_activation.stripe_subs_upgrade import change_bw_subscription_tier
 from app.modules.bw.bw_activation.user_utils import (
     current_business_wall,
     get_manageable_business_walls_for_user,
@@ -152,6 +153,8 @@ def edit_config():
     form.taille_orga.choices = [("", "---"), *get_full_taxonomy("taille_organisation")]
 
     if request.method == "POST" and form.validate():
+        action = request.form.get("action", "save")
+
         if form.name.data is not None and form.name.data.strip():
             current_bw.name = form.name.data.strip()
         if form.taille_orga.data:
@@ -159,6 +162,18 @@ def edit_config():
         current_bw.missions = {
             key: bool(getattr(form, key).data) for key in _MISSION_LABELS
         }
+
+        if action == "change_subscription":
+            quantity = _quantity_from_taille_orga(form.taille_orga.data)
+            result = change_bw_subscription_tier(current_bw, quantity)
+            if result.get("success"):
+                db.session.commit()
+                flash(result["message"], "success")
+            else:
+                db.session.rollback()
+                flash(result["message"], "error")
+            return redirect(url_for("bw_activation.edit_config"))
+
         db.session.commit()
         flash("Configuration mise à jour.", "success")
         return redirect(url_for("bw_activation.dashboard"))
@@ -174,8 +189,12 @@ def edit_config():
     bw_info = BW_TYPES.get(current_bw.bw_type, {})
 
     # Evaluate subscription recommendation based on the organisation size.
-    subscription_message = _evaluate_subscription_message(
-        current_bw, form.taille_orga.data or current_bw.taille_orga or None
+    quantity = _quantity_from_taille_orga(
+        form.taille_orga.data or current_bw.taille_orga or None
+    )
+    subscription_message = _evaluate_subscription_message(current_bw, quantity)
+    subscription_show_change = bool(
+        subscription_message and "Aucun changement" not in subscription_message
     )
 
     return render_template(
@@ -185,6 +204,7 @@ def edit_config():
         form=form,
         mission_labels=_MISSION_LABELS,
         subscription_message=subscription_message,
+        subscription_show_change=subscription_show_change,
     )
 
 
@@ -239,7 +259,45 @@ def evaluate_config_subscription():
         return ""
 
     taille_orga = request.args.get("taille_orga", "").strip()
-    return _evaluate_subscription_message(current_bw, taille_orga or None)
+    quantity = _quantity_from_taille_orga(taille_orga or None)
+    subscription_message = _evaluate_subscription_message(current_bw, quantity)
+    subscription_show_change = bool(
+        subscription_message and "Aucun changement" not in subscription_message
+    )
+
+    if request.headers.get("HX-Request"):
+        return render_template(
+            "bw_activation/_subscription_message.html",
+            subscription_message=subscription_message,
+            subscription_show_change=subscription_show_change,
+            bw=current_bw,
+        )
+    return subscription_message
+
+
+@bp.route("/change-subscription-tier", methods=["POST"])
+def change_subscription_tier():
+    """Apply a Stripe subscription tier change based on the selected org size."""
+    user = cast("User", g.user)
+    current_bw = current_business_wall(user)
+    if current_bw is None or not is_bw_manager_or_admin(user, current_bw):
+        if request.headers.get("HX-Request"):
+            return "Accès non autorisé", 403
+        flash("Accès non autorisé.", "error")
+        return redirect(url_for("bw_activation.dashboard"))
+
+    taille_orga = request.form.get("taille_orga", "").strip()
+    quantity = _quantity_from_taille_orga(taille_orga or None)
+
+    result = change_bw_subscription_tier(current_bw, quantity)
+    if result.get("success"):
+        flash(result["message"], "success")
+    else:
+        flash(result["message"], "error")
+
+    if request.headers.get("HX-Request"):
+        return result["message"]
+    return redirect(url_for("bw_activation.edit_config"))
 
 
 @bp.route("/reset", methods=["POST"])
