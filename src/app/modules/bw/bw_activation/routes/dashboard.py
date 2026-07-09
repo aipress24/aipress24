@@ -14,6 +14,7 @@ from wtforms import BooleanField, Form, SelectField, StringField, validators
 from app.flask.extensions import db
 from app.modules.bw.bw_activation import bp
 from app.modules.bw.bw_activation.bw_invitation import BW_ROLE_TYPE_LABEL
+from app.modules.bw.bw_activation.bw_product import evaluate_subscription
 from app.modules.bw.bw_activation.config import BW_TYPES
 from app.modules.bw.bw_activation.models import InvitationStatus
 from app.modules.bw.bw_activation.models.business_wall import BWStatus
@@ -171,13 +172,61 @@ def edit_config():
             getattr(form, key).data = bool(missions.get(key, False))
 
     bw_info = BW_TYPES.get(current_bw.bw_type, {})
+
+    # Evaluate subscription recommendation based on the organisation size.
+    subscription_message = _evaluate_subscription_message(
+        current_bw, form.taille_orga.data or current_bw.taille_orga or None
+    )
+
     return render_template(
         "bw_activation/edit_config.html",
         bw=current_bw,
         bw_info=bw_info,
         form=form,
         mission_labels=_MISSION_LABELS,
+        subscription_message=subscription_message,
     )
+
+
+def _quantity_from_taille_orga(taille_orga: str | None) -> int:
+    """Convert a taille_organisation ontology value to an employee count."""
+    if not taille_orga:
+        return 0
+    if taille_orga == "+":
+        return 1_000_000
+    try:
+        return int(taille_orga)
+    except ValueError:
+        return 0
+
+
+def _evaluate_subscription_message(current_bw, taille_orga: str | None) -> str:
+    """Return a subscription evaluation message (for paid types)."""
+    bw_info = BW_TYPES.get(current_bw.bw_type, {})
+    if bw_info.get("free") or current_bw.bw_type not in (
+        "leaders_experts",
+        "transformers",
+    ):
+        return ""
+
+    quantity = _quantity_from_taille_orga(taille_orga)
+    evaluation = evaluate_subscription(current_bw, quantity)
+    if evaluation.get("ok"):
+        return "Aucun changement d'abonnement requis."
+    recommended_tier = evaluation.get("recommended_tier") or ""
+    return f"Un changement vers la catégorie d'abonnement {recommended_tier} est souhaitable."
+
+
+@bp.route("/evaluate-config-subscription", methods=["GET"])
+def evaluate_config_subscription():
+    """HTMX endpoint: evaluate subscription message for the selected org size."""
+    user = cast("User", g.user)
+    current_bw = current_business_wall(user)
+    if current_bw is None or not is_bw_manager_or_admin(user, current_bw):
+        return ""
+
+    taille_orga = request.args.get("taille_orga", "").strip()
+    return _evaluate_subscription_message(current_bw, taille_orga or None)
 
 
 @bp.route("/reset", methods=["POST"])
