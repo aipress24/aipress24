@@ -47,8 +47,9 @@
                         {% endfor %}
                     </select>
                     <p class="mt-2 text-sm text-gray-600" id="subscription-message">
-                        {{ subscription_message }}
+                        {% include "bw_activation/_subscription_message.html" %}
                     </p>
+                    <button type="submit" id="change-subscription-submit" name="action" value="change_subscription" class="hidden">Modifier l'abonnement</button>
                     <span id="subscription-indicator"
                           class="hidden"></svg class="animate-spin h-4 w-4 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                     <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
@@ -84,5 +85,37 @@
         </div>
     </form>
     </div>
+    </div>
+
+    <!-- Modal de confirmation pour le changement d'abonnement -->
+    <div id="confirm-change-subscription"
+         tabindex="-1"
+         aria-hidden="true"
+         class="fixed top-0 left-0 right-0 z-50 hidden w-full p-4 overflow-x-hidden overflow-y-auto md:inset-0 h-[calc(100%-1rem)] max-h-full">
+        <div class="relative w-full max-w-md max-h-full mx-auto">
+            <div class="relative bg-white rounded-lg shadow dark:bg-gray-700">
+                <div class="p-4 md:p-5 text-center">
+                    <h3 class="mb-4 text-lg font-medium text-gray-900 dark:text-white">
+                        Changer de catégorie d'abonnement ?
+                    </h3>
+                    <p class="mb-4 text-sm text-gray-500 dark:text-gray-400">
+                        Votre abonnement Stripe va changer de catégorie.
+                        Le changement sera appliqué immédiatement et un prorata sera généré.
+                    </p>
+                    <div class="flex justify-center gap-3">
+                        <button type="button"
+                                onclick="document.getElementById('change-subscription-submit').click();"
+                                class="text-white bg-orange-600 hover:bg-orange-700 focus:ring-4 focus:outline-none focus:ring-orange-300 font-medium rounded-lg text-sm inline-flex items-center px-5 py-2.5 text-center">
+                            Valider
+                        </button>
+                        <button type="button"
+                                onclick="new window.Modal(document.getElementById('confirm-change-subscription')).hide();"
+                                class="py-2.5 px-5 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-100">
+                            Annuler
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 {% endblock %}

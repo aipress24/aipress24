@@ -1,0 +1,12 @@
+{% if subscription_message %}
+    <p class="mt-2 text-sm text-gray-600" id="subscription-message">
+        {{ subscription_message }}
+    </p>
+    {% if subscription_show_change %}
+        <button type="button"
+                onclick="new window.Modal(document.getElementById('confirm-change-subscription')).show();"
+                class="mt-2 inline-flex items-center rounded-md bg-orange-600 px-3 py-2 text-sm font-semibold text-white hover:bg-orange-700">
+            Modifier l'abonnement
+        </button>
+    {% endif %}
+{% endif %}
