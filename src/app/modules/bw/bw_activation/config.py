@@ -67,7 +67,8 @@ BWTYPE_ALLOWED_PRODUCTS: dict[str, list[str]] = {
     BWType.MEDIA.value: ["BW4Media"],
     BWType.NEWS_AGENCY.value: ["BW4NA"],
     # BW4Micro exists again in Stripe; micro BWs reuse the micro (if available) or media product.
-    BWType.MICRO.value: ["BW4Micro", "BW4Media"],
+    # BW4Micro product renamed as BW4J
+    BWType.MICRO.value: ["BW4J", "BW4Media"],
     # BW4CorporateMedia product does not exists, use Media
     BWType.CORPORATE_MEDIA.value: ["BW4Media"],
     # BW4Union product does not exists, use Media
