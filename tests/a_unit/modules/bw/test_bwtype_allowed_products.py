@@ -63,10 +63,9 @@ class TestBwtypeAllowedProducts:
 
     def test_product_codes_are_unique_or_explicitly_aliased(self):
         """No product code may belong to two BWTypes, except for the
-        intentional micro→media alias (BW4Micro no longer exists in
-        Stripe, so micro reuses the media product). Cross-type leakage
-        would otherwise make the Stripe-checkout-to-BW lookup
-        non-deterministic (depends on iteration order of the dict)."""
+        intentional micro→media alias (for micro entreprise, use BW4J).
+        Cross-type leakage would otherwise make the Stripe-checkout-to-BW
+        lookup non-deterministic (depends on iteration order of the dict)."""
         allowed_aliases = {
             ("media", "micro"),
             ("corporate_media", "media"),
