@@ -93,3 +93,7 @@ EMAILS_PERIOD_DAYS = 7
 EMAILS_MAX_SENT_LAST_PERIOD = 200
 # clean the mail log table of mail older than 90 days:
 EMAILS_LOG_STORAGE_CUTOFF = 90
+
+WEBHOOK_TEST_CUSTOMER_EMAIL = "admin-webhook-test@example.com"
+WEBHOOK_TEST_FILE_NAME = "testing_webhook_flag.txt"
+WEBHOOK_TEST_WAIT_TIMEOUT = 15
