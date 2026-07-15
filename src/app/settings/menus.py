@@ -205,6 +205,11 @@ ADMIN_MENU = [
         "icon": "link",
     },
     {
+        "label": "Test Webhook",
+        "endpoint": "admin.webhook_testing",
+        "icon": "webhook",
+    },
+    {
         "label": "Export DB",
         "endpoint": "/admin/export-db/",
         "icon": "database",
