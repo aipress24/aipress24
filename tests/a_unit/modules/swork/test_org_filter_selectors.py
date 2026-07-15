@@ -44,6 +44,7 @@ from app.modules.swork.components.organisations_list import (
     FilterByDeptOrm,
     OrgFilterBySecteurActivite,
     OrgFilterByTypeAgenceRP,
+    OrgFilterByTypeEntrepriseMedia,
     OrgFilterByTypeOrganisation,
     OrgFilterByTypePresseEtMedia,
     _OrgListJsonArrayFilter,
@@ -61,6 +62,7 @@ class _FakeBW:
 
 
 _JSON_ARRAY_FILTERS: list[tuple[type[_OrgListJsonArrayFilter], str]] = [
+    (OrgFilterByTypeEntrepriseMedia, "type_entreprise_media"),
     (OrgFilterByTypeOrganisation, "type_organisation"),
     (OrgFilterByTypePresseEtMedia, "type_presse_et_media"),
     (OrgFilterByTypeAgenceRP, "type_agence_rp"),
@@ -79,6 +81,11 @@ class TestJsonArrayFilterClassContract:
     @pytest.mark.parametrize(
         ("cls", "expected_id", "expected_field"),
         [
+            (
+                OrgFilterByTypeEntrepriseMedia,
+                "type_entreprise_media",
+                "type_entreprise_media",
+            ),
             (OrgFilterByTypeOrganisation, "type_organisation", "type_organisation"),
             (
                 OrgFilterByTypePresseEtMedia,
