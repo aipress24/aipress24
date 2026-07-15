@@ -23,6 +23,7 @@ from app.models.organisation import Organisation
 from app.modules.bw.bw_activation.models import (
     BusinessWall,
     BWStatus,
+    Partnership,
     SubscriptionStatus,
 )
 from app.modules.bw.bw_activation.models.role import RoleAssignment
@@ -82,6 +83,21 @@ def _clear_role_assignments_for_bw(bw_id: UUID) -> int:
     return len(assignments)
 
 
+def _clear_partnerships_for_bw(bw_id: UUID) -> int:
+    """Delete partnerships related to a Business Wall.
+
+    Returns the number of partnerships deleted.
+    """
+    partnerships = list(
+        db.session.scalars(
+            db.select(Partnership).where(Partnership.business_wall_id == bw_id)
+        ).all()
+    )
+    for partnership in partnerships:
+        db.session.delete(partnership)
+    return len(partnerships)
+
+
 def close_business_wall_locally(
     bw: BusinessWall,
     commit: bool = True,
@@ -104,6 +120,7 @@ def close_business_wall_locally(
         "reason": None,
         "cleared_users_count": 0,
         "cleared_role_assignments_count": 0,
+        "cleared_partnerships_count": 0,
     }
 
     if bw is None:
@@ -115,6 +132,7 @@ def close_business_wall_locally(
     _clear_organisation_bw_link(bw)
     result["cleared_users_count"] = _clear_users_selected_bw(bw.id)
     result["cleared_role_assignments_count"] = _clear_role_assignments_for_bw(bw.id)
+    result["cleared_partnerships_count"] = _clear_partnerships_for_bw(bw.id)
 
     if commit:
         db.session.commit()
@@ -144,6 +162,7 @@ def cancel_business_wall_from_app(
         "reason": None,
         "cleared_users_count": 0,
         "cleared_role_assignments_count": 0,
+        "cleared_partnerships_count": 0,
     }
 
     if bw is None:
@@ -172,6 +191,9 @@ def cancel_business_wall_from_app(
     result["cleared_users_count"] = local_result.get("cleared_users_count", 0)
     result["cleared_role_assignments_count"] = local_result.get(
         "cleared_role_assignments_count", 0
+    )
+    result["cleared_partnerships_count"] = local_result.get(
+        "cleared_partnerships_count", 0
     )
 
     return result
