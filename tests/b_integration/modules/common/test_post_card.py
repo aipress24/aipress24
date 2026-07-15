@@ -347,7 +347,8 @@ class TestPostCardArticleByline:
     ):
         author_org = Organisation(name="Agence TCA")
         publisher_org = Organisation(name="Fake-Les Echolos")
-        db_session.add_all([author_org, publisher_org])
+        media_org = Organisation(name="Le Média Cible")
+        db_session.add_all([author_org, publisher_org, media_org])
         db_session.flush()
 
         user = User(email="eliane@example.com", first_name="Eliane", last_name="Kan")
@@ -362,6 +363,7 @@ class TestPostCardArticleByline:
         # Delegated: the article's publisher org differs from the author's org.
         article = ArticlePost(owner=user, title="Automobile")
         article.publisher_id = publisher_org.id
+        article.media_id = media_org.id
         article.published_at = arrow.utcnow()
         db_session.add(article)
         db_session.flush()
@@ -370,3 +372,6 @@ class TestPostCardArticleByline:
         assert "en tant que contact presse de" not in html
         assert "Publié par Eliane Kan" in html
         assert "chez Agence TCA" in html
+        # Bug 0241: the footer uses the "Source :" / "Pour :" labels.
+        assert "Source :" in html
+        assert "Pour :" in html
