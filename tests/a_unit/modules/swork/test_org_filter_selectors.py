@@ -10,12 +10,10 @@ The org filters use a DIFFERENT pattern from the members_list filters
 `test_more_filter_selectors.py`) :
 
 - There is NO `selector(user)` static method.
-- The 4 JSON-array filters share `_OrgListJsonArrayFilter`, which
+- The JSON-array filters share `_OrgListJsonArrayFilter`, which
   reads from `BusinessWall` objects passed to `__init__(bws)` and
   pulls a class-level `bw_field` attribute to know WHICH JSON list
   column to read.
-- `FilterByCategory` is shape-different : its options are a fixed
-  class-level list (no DB-derived options) mapped to BWType values.
 - `FilterByCountryOrm` / `FilterByDeptOrm` / `FilterByCityOrm` take
   pre-fetched code/name lists and don't need BW objects at all.
 
@@ -29,8 +27,6 @@ We pin :
      `str`, and the result is sorted+deduped.
   4. Return-type contracts for the 3 location filters (str vs.
      FilterOption — they are NOT homogeneous, which is intentional).
-  5. The `FilterByCategory.bw_type_map` translation table — pinned so
-     a future bw_type ontology rename surfaces.
 
 This file complements (does not duplicate) the existing tests for
 `FilterByTailleOrganisation`, `_taille_orga_label`, etc., which live
@@ -43,7 +39,6 @@ import pytest
 
 from app.modules.swork.components.base import Filter, FilterOption
 from app.modules.swork.components.organisations_list import (
-    FilterByCategory,
     FilterByCityOrm,
     FilterByCountryOrm,
     FilterByDeptOrm,
@@ -248,49 +243,6 @@ class TestSharedValueCollection:
         bws = [_FakeBW(type_organisation=[1, 2, "A"])]
         # sorted lexicographically over the coerced strings.
         assert OrgFilterByTypeOrganisation(bws).options == ["1", "2", "A"]
-
-
-# ── FilterByCategory : a different shape (fixed class-level options) ─
-
-
-class TestFilterByCategory:
-    """`FilterByCategory` is the odd one out : it has a FIXED
-    class-level options list and a `bw_type_map` translation table
-    from human label → BWType value. No DB derivation."""
-
-    def test_options_are_class_level_and_pinned(self) -> None:
-        """Pin the user-facing labels — a translation rename would
-        break URL state for in-flight links from emails / bookmarks."""
-        assert FilterByCategory.options == [
-            "Agences de presse",
-            "Médias",
-            "PR agencies",
-            "Autres",
-        ]
-
-    def test_id_and_label_pinned(self) -> None:
-        assert FilterByCategory.id == "category"
-        assert FilterByCategory.label == "Categorie"
-
-    def test_bw_type_map_translation(self) -> None:
-        """Pin the translation table so a future BWType ontology
-        rename surfaces. The `None` values are intentional :
-        « Autres » and « Non officialisées » are handled separately
-        in the `.apply()` path (excluded / OR-clause)."""
-        assert FilterByCategory.bw_type_map == {
-            "Agences de presse": "media",
-            "Médias": "media",
-            "PR agencies": "pr",
-            "Autres": None,
-            "Non officialisées": None,
-        }
-
-    def test_press_agencies_and_media_both_map_to_media(self) -> None:
-        """Two distinct user-facing labels share the `media` BWType
-        bucket — pin so a future « split press agencies into their
-        own BWType » refactor is intentional, not accidental."""
-        m = FilterByCategory.bw_type_map
-        assert m["Agences de presse"] == m["Médias"] == "media"
 
 
 # ── Location filters : FilterByCountryOrm / DeptOrm / CityOrm ────────

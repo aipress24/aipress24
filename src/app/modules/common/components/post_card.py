@@ -53,6 +53,9 @@ class ArticleVM(Wrapper):
     views: int = field(init=False)
 
     image_url: str = field(init=False)
+    # Bug 0241: an article is NOT a communiqué, so the card must never use
+    # the PR "en tant que contact presse de" phrasing (that is for CPs).
+    is_communique: bool = field(init=False)
 
     def extra_attrs(self):
         # Lazy import — `purchase_aggregates` pulls `ArticlePurchase`,
@@ -89,6 +92,7 @@ class ArticleVM(Wrapper):
             # back-compat but no longer surfaces here.
             "views": views,
             "image_url": self.get_image_url(),
+            "is_communique": False,
             "_url": url_for(post),
         }
 
@@ -121,6 +125,7 @@ class PressReleaseVM(Wrapper):
     image_url: str = field(init=False)
     image_caption: str = field(init=False)
     image_copyright: str = field(init=False)
+    is_communique: bool = field(init=False)
 
     def extra_attrs(self):
         post: PressReleasePost = self._model
@@ -138,6 +143,7 @@ class PressReleaseVM(Wrapper):
             "image_url": self.get_image_url(),
             # "image_caption": "",
             # "image_copyright": "",
+            "is_communique": True,
             "_url": url_for(post),
         }
 
@@ -168,6 +174,7 @@ class CommuniqueVM(Wrapper):
     summary: str = field(init=False)
 
     image_url: str = field(init=False)
+    is_communique: bool = field(init=False)
 
     def extra_attrs(self):
         post: Communique = self._model
@@ -186,6 +193,7 @@ class CommuniqueVM(Wrapper):
             "replies": replies,
             "views": views,
             "image_url": self.get_image_url(),
+            "is_communique": True,
             "_url": url_for(post),
         }
 
