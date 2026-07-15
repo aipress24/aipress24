@@ -5,6 +5,7 @@
 
 from __future__ import annotations
 
+import os
 from urllib.parse import urlparse, urlunparse
 
 import dramatiq
@@ -34,7 +35,7 @@ def init_dramatiq(app) -> None:
     """
     logger.info("Setting up Dramatiq")
 
-    if app.config.get("TESTING"):
+    if app.config.get("TESTING") or os.environ.get("AIPRESS_SKIP_DRAMATIQ") == "1":
         broker = StubBroker()
         dramatiq.set_broker(broker)
         register_cron_jobs()
