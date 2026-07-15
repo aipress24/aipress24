@@ -328,3 +328,45 @@ class TestPostCardSelfPublicationByline:
             "presse de Fake-Davi Logistique." in html
         )
         assert "chez Fake-Les Propulseurs PR." not in html
+
+
+class TestPostCardArticleByline:
+    """Bug 0241: a News-Agency (or media) ARTICLE must never use the PR
+    « en tant que contact presse de » phrasing — that formulation is
+    reserved for communiqués (a PR agency publishing a CP for a client).
+    An article always surfaces its author, fonction and organisation,
+    even when the publisher org differs from the author's own org.
+    """
+
+    def _render(self, app, post) -> str:
+        with app.test_request_context():
+            return render_template_string('{{ component("post-card", c) }}', c=post)
+
+    def test_delegated_article_uses_author_byline_not_contact_presse(
+        self, db_session, app
+    ):
+        author_org = Organisation(name="Agence TCA")
+        publisher_org = Organisation(name="Fake-Les Echolos")
+        db_session.add_all([author_org, publisher_org])
+        db_session.flush()
+
+        user = User(email="eliane@example.com", first_name="Eliane", last_name="Kan")
+        user.profile = KYCProfile(
+            profile_label="Dirigeant.e d'organes de presse ou média reconnus"
+        )
+        user.organisation = author_org
+        user.organisation_id = author_org.id
+        db_session.add(user)
+        db_session.flush()
+
+        # Delegated: the article's publisher org differs from the author's org.
+        article = ArticlePost(owner=user, title="Automobile")
+        article.publisher_id = publisher_org.id
+        article.published_at = arrow.utcnow()
+        db_session.add(article)
+        db_session.flush()
+
+        html = self._render(app, article)
+        assert "en tant que contact presse de" not in html
+        assert "Publié par Eliane Kan" in html
+        assert "chez Agence TCA" in html

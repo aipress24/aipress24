@@ -207,16 +207,19 @@ class OrganisationsList(BaseList):
             )
         )
 
+        # Bug 0235 (Erick, 2026-07-14): drop the "Catégorie" facet (backed by
+        # no taxonomy) and surface "Types d'entreprises de presse & médias".
+        # Order requested on the ticket: press/media taxonomies first, geo last.
         return [
-            FilterByCategory(),
+            OrgFilterByTypeEntrepriseMedia(active_bws),
+            OrgFilterByTypePresseEtMedia(active_bws),
+            OrgFilterByTypeAgenceRP(active_bws),
+            OrgFilterByTypeOrganisation(active_bws),
+            OrgFilterByTailleOrganisation(active_bws),
+            OrgFilterBySecteurActivite(active_bws),
             FilterByCountryOrm(codes=countries),
             FilterByDeptOrm(names=depts),
             FilterByCityOrm(names=cities),
-            OrgFilterByTypeOrganisation(active_bws),
-            OrgFilterByTypePresseEtMedia(active_bws),
-            OrgFilterByTypeAgenceRP(active_bws),
-            OrgFilterByTailleOrganisation(active_bws),
-            OrgFilterBySecteurActivite(active_bws),
         ]
 
 
@@ -285,38 +288,6 @@ class FilterByCityOrm(Filter):
         return stmt
 
 
-class FilterByCategory(Filter):
-    id = "category"
-    label = "Categorie"
-    # Map display names to BWType values (since we filter on BW now)
-    bw_type_map: ClassVar = {
-        "Agences de presse": "media",  # BWType.MEDIA
-        "Médias": "media",  # BWType.MEDIA
-        "PR agencies": "pr",  # BWType.PR
-        "Autres": None,  # Will be handled separately
-        "Non officialisées": None,  # Excluded - no active BW
-    }
-    options: ClassVar[list[str]] = [  # ty:ignore[invalid-attribute-override]
-        "Agences de presse",
-        "Médias",
-        "PR agencies",
-        "Autres",
-    ]
-
-    def apply(self, stmt: Select, state: dict[str, bool]) -> Select:
-        active_options = self.active_options(state)
-        bw_types: list[str] = []
-        for option in active_options:
-            bw_type = self.bw_type_map.get(str(option))
-            if bw_type:
-                bw_types.append(bw_type)
-        if bw_types:
-            stmt = stmt.where(BusinessWall.status == BWStatus.ACTIVE.value).where(
-                BusinessWall.bw_type.in_(bw_types)
-            )
-        return stmt
-
-
 # ---------------------------------------------------------------------------
 # Bug #0078 — 5 new BW-backed taxonomy filters (Erick 2026-05-27).
 # Each picks its options from the active BusinessWalls in memory (the
@@ -360,6 +331,12 @@ class OrgFilterByTypeOrganisation(_OrgListJsonArrayFilter):
     id = "type_organisation"
     label = "Types d'organisation"
     bw_field = "type_organisation"
+
+
+class OrgFilterByTypeEntrepriseMedia(_OrgListJsonArrayFilter):
+    id = "type_entreprise_media"
+    label = "Types d'entreprises de presse & médias"
+    bw_field = "type_entreprise_media"
 
 
 class OrgFilterByTypePresseEtMedia(_OrgListJsonArrayFilter):

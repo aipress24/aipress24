@@ -266,14 +266,20 @@ class BaseWipView(FlaskView, abc.ABC):
             Organisation.bw_id.is_not(None),
             Organisation.bw_active == "media",
         )
-        query_result = db.session.execute(query).scalars()
+        media_orgs = list(db.session.execute(query).scalars())
+        # Bug 0242: the picker is a MEDIA list, so only pin the user's own
+        # org when it is itself a media. Otherwise a non-media employer
+        # (e.g. a Leaders & Experts company) leaked into the list — a News
+        # Agency / media may only publish for a recognised media, never for
+        # a plain company. Pull the pinned org out of the body to avoid a
+        # duplicate entry. (Supersedes #0133, which pinned it regardless.)
         pinned_org = None
         if g.user.organisation_id:
-            query2 = select(Organisation).where(
-                Organisation.id == g.user.organisation_id
+            pinned_org = next(
+                (o for o in media_orgs if o.id == g.user.organisation_id), None
             )
-            pinned_org = db.session.execute(query2).scalar()
-        return _sort_org_choices(query_result, pinned_org=pinned_org)
+            media_orgs = [o for o in media_orgs if o.id != g.user.organisation_id]
+        return _sort_org_choices(media_orgs, pinned_org=pinned_org)
 
     @templated(UPDATE_TEMPLATE)
     def post(self) -> Response | dict:

@@ -36,6 +36,12 @@
     </script>
     {{ vite_tags() }}
     <script src="https://cdn.tailwindcss.com"></script>
+    {# Bug 0238: the Play CDN defaults to darkMode:'media' (OS-driven), which
+       lit up the Flowbite `dark:*` variants on the "Gérer les rôles internes"
+       modals as an illegible dark slate. Align it with the project build
+       (vite/tailwind.config.js → darkMode:'class') so `dark:*` only applies
+       under a `.dark` ancestor (never set here) — everything renders light. #}
+    <script>tailwind.config = { darkMode: "class" };</script>
 </head>
 <body class="bg-gray-100 min-h-screen h-full min-h-screen">
     {% include '_header.html' %}

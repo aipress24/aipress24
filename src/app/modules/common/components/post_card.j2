@@ -71,15 +71,17 @@
         </div>
     </div>
 
-    {% if post.author.organisation and post.publisher
+    {# Bug 0241: the « en tant que contact presse de » phrasing is a
+       PR-agency / communiqué formulation and must NOT be used for News
+       Agency (or media) articles — hence the `post.is_communique` gate. #}
+    {% if post.is_communique and post.author.organisation and post.publisher
     and post.author.organisation.id != post.publisher.id %}
     <div class="px-4 py-1 text-xs italic text-gray-500">
         Publié par {{ post.author.organisation.bw_name or post.author.organisation.name }} en tant que contact presse de {{ post.publisher.bw_name or post.publisher.name }}.
     </div>
 {% elif post.author %}
-    {# Bug #0093: self-publication (no client delegation) — surface
-       the author, fonction and organisation, like the delegated
-       byline above. #}
+    {# Bug #0093 / #0241: self-published CP, or any article — surface the
+       author, fonction and organisation. #}
     <div class="px-4 py-1 text-xs italic text-gray-500">
         Publié par {{ post.author.full_name }}{% if post.author.job_title %}, {{ post.author.job_title }}{% endif %}{% if post.author.organisation %} chez {{ post.author.organisation.bw_name or post.author.organisation.name }}{% endif %}.
     </div>
@@ -94,7 +96,7 @@
             </a>
             <a href="{# url_for(post.publisher) #}" class="focus:outline-none">
                 <p class="text-sm font-medium text-gray-900">
-                    {{ post.publisher.bw_name or post.publisher.name }}
+                    Source : {{ post.publisher.bw_name or post.publisher.name }}
                 </p>
             </a>
         {% endif %}
@@ -102,7 +104,7 @@
             <div class="flex-1 min-w-0">
                 <a href="{{ url_for(post.media) }}" class="focus:outline-none">
                     <p class="text-sm font-medium text-gray-900">
-                        Pour: {{ post.media.name }}
+                        Pour : {{ post.media.name }}
                     </p>
                 </a>
             </div>

@@ -33,7 +33,6 @@ from app.modules.swork.components.members_list import (
     make_filters as make_member_filters,
 )
 from app.modules.swork.components.organisations_list import (
-    FilterByCategory,
     FilterByCityOrm as OrgFilterByCityOrm,
     FilterByDeptOrm as OrgFilterByDeptOrm,
     OrganisationsList,
@@ -728,35 +727,6 @@ class TestOrganisationsListCount:
             assert ctx["count"] >= 1  # At least the test org
 
 
-class TestFilterByCategory:
-    """Test FilterByCategory class."""
-
-    def test_filter_id(self):
-        """Test FilterByCategory has correct id."""
-        assert FilterByCategory.id == "category"
-
-    def test_filter_label(self):
-        """Test FilterByCategory has correct label."""
-        assert FilterByCategory.label == "Categorie"
-
-    def test_org_type_map_has_all_types(self):
-        """Test org_type_map has expected categories."""
-        assert "Agences de presse" in FilterByCategory.bw_type_map
-        assert "Médias" in FilterByCategory.bw_type_map
-        assert "PR agencies" in FilterByCategory.bw_type_map
-        assert "Autres" in FilterByCategory.bw_type_map
-        assert "Non officialisées" in FilterByCategory.bw_type_map
-
-    def test_apply_with_no_active_options(self, db_session: Session):
-        """Test apply returns unchanged stmt when no options active."""
-        filter = FilterByCategory()
-        state = {str(i): False for i in range(len(filter.options))}
-
-        stmt = select(Organisation)
-        result = filter.apply(stmt, state)
-        assert str(result) == str(stmt)
-
-
 class TestOrgFilterByDeptOrm:
     """Test OrgFilterByDeptOrm class."""
 
@@ -779,18 +749,15 @@ class TestOrganisationsListFilters:
     def test_get_filters_returns_list(
         self, db_session: Session, test_organisation: Organisation
     ):
-        """Bug #0078 (Erick, 2026-05-27) : 5 BW-backed filters added to
-        /swork/organisations on top of the 4 existing geo + category
-        filters — Types d'organisation, Types presse & médias, Types
-        de PR Agencies, Tailles d'organisation, Secteurs détaillés.
-        Source data is on BusinessWall (populated in W10), mirrors the
-        equivalents on the /swork/members list."""
+        """Bug #0078 (Erick, 2026-05-27) added 5 BW-backed taxonomy filters.
+        Bug #0235 (2026-07-14) then dropped the taxonomy-less "Catégorie"
+        facet and added "Types d'entreprises de presse & médias" — so the
+        count stays 9 : 6 BW-backed taxonomy filters + 3 geo filters."""
         orgs_list = OrganisationsList()
         filters = orgs_list.get_filters()
         assert isinstance(filters, list)
         assert len(filters) == 9, (
-            "expected the 4 existing filters (Category + 3 geo) plus the "
-            "5 new BW-backed taxonomy filters (#0078)"
+            "expected 6 BW-backed taxonomy filters + 3 geo filters (#0078, #0235)"
         )
 
     def test_filter_ids_cover_erick_request(
@@ -801,6 +768,7 @@ class TestOrganisationsListFilters:
         orgs_list = OrganisationsList()
         ids = {f.id for f in orgs_list.get_filters()}
         for expected in (
+            "type_entreprise_media",
             "type_organisation",
             "type_presse_et_media",
             "type_agence_rp",
@@ -809,8 +777,10 @@ class TestOrganisationsListFilters:
         ):
             assert expected in ids, (
                 f"filter id {expected!r} missing — Erick listed it on the "
-                f"#0078 spec (got {sorted(ids)})"
+                f"#0078 / #0235 spec (got {sorted(ids)})"
             )
+        # Bug #0235: the taxonomy-less "Catégorie" facet was removed.
+        assert "category" not in ids
 
     def test_type_organisation_filter_derives_options_from_bw_data(self):
         """The JSON-list BW filters discover their option set by

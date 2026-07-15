@@ -129,15 +129,16 @@ class TestGetMediaOrganisationsScope:
         ids = [c[0] for c in choices]
         assert str(pr.id) not in ids
 
-    def test_user_own_org_prepended_when_set(
+    def test_user_own_media_org_pinned_without_duplicate(
         self,
         app: Flask,
         db_session: Session,
         picker_user: User,
     ):
-        # Existing behaviour: the user's own org gets prepended (under bw_name)
-        # even if it isn't a media BW. The fix must NOT regress that.
-        own = _make_org(db_session, name="My Own Org", has_bw=True, bw_active="pr")
+        # Bug 0242: the user's own org is pinned first ONLY when it is
+        # itself a media — and it must not also appear a second time in
+        # the sorted body.
+        own = _make_org(db_session, name="My Own Media", has_bw=True, bw_active="media")
         own.bw_name = "MY OWN BW"
         picker_user.organisation_id = own.id
         db_session.flush()
@@ -146,5 +147,30 @@ class TestGetMediaOrganisationsScope:
             g.user = picker_user
             choices = _ConcreteView().get_media_organisations()
 
-        # First entry is the user's own org with its bw_name as the label.
         assert choices[0] == (str(own.id), "MY OWN BW")
+        assert [c for c in choices if c[0] == str(own.id)] == [
+            (str(own.id), "MY OWN BW")
+        ], "the pinned org must not be duplicated in the list body"
+
+    def test_user_own_non_media_org_excluded(
+        self,
+        app: Flask,
+        db_session: Session,
+        picker_user: User,
+    ):
+        # Bug 0242: a non-media own org (e.g. a Leaders & Experts company)
+        # must NOT appear in the MEDIA picker — this supersedes #0133,
+        # which prepended it regardless of type.
+        own = _make_org(
+            db_session, name="Strada Transports", has_bw=True, bw_active="pr"
+        )
+        own.bw_name = "STRADA BW"
+        picker_user.organisation_id = own.id
+        db_session.flush()
+
+        with app.test_request_context():
+            g.user = picker_user
+            choices = _ConcreteView().get_media_organisations()
+
+        ids = [c[0] for c in choices]
+        assert str(own.id) not in ids
