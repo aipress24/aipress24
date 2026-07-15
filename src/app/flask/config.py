@@ -90,8 +90,11 @@ def get_db_url(app):
     Returns:
         str: Database URL or empty string if not found.
     """
+    # Explicit local Flask config takes precedence over PaaS defaults.
+    database_url = os.environ.get("FLASK_SQLALCHEMY_DATABASE_URI", "")
     # Heroku
-    database_url = os.environ.get("DATABASE_URL", "")
+    if not database_url:
+        database_url = os.environ.get("DATABASE_URL", "")
     # Clever Cloud
     if not database_url:
         database_url = os.environ.get("POSTGRESQL_ADDON_URI", "")
