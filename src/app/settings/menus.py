@@ -193,12 +193,11 @@ ADMIN_MENU = [
         "endpoint": "admin.debug_achats",
         "icon": "shopping-bag",
     },
-    # Disabled for security
-    # {
-    #     "label": "Delete BWs",
-    #     "endpoint": "admin.delete_bws",
-    #     "icon": "trash-2",
-    # },
+    {
+        "label": "Delete BWs",
+        "endpoint": "admin.delete_bws",
+        "icon": "trash-2",
+    },
     {
         "label": "Debug relink BW/orgs",
         "endpoint": "admin.relink_bws",
