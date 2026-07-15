@@ -17,7 +17,7 @@ from app.logging import warn
 from app.models.auth import User
 from app.models.organisation import Organisation
 from app.modules.admin import blueprint
-from app.modules.bw.bw_activation.models import BusinessWall
+from app.modules.bw.bw_activation.models import BusinessWall, Partnership
 from app.modules.bw.bw_activation.models.business_wall import BWStatus
 from app.modules.bw.bw_activation.models.role import (
     BWRoleType,
@@ -59,6 +59,96 @@ def _canonical_org_for_bw(bw: BusinessWall) -> Organisation:
     return org
 
 
+def _cleanup_orphaned_bw_data(all_bw_ids: set[UUID]) -> dict[str, int]:
+    """Remove data referencing Business Walls that no longer exist.
+
+    Returns counts of deleted/cleared records.
+    """
+    deleted_role_assignments = 0
+    deleted_partnerships = 0
+    stale_partner_partnerships = 0
+    cleared_user_selected = 0
+    stale_orgs = 0
+
+    # Role assignments pointing to a deleted BW
+    for assignment in db.session.scalars(
+        select(RoleAssignment).where(RoleAssignment.business_wall_id.notin_(all_bw_ids))
+    ).all():
+        warn(
+            f"Deleting orphaned RoleAssignment {assignment.id} "
+            f"for missing BW {assignment.business_wall_id}"
+        )
+        db.session.delete(assignment)
+        deleted_role_assignments += 1
+
+    # Partnerships pointing to a deleted BW
+    for partnership in db.session.scalars(
+        select(Partnership).where(Partnership.business_wall_id.notin_(all_bw_ids))
+    ).all():
+        warn(
+            f"Deleting orphaned Partnership {partnership.id} "
+            f"for missing BW {partnership.business_wall_id}"
+        )
+        db.session.delete(partnership)
+        deleted_partnerships += 1
+
+    # Partnerships whose partner BW no longer exists
+    for partnership in db.session.scalars(select(Partnership)).all():
+        try:
+            partner_bw_uuid = UUID(partnership.partner_bw_id)
+        except (ValueError, TypeError):
+            warn(
+                f"Deleting Partnership {partnership.id} with invalid partner_bw_id "
+                f"{partnership.partner_bw_id!r}"
+            )
+            db.session.delete(partnership)
+            stale_partner_partnerships += 1
+            continue
+        if partner_bw_uuid not in all_bw_ids:
+            warn(
+                f"Deleting Partnership {partnership.id}: partner BW "
+                f"{partnership.partner_bw_id} does not exist"
+            )
+            db.session.delete(partnership)
+            stale_partner_partnerships += 1
+
+    # Users with selected_bw_id pointing to a deleted BW
+    for user in db.session.scalars(
+        select(User).where(User.selected_bw_id.is_not(None))
+    ):
+        if user.selected_bw_id not in all_bw_ids:
+            warn(
+                f"Clear selected_bw_id for user {user.id} ({user.email}): "
+                f"BW {user.selected_bw_id} does not exist"
+            )
+            user.selected_bw_id = None
+            cleared_user_selected += 1
+
+    # Organisations with bw_id pointing to a deleted BW
+    for org in db.session.scalars(
+        select(Organisation).where(
+            Organisation.bw_id.is_not(None), Organisation.deleted_at.is_(None)
+        )
+    ):
+        if org.bw_id not in all_bw_ids:
+            warn(
+                f"Clear BW link on org {org.id} ({org.name}): "
+                f"bw_id={org.bw_id} does not exist"
+            )
+            org.bw_id = None
+            org.bw_active = None
+            org.bw_name = ""
+            stale_orgs += 1
+
+    return {
+        "deleted_role_assignments": deleted_role_assignments,
+        "deleted_partnerships": deleted_partnerships,
+        "stale_partner_partnerships": stale_partner_partnerships,
+        "cleared_user_selected": cleared_user_selected,
+        "stale_orgs": stale_orgs,
+    }
+
+
 def _relink_bws() -> dict[str, int]:
     """Enforce reciprocal BW / Organisation links and update users."""
     active_bws = list(
@@ -67,6 +157,7 @@ def _relink_bws() -> dict[str, int]:
         )
     )
     active_bw_ids: set[UUID] = {bw.id for bw in active_bws}
+    all_bw_ids: set[UUID] = set(db.session.scalars(select(BusinessWall.id)).all())
 
     fixed_bw_org = 0
     fixed_org_bw = 0
@@ -170,6 +261,8 @@ def _relink_bws() -> dict[str, int]:
             user.selected_bw_id = None
             cleared_user_selected += 1
 
+    orphaned_summary = _cleanup_orphaned_bw_data(all_bw_ids)
+
     db.session.commit()
     return {
         "active_bws": len(active_bws),
@@ -178,8 +271,12 @@ def _relink_bws() -> dict[str, int]:
         "fixed_user_org": fixed_user_org,
         "fixed_user_selected": fixed_user_selected,
         "fixed_owner_roles": fixed_owner_roles,
-        "stale_orgs": stale_orgs,
-        "cleared_user_selected": cleared_user_selected,
+        "stale_orgs": stale_orgs + orphaned_summary["stale_orgs"],
+        "cleared_user_selected": cleared_user_selected
+        + orphaned_summary["cleared_user_selected"],
+        "deleted_role_assignments": orphaned_summary["deleted_role_assignments"],
+        "deleted_partnerships": orphaned_summary["deleted_partnerships"],
+        "stale_partner_partnerships": orphaned_summary["stale_partner_partnerships"],
     }
 
 
@@ -197,7 +294,10 @@ def relink_bws():
             f"{summary['fixed_user_selected']} selected BW, "
             f"{summary['fixed_owner_roles']} owner roles, "
             f"{summary['stale_orgs']} stale orgs cleared, "
-            f"{summary['cleared_user_selected']} user selected BW cleared.",
+            f"{summary['cleared_user_selected']} user selected BW cleared, "
+            f"{summary['deleted_role_assignments']} orphaned role assignments deleted, "
+            f"{summary['deleted_partnerships']} orphaned partnerships deleted, "
+            f"{summary['stale_partner_partnerships']} stale partner partnerships deleted.",
             "success",
         )
         return redirect(url_for("admin.relink_bws"))
