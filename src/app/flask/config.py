@@ -60,17 +60,16 @@ def configure_app(app, config) -> None:
         config: Optional configuration object for testing.
     """
     if config:
-        # Probably testing -> use dedicated config object
+        # Probably testing so use this dedicated config object
         app.config.from_object(config)
+        return
 
-    else:
-        dynaconf = Dynaconf(
-            settings_files=["etc/settings.toml", "etc/secrets.toml"],
-            environments=True,
-            envvar_prefix="FLASK",
-        )
-        app.config.from_mapping(dynaconf)
-
+    dynaconf = Dynaconf(
+        settings_files=["etc/settings.toml", "etc/secrets.toml"],
+        environments=True,
+        envvar_prefix="FLASK",
+    )
+    app.config.from_mapping(dynaconf)
     set_db_uri(app)
 
 
