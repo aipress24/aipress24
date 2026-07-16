@@ -29,6 +29,7 @@ from app.models.auth import User
 from app.models.organisation import Organisation
 from app.modules.admin.invitations import add_invited_users
 from app.modules.admin.utils import get_user_per_email
+from app.modules.bw.bw_activation.bw_cancellation import close_business_wall_locally
 from app.modules.bw.bw_activation.bw_creation import ensure_bw_owner_role
 from app.modules.bw.bw_activation.models import (
     BusinessWall,
@@ -336,11 +337,23 @@ def on_customer_subscription_created(event: stripe.Event) -> None:
 def on_customer_subscription_deleted(event: stripe.Event) -> None:
     """Occurs whenever a customer’s subscription ends.
 
-    data.object is a subscription"""
+    data.object is a subscription. We close the BW locally so the cleanup
+    matches an admin-side deactivation (roles, partnerships, org link,
+    selected_bw_id, etc.).
+    """
     data_obj = _get_event_object(event)
-    subinfo = _make_customer_subscription_info(data_obj)
-    subinfo.operation = "delete"
-    _register_bw_subscription(subinfo)
+    sub_id = _obj_get(data_obj, "id")
+    if sub_id:
+        sub = db.session.execute(
+            sa_select(Subscription).where(Subscription.stripe_subscription_id == sub_id)
+        ).scalar_one_or_none()
+        if sub is not None and sub.business_wall is not None:
+            bw = sub.business_wall
+            close_business_wall_locally(bw, commit=True)
+            info(
+                f"BW {bw.id} closed locally after Stripe subscription "
+                f"{sub_id} was deleted."
+            )
 
 
 def on_customer_subscription_paused(event: stripe.Event) -> None:
