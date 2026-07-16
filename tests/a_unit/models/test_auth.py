@@ -8,11 +8,19 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+import arrow
 import pytest
 from sqlalchemy.exc import IntegrityError
 
 from app.enums import RoleEnum
-from app.models.auth import KYCProfile, Role, User, roles_users
+from app.models.auth import (
+    KYCProfile,
+    Role,
+    User,
+    clone_user,
+    merge_values_from_other_user,
+    roles_users,
+)
 from app.models.organisation import Organisation
 
 if TYPE_CHECKING:
@@ -745,3 +753,48 @@ class TestMetierFonctionForBW:
             match_making={"fonctions_journalisme": ["Rédactrice en chef"]},
         )
         assert profile.user.metier_fonction_for_bw("media") == "Rédactrice en chef"
+
+
+class TestUserCgvAcceptedAt:
+    """Tests for the User.cgv_accepted_at field."""
+
+    def test_default_is_none(self, db: SQLAlchemy) -> None:
+        """Fresh users have no CGV acceptance timestamp."""
+        user = User(email="cgv_default@example.com")
+        profile = KYCProfile()
+        user.profile = profile
+        db.session.add_all([user, profile])
+        db.session.flush()
+
+        assert user.cgv_accepted_at is None
+
+    def test_clone_user_copies_cgv_accepted_at(self, db: SQLAlchemy) -> None:
+        """clone_user must propagate the CGV acceptance timestamp."""
+        orig = User(email="cgv_orig@example.com")
+        profile = KYCProfile()
+        orig.profile = profile
+        orig.cgv_accepted_at = arrow.utcnow()
+        db.session.add_all([orig, profile])
+        db.session.flush()
+
+        cloned = clone_user(orig)
+
+        assert cloned.cgv_accepted_at == orig.cgv_accepted_at
+
+    def test_merge_values_from_other_user_copies_cgv_accepted_at(
+        self, db: SQLAlchemy
+    ) -> None:
+        """Merging a cloned user back must keep the CGV acceptance timestamp."""
+        orig = User(email="cgv_orig_merge@example.com")
+        modified = User(email="cgv_modified_merge@example.com")
+        orig_profile = KYCProfile()
+        modified_profile = KYCProfile()
+        orig.profile = orig_profile
+        modified.profile = modified_profile
+        modified.cgv_accepted_at = arrow.utcnow()
+        db.session.add_all([orig, modified, orig_profile, modified_profile])
+        db.session.flush()
+
+        merge_values_from_other_user(orig, modified)
+
+        assert orig.cgv_accepted_at == modified.cgv_accepted_at
