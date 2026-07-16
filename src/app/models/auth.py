@@ -109,6 +109,10 @@ class User(LifeCycleMixin, Addressable, UserMixin, Base):
         ArrowType(timezone=True), server_default=func.now()
     )
 
+    cgv_accepted_at: Mapped[arrow.Arrow | None] = mapped_column(
+        ArrowType(timezone=True), nullable=True, default=None
+    )
+
     gender: Mapped[str] = mapped_column(sa.String(1), default="?")
     first_name: Mapped[str] = mapped_column(sa.String(64), default="")
     last_name: Mapped[str] = mapped_column(sa.String(64), default="")
@@ -822,6 +826,7 @@ def clone_user(orig_user: User) -> User:
         fs_uniquifier=uuid.uuid4().hex,
         gcu_acceptation=orig_user.gcu_acceptation,
         gcu_acceptation_date=orig_user.gcu_acceptation_date,
+        cgv_accepted_at=orig_user.cgv_accepted_at,
         # actual user fields:
         gender=orig_user.gender,
         first_name=orig_user.first_name,
@@ -875,6 +880,7 @@ def merge_values_from_other_user(orig_user: User, modified_user: User) -> None:
     # unchanged orig_user.fs_uniquifier
     orig_user.gcu_acceptation = modified_user.gcu_acceptation
     orig_user.gcu_acceptation_date = modified_user.gcu_acceptation_date
+    orig_user.cgv_accepted_at = modified_user.cgv_accepted_at
     # actual user fields:
     orig_user.gender = modified_user.gender
     orig_user.first_name = modified_user.first_name
