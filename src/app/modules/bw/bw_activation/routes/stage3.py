@@ -9,6 +9,7 @@ from __future__ import annotations
 from datetime import UTC, datetime
 from typing import TYPE_CHECKING, Any, cast
 
+import arrow
 import stripe
 from flask import (
     current_app,
@@ -150,6 +151,10 @@ def set_pricing(bw_type: str):
     session["bw_type"] = bw_type
     session["pricing_value"] = pricing_value
     session["cgv_accepted"] = True  # Store CGV acceptance
+    user = cast("User", g.user)
+    user.cgv_accepted_at = arrow.utcnow()
+    db.session.merge(user)
+    db.session.commit()
     # Ticket #0182 — preserve the count across the
     # activation funnel so stage B01 (`configure_content`)
     # can pre-select the « Taille de l'organisation »
@@ -786,6 +791,9 @@ def stripe_info(bw_type: str):
         session["bw_type"] = bw_type
         session["pricing_value"] = bw_info.get("pricing_default", 1)
         session["cgv_accepted"] = True
+        user = cast("User", g.user)
+        user.cgv_accepted_at = arrow.utcnow()
+        db.session.merge(user)
         return redirect(url_for("bw_activation.payment", bw_type=bw_type))
 
     default_name = ""
