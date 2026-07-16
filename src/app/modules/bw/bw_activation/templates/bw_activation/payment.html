@@ -71,18 +71,7 @@
                         {% endif %}
                     </p>
                 </div>
-                <form id="cgv-form" class="mb-6">
-                    <label class="flex items-start gap-2">
-                        <input type="checkbox" id="cgv-accepted" class="mt-1" required>
-                        <span class="text-sm text-gray-700">
-                            J'accepte les
-                            <a href="/page/CGV-BusinessWall"
-                               target="_blank"
-                               class="text-blue-600 underline">Conditions générales de vente</a>.
-                        </span>
-                    </label>
-                </form>
-                <div id="stripe-pt-wrapper" hidden>
+                <div id="stripe-pt-wrapper">
                     <form method="POST" action="{{ url_for('bw_activation.checkout', bw_type=bw_type) }}">
                         <button
                             type="submit"
@@ -93,15 +82,6 @@
                 </div>
 
                 <script async src="https://js.stripe.com/v3/pricing-table.js"></script>
-                <script>
-                    (function () {
-                        const cb = document.getElementById('cgv-accepted');
-                        const wrapper = document.getElementById('stripe-pt-wrapper');
-                        cb.addEventListener('change', () => {
-                            wrapper.hidden = !cb.checked;
-                        });
-                    })();
-                </script>
 
                 <div class="mt-6 flex justify-between">
                     <a href="{{ url_for('bw_activation.index') }}"
