@@ -11,11 +11,10 @@ to exercise as a whole.
 
 The strategy here follows Pattern A from the testing pyramid plan: we
 keep the imperative Flask shells thin and extract the *decision* logic
-into pure functions (``cancel_subscription_action``,
-``parse_content_form``, ``content_form_missing_required``,
+into pure functions (``parse_content_form``, ``content_form_missing_required``,
 ``gallery_upload_outcome``, ``gallery_swap_positions``). These tests
-exercise those decisions with plain dicts and stand-in BW / subscription
-objects — no Flask, no DB, no test doubles, no fixture patching.
+exercise those decisions with plain dicts and stand-in objects — no
+Flask, no DB, no test doubles, no fixture patching.
 """
 
 from __future__ import annotations
@@ -26,7 +25,6 @@ from typing import Any
 import pytest
 
 from app.modules.bw.bw_activation.routes.stage_b1 import (
-    cancel_subscription_action,
     content_form_missing_required,
     parse_content_form,
 )
@@ -39,143 +37,11 @@ from app.modules.bw.bw_activation.routes.stage_b1b import (
 
 
 @dataclass
-class FakeSubscription:
-    """Minimal stand-in for a Stripe-backed Subscription row.
-
-    Only carries the single attribute the decision predicate reads.
-    """
-
-    stripe_customer_id: str | None = None
-
-
-@dataclass
-class FakeBW:
-    """Minimal stand-in for a BusinessWall used by the cancel-subscription
-    predicate. Carries only the attributes actually inspected."""
-
-    subscription: FakeSubscription | None = None
-
-
-@dataclass
 class FakeGalleryImage:
     """Stand-in for `BWImage` used by gallery-swap tests."""
 
     id: int
     position: int = 0
-
-
-# --- cancel_subscription_action -------------------------------------------
-
-
-class TestCancelSubscriptionAction:
-    """Branch coverage of the paid-BW cancellation decision tree."""
-
-    def _bw(self, customer_id: str | None = None) -> FakeBW:
-        return FakeBW(subscription=FakeSubscription(stripe_customer_id=customer_id))
-
-    def test_redirects_to_stripe_portal_when_live_and_has_stripe_sub(self):
-        action = cancel_subscription_action(
-            bw_activated=True,
-            business_wall=self._bw("cus_123"),
-            user_id=1,
-            manager_ids={1},
-            stripe_live_enabled=True,
-        )
-        assert action == "redirect_stripe_portal"
-
-    def test_no_stripe_portal_when_live_but_no_customer_id(self):
-        """A BW created before Stripe was enabled still cancels locally."""
-        action = cancel_subscription_action(
-            bw_activated=True,
-            business_wall=self._bw(customer_id=None),
-            user_id=1,
-            manager_ids={1},
-            stripe_live_enabled=True,
-        )
-        assert action == "cancel_locally"
-
-    @pytest.mark.parametrize(
-        ("subscription", "stripe_live"),
-        [
-            (None, True),  # No subscription row at all
-            (FakeSubscription(stripe_customer_id=None), True),  # Pre-Stripe BW
-            (FakeSubscription(stripe_customer_id="cus_x"), False),  # Live disabled
-        ],
-    )
-    def test_falls_back_to_local_cancel_outside_stripe_branch(
-        self, subscription: FakeSubscription | None, stripe_live: bool
-    ):
-        action = cancel_subscription_action(
-            bw_activated=True,
-            business_wall=FakeBW(subscription=subscription),
-            user_id=1,
-            manager_ids={1},
-            stripe_live_enabled=stripe_live,
-        )
-        assert action == "cancel_locally"
-
-    def test_redirect_index_when_session_not_activated(self):
-        action = cancel_subscription_action(
-            bw_activated=False,
-            business_wall=self._bw(),
-            user_id=1,
-            manager_ids={1},
-            stripe_live_enabled=False,
-        )
-        assert action == "redirect_index"
-
-    def test_not_authorized_when_bw_missing(self):
-        action = cancel_subscription_action(
-            bw_activated=True,
-            business_wall=None,
-            user_id=1,
-            manager_ids={1},
-            stripe_live_enabled=False,
-        )
-        assert action == "redirect_not_authorized_bw_not_found"
-
-    def test_not_authorized_when_user_not_a_manager(self):
-        action = cancel_subscription_action(
-            bw_activated=True,
-            business_wall=self._bw(),
-            user_id=42,
-            manager_ids={1, 7, 99},
-            stripe_live_enabled=False,
-        )
-        assert action == "redirect_not_authorized_not_manager"
-
-    def test_not_authorized_when_user_id_is_none(self):
-        action = cancel_subscription_action(
-            bw_activated=True,
-            business_wall=self._bw(),
-            user_id=None,
-            manager_ids={1},
-            stripe_live_enabled=False,
-        )
-        assert action == "redirect_not_authorized_not_manager"
-
-    def test_stripe_branch_takes_priority_over_session_check(self):
-        """Even if the session somehow lost ``bw_activated``, the Stripe
-        portal branch must still win when applicable — otherwise we'd
-        bounce a paying customer to ``/index`` and never tell Stripe."""
-        action = cancel_subscription_action(
-            bw_activated=False,
-            business_wall=self._bw("cus_xyz"),
-            user_id=1,
-            manager_ids={1},
-            stripe_live_enabled=True,
-        )
-        assert action == "redirect_stripe_portal"
-
-    def test_happy_path_local_cancel(self):
-        action = cancel_subscription_action(
-            bw_activated=True,
-            business_wall=self._bw(),
-            user_id=7,
-            manager_ids={7, 8, 9},
-            stripe_live_enabled=False,
-        )
-        assert action == "cancel_locally"
 
 
 # --- content_form_missing_required ----------------------------------------

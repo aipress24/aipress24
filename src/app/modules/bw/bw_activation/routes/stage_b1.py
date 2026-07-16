@@ -6,14 +6,11 @@
 
 from __future__ import annotations
 
-from datetime import UTC, datetime
 from typing import TYPE_CHECKING, Any, cast
 
 from flask import (
-    current_app,
     flash,
     g,
-    make_response,
     redirect,
     render_template,
     request,
@@ -28,14 +25,10 @@ from app.logging import warn
 from app.modules.bw.bw_activation import bp
 from app.modules.bw.bw_activation.bw_creation import coerce_payer_is_owner
 from app.modules.bw.bw_activation.config import BW_TYPES, taille_orga_for_employee_count
-from app.modules.bw.bw_activation.models.business_wall import BWStatus
-from app.modules.bw.bw_activation.models.subscription import SubscriptionStatus
 from app.modules.bw.bw_activation.user_utils import current_business_wall
 from app.modules.bw.bw_activation.utils import (
     ERR_BW_NOT_FOUND,
     ERR_NOT_MANAGER,
-    bw_managers_ids,
-    clear_bw_session,
     fill_session,
     is_bw_manager_or_admin,
 )
@@ -53,43 +46,6 @@ if TYPE_CHECKING:
 # tests/a_unit/modules/bw/test_stages_b1.py with plain dicts / stand-in
 # objects (no Flask, no DB, no mocks). They isolate the decision logic
 # of stage B1 from the imperative Flask shell above.
-
-
-def cancel_subscription_action(
-    *,
-    bw_activated: bool,
-    business_wall: Any,
-    user_id: int | None,
-    manager_ids: set[int],
-    stripe_live_enabled: bool,
-) -> str:
-    """Decide what `cancel_subscription` should do, as a single keyword.
-
-    Returns one of:
-      - ``"redirect_stripe_portal"`` — Stripe live and BW has a real
-        Stripe subscription; cancellation must happen via Stripe portal.
-      - ``"redirect_index"`` — session has no active BW activation.
-      - ``"redirect_not_authorized_bw_not_found"`` — no BW for user.
-      - ``"redirect_not_authorized_not_manager"`` — user isn't a manager.
-      - ``"cancel_locally"`` — proceed with local cancellation.
-
-    The branch order mirrors the original route so the keyword maps 1:1
-    to a redirect / mutation arm in the shell.
-    """
-    has_stripe_sub = bool(
-        business_wall is not None
-        and getattr(business_wall, "subscription", None) is not None
-        and getattr(business_wall.subscription, "stripe_customer_id", None)
-    )
-    if stripe_live_enabled and has_stripe_sub:
-        return "redirect_stripe_portal"
-    if not bw_activated:
-        return "redirect_index"
-    if business_wall is None:
-        return "redirect_not_authorized_bw_not_found"
-    if user_id is None or user_id not in manager_ids:
-        return "redirect_not_authorized_not_manager"
-    return "cancel_locally"
 
 
 def parse_content_form(form: dict[str, Any]) -> dict[str, Any]:
@@ -541,82 +497,3 @@ def configure_content():
         interest_association_ontology=interest_association_ontology,
         pays_ontology=pays_ontology,
     )
-
-
-@bp.route("/cancel-subscription", methods=["POST"])
-def cancel_subscription():
-    """Cancel a Business Wall subscription locally.
-
-    When `STRIPE_LIVE_ENABLED` is on *and* this BW has an actual Stripe
-    subscription, cancellation go through the Stripe Billing Portal
-    so that Stripe stops billing.
-
-    If the BW was created before Stripe was enabled (or via simulation)
-    and has no Stripe customer id, the local cancellation is still allowed.
-    """
-    user = cast("User", g.user)
-    business_wall = current_business_wall(user)
-
-    has_stripe_sub = (
-        business_wall is not None
-        and business_wall.subscription is not None
-        and business_wall.subscription.stripe_customer_id
-    )
-
-    if current_app.config.get("STRIPE_LIVE_ENABLED") and has_stripe_sub:
-        flash(
-            "Merci de résilier depuis « Gérer mon abonnement » (portail Stripe).",
-            "error",
-        )
-        response = make_response()
-        response.headers["HX-Redirect"] = url_for("bw_activation.dashboard")
-        return response
-
-    if not session.get("bw_activated"):
-        response = make_response()
-        response.headers["HX-Redirect"] = url_for("bw_activation.index")
-        return response
-
-    if not business_wall:
-        session["error"] = ERR_BW_NOT_FOUND
-        response = make_response()
-        response.headers["HX-Redirect"] = url_for("bw_activation.not_authorized")
-        return response
-
-    if user.id not in bw_managers_ids(business_wall):
-        session["error"] = ERR_NOT_MANAGER
-        response = make_response()
-        response.headers["HX-Redirect"] = url_for("bw_activation.not_authorized")
-        return response
-
-    try:
-        # Update BusinessWall status
-        business_wall.status = BWStatus.CANCELLED.value
-
-        # Update subscription status if exists
-        if business_wall.subscription:
-            business_wall.subscription.status = SubscriptionStatus.CANCELLED.value
-            business_wall.subscription.cancelled_at = datetime.now(UTC)
-
-        # Clear organisation BW fields
-        org = business_wall.get_organisation()
-        if org:
-            org.bw_active = ""
-            # org.bw_id is nummable
-            org.bw_id = None  # type: ignore [invalid-assignment]
-
-        db.session.commit()
-
-        clear_bw_session()
-
-        response = make_response()
-        response.headers["HX-Redirect"] = url_for("bw_activation.dashboard")
-        return response
-
-    except Exception as e:
-        db.session.rollback()
-        warn(f"Error cancelling subscription: {e}")
-        flash("Une erreur est survenue lors de la résiliation.", "error")
-        response = make_response()
-        response.headers["HX-Redirect"] = url_for("bw_activation.configure_content")
-        return response
