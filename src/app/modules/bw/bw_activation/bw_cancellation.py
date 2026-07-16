@@ -175,19 +175,19 @@ def cancel_business_wall_from_app(
         stripe_sub_id = subscription.stripe_subscription_id
     result["stripe_subscription_id"] = stripe_sub_id
 
+    stripe_error: str | None = None
     if stripe_sub_id:
         result["stripe_cancelled"] = cancel_stripe_subscription(stripe_sub_id)
         if not result["stripe_cancelled"]:
-            result["reason"] = (
+            stripe_error = (
                 f"Impossible d'annuler l'abonnement Stripe {stripe_sub_id}"
             )
-            return result
     else:
         result["stripe_cancelled"] = True
 
     local_result = close_business_wall_locally(bw, commit=commit)
     result["success"] = local_result["success"]
-    result["reason"] = local_result.get("reason")
+    result["reason"] = local_result.get("reason") or stripe_error
     result["cleared_users_count"] = local_result.get("cleared_users_count", 0)
     result["cleared_role_assignments_count"] = local_result.get(
         "cleared_role_assignments_count", 0
