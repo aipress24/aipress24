@@ -665,6 +665,126 @@ class TestStage3PaidRoutes:
             )
 
 
+class TestStage3CgvAcceptedAtStorage:
+    """CGV acceptance must be persisted on the User model, not only on Subscription."""
+
+    def test_set_pricing_free_type_stores_cgv_accepted_at_on_user(
+        self,
+        authenticated_client: FlaskClient,
+        db_session: Session,
+        test_user_media: User,
+    ) -> None:
+        """Accepting CGV on a free BW type writes User.cgv_accepted_at."""
+        authenticated_client.post("/BW/select-subscription/media")
+        authenticated_client.post(
+            "/BW/submit-contacts",
+            data={
+                "owner_first_name": "Jean",
+                "owner_last_name": "Dupont",
+                "owner_email": "jean@example.com",
+                "owner_phone": "+33612345678",
+                "same_as_owner": "on",
+            },
+        )
+        assert test_user_media.cgv_accepted_at is None
+
+        authenticated_client.post(
+            "/BW/set_pricing/media",
+            data={"cgv_accepted": "on"},
+            follow_redirects=False,
+        )
+
+        db_session.refresh(test_user_media)
+        assert test_user_media.cgv_accepted_at is not None
+
+    def test_set_pricing_paid_type_stores_cgv_accepted_at_on_user(
+        self,
+        authenticated_client: FlaskClient,
+        db_session: Session,
+        test_user_media: User,
+    ) -> None:
+        """Accepting CGV on a paid BW type writes User.cgv_accepted_at."""
+        authenticated_client.post("/BW/select-subscription/pr")
+        authenticated_client.post(
+            "/BW/submit-contacts",
+            data={
+                "owner_first_name": "Jean",
+                "owner_last_name": "Dupont",
+                "owner_email": "jean@example.com",
+                "owner_phone": "+33612345678",
+                "same_as_owner": "on",
+            },
+        )
+        assert test_user_media.cgv_accepted_at is None
+
+        authenticated_client.post(
+            "/BW/set_pricing/pr",
+            data={"client_count": "5", "cgv_accepted": "on"},
+            follow_redirects=False,
+        )
+
+        db_session.refresh(test_user_media)
+        assert test_user_media.cgv_accepted_at is not None
+
+    def test_set_pricing_without_cgv_does_not_store_cgv_accepted_at(
+        self,
+        authenticated_client: FlaskClient,
+        db_session: Session,
+        test_user_media: User,
+    ) -> None:
+        """Not accepting CGV must leave User.cgv_accepted_at empty."""
+        authenticated_client.post("/BW/select-subscription/media")
+        authenticated_client.post(
+            "/BW/submit-contacts",
+            data={
+                "owner_first_name": "Jean",
+                "owner_last_name": "Dupont",
+                "owner_email": "jean@example.com",
+                "owner_phone": "+33612345678",
+                "same_as_owner": "on",
+            },
+        )
+
+        authenticated_client.post(
+            "/BW/set_pricing/media",
+            data={},
+            follow_redirects=False,
+        )
+
+        db_session.refresh(test_user_media)
+        assert test_user_media.cgv_accepted_at is None
+
+    def test_stripe_info_stores_cgv_accepted_at_on_user(
+        self,
+        authenticated_client: FlaskClient,
+        db_session: Session,
+        test_user_media: User,
+    ) -> None:
+        """Accepting CGV on the stripe-info page writes User.cgv_accepted_at."""
+        authenticated_client.post("/BW/select-subscription/pr")
+        authenticated_client.post(
+            "/BW/submit-contacts",
+            data={
+                "owner_first_name": "Jean",
+                "owner_last_name": "Dupont",
+                "owner_email": "jean@example.com",
+                "owner_phone": "+33612345678",
+                "same_as_owner": "on",
+            },
+        )
+        assert test_user_media.cgv_accepted_at is None
+
+        response = authenticated_client.post(
+            "/BW/stripe-info/pr",
+            data={"cgv_accepted": "on"},
+            follow_redirects=False,
+        )
+
+        assert response.status_code in (302, 303)
+        db_session.refresh(test_user_media)
+        assert test_user_media.cgv_accepted_at is not None
+
+
 # =============================================================================
 # Dashboard and Post-Activation Routes
 # =============================================================================
