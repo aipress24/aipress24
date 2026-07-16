@@ -6,10 +6,10 @@
 `app.modules.bw.bw_activation.routes.stage3`.
 
 Stage 3 of the BW activation funnel is the biggest module in the
-flow (paid + free activation, Stripe live + simulation, stripe-info
-form, confirmation pages). Most of the file is an imperative Flask
-shell, but several sub-decisions are pure data transforms that
-deserve fast, isolated tests :
+flow (paid + free activation, Stripe live + simulation, confirmation
+pages). Most of the file is an imperative Flask shell, but several
+sub-decisions are pure data transforms that deserve fast, isolated
+tests :
 
 - ``_parse_quantity_from_session_value`` — coerces a session value
   to a positive int (bug class : a `ValueError` here used to surface
@@ -20,8 +20,6 @@ deserve fast, isolated tests :
   filter, the heart of `allowed_bw_product_list`.
 - ``select_product_for_quantity`` — chooses the cheapest product
   whose `metadata.maximum` covers the requested quantity.
-- ``_normalize_stripe_info_form`` — strips form values, applies
-  fallback email.
 - ``_build_checkout_metadata`` — coerces ids to strings (Stripe API
   rejects non-strings).
 - ``_resolve_stripe_customer_kwargs`` — picks between `customer=`
@@ -53,7 +51,6 @@ from app.modules.bw.bw_activation.routes.stage3 import (
     _build_checkout_metadata,
     _extract_price_id,
     _is_idempotent_confirmation_target,
-    _normalize_stripe_info_form,
     _parse_quantity_from_session_value,
     _resolve_payer_email,
     _resolve_stripe_customer_kwargs,
@@ -311,41 +308,6 @@ class TestSelectProductForQuantity:
 
 
 # ---------------------------------------------------------------------------
-# _normalize_stripe_info_form
-# ---------------------------------------------------------------------------
-
-
-class TestNormalizeStripeInfoForm:
-    """Strips and applies fallback email — bug class: leading/trailing
-    whitespace from copy-paste used to break SIREN lookups."""
-
-    def test_strips_whitespace(self) -> None:
-        form = {
-            "siren": "  123456789  ",
-            "payer_email": "  user@example.com  ",
-            "company_name": "  ACME SAS  ",
-            "postal_address": "  1 rue Foo  ",
-            "tel_standard": "  0102030405  ",
-        }
-        out = _normalize_stripe_info_form(form)
-        assert out == {
-            "siren": "123456789",
-            "payer_email": "user@example.com",
-            "company_name": "ACME SAS",
-            "postal_address": "1 rue Foo",
-            "tel_standard": "0102030405",
-        }
-
-    def test_missing_keys_default_to_empty(self) -> None:
-        out = _normalize_stripe_info_form({})
-        assert out["siren"] == ""
-        assert out["payer_email"] == ""
-        assert out["company_name"] == ""
-        assert out["postal_address"] == ""
-        assert out["tel_standard"] == ""
-
-
-# ---------------------------------------------------------------------------
 # recommended_subscription
 # ---------------------------------------------------------------------------
 
@@ -395,35 +357,6 @@ class TestRecommendedSubscription:
             out = recommended_subscription("media", 1)
         assert out["product"] is None
         assert out["error"] == "no_products"
-
-    def test_fallback_email_applied_when_form_missing(self) -> None:
-        out = _normalize_stripe_info_form({}, fallback_email="me@example.com")
-        assert out["payer_email"] == "me@example.com"
-
-    def test_form_email_overrides_fallback(self) -> None:
-        out = _normalize_stripe_info_form(
-            {"payer_email": "form@x.com"},
-            fallback_email="fallback@x.com",
-        )
-        assert out["payer_email"] == "form@x.com"
-
-    def test_none_values_become_empty_strings(self) -> None:
-        """Flask's `request.form.get` can be coerced to None in tests
-        — must not crash on `.strip()`. The `or ""` guard inside the
-        helper protects against the rare None-via-MultiDict case."""
-        form = {
-            "siren": None,
-            "payer_email": None,
-            "company_name": None,
-            "postal_address": None,
-            "tel_standard": None,
-        }
-        out = _normalize_stripe_info_form(form, fallback_email="x@y.com")
-        # Key present with None value : the `or ""` guard kicks in
-        # (the fallback only fires when the key is absent entirely).
-        assert out["payer_email"] == ""
-        assert out["siren"] == ""
-        assert out["company_name"] == ""
 
 
 # ---------------------------------------------------------------------------

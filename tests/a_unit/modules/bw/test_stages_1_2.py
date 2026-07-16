@@ -17,7 +17,7 @@ are thin imperative shells around a small number of pure decisions:
     the route writes (`parse_contacts_form`), including the
     « same_as_owner » duplication rule,
   - which endpoint stage-2 redirects to once contacts are stored —
-    free types → activate_free_page, paid types → pricing_page
+    every BW type now goes to `pricing_page`
     (`post_contacts_redirect_endpoint`).
 
 These pure helpers were lifted out (Pattern A) so the dispatch
@@ -310,11 +310,7 @@ class TestParseContactsFormMissingFields:
 
 
 class TestPostContactsRedirectEndpoint:
-    """Pin the unified dispatch: every BW type now goes to pricing_page.
-
-    Free BW types used to land on activate_free_page; they now use the
-    same pricing/payment/checkout funnel as paid types.
-    """
+    """Pin the unified dispatch: every BW type now goes to pricing_page."""
 
     @pytest.mark.parametrize(
         "bw_type",

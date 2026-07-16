@@ -278,60 +278,6 @@ class TestStage2Routes:
 class TestStage3FreeRoutes:
     """Tests for Stage 3 routes (free types use the unified pricing/payment flow)."""
 
-    def test_legacy_activate_free_page_redirects_to_pricing(
-        self,
-        authenticated_client: FlaskClient,
-    ) -> None:
-        """The legacy free activation page now redirects to the unified pricing page."""
-        authenticated_client.post("/BW/select-subscription/media")
-
-        response = authenticated_client.get("/BW/activate-free/media")
-
-        assert response.status_code in (302, 303)
-        assert "/BW/pricing/media" in response.headers.get("Location", "")
-
-    def test_legacy_activate_free_post_redirects_to_pricing(
-        self,
-        authenticated_client: FlaskClient,
-    ) -> None:
-        """The legacy free activation POST handler now redirects to pricing."""
-        authenticated_client.post("/BW/select-subscription/media")
-        authenticated_client.post(
-            "/BW/submit-contacts",
-            data={
-                "owner_first_name": "Jean",
-                "owner_last_name": "Dupont",
-                "owner_email": "jean@example.com",
-                "owner_phone": "+33612345678",
-                "same_as_owner": "on",
-            },
-        )
-
-        response = authenticated_client.post(
-            "/BW/activate_free/media",
-            data={},
-            follow_redirects=False,
-        )
-
-        assert response.status_code in (302, 303)
-        assert "/BW/pricing/media" in response.headers.get("Location", "")
-
-    def test_legacy_confirmation_free_redirects_to_pricing(
-        self,
-        authenticated_client: FlaskClient,
-    ) -> None:
-        """The legacy free confirmation page now redirects to pricing."""
-        authenticated_client.post("/BW/select-subscription/media")
-        with authenticated_client.session_transaction() as sess:
-            sess["bw_type"] = "media"
-
-        response = authenticated_client.get(
-            "/BW/confirmation/free", follow_redirects=False
-        )
-
-        assert response.status_code in (302, 303)
-        assert "/BW/pricing/media" in response.headers.get("Location", "")
-
     def test_pricing_page_for_free_type_requires_contacts(
         self,
         authenticated_client: FlaskClient,
@@ -753,36 +699,6 @@ class TestStage3CgvAcceptedAtStorage:
 
         db_session.refresh(test_user_media)
         assert test_user_media.cgv_accepted_at is None
-
-    def test_stripe_info_stores_cgv_accepted_at_on_user(
-        self,
-        authenticated_client: FlaskClient,
-        db_session: Session,
-        test_user_media: User,
-    ) -> None:
-        """Accepting CGV on the stripe-info page writes User.cgv_accepted_at."""
-        authenticated_client.post("/BW/select-subscription/pr")
-        authenticated_client.post(
-            "/BW/submit-contacts",
-            data={
-                "owner_first_name": "Jean",
-                "owner_last_name": "Dupont",
-                "owner_email": "jean@example.com",
-                "owner_phone": "+33612345678",
-                "same_as_owner": "on",
-            },
-        )
-        assert test_user_media.cgv_accepted_at is None
-
-        response = authenticated_client.post(
-            "/BW/stripe-info/pr",
-            data={"cgv_accepted": "on"},
-            follow_redirects=False,
-        )
-
-        assert response.status_code in (302, 303)
-        db_session.refresh(test_user_media)
-        assert test_user_media.cgv_accepted_at is not None
 
 
 # =============================================================================
