@@ -70,31 +70,6 @@ if TYPE_CHECKING:
 # ===== FREE ACTIVATION =====
 
 
-@bp.route("/activate-free/<bw_type>")
-def activate_free_page(bw_type: str):
-    """Legacy free activation page: redirect to the unified pricing page.
-
-    Free BW types use same pricing/payment/checkout funnel as
-    paid types, with a 0EUR Stripe subscription price.
-    """
-    return redirect(url_for("bw_activation.pricing_page", bw_type=bw_type))
-
-
-@bp.route("/activate_free/<bw_type>", methods=["POST"])
-def activate_free(bw_type: str):
-    """Legacy free activation handler: redirect to the unified pricing page."""
-    return redirect(url_for("bw_activation.pricing_page", bw_type=bw_type))
-
-
-@bp.route("/confirmation/free")
-def confirmation_free():
-    """Legacy free confirmation page: redirect to the unified pricing page."""
-    bw_type = session.get("bw_type")
-    if bw_type in BW_TYPES:
-        return redirect(url_for("bw_activation.pricing_page", bw_type=bw_type))
-    return redirect(url_for("bw_activation.index"))
-
-
 # ===== PAID ACTIVATION =====
 
 
@@ -391,24 +366,6 @@ def _preview_checkout_amount(
     except Exception as exc:
         warn(f"Preview checkout session failed: {exc}")
         return None
-
-
-def _normalize_stripe_info_form(
-    form: dict[str, Any], fallback_email: str = ""
-) -> dict[str, str]:
-    """Strip whitespace and apply fallback email from a stripe-info form.
-
-    Pure helper so we can prove the contract without a Flask request
-    context. Keys mirror the form names POSTed by
-    `templates/bw_activation/stripe_info.html`.
-    """
-    return {
-        "siren": str(form.get("siren", "") or "").strip(),
-        "payer_email": str(form.get("payer_email", fallback_email) or "").strip(),
-        "company_name": str(form.get("company_name", "") or "").strip(),
-        "postal_address": str(form.get("postal_address", "") or "").strip(),
-        "tel_standard": str(form.get("tel_standard", "") or "").strip(),
-    }
 
 
 def _build_checkout_metadata(
@@ -746,79 +703,6 @@ def _payment_live_enabled(bw_type: str, ctx: dict[str, Any]):
     return render_template("bw_activation/payment.html", **ctx)
 
 
-@bp.route("/stripe-info/<bw_type>", methods=["GET", "POST"])
-def stripe_info(bw_type: str):
-    """Collect Stripe billing information for PR BW before checkout.
-
-    When Stripe live mode is enabled. The collected SIRET, email, etc.
-    are stored on a draft BusinessWall so the subsequent Pricing Table
-    checkout and webhook flow uses them.
-    """
-    if bw_type not in BW_TYPES or BW_TYPES[bw_type]["free"]:
-        return redirect(url_for("bw_activation.index"))
-
-    if not session.get("bw_type_confirmed"):
-        return redirect(url_for("bw_activation.confirm_subscription"))
-
-    # if not session.get("contacts_confirmed"):
-    #     return redirect(url_for("bw_activation.nominate_contacts"))
-
-    bw_info = BW_TYPES[bw_type]
-    user = cast("User", g.user)
-
-    if request.method == "POST":
-        cgv_accepted = request.form.get("cgv_accepted") == "on"
-        if not cgv_accepted:
-            return redirect(url_for("bw_activation.stripe_info", bw_type=bw_type))
-
-        draft_bw = _get_or_create_draft_bw_for_checkout(user, bw_type)
-        if draft_bw is not None:
-            normalized = _normalize_stripe_info_form(
-                dict(request.form), fallback_email=user.email or ""
-            )
-            draft_bw.siren = normalized["siren"]
-            draft_bw.payer_email = normalized["payer_email"]
-            company_name = normalized["company_name"]
-            draft_bw.name = company_name
-            draft_bw.postal_address = normalized["postal_address"]
-            draft_bw.tel_standard = normalized["tel_standard"]
-            org = user.organisation
-            if org and company_name:
-                # sync org.bw_name with new BW.name
-                org.bw_name = company_name
-            db.session.commit()
-
-        session["bw_type"] = bw_type
-        session["pricing_value"] = bw_info.get("pricing_default", 1)
-        session["cgv_accepted"] = True
-        user = cast("User", g.user)
-        user.cgv_accepted_at = arrow.utcnow()
-        db.session.merge(user)
-        return redirect(url_for("bw_activation.payment", bw_type=bw_type))
-
-    default_name = ""
-    if user.organisation and user.organisation.name:
-        default_name = user.organisation.name
-
-    # Preserve the payer email collected in stage 2 (nominate-contacts)
-    # so the stripe-info form doesn't silently revert to the owner's email.
-    draft_bw = _get_or_create_draft_bw_for_checkout(user, bw_type)
-    default_email = (
-        session.get("payer_email")
-        or (draft_bw.payer_email if draft_bw is not None else None)
-        or user.email
-        or ""
-    )
-
-    ctx = {
-        "bw_type": bw_type,
-        "bw_info": bw_info,
-        "default_email": default_email,
-        "default_name": default_name,
-    }
-    return render_template("bw_activation/stripe_info.html", **ctx)
-
-
 def _get_or_create_draft_bw_for_checkout(
     user: User, bw_type: str
 ) -> BusinessWall | None:
@@ -841,7 +725,7 @@ def _get_or_create_draft_bw_for_checkout(
     )
     if existing is not None:
         # Backfill payer email from session if the draft was created before
-        # stage 2 collected it, or if stripe-info was skipped for this BW type.
+        # stage 2 collected it.
         payer_email_from_session = str(session.get("payer_email", "") or "").strip()
         if not existing.payer_email and payer_email_from_session:
             existing.payer_email = payer_email_from_session
@@ -849,9 +733,6 @@ def _get_or_create_draft_bw_for_checkout(
         return existing
 
     # Seed the draft with the payer email collected in stage 2, if any.
-    # The stripe-info form may refine it later, but this ensures the
-    # checkout path doesn't silently fall back to the owner's email when
-    # a distinct payer was nominated.
     payer_email_from_session = str(session.get("payer_email", "") or "").strip()
     bw = BusinessWall(
         bw_type=bw_type,
