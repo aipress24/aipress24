@@ -13,6 +13,9 @@ from wtforms import BooleanField, Form, SelectField, StringField, validators
 
 from app.flask.extensions import db
 from app.modules.bw.bw_activation import bp
+from app.modules.bw.bw_activation.bw_cancellation import (
+    cancel_business_wall_from_app,
+)
 from app.modules.bw.bw_activation.bw_invitation import BW_ROLE_TYPE_LABEL
 from app.modules.bw.bw_activation.bw_product import evaluate_subscription
 from app.modules.bw.bw_activation.config import BW_TYPES
@@ -313,3 +316,50 @@ def reset():
         user.selected_bw_id = None
         db.session.commit()
     return redirect(url_for("bw_activation.index"))
+
+
+@bp.route("/cancel-subscription", methods=["POST"])
+def cancel_subscription():
+    """Cancel the current BW's Stripe subscription and close the BW locally.
+
+    Same as the admin "deactivate_bw" action from "app.modules.admin.views.show_org".
+    """
+    user = cast("User", g.user)
+    current_bw = current_business_wall(user)
+    if current_bw is None or not is_bw_manager_or_admin(user, current_bw):
+        session["error"] = ERR_NOT_MANAGER
+        return redirect(url_for("bw_activation.not_authorized"))
+
+    result = cancel_business_wall_from_app(current_bw, commit=False)
+    if result.get("success"):
+        db.session.commit()
+        flash(
+            "Votre abonnement a été résilié. "
+            f"{result.get('cleared_users_count', 0)} utilisateur(s) mis à jour.",
+            "success",
+        )
+        for key in (
+            "bw_activated",
+            "bw_employee_count",
+            "bw_id",
+            "bw_type",
+            "bw_type_confirmed",
+            "cgv_accepted",
+            "contacts_confirmed",
+            "error",
+            "missions",
+            "payer_email",
+            "payer_is_owner",
+            "pricing_value",
+            "subscription_change_success",
+            "suggested_bw_type",
+        ):
+            session.pop(key, None)
+        if user and not user.is_anonymous:
+            user.selected_bw_id = None
+            db.session.commit()
+        return redirect(url_for("wire.wire_tab", tab="wall"))
+
+    db.session.rollback()
+    flash(f"Échec de la résiliation : {result.get('reason')}", "error")
+    return redirect(url_for("bw_activation.dashboard"))
