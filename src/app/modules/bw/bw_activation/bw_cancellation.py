@@ -179,9 +179,7 @@ def cancel_business_wall_from_app(
     if stripe_sub_id:
         result["stripe_cancelled"] = cancel_stripe_subscription(stripe_sub_id)
         if not result["stripe_cancelled"]:
-            stripe_error = (
-                f"Impossible d'annuler l'abonnement Stripe {stripe_sub_id}"
-            )
+            stripe_error = f"Impossible d'annuler l'abonnement Stripe {stripe_sub_id}"
     else:
         result["stripe_cancelled"] = True
 
