@@ -25,6 +25,8 @@ from app.modules.bw.bw_activation.models import (
     BWStatus,
     InvitationStatus,
     RoleAssignment,
+    Subscription,
+    SubscriptionStatus,
 )
 
 if TYPE_CHECKING:
@@ -735,10 +737,49 @@ class TestDashboardRoutes:
 
         assert response.status_code in (302, 303)
 
+    def test_cancel_subscription_deactivates_bw(
+        self,
+        authenticated_client: FlaskClient,
+        db_session: Session,
+        test_business_wall: BusinessWall,
+        test_user_media: User,
+        test_org: Organisation,
+    ) -> None:
+        """POST /BW/cancel-subscription mirrors admin deactivate_bw action."""
+        # Link org to BW and add a Stripe-like subscription so the BW
+        # looks like a paid one.
+        test_org.bw_id = test_business_wall.id
+        test_org.bw_active = True
+        subscription = Subscription(
+            business_wall_id=test_business_wall.id,
+            status=SubscriptionStatus.ACTIVE.value,
+            pricing_field="stripe",
+            pricing_tier="test",
+            monthly_price=0,
+            annual_price=0,
+            stripe_customer_id="cus_test",
+            stripe_subscription_id="sub_test",
+        )
+        db_session.add(subscription)
+        db_session.flush()
 
-# =============================================================================
-# Not Authorized Route
-# =============================================================================
+        with authenticated_client.session_transaction() as sess:
+            sess["bw_type"] = test_business_wall.bw_type
+            sess["bw_activated"] = True
+            sess["bw_id"] = str(test_business_wall.id)
+
+        response = authenticated_client.post(
+            "/BW/cancel-subscription",
+            follow_redirects=False,
+        )
+
+        assert response.status_code in (302, 303)
+        assert response.headers.get("Location", "") == "/wire/tab/wall"
+        db_session.expire_all()
+        refreshed = db_session.get(BusinessWall, test_business_wall.id)
+        assert refreshed.status == BWStatus.SUSPENDED.value
+        db_session.refresh(test_org)
+        assert test_org.bw_id is None
 
 
 class TestNotAuthorizedRoute:
