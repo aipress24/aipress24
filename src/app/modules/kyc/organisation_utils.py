@@ -34,9 +34,9 @@ def get_organisation_family(bw_type: str | None) -> list[str]:
 
 
 def get_organisation_for_noms_medias() -> list[str]:
-    """Get list of Organisation of MEDIA AGENCY and AUTO families.
+    """Get list of Organisation of MEDIA / NEWS AGENCY and AUTO families.
 
-    Remark: there is no BW for agency
+    Do not include MICRO BW.
 
     List not filtered for duplicates.
     (Then will add the required ontologie if needed, there or in a later stage)
@@ -45,8 +45,8 @@ def get_organisation_for_noms_medias() -> list[str]:
         select(Organisation)
         .where(
             or_(
-                # media organisations (and implicit: agency)
-                Organisation.bw_active == "media",
+                # media organisations (including press agencies)
+                Organisation.bw_active.in_({"media", "news_agency"}),
                 Organisation.bw_id.is_(None),  # AUTO organisations
             )
         )

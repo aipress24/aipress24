@@ -82,13 +82,24 @@ class BWType(StrEnum):
 
     MEDIA = "media"
     NEWS_AGENCY = "news_agency"
-    MICRO = "micro"
-    CORPORATE_MEDIA = "corporate_media"
-    UNION = "union"
+    MICRO = "micro"  # also known as BW4J
+    CORPORATE_MEDIA = "corporate_media"  # deprecated
+    UNION = "union"  # deprecated
     ACADEMICS = "academics"
     PR = "pr"
     LEADERS_EXPERTS = "leaders_experts"
     TRANSFORMERS = "transformers"
+
+
+# BW types whose organisations can be selected as a publishable "Média"
+# in the newsroom (Sujet / Article / Avis d'enquête / Commande).
+MEDIA_BW_TYPES: frozenset[str] = frozenset(
+    {
+        BWType.MEDIA.value,
+        BWType.NEWS_AGENCY.value,
+        BWType.MICRO.value,
+    }
+)
 
 
 class ProfileEnum(Enum):

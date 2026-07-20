@@ -14,6 +14,7 @@ from flask import g, session
 from pipe import groupby
 from sqlalchemy.orm import selectin_polymorphic, selectinload
 
+from app.enums import MEDIA_BW_TYPES
 from app.flask.extensions import db
 from app.flask.sqla import get_multi
 from app.models.auth import User
@@ -209,7 +210,7 @@ class MediasTab(Tab):
         media_ids = {
             org.id
             for org in orgs
-            if org.bw_active == "media" and org.id not in agency_ids
+            if org.bw_active in MEDIA_BW_TYPES and org.id not in agency_ids
         }
         return _members_of_orgs(media_ids)
 

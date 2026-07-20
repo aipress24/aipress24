@@ -18,6 +18,7 @@ from werkzeug import Response
 from wtforms import Form as WTForm
 
 from app.constants import LOCAL_TZ
+from app.enums import MEDIA_BW_TYPES
 from app.flask.extensions import db
 from app.flask.lib.breadcrumbs import BreadCrumb
 from app.flask.lib.htmx import extract_fragment
@@ -258,13 +259,12 @@ class BaseWipView(FlaskView, abc.ABC):
         Bug 0133: previously this also pulled organisations with `bw_id IS
         NULL` ("auto" placeholder orgs), so the picker drowned the real
         media in junk. Now scoped to organisations that have an ACTIVE BW
-        of type "media" — i.e. those that actually subscribed to the
-        Business Wall for Media plan and can therefore receive editorial
-        proposals.
+        of a media type — i.e. those that actually subscribed to a
+        Business Wall for Media, News Agency, Micro plan and can therefore receive editorial proposals.
         """
         query = select(Organisation).where(
             Organisation.bw_id.is_not(None),
-            Organisation.bw_active == "media",
+            Organisation.bw_active.in_(MEDIA_BW_TYPES),
         )
         media_orgs = list(db.session.execute(query).scalars())
         # Bug 0242: the picker is a MEDIA list, so only pin the user's own

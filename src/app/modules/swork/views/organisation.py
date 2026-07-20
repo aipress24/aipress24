@@ -15,6 +15,7 @@ from flask import Response, g, make_response, render_template, request
 from flask.views import MethodView
 from sqlalchemy import and_, func, or_, select
 
+from app.enums import MEDIA_BW_TYPES
 from app.flask.extensions import db
 from app.flask.lib.nav import nav
 from app.flask.lib.toaster import toast
@@ -190,11 +191,11 @@ class OrgPublicationsTab(Tab):
         return f"Publications ({count})"
 
     def guard(self) -> bool:
-        # publications tab for orgs with active BusinessWall (media/agency types)
+        # publications tab for orgs with active BusinessWall (media-like types)
 
-        return self.org.bw_active in {"media", "corporate_media"}
+        return self.org.bw_active in MEDIA_BW_TYPES
         # bw = get_active_business_wall_for_organisation(self.org)
-        # return bw is not None and bw.bw_type in {"media", "corporate_media"}
+        # return bw is not None and bw.bw_type in MEDIA_BW_TYPES
 
 
 class OrgPressBookTab(Tab):
