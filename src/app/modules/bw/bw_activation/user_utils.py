@@ -248,8 +248,10 @@ def bw_type_marks_agency(bw_type_label: str | None) -> bool:
 def is_organisation_an_agency(org: Organisation) -> bool:
     result: bool = False
     bw = get_active_business_wall_for_organisation(org)
-    if org.bw_active == "media" and bw:
-        if bw_type_marks_agency(bw.type_entreprise_media):
+    if bw and org.bw_active in {"media", "news_agency"}:
+        if org.bw_active == "news_agency" or bw_type_marks_agency(
+            bw.type_entreprise_media
+        ):
             result = True
         warn(f"BW {bw.name} is agency: {result}")
     return result
@@ -268,7 +270,11 @@ def filter_agency_org_ids(orgs: list[Organisation]) -> set[int]:
     """Batched `is_organisation_an_agency` : return the ids of the orgs in
     `orgs` that are press agencies, using ONE BusinessWall query for the whole
     list instead of one per org (N+1 on the wire Agences / Médias tabs)."""
-    candidates = [o for o in orgs if o.bw_active == "media" and o.bw_id is not None]
+    candidates = [
+        o
+        for o in orgs
+        if o.bw_active in {"media", "news_agency"} and o.bw_id is not None
+    ]
     if not candidates:
         return set()
     bw_by_id = {
@@ -283,7 +289,10 @@ def filter_agency_org_ids(orgs: list[Organisation]) -> set[int]:
         o.id
         for o in candidates
         if (bw := bw_by_id.get(o.bw_id)) is not None
-        and bw_type_marks_agency(bw.type_entreprise_media)
+        and (
+            o.bw_active == "news_agency"
+            or bw_type_marks_agency(bw.type_entreprise_media)
+        )
     }
 
 
