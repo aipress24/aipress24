@@ -310,9 +310,9 @@ class InvitationsView(MethodView):
         invitations = db_session.scalars(stmt)
         invit_ids = {i.organisation_id for i in invitations}
 
-        # Current organisation: always show it if it exists.
+        # Current organisation: always show it if it exists and is valid.
         result = []
-        if user.organisation:
+        if user.organisation and user.organisation.deleted_at is None:
             user_org = user.organisation
             org_name, bw_name = org_display(user_org)
             result.append(
