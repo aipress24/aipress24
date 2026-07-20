@@ -14,6 +14,7 @@ from unittest.mock import MagicMock
 from uuid import UUID
 
 import pytest
+from arrow import now
 from sqlalchemy import select
 
 from app.enums import RoleEnum
@@ -1039,4 +1040,64 @@ class TestRejoindreExcludesAcceptedRoleOrg:
         assert str(inviting_org.id) not in join_org_ids, (
             "an org the user already holds an accepted role in must not "
             "be offered as a « Rejoindre » target"
+        )
+
+
+class TestInvitationsExcludeDeletedOrganisations:
+    """Invitations pointing at deleted organisations must not surface
+    in /preferences/invitations."""
+
+    def test_invitation_to_deleted_org_not_listed(
+        self,
+        db_session: Session,
+        invitations_test_user: User,
+        test_inviting_user_with_profile: User,
+    ):
+        deleted_org = Organisation(name="Deleted Inviting Org")
+        deleted_org.active = False
+        deleted_org.deleted_at = now()
+        db_session.add(deleted_org)
+        db_session.flush()
+
+        # Active org + BW so the listing could otherwise show something.
+        active_org = Organisation(name="Active Inviting Org")
+        db_session.add(active_org)
+        db_session.flush()
+        bw = BusinessWall(
+            bw_type="media",
+            status=BWStatus.ACTIVE.value,
+            owner_id=test_inviting_user_with_profile.id,
+            payer_id=test_inviting_user_with_profile.id,
+            organisation_id=active_org.id,
+        )
+        db_session.add(bw)
+        db_session.flush()
+        active_org.bw_id = bw.id
+        active_org.bw_active = bw.bw_type
+        active_org.bw_name = active_org.name
+        db_session.flush()
+
+        db_session.add_all(
+            [
+                Invitation(
+                    email=invitations_test_user.email,
+                    organisation_id=deleted_org.id,
+                ),
+                Invitation(
+                    email=invitations_test_user.email,
+                    organisation_id=active_org.id,
+                ),
+            ]
+        )
+        db_session.flush()
+
+        view = InvitationsView()
+        result = view._organisation_inviting(invitations_test_user)
+
+        org_ids = {r["org_id"] for r in result}
+        assert str(deleted_org.id) not in org_ids, (
+            "invitation to a deleted organisation must not be listed"
+        )
+        assert str(active_org.id) in org_ids, (
+            "invitation to a live organisation must still be listed"
         )
