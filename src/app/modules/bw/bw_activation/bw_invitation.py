@@ -442,6 +442,15 @@ def revoke_user_role(business_wall: BusinessWall, user: User, role: BWRoleType) 
 
     db.session.delete(target)
     db.session.flush()
+
+    # Bug 0246: the RoleAssignment row is hard-deleted, so record the
+    # departure in the activity stream — otherwise nothing survives for the
+    # organisation page's « Départs » section.
+    org = business_wall.get_organisation()
+    if org is not None:
+        from app.services.activity_stream import ActivityType, post_activity
+
+        post_activity(ActivityType.Leave, user, org)
     return True
 
 
