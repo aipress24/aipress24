@@ -48,6 +48,23 @@ def taille_orga_for_employee_count(count: int | None) -> str:
     return "GE"
 
 
+def employee_count_from_taille_orga(value: str | None) -> int:
+    """Map a `taille_organisation` bucket value (e.g. "250", "+") back to a
+    representative employee count used for pricing / Stripe quantity.
+
+    The taxonomy values are « up to N employees » brackets ; "+" is the top
+    open-ended bracket. Returns 0 for empty / unparseable input. Bug 0255.
+    """
+    if not value:
+        return 0
+    if value == "+":
+        return 1_000_000
+    try:
+        return int(value)
+    except ValueError:
+        return 0
+
+
 BWTYPE_ALLOWED_PRODUCTS: dict[str, list[str]] = {
     BWType.TRANSFORMERS.value: [
         "BW4T-ETI",

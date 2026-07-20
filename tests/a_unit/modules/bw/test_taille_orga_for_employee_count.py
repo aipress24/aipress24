@@ -9,7 +9,10 @@ from __future__ import annotations
 
 import pytest
 
-from app.modules.bw.bw_activation.config import taille_orga_for_employee_count
+from app.modules.bw.bw_activation.config import (
+    employee_count_from_taille_orga,
+    taille_orga_for_employee_count,
+)
 
 
 class TestTailleOrgaForEmployeeCount:
@@ -38,3 +41,26 @@ class TestTailleOrgaForEmployeeCount:
         in B01 stays empty and the user picks explicitly (including
         « Solo » which is not in the auto-mapping)."""
         assert taille_orga_for_employee_count(count) == ""
+
+
+class TestEmployeeCountFromTailleOrga:
+    """Bug 0255: the activation « Nombre de salariés » field now posts a
+    `taille_organisation` bucket value; it must convert back to a
+    representative employee count for the Stripe quantity / pricing tier."""
+
+    @pytest.mark.parametrize(
+        ("value", "expected"),
+        [
+            ("1", 1),
+            ("10", 10),
+            ("250", 250),
+            ("1000000", 1_000_000),
+            ("+", 1_000_000),
+        ],
+    )
+    def test_maps_bucket_to_count(self, value: str, expected: int):
+        assert employee_count_from_taille_orga(value) == expected
+
+    @pytest.mark.parametrize("value", ["", None, "abc"])
+    def test_returns_zero_for_empty_or_invalid(self, value: str | None):
+        assert employee_count_from_taille_orga(value) == 0

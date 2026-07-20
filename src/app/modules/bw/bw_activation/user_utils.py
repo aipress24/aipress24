@@ -513,10 +513,14 @@ def get_manageable_business_walls_for_user(user: User) -> list[BusinessWall]:
     )
     manageable_ids.update(db.session.execute(stmt_roles).scalars().all())
 
-    # 3) Client BWs reachable via active PR partnerships. The user's
-    # agency may own several BWs (rare but possible — historical
+    # 3) Client BWs reachable via active PR partnerships. RESERVED to PR
+    # Agencies — bug 0239: only PR Agencies may manage the Business Walls
+    # of other organisations (confirmed by Erick + Jérôme). On clean data
+    # this gate is a no-op for non-agencies; it also blocks the leakage
+    # seen with corrupt legacy links (a Leaders & Experts org showing the
+    # client selector). The user's agency may own several BWs (historical
     # clutter / brand variants), so union across all of them.
-    if user.organisation_id:
+    if is_pr_agency(user.organisation):
         agency_bw_id_strs = [
             str(bw_id)
             for bw_id in db.session.execute(
@@ -544,6 +548,25 @@ def get_manageable_business_walls_for_user(user: User) -> list[BusinessWall]:
         .order_by(BusinessWall.name)
     )
     return list(db.session.execute(stmt).scalars().all())
+
+
+def is_pr_agency(org: Organisation | None) -> bool:
+    """True when the organisation is a PR Agency — i.e. it owns a
+    Business Wall of type PR (non-draft, non-cancelled).
+
+    Single predicate encoding the rule « only PR Agencies may manage
+    the Business Walls of other organisations » (bug 0239). It reads the
+    owned BW type rather than the denormalised `Organisation.bw_active`,
+    which is not always populated.
+    """
+    if org is None:
+        return False
+    stmt = select(BusinessWall.id).where(
+        BusinessWall.organisation_id == org.id,
+        BusinessWall.bw_type == BWType.PR.value,
+        BusinessWall.status.not_in({BWStatus.DRAFT.value, BWStatus.CANCELLED.value}),
+    )
+    return db.session.execute(stmt).first() is not None
 
 
 # ---------------------------------------------------------------------------

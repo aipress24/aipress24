@@ -10,7 +10,10 @@
                 <div class="flex items-center justify-between p-4 mb-4 bg-gray-50 rounded-lg border border-gray-200">
                     <div>
                         <div class="text-sm text-gray-600">Vous êtes actuellement membre de l'organisation&nbsp;:</div>
-                        <div class="font-bold text-black">{{ invit.label }}</div>
+                        <div class="font-bold text-black">{{ invit.org_name }}</div>
+                        {% if invit.bw_name %}
+                            <div class="text-sm text-gray-500">Business Wall&nbsp;: {{ invit.bw_name }}</div>
+                        {% endif %}
                     </div>
                     <button
                         type="button"
@@ -34,7 +37,7 @@
                                     Êtes-vous sûr de vouloir quitter cette organisation&nbsp;?
                                 </h3>
                                 <p class="pt-2 pb-5 mb-4 text-center font-bold text-red-600">
-                                    {{ invit.label }}
+                                    {{ invit.org_name }}
                                 </p>
                                 <button
                                     data-modal-hide="confirm_leave_org_{{ loop.index }}"
@@ -60,21 +63,39 @@
 
     {% if open_invitations > 0 %}
         <p class="mt-1 text-sm text-gray-500 mb-4">
-            Vous pouvez rejoindre le Business Wall d'une organisation&nbsp;:
+            Vous pouvez rejoindre&nbsp;:
         </p>
         <div class="space-y-4">
             {% for invit in invitations %}
                 {% if not invit.disabled %}
                     <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg border border-gray-200">
-                        <div class="font-medium text-gray-900">{{ invit.label }}</div>
-                        <button
-                            type="button"
-                            data-modal-target="confirm_join_org_{{ loop.index }}"
-                            data-modal-toggle="confirm_join_org_{{ loop.index }}"
-                            class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-500 hover:bg-indigo-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-400"
-                        >
-                            Rejoindre
-                        </button>
+                        <div class="font-medium text-gray-900">
+                            {% if invit.bw_name %}
+                                Business Wall <span class="font-bold">{{ invit.bw_name }}</span>
+                                de l'organisation <span class="font-bold">{{ invit.org_name }}</span>
+                            {% else %}
+                                Organisation <span class="font-bold">{{ invit.org_name }}</span>
+                            {% endif %}
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <button
+                                type="button"
+                                data-modal-target="confirm_join_org_{{ loop.index }}"
+                                data-modal-toggle="confirm_join_org_{{ loop.index }}"
+                                class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-500 hover:bg-indigo-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-400"
+                            >
+                                Rejoindre
+                            </button>
+                            {# Bug 0240: allow refusing a join invitation. #}
+                            <button
+                                type="button"
+                                hx-post="{{ url_for('.invitations') }}"
+                                hx-vals='{"action": "decline_org", "target": "{{ invit.org_id }}" }'
+                                class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-300"
+                            >
+                                Refuser
+                            </button>
+                        </div>
                     </div>
 
                     <div id="confirm_join_org_{{ loop.index }}"
@@ -94,7 +115,7 @@
                                         Confirmer l'adhésion au Business Wall&nbsp;:
                                     </h3>
                                     <p class="pt-2 pb-3 mb-4 text-center font-bold">
-                                        {{ invit.label }}
+                                        {% if invit.bw_name %}Business Wall {{ invit.bw_name }} (organisation {{ invit.org_name }}){% else %}{{ invit.org_name }}{% endif %}
                                     </p>
                                     <button
                                         data-modal-hide="confirm_join_org_{{ loop.index }}"

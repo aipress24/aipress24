@@ -32,6 +32,15 @@
                    class="rounded-md bg-blue-600 px-6 py-3 text-sm font-semibold text-white shadow-sm hover:bg-blue-700">
                     Accéder à la gestion de mon Business Wall
                 </a>
+                {# Bug 0250: a clear, always-working way back to the platform.
+                   The button above re-enters the activation flow, which loops
+                   back to the start while the Business Wall is still being
+                   activated by the Stripe webhook — leaving the user stuck. #}
+                <a href="/"
+                   data-testid="back-to-platform"
+                   class="rounded-md border border-gray-300 px-6 py-3 text-sm font-semibold text-gray-700 bg-white shadow-sm hover:bg-gray-50">
+                    Retour à la plateforme
+                </a>
             </div>
         </div>
     </div>

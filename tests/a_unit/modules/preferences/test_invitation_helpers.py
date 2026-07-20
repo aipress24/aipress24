@@ -21,10 +21,10 @@ DB. The pure pieces that live inside the bigger methods are :
   refusal) — sending `target="abc"` from the browser previously
   raised, leaking a 500.
 
-- **org label formatting** : the listing builds a display label using
-  either the BW name (when the org has an active BusinessWall) or the
-  plain organisation name. The BW branch also surfaces the BW type
-  (Media / PR / etc.) in parentheses. Pure transformation, no DB.
+- **org display names** : the listing exposes the organisation name and
+  the Business Wall name separately (bug 0251 / 0254) so the template can
+  label each correctly, instead of the old single label that showed the
+  BW name where the org name belonged. Pure transformation, no DB.
 """
 
 from __future__ import annotations
@@ -35,8 +35,8 @@ import pytest
 
 from app.modules.preferences.views.invitations import (
     count_open_invitations,
-    format_org_label,
     normalise_email,
+    org_display,
     parse_org_id,
     parse_partnership_id,
 )
@@ -113,9 +113,9 @@ class TestParseOrgId:
 
 
 class _OrgLike:
-    """Duck-typed stand-in for `Organisation` — `format_org_label`
-    only reads the four fields it needs, so the test can supply a
-    minimal object without a real DB row."""
+    """Duck-typed stand-in for `Organisation` — `org_display` only reads
+    `name`, `bw_id`, `bw_name`, so the test can supply a minimal object
+    without a real DB row."""
 
     def __init__(
         self,
@@ -131,57 +131,23 @@ class _OrgLike:
         self.bw_active = bw_active
 
 
-class TestFormatOrgLabel:
-    def test_no_bw_returns_plain_name(self):
-        """An org without an active BusinessWall is just its bare
-        name — no parenthetical."""
+class TestOrgDisplay:
+    def test_no_bw_returns_name_and_empty_bw(self):
+        """An org without a BusinessWall: its name, and an empty BW name."""
         org = _OrgLike(name="Le Monde", bw_id=None)
-        assert format_org_label(org) == "Le Monde"
+        assert org_display(org) == ("Le Monde", "")
 
-    def test_bw_org_includes_bw_name_and_type_label(self):
-        """When the org has a BW, the label is
-        `« <bw_name> (<bw_type_label>) »`. The type label comes from
-        `LABELS_BW_TYPE_V2` so a future renaming of the BW types
-        keeps this consistent everywhere."""
+    def test_bw_org_returns_org_and_bw_names_separately(self):
+        """Bug 0251 / 0254 : the organisation name and the Business Wall
+        name must stay distinct — the org name is the official name, the
+        BW name the public one — so the UI can label each correctly."""
         org = _OrgLike(
-            name="Le Monde Org",
+            name="Techno-Chroniqueurs Associés",
             bw_id="bw_42",
-            bw_name="Le Monde BW",
-            bw_active="media",
+            bw_name="Agence TCA",
+            bw_active="news_agency",
         )
-        result = format_org_label(org)
-        assert result.startswith("Le Monde BW (")
-        assert result.endswith(")")
-        # The type code itself never surfaces in the label — only its
-        # human-readable label from LABELS_BW_TYPE_V2.
-        assert "Le Monde BW" in result
-
-    def test_bw_org_unknown_type_falls_back_to_raw_code(self):
-        """If `bw_active` is a brand-new BW type that
-        `LABELS_BW_TYPE_V2` doesn't know about yet, fall back to the
-        raw code rather than crash. Catches the case where a backend
-        change adds a type before the labels dict gets updated."""
-        org = _OrgLike(
-            name="Some Org",
-            bw_id="bw_99",
-            bw_name="Some BW",
-            bw_active="brand-new-tier",
-        )
-        result = format_org_label(org)
-        assert "Some BW" in result
-        assert "brand-new-tier" in result
-
-    def test_bw_active_empty_string(self):
-        """A BW with empty `bw_active` is a partially-activated row.
-        Still produce a valid label without crashing."""
-        org = _OrgLike(
-            name="Half-active Org",
-            bw_id="bw_50",
-            bw_name="Half-active BW",
-            bw_active="",
-        )
-        # Should not raise.
-        format_org_label(org)
+        assert org_display(org) == ("Techno-Chroniqueurs Associés", "Agence TCA")
 
 
 @pytest.mark.parametrize(
