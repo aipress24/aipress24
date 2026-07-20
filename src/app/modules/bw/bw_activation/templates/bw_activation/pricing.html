@@ -68,16 +68,20 @@
                             {{ bw_info.pricing_label }}
                             <span class="text-red-600">*</span>
                         </label>
-                        <input
-                            type="number"
+                        {# Bug 0255: use the `taille_organisation` taxonomy
+                           (employee-count brackets) instead of a free-text
+                           number, matching the B01 and edit-config screens. #}
+                        <select
                             name="{{ bw_info.pricing_field }}"
                             id="{{ bw_info.pricing_field }}"
-                            min="1"
                             required
-                            value="{{ bw_info.pricing_default or '' }}"
                             class="block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500 sm:text-sm px-4 py-3 border"
-                            placeholder="{{ bw_info.pricing_placeholder }}"
-                        />
+                        >
+                            <option value="">— Sélectionnez —</option>
+                            {% for value, label in taille_orga_choices %}
+                                <option value="{{ value }}"{% if value == (bw_info.pricing_default | string) %} selected{% endif %}>{{ label }}</option>
+                            {% endfor %}
+                        </select>
                         {% if not bw_info.pricing_explanation %}
                             <p class="mt-2 text-xs text-gray-600">
                                 Ce nombre déterminera dynamiquement le tarif de

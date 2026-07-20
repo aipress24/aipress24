@@ -4,6 +4,14 @@
     <div class="mx-auto max-w-2xl">
       <div class="content">Votre inscription sera bientôt validée.</div>
       <div class="content">Merci !</div>
+      {# Bug 0249: give the user a way out of the KYC tunnel. `/` routes
+         to wire.wire for authenticated users (same target as the BW
+         module's _back_to_platform.html). #}
+      <a
+        href="/"
+        data-testid="back-to-platform"
+        class="mt-6 inline-flex items-center px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
+      >← Retour vers la plateforme</a>
     </div>
   </div>
 </div>

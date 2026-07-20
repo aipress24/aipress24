@@ -33,7 +33,6 @@ from app.modules.bw.bw_activation.models import (
 )
 from app.modules.bw.bw_activation.models.business_wall import BWStatus
 from app.modules.preferences import blueprint
-from app.ui.labels import LABELS_BW_TYPE_V2
 
 # ── Pure helpers ──────────────────────────────────────────────────────
 #
@@ -95,22 +94,23 @@ def parse_org_id(raw: str | None) -> int | None:
         return None
 
 
-def format_org_label(org) -> str:
-    """Build the display label for an organisation in the invitations
+def org_display(org) -> tuple[str, str]:
+    """Return `(organisation_name, business_wall_name)` for the invitations
     listing.
 
-    - org with an active BusinessWall : `« <bw_name> (<bw_type_label>) »`
-      where the type label comes from `LABELS_BW_TYPE_V2` (falls back
-      to the raw bw_active code if the labels dict doesn't know it).
-    - org without a BW : just the plain organisation name.
+    The organisation name is the legal / official name (e.g. « Techno-
+    Chroniqueurs Associés ») ; the Business Wall name is the public BW name
+    (e.g. « Agence TCA »), or "" when the org has no BW. Keeping the two
+    separate lets the template label each correctly.
 
-    Duck-typed on `org` — only reads `name`, `bw_id`, `bw_name`,
-    `bw_active`. Unit-testable without a real Organisation row.
+    Bug 0251 / 0254 : the previous single-label helper returned the BW name
+    where the organisation name was expected, so the UI showed the BW name
+    under « organisation » and the org name under « Business Wall ».
+
+    Duck-typed on `org` — only reads `name`, `bw_id`, `bw_name`.
     """
-    if org.bw_id:
-        # pyrefly: ignore [no-matching-overload]
-        return f"{org.bw_name} ({LABELS_BW_TYPE_V2.get(org.bw_active, org.bw_active)})"
-    return f"{org.name}"
+    bw_name = org.bw_name if org.bw_id else ""
+    return org.name, bw_name
 
 
 def _bw_display_name(business_wall) -> str:
@@ -226,6 +226,13 @@ class InvitationsView(MethodView):
                 self._join_organisation(user, org_id)
                 response = Response("")
                 response.headers["HX-Redirect"] = url_for(".invitations")
+            case "decline_org":
+                # Bug 0240: refuse an org-join invitation — delete the
+                # org_invitations row so « Rejoindre » clears without joining.
+                user = cast(User, g.user)
+                self._decline_organisation(user, request.form.get("target", ""))
+                response = Response("")
+                response.headers["HX-Redirect"] = url_for(".invitations")
             case "leave_org":
                 # Ticket #0228 : a member who accepted by mistake must be
                 # able to leave their organisation.
@@ -302,9 +309,11 @@ class InvitationsView(MethodView):
         result = []
         if user.organisation:
             user_org = user.organisation
+            org_name, bw_name = org_display(user_org)
             result.append(
                 {
-                    "label": format_org_label(user_org),
+                    "org_name": org_name,
+                    "bw_name": bw_name,
                     "org_id": str(user_org.id),
                     "disabled": "disabled",
                 }
@@ -313,6 +322,30 @@ class InvitationsView(MethodView):
             invit_ids.discard(user_org.id)
 
         if invit_ids:
+            # Bug 0240: never offer « Rejoindre » for an org the user
+            # already holds an ACCEPTED BW role in. Org-join invitations
+            # (org_invitations) are stateless and were never reconciled
+            # against real role assignments, so a confirmed BWMi of X could
+            # still be told to « rejoindre » X. Drop those org ids.
+            accepted_org_ids = {
+                oid
+                for oid in db_session.scalars(
+                    select(BusinessWall.organisation_id)
+                    .join(
+                        RoleAssignment,
+                        RoleAssignment.business_wall_id == BusinessWall.id,
+                    )
+                    .where(
+                        RoleAssignment.user_id == user.id,
+                        RoleAssignment.invitation_status
+                        == InvitationStatus.ACCEPTED.value,
+                        BusinessWall.status == BWStatus.ACTIVE.value,
+                    )
+                )
+                if oid is not None
+            }
+            invit_ids -= accepted_org_ids
+
             stmt = (
                 select(Organisation)
                 .where(Organisation.deleted_at.is_(None))
@@ -320,9 +353,11 @@ class InvitationsView(MethodView):
             )
             organisations = db_session.scalars(stmt)
             for org in organisations:
+                org_name, bw_name = org_display(org)
                 result.append(
                     {
-                        "label": format_org_label(org),
+                        "org_name": org_name,
+                        "bw_name": bw_name,
                         "org_id": str(org.id),
                         "disabled": "",
                     }
@@ -473,21 +508,55 @@ class InvitationsView(MethodView):
         target_org_id = parse_org_id(org_id)
         if not normalised or target_org_id is None:
             return
-        invitation = db.session.scalar(
-            select(Invitation).where(
-                func.lower(func.trim(Invitation.email)) == normalised,
-                Invitation.organisation_id == target_org_id,
+        invitations = list(
+            db.session.scalars(
+                select(Invitation).where(
+                    func.lower(func.trim(Invitation.email)) == normalised,
+                    Invitation.organisation_id == target_org_id,
+                )
             )
         )
-        if invitation is None:
+        if not invitations:
             # No invitation : silently refuse — matches the listing
             # filter and avoids leaking whether the org id exists.
             return
 
         organisation = get_obj(org_id, Organisation)
         set_user_organisation(user, organisation)
+        # Bug 0240: consume the invitation(s) once the user has joined —
+        # a leftover org_invitations row kept re-offering « Rejoindre »
+        # for an org the user is already a member of.
+        for invitation in invitations:
+            db.session.delete(invitation)
         gc_all_auto_organisations()
         db.session.commit()
+
+    def _decline_organisation(self, user: User, org_id: str) -> None:
+        """Bug 0240: refuse (decline) an organisation-join invitation.
+
+        Deletes the matching `org_invitations` row(s) so the « Rejoindre »
+        prompt disappears without the user joining. Mirrors the email
+        normalisation of `_join_organisation` so exactly the rows the
+        listing surfaced are the ones removed.
+        """
+        normalised = normalise_email(user.email)
+        target_org_id = parse_org_id(org_id)
+        if not normalised or target_org_id is None:
+            return
+        invitations = list(
+            db.session.scalars(
+                select(Invitation).where(
+                    func.lower(func.trim(Invitation.email)) == normalised,
+                    Invitation.organisation_id == target_org_id,
+                )
+            )
+        )
+        if not invitations:
+            return
+        for invitation in invitations:
+            db.session.delete(invitation)
+        db.session.commit()
+        flash("Invitation refusée.", "success")
 
     def _leave_organisation(self, user: User, org_id: str) -> None:
         """Ticket #0228 : leave the user's current organisation.

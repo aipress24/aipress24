@@ -608,3 +608,20 @@ class TestGetManageableBusinessWallsForUser:
         assert client_bw.id not in ids, (
             "revoked partnership must not surface the client BW (#0166)"
         )
+
+    def test_non_pr_org_does_not_reach_client_bws(self, db_session):
+        """Bug 0239: only PR Agencies may reach client BWs. A non-PR org
+        (Leaders & Experts) whose BW is — through corrupt legacy links —
+        referenced as a partnership partner must NOT get the client BW in
+        its manageable list, even with an ACCEPTED partnership."""
+        agent, agency_bw, client_bw = self._seed_partnership(db_session, accepted=True)
+        # Flip the "agency" to a plain Leaders & Experts org (not a PR agency).
+        agency_bw.bw_type = "leaders_experts"
+        db_session.flush()
+
+        bws = get_manageable_business_walls_for_user(agent)
+        ids = {bw.id for bw in bws}
+        assert agency_bw.id in ids, "own BW is still listed (owner branch)"
+        assert client_bw.id not in ids, (
+            "a non-PR org must not reach client BWs via partnership (0239)"
+        )

@@ -272,7 +272,7 @@ class TestInvitationsViewHelpers:
             assert len(result) == 1
             assert result[0]["org_id"] == "123"
             assert result[0]["disabled"] == "disabled"
-            assert "My Org" in result[0]["label"]
+            assert result[0]["org_name"] == "My Org"
 
 
 class TestInvitationsPageModalIds:
@@ -923,3 +923,120 @@ class TestInvitationsUserWithAutoOrg:
         client = make_authenticated_client(app, invitations_test_user)
         response = client.get("/preferences/invitations")
         assert response.status_code == 200
+
+
+class TestJoinConsumesInvitation:
+    """Bug 0240: joining an org must delete the `org_invitations` row so
+    the stale invitation stops re-offering « Rejoindre » afterwards."""
+
+    def test_join_deletes_invitation_row(
+        self,
+        invitations_auth_client: FlaskClient,
+        invitations_test_user: User,
+        invitation_for_user: Invitation,
+        inviting_org: Organisation,
+        db_session: Session,
+    ):
+        invitations_auth_client.post(
+            "/preferences/invitations",
+            data={"action": "join_org", "target": str(inviting_org.id)},
+            follow_redirects=False,
+        )
+
+        db_session.refresh(invitations_test_user)
+        assert invitations_test_user.organisation_id == inviting_org.id
+        remaining = db_session.scalar(
+            select(Invitation).where(
+                Invitation.organisation_id == inviting_org.id,
+                Invitation.email == invitations_test_user.email,
+            )
+        )
+        assert remaining is None, (
+            "the consumed org-join invitation must be deleted once joined"
+        )
+
+
+class TestDeclineOrganisation:
+    """Bug 0240: a user must be able to REFUSE an org-join invitation
+    (delete the row) without joining."""
+
+    def test_decline_deletes_invitation_and_does_not_join(
+        self,
+        invitations_auth_client: FlaskClient,
+        invitations_test_user: User,
+        invitation_for_user: Invitation,
+        inviting_org: Organisation,
+        db_session: Session,
+    ):
+        original_org_id = invitations_test_user.organisation_id
+        assert inviting_org.id != original_org_id
+
+        response = invitations_auth_client.post(
+            "/preferences/invitations",
+            data={"action": "decline_org", "target": str(inviting_org.id)},
+            follow_redirects=False,
+        )
+        assert response.status_code == 200
+        assert "HX-Redirect" in response.headers
+
+        db_session.refresh(invitations_test_user)
+        # Declining must NOT join the org.
+        assert invitations_test_user.organisation_id == original_org_id
+        # The invitation row is gone.
+        remaining = db_session.scalar(
+            select(Invitation).where(
+                Invitation.organisation_id == inviting_org.id,
+                Invitation.email == invitations_test_user.email,
+            )
+        )
+        assert remaining is None
+
+    def test_refuser_button_rendered(
+        self,
+        invitations_auth_client: FlaskClient,
+        invitations_test_user: User,
+        invitation_for_user: Invitation,
+        inviting_org: Organisation,
+    ):
+        response = invitations_auth_client.get("/preferences/invitations")
+        html = response.data.decode()
+        assert "Refuser" in html
+        assert "decline_org" in html
+
+
+class TestRejoindreExcludesAcceptedRoleOrg:
+    """Bug 0240: a user who already holds an ACCEPTED BW role in an org
+    must not be told to « Rejoindre » that org — the contradictory
+    « confirmed BWMi of X, yet invited to join X » state."""
+
+    def test_org_with_accepted_role_not_offered_to_join(
+        self,
+        db_session: Session,
+        invitations_test_user: User,
+        inviting_org: Organisation,
+        invitation_for_user: Invitation,
+    ):
+        # The user has a pending org-join invitation to inviting_org AND an
+        # accepted BW role on inviting_org's active BW.
+        bw = db_session.scalar(
+            select(BusinessWall).where(BusinessWall.id == inviting_org.bw_id)
+        )
+        assert bw is not None
+        db_session.add(
+            RoleAssignment(
+                business_wall_id=bw.id,
+                user_id=invitations_test_user.id,
+                role_type="BWMi",
+                invitation_status=InvitationStatus.ACCEPTED.value,
+            )
+        )
+        db_session.flush()
+
+        view = InvitationsView()
+        result = view._organisation_inviting(invitations_test_user)
+
+        join_org_ids = [r["org_id"] for r in result if r["disabled"] == ""]
+        assert str(inviting_org.id) not in join_org_ids, (
+            "an org the user already holds an accepted role in must not "
+            "be offered as a « Rejoindre » target"
+        )

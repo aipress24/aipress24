@@ -38,7 +38,10 @@ from app.modules.bw.bw_activation.bw_product import (
     allowed_bw_product_list,
     select_product_for_quantity,
 )
-from app.modules.bw.bw_activation.config import BW_TYPES
+from app.modules.bw.bw_activation.config import (
+    BW_TYPES,
+    employee_count_from_taille_orga,
+)
 from app.modules.bw.bw_activation.models import (
     BusinessWall,
     BWStatus,
@@ -62,6 +65,7 @@ from app.services.stripe.utils import (
     load_stripe_api_key,
     # load_pricing_table_id,
 )
+from app.services.taxonomies import get_full_taxonomy
 
 if TYPE_CHECKING:
     from app.models.auth import User
@@ -90,10 +94,17 @@ def pricing_page(bw_type: str):
         return redirect(url_for("bw_activation.nominate_contacts"))
 
     bw_info = BW_TYPES[bw_type]
+    # Bug 0255: the employee-count field is a `taille_organisation` taxonomy
+    # dropdown (same brackets as B01 / edit-config), not a free-text number.
+    # Only load the choices when the input actually renders.
+    taille_orga_choices: list = []
+    if not bw_info.get("skip_pricing_input") and bw_info.get("pricing_field"):
+        taille_orga_choices = get_full_taxonomy("taille_organisation")
     return render_template(
         "bw_activation/pricing.html",
         bw_type=bw_type,
         bw_info=bw_info,
+        taille_orga_choices=taille_orga_choices,
     )
 
 
@@ -118,10 +129,13 @@ def set_pricing(bw_type: str):
     else:
         pricing_field = str(bw_info["pricing_field"]).strip()
         if pricing_field:
-            try:
-                pricing_value = int(request.form.get(pricing_field, "0"))
-            except ValueError:
-                return redirect(url_for("bw_activation.index"))
+            # Bug 0255: the field now posts a `taille_organisation` bucket
+            # value (e.g. "250", "+"); convert it back to a representative
+            # employee count so the downstream Stripe quantity / pricing-tier
+            # logic keeps working unchanged.
+            pricing_value = employee_count_from_taille_orga(
+                request.form.get(pricing_field, "")
+            )
 
     session["bw_type"] = bw_type
     session["pricing_value"] = pricing_value
