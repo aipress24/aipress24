@@ -75,3 +75,30 @@ def test_filter_agency_org_ids_is_batched(db_session: Session):
 
 def test_filter_agency_org_ids_empty():
     assert filter_agency_org_ids([]) == set()
+
+
+def test_filter_agency_org_ids_includes_news_agency_bw(db_session: Session):
+    """A Business Wall for News Agency is an agency by type, regardless of
+    the `type_entreprise_media` marker.
+    """
+    owner = User(email="bwowner_newsagency@example.com", active=True)
+    db_session.add(owner)
+    db_session.flush()
+
+    org = Organisation(name="News Agency", bw_active="news_agency")
+    db_session.add(org)
+    db_session.flush()
+    bw = BusinessWall(
+        bw_type="news_agency",
+        status=BWStatus.ACTIVE.value,
+        owner_id=owner.id,
+        payer_id=owner.id,
+        organisation_id=org.id,
+        type_entreprise_media="",
+    )
+    db_session.add(bw)
+    db_session.flush()
+    org.bw_id = bw.id
+    db_session.flush()
+
+    assert filter_agency_org_ids([org]) == {org.id}
