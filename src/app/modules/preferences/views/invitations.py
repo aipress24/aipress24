@@ -299,8 +299,13 @@ class InvitationsView(MethodView):
         # whose email was stored with stray whitespace or uppercase still
         # surfaces in the invitee's preferences page.
         normalised = normalise_email(user.email)
-        stmt = select(Invitation).where(
-            func.lower(func.trim(Invitation.email)) == normalised
+        stmt = (
+            select(Invitation)
+            .join(Organisation, Invitation.organisation_id == Organisation.id)
+            .where(
+                func.lower(func.trim(Invitation.email)) == normalised,
+                Organisation.deleted_at.is_(None),
+            )
         )
         invitations = db_session.scalars(stmt)
         invit_ids = {i.organisation_id for i in invitations}
