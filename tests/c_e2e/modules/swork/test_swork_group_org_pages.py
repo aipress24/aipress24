@@ -452,17 +452,18 @@ class TestOrgPublicationsTab:
         tab = OrgPublicationsTab(org=test_organisation_media)
         assert tab.guard() is True
 
-    def test_guard_true_for_corporate_media_bw(
+    @pytest.mark.parametrize("bw_type", ["news_agency", "micro"])
+    def test_guard_true_for_other_media_like_bw(
         self,
         app: Flask,
         db_session: Session,
         test_organisation: Organisation,
         test_user_with_profile: User,
+        bw_type: str,
     ):
-        """Test guard returns True for organisation with CORPORATE_MEDIA BusinessWall."""
-        # Create an active BusinessWall with corporate_media type
+        """Test guard returns True for organisation with News Agency / Micro BW."""
         bw = BusinessWall(
-            bw_type="corporate_media",
+            bw_type=bw_type,
             status=BWStatus.ACTIVE.value,
             owner_id=test_user_with_profile.id,
             payer_id=test_user_with_profile.id,
@@ -471,7 +472,6 @@ class TestOrgPublicationsTab:
         db_session.add(bw)
         db_session.flush()
 
-        # Link organisation to BW
         test_organisation.bw_id = bw.id
         test_organisation.bw_active = bw.bw_type
         db_session.flush()

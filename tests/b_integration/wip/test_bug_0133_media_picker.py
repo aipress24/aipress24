@@ -4,12 +4,13 @@
 
 """Bug 0133: the "Médias" picker offered to journalists when they propose a
 sujet (or article / avis d'enquête / commande) must list ONLY organisations
-with an active "Business Wall for Media" subscription.
+with an active media-like Business Wall subscription (Media, News Agency,
+Micro).
 
 Before this fix the query also pulled in organisations with `bw_id IS NULL`
 (auto-created placeholder orgs), so the dropdown drowned the real media in
 junk. The fix tightens `BaseWipView.get_media_organisations` to a strict
-`bw_id IS NOT NULL AND bw_active == "media"` filter.
+`bw_id IS NOT NULL AND bw_active IN (media types)` filter.
 """
 
 from __future__ import annotations
@@ -113,6 +114,30 @@ class TestGetMediaOrganisationsScope:
             "auto-created placeholder orgs must not appear in the media picker"
         )
 
+    @pytest.mark.parametrize(
+        "bw_active",
+        ["media", "news_agency", "micro"],
+    )
+    def test_includes_org_with_active_media_like_bw(
+        self,
+        app: Flask,
+        db_session: Session,
+        picker_user: User,
+        bw_active: str,
+    ):
+        org = _make_org(
+            db_session,
+            name=f"{bw_active.title()} Org",
+            has_bw=True,
+            bw_active=bw_active,
+        )
+
+        with app.test_request_context():
+            g.user = picker_user
+            choices = _ConcreteView().get_media_organisations()
+
+        assert (str(org.id), org.name) in choices
+
     def test_excludes_org_with_non_media_bw(
         self,
         app: Flask,
@@ -129,16 +154,23 @@ class TestGetMediaOrganisationsScope:
         ids = [c[0] for c in choices]
         assert str(pr.id) not in ids
 
+    @pytest.mark.parametrize(
+        "bw_active",
+        ["media", "news_agency", "micro"],
+    )
     def test_user_own_media_org_pinned_without_duplicate(
         self,
         app: Flask,
         db_session: Session,
         picker_user: User,
+        bw_active: str,
     ):
         # Bug 0242: the user's own org is pinned first ONLY when it is
-        # itself a media — and it must not also appear a second time in
+        # itself a media-like BW — and it must not also appear a second time in
         # the sorted body.
-        own = _make_org(db_session, name="My Own Media", has_bw=True, bw_active="media")
+        own = _make_org(
+            db_session, name="My Own Media", has_bw=True, bw_active=bw_active
+        )
         own.bw_name = "MY OWN BW"
         picker_user.organisation_id = own.id
         db_session.flush()

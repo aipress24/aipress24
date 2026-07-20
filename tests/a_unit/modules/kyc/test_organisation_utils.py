@@ -107,18 +107,22 @@ class TestGetOrganisationForNoms:
     """Test suite for get_organisation_for_noms_* functions."""
 
     def test_get_noms_medias_returns_media_agency_auto(self, db: SQLAlchemy) -> None:
-        """Test get_organisation_for_noms_medias returns MEDIA, AUTO orgs (no more AGENCY)."""
+        """Test get_organisation_for_noms_medias returns MEDIA, NEWS_AGENCY and AUTO orgs."""
         org_media = Organisation(name="Media Org", bw_active="media", bw_id=uuid4())
         org_agency = Organisation(name="Agency Org", bw_active="media", bw_id=uuid4())
+        org_news_agency = Organisation(
+            name="News Agency Org", bw_active="news_agency", bw_id=uuid4()
+        )
         org_auto = Organisation(name="Auto Org")
         org_com = Organisation(name="Com Org", bw_active="pr", bw_id=uuid4())
-        db.session.add_all([org_media, org_agency, org_auto, org_com])
+        db.session.add_all([org_media, org_agency, org_news_agency, org_auto, org_com])
         db.session.flush()
 
         result = get_organisation_for_noms_medias()
 
         assert "Media Org" in result
         assert "Agency Org" in result
+        assert "News Agency Org" in result
         assert "Auto Org" in result
         assert "Com Org" not in result
 
