@@ -19,6 +19,8 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 from uuid import uuid4
 
+from arrow import now
+
 from app.models.auth import KYCProfile, User
 from app.models.invitation import Invitation
 from app.models.organisation import Organisation
@@ -402,6 +404,44 @@ class TestStoreAutoOrganisation:
         assert not result.has_bw
         assert result.id != media_org.id
 
+    def test_does_not_return_deleted_auto_org(self, db: SQLAlchemy) -> None:
+        """A deleted AUTO organisation must not be reused."""
+        deleted_org = Organisation(name="Deleted Auto Org", active=False)
+        deleted_org.deleted_at = now()
+        db.session.add(deleted_org)
+        db.session.flush()
+
+        user = User(email="store_auto_deleted@example.com")
+        profile = KYCProfile()
+        user.profile = profile
+        db.session.add_all([user, profile])
+        db.session.flush()
+
+        result = store_auto_organisation(user, org_name="Deleted Auto Org")
+
+        assert result is not None
+        assert result.id != deleted_org.id
+        assert result.active is True
+        assert result.deleted_at is None
+
+    def test_does_not_return_inactive_auto_org(self, db: SQLAlchemy) -> None:
+        """An inactive (but not deleted) AUTO organisation must not be reused."""
+        inactive_org = Organisation(name="Inactive Auto Org", active=False)
+        db.session.add(inactive_org)
+        db.session.flush()
+
+        user = User(email="store_auto_inactive@example.com")
+        profile = KYCProfile()
+        user.profile = profile
+        db.session.add_all([user, profile])
+        db.session.flush()
+
+        result = store_auto_organisation(user, org_name="Inactive Auto Org")
+
+        assert result is not None
+        assert result.id != inactive_org.id
+        assert result.active is True
+
 
 class TestRetrieveUserOrganisation:
     """Test suite for retrieve_user_organisation function.
@@ -463,3 +503,45 @@ class TestRetrieveUserOrganisation:
         assert result is not None
         assert result.name == "Non Invited Org"
         assert result.is_auto
+
+    def test_keeps_current_valid_org_when_name_matches(self, db: SQLAlchemy) -> None:
+        """Minor KYC update must not reassign a user away from a valid org."""
+        existing_org = Organisation(name="Keep Me Org")
+        db.session.add(existing_org)
+        db.session.flush()
+
+        user = User(email="retrieve_keep@example.com", organisation_id=existing_org.id)
+        profile = KYCProfile()
+        profile.profile_id = PROFILE_ID_NOM_MEDIA
+        profile.info_professionnelle = {"nom_media": "Keep Me Org"}
+        user.profile = profile
+        db.session.add_all([user, profile])
+        db.session.flush()
+
+        result = retrieve_user_organisation(user)
+
+        assert result is not None
+        assert result.id == existing_org.id
+
+    def test_skips_deleted_org_and_returns_active_one(self, db: SQLAlchemy) -> None:
+        """When the current org is deleted, retrieve must pick the active org of same name."""
+        active_org = Organisation(name="Same Name Org")
+        deleted_org = Organisation(name="Same Name Org", active=False)
+        deleted_org.deleted_at = now()
+        db.session.add_all([active_org, deleted_org])
+        db.session.flush()
+
+        user = User(
+            email="retrieve_skip_deleted@example.com", organisation_id=deleted_org.id
+        )
+        profile = KYCProfile()
+        profile.profile_id = PROFILE_ID_NOM_MEDIA
+        profile.info_professionnelle = {"nom_media": "Same Name Org"}
+        user.profile = profile
+        db.session.add_all([user, profile])
+        db.session.flush()
+
+        result = retrieve_user_organisation(user)
+
+        assert result is not None
+        assert result.id == active_org.id
