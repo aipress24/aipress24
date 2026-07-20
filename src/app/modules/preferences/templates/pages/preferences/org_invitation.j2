@@ -166,9 +166,15 @@
             {% endfor %}
         </div>
     {% else %}
-        <div class="text-sm text-gray-900 font-bold">
-            Vous n'avez actuellement aucune invitation à un rôle Business Wall.
-        </div>
+        {% if open_accepted_roles > 0 %}
+            <div class="text-sm text-gray-900 font-bold">
+                Vous n'avez actuellement aucune invitation à un autre rôle Business Wall.
+            </div>
+        {% else %}
+            <div class="text-sm text-gray-900 font-bold">
+                Vous n'avez actuellement aucune invitation à un rôle Business Wall.
+            </div>
+        {% endif %}
     {% endif %}
 
     {# Accepted roles (active) #}
