@@ -137,6 +137,18 @@ def retrieve_user_organisation(user: User) -> Organisation | None:
     org_name = _find_kyc_organisation_name(user)
     if not org_name:
         return None
+
+    # If the user already belongs to a valid organisation with the same name,
+    # keep it. This prevents KYC minor updates from reassigning the user to a
+    # different (possibly deleted) AUTO organisation of same name..
+    current_org = user.organisation
+    if (
+        current_org
+        and current_org.deleted_at is None
+        and current_org.name.lower() == org_name.lower()
+    ):
+        return current_org
+
     inviting_orgs = find_inviting_organisations(user.email)
     for org in inviting_orgs:
         if org.name.lower() == org_name.lower():
@@ -199,10 +211,13 @@ def store_auto_organisation(
         return None
     if db_session is None:
         db_session = db.session
-    # identification of AUTO organisation is only the organisation name
+    # identification of AUTO organisation is only the organisation name.
+    # Exclude deleted/inactive organisations.
     query = select(Organisation).where(
         Organisation.name == org_name,
         Organisation.bw_id.is_(None),
+        Organisation.deleted_at.is_(None),
+        Organisation.active.is_(True),
     )
     found_organisation = db.session.execute(query).scalars().first()
     if found_organisation:
