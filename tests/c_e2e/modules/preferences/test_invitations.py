@@ -264,6 +264,7 @@ class TestInvitationsViewHelpers:
         org.id = 123
         org.name = "My Org"
         org.bw_id = None
+        org.deleted_at = None
         user.organisation = org
         user.organisation_id = 123
         user.email = "test@example.com"
@@ -1100,4 +1101,31 @@ class TestInvitationsExcludeDeletedOrganisations:
         )
         assert str(active_org.id) in org_ids, (
             "invitation to a live organisation must still be listed"
+        )
+
+    def test_current_deleted_org_not_shown_as_membership(
+        self,
+        db_session: Session,
+        invitations_test_user: User,
+    ):
+        """A user whose current organisation is deleted must not see it
+        listed as "Vous êtes actuellement membre de"."""
+        deleted_org = Organisation(name="Deleted Current Org")
+        deleted_org.active = False
+        deleted_org.deleted_at = now()
+        db_session.add(deleted_org)
+        db_session.flush()
+
+        invitations_test_user.organisation = deleted_org
+        db_session.flush()
+
+        view = InvitationsView()
+        result = view._organisation_inviting(invitations_test_user)
+
+        disabled_rows = [r for r in result if r.get("disabled") == "disabled"]
+        assert disabled_rows == [], (
+            "no disabled/current-membership row must appear for a deleted org"
+        )
+        assert str(deleted_org.id) not in {r["org_id"] for r in result}, (
+            "deleted current organisation must not be shown as membership"
         )
