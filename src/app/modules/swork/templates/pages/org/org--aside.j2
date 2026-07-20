@@ -7,7 +7,24 @@ class="") %}
 
     <div class="px-4 py-3">{{ caller() }}</div>
 </div>
-{% endmacro %} {% if org.bw_gallery_images %}
+{% endmacro %}
+
+{# Bug 0246 : list of marketplace offers the org has published. #}
+{% macro offer_box(title, offers, endpoint) %}
+    {% if offers %}
+        {% call box(title) %}
+        <ul class="space-y-2">
+            {% for offer in offers %}
+            <li class="text-sm">
+                <a href="{{ url_for(endpoint, id=offer.id) }}" class="text-blue-700 hover:underline">{{ offer.title }}</a>
+            </li>
+            {% endfor %}
+        </ul>
+        {% endcall %}
+    {% endif %}
+{% endmacro %}
+
+{% if org.bw_gallery_images %}
 <div class="bg-white shadow sm:rounded-md">
     <h2 class="bg-gray-200 sm:rounded-t-md font-medium px-4 py-3 text-gray-900">
         Galerie
@@ -24,7 +41,51 @@ class="") %}
 <p>...</p>
 #} {#{% endcall %}#} {##} {#{% call box("Job board") %}#} {#
 <p>...</p>
-#} {#{% endcall %}#} {% call box("Dernières activités") %}
+#} {#{% endcall %}#}
+
+{{ offer_box("Missions publiées", org.missions_emises, "biz.missions_detail") }}
+{{ offer_box("Projets publiés", org.projets_emis, "biz.projects_detail") }}
+{{ offer_box("Offres d'emploi & de stage", org.jobs_emis, "biz.jobs_detail") }}
+{{ offer_box("Missions remportées", org.missions_remportees, "biz.missions_detail") }}
+{{ offer_box("Projets remportés", org.projets_remportes, "biz.projects_detail") }}
+
+{% if org.events_participes %}
+{% call box("Événements auxquels participent nos membres") %}
+<ul class="space-y-2">
+    {% for event in org.events_participes %}
+    <li class="text-sm">
+        <a href="{{ url_for(event) }}" class="text-blue-700 hover:underline">{{ event.title }}</a>
+    </li>
+    {% endfor %}
+</ul>
+{% endcall %}
+{% endif %}
+
+{% if org.nouvelles_recrues %}
+{% call box("Nouvelles recrues") %}
+<ul class="space-y-2">
+    {% for user in org.nouvelles_recrues %}
+    <li class="text-sm">
+        <a href="{{ url_for(user) }}" class="text-blue-700 hover:underline">{{ user.full_name }}</a>
+    </li>
+    {% endfor %}
+</ul>
+{% endcall %}
+{% endif %}
+
+{% if org.departs %}
+{% call box("Départs du Business Wall") %}
+<ul class="space-y-2">
+    {% for activity in org.departs %}
+    <li class="text-sm">
+        <a href="{{ activity.actor_url }}" class="text-blue-700 hover:underline">{{ activity.actor_name }}</a>
+    </li>
+    {% endfor %}
+</ul>
+{% endcall %}
+{% endif %}
+
+{% call box("Dernières activités") %}
 <!-- Activity Feed -->
 <div class="mt-2 flow-root">
     <ul

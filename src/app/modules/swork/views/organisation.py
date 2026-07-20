@@ -337,6 +337,14 @@ class OrgVM(ViewModel):
             "publications": self.get_publications(),
             "press_book": self.get_press_book(),
             "events": self.get_events(),
+            "missions_emises": self.get_missions_emises(),
+            "projets_emis": self.get_projets_emis(),
+            "jobs_emis": self.get_jobs_emis(),
+            "missions_remportees": self.get_missions_remportees(),
+            "projets_remportes": self.get_projets_remportes(),
+            "events_participes": self.get_events_participes(),
+            "nouvelles_recrues": self.get_nouvelles_recrues(),
+            "departs": self.get_departs(),
             "timeline": timeline,
             "address_formatted": self._get_address_formatted(),
             "type_organisation": self.get_type_organisation(),
@@ -514,6 +522,148 @@ class OrgVM(ViewModel):
         )
         events = get_multi(EventPost, stmt)
         return list(events)
+
+    # ── Bug 0246 : right-column « activity » sections ──────────────────
+    # Annonces (missions / projets / job board) émises par l'organisation,
+    # et dernières recrues du Business Wall. `emitter_org_id` carries the
+    # publishing org on every offer, so « émises » is a direct filter.
+
+    def _offers_emitted(self, model, limit: int) -> list:
+        stmt = (
+            select(model)
+            .where(model.emitter_org_id == self.org.id)
+            .where(model.status == PublicationStatus.PUBLIC)
+            .order_by(model.created_at.desc())
+            .limit(limit)
+        )
+        return list(db.session.scalars(stmt))
+
+    def get_missions_emises(self, limit: int = 5) -> list:
+        """Mission offers this organisation has published."""
+        from app.modules.biz.models._offers import MissionOffer
+
+        return self._offers_emitted(MissionOffer, limit)
+
+    def get_projets_emis(self, limit: int = 5) -> list:
+        """Project offers this organisation has published."""
+        from app.modules.biz.models._offers import ProjectOffer
+
+        return self._offers_emitted(ProjectOffer, limit)
+
+    def get_jobs_emis(self, limit: int = 5) -> list:
+        """Job Board offers this organisation has published."""
+        from app.modules.biz.models._offers import JobOffer
+
+        return self._offers_emitted(JobOffer, limit)
+
+    def get_nouvelles_recrues(self, limit: int = 5) -> list[User]:
+        """Most recent members to have joined this org's Business Wall
+        (accepted role assignments, newest first). The owner is excluded
+        — they created the BW, they are not a « recrue »."""
+        bw = self.bw
+        if bw is None:
+            return []
+        from app.modules.bw.bw_activation.models.role import (
+            InvitationStatus,
+            RoleAssignment,
+        )
+
+        stmt = (
+            select(User)
+            .join(RoleAssignment, User.id == RoleAssignment.user_id)
+            .where(RoleAssignment.business_wall_id == bw.id)
+            .where(RoleAssignment.invitation_status == InvitationStatus.ACCEPTED.value)
+            .where(User.id != bw.owner_id)
+            .order_by(RoleAssignment.accepted_at.desc())
+            .limit(limit)
+        )
+        return list(db.session.scalars(stmt))
+
+    def _member_ids(self) -> list[int]:
+        """User ids of this org's Business Wall members (owner + accepted
+        roles). Used to attribute events / won offers to the organisation
+        through its members."""
+        return [u.id for u in self.get_members()]
+
+    def get_events_participes(self, limit: int = 5) -> list:
+        """Public events that members of this org's BW take part in
+        (distinct from `get_events`, which lists events the org emits)."""
+        member_ids = self._member_ids()
+        if not member_ids:
+            return []
+        from app.modules.events.models import EventPost, participation_table
+
+        # `id IN (subquery)` rather than a join + DISTINCT: DISTINCT over the
+        # full row breaks on PostgreSQL (EventPost has `json` columns, which
+        # have no equality operator), and the semi-join dedupes anyway.
+        event_ids = select(participation_table.c.event_id).where(
+            participation_table.c.user_id.in_(member_ids)
+        )
+        stmt = (
+            select(EventPost)
+            .where(EventPost.id.in_(event_ids))
+            .where(EventPost.status == PublicationStatus.PUBLIC)
+            .order_by(EventPost.created_at.desc())
+            .limit(limit)
+        )
+        return list(db.session.scalars(stmt))
+
+    def _offers_won(self, model, limit: int) -> list:
+        """Offers of `model` a member of this org won — i.e. that member's
+        application was accepted (SELECTED). « Won » has no org-level column,
+        so it's derived from the members' selected applications."""
+        member_ids = self._member_ids()
+        if not member_ids:
+            return []
+        from app.modules.biz.models._offers import (
+            ApplicationStatus,
+            OfferApplication,
+        )
+
+        # `id IN (subquery)` rather than a join + DISTINCT: DISTINCT over the
+        # full row breaks on PostgreSQL (offers carry `json` columns, which
+        # have no equality operator), and the semi-join dedupes anyway.
+        won_ids = (
+            select(OfferApplication.offer_id)
+            .where(OfferApplication.owner_id.in_(member_ids))
+            .where(OfferApplication.status == ApplicationStatus.SELECTED)
+        )
+        stmt = (
+            select(model)
+            .where(model.id.in_(won_ids))
+            .where(model.status == PublicationStatus.PUBLIC)
+            .order_by(model.created_at.desc())
+            .limit(limit)
+        )
+        return list(db.session.scalars(stmt))
+
+    def get_missions_remportees(self, limit: int = 5) -> list:
+        """Mission offers a member of this org won."""
+        from app.modules.biz.models._offers import MissionOffer
+
+        return self._offers_won(MissionOffer, limit)
+
+    def get_projets_remportes(self, limit: int = 5) -> list:
+        """Project offers a member of this org won."""
+        from app.modules.biz.models._offers import ProjectOffer
+
+        return self._offers_won(ProjectOffer, limit)
+
+    def get_departs(self, limit: int = 5) -> list:
+        """Members who left this org's Business Wall, newest first. The
+        RoleAssignment row is hard-deleted on revocation, so departures
+        are read from the activity stream (recorded at revoke time)."""
+        from app.services.activity_stream._models import Activity, ActivityType
+
+        stmt = (
+            select(Activity)
+            .where(Activity.type == ActivityType.Leave)
+            .where(Activity.object_id == self.org.id)
+            .where(Activity.object_type == "Organisation")
+            .order_by(Activity.timestamp.desc())
+            .limit(limit)
+        )
+        return list(db.session.scalars(stmt))
 
     def _get_address_formatted(self) -> str:
         if self.bw is not None:

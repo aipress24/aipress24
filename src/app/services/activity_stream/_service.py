@@ -116,6 +116,10 @@ def _get_msg(activity: Activity) -> str:
         case [ActivityType.Leave, "Group"]:
             msg = f"{actor_name} a quitté le groupe {object_name}"
 
+        case [ActivityType.Leave, "Organisation"]:
+            # Bug 0246: a member left an organisation's Business Wall.
+            msg = f"{actor_name} a quitté le Business Wall de {object_name}"
+
         case [ActivityType.Follow, _]:
             msg = f"{actor_name} suit à présent {object_name}"
         case [ActivityType.Unfollow, _]:
