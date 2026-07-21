@@ -109,6 +109,35 @@ PROJECT_FILTER_SPECS: list[FilterSpec] = [
     },
 ]
 
+# Filters for the Job Board tab: Secteur, Type contrat, Pays, Département, Ville.
+JOB_FILTER_SPECS: list[FilterSpec] = [
+    {
+        "id": "sector",
+        "label": "Secteur",
+        "selector": "sector",
+    },
+    {
+        "id": "contract_type",
+        "label": "Type contrat",
+        "selector": "contract_type",
+    },
+    {
+        "id": "pays_zip_ville",
+        "label": "Pays",
+        "selector": "pays_zip_ville",
+    },
+    {
+        "id": "departement",
+        "label": "Département",
+        "selector": "departement",
+    },
+    {
+        "id": "ville",
+        "label": "Ville",
+        "selector": "ville",
+    },
+]
+
 
 # Ticket #0202 — extra filters surfaced when the user is browsing
 # MARKET / Missions with the JOURNALISME category. Each entry's
