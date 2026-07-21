@@ -80,6 +80,35 @@ FILTER_SPECS: list[FilterSpec] = [
     },
 ]
 
+# Filters for the Projects tab: Type, Secteur, Pays, Département, Ville.
+PROJECT_FILTER_SPECS: list[FilterSpec] = [
+    {
+        "id": "project_category",
+        "label": "Type",
+        "selector": "project_category",
+    },
+    {
+        "id": "sector",
+        "label": "Secteur",
+        "selector": "sector",
+    },
+    {
+        "id": "pays_zip_ville",
+        "label": "Pays",
+        "selector": "pays_zip_ville",
+    },
+    {
+        "id": "departement",
+        "label": "Département",
+        "selector": "departement",
+    },
+    {
+        "id": "ville",
+        "label": "Ville",
+        "selector": "ville",
+    },
+]
+
 
 # Ticket #0202 — extra filters surfaced when the user is browsing
 # MARKET / Missions with the JOURNALISME category. Each entry's

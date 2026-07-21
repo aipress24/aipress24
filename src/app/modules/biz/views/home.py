@@ -33,23 +33,31 @@ from app.modules.biz.views._common import (
     JOURNALISM_FILTER_SPECS,
     TABS,
 )
+from app.modules.biz.views._filters import ProjectFilterBar, get_filter_conditions
 from app.modules.kyc.ontology_loader import get_choices as get_ontology_choices
 from app.services.roles import has_role
 
 
-@blueprint.route("/")
+@blueprint.route("/", methods=["GET", "POST"])
 def biz():
     """Marketplace."""
+    project_filter_bar = ProjectFilterBar()
+    if request.method == "POST":
+        project_filter_bar.update_state()
+
     ctx = {
-        "objs": _get_objs(),
+        "objs": _get_objs(project_filter_bar),
         "tabs": _get_tabs(),
-        "filters": _get_filters(),
+        "filters": _get_filters(project_filter_bar),
+        "project_filter_bar": project_filter_bar,
         "title": "Marketplace",
     }
+    if request.method == "POST" and request.headers.get("Hx-Target") == "content":
+        return render_template("pages/biz-home--content.j2", **ctx)
     return render_template("pages/biz-home.j2", **ctx)
 
 
-def _get_objs() -> list[MarketplaceContent]:
+def _get_objs(project_filter_bar: ProjectFilterBar) -> list[MarketplaceContent]:
     """Get marketplace objects for display (limited to 30, newest first).
 
     Delegates the "publicly visible" gate to the marketplace repositories
@@ -79,7 +87,8 @@ def _get_objs() -> list[MarketplaceContent]:
             return list(rows)
         case "projects":
             repo = container.get(ProjectOfferRepository)
-            rows, _ = repo.list_public(limit=30, offset=0)
+            extra = get_filter_conditions(project_filter_bar)
+            rows, _ = repo.list_public(*extra, limit=30, offset=0)
             return list(rows)
         case "jobs":
             repo = container.get(JobOfferRepository)
@@ -89,13 +98,23 @@ def _get_objs() -> list[MarketplaceContent]:
             return []
 
 
-def _get_filters() -> list[dict]:
+def _get_filters(project_filter_bar: ProjectFilterBar | None = None) -> list[dict]:
     """Build filter options using efficient DISTINCT queries.
 
     Ticket #0202 — when the user is on the Missions tab AND has picked
     the JOURNALISME category (`?category=journalisme`), the
     journalism-specific filter set is appended after the generic ones.
+
+    When on the Projects tab, replaced generic filters by project
+    specific filters (Type, Secteur, Pays, Département, Ville).
     """
+    current_tab = request.args.get("current_tab", "stories")
+
+    if current_tab == "projects":
+        if project_filter_bar is None:
+            project_filter_bar = ProjectFilterBar()
+        return project_filter_bar.filters
+
     result = []
     for spec in FILTER_SPECS:
         filter_id = spec["id"]
