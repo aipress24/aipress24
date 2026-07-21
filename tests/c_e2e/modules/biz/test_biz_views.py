@@ -12,8 +12,10 @@ import pytest
 from flask import g, render_template
 
 from app.models.auth import User
-from app.modules.biz.models import EditorialProduct
+from app.models.lifecycle import PublicationStatus
+from app.modules.biz.models import EditorialProduct, ProjectOffer
 from app.modules.biz.views.home import _get_filters
+from tests.c_e2e.conftest import make_authenticated_client
 
 if TYPE_CHECKING:
     from flask import Flask
@@ -25,6 +27,7 @@ if TYPE_CHECKING:
 def test_user(db_session: Session) -> User:
     """Create a test user for biz tests."""
     user = User(email="biz_views_test@example.com")
+    user.active = True
     user.photo = b""
     db_session.add(user)
     db_session.flush()
@@ -34,15 +37,7 @@ def test_user(db_session: Session) -> User:
 @pytest.fixture
 def authenticated_client(app: Flask, test_user: User) -> FlaskClient:
     """Provide a Flask test client logged in as test user."""
-    client = app.test_client()
-
-    with client.session_transaction() as sess:
-        sess["_user_id"] = str(test_user.id)
-        sess["_fresh"] = True
-        sess["_permanent"] = True
-        sess["_id"] = getattr(test_user, "fs_uniquifier", str(test_user.id))
-
-    return client
+    return make_authenticated_client(app, test_user)
 
 
 class TestBizItemOrglessSeller:
@@ -108,6 +103,44 @@ class TestBizHomeView:
         """Test biz home page with tab parameter."""
         response = authenticated_client.get("/biz/?current_tab=subscriptions")
         assert response.status_code in (200, 302)
+
+    def test_project_filter_post_returns_projects_tab(
+        self,
+        authenticated_client: FlaskClient,
+        test_user: User,
+        db_session: Session,
+    ):
+        db_session.add(
+            ProjectOffer(
+                title="Tech Project",
+                description="A tech project",
+                sector="Tech",
+                status=PublicationStatus.PUBLIC,
+                owner_id=test_user.id,
+            )
+        )
+        db_session.add(
+            ProjectOffer(
+                title="Other Project",
+                description="Another project",
+                sector="Comms",
+                status=PublicationStatus.PUBLIC,
+                owner_id=test_user.id,
+            )
+        )
+        db_session.commit()
+
+        response = authenticated_client.post(
+            "/biz/?current_tab=projects",
+            data={"action": "toggle", "id": "sector", "value": "Tech"},
+            headers={"Hx-Target": "content"},
+        )
+        assert response.status_code == 200
+
+        html = response.get_data(as_text=True)
+        assert "Tech Project" in html
+        assert "Other Project" not in html
+        assert "secteur: Tech" in html
 
     def test_journalism_filters_visible_on_journalism_view(self, app: Flask):
         """Ticket #0202 — the journalism-specific filters appear only
