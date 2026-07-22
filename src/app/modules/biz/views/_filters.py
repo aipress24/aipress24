@@ -59,10 +59,6 @@ PROJECT_FILTER_TAG_LABEL = {
     "ville": "ville",
 }
 
-FILTER_SPECS = PROJECT_FILTER_SPECS
-FILTER_TAG_LABEL = PROJECT_FILTER_TAG_LABEL
-FILTER_SPECS_BY_ID = {spec["id"]: spec for spec in FILTER_SPECS}
-
 JOB_FILTER_SPECS: list[dict] = [
     {
         "id": "sector",
