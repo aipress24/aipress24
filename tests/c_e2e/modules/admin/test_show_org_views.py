@@ -267,6 +267,97 @@ class TestShowOrgActions:
 
         assert response.status_code in (200, 302)
 
+    def test_change_bw_emails(
+        self,
+        admin_client: FlaskClient,
+        admin_user: User,
+        org_with_bw: Organisation,
+        db_session: Session,
+    ):
+        """Test changing BW member emails for an organization with active BW."""
+        unique_id = uuid.uuid4().hex[:8]
+        new_member = User(
+            email=f"bw-member-{unique_id}@test.com",
+            first_name="BW",
+            last_name="Member",
+            active=True,
+        )
+        db_session.add(new_member)
+        db_session.flush()
+
+        # Create its KYCProfile (required for email change operations)
+        profile = KYCProfile(
+            user=new_member, profile_id=f"P_{unique_id}", match_making={}
+        )
+        db_session.add(profile)
+
+        # create a pending neutral role assignment
+        role = RoleAssignment(
+            business_wall_id=org_with_bw.bw_id,
+            user_id=new_member.id,
+            role_type="",
+            invitation_status=InvitationStatus.PENDING.value,
+        )
+        db_session.add(role)
+        db_session.flush()
+
+        # Add new member to BW members
+        response = admin_client.post(
+            f"/admin/show_org/{org_with_bw.id}",
+            data={"action": "change_emails", "content": new_member.email},
+        )
+        assert response.status_code in (200, 302)
+
+        # Verify role assignment was accepted
+        db_session.refresh(role)
+        assert role.invitation_status == InvitationStatus.ACCEPTED.value
+        assert new_member.organisation_id == org_with_bw.id
+
+    def test_change_bw_invitations_emails(
+        self,
+        admin_client: FlaskClient,
+        admin_user: User,
+        org_with_bw: Organisation,
+        db_session: Session,
+    ):
+        """Test changing BW pending invitations."""
+        unique_id = uuid.uuid4().hex[:8]
+        invite_user = User(
+            email=f"bw-invite-{unique_id}@test.com",
+            first_name="BW",
+            last_name="Invited",
+            active=True,
+        )
+        db_session.add(invite_user)
+        db_session.flush()
+
+        # Create KYCProfile for member
+        profile = KYCProfile(
+            user=invite_user, profile_id=f"P_{unique_id}", match_making={}
+        )
+        db_session.add(profile)
+        db_session.flush()
+
+        response = admin_client.post(
+            f"/admin/show_org/{org_with_bw.id}",
+            data={
+                "action": "change_bw_invitations_emails",
+                "content": invite_user.email,
+            },
+        )
+        assert response.status_code in (200, 302)
+
+        # Verify pending role assignment was created
+        role = db_session.scalar(
+            select(RoleAssignment).where(
+                RoleAssignment.business_wall_id == org_with_bw.bw_id,
+                RoleAssignment.user_id == invite_user.id,
+                RoleAssignment.role_type == "",
+                RoleAssignment.invitation_status == InvitationStatus.PENDING.value,
+            )
+        )
+        assert role is not None
+
 
 class TestChangeBWOwner:
     """Tests for the change BW owner page."""
