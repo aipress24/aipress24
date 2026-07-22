@@ -74,9 +74,15 @@
         {% endfor %}
     </div>
 
-    {% if _tab == "projects" and project_filter_bar and project_filter_bar.active_filters %}
+    {% set active_bar = None %}
+    {% if _tab == "projects" %}
+        {% set active_bar = project_filter_bar | default(None) %}
+    {% elif _tab == "jobs" %}
+        {% set active_bar = job_filter_bar | default(None) %}
+    {% endif %}
+    {% if active_bar and active_bar.active_filters %}
         <div class="mb-4">
-            {% for filter in project_filter_bar.active_filters %}
+            {% for filter in active_bar.active_filters %}
                 <span
                     class="inline-flex items-center rounded text-sm font-medium text-gray-600 bg-gray-200 my-1 py-1 px-2">
                     <span>{{ filter.tag_label }}: {{ filter.label }}</span>

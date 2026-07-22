@@ -1,13 +1,14 @@
-# Copyright (c) 2021-2024, Abilian SAS & TCA
+# Copyright (c) 2021-2026, Abilian SAS & TCA
 #
 # SPDX-License-Identifier: AGPL-3.0-only
 
-"""Filters for Marketplace Projects tab."""
+"""Filters for Marketplace Projects and Jobs tabs."""
 
 from __future__ import annotations
 
+import contextlib
 from json import dumps, loads
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, ClassVar
 
 import sqlalchemy as sa
 from flask import request, session
@@ -15,13 +16,13 @@ from werkzeug.exceptions import BadRequest
 
 from app.flask.extensions import db
 from app.models.lifecycle import PublicationStatus
-from app.modules.biz.models import ProjectOffer
+from app.modules.biz.models import JobOffer, ProjectOffer
 from app.modules.kyc.field_label import country_code_to_country_name
 
 if TYPE_CHECKING:
     from sqlalchemy.orm import InstrumentedAttribute
 
-FILTER_SPECS: list[dict] = [
+PROJECT_FILTER_SPECS: list[dict] = [
     {
         "id": "project_category",
         "label": "Type",
@@ -50,7 +51,7 @@ FILTER_SPECS: list[dict] = [
     },
 ]
 
-FILTER_TAG_LABEL = {
+PROJECT_FILTER_TAG_LABEL = {
     "project_category": "type",
     "sector": "secteur",
     "pays_zip_ville": "pays",
@@ -58,13 +59,59 @@ FILTER_TAG_LABEL = {
     "ville": "ville",
 }
 
+FILTER_SPECS = PROJECT_FILTER_SPECS
+FILTER_TAG_LABEL = PROJECT_FILTER_TAG_LABEL
 FILTER_SPECS_BY_ID = {spec["id"]: spec for spec in FILTER_SPECS}
 
+JOB_FILTER_SPECS: list[dict] = [
+    {
+        "id": "sector",
+        "label": "Secteur",
+        "column": "sector",
+    },
+    {
+        "id": "contract_type",
+        "label": "Type contrat",
+        "column": "contract_type",
+    },
+    {
+        "id": "pays_zip_ville",
+        "label": "Pays",
+        "column": "pays_zip_ville",
+        "label_function": country_code_to_country_name,
+    },
+    {
+        "id": "departement",
+        "label": "Département",
+        "column": "departement",
+    },
+    {
+        "id": "ville",
+        "label": "Ville",
+        "column": "ville",
+    },
+]
 
-class ProjectFilterBar:
-    """Filter bar state + option builder for Project tab."""
+JOB_FILTER_TAG_LABEL = {
+    "sector": "secteur",
+    "contract_type": "type contrat",
+    "pays_zip_ville": "pays",
+    "departement": "dépt",
+    "ville": "ville",
+}
 
-    SESSION_KEY = "biz:projects:state"
+PROJECT_FILTER_SPECS_BY_ID = {spec["id"]: spec for spec in PROJECT_FILTER_SPECS}
+JOB_FILTER_SPECS_BY_ID = {spec["id"]: spec for spec in JOB_FILTER_SPECS}
+
+
+class BaseFilterBar:
+    """Base filter bar state + option builder."""
+
+    SESSION_KEY: ClassVar[str] = ""
+    SPECS: ClassVar[list[dict]] = []
+    SPECS_BY_ID: ClassVar[dict[str, dict]] = {}
+    TAG_LABELS: ClassVar[dict[str, str]] = {}
+    MODEL: ClassVar[type] = type(None)
 
     def __init__(self) -> None:
         self.state = self.get_state()
@@ -74,7 +121,7 @@ class ProjectFilterBar:
     def active_filters(self) -> list[dict]:
         active = []
         for filter_state in self.state.get("filters", []):
-            spec = FILTER_SPECS_BY_ID.get(filter_state["id"])
+            spec = self.SPECS_BY_ID.get(filter_state["id"])
             label = filter_state["value"]
             if spec and (label_func := spec.get("label_function")):
                 label = label_func(label)
@@ -84,7 +131,7 @@ class ProjectFilterBar:
                     "id": filter_state["id"],
                     "value": filter_state["value"],
                     "label": label,
-                    "tag_label": FILTER_TAG_LABEL.get(filter_state["id"], ""),
+                    "tag_label": self.TAG_LABELS.get(filter_state["id"], ""),
                 }
             )
         return active
@@ -148,35 +195,60 @@ class ProjectFilterBar:
     def get_filters(self) -> list[dict]:
         """Build filter options using efficient DISTINCT queries."""
         result = []
-        for spec in FILTER_SPECS:
-            distinct_values = _get_distinct_values(spec["column"])
+        for spec in self.SPECS:
+            distinct_values = _get_distinct_values(self.MODEL, spec["column"])
             label_func = spec.get("label_function")
             options = []
             for value in distinct_values:
                 if not value:
                     continue
                 option_label = label_func(value) if label_func else value
-                options.append({"id": value, "label": option_label})
+                options.append({"id": str(value), "label": option_label})
             result.append(
                 {"id": spec["id"], "label": spec["label"], "options": options}
             )
         return result
 
 
-def _get_distinct_values(column_name: str) -> list[str]:
-    """Query distinct non-empty values for a column from public projects."""
+class ProjectFilterBar(BaseFilterBar):
+    """Filter bar state + option builder for Project tab."""
+
+    SESSION_KEY = "biz:projects:state"
+    SPECS = PROJECT_FILTER_SPECS
+    SPECS_BY_ID: ClassVar[dict[str, dict]] = PROJECT_FILTER_SPECS_BY_ID
+    TAG_LABELS = PROJECT_FILTER_TAG_LABEL
+    MODEL = ProjectOffer
+
+
+class JobFilterBar(BaseFilterBar):
+    """Filter bar state + option builder for Job Board tab."""
+
+    SESSION_KEY = "biz:jobs:state"
+    SPECS = JOB_FILTER_SPECS
+    SPECS_BY_ID: ClassVar[dict[str, dict]] = JOB_FILTER_SPECS_BY_ID
+    TAG_LABELS = JOB_FILTER_TAG_LABEL
+    MODEL = JobOffer
+
+
+def _get_distinct_values(model: type, column_name: str) -> list[str]:
+    """Query distinct non-empty values for a column from public offers."""
     from sqlalchemy.exc import OperationalError
 
-    column: InstrumentedAttribute = getattr(ProjectOffer, column_name)
+    column: InstrumentedAttribute = getattr(model, column_name)
 
     stmt = (
         sa.select(column)
-        .where(ProjectOffer.status == PublicationStatus.PUBLIC)
-        .where(column != "")
+        .where(model.status == PublicationStatus.PUBLIC)
         .where(column.is_not(None))
-        .distinct()
-        .order_by(column)
     )
+
+    col_type = getattr(column, "type", None)
+    if col_type is not None:
+        with contextlib.suppress(NotImplementedError, AttributeError):
+            if col_type.python_type is str:
+                stmt = stmt.where(column != "")
+
+    stmt = stmt.distinct().order_by(column)
 
     try:
         return list(db.session.scalars(stmt))
@@ -214,5 +286,33 @@ def get_filter_conditions(filter_bar: ProjectFilterBar) -> list[sa.ColumnElement
         conditions.append(ProjectOffer.departement.in_(filters_by_id["departement"]))
     if filters_by_id["ville"]:
         conditions.append(ProjectOffer.ville.in_(filters_by_id["ville"]))
+
+    return conditions
+
+
+def get_job_filter_conditions(filter_bar: JobFilterBar) -> list[sa.ColumnElement[bool]]:
+    """Return active job filters as SQLAlchemy WHERE conditions."""
+    filters_by_id: dict[str, list[str]] = {
+        "sector": [],
+        "contract_type": [],
+        "pays_zip_ville": [],
+        "departement": [],
+        "ville": [],
+    }
+    for f in filter_bar.active_filters:
+        if f["id"] in filters_by_id:
+            filters_by_id[f["id"]].append(f["value"])
+
+    conditions: list[sa.ColumnElement[bool]] = []
+    if filters_by_id["sector"]:
+        conditions.append(JobOffer.sector.in_(filters_by_id["sector"]))
+    if filters_by_id["contract_type"]:
+        conditions.append(JobOffer.contract_type.in_(filters_by_id["contract_type"]))
+    if filters_by_id["pays_zip_ville"]:
+        conditions.append(JobOffer.pays_zip_ville.in_(filters_by_id["pays_zip_ville"]))
+    if filters_by_id["departement"]:
+        conditions.append(JobOffer.departement.in_(filters_by_id["departement"]))
+    if filters_by_id["ville"]:
+        conditions.append(JobOffer.ville.in_(filters_by_id["ville"]))
 
     return conditions

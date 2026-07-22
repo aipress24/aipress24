@@ -33,7 +33,12 @@ from app.modules.biz.views._common import (
     JOURNALISM_FILTER_SPECS,
     TABS,
 )
-from app.modules.biz.views._filters import ProjectFilterBar, get_filter_conditions
+from app.modules.biz.views._filters import (
+    JobFilterBar,
+    ProjectFilterBar,
+    get_filter_conditions,
+    get_job_filter_conditions,
+)
 from app.modules.kyc.ontology_loader import get_choices as get_ontology_choices
 from app.services.roles import has_role
 
@@ -41,15 +46,21 @@ from app.services.roles import has_role
 @blueprint.route("/", methods=["GET", "POST"])
 def biz():
     """Marketplace."""
+    current_tab = request.args.get("current_tab", "stories")
     project_filter_bar = ProjectFilterBar()
+    job_filter_bar = JobFilterBar()
     if request.method == "POST":
-        project_filter_bar.update_state()
+        if current_tab == "projects":
+            project_filter_bar.update_state()
+        elif current_tab == "jobs":
+            job_filter_bar.update_state()
 
     ctx = {
-        "objs": _get_objs(project_filter_bar),
+        "objs": _get_objs(project_filter_bar, job_filter_bar),
         "tabs": _get_tabs(),
-        "filters": _get_filters(project_filter_bar),
+        "filters": _get_filters(project_filter_bar, job_filter_bar),
         "project_filter_bar": project_filter_bar,
+        "job_filter_bar": job_filter_bar,
         "title": "Marketplace",
     }
     if request.method == "POST" and request.headers.get("Hx-Target") == "content":
@@ -57,7 +68,10 @@ def biz():
     return render_template("pages/biz-home.j2", **ctx)
 
 
-def _get_objs(project_filter_bar: ProjectFilterBar) -> list[MarketplaceContent]:
+def _get_objs(
+    project_filter_bar: ProjectFilterBar | None = None,
+    job_filter_bar: JobFilterBar | None = None,
+) -> list[MarketplaceContent]:
     """Get marketplace objects for display (limited to 30, newest first).
 
     Delegates the "publicly visible" gate to the marketplace repositories
@@ -87,18 +101,24 @@ def _get_objs(project_filter_bar: ProjectFilterBar) -> list[MarketplaceContent]:
             return list(rows)
         case "projects":
             repo = container.get(ProjectOfferRepository)
-            extra = get_filter_conditions(project_filter_bar)
+            extra = (
+                get_filter_conditions(project_filter_bar) if project_filter_bar else []
+            )
             rows, _ = repo.list_public(*extra, limit=30, offset=0)
             return list(rows)
         case "jobs":
             repo = container.get(JobOfferRepository)
-            rows, _ = repo.list_public(limit=30, offset=0)
+            extra = get_job_filter_conditions(job_filter_bar) if job_filter_bar else []
+            rows, _ = repo.list_public(*extra, limit=30, offset=0)
             return list(rows)
         case _:
             return []
 
 
-def _get_filters(project_filter_bar: ProjectFilterBar | None = None) -> list[dict]:
+def _get_filters(
+    project_filter_bar: ProjectFilterBar | None = None,
+    job_filter_bar: JobFilterBar | None = None,
+) -> list[dict]:
     """Build filter options using efficient DISTINCT queries.
 
     Ticket #0202 — when the user is on the Missions tab AND has picked
@@ -107,6 +127,9 @@ def _get_filters(project_filter_bar: ProjectFilterBar | None = None) -> list[dic
 
     When on the Projects tab, replaced generic filters by project
     specific filters (Type, Secteur, Pays, Département, Ville).
+
+    When on the Jobs tab, replaced generic filters by job specific
+    filters (Secteur, Type contrat, Pays, Département, Ville).
     """
     current_tab = request.args.get("current_tab", "stories")
 
@@ -114,6 +137,11 @@ def _get_filters(project_filter_bar: ProjectFilterBar | None = None) -> list[dic
         if project_filter_bar is None:
             project_filter_bar = ProjectFilterBar()
         return project_filter_bar.filters
+
+    if current_tab == "jobs":
+        if job_filter_bar is None:
+            job_filter_bar = JobFilterBar()
+        return job_filter_bar.filters
 
     result = []
     for spec in FILTER_SPECS:
