@@ -32,11 +32,12 @@ from app.modules.wire.services.purchase_aggregates import (
 @nav(parent="index", icon="banknotes", label="Ventes par média")
 def sales_per_media():
     """Recap des ventes éditoriales par média."""
+    sales = list_sales_per_media()
     rows = [
         {"org_id": org_id, "org_name": name, "total_eur": cents / 100}
-        for org_id, name, cents in list_sales_per_media()
+        for org_id, name, cents in sales
     ]
-    total_eur = sum(r["total_eur"] for r in rows)
+    total_eur = sum(cents for _, _, cents in sales) / 100
     return render_template(
         "admin/pages/sales_recap.j2",
         title="Ventes par média",
@@ -52,11 +53,12 @@ def sales_per_media():
 @nav(parent="index", icon="shopping-bag", label="Achats par organisation")
 def purchases_per_org():
     """Recap des achats éditoriaux par organisation acheteuse."""
+    purchases = list_purchases_per_org()
     rows = [
         {"org_id": org_id, "org_name": name, "total_eur": cents / 100}
-        for org_id, name, cents in list_purchases_per_org()
+        for org_id, name, cents in purchases
     ]
-    total_eur = sum(r["total_eur"] for r in rows)
+    total_eur = sum(cents for _, _, cents in purchases) / 100
     return render_template(
         "admin/pages/sales_recap.j2",
         title="Achats par organisation",
