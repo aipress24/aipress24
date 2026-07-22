@@ -36,6 +36,7 @@ from app.modules.admin.utils import (
     delete_full_organisation,
     gc_organisation,
     get_user_per_email,
+    remove_user_organisation,
     set_user_organisation,
     toggle_org_active,
 )
@@ -142,7 +143,12 @@ class ShowOrgView(MethodView):
 
             case "change_emails":
                 raw_mails = request.form["content"]
-                change_members_emails(org, raw_mails)
+                active_bw = get_active_business_wall_for_organisation(org)
+                if active_bw:
+                    self._change_bw_members_emails(active_bw, raw_mails)
+                else:
+                    change_members_emails(org, raw_mails)
+
                 if gc_organisation(org):
                     response.headers["HX-Redirect"] = orgs_url
                 else:
@@ -153,11 +159,146 @@ class ShowOrgView(MethodView):
                 change_invitations_emails(org, raw_mails)
                 response.headers["HX-Redirect"] = current_url
 
+            case "change_bw_invitations_emails":
+                raw_mails = request.form["content"]
+                active_bw = get_active_business_wall_for_organisation(org)
+                if active_bw:
+                    self._change_bw_invitations_emails(active_bw, raw_mails)
+                response.headers["HX-Redirect"] = current_url
+
             case _:
                 response.headers["HX-Redirect"] = orgs_url
 
         db.session.commit()
         return response
+
+    def _change_bw_members_emails(self, bw: BusinessWall, raw_mails: str) -> None:
+        org = bw.get_organisation()
+        if not org:
+            return
+
+        owner = db.session.get(User, bw.owner_id)
+        owner_mail = owner.email if owner else ""
+
+        updated_mails = {m.lower() for m in raw_mails.split()}
+        if owner_mail:
+            updated_mails.add(owner_mail.lower())
+
+        bw_members_ids = list(
+            db.session.scalars(
+                select(RoleAssignment.user_id)
+                .where(RoleAssignment.business_wall_id == bw.id)
+                .where(
+                    RoleAssignment.invitation_status == InvitationStatus.ACCEPTED.value
+                )
+            ).all()
+        )
+        # always keep the BW owner in BW members
+        if bw.owner_id and bw.owner_id not in bw_members_ids:
+            bw_members_ids.append(bw.owner_id)
+
+        previous_emails = set()
+        if bw_members_ids:
+            previous_emails = {
+                u.email.lower()
+                for u in db.session.scalars(
+                    select(User).where(User.id.in_(bw_members_ids))
+                ).all()
+                if u.email
+            }
+
+        # Remove members set (by difference)
+        mails_to_remove = {
+            m
+            for m in previous_emails
+            if m not in updated_mails and m != owner_mail.lower()
+        }
+        for mail in mails_to_remove:
+            user = get_user_per_email(mail)
+            if user:
+                remove_user_organisation(user)
+                db.session.execute(
+                    db.delete(RoleAssignment)
+                    .where(RoleAssignment.business_wall_id == bw.id)
+                    .where(RoleAssignment.user_id == user.id)
+                )
+
+        # Add new members
+        mails_to_add = {m for m in updated_mails if m not in previous_emails}
+        for mail in mails_to_add:
+            user = get_user_per_email(mail)
+            if user:
+                set_user_organisation(user, org)
+                existing_role = db.session.scalar(
+                    select(RoleAssignment).where(
+                        RoleAssignment.business_wall_id == bw.id,
+                        RoleAssignment.user_id == user.id,
+                        RoleAssignment.role_type == "",
+                    )
+                )
+                if existing_role:
+                    # mimic the acceptance if already invited
+                    existing_role.invitation_status = InvitationStatus.ACCEPTED.value
+                    existing_role.accepted_at = datetime.now(UTC)
+
+    def _change_bw_invitations_emails(self, bw: BusinessWall, raw_mails: str) -> None:
+        org = bw.get_organisation()
+        if not org:
+            return
+
+        updated_mails = {m.lower() for m in raw_mails.split()}
+
+        bw_pending_ids = list(
+            db.session.scalars(
+                select(RoleAssignment.user_id)
+                .where(RoleAssignment.business_wall_id == bw.id)
+                .where(
+                    RoleAssignment.invitation_status == InvitationStatus.PENDING.value
+                )
+                .where(RoleAssignment.role_type == "")
+            ).all()
+        )
+        previous_pending_emails = set()
+        if bw_pending_ids:
+            previous_pending_emails = {
+                u.email.lower()
+                for u in db.session.scalars(
+                    select(User).where(User.id.in_(bw_pending_ids))
+                ).all()
+                if u.email
+            }
+
+        # Remove pending invitations
+        mails_to_remove = previous_pending_emails - updated_mails
+        for mail in mails_to_remove:
+            user = get_user_per_email(mail)
+            if user:
+                db.session.execute(
+                    db.delete(RoleAssignment)
+                    .where(RoleAssignment.business_wall_id == bw.id)
+                    .where(RoleAssignment.user_id == user.id)
+                    .where(RoleAssignment.role_type == "")
+                    .where(
+                        RoleAssignment.invitation_status
+                        == InvitationStatus.PENDING.value
+                    )
+                )
+
+        # Add new pending invitations
+        mails_to_add = updated_mails - previous_pending_emails
+        for mail in mails_to_add:
+            user = get_user_per_email(mail)
+            if user:
+                set_user_organisation(user, org)
+                db.session.add(
+                    RoleAssignment(
+                        business_wall_id=bw.id,
+                        user_id=user.id,
+                        role_type="",
+                        invitation_status=InvitationStatus.PENDING.value,
+                        invited_at=datetime.now(UTC),
+                    )
+                )
 
 
 # Register the view

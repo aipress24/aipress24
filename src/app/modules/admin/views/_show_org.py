@@ -14,6 +14,7 @@ from sqlalchemy.exc import NoInspectionAvailable
 
 from app.flask.extensions import db
 from app.flask.lib.view_model import ViewModel
+from app.models.auth import User
 from app.models.organisation import Organisation
 from app.modules.admin.invitations import emails_invited_to_organisation
 from app.modules.bw.bw_activation.models import BusinessWall
@@ -33,6 +34,56 @@ class OrgVM(ViewModel):
         members = self.get_members()
         active_bw = self.get_active_business_wall()
         inactive_bw = self.get_inactive_business_wall()
+
+        bw_members = []
+        bw_pending_invitations = []
+        if active_bw:
+            from app.modules.bw.bw_activation.models.role import (
+                InvitationStatus,
+                RoleAssignment,
+            )
+
+            # Fetch members
+            bw_members_ids = list(
+                db.session.scalars(
+                    select(RoleAssignment.user_id)
+                    .where(RoleAssignment.business_wall_id == active_bw.id)
+                    .where(
+                        RoleAssignment.invitation_status
+                        == InvitationStatus.ACCEPTED.value
+                    )
+                ).all()
+            )
+            # Ensure owner is in list
+            if active_bw.owner_id and active_bw.owner_id not in bw_members_ids:
+                bw_members_ids.append(active_bw.owner_id)
+
+            if bw_members_ids:
+                bw_members = list(
+                    db.session.scalars(
+                        select(User).where(User.id.in_(bw_members_ids))
+                    ).all()
+                )
+
+            # Fetch pending invitations
+            bw_pending_ids = list(
+                db.session.scalars(
+                    select(RoleAssignment.user_id)
+                    .where(RoleAssignment.business_wall_id == active_bw.id)
+                    .where(
+                        RoleAssignment.invitation_status
+                        == InvitationStatus.PENDING.value
+                    )
+                    .where(RoleAssignment.role_type == "")
+                ).all()
+            )
+            if bw_pending_ids:
+                bw_pending_invitations = list(
+                    db.session.scalars(
+                        select(User).where(User.id.in_(bw_pending_ids))
+                    ).all()
+                )
+
         return {
             "members": members,
             "count_members": len(self.org.members),
@@ -44,6 +95,8 @@ class OrgVM(ViewModel):
             "inactive_business_wall": inactive_bw,
             "has_inactive_bw": inactive_bw is not None,
             "has_bw_record": self._compute_has_bw_record(),
+            "bw_members": bw_members,
+            "bw_pending_invitations": bw_pending_invitations,
         }
 
     def _compute_has_bw_record(self) -> bool:
