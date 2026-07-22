@@ -20,6 +20,7 @@ from __future__ import annotations
 
 from app.modules.biz.views._common import (
     GENERIC_FILTER_SPECS,
+    JOB_FILTER_SPECS,
     JOURNALISM_FILTER_SPECS,
     PROJECT_FILTER_SPECS,
     TABS,
@@ -210,5 +211,46 @@ class TestProjectFilterSpecs:
             has_selector = bool(spec.get("selector"))
             assert has_selector, (
                 f"Project FilterSpec {spec['id']!r} has no `selector` — "
+                "would render an empty dropdown."
+            )
+
+
+class TestJobFilterSpecs:
+    """Filters for the MARKET/Job Board tab."""
+
+    def test_specs_list_is_non_empty(self):
+        assert len(JOB_FILTER_SPECS) > 0
+
+    def test_every_spec_has_id_and_label(self):
+        for spec in JOB_FILTER_SPECS:
+            assert "id" in spec
+            assert "label" in spec
+            assert isinstance(spec["id"], str)
+            assert spec["id"]
+            assert isinstance(spec["label"], str)
+            assert spec["label"]
+
+    def test_ids_are_unique(self):
+        ids = [s["id"] for s in JOB_FILTER_SPECS]
+        assert len(ids) == len(set(ids)), f"Duplicate JOB_FILTER_SPECS ids: {ids}"
+
+    def test_canonical_filters_present(self):
+        ids = {s["id"] for s in JOB_FILTER_SPECS}
+        for canonical in (
+            "sector",
+            "contract_type",
+            "pays_zip_ville",
+            "departement",
+            "ville",
+        ):
+            assert canonical in ids, (
+                f"job filter {canonical!r} missing from JOB_FILTER_SPECS"
+            )
+
+    def test_options_or_selector_drives_each_filter(self):
+        for spec in JOB_FILTER_SPECS:
+            has_selector = bool(spec.get("selector"))
+            assert has_selector, (
+                f"Job FilterSpec {spec['id']!r} has no `selector` — "
                 "would render an empty dropdown."
             )

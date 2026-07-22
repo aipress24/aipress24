@@ -13,7 +13,7 @@ from flask import g, render_template
 
 from app.models.auth import User
 from app.models.lifecycle import PublicationStatus
-from app.modules.biz.models import EditorialProduct, ProjectOffer
+from app.modules.biz.models import EditorialProduct, JobOffer, ProjectOffer
 from app.modules.biz.views.home import _get_filters
 from tests.c_e2e.conftest import make_authenticated_client
 
@@ -140,6 +140,44 @@ class TestBizHomeView:
         html = response.get_data(as_text=True)
         assert "Tech Project" in html
         assert "Other Project" not in html
+        assert "secteur: Tech" in html
+
+    def test_job_filter_post_returns_jobs_tab(
+        self,
+        authenticated_client: FlaskClient,
+        test_user: User,
+        db_session: Session,
+    ):
+        db_session.add(
+            JobOffer(
+                title="Tech Job",
+                description="A tech job",
+                sector="Tech",
+                status=PublicationStatus.PUBLIC,
+                owner_id=test_user.id,
+            )
+        )
+        db_session.add(
+            JobOffer(
+                title="Other Job",
+                description="Another job",
+                sector="Comms",
+                status=PublicationStatus.PUBLIC,
+                owner_id=test_user.id,
+            )
+        )
+        db_session.commit()
+
+        response = authenticated_client.post(
+            "/biz/?current_tab=jobs",
+            data={"action": "toggle", "id": "sector", "value": "Tech"},
+            headers={"Hx-Target": "content"},
+        )
+        assert response.status_code == 200
+
+        html = response.get_data(as_text=True)
+        assert "Tech Job" in html
+        assert "Other Job" not in html
         assert "secteur: Tech" in html
 
     def test_journalism_filters_visible_on_journalism_view(self, app: Flask):
