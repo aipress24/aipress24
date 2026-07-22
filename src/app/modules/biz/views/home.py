@@ -29,7 +29,7 @@ from app.modules.biz.repositories import (
     ProjectOfferRepository,
 )
 from app.modules.biz.views._common import (
-    FILTER_SPECS,
+    GENERIC_FILTER_SPECS,
     JOURNALISM_FILTER_SPECS,
     TABS,
 )
@@ -144,7 +144,7 @@ def _get_filters(
         return job_filter_bar.filters
 
     result = []
-    for spec in FILTER_SPECS:
+    for spec in GENERIC_FILTER_SPECS:
         filter_id = spec["id"]
         label = spec["label"]
 

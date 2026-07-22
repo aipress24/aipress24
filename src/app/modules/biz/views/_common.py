@@ -52,7 +52,7 @@ TABS: list[TabSpec] = [
     },
 ]
 
-FILTER_SPECS: list[FilterSpec] = [
+GENERIC_FILTER_SPECS: list[FilterSpec] = [
     {
         "id": "sector",
         "label": "Secteur",

@@ -19,7 +19,7 @@ not crash any test unless the invariant is pinned.
 from __future__ import annotations
 
 from app.modules.biz.views._common import (
-    FILTER_SPECS,
+    GENERIC_FILTER_SPECS,
     JOURNALISM_FILTER_SPECS,
     PROJECT_FILTER_SPECS,
     TABS,
@@ -58,20 +58,20 @@ class TestTabs:
 
 class TestFilterSpecs:
     def test_filter_specs_list_is_non_empty(self):
-        assert len(FILTER_SPECS) > 0
+        assert len(GENERIC_FILTER_SPECS) > 0
 
     def test_every_filter_has_id_and_label(self):
-        for spec in FILTER_SPECS:
+        for spec in GENERIC_FILTER_SPECS:
             assert "id" in spec, f"FilterSpec missing 'id': {spec!r}"
             assert "label" in spec, f"FilterSpec missing 'label': {spec!r}"
 
     def test_filter_ids_are_unique(self):
-        ids = [s["id"] for s in FILTER_SPECS]
+        ids = [s["id"] for s in GENERIC_FILTER_SPECS]
         assert len(ids) == len(set(ids)), f"Duplicate filter ids: {ids}"
 
     def test_canonical_filters_present(self):
         """Generic filters that appear on every MARKET tab."""
-        ids = {s["id"] for s in FILTER_SPECS}
+        ids = {s["id"] for s in GENERIC_FILTER_SPECS}
         for canonical in ("sector", "topic", "genre", "location", "language"):
             assert canonical in ids, (
                 f"canonical filter {canonical!r} missing from FILTER_SPECS"
@@ -81,7 +81,7 @@ class TestFilterSpecs:
         """`_get_filters()` reads either `options` (hardcoded list) or
         `selector` (column name → distinct-values DB query). A filter
         with neither would render an empty dropdown and fail silently."""
-        for spec in FILTER_SPECS:
+        for spec in GENERIC_FILTER_SPECS:
             has_options = bool(spec.get("options"))
             has_selector = bool(spec.get("selector"))
             assert has_options or has_selector, (
@@ -119,7 +119,7 @@ class TestJournalismFilterSpecs:
         """The journalism filters are APPENDED to FILTER_SPECS in
         `_get_filters()`. If any id overlapped, the dropdown would
         render twice. Pin disjointness."""
-        generic = {s["id"] for s in FILTER_SPECS}
+        generic = {s["id"] for s in GENERIC_FILTER_SPECS}
         journalism = {s["id"] for s in JOURNALISM_FILTER_SPECS}
         assert not (generic & journalism), (
             f"FILTER_SPECS and JOURNALISM_FILTER_SPECS share ids: "
