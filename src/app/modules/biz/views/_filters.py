@@ -17,6 +17,7 @@ from werkzeug.exceptions import BadRequest
 from app.flask.extensions import db
 from app.models.lifecycle import PublicationStatus
 from app.modules.biz.models import JobOffer, MissionOffer, ProjectOffer
+from app.modules.biz.views._common import JOURNALISM_FILTER_SPECS
 from app.modules.kyc.field_label import country_code_to_country_name
 
 if TYPE_CHECKING:
@@ -138,17 +139,33 @@ MISSION_FILTER_SPECS: list[dict] = [
     },
 ]
 
+JOURNALISM_FILTER_TAG_LABEL = {
+    "metiers_journalisme": "métier",
+    "types_entreprises_presse_medias": "type entreprise",
+    "types_presse_medias": "type média",
+    "competences_journalisme": "compétence",
+    "langues": "langue",
+    "types_contenus_editoriaux": "contenu",
+    "modes_remuneration": "rémunération",
+    "work_mode": "mode travail",
+    "budget_min": "budget min",
+    "budget_max": "budget max",
+    "deadline": "date limite",
+}
+
 MISSION_FILTER_TAG_LABEL = {
     "type_mission": "type",
     "sector": "secteur",
     "pays_zip_ville": "pays",
     "departement": "dépt",
     "ville": "ville",
+    **JOURNALISM_FILTER_TAG_LABEL,
 }
 
 PROJECT_FILTER_SPECS_BY_ID = {spec["id"]: spec for spec in PROJECT_FILTER_SPECS}
 JOB_FILTER_SPECS_BY_ID = {spec["id"]: spec for spec in JOB_FILTER_SPECS}
-MISSION_FILTER_SPECS_BY_ID = {spec["id"]: spec for spec in MISSION_FILTER_SPECS}
+ALL_MISSION_FILTER_SPECS = MISSION_FILTER_SPECS + JOURNALISM_FILTER_SPECS
+MISSION_FILTER_SPECS_BY_ID = {spec["id"]: spec for spec in ALL_MISSION_FILTER_SPECS}
 
 
 class BaseFilterBar:
@@ -172,13 +189,20 @@ class BaseFilterBar:
             label = filter_state["value"]
             if spec and (label_func := spec.get("label_function")):
                 label = label_func(label)
+
+            tag_label = self.TAG_LABELS.get(filter_state["id"])
+            if not tag_label and spec:
+                tag_label = spec.get("label", filter_state["id"])
+            elif not tag_label:
+                tag_label = filter_state["id"]
+
             active.append(
                 {
                     "type": "selector",
                     "id": filter_state["id"],
                     "value": filter_state["value"],
                     "label": label,
-                    "tag_label": self.TAG_LABELS.get(filter_state["id"], ""),
+                    "tag_label": tag_label,
                 }
             )
         return active
@@ -402,9 +426,7 @@ def get_mission_filter_conditions(
 
     conditions: list[sa.ColumnElement[bool]] = []
     if filters_by_id["type_mission"]:
-        conditions.append(
-            MissionOffer.type_mission.in_(filters_by_id["type_mission"])
-        )
+        conditions.append(MissionOffer.type_mission.in_(filters_by_id["type_mission"]))
     if filters_by_id["sector"]:
         conditions.append(MissionOffer.sector.in_(filters_by_id["sector"]))
     if filters_by_id["pays_zip_ville"]:
@@ -430,7 +452,10 @@ def get_mission_filter_conditions(
     # JSON filters
     json_fields = [
         ("metiers_journalisme", MissionOffer.metiers_journalisme),
-        ("types_entreprises_presse_medias", MissionOffer.types_entreprises_presse_medias),
+        (
+            "types_entreprises_presse_medias",
+            MissionOffer.types_entreprises_presse_medias,
+        ),
         ("types_presse_medias", MissionOffer.types_presse_medias),
         ("competences_journalisme", MissionOffer.competences_journalisme),
         ("langues", MissionOffer.langues),
