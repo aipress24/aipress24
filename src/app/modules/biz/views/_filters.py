@@ -207,6 +207,10 @@ class BaseFilterBar:
             )
         return active
 
+    @property
+    def is_filters_displayed(self) -> bool:
+        return bool(self.state.get("show_filters", False) or self.active_filters)
+
     def get_state(self) -> dict:
         try:
             state_json = session[self.SESSION_KEY]
@@ -231,8 +235,10 @@ class BaseFilterBar:
         match action:
             case "toggle" if form_id and form_value:
                 self.toggle_filter(form_id, form_value)
+                self.state["show_filters"] = True
             case "remove" if form_id and form_value:
                 self.remove_filter(form_id, form_value)
+                self.state["show_filters"] = True
             case _:
                 raise BadRequest
 
