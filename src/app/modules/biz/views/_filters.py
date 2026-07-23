@@ -385,6 +385,16 @@ def get_mission_filter_conditions(
         "pays_zip_ville": [],
         "departement": [],
         "ville": [],
+        "work_mode": [],
+        "metiers_journalisme": [],
+        "types_entreprises_presse_medias": [],
+        "types_presse_medias": [],
+        "competences_journalisme": [],
+        "langues": [],
+        "types_contenus_editoriaux": [],
+        "modes_remuneration": [],
+        "budget_min": [],
+        "budget_max": [],
     }
     for f in filter_bar.active_filters:
         if f["id"] in filters_by_id:
@@ -392,7 +402,9 @@ def get_mission_filter_conditions(
 
     conditions: list[sa.ColumnElement[bool]] = []
     if filters_by_id["type_mission"]:
-        conditions.append(MissionOffer.type_mission.in_(filters_by_id["type_mission"]))
+        conditions.append(
+            MissionOffer.type_mission.in_(filters_by_id["type_mission"])
+        )
     if filters_by_id["sector"]:
         conditions.append(MissionOffer.sector.in_(filters_by_id["sector"]))
     if filters_by_id["pays_zip_ville"]:
@@ -403,5 +415,43 @@ def get_mission_filter_conditions(
         conditions.append(MissionOffer.departement.in_(filters_by_id["departement"]))
     if filters_by_id["ville"]:
         conditions.append(MissionOffer.ville.in_(filters_by_id["ville"]))
+
+    # Work mode filter (Présentiel / Télétravail)
+    if filters_by_id["work_mode"]:
+        work_conds = []
+        for val in filters_by_id["work_mode"]:
+            if val == "Télétravail":
+                work_conds.append(MissionOffer.remote_required.is_(True))
+            elif val == "Présentiel":
+                work_conds.append(MissionOffer.physical_required.is_(True))
+        if work_conds:
+            conditions.append(sa.or_(*work_conds))
+
+    # JSON filters
+    json_fields = [
+        ("metiers_journalisme", MissionOffer.metiers_journalisme),
+        ("types_entreprises_presse_medias", MissionOffer.types_entreprises_presse_medias),
+        ("types_presse_medias", MissionOffer.types_presse_medias),
+        ("competences_journalisme", MissionOffer.competences_journalisme),
+        ("langues", MissionOffer.langues),
+        ("types_contenus_editoriaux", MissionOffer.types_contenus_editoriaux),
+        ("modes_remuneration", MissionOffer.modes_remuneration),
+    ]
+    for fid, col in json_fields:
+        vals = filters_by_id[fid]
+        if vals:
+            col_str = sa.cast(col, sa.String)
+            json_conds = [col_str.like(f'%"{val}"%') for val in vals]
+            conditions.append(sa.or_(*json_conds))
+
+    # Budget filters
+    if filters_by_id["budget_min"]:
+        with contextlib.suppress(ValueError):
+            val_cents = int(filters_by_id["budget_min"][0]) * 100
+            conditions.append(MissionOffer.budget_min >= val_cents)
+    if filters_by_id["budget_max"]:
+        with contextlib.suppress(ValueError):
+            val_cents = int(filters_by_id["budget_max"][0]) * 100
+            conditions.append(MissionOffer.budget_max <= val_cents)
 
     return conditions
