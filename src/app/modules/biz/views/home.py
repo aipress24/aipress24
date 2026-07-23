@@ -35,9 +35,11 @@ from app.modules.biz.views._common import (
 )
 from app.modules.biz.views._filters import (
     JobFilterBar,
+    MissionFilterBar,
     ProjectFilterBar,
     get_filter_conditions,
     get_job_filter_conditions,
+    get_mission_filter_conditions,
 )
 from app.modules.kyc.ontology_loader import get_choices as get_ontology_choices
 from app.services.roles import has_role
@@ -49,18 +51,22 @@ def biz():
     current_tab = request.args.get("current_tab", "stories")
     project_filter_bar = ProjectFilterBar()
     job_filter_bar = JobFilterBar()
+    mission_filter_bar = MissionFilterBar()
     if request.method == "POST":
         if current_tab == "projects":
             project_filter_bar.update_state()
         elif current_tab == "jobs":
             job_filter_bar.update_state()
+        elif current_tab == "missions":
+            mission_filter_bar.update_state()
 
     ctx = {
-        "objs": _get_objs(project_filter_bar, job_filter_bar),
+        "objs": _get_objs(project_filter_bar, job_filter_bar, mission_filter_bar),
         "tabs": _get_tabs(),
-        "filters": _get_filters(project_filter_bar, job_filter_bar),
+        "filters": _get_filters(project_filter_bar, job_filter_bar, mission_filter_bar),
         "project_filter_bar": project_filter_bar,
         "job_filter_bar": job_filter_bar,
+        "mission_filter_bar": mission_filter_bar,
         "title": "Marketplace",
     }
     if request.method == "POST" and request.headers.get("Hx-Target") == "content":
@@ -71,6 +77,7 @@ def biz():
 def _get_objs(
     project_filter_bar: ProjectFilterBar | None = None,
     job_filter_bar: JobFilterBar | None = None,
+    mission_filter_bar: MissionFilterBar | None = None,
 ) -> list[MarketplaceContent]:
     """Get marketplace objects for display (limited to 30, newest first).
 
@@ -96,6 +103,8 @@ def _get_objs(
                         MissionOffer.category != MissionCategory.JOURNALISME,
                     )
                 )
+            if mission_filter_bar:
+                extra.extend(get_mission_filter_conditions(mission_filter_bar))
             repo = container.get(MissionOfferRepository)
             rows, _ = repo.list_public(*extra, limit=30, offset=0)
             return list(rows)
@@ -118,12 +127,12 @@ def _get_objs(
 def _get_filters(
     project_filter_bar: ProjectFilterBar | None = None,
     job_filter_bar: JobFilterBar | None = None,
+    mission_filter_bar: MissionFilterBar | None = None,
 ) -> list[dict]:
     """Build filter options using efficient DISTINCT queries.
 
-    Ticket #0202 — when the user is on the Missions tab AND has picked
-    the JOURNALISME category (`?category=journalisme`), the
-    journalism-specific filter set is appended after the generic ones.
+    When on the Missions tab, replaced generic filters by mission
+    specific filters (Type, Secteur, Pays, Département, Ville).
 
     When on the Projects tab, replaced generic filters by project
     specific filters (Type, Secteur, Pays, Département, Ville).
@@ -132,6 +141,11 @@ def _get_filters(
     filters (Secteur, Type contrat, Pays, Département, Ville).
     """
     current_tab = request.args.get("current_tab", "stories")
+
+    if current_tab == "missions":
+        if mission_filter_bar is None:
+            mission_filter_bar = MissionFilterBar()
+        return mission_filter_bar.filters
 
     if current_tab == "projects":
         if project_filter_bar is None:

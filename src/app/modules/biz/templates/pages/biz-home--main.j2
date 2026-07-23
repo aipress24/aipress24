@@ -79,6 +79,8 @@
         {% set active_bar = project_filter_bar | default(None) %}
     {% elif _tab == "jobs" %}
         {% set active_bar = job_filter_bar | default(None) %}
+    {% elif _tab == "missions" %}
+        {% set active_bar = mission_filter_bar | default(None) %}
     {% endif %}
     {% if active_bar and active_bar.active_filters %}
         <div class="mb-4">
