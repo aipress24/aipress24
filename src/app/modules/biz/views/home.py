@@ -145,7 +145,28 @@ def _get_filters(
     if current_tab == "missions":
         if mission_filter_bar is None:
             mission_filter_bar = MissionFilterBar()
-        return mission_filter_bar.filters
+        result = list(mission_filter_bar.filters)
+        # special case for Journalisme: more filters
+        if _journalism_filters_active(mission_filter_bar):
+            for spec in JOURNALISM_FILTER_SPECS:
+                options: list[dict] = []
+                if spec.get("options"):
+                    options = [{"id": o, "label": o} for o in spec["options"]]
+                elif "ontology_key" in spec:
+                    try:
+                        choices = get_ontology_choices(spec["ontology_key"])
+                    except Exception:
+                        choices = []
+                    if isinstance(choices, list):
+                        for choice in choices:
+                            if isinstance(choice, tuple) and len(choice) == 2:
+                                options.append({"id": choice[0], "label": choice[1]})
+                            elif isinstance(choice, str):
+                                options.append({"id": choice, "label": choice})
+                result.append(
+                    {"id": spec["id"], "label": spec["label"], "options": options}
+                )
+        return result
 
     if current_tab == "projects":
         if project_filter_bar is None:
@@ -175,35 +196,21 @@ def _get_filters(
 
         result.append({"id": filter_id, "label": label, "options": options})
 
-    if _journalism_filters_active():
-        for spec in JOURNALISM_FILTER_SPECS:
-            options: list[dict] = []
-            if spec.get("options"):
-                options = [{"id": o, "label": o} for o in spec["options"]]
-            elif "ontology_key" in spec:
-                try:
-                    choices = get_ontology_choices(spec["ontology_key"])
-                except Exception:
-                    choices = []
-                if isinstance(choices, list):
-                    for c in choices:
-                        if isinstance(c, tuple) and len(c) == 2:
-                            options.append({"id": c[0], "label": c[1]})
-                        elif isinstance(c, str):
-                            options.append({"id": c, "label": c})
-            result.append(
-                {"id": spec["id"], "label": spec["label"], "options": options}
-            )
-
     return result
 
 
-def _journalism_filters_active() -> bool:
-    """The expanded journalism filter set is shown only on the
-    Missions tab when the JOURNALISME category is selected."""
-    return (
-        request.args.get("current_tab", "stories") == "missions"
-        and request.args.get("category", "") == "journalisme"
+def _journalism_filters_active(
+    mission_filter_bar: MissionFilterBar | None = None,
+) -> bool:
+    """The expanded journalism filter set is shown on the Missions tab when the
+    JOURNALISME category is selected."""
+    if request.args.get("current_tab", "stories") != "missions":
+        return False
+    if request.args.get("category", "") == "journalisme":
+        return True
+    return bool(
+        mission_filter_bar
+        and mission_filter_bar.has_filter("type_mission", "journalisme")
     )
 
 

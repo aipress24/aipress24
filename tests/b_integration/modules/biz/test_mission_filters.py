@@ -163,6 +163,17 @@ class TestHomeViewMissionsFilters:
             assert "departement" in ids
             assert "ville" in ids
 
+    def test_get_filters_appends_journalism_filters_when_type_journalisme_selected(
+        self, app: Flask
+    ):
+        with app.test_request_context("/biz/?current_tab=missions"):
+            bar = MissionFilterBar()
+            bar.add_filter("type_mission", "journalisme")
+            filters = _get_filters(mission_filter_bar=bar)
+            ids = {f["id"] for f in filters}
+            assert "metiers_journalisme" in ids
+            assert "competences_journalisme" in ids
+
     def test_get_objs_applies_mission_filters(
         self, app: Flask, db_session: Session, filter_user: User
     ):
