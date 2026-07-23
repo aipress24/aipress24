@@ -63,6 +63,17 @@ class MissionOfferRepository(
 ):
     model_type = MissionOffer
 
+    def list_public(
+        self, *extra_filters: ColumnElement[bool], limit: int, offset: int
+    ) -> tuple[Sequence[MissionOffer], int]:
+        """One page of publicly visible mission offers ordered by "date limite"."""
+        return self.list_and_count(
+            *public_filters(self.model_type),
+            *extra_filters,
+            LimitOffset(limit, offset),
+            OrderBy(self.model_type.deadline, "asc"),
+        )
+
 
 @service
 class ProjectOfferRepository(
