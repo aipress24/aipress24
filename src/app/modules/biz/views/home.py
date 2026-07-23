@@ -44,6 +44,15 @@ from app.modules.biz.views._filters import (
 from app.modules.kyc.ontology_loader import get_choices as get_ontology_choices
 from app.services.roles import has_role
 
+DEADLINE_OPTIONS = [
+    {"id": "7", "label": "Dans 7 jours"},
+    {"id": "30", "label": "Dans 30 jours"},
+    {"id": "90", "label": "Dans 90 jours"},
+    {"id": "183", "label": "Dans 6 mois"},
+]
+
+DEFAULT_BUDGETS = ["500", "1000", "2000", "5000", "10000"]
+
 
 @blueprint.route("/", methods=["GET", "POST"])
 def biz():
@@ -149,22 +158,35 @@ def _get_filters(
         # special case for Journalisme: more filters
         if _journalism_filters_active(mission_filter_bar):
             for spec in JOURNALISM_FILTER_SPECS:
+                filter_id = spec["id"]
                 options: list[dict] = []
-                if spec.get("options"):
+                if filter_id in ("budget_min", "budget_max"):
+                    options = _get_budget_options(filter_id)
+                elif filter_id == "deadline":
+                    options = DEADLINE_OPTIONS
+                elif spec.get("options"):
                     options = [{"id": o, "label": o} for o in spec["options"]]
                 elif "ontology_key" in spec:
+                    used_values = _get_distinct_json_values(MissionOffer, filter_id)
                     try:
                         choices = get_ontology_choices(spec["ontology_key"])
                     except Exception:
                         choices = []
                     if isinstance(choices, list):
-                        for choice in choices:
-                            if isinstance(choice, tuple) and len(choice) == 2:
-                                options.append({"id": choice[0], "label": choice[1]})
-                            elif isinstance(choice, str):
-                                options.append({"id": choice, "label": choice})
+                        for c in choices:
+                            cid, clabel = (
+                                (c[0], c[1])
+                                if isinstance(c, tuple) and len(c) == 2
+                                else (c, c)
+                            )
+                            if (
+                                not used_values
+                                or cid in used_values
+                                or clabel in used_values
+                            ):
+                                options.append({"id": cid, "label": clabel})
                 result.append(
-                    {"id": spec["id"], "label": spec["label"], "options": options}
+                    {"id": filter_id, "label": spec["label"], "options": options}
                 )
         return result
 
@@ -208,10 +230,53 @@ def _journalism_filters_active(
         return False
     if request.args.get("category", "") == "journalisme":
         return True
+
     return bool(
         mission_filter_bar
         and mission_filter_bar.has_filter("type_mission", "journalisme")
     )
+
+
+def _get_distinct_json_values(model: type, column_name: str) -> set[str]:
+    """Return distinct values stored in a JSON list column."""
+    column = getattr(model, column_name, None)
+    if column is None:
+        return set()
+    stmt = (
+        sa.select(column)
+        .where(model.status == PublicationStatus.PUBLIC)
+        .where(column.is_not(None))
+    )
+    rows = db.session.scalars(stmt).all()
+    values = set()
+    for row in rows:
+        if isinstance(row, list):
+            for item in row:
+                if item:
+                    values.add(str(item))
+    return values
+
+
+def _get_budget_options(column_name: str) -> list[dict[str, str]]:
+    """Return budget options from DB values merged with defaults."""
+    column = getattr(MissionOffer, column_name, None)
+    db_values: set[str] = set()
+    if column is not None:
+        stmt = (
+            sa.select(column)
+            .where(MissionOffer.status == PublicationStatus.PUBLIC)
+            .where(column.is_not(None))
+            .where(column > 0)
+            .distinct()
+            .order_by(column)
+        )
+        cents_list = db.session.scalars(stmt).all()
+        for cents in cents_list:
+            db_values.add(str(cents // 100))
+
+    all_values = set(db_values) | set(DEFAULT_BUDGETS)
+    sorted_vals = sorted(all_values, key=lambda x: int(x) if x.isdigit() else 0)
+    return [{"id": v, "label": f"{int(v):,} €".replace(",", " ")} for v in sorted_vals]
 
 
 def _get_distinct_values(column_name: str) -> list[str]:

@@ -201,6 +201,35 @@ class TestHomeViewMissionsFilters:
             assert m1.id in obj_ids
             assert m2.id not in obj_ids
 
+    def test_get_objs_applies_work_mode_filter(
+        self, app: Flask, db_session: Session, filter_user: User
+    ):
+        m_remote = _mission(
+            db_session,
+            owner_id=filter_user.id,
+            title="Remote Mission",
+            category=MissionCategory.COMMUNICATION,
+        )
+        m_remote.remote_required = True
+
+        m_physical = _mission(
+            db_session,
+            owner_id=filter_user.id,
+            title="Physical Mission",
+            category=MissionCategory.COMMUNICATION,
+        )
+        m_physical.physical_required = True
+        db_session.flush()
+
+        with app.test_request_context("/biz/?current_tab=missions"):
+            g.user = filter_user
+            bar = MissionFilterBar()
+            bar.add_filter("work_mode", "Télétravail")
+            objs = _get_objs(mission_filter_bar=bar)
+            obj_ids = [o.id for o in objs]
+            assert m_remote.id in obj_ids
+            assert m_physical.id not in obj_ids
+
     def test_get_objs_missions_ordered_by_deadline(
         self, app: Flask, db_session: Session, filter_user: User
     ):
