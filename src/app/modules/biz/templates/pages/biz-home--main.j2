@@ -60,7 +60,17 @@
     </div>
 {% endmacro %}
 
-<div x-data="{ showFilters: false, showSorter: false }">
+{% set active_bar = None %}
+{% if _tab == "projects" %}
+    {% set active_bar = project_filter_bar | default(None) %}
+{% elif _tab == "jobs" %}
+    {% set active_bar = job_filter_bar | default(None) %}
+{% elif _tab == "missions" %}
+    {% set active_bar = mission_filter_bar | default(None) %}
+{% endif %}
+{% set show_filters_init = 'true' if (active_bar and active_bar.is_filters_displayed) else 'false' %}
+
+<div x-data="{ showFilters: {{ show_filters_init }}, showSorter: false }">
     {{ component("biz-tabs", tabs) }}
 
     <div
@@ -74,14 +84,6 @@
         {% endfor %}
     </div>
 
-    {% set active_bar = None %}
-    {% if _tab == "projects" %}
-        {% set active_bar = project_filter_bar | default(None) %}
-    {% elif _tab == "jobs" %}
-        {% set active_bar = job_filter_bar | default(None) %}
-    {% elif _tab == "missions" %}
-        {% set active_bar = mission_filter_bar | default(None) %}
-    {% endif %}
     {% if active_bar and active_bar.active_filters %}
         <div class="mb-4">
             {% for filter in active_bar.active_filters %}
