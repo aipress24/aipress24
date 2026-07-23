@@ -16,11 +16,23 @@ from werkzeug.exceptions import BadRequest
 
 from app.flask.extensions import db
 from app.models.lifecycle import PublicationStatus
-from app.modules.biz.models import JobOffer, ProjectOffer
+from app.modules.biz.models import JobOffer, MissionOffer, ProjectOffer
 from app.modules.kyc.field_label import country_code_to_country_name
 
 if TYPE_CHECKING:
     from sqlalchemy.orm import InstrumentedAttribute
+
+
+def _mission_type_label(val: str) -> str:
+    labels = {
+        "journalisme": "Journalisme",
+        "communication": "Communication",
+        "innovation": "Innovation",
+    }
+    if not val:
+        return ""
+    return labels.get(val, val.capitalize())
+
 
 PROJECT_FILTER_SPECS: list[dict] = [
     {
@@ -96,8 +108,47 @@ JOB_FILTER_TAG_LABEL = {
     "ville": "ville",
 }
 
+MISSION_FILTER_SPECS: list[dict] = [
+    {
+        "id": "type_mission",
+        "label": "Type",
+        "column": "type_mission",
+        "label_function": _mission_type_label,
+    },
+    {
+        "id": "sector",
+        "label": "Secteur",
+        "column": "sector",
+    },
+    {
+        "id": "pays_zip_ville",
+        "label": "Pays",
+        "column": "pays_zip_ville",
+        "label_function": country_code_to_country_name,
+    },
+    {
+        "id": "departement",
+        "label": "Département",
+        "column": "departement",
+    },
+    {
+        "id": "ville",
+        "label": "Ville",
+        "column": "ville",
+    },
+]
+
+MISSION_FILTER_TAG_LABEL = {
+    "type_mission": "type",
+    "sector": "secteur",
+    "pays_zip_ville": "pays",
+    "departement": "dépt",
+    "ville": "ville",
+}
+
 PROJECT_FILTER_SPECS_BY_ID = {spec["id"]: spec for spec in PROJECT_FILTER_SPECS}
 JOB_FILTER_SPECS_BY_ID = {spec["id"]: spec for spec in JOB_FILTER_SPECS}
+MISSION_FILTER_SPECS_BY_ID = {spec["id"]: spec for spec in MISSION_FILTER_SPECS}
 
 
 class BaseFilterBar:
@@ -226,6 +277,16 @@ class JobFilterBar(BaseFilterBar):
     MODEL = JobOffer
 
 
+class MissionFilterBar(BaseFilterBar):
+    """Filter bar state + option builder for Missions tab."""
+
+    SESSION_KEY = "biz:missions:state"
+    SPECS = MISSION_FILTER_SPECS
+    SPECS_BY_ID: ClassVar[dict[str, dict]] = MISSION_FILTER_SPECS_BY_ID
+    TAG_LABELS = MISSION_FILTER_TAG_LABEL
+    MODEL = MissionOffer
+
+
 def _get_distinct_values(model: type, column_name: str) -> list[str]:
     """Query distinct non-empty values for a column from public offers."""
     from sqlalchemy.exc import OperationalError
@@ -310,5 +371,37 @@ def get_job_filter_conditions(filter_bar: JobFilterBar) -> list[sa.ColumnElement
         conditions.append(JobOffer.departement.in_(filters_by_id["departement"]))
     if filters_by_id["ville"]:
         conditions.append(JobOffer.ville.in_(filters_by_id["ville"]))
+
+    return conditions
+
+
+def get_mission_filter_conditions(
+    filter_bar: MissionFilterBar,
+) -> list[sa.ColumnElement[bool]]:
+    """Return active mission filters as SQLAlchemy WHERE conditions."""
+    filters_by_id: dict[str, list[str]] = {
+        "type_mission": [],
+        "sector": [],
+        "pays_zip_ville": [],
+        "departement": [],
+        "ville": [],
+    }
+    for f in filter_bar.active_filters:
+        if f["id"] in filters_by_id:
+            filters_by_id[f["id"]].append(f["value"])
+
+    conditions: list[sa.ColumnElement[bool]] = []
+    if filters_by_id["type_mission"]:
+        conditions.append(MissionOffer.type_mission.in_(filters_by_id["type_mission"]))
+    if filters_by_id["sector"]:
+        conditions.append(MissionOffer.sector.in_(filters_by_id["sector"]))
+    if filters_by_id["pays_zip_ville"]:
+        conditions.append(
+            MissionOffer.pays_zip_ville.in_(filters_by_id["pays_zip_ville"])
+        )
+    if filters_by_id["departement"]:
+        conditions.append(MissionOffer.departement.in_(filters_by_id["departement"]))
+    if filters_by_id["ville"]:
+        conditions.append(MissionOffer.ville.in_(filters_by_id["ville"]))
 
     return conditions
