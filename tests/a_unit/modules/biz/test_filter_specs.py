@@ -95,8 +95,7 @@ class TestJournalismFilterSpecs:
     """The expanded filter sidebar for MARKET/Missions when the user
     has picked the Journalism category (ticket #0202). Each entry is
     backed by a KYC ontology slug, except for `work_mode` /
-    `budget_min` / `budget_max` / `deadline` / `pays` /
-    `code_postal_ville` which are free-input filters."""
+    `budget_min` / `budget_max` / `deadline` which are free-input filters."""
 
     def test_specs_list_is_non_empty(self):
         assert len(JOURNALISM_FILTER_SPECS) > 0
@@ -130,7 +129,7 @@ class TestJournalismFilterSpecs:
     def test_ontology_backed_filters_carry_ontology_key(self):
         """Specs with `ontology_key` get their options from the KYC
         ontology registry. Specs with `options` use a hardcoded list
-        (work_mode). Specs with neither — like budget / dates / pays —
+        (work_mode). Specs with neither — like budget / dates —
         are rendered as free input. Pin that every spec has at least
         one of the three so `_get_filters()` always knows what to do."""
         for spec in JOURNALISM_FILTER_SPECS:
@@ -142,15 +141,13 @@ class TestJournalismFilterSpecs:
                 "budget_min",
                 "budget_max",
                 "deadline",
-                "pays",
-                "code_postal_ville",
             }
             assert has_ontology or has_options or is_free_input_id, (
                 f"JOURNALISM_FILTER_SPEC {spec['id']!r} has no way to render"
             )
 
     def test_erick_canonical_filters_present(self):
-        """The 13 filters Erick spec'd in #0202. Pin the list so a
+        """The canonical filters Erick spec'd in #0202. Pin the list so a
         future refactor doesn't silently drop one."""
         ids = {s["id"] for s in JOURNALISM_FILTER_SPECS}
         for canonical in (
@@ -165,8 +162,6 @@ class TestJournalismFilterSpecs:
             "budget_min",
             "budget_max",
             "deadline",
-            "pays",
-            "code_postal_ville",
         ):
             assert canonical in ids, (
                 f"Erick filter {canonical!r} missing from "

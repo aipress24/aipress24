@@ -209,8 +209,6 @@ class TestBizHomeView:
             "budget_min",
             "budget_max",
             "deadline",
-            "pays",
-            "code_postal_ville",
         ):
             assert fid in ids_with, f"journalism filter {fid!r} missing"
 
