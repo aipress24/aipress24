@@ -6,7 +6,10 @@
 
 from __future__ import annotations
 
-from typing import TypedDict
+from typing import TYPE_CHECKING, TypedDict
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
 
 
 class FilterSpec(TypedDict, total=False):
@@ -149,6 +152,17 @@ class JournalismFilterSpec(TypedDict, total=False):
     label: str
     ontology_key: str
     options: list[str]
+    label_function: Callable[[object], str]
+
+
+def _format_euro_label(val: object) -> str:
+    val_str = str(val)
+    return f"{val_str} €" if val_str.isdigit() else val_str
+
+
+def _format_days_deadline_label(val: object) -> str:
+    val_str = str(val)
+    return f"Dans {val_str} jours" if val_str.isdigit() else val_str
 
 
 JOURNALISM_FILTER_SPECS: list[JournalismFilterSpec] = [
@@ -194,17 +208,20 @@ JOURNALISM_FILTER_SPECS: list[JournalismFilterSpec] = [
     },
     {
         "id": "budget_min",
-        "label": "Budget min (€)",
-        "options": [],  # free input rendered as <input type=number> by the template
+        "label": "Budget min €",
+        "options": [],
+        "label_function": _format_euro_label,
     },
     {
         "id": "budget_max",
-        "label": "Budget max (€)",
+        "label": "Budget max €",
         "options": [],
+        "label_function": _format_euro_label,
     },
     {
         "id": "deadline",
         "label": "Date limite",
         "options": [],
+        "label_function": _format_days_deadline_label,
     },
 ]

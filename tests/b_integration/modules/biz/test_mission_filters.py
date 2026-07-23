@@ -92,6 +92,27 @@ class TestMissionFilterBar:
             bar.reset()
             assert bar.active_filters == []
 
+    def test_active_filters_tag_labels_and_formatting(self, app: Flask):
+        with app.test_request_context():
+            bar = MissionFilterBar()
+            bar.add_filter("budget_min", "500")
+            bar.add_filter("langues", "Français")
+            bar.add_filter("work_mode", "Télétravail")
+            active = bar.active_filters
+            assert len(active) == 3
+
+            bmin = next(f for f in active if f["id"] == "budget_min")
+            assert bmin["tag_label"] == "budget min"
+            assert bmin["label"] == "500 €"
+
+            lang = next(f for f in active if f["id"] == "langues")
+            assert lang["tag_label"] == "langue"
+            assert lang["label"] == "Français"
+
+            wm = next(f for f in active if f["id"] == "work_mode")
+            assert wm["tag_label"] == "mode travail"
+            assert wm["label"] == "Télétravail"
+
 
 class TestMissionFilterConditions:
     def test_empty_bar_returns_no_conditions(self, app: Flask):

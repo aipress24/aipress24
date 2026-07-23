@@ -48,7 +48,7 @@ DEADLINE_OPTIONS = [
     {"id": "7", "label": "Dans 7 jours"},
     {"id": "30", "label": "Dans 30 jours"},
     {"id": "90", "label": "Dans 90 jours"},
-    {"id": "183", "label": "Dans 6 mois"},
+    {"id": "180", "label": "Dans 180 jours"},
 ]
 
 DEFAULT_BUDGETS = ["500", "1000", "2000", "5000", "10000"]
