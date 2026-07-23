@@ -207,14 +207,4 @@ JOURNALISM_FILTER_SPECS: list[JournalismFilterSpec] = [
         "label": "Date limite",
         "options": [],
     },
-    {
-        "id": "pays",
-        "label": "Pays",
-        "options": [],
-    },
-    {
-        "id": "code_postal_ville",
-        "label": "Code postal et ville",
-        "options": [],
-    },
 ]
