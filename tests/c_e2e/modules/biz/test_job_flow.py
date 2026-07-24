@@ -150,6 +150,7 @@ def test_emitter_can_post_job(app: Flask, emitter: User, db_session: Session):
         data={
             "title": "Reporter — CDD 6 mois",
             "description": "Description suffisamment longue de l'offre.",
+            "statut": "STATUT / Professionnel.le",
             "sector": "media",
             "location": "Marseille",
             "contract_type": "CDD",
@@ -219,3 +220,44 @@ def test_job_fill_blocks_new_applications(
         db_session.query(OfferApplication).filter_by(offer_id=published_job.id).count()
     )
     assert count == 0
+
+
+def test_job_create_with_statut(app: Flask, emitter: User, db_session: Session):
+    client = make_authenticated_client(app, emitter)
+    response = client.get("/biz/jobs/new")
+    assert response.status_code == 200
+    assert b"Statut" in response.data
+
+    # Submitting without statut fails validation
+    invalid_resp = client.post(
+        "/biz/jobs/new",
+        data={
+            "title": "Journaliste sans statut — CDI",
+            "description": "Poste de journaliste senior à temps plein avec au moins 5 ans d'expérience.",
+            "statut": "",
+            "contract_type": "CDI",
+        },
+        follow_redirects=True,
+    )
+    assert invalid_resp.status_code == 200
+    assert (
+        db_session.query(JobOffer)
+        .filter_by(title="Journaliste sans statut — CDI")
+        .first()
+        is None
+    )
+
+    post_resp = client.post(
+        "/biz/jobs/new",
+        data={
+            "title": "Journaliste senior — CDI",
+            "description": "Poste de journaliste senior à temps plein avec au moins 5 ans d'expérience.",
+            "statut": "STATUT / Professionnel.le",
+            "contract_type": "CDI",
+        },
+        follow_redirects=True,
+    )
+    assert post_resp.status_code == 200
+    job = db_session.query(JobOffer).filter_by(title="Journaliste senior — CDI").first()
+    assert job is not None
+    assert job.statut == "STATUT / Professionnel.le"
