@@ -319,6 +319,7 @@ def register_filters(app: Flask) -> None:
     Args:
         app: Flask application instance.
     """
+    from app.modules.kyc.field_label import strip_taxonomy_prefix
     from app.services.html_sanitize import sanitize_html
     from app.services.stripe.prices import stripe_price_display
     from app.ui.geoloc import offer_geoloc_label
@@ -328,6 +329,7 @@ def register_filters(app: Flask) -> None:
     app.template_filter("naivedt")(make_naivedt)
     app.template_filter("offer_geoloc")(offer_geoloc_label)
     app.template_filter("stripe_price")(stripe_price_display)
+    app.template_filter("strip_taxonomy_prefix")(strip_taxonomy_prefix)
     # `|sanitize` for any user-supplied HTML before rendering. The
     # filter returns `markupsafe.Markup`, so it does NOT need a
     # trailing `|safe` and chaining one is a no-op.
