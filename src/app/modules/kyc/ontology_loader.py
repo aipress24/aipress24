@@ -77,6 +77,7 @@ ONTOLOGY_MAP = {
     "multi_type_contenu": "type_contenu",
     "multi_taille_contenu": "taille_contenu",
     "multi_mode_remuneration": "mode_remuneration",
+    "type_job_statut": "type_job_statut",
 }
 
 ORGANISATION_TO_FAMILY_MAP = {
@@ -105,6 +106,7 @@ ONTOLOGY_DB_LIST = {
     "type_contenu",
     "taille_contenu",
     "mode_remuneration",
+    "type_job_statut",
 }
 
 
