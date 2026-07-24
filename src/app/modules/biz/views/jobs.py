@@ -46,6 +46,7 @@ from app.modules.biz.views._offers_common import (
 from app.modules.bw.bw_activation.models import PermissionType
 from app.modules.bw.bw_activation.user_utils import get_selected_business_wall_for_user
 from app.modules.kyc.dynform import CountrySelectField
+from app.modules.kyc.field_label import strip_taxonomy_prefix
 from app.modules.kyc.ontology_loader import get_choices as get_ontology_choices
 from app.modules.wip.pr_access import check_mission
 from app.signals import marketplace_published
@@ -115,7 +116,10 @@ def jobs_new():
     user = cast(User, g.user)
 
     form = JobOfferForm(request.form)
-    statut_choices = cast(list, get_ontology_choices("type_job_statut"))
+    raw_statut_choices = cast(list, get_ontology_choices("type_job_statut"))
+    statut_choices = [
+        (val, strip_taxonomy_prefix(label)) for val, label in raw_statut_choices
+    ]
     form.statut.choices = [("", "— Choisir un statut —"), *statut_choices]
     form.pays_zip_ville.choices = get_ontology_choices("country_pays")
     # #0230 — see missions_new: use the `field2` sub-dict so WTForms renders
