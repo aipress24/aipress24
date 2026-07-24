@@ -69,6 +69,12 @@ class JobOfferForm(Form):
         "Description",
         validators=[validators.InputRequired(), validators.Length(min=20)],
     )
+    statut = SelectField(
+        "Statut",
+        choices=[],
+        validate_choice=False,
+        validators=[validators.InputRequired(message="Veuillez choisir un statut.")],
+    )
     sector = SelectField(
         "Secteur d'activité",
         choices=[],
@@ -109,6 +115,8 @@ def jobs_new():
     user = cast(User, g.user)
 
     form = JobOfferForm(request.form)
+    statut_choices = cast(list, get_ontology_choices("type_job_statut"))
+    form.statut.choices = [("", "— Choisir un statut —"), *statut_choices]
     form.pays_zip_ville.choices = get_ontology_choices("country_pays")
     # #0230 — see missions_new: use the `field2` sub-dict so WTForms renders
     # optgroups instead of crashing on the dual-select {"field1", "field2"}.
@@ -138,6 +146,7 @@ def jobs_new():
         job = JobOffer(
             title=form.title.data or "",
             description=form.description.data or "",
+            statut=form.statut.data or "",
             sector=form.sector.data or "",
             pays_zip_ville=form.pays_zip_ville.data or "",
             pays_zip_ville_detail=request.form.get("pays_zip_ville_detail", ""),
