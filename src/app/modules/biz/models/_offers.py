@@ -310,6 +310,7 @@ class JobOffer(MarketplaceContent, ClassificationMixin, Publishable):
     )
     title: Mapped[str] = mapped_column(default="")
     description: Mapped[str] = mapped_column(default="")
+    statut: Mapped[str] = mapped_column(default="")
     location: Mapped[str] = mapped_column(default="")
     pays_zip_ville: Mapped[str] = mapped_column(default="")
     pays_zip_ville_detail: Mapped[str] = mapped_column(default="")
