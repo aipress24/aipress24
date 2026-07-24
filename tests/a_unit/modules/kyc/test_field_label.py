@@ -18,7 +18,26 @@ from app.modules.kyc.field_label import (
     find_label,
     find_label_city,
     labels_string,
+    strip_taxonomy_prefix,
 )
+
+
+class TestStripTaxonomyPrefix:
+    """Test suite for strip_taxonomy_prefix()."""
+
+    def test_strips_prefix_with_slash(self):
+        assert strip_taxonomy_prefix("STATUT / Etudiant.e") == "Etudiant.e"
+        assert strip_taxonomy_prefix("STATUT / Professionnel.le") == "Professionnel.le"
+
+    def test_strips_multiple_slashes(self):
+        assert strip_taxonomy_prefix("DOMAINE / CATEGORIE / Valeur") == "Valeur"
+
+    def test_returns_plain_string_without_slash(self):
+        assert strip_taxonomy_prefix("nothin") == "nothin"
+
+    def test_handles_empty_or_none(self):
+        assert strip_taxonomy_prefix("") == ""
+        assert strip_taxonomy_prefix(None) == ""
 
 
 class TestFindLabel:
