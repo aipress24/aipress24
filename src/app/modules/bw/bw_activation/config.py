@@ -164,8 +164,8 @@ BW_TYPES: dict[str, dict[str, Any]] = {
         ],
     },
     BWType.MICRO.value: {  # type: ignore [unresolved-attribute]
-        "name": "Business Wall for Micro",
-        "description": "Pour les micro-entreprises de presse travaillant pour des organes de presse reconnus.",
+        "name": "Business Wall for Journalist",
+        "description": "Pour les journalistes structurés en micro-entreprise travaillant pour des organes de presse reconnus.",
         "deprecated": False,
         "free": True,
         "skip_pricing_input": True,
@@ -185,8 +185,8 @@ BW_TYPES: dict[str, dict[str, Any]] = {
             "Ventes de copyrights",
         ],
         "onboarding_messages": [
-            "Votre abonnement gratuit à Business Wall for Micro sera la vitrine sur AiPRESS24 de votre micro-entreprise de presse travaillant pour des organes de presse reconnus.",
-            "Pour bénéficier de Business Wall for Micro, de l'accès aux fonctionnalités de NEWSROOM (propositions et commandes de sujets, Avis d'enquête digital, etc.) et pour commercialiser vos contenus journalistiques (consultations sur NEWS, Consultations Offertes, justificatifs de publication, revente de ©, fonds mutualisé des Avis d'enquêtes), vous devrez approuver notre contrat de diffusion sur AiPRESS24.",
+            "Votre abonnement gratuit à Business Wall for Journalist sera la vitrine sur AiPRESS24 de votre micro-entreprise de presse travaillant pour des organes de presse reconnus.",
+            "Pour bénéficier de Business Wall for Journalist, de l'accès aux fonctionnalités de NEWSROOM (propositions et commandes de sujets, Avis d'enquête digital, etc.) et pour commercialiser vos contenus journalistiques (consultations sur NEWS, Consultations Offertes, justificatifs de publication, revente de ©, fonds mutualisé des Avis d'enquêtes), vous devrez approuver notre contrat de diffusion sur AiPRESS24.",
             "Vous devrez aussi approuver nos Conditions générales de vente sur AiPRESS24.",
             "Les informations que vous allez saisir seront vérifiées par les équipes d'AiPRESS24.",
         ],
