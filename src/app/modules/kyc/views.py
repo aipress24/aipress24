@@ -54,7 +54,11 @@ from app.models.auth import (
 from app.models.repositories import RoleRepository
 from app.modules.admin.utils import gc_all_auto_organisations
 from app.modules.kyc.lib.valid_password import ValidPassword
-from app.modules.kyc.organisation_utils import retrieve_user_organisation
+from app.modules.kyc.organisation_utils import (
+    _find_kyc_organisation_name,
+    retrieve_user_organisation,
+    user_has_business_wall_role,
+)
 from app.modules.swork.masked_fields import MaskFields
 from app.services.roles import generate_roles_map
 from app.services.sessions import SessionService
@@ -648,6 +652,22 @@ def _minor_modification_validated(
     # forget cloned_user
     cloned_user.validation_status = LABEL_MODIFICATION_MINEURE
     merge_values_from_other_user(orig_user, cloned_user)
+
+    # Detect organisation-name changes. If the user is member of a BusinessWall,
+    # refuses change.
+    new_org_name = _find_kyc_organisation_name(orig_user).lower()
+    current_org = orig_user.organisation
+    current_org_name = current_org.name.lower() if current_org else ""
+    if (
+        new_org_name
+        and new_org_name != current_org_name
+        and user_has_business_wall_role(orig_user)
+    ):
+        return (
+            "Votre organisation ne peut pas être modifiée car vous êtes "
+            "rattaché·e à un Business Wall."
+        )
+
     auto_or_inviting_organisation = retrieve_user_organisation(orig_user)
     if auto_or_inviting_organisation:
         orig_user.organisation_id = auto_or_inviting_organisation.id
