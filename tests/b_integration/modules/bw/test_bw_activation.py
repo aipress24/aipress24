@@ -79,7 +79,7 @@ class TestBwCreation:
             assert success is True
             db_session.refresh(user)
             assert user.organisation is not None
-            assert user.organisation.name == "Business Wall for Micro"
+            assert user.organisation.name == "Business Wall for Journalist"
 
             # Verify BW was created
             bw = current_business_wall(user)
