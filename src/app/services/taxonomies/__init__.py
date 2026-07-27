@@ -14,6 +14,7 @@ from ._service import (
     get_full_taxonomy_category_value,
     get_taxonomy,
     get_taxonomy_dual_select,
+    import_taxonomy_from_ods,
     update_entry,
 )
 
@@ -27,5 +28,6 @@ __all__ = [
     "get_full_taxonomy_category_value",
     "get_taxonomy",
     "get_taxonomy_dual_select",
+    "import_taxonomy_from_ods",
     "update_entry",
 ]

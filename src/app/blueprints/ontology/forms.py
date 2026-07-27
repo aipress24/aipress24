@@ -6,6 +6,7 @@
 from __future__ import annotations
 
 from flask_wtf import FlaskForm
+from flask_wtf.file import FileField, FileRequired
 from wtforms import IntegerField, StringField, SubmitField
 from wtforms.validators import DataRequired, Optional, ValidationError
 
@@ -40,3 +41,14 @@ class CreateTaxonomyForm(FlaskForm):
         if check_taxonomy_exists(field.data):
             msg = f"A taxonomy named '{field.data}' already exists."
             raise ValidationError(msg)
+
+
+class UploadOdsForm(FlaskForm):
+    """Form for uploading an ODS file to replace a taxonomy's entries."""
+
+    ods_file = FileField(
+        "ODS file",
+        validators=[FileRequired()],
+        description="ODS spreadsheet with columns: Name, Category, Value, Sequence.",
+    )
+    submit = SubmitField("Load from ODS")
