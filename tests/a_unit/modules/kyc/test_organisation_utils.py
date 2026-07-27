@@ -24,6 +24,12 @@ from arrow import now
 from app.models.auth import KYCProfile, User
 from app.models.invitation import Invitation
 from app.models.organisation import Organisation
+from app.modules.bw.bw_activation.models import (
+    BusinessWall,
+    BWRoleType,
+    InvitationStatus,
+    RoleAssignment,
+)
 from app.modules.kyc.organisation_utils import (
     _find_kyc_organisation_name,
     find_inviting_organisations,
@@ -33,6 +39,7 @@ from app.modules.kyc.organisation_utils import (
     get_organisation_for_noms_orgas,
     retrieve_user_organisation,
     store_auto_organisation,
+    user_has_business_wall_role,
 )
 
 if TYPE_CHECKING:
@@ -549,3 +556,89 @@ class TestRetrieveUserOrganisation:
 
         assert result is not None
         assert result.id == active_org.id
+
+
+class TestUserHasBusinessWallRole:
+    """Test suite for user_has_business_wall_role guard."""
+
+    def test_false_for_user_with_no_bw(self, db: SQLAlchemy) -> None:
+        """A user with no BW ownership or role."""
+        user = User(email="no_bw@example.com")
+        db.session.add(user)
+        db.session.flush()
+
+        assert user_has_business_wall_role(user) is False
+
+    def test_true_for_bw_owner(self, db: SQLAlchemy) -> None:
+        """A BW owner is detected."""
+        user = User(email="bw_owner@example.com")
+        db.session.add(user)
+        db.session.flush()
+
+        bw = BusinessWall(
+            owner_id=user.id,
+            payer_id=user.id,
+            bw_type="media",
+        )
+        db.session.add(bw)
+        db.session.flush()
+
+        assert user_has_business_wall_role(user) is True
+
+    def test_true_for_accepted_role_assignment(self, db: SQLAlchemy) -> None:
+        """An accepted role assignment on a BW is detected."""
+        owner = User(email="owner_role@example.com")
+        db.session.add(owner)
+        db.session.flush()
+
+        bw = BusinessWall(
+            owner_id=owner.id,
+            payer_id=owner.id,
+            bw_type="media",
+        )
+        db.session.add(bw)
+        db.session.flush()
+
+        user = User(email="role_member@example.com")
+        db.session.add(user)
+        db.session.flush()
+
+        assignment = RoleAssignment(
+            business_wall_id=bw.id,
+            user_id=user.id,
+            role_type=BWRoleType.BWMI.value,
+            invitation_status=InvitationStatus.ACCEPTED.value,
+        )
+        db.session.add(assignment)
+        db.session.flush()
+
+        assert user_has_business_wall_role(user) is True
+
+    def test_true_for_accepted_empty_role_member(self, db: SQLAlchemy) -> None:
+        """Admin-added BW members have role_type='' and must also be detected."""
+        owner = User(email="owner_empty@example.com")
+        db.session.add(owner)
+        db.session.flush()
+
+        bw = BusinessWall(
+            owner_id=owner.id,
+            payer_id=owner.id,
+            bw_type="media",
+        )
+        db.session.add(bw)
+        db.session.flush()
+
+        user = User(email="empty_role_member@example.com")
+        db.session.add(user)
+        db.session.flush()
+
+        assignment = RoleAssignment(
+            business_wall_id=bw.id,
+            user_id=user.id,
+            role_type="",
+            invitation_status=InvitationStatus.ACCEPTED.value,
+        )
+        db.session.add(assignment)
+        db.session.flush()
+
+        assert user_has_business_wall_role(user) is True
