@@ -10,7 +10,7 @@ from typing import Any, cast
 
 from flask import Response, flash, g, redirect, render_template, request
 from flask.views import MethodView
-from sqlalchemy import func, select
+from sqlalchemy import delete, func, select
 
 from app.flask.extensions import db
 from app.flask.routing import url_for
@@ -18,6 +18,7 @@ from app.flask.sqla import get_obj
 from app.models.auth import User
 from app.models.invitation import Invitation
 from app.models.organisation import Organisation
+from app.modules.admin.invitations import add_invited_users
 from app.modules.admin.utils import (
     gc_all_auto_organisations,
     remove_user_organisation,
@@ -570,6 +571,10 @@ class InvitationsView(MethodView):
         forged `target`. `remove_user_organisation` refuses (returns an
         error string) when the user is the BW owner of the org, in which
         case we surface it rather than orphaning the Business Wall.
+
+        Leaving the organisation also detaches the user from any BusinessWall
+        role (accepted or pending) linked to that organisation, so a simple
+        member does not keep accessing the BW after leaving its org.
         """
         target_org_id = parse_org_id(org_id)
         if target_org_id is None or user.organisation_id != target_org_id:
@@ -577,6 +582,30 @@ class InvitationsView(MethodView):
         if error := remove_user_organisation(user):
             flash(error, "error")
             return
+
+        # Remove accepted/pending BW role assignments for this org's BWs.
+        bw_ids = list(
+            db.session.scalars(
+                select(BusinessWall.id).where(
+                    BusinessWall.organisation_id == target_org_id
+                )
+            )
+        )
+        if bw_ids:
+            db.session.execute(
+                delete(RoleAssignment).where(
+                    RoleAssignment.user_id == user.id,
+                    RoleAssignment.business_wall_id.in_(bw_ids),
+                )
+            )
+
+        # Recreate the organisation invitation so the user can rejoin later
+        # (the original one was consumed when they first joined). Only do this
+        # for organisations that actually have a Business Wall; auto orgs with
+        # no BW are left to the garbage collector.
+        if bw_ids:
+            add_invited_users([user.email], target_org_id)
+
         gc_all_auto_organisations()
         db.session.commit()
         flash("Vous avez quitté l'organisation.", "success")
