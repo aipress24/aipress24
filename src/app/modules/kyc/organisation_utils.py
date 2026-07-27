@@ -10,6 +10,11 @@ from app.flask.extensions import db
 from app.models.auth import User
 from app.models.invitation import Invitation
 from app.models.organisation import Organisation
+from app.modules.bw.bw_activation.models import (
+    BusinessWall,
+    InvitationStatus,
+    RoleAssignment,
+)
 
 
 def get_organisation_family(bw_type: str | None) -> list[str]:
@@ -184,6 +189,29 @@ def find_inviting_organisations(mail: str) -> list[Organisation]:
         return []
     return list(
         db.session.scalars(select(Organisation).where(Organisation.id.in_(org_ids)))
+    )
+
+
+def user_has_business_wall_role(user: User) -> bool:
+    """Return True if the user owns or has an accepted role in any BusinessWall.
+
+    Used to block KYC organisation-name changes that would orphan the user
+    from their existing BW while leaving the BW attached to the old org.
+    """
+    # BusinessWall ownership
+    owner_exists = db.session.execute(
+        select(BusinessWall.id).where(BusinessWall.owner_id == user.id)
+    ).first()
+    if owner_exists:
+        return True
+
+    return bool(
+        db.session.execute(
+            select(RoleAssignment.id).where(
+                RoleAssignment.user_id == user.id,
+                RoleAssignment.invitation_status == InvitationStatus.ACCEPTED.value,
+            )
+        ).first()
     )
 
 
