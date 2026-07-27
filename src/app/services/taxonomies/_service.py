@@ -9,7 +9,7 @@ import sys
 from typing import Any
 
 import pyexcel
-from sqlalchemy import distinct, select
+from sqlalchemy import delete, distinct, select
 
 from app.flask.extensions import db
 
@@ -178,3 +178,59 @@ def update_entry(
     result.seq = seq
 
     return True
+
+
+def import_taxonomy_from_ods(taxonomy_name: str, file_storage) -> int:
+    """Replace all entries of a taxonomy with the contents of an ODS file.
+
+    Only the first sheet is read. The first row is treated as the header and
+    ignored. Rows are expected to contain, in order:
+    Name, Category, Value, Sequence.
+
+    Args:
+        taxonomy_name: The taxonomy to replace.
+        file_storage: A Flask FileStorage object (or any file-like) containing
+            the ODS data.
+
+    Returns:
+        The number of imported rows.
+    """
+    # Delete existing entries
+    db.session.execute(
+        delete(TaxonomyEntry).where(TaxonomyEntry.taxonomy_name == taxonomy_name)
+    )
+
+    # Read the first sheet from the uploaded file
+    sheet = pyexcel.get_sheet(file_type="ods", file_content=file_storage.read())
+    rows = list(sheet.rows())
+
+    count = 0
+    for i, row in enumerate(rows):
+        if i == 0:
+            # Skip header row
+            continue
+        if not row:
+            continue
+
+        name = str(row[0] if len(row) > 0 else "").strip()
+        category = str(row[1] if len(row) > 1 else "").strip()
+        value = str(row[2] if len(row) > 2 else "").strip()
+        seq_raw = row[3] if len(row) > 3 else 0
+        try:
+            seq = int(seq_raw)
+        except (ValueError, TypeError):
+            seq = 0
+
+        if not name or not value:
+            continue
+
+        create_entry(
+            taxonomy_name=taxonomy_name,
+            name=name,
+            category=category,
+            value=value,
+            seq=seq,
+        )
+        count += 1
+
+    return count

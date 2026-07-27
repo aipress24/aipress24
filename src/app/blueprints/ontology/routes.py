@@ -16,11 +16,12 @@ from app.services.taxonomies import (
     create_entry,
     export_taxonomy_to_ods,
     get_all_taxonomy_names,
+    import_taxonomy_from_ods,
     update_entry,
 )
 
 from . import ontology_bp
-from .forms import CreateTaxonomyForm, TaxonomyEntryForm
+from .forms import CreateTaxonomyForm, TaxonomyEntryForm, UploadOdsForm
 
 
 @ontology_bp.route("/create-taxonomy", methods=["GET", "POST"])
@@ -49,8 +50,9 @@ def list_entries():
     taxonomy_name = request.args.get("taxonomy_name")
     entries: list[TaxonomyEntry] = []
 
-    # Create a simple form instance specifically for the delete buttons' CSRF tokens.
+    # Create form instances for delete buttons and upload actions' CSRF tokens.
     delete_form = FlaskForm()
+    upload_form = UploadOdsForm()
     all_taxonomies = get_all_taxonomy_names()
 
     if taxonomy_name:
@@ -67,6 +69,7 @@ def list_entries():
         taxonomy_name=taxonomy_name,
         all_taxonomies=all_taxonomies,
         delete_form=delete_form,  # <-- Pass the dedicated delete form to the template
+        upload_form=upload_form,
     )
 
 
@@ -180,3 +183,32 @@ def export_ods(taxonomy_name: str):
         as_attachment=True,
         download_name=download_name,
     )
+
+
+@ontology_bp.route("/import/<string:taxonomy_name>", methods=["POST"])
+def import_ods(taxonomy_name: str):
+    """
+    Replaces all entries of a specific taxonomy with the contents of an
+    uploaded ODS spreadsheet.
+    """
+    form = UploadOdsForm()
+    if not form.validate_on_submit():
+        flash("Missing file.", "danger")
+        return redirect(url_for(".list_entries", taxonomy_name=taxonomy_name))
+
+    if not check_taxonomy_exists(taxonomy_name):
+        flash(f"Taxonomy '{taxonomy_name}' not found.", "danger")
+        return redirect(url_for(".list_entries"))
+
+    try:
+        count = import_taxonomy_from_ods(taxonomy_name, form.ods_file.data)
+        db.session.commit()
+        flash(
+            f"Taxonomy '{taxonomy_name}' imported successfully: {count} entries loaded.",
+            "success",
+        )
+    except Exception as e:
+        db.session.rollback()
+        flash(f"Failed to import taxonomy: {e}", "danger")
+
+    return redirect(url_for(".list_entries", taxonomy_name=taxonomy_name))
