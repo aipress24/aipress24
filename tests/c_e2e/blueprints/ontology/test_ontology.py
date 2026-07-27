@@ -6,8 +6,10 @@
 
 from __future__ import annotations
 
+import io
 from typing import TYPE_CHECKING
 
+import pyexcel
 import pytest
 from flask import session, url_for
 from flask_security import login_user
@@ -404,3 +406,61 @@ class TestExportRoute:
             url = url_for("ontology.export_ods", taxonomy_name="nonexistent")
         response = admin_client.get(url)
         assert response.status_code == 302  # Redirect with flash
+
+
+class TestImportRoute:
+    """Test import from ODS route."""
+
+    def _build_ods_buffer(self, rows: list[list]) -> io.BytesIO:
+        """Build an in-memory ODS file from row data."""
+        data = [["Name", "Category", "Value", "Sequence"], *rows]
+        sheet = pyexcel.Sheet(data)
+        buffer = io.BytesIO()
+        sheet.save_to_memory("ods", buffer)
+        buffer.seek(0)
+        return buffer
+
+    def test_import_ods_replaces_entries(
+        self,
+        admin_client: FlaskClient,
+        app: Flask,
+        taxonomy_entry: TaxonomyEntry,
+        db_session: Session,
+    ):
+        """Uploading an ODS file replaces existing taxonomy entries."""
+        with app.test_request_context():
+            url = url_for("ontology.import_ods", taxonomy_name="test_taxonomy")
+        ods_buffer = self._build_ods_buffer(
+            [
+                ["Imported A", "cat_a", "val_a", 10],
+                ["Imported B", "cat_b", "val_b", 20],
+            ]
+        )
+        response = admin_client.post(
+            url,
+            data={"ods_file": (ods_buffer, "test.ods")},
+            content_type="multipart/form-data",
+        )
+        assert response.status_code == 302
+
+        entries = (
+            db_session.query(TaxonomyEntry)
+            .filter(TaxonomyEntry.taxonomy_name == "test_taxonomy")
+            .order_by(TaxonomyEntry.seq)
+            .all()
+        )
+        assert len(entries) == 2
+        assert entries[0].name == "Imported A"
+        assert entries[1].name == "Imported B"
+
+    def test_import_ods_not_found(self, admin_client: FlaskClient, app: Flask):
+        """Importing into a non-existent taxonomy."""
+        with app.test_request_context():
+            url = url_for("ontology.import_ods", taxonomy_name="nonexistent")
+        ods_buffer = self._build_ods_buffer([["Name", "cat", "val", 1]])
+        response = admin_client.post(
+            url,
+            data={"ods_file": (ods_buffer, "test.ods")},
+            content_type="multipart/form-data",
+        )
+        assert response.status_code == 302
