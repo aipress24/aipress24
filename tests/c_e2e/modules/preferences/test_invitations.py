@@ -777,6 +777,110 @@ class TestLeaveOrganisation:
         db_session.refresh(user)
         assert user.organisation_id == org.id
 
+    def test_leave_org_removes_bw_roles_but_keeps_other_bw_roles(
+        self,
+        app: Flask,
+        db_session: Session,
+        test_inviting_user_with_profile: User,
+    ):
+        """Leaving an organisation must drop the user's BW roles (accepted or
+        pending) linked to that organisation's Business Walls, but must not
+        modify roles attached to Business Walls of other organisations."""
+        org = Organisation(name=f"LeaveOrg-{uuid.uuid4().hex[:6]}")
+        db_session.add(org)
+        db_session.flush()
+
+        bw = BusinessWall(
+            bw_type="media",
+            status=BWStatus.ACTIVE.value,
+            owner_id=test_inviting_user_with_profile.id,
+            payer_id=test_inviting_user_with_profile.id,
+            organisation_id=org.id,
+            name="Org BW",
+        )
+        db_session.add(bw)
+        db_session.flush()
+        org.bw_id = bw.id
+        org.bw_active = bw.bw_type
+        org.bw_name = bw.name
+
+        user = self._member(db_session, org)
+        org_role = RoleAssignment(
+            business_wall_id=bw.id,
+            user_id=user.id,
+            role_type="",
+            invitation_status=InvitationStatus.ACCEPTED.value,
+        )
+        db_session.add(org_role)
+
+        # Unrelated organisation + BW: the user has a role there too.
+        other_org = Organisation(name=f"OtherOrg-{uuid.uuid4().hex[:6]}")
+        db_session.add(other_org)
+        db_session.flush()
+        other_owner = User(email=f"other-owner-{uuid.uuid4().hex[:6]}@example.com")
+        other_owner.organisation = other_org
+        other_owner.active = True
+        db_session.add(other_owner)
+        db_session.flush()
+        other_bw = BusinessWall(
+            bw_type="media",
+            status=BWStatus.ACTIVE.value,
+            owner_id=other_owner.id,
+            payer_id=other_owner.id,
+            organisation_id=other_org.id,
+            name="Other BW",
+        )
+        db_session.add(other_bw)
+        db_session.flush()
+        other_org.bw_id = other_bw.id
+        other_org.bw_active = other_bw.bw_type
+        other_org.bw_name = other_bw.name
+
+        other_role = RoleAssignment(
+            business_wall_id=other_bw.id,
+            user_id=user.id,
+            role_type="BWPRi",
+            invitation_status=InvitationStatus.ACCEPTED.value,
+        )
+        db_session.add(other_role)
+        db_session.flush()
+
+        client = make_authenticated_client(app, user)
+        response = client.post(
+            "/preferences/invitations",
+            data={"action": "leave_org", "target": str(org.id)},
+            follow_redirects=False,
+        )
+        assert response.status_code == 200
+
+        db_session.refresh(user)
+        assert user.organisation_id is None
+
+        # Role on the left organisation's BW is gone.
+        assert (
+            db_session.scalar(
+                select(RoleAssignment).where(RoleAssignment.id == org_role.id)
+            )
+            is None
+        )
+        # Role on the unrelated BW is preserved.
+        assert (
+            db_session.scalar(
+                select(RoleAssignment).where(RoleAssignment.id == other_role.id)
+            )
+            is not None
+        )
+
+        # The original org invitation was consumed on join; leaving recreates
+        # it so the user can be invited to rejoin the org/BW later.
+        reinvitation = db_session.scalar(
+            select(Invitation).where(
+                Invitation.email == user.email,
+                Invitation.organisation_id == org.id,
+            )
+        )
+        assert reinvitation is not None
+
 
 class TestAcceptedRoleStaysVisible:
     """Bug: a BW role (e.g. BWPRi) that the user accepted vanished from
