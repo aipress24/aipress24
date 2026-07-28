@@ -18,6 +18,7 @@ from .repositories import (
     SubscriptionRepository,
 )
 from .role import (
+    EXTERNAL_ROLES,
     BWRoleType,
     InvitationStatus,
     PermissionType,
@@ -66,4 +67,6 @@ __all__ = [  # noqa: RUF022
     "PartnershipStatus",
     "PricingTier",
     "SubscriptionStatus",
+    # consts
+    EXTERNAL_ROLES,
 ]

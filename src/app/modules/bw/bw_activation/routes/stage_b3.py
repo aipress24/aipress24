@@ -21,7 +21,7 @@ from app.modules.bw.bw_activation import bp
 from app.modules.bw.bw_activation.bw_invitation import ensure_roles_membership
 from app.modules.bw.bw_activation.config import BW_TYPES
 from app.modules.bw.bw_activation.models.role import (
-    BWRoleType,
+    EXTERNAL_ROLES,
     InvitationStatus,
     RoleAssignment,
 )
@@ -36,9 +36,6 @@ from app.modules.bw.bw_activation.utils import (
 
 if TYPE_CHECKING:
     from app.models.auth import User
-
-
-EXTERNAL_ROLES = {BWRoleType.BWME.value, BWRoleType.BWPRE.value}
 
 
 @bp.route("/manage-organisation-members", methods=["GET", "POST"])

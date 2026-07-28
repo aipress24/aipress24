@@ -30,6 +30,9 @@ class BWRoleType(StrEnum):
     BWPRE = "BWPRe"  # PR Manager (external)
 
 
+EXTERNAL_ROLES = {BWRoleType.BWME.value, BWRoleType.BWPRE.value}
+
+
 class InvitationStatus(StrEnum):
     """Invitation status for role assignments."""
 
