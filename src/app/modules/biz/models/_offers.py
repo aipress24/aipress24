@@ -310,14 +310,57 @@ class JobOffer(MarketplaceContent, ClassificationMixin, Publishable):
     )
     title: Mapped[str] = mapped_column(default="")
     description: Mapped[str] = mapped_column(default="")
-    statut: Mapped[str] = mapped_column(default="")
+    statut: Mapped[str] = mapped_column(default="")  # Etudiant / pro
+    domain_studient: Mapped[list] = mapped_column(
+        JSON, default=list
+    )  # Journalisme, Communication, Innovation , type_job_studient_app
+    domain_pro: Mapped[list] = mapped_column(
+        JSON, default=list
+    )  # Journalisme, Communication, Innovation , pour les pros: type_job_pro_app
+
+    type_emploi_pro_studient: Mapped[list] = mapped_column(
+        JSON, default=list
+    )  # type_job_studient, pour etudiants
+
+    type_emploi_pro_journaliste: Mapped[list] = mapped_column(
+        JSON, default=list
+    )  # journalisme_fonction, pour pro journalist
+    competence_journalisme: Mapped[list] = mapped_column(
+        JSON, default=list
+    )  # journalisme_competence, pour pro journalist
+
+    type_emploi_pro_communicant: Mapped[list] = mapped_column(
+        JSON, default=list
+    )  # press_relations_fonctions, pour pro communicant
+    competence_relation_presse: Mapped[list] = mapped_column(
+        JSON, default=list
+    )  # press_relations_skills, pour pro communicant
+
+    type_emploi_pro_innovation: Mapped[list] = mapped_column(
+        JSON, default=list
+    )  # innovation_job, pour pro innovation
+    competence_innovation: Mapped[list] = mapped_column(
+        JSON, default=list
+    )  # innovation_skills, pour pro innovation
+
+    niveau_etude: Mapped[list] = mapped_column(
+        JSON, default=list
+    )  # niveaux_etudes, pour tous
+    matiere_etudiee: Mapped[list] = mapped_column(
+        JSON, default=list
+    )  # matieres_etudiees, pour etudiants
+
     location: Mapped[str] = mapped_column(default="")
     pays_zip_ville: Mapped[str] = mapped_column(default="")
     pays_zip_ville_detail: Mapped[str] = mapped_column(default="")
+    langues: Mapped[list] = mapped_column(JSON, default=list)
     salary_min: Mapped[int | None] = mapped_column(default=None)  # cents/year
-    salary_max: Mapped[int | None] = mapped_column(default=None)
+    salary_max: Mapped[int | None] = mapped_column(default=None)  # cents/year
     currency: Mapped[str] = mapped_column(default="EUR")
     starting_date: Mapped[datetime | None] = mapped_column(
+        sa.DateTime(timezone=True), default=None
+    )
+    ending_date: Mapped[datetime | None] = mapped_column(
         sa.DateTime(timezone=True), default=None
     )
     contact_email: Mapped[str] = mapped_column(default="")
@@ -326,8 +369,11 @@ class JobOffer(MarketplaceContent, ClassificationMixin, Publishable):
     )
     mission_status: Mapped[MissionStatus] = mapped_column(default=MissionStatus.OPEN)
     contract_type: Mapped[ContractType] = mapped_column(default=ContractType.CDI)
-    full_time: Mapped[bool] = mapped_column(default=True)
-    remote_ok: Mapped[bool] = mapped_column(default=False)
+    full_time: Mapped[bool] = mapped_column(default=True)  # pour tous
+    partial_time: Mapped[int | None] = mapped_column(default=None)  # percent, pour tous
+    remote_ok: Mapped[bool] = mapped_column(default=False)  # pour etudiants
+    remote_partial_time: Mapped[bool] = mapped_column(default=False)  # pour pros
+    remote_full_time: Mapped[bool] = mapped_column(default=False)  # pour pros
 
     @hybrid_property
     def code_postal(self) -> str:
