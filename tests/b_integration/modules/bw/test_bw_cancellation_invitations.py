@@ -1,0 +1,109 @@
+# Copyright (c) 2026, Abilian SAS & TCA
+#
+# SPDX-License-Identifier: AGPL-3.0-only
+
+"""Integration test for BW cancellation and organisation invitations cleanup."""
+
+from __future__ import annotations
+
+import uuid
+from typing import TYPE_CHECKING
+from unittest.mock import patch
+
+from app.models.auth import User
+from app.models.invitation import Invitation
+from app.models.organisation import Organisation
+from app.modules.admin.invitations import add_invited_users
+from app.modules.admin.org_email_utils import change_invitations_emails
+from app.modules.bw.bw_activation.bw_cancellation import close_business_wall_locally
+from app.modules.bw.bw_activation.models import BusinessWall, BWStatus
+
+if TYPE_CHECKING:
+    from flask import Flask
+    from sqlalchemy.orm import Session
+
+
+def test_invitations_tied_to_bw_are_cleared_on_cancellation(
+    app: Flask, db_session: Session
+):
+    with app.test_request_context():
+        user = User(email=f"owner_{uuid.uuid4().hex[:6]}@example.com", active=True)
+        db_session.add(user)
+        org = Organisation(name="Test Org Cancellation")
+        db_session.add(org)
+        db_session.flush()
+
+        bw = BusinessWall(
+            name="Test BW Cancellation",
+            bw_type="BWMi",
+            owner_id=user.id,
+            payer_id=user.id,
+            organisation_id=org.id,
+            status=BWStatus.ACTIVE.value,
+        )
+        db_session.add(bw)
+        db_session.flush()
+
+        # Add invitations tied to BW
+        add_invited_users("user1@example.com", org.id, bw_id=bw.id)
+        # Add invitation without BW (org standalone)
+        add_invited_users("standalone@example.com", org.id, bw_id=None)
+        db_session.flush()
+
+        bw_invites = (
+            db_session.query(Invitation).filter_by(business_wall_id=bw.id).all()
+        )
+        assert len(bw_invites) == 1
+        assert bw_invites[0].email == "user1@example.com"
+
+        # Close BW locally
+        res = close_business_wall_locally(bw, commit=False)
+        assert res["success"] is True
+        assert res["cleared_invitations_count"] == 1
+        db_session.flush()
+
+        # BW-tied invitation should be deleted
+        remaining_bw_invites = (
+            db_session.query(Invitation).filter_by(business_wall_id=bw.id).all()
+        )
+        assert len(remaining_bw_invites) == 0
+
+        # Standalone org invitation should still exist
+        standalone_invites = (
+            db_session.query(Invitation).filter_by(organisation_id=org.id).all()
+        )
+        assert len(standalone_invites) == 1
+        assert standalone_invites[0].email == "standalone@example.com"
+
+
+@patch("app.modules.admin.invitations.send_invitation_mails")
+def test_change_invitations_emails_stores_bw_id(
+    mock_send_mails, app: Flask, db_session: Session
+):
+    with app.test_request_context():
+        user = User(email=f"owner_{uuid.uuid4().hex[:6]}@example.com", active=True)
+        db_session.add(user)
+        org = Organisation(name="Test Org Change Mails")
+        db_session.add(org)
+        db_session.flush()
+
+        bw = BusinessWall(
+            name="Test BW Change Mails",
+            bw_type="BWMi",
+            owner_id=user.id,
+            payer_id=user.id,
+            organisation_id=org.id,
+            status=BWStatus.ACTIVE.value,
+        )
+        db_session.add(bw)
+        db_session.flush()
+
+        change_invitations_emails(
+            org, "invited1@example.com invited2@example.com", bw_id=bw.id
+        )
+        db_session.flush()
+
+        invites = db_session.query(Invitation).filter_by(organisation_id=org.id).all()
+        assert len(invites) == 2
+        for inv in invites:
+            assert inv.business_wall_id == bw.id
