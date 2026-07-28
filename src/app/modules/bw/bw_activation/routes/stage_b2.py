@@ -59,7 +59,7 @@ def invite_organisation_members():
         action = request.form.get("action")
         if action == "change_invitations_emails":
             raw_mails = request.form["content"]
-            change_invitations_emails(org, raw_mails)
+            change_invitations_emails(org, raw_mails, bw_id=current_bw.id)
             db.session.commit()
             response = Response("")
             response.headers["HX-Redirect"] = url_for(

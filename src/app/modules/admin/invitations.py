@@ -5,6 +5,7 @@
 from __future__ import annotations
 
 from typing import cast
+from uuid import UUID
 
 from flask_login import current_user
 from loguru import logger
@@ -22,12 +23,16 @@ from app.services.notifications import NotificationService
 from .utils import flush_session, get_user_per_email
 
 
-def invite_users(mails: str | list[str], org_id: int) -> None:
-    invitations_to_send = add_invited_users(mails, org_id)
+def invite_users(
+    mails: str | list[str], org_id: int, bw_id: UUID | None = None
+) -> None:
+    invitations_to_send = add_invited_users(mails, org_id, bw_id=bw_id)
     send_invitation_mails(invitations_to_send, org_id)
 
 
-def add_invited_users(mails: str | list[str], org_id: int) -> list[str]:
+def add_invited_users(
+    mails: str | list[str], org_id: int, bw_id: UUID | None = None
+) -> list[str]:
     """Add user mails to the list of invited users, without sending mail.
 
     Note: This flushes but does NOT commit. The caller is responsible
@@ -54,7 +59,9 @@ def add_invited_users(mails: str | list[str], org_id: int) -> list[str]:
             continue
         if mail in already_invited:
             continue
-        invitation = Invitation(email=mail, organisation_id=org_id)
+        invitation = Invitation(
+            email=mail, organisation_id=org_id, business_wall_id=bw_id
+        )
         db_session.add(invitation)
         db_session.flush()
         already_invited.add(mail)

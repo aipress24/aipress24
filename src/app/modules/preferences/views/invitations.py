@@ -10,7 +10,7 @@ from typing import Any, cast
 
 from flask import Response, flash, g, redirect, render_template, request
 from flask.views import MethodView
-from sqlalchemy import delete, func, select
+from sqlalchemy import delete, func, or_, select
 
 from app.flask.extensions import db
 from app.flask.routing import url_for
@@ -303,9 +303,14 @@ class InvitationsView(MethodView):
         stmt = (
             select(Invitation)
             .join(Organisation, Invitation.organisation_id == Organisation.id)
+            .outerjoin(BusinessWall, Invitation.business_wall_id == BusinessWall.id)
             .where(
                 func.lower(func.trim(Invitation.email)) == normalised,
                 Organisation.deleted_at.is_(None),
+                or_(
+                    Invitation.business_wall_id.is_(None),
+                    BusinessWall.status == BWStatus.ACTIVE.value,
+                ),
             )
         )
         invitations = db_session.scalars(stmt)

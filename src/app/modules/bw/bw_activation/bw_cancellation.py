@@ -19,6 +19,7 @@ from uuid import UUID
 
 from app.flask.extensions import db
 from app.models.auth import User
+from app.models.invitation import Invitation
 from app.models.organisation import Organisation
 from app.modules.bw.bw_activation.models import (
     BusinessWall,
@@ -98,6 +99,21 @@ def _clear_partnerships_for_bw(bw_id: UUID) -> int:
     return len(partnerships)
 
 
+def _clear_invitations_for_bw(bw_id: UUID) -> int:
+    """Delete organisation invitations tied to a Business Wall.
+
+    Returns the number of invitations deleted.
+    """
+    invitations = list(
+        db.session.scalars(
+            db.select(Invitation).where(Invitation.business_wall_id == bw_id)
+        ).all()
+    )
+    for invitation in invitations:
+        db.session.delete(invitation)
+    return len(invitations)
+
+
 def close_business_wall_locally(
     bw: BusinessWall,
     commit: bool = True,
@@ -121,6 +137,7 @@ def close_business_wall_locally(
         "cleared_users_count": 0,
         "cleared_role_assignments_count": 0,
         "cleared_partnerships_count": 0,
+        "cleared_invitations_count": 0,
     }
 
     if bw is None:
@@ -133,6 +150,7 @@ def close_business_wall_locally(
     result["cleared_users_count"] = _clear_users_selected_bw(bw.id)
     result["cleared_role_assignments_count"] = _clear_role_assignments_for_bw(bw.id)
     result["cleared_partnerships_count"] = _clear_partnerships_for_bw(bw.id)
+    result["cleared_invitations_count"] = _clear_invitations_for_bw(bw.id)
 
     if commit:
         db.session.commit()
