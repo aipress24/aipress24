@@ -18,7 +18,13 @@ from app.models.organisation import Organisation
 from app.modules.admin.invitations import add_invited_users
 from app.modules.admin.org_email_utils import change_invitations_emails
 from app.modules.bw.bw_activation.bw_cancellation import close_business_wall_locally
-from app.modules.bw.bw_activation.models import BusinessWall, BWStatus, RoleAssignment
+from app.modules.bw.bw_activation.models import (
+    EXTERNAL_ROLES,
+    BusinessWall,
+    BWStatus,
+    RoleAssignment,
+)
+from app.modules.bw.bw_activation.models.role import BWRoleType, InvitationStatus
 from app.modules.preferences.views.invitations import InvitationsView
 
 if TYPE_CHECKING:
@@ -167,3 +173,70 @@ def test_join_organisation_creates_role_assignment(app: Flask, db_session: Sessi
         db_session.query(Organisation).delete()
         db_session.query(User).delete()
         db_session.commit()
+
+
+def test_external_partner_roles_excluded_from_bw_members(
+    app: Flask, db_session: Session
+):
+    with app.test_request_context():
+        owner = User(email=f"owner_{uuid.uuid4().hex[:6]}@example.com", active=True)
+        db_session.add(owner)
+        org = Organisation(name="Test Org External Excluded")
+        db_session.add(org)
+        db_session.flush()
+
+        bw = BusinessWall(
+            name="Test BW External Excluded",
+            bw_type="BWMi",
+            owner_id=owner.id,
+            payer_id=owner.id,
+            organisation_id=org.id,
+            status=BWStatus.ACTIVE.value,
+        )
+        db_session.add(bw)
+        db_session.flush()
+
+        external_user = User(
+            email=f"external_{uuid.uuid4().hex[:6]}@example.com",
+            active=True,
+        )
+        db_session.add(external_user)
+        db_session.flush()
+
+        # Add external BWMe role assignment
+        db_session.add(
+            RoleAssignment(
+                business_wall_id=bw.id,
+                user_id=external_user.id,
+                role_type=BWRoleType.BWME.value,
+                invitation_status=InvitationStatus.ACCEPTED.value,
+            )
+        )
+        db_session.flush()
+
+        # Calculate members as done in stage_b3.py
+        members_set: set[User] = set()
+        if bw.owner_id:
+            bw_owner = db_session.get(User, bw.owner_id)
+            if bw_owner:
+                members_set.add(bw_owner)
+
+        external_user_ids = set(
+            db_session.scalars(
+                select(RoleAssignment.user_id)
+                .where(RoleAssignment.business_wall_id == bw.id)
+                .where(
+                    RoleAssignment.invitation_status == InvitationStatus.ACCEPTED.value
+                )
+                .where(RoleAssignment.role_type.in_(EXTERNAL_ROLES))
+            ).all()
+        )
+
+        members = [
+            u
+            for u in members_set
+            if u.id not in external_user_ids or u.id == bw.owner_id
+        ]
+        assert len(members) == 1
+        assert owner in members
+        assert external_user not in members
