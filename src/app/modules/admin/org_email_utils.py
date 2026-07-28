@@ -4,6 +4,8 @@
 
 from __future__ import annotations
 
+from uuid import UUID
+
 from app.models.organisation import Organisation
 
 from .invitations import (
@@ -60,11 +62,13 @@ def change_members_emails(
     add_members_emails(org, mails_to_add)
 
 
-def change_invitations_emails(org: Organisation, raw_mails: str) -> None:
+def change_invitations_emails(
+    org: Organisation, raw_mails: str, bw_id: UUID | None = None
+) -> None:
     new_mails = list(set(raw_mails.split()))  # keep mail case
     new_mails_lower = {m.lower() for m in new_mails}
     current_invitations = emails_invited_to_organisation(org.id)
     canceled = [m for m in current_invitations if m.lower() not in new_mails_lower]
     cancel_invitation_users(canceled, org.id)
     if new_mails:
-        invite_users(new_mails, org.id)
+        invite_users(new_mails, org.id, bw_id=bw_id)
