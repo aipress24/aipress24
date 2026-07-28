@@ -21,6 +21,7 @@ from app.modules.bw.bw_activation import bp
 from app.modules.bw.bw_activation.bw_invitation import ensure_roles_membership
 from app.modules.bw.bw_activation.config import BW_TYPES
 from app.modules.bw.bw_activation.models.role import (
+    BWRoleType,
     InvitationStatus,
     RoleAssignment,
 )
@@ -35,6 +36,9 @@ from app.modules.bw.bw_activation.utils import (
 
 if TYPE_CHECKING:
     from app.models.auth import User
+
+
+EXTERNAL_ROLES = {BWRoleType.BWME.value, BWRoleType.BWPRE.value}
 
 
 @bp.route("/manage-organisation-members", methods=["GET", "POST"])
@@ -83,8 +87,8 @@ def manage_organisation_members():
             db.session.commit()
             return response
 
-    # Display the Business Wall members (owner + accepted role assignments),
-    # not the raw organisation employees, so the page matches the BW identity.
+    # Display internal organisation members (owner + org members + accepted internal role assignments).
+    # External partner roles (BWMe, BWPRe) are managed separately and must be excluded.
     members_set: set[User] = set()
     if current_bw.owner_id:
         owner = get_obj(current_bw.owner_id, User)
@@ -104,9 +108,23 @@ def manage_organisation_members():
             db.session.scalars(select(User).where(User.id.in_(role_user_ids))).all()
         )
 
-    members = list(members_set)
+    # Exclude users whose role on this BW is explicitly external (BWMe / BWPRe)
+    external_user_ids = set(
+        db.session.scalars(
+            select(RoleAssignment.user_id)
+            .where(RoleAssignment.business_wall_id == current_bw.id)
+            .where(RoleAssignment.invitation_status == InvitationStatus.ACCEPTED.value)
+            .where(RoleAssignment.role_type.in_(EXTERNAL_ROLES))
+        ).all()
+    )
 
-    warn(members)
+    members = [
+        u
+        for u in members_set
+        if u.id not in external_user_ids or u.id == current_bw.owner_id
+    ]
+
+    # warn(members)
 
     return render_template(
         "bw_activation/B03_manage_organisation_members.html",
