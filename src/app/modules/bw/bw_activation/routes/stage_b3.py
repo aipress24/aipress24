@@ -85,22 +85,26 @@ def manage_organisation_members():
 
     # Display the Business Wall members (owner + accepted role assignments),
     # not the raw organisation employees, so the page matches the BW identity.
-    members: list[User] = []
+    members_set: set[User] = set()
     if current_bw.owner_id:
         owner = get_obj(current_bw.owner_id, User)
         if owner:
-            members.append(owner)
+            members_set.add(owner)
+
+    # if org:
+    #     members_set.update(org.members)
 
     role_user_ids = db.session.scalars(
         select(RoleAssignment.user_id)
         .where(RoleAssignment.business_wall_id == current_bw.id)
         .where(RoleAssignment.invitation_status == InvitationStatus.ACCEPTED.value)
-        .where(RoleAssignment.user_id != current_bw.owner_id)
     ).all()
     if role_user_ids:
-        members.extend(
+        members_set.update(
             db.session.scalars(select(User).where(User.id.in_(role_user_ids))).all()
         )
+
+    members = list(members_set)
 
     warn(members)
 
