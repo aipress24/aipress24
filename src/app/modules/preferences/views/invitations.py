@@ -6,6 +6,7 @@
 
 from __future__ import annotations
 
+from datetime import UTC, datetime
 from typing import Any, cast
 
 from flask import Response, flash, g, redirect, render_template, request
@@ -534,6 +535,38 @@ class InvitationsView(MethodView):
 
         organisation = get_obj(org_id, Organisation)
         set_user_organisation(user, organisation)
+
+        # Create/update accepted RoleAssignment for the Business Wall
+        bw_id = None
+        for invitation in invitations:
+            if invitation.business_wall_id:
+                bw_id = invitation.business_wall_id
+                break
+        if not bw_id and organisation and organisation.bw_id:
+            bw_id = organisation.bw_id
+
+        if bw_id:
+            existing_role = db.session.scalar(
+                select(RoleAssignment).where(
+                    RoleAssignment.business_wall_id == bw_id,
+                    RoleAssignment.user_id == user.id,
+                )
+            )
+            # ensure a RoleAssignment for new members
+            if existing_role is None:
+                db.session.add(
+                    RoleAssignment(
+                        business_wall_id=bw_id,
+                        user_id=user.id,
+                        role_type="",
+                        invitation_status=InvitationStatus.ACCEPTED.value,
+                        accepted_at=datetime.now(UTC),
+                    )
+                )
+            else:
+                existing_role.invitation_status = InvitationStatus.ACCEPTED.value
+                existing_role.accepted_at = datetime.now(UTC)
+
         # Bug 0240: consume the invitation(s) once the user has joined —
         # a leftover org_invitations row kept re-offering « Rejoindre »
         # for an org the user is already a member of.
