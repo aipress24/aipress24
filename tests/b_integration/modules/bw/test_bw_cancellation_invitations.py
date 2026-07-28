@@ -10,13 +10,16 @@ import uuid
 from typing import TYPE_CHECKING
 from unittest.mock import patch
 
-from app.models.auth import User
+from sqlalchemy import select
+
+from app.models.auth import KYCProfile, User
 from app.models.invitation import Invitation
 from app.models.organisation import Organisation
 from app.modules.admin.invitations import add_invited_users
 from app.modules.admin.org_email_utils import change_invitations_emails
 from app.modules.bw.bw_activation.bw_cancellation import close_business_wall_locally
-from app.modules.bw.bw_activation.models import BusinessWall, BWStatus
+from app.modules.bw.bw_activation.models import BusinessWall, BWStatus, RoleAssignment
+from app.modules.preferences.views.invitations import InvitationsView
 
 if TYPE_CHECKING:
     from flask import Flask
@@ -107,3 +110,60 @@ def test_change_invitations_emails_stores_bw_id(
         assert len(invites) == 2
         for inv in invites:
             assert inv.business_wall_id == bw.id
+
+
+def test_join_organisation_creates_role_assignment(app: Flask, db_session: Session):
+    with app.test_request_context():
+        owner = User(email=f"owner_{uuid.uuid4().hex[:6]}@example.com", active=True)
+        db_session.add(owner)
+        org = Organisation(name="Test Org Role Assignment")
+        db_session.add(org)
+        db_session.flush()
+
+        bw = BusinessWall(
+            name="Test BW Role Assignment",
+            bw_type="BWMi",
+            owner_id=owner.id,
+            payer_id=owner.id,
+            organisation_id=org.id,
+            status=BWStatus.ACTIVE.value,
+        )
+        db_session.add(bw)
+        org.bw_id = bw.id
+        db_session.flush()
+
+        invited_user = User(
+            email=f"invited_{uuid.uuid4().hex[:6]}@example.com",
+            active=True,
+        )
+        db_session.add(invited_user)
+        db_session.flush()
+        db_session.add(KYCProfile(user_id=invited_user.id))
+        db_session.flush()
+
+        add_invited_users(invited_user.email, org.id, bw_id=bw.id)
+        db_session.flush()
+
+        view = InvitationsView()
+        view._join_organisation(invited_user, str(org.id))
+        db_session.flush()
+
+        assert invited_user.organisation_id == org.id
+
+        role_assignment = db_session.scalar(
+            select(RoleAssignment).where(
+                RoleAssignment.business_wall_id == bw.id,
+                RoleAssignment.user_id == invited_user.id,
+            )
+        )
+        assert role_assignment is not None
+        assert role_assignment.role_type == ""
+        assert role_assignment.invitation_status == "accepted"
+
+        # Teardown because _join_organisation commits
+        db_session.query(RoleAssignment).delete()
+        db_session.query(BusinessWall).delete()
+        db_session.query(KYCProfile).delete()
+        db_session.query(Organisation).delete()
+        db_session.query(User).delete()
+        db_session.commit()
