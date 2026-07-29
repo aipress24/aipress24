@@ -41,6 +41,28 @@
     </div>
 {% endmacro %}
 
+{% macro common_filters(salary_min_label, salary_max_label, remote_fields) %}
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {{ render_field(form.sector) }}
+        {{ render_field(form.contract_type) }}
+        {{ render_field(form.starting_date) }}
+        {{ render_field(form.ending_date) }}
+        {{ render_field(form.salary_min, extra_class="no-spinner", label=salary_min_label) }}
+        {{ render_field(form.salary_max, extra_class="no-spinner", label=salary_max_label) }}
+        {{ render_field(form.partial_time, extra_class="no-spinner !w-32") }}
+    </div>
+    <div class="mb-4">
+        {{ form.pays_zip_ville.label(class="block text-sm font-medium text-gray-700 mb-1") }}
+        {{ form.pays_zip_ville() }}
+    </div>
+    <div class="flex gap-4">
+        {{ render_checkbox(form.full_time) }}
+        {% for remote_field in remote_fields %}
+            {{ render_checkbox(remote_field) }}
+        {% endfor %}
+    </div>
+{% endmacro %}
+
 {% block content %}
 {# Hide browser spin buttons on numeric inputs marked .no-spinner
    (salary fields). Ref bug #0073. #}
@@ -78,42 +100,64 @@
                 </div>
 
                 {# Formulaire Étudiant #}
-                <div x-show="statut === 'STATUT / Etudiant.e'" x-cloak class="border-t border-gray-200 pt-4 mt-2">
-                    <p class="text-sm font-medium text-gray-700 mb-3">
-                        Fiche descriptive (réservée aux offres Étudiant)
-                    </p>
-                    {{ render_field(form.domain_studient) }}
-                    {{ render_field(form.type_emploi_pro_studient) }}
-                    {{ render_field(form.niveau_etude) }}
-                    {{ render_multi(form.matiere_etudiee) }}
-                    {{ render_multi(form.langues) }}
-                </div>
+                <template x-if="statut === 'STATUT / Etudiant.e'">
+                    <div class="border-t border-gray-200 pt-4 mt-2">
+                        <p class="text-sm font-medium text-gray-700 mb-3">
+                            Fiche descriptive (réservée aux offres Étudiant)
+                        </p>
+                        {{ render_field(form.domain_studient) }}
+                        {{ render_field(form.type_emploi_pro_studient) }}
+                        {{ render_field(form.niveau_etude) }}
+                        {{ render_multi(form.matiere_etudiee) }}
+                        {{ render_multi(form.langues) }}
+                        {{ common_filters("Rémunération min (€ brut/mois)", "Rémunération max (€ brut/mois)", [form.remote_ok]) }}
+                    </div>
+                </template>
 
                 {# Formulaire Professionnel #}
-                <div x-show="statut === 'STATUT / Professionnel.le'" x-cloak class="border-t border-gray-200 pt-4 mt-2">
-                    <p class="text-sm font-medium text-gray-700 mb-3">
-                        Fiche descriptive (réservée aux offres Professionnel)
-                    </p>
-                    {# Champs spécifiques aux professionnels #}
-                </div>
+                <template x-if="statut === 'STATUT / Professionnel.le'">
+                    <div class="border-t border-gray-200 pt-4 mt-2"
+                         x-data="{ domain_pro: '{{ form.domain_pro.data or '' }}' }">
+                        <p class="text-sm font-medium text-gray-700 mb-3">
+                            Fiche descriptive (réservée aux offres Professionnel)
+                        </p>
+                        <div class="mb-4">
+                            {{ form.domain_pro.label(class="block text-sm font-medium text-gray-700 mb-1") }}
+                            {{ form.domain_pro(
+                            class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500",
+                            **{"x-model": "domain_pro"}
+                            ) }}
+                        </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {{ render_field(form.sector) }}
-                    {{ render_field(form.contract_type) }}
-                    {{ render_field(form.starting_date) }}
-                    {{ render_field(form.ending_date) }}
-                    {{ render_field(form.salary_min, extra_class="no-spinner", label="Rémunération min (€ brut/mois)") }}
-                    {{ render_field(form.salary_max, extra_class="no-spinner", label="Rémunération max (€ brut/mois)") }}
-                    {{ render_field(form.partial_time, extra_class="no-spinner") }}
-                </div>
-                <div class="mb-4">
-                    {{ form.pays_zip_ville.label(class="block text-sm font-medium text-gray-700 mb-1") }}
-                    {{ form.pays_zip_ville() }}
-                </div>
-                <div class="flex gap-4">
-                    {{ render_checkbox(form.full_time) }}
-                    {{ render_checkbox(form.remote_ok) }}
-                </div>
+                        {# Journalisme #}
+                        <template x-if="domain_pro === 'JOB BOARD / PRO / Journalisme'">
+                            <div>
+                                {{ render_field(form.type_emploi_pro_journaliste) }}
+                                {{ render_multi(form.competence_journalisme) }}
+                            </div>
+                        </template>
+
+                        {# Communication #}
+                        <template x-if="domain_pro === 'JOB BOARD / PRO / Communication'">
+                            <div>
+                                {{ render_field(form.type_emploi_pro_communicant) }}
+                                {{ render_multi(form.competence_relation_presse) }}
+                            </div>
+                        </template>
+
+                        {# Innovation #}
+                        <template x-if="domain_pro === 'JOB BOARD / PRO / Innovation'">
+                            <div>
+                                {{ render_field(form.type_emploi_pro_innovation) }}
+                                {{ render_multi(form.competence_innovation) }}
+                            </div>
+                        </template>
+
+                        {{ render_field(form.niveau_etude) }}
+                        {{ render_multi(form.langues) }}
+                        {{ common_filters("Rémunération min (€ brut/an)", "Rémunération max (€ brut/an)", [form.remote_partial_time, form.remote_full_time]) }}
+                    </div>
+                </template>
                 <div class="mt-6">
                     {{ poster_card(
                     g.user,

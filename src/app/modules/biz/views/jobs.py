@@ -107,6 +107,52 @@ class JobOfferForm(Form):
         validate_choice=False,
         validators=[validators.Optional()],
     )
+    domain_pro = SelectField(
+        "Domaine d'application",
+        choices=[],
+        validate_choice=False,
+        validators=[validators.Optional()],
+    )
+    type_emploi_pro_journaliste = SelectField(
+        "Type d'emploi de Journaliste professionnel",
+        choices=[],
+        validate_choice=False,
+        validators=[validators.Optional()],
+    )
+    competence_journalisme = SelectMultipleField(
+        "Compétences en journalisme",
+        choices=[],
+        validate_choice=False,
+        validators=[validators.Optional()],
+    )
+    type_emploi_pro_communicant = SelectField(
+        "Types d'emplois de Communicants professionnels",
+        choices=[],
+        validate_choice=False,
+        validators=[validators.Optional()],
+    )
+    competence_relation_presse = SelectMultipleField(
+        "Compétences en Relations presse",
+        choices=[],
+        validate_choice=False,
+        validators=[validators.Optional()],
+    )
+    type_emploi_pro_innovation = SelectField(
+        "Types d'emploi dans l'innovation",
+        choices=[],
+        validate_choice=False,
+        validators=[validators.Optional()],
+    )
+    competence_innovation = SelectMultipleField(
+        "Compétences en innovation",
+        choices=[],
+        validate_choice=False,
+        validators=[validators.Optional()],
+    )
+    remote_partial_time = BooleanField(
+        "Télétravail à temps partiel possible", default=False
+    )
+    remote_full_time = BooleanField("Télétravail à temps plein possible", default=False)
     sector = SelectField(
         "Secteur d'activité",
         choices=[],
@@ -140,19 +186,20 @@ class JobOfferForm(Form):
     starting_date = DateField(
         "Date de prise de poste", validators=[validators.Optional()]
     )
-    ending_date = DateField(
-        "Date de fin de poste", validators=[validators.Optional()]
-    )
-    partial_time = IntegerField(
-        "Temps partiel (%)", validators=[validators.Optional()]
-    )
+    ending_date = DateField("Date de fin de poste", validators=[validators.Optional()])
+    partial_time = IntegerField("Temps partiel (%)", validators=[validators.Optional()])
 
     def validate_domain_studient(self, field):
         """Domaine d'application is required only for student offers."""
         if self.statut.data == "STATUT / Etudiant.e" and not field.data:
-            raise validators.ValidationError(
-                "Veuillez choisir un domaine d'application."
-            )
+            msg = "Veuillez choisir un domaine d'application."
+            raise validators.ValidationError(msg)
+
+    def validate_domain_pro(self, field):
+        """Domaine d'application is required only for professional offers."""
+        if self.statut.data == "STATUT / Professionnel.le" and not field.data:
+            msg = "Veuillez choisir un domaine d'application."
+            raise validators.ValidationError(msg)
 
 
 @blueprint.route("/jobs/new", methods=["GET", "POST"])
@@ -193,12 +240,48 @@ def jobs_new():
         ],
     ]
     form.matiere_etudiee.choices = [
-        (val, label)
-        for val, label in get_ontology_choices("matiere_etudiee")
+        (val, label) for val, label in get_ontology_choices("matiere_etudiee")
     ]
     form.langues.choices = [
+        (val, label) for val, label in get_ontology_choices("multi_langues")
+    ]
+    form.domain_pro.choices = [
+        ("", "— Choisissez un domaine —"),
+        *[
+            (val, strip_taxonomy_prefix(label))
+            for val, label in get_ontology_choices("domain_pro")
+        ],
+    ]
+    form.type_emploi_pro_journaliste.choices = [
+        ("", "— Choisissez un type d'emploi —"),
+        *[
+            (val, strip_taxonomy_prefix(label))
+            for val, label in get_ontology_choices("type_emploi_pro_journaliste")
+        ],
+    ]
+    form.competence_journalisme.choices = [
+        (val, label) for val, label in get_ontology_choices("competence_journalisme")
+    ]
+    form.type_emploi_pro_communicant.choices = [
+        ("", "— Choisissez un type d'emploi —"),
+        *[
+            (val, strip_taxonomy_prefix(label))
+            for val, label in get_ontology_choices("type_emploi_pro_communicant")
+        ],
+    ]
+    form.competence_relation_presse.choices = [
         (val, label)
-        for val, label in get_ontology_choices("multi_langues")
+        for val, label in get_ontology_choices("competence_relation_presse")
+    ]
+    form.type_emploi_pro_innovation.choices = [
+        ("", "— Choisissez un type d'emploi —"),
+        *[
+            (val, strip_taxonomy_prefix(label))
+            for val, label in get_ontology_choices("type_emploi_pro_innovation")
+        ],
+    ]
+    form.competence_innovation.choices = [
+        (val, label) for val, label in get_ontology_choices("competence_innovation")
     ]
     if request.method == "POST" and form.validate():
         contract_type = ContractType(form.contract_type.data or ContractType.CDI.value)
@@ -212,8 +295,7 @@ def jobs_new():
             case ContractType.DOCTORAL:
                 check_mission(user, PermissionType.DOCTORAL)
             case _:
-                if user.is_managing_another_bw:
-                    raise Forbidden
+                pass
 
         emitter_org_id = getattr(user, "organisation_id", None)
         if user.is_managing_another_bw:
@@ -230,6 +312,19 @@ def jobs_new():
             niveau_etude=list(form.niveau_etude.data or []),
             matiere_etudiee=form.matiere_etudiee.data or [],
             langues=form.langues.data or [],
+            domain_pro=list(form.domain_pro.data or []),
+            type_emploi_pro_journaliste=list(
+                form.type_emploi_pro_journaliste.data or []
+            ),
+            competence_journalisme=form.competence_journalisme.data or [],
+            type_emploi_pro_communicant=list(
+                form.type_emploi_pro_communicant.data or []
+            ),
+            competence_relation_presse=form.competence_relation_presse.data or [],
+            type_emploi_pro_innovation=list(form.type_emploi_pro_innovation.data or []),
+            competence_innovation=form.competence_innovation.data or [],
+            remote_partial_time=bool(form.remote_partial_time.data),
+            remote_full_time=bool(form.remote_full_time.data),
             sector=form.sector.data or "",
             pays_zip_ville=form.pays_zip_ville.data or "",
             pays_zip_ville_detail=request.form.get("pays_zip_ville_detail", ""),

@@ -84,6 +84,13 @@ ONTOLOGY_MAP = {
     "innovation_job": "innovation_job",
     "niveau_etude": "niveaux_etudes",
     "matiere_etudiee": "matieres_etudiees",
+    "domain_pro": "type_job_pro_app",
+    "type_emploi_pro_journaliste": "journalisme_fonction",
+    "competence_journalisme": "journalisme_competence",
+    "type_emploi_pro_communicant": "press_relations_fonctions",
+    "competence_relation_presse": "press_relations_skills",
+    "type_emploi_pro_innovation": "innovation_job",
+    "competence_innovation": "innovation_skills",
 }
 
 ORGANISATION_TO_FAMILY_MAP = {
@@ -119,6 +126,9 @@ ONTOLOGY_DB_LIST = {
     "innovation_job",
     "niveaux_etudes",
     "matieres_etudiees",
+    "press_relations_fonctions",
+    "press_relations_skills",
+    "innovation_skills",
 }
 
 
