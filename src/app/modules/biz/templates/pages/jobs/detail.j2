@@ -23,6 +23,7 @@
                     {% set _geo = job|offer_geoloc %}
                     {% if _geo %}<div><dt class="text-gray-500">Lieu</dt><dd>{{ _geo }}{% if job.remote_ok %} (télétravail OK){% endif %}</dd></div>{% endif %}
                     {% if job.salary_min or job.salary_max %}
+                        {% set salary_period = "brut/mois" if job.statut == "STATUT / Etudiant.e" else "brut/an" %}
                         <div>
                             <dt class="text-gray-500">Salaire</dt>
                             <dd>
@@ -33,7 +34,7 @@
                                 {% elif job.salary_max %}
                                     jusqu'à {{ (job.salary_max / 100)|int }}&nbsp;€
                                 {% endif %}
-                                brut/an
+                                {{ salary_period }}
                             </dd>
                         </div>
                     {% endif %}
