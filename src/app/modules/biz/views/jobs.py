@@ -81,7 +81,31 @@ class JobOfferForm(Form):
         "Domaine d'application",
         choices=[],
         validate_choice=False,
-        validators=[validators.Optional()],  # required but tested later
+        validators=[validators.Optional()],  # required conditionally below
+    )
+    type_emploi_pro_studient = SelectField(
+        "Type d'emploi pro",
+        choices=[],
+        validate_choice=False,
+        validators=[validators.Optional()],
+    )
+    niveau_etude = SelectField(
+        "Niveau d'étude",
+        choices=[],
+        validate_choice=False,
+        validators=[validators.Optional()],
+    )
+    matiere_etudiee = SelectMultipleField(
+        "Matières étudiées",
+        choices=[],
+        validate_choice=False,
+        validators=[validators.Optional()],
+    )
+    langues = SelectMultipleField(
+        "Langues",
+        choices=[],
+        validate_choice=False,
+        validators=[validators.Optional()],
     )
     sector = SelectField(
         "Secteur d'activité",
@@ -116,6 +140,12 @@ class JobOfferForm(Form):
     starting_date = DateField(
         "Date de prise de poste", validators=[validators.Optional()]
     )
+    ending_date = DateField(
+        "Date de fin de poste", validators=[validators.Optional()]
+    )
+    partial_time = IntegerField(
+        "Temps partiel (%)", validators=[validators.Optional()]
+    )
 
     def validate_domain_studient(self, field):
         """Domaine d'application is required only for student offers."""
@@ -148,6 +178,28 @@ def jobs_new():
         ("", "— Choisissez un domaine —"),
         *domain_studient_choices,
     ]
+    form.type_emploi_pro_studient.choices = [
+        ("", "— Choisissez un type d'emploi —"),
+        *[
+            (val, strip_taxonomy_prefix(label))
+            for val, label in get_ontology_choices("type_job_studient")
+        ],
+    ]
+    form.niveau_etude.choices = [
+        ("", "— Choisissez un niveau —"),
+        *[
+            (val, strip_taxonomy_prefix(label))
+            for val, label in get_ontology_choices("niveau_etude")
+        ],
+    ]
+    form.matiere_etudiee.choices = [
+        (val, label)
+        for val, label in get_ontology_choices("matiere_etudiee")
+    ]
+    form.langues.choices = [
+        (val, label)
+        for val, label in get_ontology_choices("multi_langues")
+    ]
     if request.method == "POST" and form.validate():
         contract_type = ContractType(form.contract_type.data or ContractType.CDI.value)
 
@@ -174,15 +226,21 @@ def jobs_new():
             description=form.description.data or "",
             statut=form.statut.data or "",
             domain_studient=list(form.domain_studient.data or []),
+            type_emploi_pro_studient=list(form.type_emploi_pro_studient.data or []),
+            niveau_etude=list(form.niveau_etude.data or []),
+            matiere_etudiee=form.matiere_etudiee.data or [],
+            langues=form.langues.data or [],
             sector=form.sector.data or "",
             pays_zip_ville=form.pays_zip_ville.data or "",
             pays_zip_ville_detail=request.form.get("pays_zip_ville_detail", ""),
             contract_type=contract_type,
             full_time=bool(form.full_time.data),
             remote_ok=bool(form.remote_ok.data),
+            partial_time=form.partial_time.data,
             salary_min=euros_to_cents(form.salary_min.data),
             salary_max=euros_to_cents(form.salary_max.data),
             starting_date=date_to_datetime(form.starting_date.data),
+            ending_date=date_to_datetime(form.ending_date.data),
             # contact_email left empty on new offers; notifications
             # fall back to owner.email. Ref bug #0073 item 4.
             status=default_new_offer_status(),

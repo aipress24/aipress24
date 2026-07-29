@@ -354,8 +354,8 @@ class JobOffer(MarketplaceContent, ClassificationMixin, Publishable):
     pays_zip_ville: Mapped[str] = mapped_column(default="")
     pays_zip_ville_detail: Mapped[str] = mapped_column(default="")
     langues: Mapped[list] = mapped_column(JSON, default=list)
-    salary_min: Mapped[int | None] = mapped_column(default=None)  # cents/year
-    salary_max: Mapped[int | None] = mapped_column(default=None)  # cents/year
+    salary_min: Mapped[int | None] = mapped_column(default=None)  # cents
+    salary_max: Mapped[int | None] = mapped_column(default=None)  # cents
     currency: Mapped[str] = mapped_column(default="EUR")
     starting_date: Mapped[datetime | None] = mapped_column(
         sa.DateTime(timezone=True), default=None
