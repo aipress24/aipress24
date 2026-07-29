@@ -18,10 +18,11 @@
             {% if obj.sector %}<span>{{ obj.sector }}</span>{% endif %}
             {% set _geo = obj|offer_geoloc %}
             {% if _geo %}<span>📍 {{ _geo }}{% if obj.remote_ok %} / remote{% endif %}</span>{% endif %}
+            {% set salary_period = "brut/mois" if obj.statut == "STATUT / Etudiant.e" else "brut/an" %}
             {% if obj.salary_min and obj.salary_max %}
-                <span>{{ (obj.salary_min / 100)|int }}&nbsp;€ — {{ (obj.salary_max / 100)|int }}&nbsp;€ brut/an</span>
+                <span>{{ (obj.salary_min / 100)|int }}&nbsp;€ — {{ (obj.salary_max / 100)|int }}&nbsp;€ {{ salary_period }}</span>
             {% elif obj.salary_min %}
-                <span>à partir de {{ (obj.salary_min / 100)|int }}&nbsp;€ brut/an</span>
+                <span>à partir de {{ (obj.salary_min / 100)|int }}&nbsp;€ {{ salary_period }}</span>
             {% endif %}
             {% if obj.starting_date %}<span>🗓 {{ obj.starting_date.strftime("%d/%m/%Y") }}</span>{% endif %}
         </div>
