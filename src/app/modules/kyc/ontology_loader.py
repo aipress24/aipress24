@@ -78,6 +78,10 @@ ONTOLOGY_MAP = {
     "multi_taille_contenu": "taille_contenu",
     "multi_mode_remuneration": "mode_remuneration",
     "type_job_statut": "type_job_statut",
+    "type_job_studient_app": "type_job_studient_app",
+    "type_job_pro_app": "type_job_pro_app",
+    "type_job_studient": "type_job_studient",
+    "innovation_job": "innovation_job",
 }
 
 ORGANISATION_TO_FAMILY_MAP = {
@@ -107,6 +111,10 @@ ONTOLOGY_DB_LIST = {
     "taille_contenu",
     "mode_remuneration",
     "type_job_statut",
+    "type_job_studient_app",
+    "type_job_pro_app",
+    "type_job_studient",
+    "innovation_job",
 }
 
 
