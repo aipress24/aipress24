@@ -375,7 +375,8 @@ class Role(Base, RoleMixin):
 # misleading (bug #0107).
 BW_TYPE_FONCTION_SOURCES: dict[str, tuple[str, ...]] = {
     "media": ("fonctions_journalisme",),
-    "corporate_media": ("fonctions_journalisme", "fonctions_org_priv_detail"),
+    "micro": ("fonctions_journalisme",),
+    # "corporate_media": ("fonctions_journalisme", "fonctions_org_priv_detail"),
     "pr": (
         "fonctions_org_priv_detail",
         "fonctions_pol_adm_detail",
@@ -394,10 +395,10 @@ BW_TYPE_FONCTION_SOURCES: dict[str, tuple[str, ...]] = {
         "fonctions_pol_adm_detail",
         "fonctions_org_priv_detail",
     ),
-    "union": (
-        "fonctions_ass_syn_detail",
-        "fonctions_pol_adm_detail",
-    ),
+    # "union": (
+    #     "fonctions_ass_syn_detail",
+    #     "fonctions_pol_adm_detail",
+    # ),
 }
 
 
