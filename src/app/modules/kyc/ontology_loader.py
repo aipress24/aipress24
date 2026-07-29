@@ -82,6 +82,8 @@ ONTOLOGY_MAP = {
     "type_job_pro_app": "type_job_pro_app",
     "type_job_studient": "type_job_studient",
     "innovation_job": "innovation_job",
+    "niveau_etude": "niveaux_etudes",
+    "matiere_etudiee": "matieres_etudiees",
 }
 
 ORGANISATION_TO_FAMILY_MAP = {
@@ -115,6 +117,8 @@ ONTOLOGY_DB_LIST = {
     "type_job_pro_app",
     "type_job_studient",
     "innovation_job",
+    "niveaux_etudes",
+    "matieres_etudiees",
 }
 
 
