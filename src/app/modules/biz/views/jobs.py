@@ -16,6 +16,7 @@ from wtforms import (
     Form,
     IntegerField,
     SelectField,
+    SelectMultipleField,
     StringField,
     TextAreaField,
     validators,
@@ -76,6 +77,12 @@ class JobOfferForm(Form):
         validate_choice=False,
         validators=[validators.InputRequired(message="Veuillez choisir un statut.")],
     )
+    domain_studient = SelectField(
+        "Domaine d'application",
+        choices=[],
+        validate_choice=False,
+        validators=[validators.Optional()],  # required but tested later
+    )
     sector = SelectField(
         "Secteur d'activité",
         choices=[],
@@ -110,6 +117,13 @@ class JobOfferForm(Form):
         "Date de prise de poste", validators=[validators.Optional()]
     )
 
+    def validate_domain_studient(self, field):
+        """Domaine d'application is required only for student offers."""
+        if self.statut.data == "STATUT / Etudiant.e" and not field.data:
+            raise validators.ValidationError(
+                "Veuillez choisir un domaine d'application."
+            )
+
 
 @blueprint.route("/jobs/new", methods=["GET", "POST"])
 def jobs_new():
@@ -126,6 +140,14 @@ def jobs_new():
     # optgroups instead of crashing on the dual-select {"field1", "field2"}.
     sector_choices = cast(dict, get_ontology_choices("multidual_secteurs_detail2"))
     form.sector.choices = sector_choices["field2"]
+    domain_studient_choices = [
+        (val, strip_taxonomy_prefix(label))
+        for val, label in get_ontology_choices("type_job_studient_app")
+    ]
+    form.domain_studient.choices = [
+        ("", "— Choisissez un domaine —"),
+        *domain_studient_choices,
+    ]
     if request.method == "POST" and form.validate():
         contract_type = ContractType(form.contract_type.data or ContractType.CDI.value)
 
@@ -151,6 +173,7 @@ def jobs_new():
             title=form.title.data or "",
             description=form.description.data or "",
             statut=form.statut.data or "",
+            domain_studient=list(form.domain_studient.data or []),
             sector=form.sector.data or "",
             pays_zip_ville=form.pays_zip_ville.data or "",
             pays_zip_ville_detail=request.form.get("pays_zip_ville_detail", ""),
