@@ -114,6 +114,11 @@ STUDENT_JOB_EXTRA_SPECS: list[dict] = [
         "label_function": strip_taxonomy_prefix,
     },
     {
+        "id": "contract_type",
+        "label": "Type de contrat",
+        "column": "contract_type",
+    },
+    {
         "id": "niveau_etude",
         "label": "Niveau d'étude",
         "ontology_key": "niveau_etude",
@@ -205,6 +210,7 @@ JOB_FILTER_TAG_LABEL = {
     "statut": "statut",
     "domain": "domaine",
     "type_emploi_pro_studient": "type emploi",
+    "contract_type": "contrat",
     "niveau_etude": "niveau",
     "matiere_etudiee": "matière",
     "langues": "langue",
@@ -639,6 +645,7 @@ def get_job_filter_conditions(filter_bar: JobFilterBar) -> list[sa.ColumnElement
         "departement": [],
         "ville": [],
         "type_emploi_pro_studient": [],
+        "contract_type": [],
         "niveau_etude": [],
         "matiere_etudiee": [],
         "langues": [],
@@ -671,6 +678,8 @@ def get_job_filter_conditions(filter_bar: JobFilterBar) -> list[sa.ColumnElement
 
     if filters_by_id["sector"]:
         conditions.append(JobOffer.sector.in_(filters_by_id["sector"]))
+    if filters_by_id["contract_type"]:
+        conditions.append(JobOffer.contract_type.in_(filters_by_id["contract_type"]))
     if filters_by_id["pays_zip_ville"]:
         conditions.append(JobOffer.pays_zip_ville.in_(filters_by_id["pays_zip_ville"]))
     if filters_by_id["departement"]:
