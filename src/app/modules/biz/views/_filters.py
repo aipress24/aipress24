@@ -7,6 +7,7 @@
 from __future__ import annotations
 
 import contextlib
+from datetime import UTC, datetime, timedelta
 from json import dumps, loads
 from typing import TYPE_CHECKING, ClassVar
 
@@ -18,7 +19,13 @@ from werkzeug.exceptions import BadRequest
 from app.flask.extensions import db
 from app.models.lifecycle import PublicationStatus
 from app.modules.biz.models import JobOffer, MissionOffer, ProjectOffer
-from app.modules.biz.views._common import JOURNALISM_FILTER_SPECS
+from app.modules.biz.views._common import (
+    DEADLINE_OPTIONS,
+    ENDING_DATE_OPTIONS,
+    JOURNALISM_FILTER_SPECS,
+    _format_days_deadline_label,
+    _format_days_ending_date_label,
+)
 from app.modules.kyc.field_label import (
     country_code_to_country_name,
     strip_taxonomy_prefix,
@@ -129,6 +136,16 @@ COMMON_JOB_EXTRA_SPECS: list[dict] = [
         "column": "sector",
     },
     {
+        "id": "starting_date",
+        "label": "Date début",
+        "label_function": _format_days_deadline_label,
+    },
+    {
+        "id": "ending_date",
+        "label": "Date fin",
+        "label_function": _format_days_ending_date_label,
+    },
+    {
         "id": "salary_min",
         "label": "Salaire min €",
         "column": "salary_min",
@@ -224,6 +241,8 @@ JOB_FILTER_TAG_LABEL = {
     "competence_relation_presse": "compétence",
     "type_emploi_pro_innovation": "type emploi",
     "competence_innovation": "compétence",
+    "starting_date": "date début",
+    "ending_date": "date fin",
     "salary_min": "salaire min",
     "salary_max": "salaire max",
 }
@@ -308,6 +327,9 @@ class BaseFilterBar:
         "salary_max",
         "budget_min",
         "budget_max",
+        "starting_date",
+        "ending_date",
+        "deadline",
     }
     MODEL: ClassVar[type] = type(None)
 
@@ -490,6 +512,12 @@ class JobFilterBar(BaseFilterBar):
 
         if spec.get("id") in ("salary_min", "salary_max"):
             return get_euro_options(self.MODEL, spec["column"], DEFAULT_SALARIES)
+
+        if spec.get("id") == "starting_date":
+            return DEADLINE_OPTIONS
+
+        if spec.get("id") == "ending_date":
+            return ENDING_DATE_OPTIONS
 
         if "options" in spec:
             return [{"id": opt, "label": opt} for opt in spec["options"]]
@@ -702,6 +730,8 @@ def get_job_filter_conditions(filter_bar: JobFilterBar) -> list[sa.ColumnElement
         "competence_innovation": [],
         "salary_min": [],
         "salary_max": [],
+        "starting_date": [],
+        "ending_date": [],
     }
     for f in filter_bar.active_filters:
         if f["id"] in filters_by_id:
@@ -761,6 +791,28 @@ def get_job_filter_conditions(filter_bar: JobFilterBar) -> list[sa.ColumnElement
         with contextlib.suppress(ValueError):
             val_cents = int(filters_by_id["salary_max"][0]) * 100
             conditions.append(JobOffer.salary_max <= val_cents)
+    if filters_by_id["starting_date"]:
+        with contextlib.suppress(ValueError):
+            days = int(filters_by_id["starting_date"][0])
+            now = datetime.now(UTC)
+            limit_date = now + timedelta(days=days)
+            conditions.append(JobOffer.starting_date >= now)
+            conditions.append(JobOffer.starting_date <= limit_date)
+    if filters_by_id["ending_date"]:
+        val = filters_by_id["ending_date"][0]
+        now = datetime.now(UTC)
+        if val == "over_30":
+            conditions.append(JobOffer.ending_date > now + timedelta(days=30))
+        elif val == "over_90":
+            conditions.append(JobOffer.ending_date > now + timedelta(days=90))
+        elif val == "over_180":
+            conditions.append(JobOffer.ending_date > now + timedelta(days=180))
+        elif val.isdigit():
+            with contextlib.suppress(ValueError):
+                days = int(val)
+                limit_date = now + timedelta(days=days)
+                conditions.append(JobOffer.ending_date >= now)
+                conditions.append(JobOffer.ending_date <= limit_date)
 
     return conditions
 
@@ -785,6 +837,7 @@ def get_mission_filter_conditions(
         "modes_remuneration": [],
         "budget_min": [],
         "budget_max": [],
+        "deadline": [],
     }
     for f in filter_bar.active_filters:
         if f["id"] in filters_by_id:
@@ -844,5 +897,12 @@ def get_mission_filter_conditions(
         with contextlib.suppress(ValueError):
             val_cents = int(filters_by_id["budget_max"][0]) * 100
             conditions.append(MissionOffer.budget_max <= val_cents)
+    if filters_by_id["deadline"]:
+        with contextlib.suppress(ValueError):
+            days = int(filters_by_id["deadline"][0])
+            now = datetime.now(UTC)
+            limit_date = now + timedelta(days=days)
+            conditions.append(MissionOffer.deadline >= now)
+            conditions.append(MissionOffer.deadline <= limit_date)
 
     return conditions

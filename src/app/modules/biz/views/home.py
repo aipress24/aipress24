@@ -29,6 +29,7 @@ from app.modules.biz.repositories import (
     ProjectOfferRepository,
 )
 from app.modules.biz.views._common import (
+    DEADLINE_OPTIONS,
     GENERIC_FILTER_SPECS,
     JOURNALISM_FILTER_SPECS,
     TABS,
@@ -44,13 +45,6 @@ from app.modules.biz.views._filters import (
 )
 from app.modules.kyc.ontology_loader import get_choices as get_ontology_choices
 from app.services.roles import has_role
-
-DEADLINE_OPTIONS = [
-    {"id": "7", "label": "Dans 7 jours"},
-    {"id": "30", "label": "Dans 30 jours"},
-    {"id": "90", "label": "Dans 90 jours"},
-    {"id": "180", "label": "Dans 180 jours"},
-]
 
 DEFAULT_BUDGETS = ["1000", "10000"]
 

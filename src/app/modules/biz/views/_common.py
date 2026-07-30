@@ -155,6 +155,21 @@ class JournalismFilterSpec(TypedDict, total=False):
     label_function: Callable[[object], str]
 
 
+DEADLINE_OPTIONS = [
+    {"id": "7", "label": "D'ici 7 jours"},
+    {"id": "30", "label": "D'ici 30 jours"},
+    {"id": "90", "label": "D'ici 90 jours"},
+    {"id": "180", "label": "D'ici 180 jours"},
+]
+
+ENDING_DATE_OPTIONS = [
+    {"id": "30", "label": "D'ici 30 jours"},
+    {"id": "over_30", "label": "Plus de 30 jours"},
+    {"id": "over_90", "label": "Plus de 90 jours"},
+    {"id": "over_180", "label": "Plus de 180 jours"},
+]
+
+
 def _format_euro_label(val: object) -> str:
     val_str = str(val)
     return f"{val_str} €" if val_str.isdigit() else val_str
@@ -162,7 +177,19 @@ def _format_euro_label(val: object) -> str:
 
 def _format_days_deadline_label(val: object) -> str:
     val_str = str(val)
-    return f"Dans {val_str} jours" if val_str.isdigit() else val_str
+    return f"D'ici {val_str} jours" if val_str.isdigit() else val_str
+
+
+def _format_days_ending_date_label(val: object) -> str:
+    val_str = str(val)
+    labels = {
+        "over_30": "Plus de 30 jours",
+        "over_90": "Plus de 90 jours",
+        "over_180": "Plus de 180 jours",
+    }
+    if val_str in labels:
+        return labels[val_str]
+    return f"D'ici {val_str} jours" if val_str.isdigit() else val_str
 
 
 JOURNALISM_FILTER_SPECS: list[JournalismFilterSpec] = [
