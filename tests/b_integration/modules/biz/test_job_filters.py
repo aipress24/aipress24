@@ -201,6 +201,7 @@ class TestHomeViewJobsFilters:
             extra_ids = set(ids[5:])
             assert "type_emploi_pro_journaliste" in extra_ids
             assert "competence_journalisme" in extra_ids
+            assert "contract_type" in extra_ids
             assert "niveau_etude" in extra_ids
             assert "langues" in extra_ids
             assert "sector" in extra_ids
