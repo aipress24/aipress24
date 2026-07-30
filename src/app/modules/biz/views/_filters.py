@@ -12,13 +12,18 @@ from typing import TYPE_CHECKING, ClassVar
 
 import sqlalchemy as sa
 from flask import request, session
+from sqlalchemy.dialects.postgresql import JSONB
 from werkzeug.exceptions import BadRequest
 
 from app.flask.extensions import db
 from app.models.lifecycle import PublicationStatus
 from app.modules.biz.models import JobOffer, MissionOffer, ProjectOffer
 from app.modules.biz.views._common import JOURNALISM_FILTER_SPECS
-from app.modules.kyc.field_label import country_code_to_country_name
+from app.modules.kyc.field_label import (
+    country_code_to_country_name,
+    strip_taxonomy_prefix,
+)
+from app.modules.kyc.ontology_loader import get_choices as get_ontology_choices
 
 if TYPE_CHECKING:
     from sqlalchemy.orm import InstrumentedAttribute
@@ -74,14 +79,14 @@ PROJECT_FILTER_TAG_LABEL = {
 
 JOB_FILTER_SPECS: list[dict] = [
     {
-        "id": "sector",
-        "label": "Secteur",
-        "column": "sector",
+        "id": "statut",
+        "label": "Statut",
+        "column": "statut",
+        "label_function": strip_taxonomy_prefix,
     },
     {
-        "id": "contract_type",
-        "label": "Type contrat",
-        "column": "contract_type",
+        "id": "domain",
+        "label": "Domaine",
     },
     {
         "id": "pays_zip_ville",
@@ -101,13 +106,127 @@ JOB_FILTER_SPECS: list[dict] = [
     },
 ]
 
+STUDENT_JOB_EXTRA_SPECS: list[dict] = [
+    {
+        "id": "type_emploi_pro_studient",
+        "label": "Type d'emploi pro",
+        "ontology_key": "type_job_studient",
+        "label_function": strip_taxonomy_prefix,
+    },
+    {
+        "id": "niveau_etude",
+        "label": "Niveau d'étude",
+        "ontology_key": "niveau_etude",
+        "label_function": strip_taxonomy_prefix,
+    },
+    {
+        "id": "matiere_etudiee",
+        "label": "Matières étudiées",
+        "ontology_key": "matiere_etudiee",
+        "label_function": strip_taxonomy_prefix,
+    },
+    {
+        "id": "langues",
+        "label": "Langues",
+        "ontology_key": "multi_langues",
+    },
+    {
+        "id": "sector",
+        "label": "Secteur",
+        "column": "sector",
+    },
+]
+
+PRO_DOMAIN_EXTRA_SPECS: dict[str, list[dict]] = {
+    "Journalisme": [
+        {
+            "id": "type_emploi_pro_journaliste",
+            "label": "Type d'emploi journaliste",
+            "ontology_key": "type_emploi_pro_journaliste",
+            "label_function": strip_taxonomy_prefix,
+        },
+        {
+            "id": "competence_journalisme",
+            "label": "Compétences en journalisme",
+            "ontology_key": "competence_journalisme",
+            "label_function": strip_taxonomy_prefix,
+        },
+    ],
+    "Communication": [
+        {
+            "id": "type_emploi_pro_communicant",
+            "label": "Type d'emploi communicant",
+            "ontology_key": "type_emploi_pro_communicant",
+            "label_function": strip_taxonomy_prefix,
+        },
+        {
+            "id": "competence_relation_presse",
+            "label": "Compétences en relations presse",
+            "ontology_key": "competence_relation_presse",
+            "label_function": strip_taxonomy_prefix,
+        },
+    ],
+    "Innovation": [
+        {
+            "id": "type_emploi_pro_innovation",
+            "label": "Type d'emploi innovation",
+            "ontology_key": "type_emploi_pro_innovation",
+            "label_function": strip_taxonomy_prefix,
+        },
+        {
+            "id": "competence_innovation",
+            "label": "Compétences en innovation",
+            "ontology_key": "competence_innovation",
+            "label_function": strip_taxonomy_prefix,
+        },
+    ],
+}
+
+PRO_JOB_COMMON_EXTRA_SPECS: list[dict] = [
+    {
+        "id": "niveau_etude",
+        "label": "Niveau d'étude",
+        "ontology_key": "niveau_etude",
+        "label_function": strip_taxonomy_prefix,
+    },
+    {
+        "id": "langues",
+        "label": "Langues",
+        "ontology_key": "multi_langues",
+    },
+    {
+        "id": "sector",
+        "label": "Secteur",
+        "column": "sector",
+    },
+]
+
 JOB_FILTER_TAG_LABEL = {
+    "statut": "statut",
+    "domain": "domaine",
+    "type_emploi_pro_studient": "type emploi",
+    "niveau_etude": "niveau",
+    "matiere_etudiee": "matière",
+    "langues": "langue",
     "sector": "secteur",
-    "contract_type": "type contrat",
     "pays_zip_ville": "pays",
     "departement": "dépt",
     "ville": "ville",
+    "type_emploi_pro_journaliste": "type emploi",
+    "competence_journalisme": "compétence",
+    "type_emploi_pro_communicant": "type emploi",
+    "competence_relation_presse": "compétence",
+    "type_emploi_pro_innovation": "type emploi",
+    "competence_innovation": "compétence",
 }
+
+ALL_JOB_FILTER_SPECS = (
+    JOB_FILTER_SPECS
+    + STUDENT_JOB_EXTRA_SPECS
+    + PRO_JOB_COMMON_EXTRA_SPECS
+    + [spec for specs in PRO_DOMAIN_EXTRA_SPECS.values() for spec in specs]
+)
+JOB_FILTER_SPECS_BY_ID = {spec["id"]: spec for spec in ALL_JOB_FILTER_SPECS}
 
 MISSION_FILTER_SPECS: list[dict] = [
     {
@@ -163,7 +282,6 @@ MISSION_FILTER_TAG_LABEL = {
 }
 
 PROJECT_FILTER_SPECS_BY_ID = {spec["id"]: spec for spec in PROJECT_FILTER_SPECS}
-JOB_FILTER_SPECS_BY_ID = {spec["id"]: spec for spec in JOB_FILTER_SPECS}
 ALL_MISSION_FILTER_SPECS = MISSION_FILTER_SPECS + JOURNALISM_FILTER_SPECS
 MISSION_FILTER_SPECS_BY_ID = {spec["id"]: spec for spec in ALL_MISSION_FILTER_SPECS}
 
@@ -298,13 +416,127 @@ class ProjectFilterBar(BaseFilterBar):
 
 
 class JobFilterBar(BaseFilterBar):
-    """Filter bar state + option builder for Job Board tab."""
+    """Filter bar state + option builder for Job Board tab.
+
+    - The first line always shows Statut + Domaine.
+    - The second line is dynamic
+    """
 
     SESSION_KEY = "biz:jobs:state"
     SPECS = JOB_FILTER_SPECS
     SPECS_BY_ID: ClassVar[dict[str, dict]] = JOB_FILTER_SPECS_BY_ID
     TAG_LABELS = JOB_FILTER_TAG_LABEL
     MODEL = JobOffer
+
+    def get_filters(self) -> list[dict]:
+        """Build job filter options."""
+        result = []
+        for spec in self.SPECS:
+            options = self._options_for_spec(spec)
+            result.append(
+                {"id": spec["id"], "label": spec["label"], "options": options}
+            )
+        for spec in self._extra_specs():
+            options = self._options_for_spec(spec)
+            result.append(
+                {"id": spec["id"], "label": spec["label"], "options": options}
+            )
+        return result
+
+    def _extra_specs(self) -> list[dict]:
+        """Return the extra filters to display on second line."""
+        active_filters = self.state.get("filters", [])
+        active_statuts = {f["value"] for f in active_filters if f["id"] == "statut"}
+        active_domains = {f["value"] for f in active_filters if f["id"] == "domain"}
+
+        extras: list[dict] = []
+        if "STATUT / Etudiant.e" in active_statuts:
+            extras.extend(STUDENT_JOB_EXTRA_SPECS)
+        if "STATUT / Professionnel.le" in active_statuts:
+            for domain_label, specs in PRO_DOMAIN_EXTRA_SPECS.items():
+                if domain_label in active_domains:
+                    extras.extend(specs)
+            extras.extend(PRO_JOB_COMMON_EXTRA_SPECS)
+        return extras
+
+    def _options_for_spec(self, spec: dict) -> list[dict]:
+        """Build options for a single filter spec."""
+        if spec.get("id") == "domain":
+            return self._domain_options()
+
+        if "options" in spec:
+            return [{"id": opt, "label": opt} for opt in spec["options"]]
+
+        if "ontology_key" in spec:
+            return self._ontology_options(spec)
+
+        column_name = spec.get("column")
+        if not column_name:
+            return []
+        distinct_values = _get_distinct_values(self.MODEL, column_name)
+        label_func = spec.get("label_function")
+        result = []
+        for value in distinct_values:
+            if not value:
+                continue
+            result.append(
+                {
+                    "id": str(value),
+                    "label": label_func(value) if label_func else value,
+                }
+            )
+        return result
+
+    def _domain_options(self) -> list[dict]:
+        """Domain options are the distinct values from both domain_studient
+        and domain_pro JSON lists.
+
+        taxonomy prefix stripped
+        """
+        values: set[str] = set()
+        values.update(_get_distinct_json_values(JobOffer, "domain_studient"))
+        values.update(_get_distinct_json_values(JobOffer, "domain_pro"))
+        seen: set[str] = set()
+        options: list[dict] = []
+        for value in sorted(values):
+            label = strip_taxonomy_prefix(value)
+            if label and label not in seen:
+                seen.add(label)
+                options.append({"id": label, "label": label})
+        return options
+
+    def _ontology_options(self, spec: dict) -> list[dict]:
+        """Options for an ontology based JSON filter
+
+        Keep only values that are used.
+        """
+        filter_id = spec["id"]
+        ontology_key = spec["ontology_key"]
+        used_values = _get_distinct_json_values(self.MODEL, filter_id)
+        try:
+            choices = get_ontology_choices(ontology_key)
+        except Exception:
+            choices = []
+        if not isinstance(choices, list):
+            return []
+        options: list[dict] = []
+        for choice in choices:
+            if isinstance(choice, tuple) and len(choice) == 2:
+                choice_id, choice_label = choice
+            else:
+                choice_id = choice_label = choice
+            if (
+                not used_values
+                or choice_id in used_values
+                or choice_label in used_values
+            ):
+                options.append(
+                    {
+                        "id": str(choice_id),
+                        "label": strip_taxonomy_prefix(choice_label),
+                    }
+                )
+        return options
 
 
 class MissionFilterBar(BaseFilterBar):
@@ -345,6 +577,26 @@ def _get_distinct_values(model: type, column_name: str) -> list[str]:
         return []
 
 
+def _get_distinct_json_values(model: type, column_name: str) -> set[str]:
+    """Return distinct values stored in a JSON list column."""
+    column = getattr(model, column_name, None)
+    if column is None:
+        return set()
+    stmt = (
+        sa.select(column)
+        .where(model.status == PublicationStatus.PUBLIC)
+        .where(column.is_not(None))
+    )
+    rows = db.session.scalars(stmt).all()
+    values: set[str] = set()
+    for row in rows:
+        if isinstance(row, list):
+            for item in row:
+                if item:
+                    values.add(str(item))
+    return values
+
+
 def get_filter_conditions(filter_bar: ProjectFilterBar) -> list[sa.ColumnElement[bool]]:
     """Return active project filters as SQLAlchemy WHERE conditions."""
     filters_by_id: dict[str, list[str]] = {
@@ -380,27 +632,70 @@ def get_filter_conditions(filter_bar: ProjectFilterBar) -> list[sa.ColumnElement
 def get_job_filter_conditions(filter_bar: JobFilterBar) -> list[sa.ColumnElement[bool]]:
     """Return active job filters as SQLAlchemy WHERE conditions."""
     filters_by_id: dict[str, list[str]] = {
+        "statut": [],
+        "domain": [],
         "sector": [],
-        "contract_type": [],
         "pays_zip_ville": [],
         "departement": [],
         "ville": [],
+        "type_emploi_pro_studient": [],
+        "niveau_etude": [],
+        "matiere_etudiee": [],
+        "langues": [],
+        "type_emploi_pro_journaliste": [],
+        "competence_journalisme": [],
+        "type_emploi_pro_communicant": [],
+        "competence_relation_presse": [],
+        "type_emploi_pro_innovation": [],
+        "competence_innovation": [],
     }
     for f in filter_bar.active_filters:
         if f["id"] in filters_by_id:
             filters_by_id[f["id"]].append(f["value"])
 
     conditions: list[sa.ColumnElement[bool]] = []
+    if filters_by_id["statut"]:
+        conditions.append(JobOffer.statut.in_(filters_by_id["statut"]))
+
+    if filters_by_id["domain"]:
+        domain_conds = []
+        for val in filters_by_id["domain"]:
+            domain_conds.append(
+                sa.cast(JobOffer.domain_studient, sa.String).like(f"%{val}%")
+            )
+            domain_conds.append(
+                sa.cast(JobOffer.domain_pro, sa.String).like(f"%{val}%")
+            )
+        if domain_conds:
+            conditions.append(sa.or_(*domain_conds))
+
     if filters_by_id["sector"]:
         conditions.append(JobOffer.sector.in_(filters_by_id["sector"]))
-    if filters_by_id["contract_type"]:
-        conditions.append(JobOffer.contract_type.in_(filters_by_id["contract_type"]))
     if filters_by_id["pays_zip_ville"]:
         conditions.append(JobOffer.pays_zip_ville.in_(filters_by_id["pays_zip_ville"]))
     if filters_by_id["departement"]:
         conditions.append(JobOffer.departement.in_(filters_by_id["departement"]))
     if filters_by_id["ville"]:
         conditions.append(JobOffer.ville.in_(filters_by_id["ville"]))
+
+    json_fields = [
+        ("type_emploi_pro_studient", JobOffer.type_emploi_pro_studient),
+        ("niveau_etude", JobOffer.niveau_etude),
+        ("matiere_etudiee", JobOffer.matiere_etudiee),
+        ("langues", JobOffer.langues),
+        ("type_emploi_pro_journaliste", JobOffer.type_emploi_pro_journaliste),
+        ("competence_journalisme", JobOffer.competence_journalisme),
+        ("type_emploi_pro_communicant", JobOffer.type_emploi_pro_communicant),
+        ("competence_relation_presse", JobOffer.competence_relation_presse),
+        ("type_emploi_pro_innovation", JobOffer.type_emploi_pro_innovation),
+        ("competence_innovation", JobOffer.competence_innovation),
+    ]
+    for fid, col in json_fields:
+        vals = filters_by_id[fid]
+        if vals:
+            col_jsonb = sa.cast(col, JSONB)
+            json_conds = [sa.func.jsonb_exists(col_jsonb, val) for val in vals]
+            conditions.append(sa.or_(*json_conds))
 
     return conditions
 
@@ -471,8 +766,8 @@ def get_mission_filter_conditions(
     for fid, col in json_fields:
         vals = filters_by_id[fid]
         if vals:
-            col_str = sa.cast(col, sa.String)
-            json_conds = [col_str.like(f'%"{val}"%') for val in vals]
+            col_jsonb = sa.cast(col, JSONB)
+            json_conds = [sa.func.jsonb_exists(col_jsonb, val) for val in vals]
             conditions.append(sa.or_(*json_conds))
 
     # Budget filters
