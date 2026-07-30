@@ -189,6 +189,8 @@ def get_ontology_content(ontology: str) -> list | dict:
 
 def get_choices(field_type: str) -> list | dict:
     ontology = ONTOLOGY_MAP.get(field_type)
+    if not ontology and field_type in ONTOLOGY_DB_LIST:
+        ontology = field_type
     if ontology:
         return get_ontology_content(ontology)
     # must be an organisation name:
