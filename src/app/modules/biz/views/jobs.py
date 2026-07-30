@@ -60,6 +60,8 @@ _CONTRACT_CHOICES = [
     (ContractType.DOCTORAL.value, "Convention doctorale"),
 ]
 
+_MAX_SALARY_CENTS = 2**26
+
 
 class JobOfferForm(Form):
     title = StringField(
@@ -176,11 +178,20 @@ class JobOfferForm(Form):
     )
     full_time = BooleanField("Temps plein", default=True)
     remote_ok = BooleanField("Télétravail possible", default=False)
+
     salary_min = IntegerField(
-        "Salaire min (€ brut/an)", validators=[validators.Optional()]
+        "Salaire min (€ brut/an)",
+        validators=[
+            validators.Optional(),
+            validators.NumberRange(min=0, max=_MAX_SALARY_CENTS),
+        ],
     )
     salary_max = IntegerField(
-        "Salaire max (€ brut/an)", validators=[validators.Optional()]
+        "Salaire max (€ brut/an)",
+        validators=[
+            validators.Optional(),
+            validators.NumberRange(min=0, max=_MAX_SALARY_CENTS),
+        ],
     )
     starting_date = DateField(
         "Date de prise de poste", validators=[validators.Optional()]
