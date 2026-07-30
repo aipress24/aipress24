@@ -306,21 +306,27 @@ def jobs_new():
             title=form.title.data or "",
             description=form.description.data or "",
             statut=form.statut.data or "",
-            domain_studient=list(form.domain_studient.data or []),
-            type_emploi_pro_studient=list(form.type_emploi_pro_studient.data or []),
-            niveau_etude=list(form.niveau_etude.data or []),
+            domain_studient=[form.domain_studient.data]
+            if form.domain_studient.data
+            else [],
+            type_emploi_pro_studient=[form.type_emploi_pro_studient.data]
+            if form.type_emploi_pro_studient.data
+            else [],
+            niveau_etude=[form.niveau_etude.data] if form.niveau_etude.data else [],
             matiere_etudiee=form.matiere_etudiee.data or [],
             langues=form.langues.data or [],
-            domain_pro=list(form.domain_pro.data or []),
-            type_emploi_pro_journaliste=list(
-                form.type_emploi_pro_journaliste.data or []
-            ),
+            domain_pro=[form.domain_pro.data] if form.domain_pro.data else [],
+            type_emploi_pro_journaliste=[form.type_emploi_pro_journaliste.data]
+            if form.type_emploi_pro_journaliste.data
+            else [],
             competence_journalisme=form.competence_journalisme.data or [],
-            type_emploi_pro_communicant=list(
-                form.type_emploi_pro_communicant.data or []
-            ),
+            type_emploi_pro_communicant=[form.type_emploi_pro_communicant.data]
+            if form.type_emploi_pro_communicant.data
+            else [],
             competence_relation_presse=form.competence_relation_presse.data or [],
-            type_emploi_pro_innovation=list(form.type_emploi_pro_innovation.data or []),
+            type_emploi_pro_innovation=[form.type_emploi_pro_innovation.data]
+            if form.type_emploi_pro_innovation.data
+            else [],
             competence_innovation=form.competence_innovation.data or [],
             remote_partial_time=bool(form.remote_partial_time.data),
             remote_full_time=bool(form.remote_full_time.data),
