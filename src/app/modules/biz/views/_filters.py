@@ -120,6 +120,16 @@ COMMON_JOB_EXTRA_SPECS: list[dict] = [
         "column": "contract_type",
     },
     {
+        "id": "full_time",
+        "label": "Temps plein",
+        "options": ["Oui", "Non"],
+    },
+    {
+        "id": "remote",
+        "label": "Télétravail",
+        "options": ["Oui", "Non"],
+    },
+    {
         "id": "niveau_etude",
         "label": "Niveau d'étude",
         "ontology_key": "niveau_etude",
@@ -228,6 +238,8 @@ JOB_FILTER_TAG_LABEL = {
     "domain": "domaine",
     "type_emploi_pro_studient": "type emploi",
     "contract_type": "contrat",
+    "full_time": "temps plein",
+    "remote": "télétravail",
     "niveau_etude": "niveau",
     "matiere_etudiee": "matière",
     "langues": "langue",
@@ -330,6 +342,8 @@ class BaseFilterBar:
         "starting_date",
         "ending_date",
         "deadline",
+        "full_time",
+        "remote",
     }
     MODEL: ClassVar[type] = type(None)
 
@@ -732,6 +746,8 @@ def get_job_filter_conditions(filter_bar: JobFilterBar) -> list[sa.ColumnElement
         "salary_max": [],
         "starting_date": [],
         "ending_date": [],
+        "full_time": [],
+        "remote": [],
     }
     for f in filter_bar.active_filters:
         if f["id"] in filters_by_id:
@@ -813,6 +829,32 @@ def get_job_filter_conditions(filter_bar: JobFilterBar) -> list[sa.ColumnElement
                 limit_date = now + timedelta(days=days)
                 conditions.append(JobOffer.ending_date >= now)
                 conditions.append(JobOffer.ending_date <= limit_date)
+
+    if filters_by_id["full_time"]:
+        val = filters_by_id["full_time"][0]
+        if val == "Oui":
+            conditions.append(JobOffer.full_time.is_(True))
+        elif val == "Non":
+            conditions.append(JobOffer.full_time.is_(False))
+
+    if filters_by_id["remote"]:
+        val = filters_by_id["remote"][0]
+        if val == "Oui":
+            conditions.append(
+                sa.or_(
+                    JobOffer.remote_ok.is_(True),
+                    JobOffer.remote_partial_time.is_(True),
+                    JobOffer.remote_full_time.is_(True),
+                )
+            )
+        elif val == "Non":
+            conditions.append(
+                sa.and_(
+                    JobOffer.remote_ok.is_(False),
+                    JobOffer.remote_partial_time.is_(False),
+                    JobOffer.remote_full_time.is_(False),
+                )
+            )
 
     return conditions
 
