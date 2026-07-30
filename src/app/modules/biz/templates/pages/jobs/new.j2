@@ -51,10 +51,6 @@
         {{ render_field(form.salary_max, extra_class="no-spinner", label=salary_max_label) }}
         {{ render_field(form.partial_time, extra_class="no-spinner !w-32") }}
     </div>
-    <div class="mb-4">
-        {{ form.pays_zip_ville.label(class="block text-sm font-medium text-gray-700 mb-1") }}
-        {{ form.pays_zip_ville() }}
-    </div>
     <div class="flex gap-4">
         {{ render_checkbox(form.full_time) }}
         {% for remote_field in remote_fields %}
@@ -158,6 +154,14 @@
                         {{ common_filters("Rémunération min (€ brut/an)", "Rémunération max (€ brut/an)", [form.remote_partial_time, form.remote_full_time]) }}
                     </div>
                 </template>
+
+                <div x-show="statut" x-cloak class="border-t border-gray-200 pt-4 mt-2">
+                    <div class="mb-4">
+                        {{ form.pays_zip_ville.label(class="block text-sm font-medium text-gray-700 mb-1") }}
+                        {{ form.pays_zip_ville() }}
+                    </div>
+                </div>
+
                 <div class="mt-6">
                     {{ poster_card(
                     g.user,
