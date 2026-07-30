@@ -368,6 +368,12 @@ class BaseFilterBar:
             case "remove" if form_id and form_value:
                 self.remove_filter(form_id, form_value)
                 self.state["show_filters"] = True
+            case "reset":
+                self.reset()
+                if form.get("hide") == "1":
+                    self.state["show_filters"] = False
+                else:
+                    self.state["show_filters"] = True
             case _:
                 raise BadRequest
 
