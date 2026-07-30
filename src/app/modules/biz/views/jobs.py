@@ -9,7 +9,6 @@ from __future__ import annotations
 from typing import cast
 
 from flask import flash, g, redirect, render_template, request, url_for
-from werkzeug.exceptions import Forbidden
 from wtforms import (
     BooleanField,
     DateField,
