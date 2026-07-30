@@ -6,7 +6,7 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, cast
+from typing import Any, cast
 
 from flask import g, redirect, render_template, request, session, url_for
 from sqlalchemy import select
@@ -14,7 +14,6 @@ from werkzeug import Response
 
 from app.flask.extensions import db
 from app.flask.sqla import get_obj
-from app.logging import warn
 from app.models.auth import User
 from app.modules.admin.org_email_utils import change_members_emails
 from app.modules.bw.bw_activation import bp
@@ -33,9 +32,6 @@ from app.modules.bw.bw_activation.utils import (
     fill_session,
     is_bw_manager_or_admin,
 )
-
-if TYPE_CHECKING:
-    from app.models.auth import User
 
 
 @bp.route("/manage-organisation-members", methods=["GET", "POST"])

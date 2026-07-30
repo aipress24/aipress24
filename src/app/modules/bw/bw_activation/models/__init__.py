@@ -2,6 +2,8 @@
 #
 # SPDX-License-Identifier: AGPL-3.0-only
 
+# ruff: noqa: RUF022
+
 """Business Wall activation models."""
 
 from __future__ import annotations
@@ -35,7 +37,7 @@ from .services import (
 )
 from .subscription import PricingTier, Subscription, SubscriptionStatus
 
-__all__ = [  # noqa: RUF022
+__all__ = [
     # Models
     "BusinessWall",
     "BWContent",
@@ -68,5 +70,5 @@ __all__ = [  # noqa: RUF022
     "PricingTier",
     "SubscriptionStatus",
     # consts
-    EXTERNAL_ROLES,
+    "EXTERNAL_ROLES",
 ]
