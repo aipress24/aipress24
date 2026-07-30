@@ -253,6 +253,7 @@ def test_job_create_with_statut(app: Flask, emitter: User, db_session: Session):
             "title": "Journaliste senior — CDI",
             "description": "Poste de journaliste senior à temps plein avec au moins 5 ans d'expérience.",
             "statut": "STATUT / Professionnel.le",
+            "domain_pro": "Journalisme",
             "contract_type": "CDI",
         },
         follow_redirects=True,
@@ -261,3 +262,4 @@ def test_job_create_with_statut(app: Flask, emitter: User, db_session: Session):
     job = db_session.query(JobOffer).filter_by(title="Journaliste senior — CDI").first()
     assert job is not None
     assert job.statut == "STATUT / Professionnel.le"
+    assert job.domain_pro == ["Journalisme"]
