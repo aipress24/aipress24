@@ -155,8 +155,8 @@ def test_emitter_can_post_job(app: Flask, emitter: User, db_session: Session):
             "location": "Marseille",
             "contract_type": "CDD",
             "full_time": "y",
-            "salary_min": "28000",
-            "salary_max": "32000",
+            "salary_min": "0",
+            "salary_max": "50000",
         },
         follow_redirects=False,
     )
@@ -166,8 +166,34 @@ def test_emitter_can_post_job(app: Flask, emitter: User, db_session: Session):
     assert job.contract_type == ContractType.CDD
     assert job.full_time is True
     assert job.remote_ok is False  # not checked
-    assert job.salary_min == 2_800_000  # cents
-    assert job.salary_max == 3_200_000
+    assert job.salary_min == 0  # cents
+    assert job.salary_max == 5000000
+
+
+def test_emitter_cannot_post_job_with_salary_too_large(
+    app: Flask, emitter: User, db_session: Session
+):
+    client = make_authenticated_client(app, emitter)
+    response = client.post(
+        "/biz/jobs/new",
+        data={
+            "title": "Reporter — salaire hors plage",
+            "description": "Description suffisamment longue de l'offre.",
+            "statut": "STATUT / Professionnel.le",
+            "contract_type": "CDD",
+            "full_time": "y",
+            "salary_min": "1000",
+            "salary_max": "99999999999",
+        },
+        follow_redirects=False,
+    )
+    assert response.status_code == 200
+    job = (
+        db_session.query(JobOffer)
+        .filter_by(title="Reporter — salaire hors plage")
+        .first()
+    )
+    assert job is None
 
 
 def test_applicant_can_apply_to_job_with_cv_url(
