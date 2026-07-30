@@ -189,6 +189,11 @@ PRO_DOMAIN_EXTRA_SPECS: dict[str, list[dict]] = {
 
 PRO_JOB_COMMON_EXTRA_SPECS: list[dict] = [
     {
+        "id": "contract_type",
+        "label": "Type de contrat",
+        "column": "contract_type",
+    },
+    {
         "id": "niveau_etude",
         "label": "Niveau d'étude",
         "ontology_key": "niveau_etude",
