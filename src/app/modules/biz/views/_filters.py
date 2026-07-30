@@ -106,13 +106,7 @@ JOB_FILTER_SPECS: list[dict] = [
     },
 ]
 
-STUDENT_JOB_EXTRA_SPECS: list[dict] = [
-    {
-        "id": "type_emploi_pro_studient",
-        "label": "Type d'emploi pro",
-        "ontology_key": "type_job_studient",
-        "label_function": strip_taxonomy_prefix,
-    },
+COMMON_JOB_EXTRA_SPECS: list[dict] = [
     {
         "id": "contract_type",
         "label": "Type de contrat",
@@ -125,12 +119,6 @@ STUDENT_JOB_EXTRA_SPECS: list[dict] = [
         "label_function": strip_taxonomy_prefix,
     },
     {
-        "id": "matiere_etudiee",
-        "label": "Matières étudiées",
-        "ontology_key": "matiere_etudiee",
-        "label_function": strip_taxonomy_prefix,
-    },
-    {
         "id": "langues",
         "label": "Langues",
         "ontology_key": "multi_langues",
@@ -140,7 +128,36 @@ STUDENT_JOB_EXTRA_SPECS: list[dict] = [
         "label": "Secteur",
         "column": "sector",
     },
+    {
+        "id": "salary_min",
+        "label": "Salaire min €",
+        "column": "salary_min",
+    },
+    {
+        "id": "salary_max",
+        "label": "Salaire max €",
+        "column": "salary_max",
+    },
 ]
+
+_STUDENT_ONLYT_EXTRA_SPECS: list[dict] = [
+    {
+        "id": "type_emploi_pro_studient",
+        "label": "Type d'emploi pro",
+        "ontology_key": "type_job_studient",
+        "label_function": strip_taxonomy_prefix,
+    },
+    {
+        "id": "matiere_etudiee",
+        "label": "Matières étudiées",
+        "ontology_key": "matiere_etudiee",
+        "label_function": strip_taxonomy_prefix,
+    },
+]
+
+STUDENT_JOB_EXTRA_SPECS: list[dict] = (
+    COMMON_JOB_EXTRA_SPECS + _STUDENT_ONLYT_EXTRA_SPECS
+)
 
 PRO_DOMAIN_EXTRA_SPECS: dict[str, list[dict]] = {
     "Journalisme": [
@@ -187,29 +204,7 @@ PRO_DOMAIN_EXTRA_SPECS: dict[str, list[dict]] = {
     ],
 }
 
-PRO_JOB_COMMON_EXTRA_SPECS: list[dict] = [
-    {
-        "id": "contract_type",
-        "label": "Type de contrat",
-        "column": "contract_type",
-    },
-    {
-        "id": "niveau_etude",
-        "label": "Niveau d'étude",
-        "ontology_key": "niveau_etude",
-        "label_function": strip_taxonomy_prefix,
-    },
-    {
-        "id": "langues",
-        "label": "Langues",
-        "ontology_key": "multi_langues",
-    },
-    {
-        "id": "sector",
-        "label": "Secteur",
-        "column": "sector",
-    },
-]
+PRO_JOB_COMMON_EXTRA_SPECS: list[dict] = COMMON_JOB_EXTRA_SPECS
 
 JOB_FILTER_TAG_LABEL = {
     "statut": "statut",
@@ -229,7 +224,11 @@ JOB_FILTER_TAG_LABEL = {
     "competence_relation_presse": "compétence",
     "type_emploi_pro_innovation": "type emploi",
     "competence_innovation": "compétence",
+    "salary_min": "salaire min",
+    "salary_max": "salaire max",
 }
+
+DEFAULT_SALARIES = ["1000", "10000"]
 
 ALL_JOB_FILTER_SPECS = (
     JOB_FILTER_SPECS
@@ -304,6 +303,12 @@ class BaseFilterBar:
     SPECS: ClassVar[list[dict]] = []
     SPECS_BY_ID: ClassVar[dict[str, dict]] = {}
     TAG_LABELS: ClassVar[dict[str, str]] = {}
+    SINGLE_VALUED_FILTERS: ClassVar[set[str]] = {
+        "salary_min",
+        "salary_max",
+        "budget_min",
+        "budget_max",
+    }
     MODEL: ClassVar[type] = type(None)
 
     def __init__(self) -> None:
@@ -401,6 +406,8 @@ class BaseFilterBar:
 
     def add_filter(self, id: str, value: str) -> None:
         filters = self.state.get("filters", [])
+        if id in self.SINGLE_VALUED_FILTERS:
+            filters = [f for f in filters if f["id"] != id]
         filters.append({"id": id, "value": value})
         self.state["filters"] = filters
 
@@ -480,6 +487,9 @@ class JobFilterBar(BaseFilterBar):
         """Build options for a single filter spec."""
         if spec.get("id") == "domain":
             return self._domain_options()
+
+        if spec.get("id") in ("salary_min", "salary_max"):
+            return get_euro_options(self.MODEL, spec["column"], DEFAULT_SALARIES)
 
         if "options" in spec:
             return [{"id": opt, "label": opt} for opt in spec["options"]]
@@ -614,6 +624,30 @@ def _get_distinct_json_values(model: type, column_name: str) -> set[str]:
     return values
 
 
+def get_euro_options(
+    model: type, column_name: str, defaults: list[str]
+) -> list[dict[str, str]]:
+    """Return amount options (in euros) from DB values merged with defaults."""
+    column = getattr(model, column_name, None)
+    db_values: set[str] = set()
+    if column is not None:
+        stmt = (
+            sa.select(column)
+            .where(model.status == PublicationStatus.PUBLIC)
+            .where(column.is_not(None))
+            .where(column > 0)
+            .distinct()
+            .order_by(column)
+        )
+        cents_list = db.session.scalars(stmt).all()
+        for cents in cents_list:
+            db_values.add(str(cents // 100))
+
+    all_values = set(db_values) | set(defaults)
+    sorted_vals = sorted(all_values, key=lambda x: int(x) if x.isdigit() else 0)
+    return [{"id": v, "label": f"{int(v):,} €".replace(",", " ")} for v in sorted_vals]
+
+
 def get_filter_conditions(filter_bar: ProjectFilterBar) -> list[sa.ColumnElement[bool]]:
     """Return active project filters as SQLAlchemy WHERE conditions."""
     filters_by_id: dict[str, list[str]] = {
@@ -666,6 +700,8 @@ def get_job_filter_conditions(filter_bar: JobFilterBar) -> list[sa.ColumnElement
         "competence_relation_presse": [],
         "type_emploi_pro_innovation": [],
         "competence_innovation": [],
+        "salary_min": [],
+        "salary_max": [],
     }
     for f in filter_bar.active_filters:
         if f["id"] in filters_by_id:
@@ -716,6 +752,15 @@ def get_job_filter_conditions(filter_bar: JobFilterBar) -> list[sa.ColumnElement
             col_jsonb = sa.cast(col, JSONB)
             json_conds = [sa.func.jsonb_exists(col_jsonb, val) for val in vals]
             conditions.append(sa.or_(*json_conds))
+
+    if filters_by_id["salary_min"]:
+        with contextlib.suppress(ValueError):
+            val_cents = int(filters_by_id["salary_min"][0]) * 100
+            conditions.append(JobOffer.salary_min >= val_cents)
+    if filters_by_id["salary_max"]:
+        with contextlib.suppress(ValueError):
+            val_cents = int(filters_by_id["salary_max"][0]) * 100
+            conditions.append(JobOffer.salary_max <= val_cents)
 
     return conditions
 

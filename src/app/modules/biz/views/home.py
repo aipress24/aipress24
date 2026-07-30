@@ -37,6 +37,7 @@ from app.modules.biz.views._filters import (
     JobFilterBar,
     MissionFilterBar,
     ProjectFilterBar,
+    get_euro_options,
     get_filter_conditions,
     get_job_filter_conditions,
     get_mission_filter_conditions,
@@ -51,7 +52,7 @@ DEADLINE_OPTIONS = [
     {"id": "180", "label": "Dans 180 jours"},
 ]
 
-DEFAULT_BUDGETS = ["500", "1000", "2000", "5000", "10000"]
+DEFAULT_BUDGETS = ["1000", "10000"]
 
 
 @blueprint.route("/", methods=["GET", "POST"])
@@ -260,24 +261,7 @@ def _get_distinct_json_values(model: type, column_name: str) -> set[str]:
 
 def _get_budget_options(column_name: str) -> list[dict[str, str]]:
     """Return budget options from DB values merged with defaults."""
-    column = getattr(MissionOffer, column_name, None)
-    db_values: set[str] = set()
-    if column is not None:
-        stmt = (
-            sa.select(column)
-            .where(MissionOffer.status == PublicationStatus.PUBLIC)
-            .where(column.is_not(None))
-            .where(column > 0)
-            .distinct()
-            .order_by(column)
-        )
-        cents_list = db.session.scalars(stmt).all()
-        for cents in cents_list:
-            db_values.add(str(cents // 100))
-
-    all_values = set(db_values) | set(DEFAULT_BUDGETS)
-    sorted_vals = sorted(all_values, key=lambda x: int(x) if x.isdigit() else 0)
-    return [{"id": v, "label": f"{int(v):,} €".replace(",", " ")} for v in sorted_vals]
+    return get_euro_options(MissionOffer, column_name, DEFAULT_BUDGETS)
 
 
 def _get_distinct_values(column_name: str) -> list[str]:
