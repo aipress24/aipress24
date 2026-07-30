@@ -198,7 +198,8 @@ def _get_filters(
     if current_tab == "jobs":
         if job_filter_bar is None:
             job_filter_bar = JobFilterBar()
-        return job_filter_bar.filters
+        # Use the method to refresh after POST toggle.
+        return job_filter_bar.get_filters()
 
     result = []
     for spec in GENERIC_FILTER_SPECS:
