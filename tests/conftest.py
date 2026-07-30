@@ -10,6 +10,7 @@ Provides database lifecycle management and fixtures for both SQLite and PostgreS
 
 from __future__ import annotations
 
+from contextlib import suppress
 from typing import TYPE_CHECKING
 from urllib.parse import urlparse
 
@@ -114,34 +115,30 @@ def _manage_postgres_database(db_url: str, action: str) -> None:
     conn = engine.connect()
 
     try:
-        if action == "create":
-            # Terminate active connections before dropping
-            conn.execute(
-                text(
-                    f"""
-                    SELECT pg_terminate_backend(pg_stat_activity.pid)
-                    FROM pg_stat_activity
-                    WHERE pg_stat_activity.datname = '{db_name}'
-                    AND pid <> pg_backend_pid()
-                    """
-                )
+        # Terminate active connections so the DROP can proceed.
+        conn.execute(
+            text(
+                f"""
+                SELECT pg_terminate_backend(pg_stat_activity.pid)
+                FROM pg_stat_activity
+                WHERE pg_stat_activity.datname = '{db_name}'
+                AND pid <> pg_backend_pid()
+                """
             )
+        )
+        if action == "create":
+            # Deliberately NOT swallowed: a failed DROP/CREATE leaves the run
+            # on the *previous* run's database, which surfaces much later as a
+            # baffling, unrelated error (e.g. "CREATE TYPE ... already exists"
+            # from create_all). The usual cause is a second test session — or
+            # an open psql shell — still connected to the test database.
             conn.execute(text(f"DROP DATABASE IF EXISTS {db_name}"))
             conn.execute(text(f"CREATE DATABASE {db_name}"))
         elif action == "drop":
-            conn.execute(
-                text(
-                    f"""
-                    SELECT pg_terminate_backend(pg_stat_activity.pid)
-                    FROM pg_stat_activity
-                    WHERE pg_stat_activity.datname = '{db_name}'
-                    AND pid <> pg_backend_pid()
-                    """
-                )
-            )
-            conn.execute(text(f"DROP DATABASE IF EXISTS {db_name}"))
-    except (ProgrammingError, OperationalError) as e:
-        print(f"Database operation failed (this might be okay): {e}")
+            # Session teardown : a leftover database is harmless, the next run
+            # drops it anyway, so don't turn this into a test-session error.
+            with suppress(ProgrammingError, OperationalError):
+                conn.execute(text(f"DROP DATABASE IF EXISTS {db_name}"))
     finally:
         conn.close()
 

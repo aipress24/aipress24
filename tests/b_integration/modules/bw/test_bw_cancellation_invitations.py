@@ -166,12 +166,16 @@ def test_join_organisation_creates_role_assignment(app: Flask, db_session: Sessi
         assert role_assignment.role_type == ""
         assert role_assignment.invitation_status == "accepted"
 
-        # Teardown because _join_organisation commits
+        # Teardown because _join_organisation commits.
+        # Order matters: these are bulk deletes (no ORM cascade), so each
+        # table must go before the one it references. `aut_user.organisation_id`
+        # points at the org, hence User before Organisation — PostgreSQL
+        # enforces that FK, SQLite (foreign_keys OFF) silently tolerates it.
         db_session.query(RoleAssignment).delete()
         db_session.query(BusinessWall).delete()
         db_session.query(KYCProfile).delete()
-        db_session.query(Organisation).delete()
         db_session.query(User).delete()
+        db_session.query(Organisation).delete()
         db_session.commit()
 
 
