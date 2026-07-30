@@ -7,6 +7,7 @@ from __future__ import annotations
 from typing import ClassVar
 
 from attr import frozen
+from flask import request
 
 from app.flask.lib.macros import macro
 from app.flask.lib.pywire import Component, component
@@ -20,7 +21,11 @@ BUTTONS = """
 <span class="relative z-0 inline-flex shadow-sm">
   <button type="button"
     class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 focus:z-10 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
-    @click="showFilters = !showFilters">
+    hx-post="{reset_url}"
+    hx-target="#content"
+    hx-vals='{{"action": "reset", "hide": "1"}}'
+    hx-trigger="resetFilters"
+    @click="if (showFilters) {{ showFilters = false; htmx.trigger($el, 'resetFilters') }} else {{ showFilters = true }}">
     {icon_filter}
   </button>
 
@@ -69,6 +74,7 @@ def m_tab_bar(tabs):
     # return m_tabs(tabs)
     icon_filter = icon("funnel", _class="h-5 w-5")
     icon_sort = icon("bars-arrow-down", _class="h-5 w-5")
+    reset_url = request.url
     buttons = BUTTONS.format(**locals())
     return div(
         {"class": "mb-5"},
