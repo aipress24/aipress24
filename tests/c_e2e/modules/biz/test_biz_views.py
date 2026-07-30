@@ -142,6 +142,52 @@ class TestBizHomeView:
         assert "Other Project" not in html
         assert "secteur: Tech" in html
 
+    def test_project_filter_reset_clears_active_filters(
+        self,
+        authenticated_client: FlaskClient,
+        test_user: User,
+        db_session: Session,
+    ):
+        db_session.add(
+            ProjectOffer(
+                title="Tech Project",
+                description="A tech project",
+                sector="Tech",
+                status=PublicationStatus.PUBLIC,
+                owner_id=test_user.id,
+            )
+        )
+        db_session.add(
+            ProjectOffer(
+                title="Other Project",
+                description="Another project",
+                sector="Comms",
+                status=PublicationStatus.PUBLIC,
+                owner_id=test_user.id,
+            )
+        )
+        db_session.commit()
+
+        # Apply a filter first.
+        authenticated_client.post(
+            "/biz/?current_tab=projects",
+            data={"action": "toggle", "id": "sector", "value": "Tech"},
+            headers={"Hx-Target": "content"},
+        )
+
+        # Reset filters via the funnel action.
+        response = authenticated_client.post(
+            "/biz/?current_tab=projects",
+            data={"action": "reset"},
+            headers={"Hx-Target": "content"},
+        )
+        assert response.status_code == 200
+
+        html = response.get_data(as_text=True)
+        assert "Tech Project" in html
+        assert "Other Project" in html
+        assert "secteur: Tech" not in html
+
     def test_job_filter_post_returns_jobs_tab(
         self,
         authenticated_client: FlaskClient,
@@ -179,6 +225,19 @@ class TestBizHomeView:
         assert "Tech Job" in html
         assert "Other Job" not in html
         assert "secteur: Tech" in html
+
+    def test_funnel_button_renders_reset_action(
+        self, authenticated_client: FlaskClient
+    ):
+        response = authenticated_client.get("/biz/?current_tab=jobs")
+        assert response.status_code == 200
+
+        html = response.get_data(as_text=True)
+        assert 'hx-post="' in html
+        assert "/biz/?current_tab=jobs" in html
+        assert 'hx-target="#content"' in html
+        assert 'hx-vals=\'{"action": "reset", "hide": "1"}\'' in html
+        assert 'hx-trigger="resetFilters"' in html
 
     def test_journalism_filters_visible_on_journalism_view(self, app: Flask):
         """Ticket #0202 — the journalism-specific filters appear only
