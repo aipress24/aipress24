@@ -17,30 +17,12 @@
                 </div>
 
                 <dl class="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm text-gray-600 mb-6">
-                    <div><dt class="text-gray-500">Contrat</dt><dd>{{ job.contract_type.value }}{% if not job.full_time %} — temps partiel{% endif %}</dd></div>
-                    {% if job.statut %}<div><dt class="text-gray-500">Statut</dt><dd>{{ job.statut|strip_taxonomy_prefix }}</dd></div>{% endif %}
-                    {% if job.sector %}<div><dt class="text-gray-500">Secteur</dt><dd>{{ job.sector }}</dd></div>{% endif %}
-                    {% set _geo = job|offer_geoloc %}
-                    {% if _geo %}<div><dt class="text-gray-500">Lieu</dt><dd>{{ _geo }}{% if job.remote_ok %} (télétravail OK){% endif %}</dd></div>{% endif %}
-                    {% if job.salary_min or job.salary_max %}
-                        {% set salary_period = "brut/mois" if job.statut == "STATUT / Etudiant.e" else "brut/an" %}
+                    {% for field in detail_fields %}
                         <div>
-                            <dt class="text-gray-500">Salaire</dt>
-                            <dd>
-                                {% if job.salary_min and job.salary_max %}
-                                    {{ (job.salary_min / 100)|int }}&nbsp;€ — {{ (job.salary_max / 100)|int }}&nbsp;€
-                                {% elif job.salary_min %}
-                                    à partir de {{ (job.salary_min / 100)|int }}&nbsp;€
-                                {% elif job.salary_max %}
-                                    jusqu'à {{ (job.salary_max / 100)|int }}&nbsp;€
-                                {% endif %}
-                                {{ salary_period }}
-                            </dd>
+                            <dt class="text-gray-500">{{ field.label }}</dt>
+                            <dd>{{ field.value }}</dd>
                         </div>
-                    {% endif %}
-                    {% if job.starting_date %}
-                        <div><dt class="text-gray-500">Prise de poste</dt><dd>{{ job.starting_date.strftime("%d/%m/%Y") }}</dd></div>
-                    {% endif %}
+                    {% endfor %}
                 </dl>
 
       {# `description` is TextAreaField (plain text). Stripped the

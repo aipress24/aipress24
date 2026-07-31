@@ -50,6 +50,7 @@ from app.modules.kyc.field_label import strip_taxonomy_prefix
 from app.modules.kyc.ontology_loader import get_choices as get_ontology_choices
 from app.modules.wip.pr_access import check_mission
 from app.signals import marketplace_published
+from app.ui.geoloc import offer_geoloc_label
 
 _CONTRACT_CHOICES = [
     (ContractType.CDI.value, "CDI"),
@@ -376,6 +377,129 @@ def jobs_new():
     )
 
 
+def _format_job_detail_list(values: list[str]) -> str:
+    """Join taxonomy values, strip their common prefix."""
+    if not values:
+        return ""
+    return ", ".join(strip_taxonomy_prefix(str(v)) for v in values if v)
+
+
+def _format_salary(value: int) -> str:
+    return f"{int(value / 100):,}".replace(",", " ")
+
+
+def _job_detail_fields(job: JobOffer) -> list[dict[str, str]]:
+    """Return all populated JobOffer fields as (label, value) pairs."""
+    fields: list[dict[str, str]] = []
+
+    def add(label: str, value: str | None) -> None:
+        if value:
+            fields.append({"label": label, "value": value})
+
+    if job.statut:
+        add("Statut", strip_taxonomy_prefix(job.statut))
+
+    if job.domain_studient:
+        add("Domaine", _format_job_detail_list(job.domain_studient))
+    if job.domain_pro:
+        add("Domaine professionnel", _format_job_detail_list(job.domain_pro))
+
+    # Student
+    if job.type_emploi_pro_studient:
+        add("Type d'emploi", _format_job_detail_list(job.type_emploi_pro_studient))
+
+    # Pro journalist
+    if job.type_emploi_pro_journaliste:
+        add(
+            "Type d'emploi journaliste",
+            _format_job_detail_list(job.type_emploi_pro_journaliste),
+        )
+    if job.competence_journalisme:
+        add(
+            "Compétences en journalisme",
+            _format_job_detail_list(job.competence_journalisme),
+        )
+
+    # Pro communication
+    if job.type_emploi_pro_communicant:
+        add(
+            "Type d'emploi communicant",
+            _format_job_detail_list(job.type_emploi_pro_communicant),
+        )
+    if job.competence_relation_presse:
+        add(
+            "Compétences en relations presse",
+            _format_job_detail_list(job.competence_relation_presse),
+        )
+
+    # Pro innovation
+    if job.type_emploi_pro_innovation:
+        add(
+            "Type d'emploi innovation",
+            _format_job_detail_list(job.type_emploi_pro_innovation),
+        )
+    if job.competence_innovation:
+        add(
+            "Compétences en innovation",
+            _format_job_detail_list(job.competence_innovation),
+        )
+
+    # Education, languages
+    if job.niveau_etude:
+        add("Niveau d'étude", _format_job_detail_list(job.niveau_etude))
+    if job.matiere_etudiee:
+        add("Matières étudiées", _format_job_detail_list(job.matiere_etudiee))
+    if job.langues:
+        add("Langues", _format_job_detail_list(job.langues))
+
+    # Sector
+    if job.sector:
+        add("Secteur", job.sector)
+
+    if job.contract_type:
+        add("Contrat", job.contract_type.value)
+
+    geo = offer_geoloc_label(job)
+    if geo:
+        add("Lieu", geo)
+
+    if job.full_time:
+        add("Temps de travail", "Temps plein")
+    elif job.partial_time:
+        add("Temps de travail", f"Temps partiel ({job.partial_time} %)")
+
+    # Remote
+    if job.remote_ok:
+        add("Télétravail", "Possible")
+    if job.remote_partial_time:
+        add("Télétravail partiel", "Possible")
+    if job.remote_full_time:
+        add("Télétravail complet", "Possible")
+
+    # Salary
+    if job.salary_min or job.salary_max:
+        if job.statut == "STATUT / Etudiant.e":
+            period = "brut/mois"
+        else:
+            period = "brut/an"
+        if job.salary_min and job.salary_max:
+            s_min = _format_salary(job.salary_min)
+            s_max = _format_salary(job.salary_max)
+            value = f"{s_min} € — {s_max} €"
+        elif job.salary_min:
+            value = f"à partir de {_format_salary(job.salary_min)} €"
+        else:
+            value = f"jusqu'à {_format_salary(job.salary_max)} €"
+        fields.append({"label": f"Salaire ({period})", "value": value})
+
+    if job.starting_date:
+        add("Prise de poste", job.starting_date.strftime("%d/%m/%Y"))
+    if job.ending_date:
+        add("Fin de poste", job.ending_date.strftime("%d/%m/%Y"))
+
+    return fields
+
+
 @blueprint.route("/jobs/<int:id>")
 def jobs_detail(id: int):
     job = get_offer_or_404(JobOffer, id)
@@ -391,6 +515,7 @@ def jobs_detail(id: int):
         user_application=user_application,
         is_owner=(not user.is_anonymous and user.id == job.owner_id),
         title=job.title,
+        detail_fields=_job_detail_fields(job),
     )
 
 
