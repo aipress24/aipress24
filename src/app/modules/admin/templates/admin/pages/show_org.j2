@@ -364,12 +364,22 @@
                 </div>
                 <div>
                     <dt class="pt-2 text-sm font-medium text-gray-500">
-                        Nombre de membres
+                        Membres de l'organisation
                     </dt>
                     <dd>
                         <div class="mt-1 text-sm text-gray-900">{{ org.count_members }}</div>
                     </dd>
                 </div>
+                {% if org.has_active_bw %}
+                    <div>
+                        <dt class="pt-2 text-sm font-medium text-gray-500">
+                            Membres du Business Wall
+                        </dt>
+                        <dd>
+                            <div class="mt-1 text-sm text-gray-900">{{ org.count_bw_members }}</div>
+                        </dd>
+                    </div>
+                {% endif %}
                 {% if org.has_active_bw %}
                     <div>
                         <dt class="pt-2 text-sm font-medium text-gray-500">
