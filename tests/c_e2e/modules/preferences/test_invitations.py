@@ -1015,6 +1015,90 @@ class TestAcceptedRoleStaysVisible:
         assert inviting_org.bw_name in accepted_bw_names
 
 
+class TestMembershipMarkerIsNotARole:
+    """Bug 0272 : rejoindre une organisation crée une `RoleAssignment`
+    à `role_type` vide — un marqueur d'appartenance au Business Wall,
+    pas un rôle. Elle s'affichait dans « Rôles Business Wall actifs »
+    comme une ligne « Rôle : » vide, à côté du vrai rôle (BWPRi)
+    accordé ensuite.
+
+    La ligne doit disparaître de l'affichage mais rester en base :
+    `user_affiliated_with_org_clause` s'en sert pour reconnaître un
+    membre sans rôle, et un membre dont le rôle BWPRi serait révoqué
+    doit rester affilié à son organisation.
+    """
+
+    @pytest.fixture
+    def marker_and_real_role(
+        self,
+        db_session: Session,
+        invitations_test_user: User,
+        inviting_org: Organisation,
+    ) -> BusinessWall:
+        bw = db_session.scalar(
+            select(BusinessWall).where(BusinessWall.id == inviting_org.bw_id)
+        )
+        assert bw is not None
+        # Marqueur posé en rejoignant l'organisation…
+        db_session.add(
+            RoleAssignment(
+                business_wall_id=bw.id,
+                user_id=invitations_test_user.id,
+                role_type="",
+                invitation_status=InvitationStatus.ACCEPTED.value,
+            )
+        )
+        # … puis le vrai rôle accordé par le BWO.
+        db_session.add(
+            RoleAssignment(
+                business_wall_id=bw.id,
+                user_id=invitations_test_user.id,
+                role_type="BWPRi",
+                invitation_status=InvitationStatus.ACCEPTED.value,
+            )
+        )
+        db_session.flush()
+        return bw
+
+    def test_only_the_real_role_is_listed(
+        self,
+        invitations_test_user: User,
+        marker_and_real_role: BusinessWall,
+    ):
+        view = InvitationsView()
+        accepted = view._accepted_role_invitations(invitations_test_user)
+
+        assert [r["role_type"] for r in accepted] == ["BWPRi"]
+
+    def test_marker_row_is_kept_in_database(
+        self,
+        db_session: Session,
+        invitations_test_user: User,
+        marker_and_real_role: BusinessWall,
+    ):
+        """Hidden from the UI, but still on file — affiliation depends on it."""
+        marker = db_session.scalar(
+            select(RoleAssignment).where(
+                RoleAssignment.business_wall_id == marker_and_real_role.id,
+                RoleAssignment.user_id == invitations_test_user.id,
+                RoleAssignment.role_type == "",
+            )
+        )
+        assert marker is not None
+
+    def test_page_shows_no_empty_role_line(
+        self,
+        invitations_auth_client: FlaskClient,
+        marker_and_real_role: BusinessWall,
+    ):
+        response = invitations_auth_client.get("/preferences/invitations")
+        assert response.status_code == 200
+        html = response.data.decode()
+        assert "PR Manager (internal)" in html
+        # One « Rôle : » line — the real role — not two.
+        assert html.count("Rôle&nbsp;:") == 1
+
+
 class TestInvitationsUserWithAutoOrg:
     """Tests for user with auto-created organization."""
 
