@@ -280,7 +280,7 @@ BW_TYPES: dict[str, dict[str, Any]] = {
             "Le montant du tarif de votre abonnement à Business Wall for PR dépend "
             "du nombre de clients que vous représentez sur AiPRESS24. Pour démarrer, "
             "indiquer le nombre « 1 » (pour « 1 client »). Par la suite, le nombre "
-            "de clients qui vous représentez sur AiPRESS24 s'actualisera de façon "
+            "de clients que vous représentez sur AiPRESS24 s'actualisera de façon "
             "incrémentale car chacun de vos clients va vous déclarer. A votre tour, "
             "vous validerez chaque client. Votre tarif sera calculé automatiquement "
             "à la hausse ou à la baisse selon le nombre des clients qui vous déclarent."
