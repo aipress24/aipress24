@@ -6,6 +6,7 @@
 
 from __future__ import annotations
 
+import uuid
 from datetime import UTC, datetime
 
 import arrow
@@ -13,6 +14,7 @@ import pytest
 from flask import render_template_string
 
 from app.enums import RoleEnum
+from app.lib.file_object_utils import create_file_object
 from app.models.auth import KYCProfile, Role, User
 from app.models.organisation import Organisation
 from app.modules.common.components.post_card import (
@@ -21,7 +23,8 @@ from app.modules.common.components.post_card import (
     PressReleaseVM,
     UserVM,
 )
-from app.modules.wip.models.comroom import Communique
+from app.modules.wip.models.comroom import ComImage, Communique
+from app.modules.wip.models.newsroom import Article, Image
 from app.modules.wire.models import (
     ArticlePost,
     ArticlePurchase,
@@ -235,6 +238,119 @@ class TestPressReleaseVM:
 
             vm = PressReleaseVM(pr)
             assert vm.image_url == "/static/img/gray-texture.png"
+
+
+class TestCardImageUrl:
+    """Bug 0268 : la vignette de la carte pointait sur
+    `/wip/articles/<id>/images/<image_id>`, une route de l'espace de
+    travail qui lève 404 dès que `Post.image_id` — figé au moment de la
+    publication — ne désigne plus une image existante. C'est ce qui
+    arrive quand l'auteur supprime puis republie son article : le
+    carrousel de la page détaillée restait correct (il relit les images
+    de l'article) mais la carte affichait une image cassée.
+
+    La carte doit désormais servir l'URL du média elle-même, comme le
+    carrousel, et retomber sur le placeholder si l'image a disparu.
+    """
+
+    def _article_image(self, db_session):
+        """An `Article` carrying one stored image, and that image."""
+        owner = User(email=f"img-owner-{uuid.uuid4().hex[:6]}@example.com")
+        media = Organisation(name=f"Media {uuid.uuid4().hex[:6]}")
+        db_session.add_all([owner, media])
+        db_session.flush()
+
+        article = Article(
+            owner=owner,
+            media=media,
+            # `commanditaire_id` points at a User, `publisher_id` at an
+            # Organisation. PostgreSQL enforces both FKs; SQLite does not.
+            commanditaire_id=owner.id,
+            publisher_id=media.id,
+            date_parution_prevue=arrow.now().datetime,
+        )
+        db_session.add(article)
+        db_session.flush()
+
+        image = Image(
+            owner=owner,
+            article_id=article.id,
+            content=create_file_object(
+                content=b"fake-jpeg-bytes",
+                original_filename="photo.jpg",
+                content_type="image/jpeg",
+            ),
+        )
+        db_session.add(image)
+        db_session.flush()
+        return owner, article, image
+
+    def test_card_serves_the_media_url_not_a_wip_route(self, db_session, app):
+        with app.test_request_context():
+            owner, article, image = self._article_image(db_session)
+
+            post = ArticlePost(owner=owner, title="Automobile")
+            post.newsroom_id = article.id
+            post.image_id = image.id
+            db_session.add(post)
+            db_session.flush()
+
+            card_url = ArticleVM(post).image_url
+            assert card_url == image.url
+            # Not the placeholder, and not the /wip route that used to 404.
+            assert card_url.startswith("/media/")
+
+    def test_dangling_image_id_falls_back_to_the_placeholder(self, db_session, app):
+        """The regression itself : a `Post` whose `image_id` no longer
+        resolves must degrade to the placeholder rather than emit a URL
+        that 404s in the browser."""
+        with app.test_request_context():
+            owner, article, image = self._article_image(db_session)
+
+            post = ArticlePost(owner=owner, title="Republié")
+            post.newsroom_id = article.id
+            post.image_id = image.id
+            db_session.add(post)
+            db_session.flush()
+
+            # The author deleted the image (or the whole article — the
+            # `nrm_image.article_id` FK cascades) and re-published.
+            db_session.delete(image)
+            db_session.flush()
+
+            assert ArticleVM(post).image_url == "/static/img/gray-texture.png"
+
+    def test_press_release_card_also_serves_the_media_url(self, db_session, app):
+        with app.test_request_context():
+            owner = User(email=f"cp-owner-{uuid.uuid4().hex[:6]}@example.com")
+            db_session.add(owner)
+            db_session.flush()
+
+            communique = Communique(owner=owner, titre="CP")
+            db_session.add(communique)
+            db_session.flush()
+
+            com_image = ComImage(
+                owner=owner,
+                communique_id=communique.id,
+                content=create_file_object(
+                    content=b"fake-png-bytes",
+                    original_filename="visuel.png",
+                    content_type="image/png",
+                ),
+            )
+            db_session.add(com_image)
+            db_session.flush()
+
+            pr = PressReleasePost(owner=owner, title="CP")
+            pr.newsroom_id = communique.id
+            pr.image_id = com_image.id
+            db_session.add(pr)
+            db_session.flush()
+
+            card_url = PressReleaseVM(pr).image_url
+            assert card_url == com_image.url
+            assert card_url.startswith("/media/")
 
 
 class TestUserVM:
