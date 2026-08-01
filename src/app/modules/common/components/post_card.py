@@ -19,6 +19,31 @@ from app.models.organisation import Organisation
 from app.modules.wip.models.comroom import Communique
 from app.modules.wire.models import ArticlePost, PressReleasePost
 
+PLACEHOLDER_IMAGE_URL = "/static/img/gray-texture.png"
+
+
+def _card_image_url(post: ArticlePost | PressReleasePost) -> str:
+    """URL of the card's illustration, or the placeholder.
+
+    Bug 0268 : resolve the media URL the same way the detail page's
+    carousel does (`carousel.py` reads `image.url`) instead of pointing
+    the `<img>` at `/wip/…/images/<image_id>`. That route 404s — leaving a
+    broken image on the card while the article page rendered fine —
+    whenever `Post.image_id`, frozen at publication time, no longer names
+    an image of the article. Deleting and re-publishing an article does
+    exactly that, and `nrm_image.article_id` cascades on delete.
+
+    Going through the `cover_image` relationship rather than a lookup by
+    id keeps this batchable — the wall eager-loads it in one query — and
+    lets a vanished image degrade to the placeholder. It also drops one
+    HTTP redirect per card.
+    """
+    image = post.cover_image
+    if image is None:
+        return PLACEHOLDER_IMAGE_URL
+    # `Image.url` falls back to the same placeholder when content is missing.
+    return image.url
+
 
 @component
 @frozen
@@ -97,14 +122,7 @@ class ArticleVM(Wrapper):
         }
 
     def get_image_url(self):
-        post = self._model
-        if post.newsroom_id and post.image_id:
-            return url_for(
-                "ArticlesWipView:image",
-                article_id=post.newsroom_id,
-                image_id=post.image_id,
-            )
-        return "/static/img/gray-texture.png"
+        return _card_image_url(self._model)
 
 
 @frozen
@@ -148,14 +166,7 @@ class PressReleaseVM(Wrapper):
         }
 
     def get_image_url(self):
-        post = self._model
-        if post.newsroom_id and post.image_id:
-            return url_for(
-                "CommuniquesWipView:image",
-                communique_id=post.newsroom_id,
-                image_id=post.image_id,
-            )
-        return "/static/img/gray-texture.png"
+        return _card_image_url(self._model)
 
 
 @frozen
@@ -213,15 +224,13 @@ class CommuniqueVM(Wrapper):
         return 0, 0, 0
 
     def get_image_url(self):
+        # This VM wraps a live Communique, so the image list is always
+        # current — no stale-pointer risk. Still serve the media URL
+        # directly, like the other two cards (bug 0268).
         post = self._model
-        if post.images:
-            first_image = post.sorted_images[0]
-            return url_for(
-                "CommuniquesWipView:image",
-                communique_id=post.id,
-                image_id=first_image.id,
-            )
-        return "/static/img/gray-texture.png"
+        if not post.images:
+            return PLACEHOLDER_IMAGE_URL
+        return post.sorted_images[0].url
 
 
 @frozen

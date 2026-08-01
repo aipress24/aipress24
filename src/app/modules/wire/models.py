@@ -190,6 +190,18 @@ class ArticlePost(Post, Taggable):
         Enum(PublisherType), default=PublisherType.MEDIA
     )
 
+    # Bug 0268: the card renders this image's media URL. Read-only view over
+    # `image_id`, which carries no FK (the two post types point at two
+    # different image tables), so the join condition is spelled out. Having
+    # it as a relationship lets the wall batch it in one query and yields
+    # None — not an error — when `image_id` outlived its image.
+    cover_image = orm.relationship(
+        "Image",
+        primaryjoin="foreign(ArticlePost.image_id) == Image.id",
+        viewonly=True,
+        uselist=False,
+    )
+
 
 class PressReleasePost(Post, Taggable):
     __mapper_args__: ClassVar[dict] = {
@@ -203,6 +215,15 @@ class PressReleasePost(Post, Taggable):
 
     publisher_type: Mapped[PublisherType] = mapped_column(
         Enum(PublisherType), default=PublisherType.COM, use_existing_column=True
+    )
+
+    # Bug 0268 — see `ArticlePost.cover_image`; press releases carry their
+    # images in the com'room table instead.
+    cover_image = orm.relationship(
+        "ComImage",
+        primaryjoin="foreign(PressReleasePost.image_id) == ComImage.id",
+        viewonly=True,
+        uselist=False,
     )
 
 

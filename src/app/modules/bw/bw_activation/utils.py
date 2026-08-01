@@ -34,8 +34,25 @@ ERR_NOT_MANAGER = (
     "Votre identification ne semble pas permettre la gestion de ce Business Wall."
 )
 ERR_BW_NOT_FOUND = "Aucun Business Wall trouvé."
-ERR_NO_ORGANISATION = "Aucun Organisation trouvée pour le Business Wall."
+ERR_NO_ORGANISATION = "Aucune organisation trouvée pour le Business Wall."
+# Ticket 0271 : a user who left their organisation has no organisation
+# left, and leaving also cleared the organisation name from their KYC.
+# Nothing else in the funnel collects one, so the activation used to die
+# at the payment step with an opaque « aucune organisation » message.
+ERR_ORGANISATION_NOT_DECLARED = (
+    "Un Business Wall est rattaché à une organisation, et la vôtre n'est pas "
+    "renseignée. Indiquez le nom de votre organisation dans votre profil, "
+    "puis revenez activer votre Business Wall."
+)
 ERR_UNKNOWN_ACTION = "Erreur interne, action inconnue."
+# Ticket 0273 : students reached the « Business Wall for Journalist »
+# funnel. The subscription belongs to the school, not to its students.
+ERR_PROFILE_NOT_ELIGIBLE = (
+    "L'abonnement Business Wall est réservé aux établissements et aux "
+    "professionnels. En tant qu'étudiant ou doctorant, rapprochez-vous de "
+    "votre établissement : c'est lui qui souscrit un Business Wall for "
+    "Academics, dont vous bénéficiez ensuite."
+)
 ERR_WRONG_VALIDATION_LINK = "Lien de validation erroné."
 ERR_INVITATION_NOT_FOUND = "Invitation non trouvée."
 
