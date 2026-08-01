@@ -4,7 +4,7 @@
 
 [project]
 name = "aipress24-flask"
-version = "2026.7.31.1"
+version = "2026.8.1.1"
 authors = [
     {name = "Abilian SAS", email = "contact@abilian.com"},
     {name = "Techno Chroniqueurs Associés", email = "erick@agencetca.info"},
