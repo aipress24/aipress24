@@ -13,8 +13,16 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+from app.models.auth import User
+from app.modules.bw.bw_activation.models import (
+    BWRoleType,
+    InvitationStatus,
+    RoleAssignment,
+)
+
 if TYPE_CHECKING:
     from flask.testing import FlaskClient
+    from sqlalchemy.orm import Session
 
     from app.modules.bw.bw_activation.models import BusinessWall
 
@@ -140,6 +148,49 @@ class TestStageB3ManageInternalRolesRoutes:
         assert response.status_code == 200
         # The page should contain some content about roles
         assert b"role" in response.data.lower() or b"BWM" in response.data
+
+    def test_members_are_shown_first_name_first(
+        self,
+        db_session: Session,
+        authenticated_owner_client: FlaskClient,
+        test_business_wall: BusinessWall,
+    ) -> None:
+        """Bug 0274 : la liste des rôles internes affichait « Nom Prénom ».
+
+        Le même gabarit affichait déjà « Prénom Nom » dans ses modales,
+        d'où l'impression que le bug était revenu — seule une partie des
+        emplacements avait été corrigée. Les deux listes (BWMi et BWPRi)
+        doivent afficher le prénom en premier.
+        """
+        members = {
+            BWRoleType.BWMI.value: ("Aminata", "Youkou"),
+            BWRoleType.BWPRI.value: ("Célia", "Friebourg"),
+        }
+        for role_type, (first_name, last_name) in members.items():
+            user = User(
+                email=f"{first_name.lower()}@example.com",
+                first_name=first_name,
+                last_name=last_name,
+                active=True,
+            )
+            db_session.add(user)
+            db_session.flush()
+            db_session.add(
+                RoleAssignment(
+                    business_wall_id=test_business_wall.id,
+                    user_id=user.id,
+                    role_type=role_type,
+                    invitation_status=InvitationStatus.ACCEPTED.value,
+                )
+            )
+        db_session.flush()
+
+        body = authenticated_owner_client.get("/BW/manage-internal-roles").data.decode()
+
+        for first_name, last_name in members.values():
+            assert body.index(first_name) < body.index(last_name), (
+                f"« {first_name} {last_name} » must render first name first"
+            )
 
     def test_change_bwpri_unknown_email_surfaces_flash(
         self,
