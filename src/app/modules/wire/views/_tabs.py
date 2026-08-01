@@ -156,6 +156,11 @@ class Tab(abc.ABC):
                 # ArticlePost/PressReleasePost; accessing their subclass
                 # columns was a SELECT-per-card refresh (single-table poly).
                 selectin_polymorphic(Post, [ArticlePost, PressReleasePost]),
+                # Bug 0268: each card renders its cover image's media URL.
+                # The two post types read from two different image tables,
+                # hence one loader each.
+                selectinload(ArticlePost.cover_image),
+                selectinload(PressReleasePost.cover_image),
             )
             .limit(DEFAULT_POSTS_LIMIT)
         )
