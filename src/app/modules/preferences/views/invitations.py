@@ -412,6 +412,14 @@ class InvitationsView(MethodView):
         recréé depuis) ne doit plus apparaître. Cela neutralise aussi
         d'éventuels rôles legacy hérités d'avant le fix `stage3.py`
         (BWO non sollicité de Lorraine, etc.).
+
+        Bug 0272 : exclure les assignations à `role_type` vide. Rejoindre
+        une organisation crée une assignation sans rôle (`_join_organisation`)
+        qui marque la simple appartenance au BW ; ce n'est pas un rôle et
+        elle s'affichait comme une ligne « Rôle : » vide. La ligne est
+        conservée en base — `user_affiliated_with_org_clause` s'en sert
+        pour reconnaître un membre sans rôle, et un membre qui perdrait
+        son rôle BWPRi doit rester affilié.
         """
         db_session = db.session
         stmt = (
@@ -420,6 +428,7 @@ class InvitationsView(MethodView):
             .where(
                 RoleAssignment.user_id == user.id,
                 RoleAssignment.invitation_status == InvitationStatus.ACCEPTED.value,
+                RoleAssignment.role_type != "",
                 BusinessWall.status == BWStatus.ACTIVE.value,
             )
         )
