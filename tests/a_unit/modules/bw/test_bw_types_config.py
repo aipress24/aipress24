@@ -203,3 +203,27 @@ def test_canonical_free_types_present(bw_type):
     """Each of the 4 canonical free BW types must be in BW_TYPES.
     Pin the public-API expectation."""
     assert bw_type in BW_TYPES
+
+
+class TestPRPricingExplanationWording:
+    """Bug 0276 : coquille dans le paragraphe en bleu de « Conditions
+    d'activation » du BW for PR — « le nombre de clients **qui** vous
+    représentez » au lieu de « **que** vous représentez ».
+
+    Le texte est relu par le Product Owner et affiché tel quel aux
+    agences de RP : on épingle la formulation corrigée.
+    """
+
+    def test_clients_represented_uses_que(self):
+        explanation = BW_TYPES[BWType.PR.value]["pricing_explanation"]
+
+        assert "clients que vous représentez" in explanation
+        assert "clients qui vous représentez" not in explanation
+
+    def test_clients_declaring_still_uses_qui(self):
+        """The other relative pronoun in the same paragraph is correct
+        — « les clients **qui** vous déclarent » — and must not be
+        « corrected » along with it."""
+        explanation = BW_TYPES[BWType.PR.value]["pricing_explanation"]
+
+        assert "clients qui vous déclarent" in explanation
