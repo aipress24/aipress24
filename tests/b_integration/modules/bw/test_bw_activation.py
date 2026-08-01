@@ -57,13 +57,34 @@ from app.modules.bw.bw_activation.utils import (
 class TestBwCreation:
     """Tests for BW creation utility functions."""
 
-    def test_create_new_free_bw_record_user_without_org(
+    @pytest.mark.parametrize(
+        ("bw_type", "create_record"),
+        [("micro", create_new_free_bw_record), ("pr", create_new_paid_bw_record)],
+    )
+    def test_bw_record_is_not_created_for_a_user_without_org(
         self,
         app: Flask,
         db_session: Session,
+        bw_type: str,
+        create_record,
     ) -> None:
-        """create_new_free_bw_record should work for a user without an org (#bug-0164-fix)."""
-        # Create a user with NO organization
+        """Ticket 0271 — REVERSES #0164.
+
+        #0164 pinned the opposite: creation had to succeed for an org-less
+        user, auto-creating an organisation on the way. But that
+        organisation was named after the BW *type*, so those two tests
+        asserted `organisation.name == "Business Wall for Journalist"` /
+        `"Business Wall for PR"` — and nothing renames an organisation
+        afterwards, so that name is what would show up in the
+        organisations directory, for every such user.
+
+        An organisation name is only collected (and verified) by the KYC.
+        Rather than invent one here, the funnel now stops org-less users
+        at its entry and sends them to their profile
+        (`stage1._check_organisation_declared`), so this path is
+        unreachable in practice — and refuses rather than guesses if it
+        is ever reached.
+        """
         user = User(email=_unique_email(), first_name="NoOrg", last_name="User")
         db_session.add(user)
         db_session.flush()
@@ -71,51 +92,14 @@ class TestBwCreation:
         with app.test_request_context():
             g.user = user
             session["bw_activated"] = True
-            session["bw_type"] = "micro"  # a free type
+            session["bw_type"] = bw_type
 
-            # This should NOT raise AttributeError
-            success = create_new_free_bw_record(session)
+            success = create_record(session)
 
-            assert success is True
+            assert success is False
             db_session.refresh(user)
-            assert user.organisation is not None
-            assert user.organisation.name == "Business Wall for Journalist"
-
-            # Verify BW was created
-            bw = current_business_wall(user)
-            assert bw is not None
-            assert bw.bw_type == "micro"
-            assert bw.organisation_id == user.organisation.id
-
-    def test_create_new_paid_bw_record_user_without_org(
-        self,
-        app: Flask,
-        db_session: Session,
-    ) -> None:
-        """create_new_paid_bw_record should work for a user without an org (#bug-0164-fix)."""
-        # Create a user with NO organization
-        user = User(email=_unique_email(), first_name="NoOrgPaid", last_name="User")
-        db_session.add(user)
-        db_session.flush()
-
-        with app.test_request_context():
-            g.user = user
-            session["bw_activated"] = True
-            session["bw_type"] = "pr"  # a paid type
-
-            # This should NOT raise AttributeError
-            success = create_new_paid_bw_record(session)
-
-            assert success is True
-            db_session.refresh(user)
-            assert user.organisation is not None
-            assert user.organisation.name == "Business Wall for PR"
-
-            # Verify BW was created
-            bw = current_business_wall(user)
-            assert bw is not None
-            assert bw.bw_type == "pr"
-            assert bw.organisation_id == user.organisation.id
+            assert user.organisation is None
+            assert current_business_wall(user) is None
 
 
 if TYPE_CHECKING:

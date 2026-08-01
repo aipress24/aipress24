@@ -15,7 +15,7 @@ from sqlalchemy import select as sa_select
 from svcs.flask import container
 
 from app.flask.extensions import db
-from app.models.organisation import Organisation
+from app.logging import warn
 from app.modules.bw.bw_activation.models import (
     BusinessWallService,
     BWStatus,
@@ -218,19 +218,6 @@ def select_bw_type(session: MutableMapping, *, want_free: bool) -> str | None:
 # ── Imperative shell ────────────────────────────────────────────────
 
 
-def _create_required_organisation(user: User, bw_info: dict[str, Any], bw_type: str):
-    """Create a minimal Organisation (required to create a BW)
-
-    Should not happen very often, but User can register without create an Organisation"""
-
-    org_name = cast(str, bw_info.get("name", f"Org for BW {bw_type}"))
-    org = Organisation(name=org_name)
-    db.session.add(org)
-    # Associate user with the new organisation
-    user.organisation = org
-    db.session.flush()
-
-
 def _create_bw_record(session: MutableMapping, *, want_free: bool) -> bool:
     """Shared shell for the free + paid creation paths. Returns True
     on success, False if a precondition fails."""
@@ -238,13 +225,17 @@ def _create_bw_record(session: MutableMapping, *, want_free: bool) -> bool:
     if bw_type is None:
         return False
 
-    bw_info = BW_TYPES.get(bw_type, {})
     user = cast("User", g.user)
     org = user.organisation
-    # Edge case: create minimal organisation if user doesn't have one
     if org is None:
-        _create_required_organisation(user, bw_info, bw_type)
-        org = user.organisation
+        # Ticket 0271 : this used to silently create an organisation named
+        # after the BW *type* — every such org ended up called « Business
+        # Wall for Journalist », and nothing renames one afterwards. The
+        # funnel now stops org-less users at its entry
+        # (`stage1._check_organisation_declared`) and points them at the
+        # KYC, which is the only place an organisation name is collected.
+        warn("BW creation: user has no organisation, refusing to invent one")
+        return False
 
     now = datetime.now(UTC)
     bw_service = container.get(BusinessWallService)

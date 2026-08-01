@@ -80,12 +80,22 @@ class TestIndex:
         assert response.status_code == 302
         assert "confirm-subscription" in response.location
 
-    def test_no_organisation_proceeds_into_wizard(self, app: Flask, fresh_db):
-        """Index allows users without an organisation to enter the
-        BW wizard (the org is auto-created downstream during
-        `create_new_free_bw_record`). Bug #0117 lifted the
-        previous « must have an org » gate that blocked
-        single-person profiles like associations of journalists.
+    def test_no_organisation_is_sent_to_the_kyc(self, app: Flask, fresh_db):
+        """Ticket 0271 — REVERSES the #0117 behaviour this test pinned.
+
+        #0117 let org-less users into the wizard, on the promise that an
+        organisation would be auto-created downstream by
+        `create_new_free_bw_record`. The promise was kept badly: that
+        organisation was named after the BW *type* (« Business Wall for
+        Journalist » for every one of them), and nothing renames an
+        organisation afterwards. Worse, with live Stripe those users never
+        reached creation at all — they walked five screens and hit
+        « aucune organisation trouvée » just before checkout, with nothing
+        to act on. That is Martine Riesser's report.
+
+        The refusal now happens at the entry, and carries a link to the
+        KYC — the only place an organisation name is collected and
+        verified.
         """
         user = User(
             email=f"noorg_{uuid.uuid4().hex[:8]}@example.com",
@@ -101,10 +111,8 @@ class TestIndex:
         response = client.get("/BW/", follow_redirects=False)
 
         assert response.status_code == 302
-        # Org-less users now proceed to the subscription
-        # confirmation step rather than the rejection page.
-        assert "confirm-subscription" in response.location, (
-            f"expected redirect to confirm-subscription, got {response.location!r}"
+        assert "not-authorized" in response.location, (
+            f"expected redirect to not-authorized, got {response.location!r}"
         )
 
     def test_redirects_to_not_authorized_when_organisation_deleted(
@@ -197,11 +205,14 @@ class TestConfirmSubscription:
 
         assert response.status_code == 200
 
-    def test_no_organisation_proceeds_to_subscription_page(self, app: Flask, fresh_db):
-        """Confirm-subscription renders for users without an
-        organisation — bug #0117 lifted the org gate so
-        single-person profiles can start the BW wizard. The org
-        is auto-created later by `_create_required_organisation`.
+    def test_no_organisation_does_not_reach_the_subscription_page(
+        self, app: Flask, fresh_db
+    ):
+        """Ticket 0271 — REVERSES the #0117 behaviour this test pinned.
+
+        See `TestIndex.test_no_organisation_is_sent_to_the_kyc`. The
+        funnel's own entry point guards too, otherwise the redirect on
+        `/BW/` would be decorative — the page is reachable by URL.
         """
         user = User(
             email=f"nosub_{uuid.uuid4().hex[:8]}@example.com",
@@ -216,10 +227,8 @@ class TestConfirmSubscription:
 
         response = client.get("/BW/confirm-subscription", follow_redirects=False)
 
-        assert response.status_code == 200, (
-            f"expected the subscription page to render (200), got "
-            f"{response.status_code}"
-        )
+        assert response.status_code == 302
+        assert "not-authorized" in response.location
 
     def test_non_manager_blocked_when_org_bw_active(self, app: Flask, fresh_db):
         """Bug #0157: when the org's BW is already ACTIVE, a member who
