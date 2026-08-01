@@ -71,9 +71,55 @@ PROFILE_CODE_TO_BW2_TYPE: dict[ProfileEnum, BWType] = {
     ProfileEnum.AC_DIR_JR: BWType.ACADEMICS,
     ProfileEnum.AC_ENS: BWType.ACADEMICS,  # open to all employees
     ProfileEnum.AC_DOC: BWType.ACADEMICS,  # open to all employees
-    ProfileEnum.AC_ST: BWType.MICRO,  # open to all employees except students
+    ProfileEnum.AC_ST: BWType.MICRO,
     ProfileEnum.AC_ST_ENT: BWType.ACADEMICS,
 }
+
+# Profiles that may not activate a Business Wall of their own. The
+# subscription belongs to the school — students and doctoral candidates
+# benefit from their institution's « BW for Academics » instead of
+# opening one (ticket 0273, arbitrage Erick du 2026-08-01).
+#
+# This is a gate, not a mapping tweak : `PROFILE_CODE_TO_BW2_TYPE` above
+# has no « no BW at all » value, and its fallback is MEDIA, so removing
+# an entry would offer these profiles a *different* BW rather than none.
+BW_INELIGIBLE_PROFILES: frozenset[ProfileEnum] = frozenset(
+    {
+        ProfileEnum.AC_ST,  # étudiant
+        ProfileEnum.AC_ST_ENT,  # étudiant entrepreneur
+        ProfileEnum.AC_DOC,  # doctorant
+    }
+)
+
+
+def profile_code_of(user: User) -> ProfileEnum | None:
+    """The user's `ProfileEnum`, or None when absent or unrecognised.
+
+    `user.profile` is None for accounts that never completed the KYC
+    wizard, and `profile_code` is a free-form string column, so both
+    misses have to be tolerated. Shared by `guess_best_bw_type` and
+    `can_activate_business_wall` so they agree on what « no usable
+    profile » means.
+    """
+    profile = getattr(user, "profile", None)
+    if profile is None:
+        return None
+    try:
+        return ProfileEnum[profile.profile_code]
+    except KeyError:
+        return None
+
+
+def can_activate_business_wall(user: User) -> bool:
+    """Whether this user's profile may open a Business Wall (ticket 0273).
+
+    A user with no usable profile code is allowed through : the funnel
+    already copes with incomplete profiles (see `guess_best_bw_type`),
+    and refusing them would lock out legitimate accounts to catch a case
+    the profile doesn't actually claim.
+    """
+    code = profile_code_of(user)
+    return code is None or code not in BW_INELIGIBLE_PROFILES
 
 
 def get_current_user_data() -> StdDict:
@@ -129,17 +175,13 @@ def _fonctions_disponibles_for_bw(user: User, bw_type: str | None) -> list[str]:
 
 
 def guess_best_bw_type(user: User) -> BWType:
-    profile = user.profile
     # `user.profile` may be None for freshly-created users that
     # haven't filled the KYC wizard yet. Since #0117 lifted the
     # « must have an organisation » gate, those users now reach
-    # `index()` and trigger this helper. Default to `MEDIA` like
-    # the malformed-profile-code path below.
-    if profile is None:
-        return BWType.MEDIA  # type: ignore[invalid-return-type]
-    try:
-        profile_code = ProfileEnum[profile.profile_code]
-    except KeyError:
+    # `index()` and trigger this helper. Default to `MEDIA`, like
+    # the malformed-profile-code path.
+    profile_code = profile_code_of(user)
+    if profile_code is None:
         return BWType.MEDIA  # type: ignore[invalid-return-type]
     guessed = PROFILE_CODE_TO_BW2_TYPE.get(profile_code, BWType.MEDIA)
     if getattr(guessed, "value", guessed) in DEPRECATED_BW_TYPES:

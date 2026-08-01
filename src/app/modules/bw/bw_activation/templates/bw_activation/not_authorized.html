@@ -33,10 +33,22 @@
                     {{ error_message }}
                 </p>
 
-                <div class="flex justify-center">
+                {# Ticket 0271 : some refusals are actionable — « votre
+                   organisation n'est pas renseignée » is useless without a
+                   way to go and renseign it. When the route supplies one,
+                   the action becomes the primary button. #}
+                <div class="flex justify-center gap-4 mt-12">
+                    {% if error_action_url %}
+                        <a
+                            href="{{ error_action_url }}"
+                            class="rounded-md bg-indigo-600 px-6 py-3 text-sm font-semibold text-white shadow-sm hover:bg-indigo-700"
+                        >
+                            {{ error_action_label }}
+                        </a>
+                    {% endif %}
                     <a
                         href="/wip/dashboard"
-                        class="rounded-md bg-gray-600 px-6 py-3 text-sm mt-12 font-semibold text-white shadow-sm hover:bg-gray-700"
+                        class="rounded-md bg-gray-600 px-6 py-3 text-sm font-semibold text-white shadow-sm hover:bg-gray-700"
                     >
                         Retour
                     </a>

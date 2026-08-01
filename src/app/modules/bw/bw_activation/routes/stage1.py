@@ -15,6 +15,7 @@ from app.modules.bw.bw_activation import bp
 from app.modules.bw.bw_activation.config import BW_TYPES, DEPRECATED_BW_TYPES
 from app.modules.bw.bw_activation.models.business_wall import BWStatus
 from app.modules.bw.bw_activation.user_utils import (
+    can_activate_business_wall,
     current_business_wall,
     get_business_wall_for_user,
     get_manageable_business_walls_for_user,
@@ -23,6 +24,8 @@ from app.modules.bw.bw_activation.user_utils import (
 from app.modules.bw.bw_activation.utils import (
     ERR_BW_NOT_FOUND,
     ERR_NOT_MANAGER,
+    ERR_ORGANISATION_NOT_DECLARED,
+    ERR_PROFILE_NOT_ELIGIBLE,
     fill_session,
     init_session,
     is_bw_manager_or_admin,
@@ -83,15 +86,13 @@ def _check_active_bw_manager(user: User) -> Response | None:
 def _check_valid_organisation(user: User) -> Response | None:
     """Check that user has a valid (non-deleted) organisation.
 
-    Users without any organisation are NOT blocked here — the BW
-    activation flow will auto-create one in
-    `bw_creation._create_required_organisation` once the user
-    reaches the free-BW persistence step. Blocking earlier denied
-    standalone profiles (associations, individual journalists)
-    access to the wizard. Ref: bug #0117.
+    Only soft-deleted organisations are a hard gate here (a rejected
+    user keeps a `deleted_at`-flagged org and shouldn't pass) — and this
+    check also runs ahead of the dashboard, so it must not block anyone
+    who merely lacks an organisation.
 
-    Only soft-deleted organisations remain a hard gate (a rejected
-    user keeps a `deleted_at`-flagged org and shouldn't pass).
+    Having *no* organisation is handled separately, at the funnel entry
+    points, by `_check_organisation_declared` (ticket 0271).
 
     Returns:
         Redirect response if organisation is invalid, None if valid.
@@ -103,6 +104,58 @@ def _check_valid_organisation(user: User) -> Response | None:
         )
         return redirect(url_for("bw_activation.not_authorized"))
     return None
+
+
+def _check_organisation_declared(user: User) -> Response | None:
+    """Ticket 0271 : a Business Wall hangs off an Organisation, so refuse
+    the funnel — with a way out — when the user has none.
+
+    SUPERSEDES part of #0117 and #0164, which deliberately let org-less
+    users in on the promise that an organisation would be auto-created
+    downstream. That promise was kept badly : the organisation was named
+    after the BW **type**, so every one of them ended up called « Business
+    Wall for Journalist », and nothing renames an organisation afterwards.
+    And in live Stripe mode those users never even got there — they hit
+    « aucune organisation trouvée » just before checkout, with nothing to
+    act on (Martine Riesser's report).
+
+    The organisation name is only ever collected by the KYC, where it is
+    verified; the funnel never asks for one. So point the user there
+    instead of inventing a name they cannot change. Leaving an
+    organisation deliberately clears those KYC fields — otherwise the next
+    KYC save would re-attach the user to the org they just left — which is
+    how a user reaches this state.
+
+    Applied at the funnel entry points only : a user with no organisation
+    may still hold a role on someone else's Business Wall and must keep
+    reaching its dashboard.
+
+    Returns:
+        Redirect to the explanation page, or None when an org exists.
+    """
+    if user.organisation is not None:
+        return None
+    session["error"] = ERR_ORGANISATION_NOT_DECLARED
+    session["error_action_url"] = url_for("kyc.modify_page")
+    session["error_action_label"] = "Renseigner mon organisation"
+    return redirect(url_for("bw_activation.not_authorized"))
+
+
+def _check_bw_eligibility(user: User) -> Response | None:
+    """Ticket 0273 : some profiles may not open a Business Wall at all.
+
+    Applied at the three entry points of the activation funnel rather
+    than on the whole blueprint : a student who legitimately holds a role
+    on their school's Business Wall must keep reaching its dashboard.
+    What is refused is opening a *new* subscription.
+
+    Returns:
+        Redirect to the explanation page, or None when eligible.
+    """
+    if can_activate_business_wall(user):
+        return None
+    session["error"] = ERR_PROFILE_NOT_ELIGIBLE
+    return redirect(url_for("bw_activation.not_authorized"))
 
 
 @bp.route("/")
@@ -120,6 +173,12 @@ def index():
     active_manageable = filter_active_manageable(manageable_bws)
 
     if not active_manageable:
+        # Nothing to manage: the user is about to enter the activation
+        # funnel, so this is where eligibility is decided (ticket 0273).
+        if error_response := _check_bw_eligibility(user):
+            return error_response
+        if error_response := _check_organisation_declared(user):
+            return error_response
         # No manageable BW — check if org has an active BW but user lacks rights
         org_bw = get_business_wall_for_user(user)
         if org_bw and org_bw.status == BWStatus.ACTIVE.value:
@@ -151,6 +210,12 @@ def confirm_subscription():
     if error_response := _check_valid_organisation(user):
         return error_response
 
+    if error_response := _check_bw_eligibility(user):
+        return error_response
+
+    if error_response := _check_organisation_declared(user):
+        return error_response
+
     # Bug #0157: an active BW can only be reconfigured by its managers.
     if error_response := _check_active_bw_manager(user):
         return error_response
@@ -175,6 +240,15 @@ def select_subscription(bw_type: str):
 
     # Check user has a valid (non-deleted) organisation
     if error_response := _check_valid_organisation(user):
+        return error_response
+
+    # Guard the POST too : `confirm_subscription` is only the *page*,
+    # this is the route that unlocks the rest of the funnel by setting
+    # `bw_type_confirmed`.
+    if error_response := _check_bw_eligibility(user):
+        return error_response
+
+    if error_response := _check_organisation_declared(user):
         return error_response
 
     if not is_valid_bw_type(bw_type):
