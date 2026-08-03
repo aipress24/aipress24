@@ -194,16 +194,6 @@ ADMIN_MENU = [
         "icon": "shopping-bag",
     },
     {
-        "label": "Delete BWs",
-        "endpoint": "admin.delete_bws",
-        "icon": "trash-2",
-    },
-    {
-        "label": "Debug relink BW/orgs",
-        "endpoint": "admin.relink_bws",
-        "icon": "link",
-    },
-    {
         "label": "Test Webhook",
         "endpoint": "admin.webhook_testing",
         "icon": "webhook",
