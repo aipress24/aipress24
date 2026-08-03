@@ -12,6 +12,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 
 from app.enums import OrganisationTypeEnum, RoleEnum
+from app.modules.bw.bw_activation.bw_invitation import BW_ROLE_TYPE_LABEL
 
 
 @dataclass
@@ -122,3 +123,8 @@ class TestToggleRoleLogic:
 
         toggle_leader_logic(user)
         assert user.is_leader is False
+
+
+def test_empty_bw_role_type_label_returns_membre() -> None:
+    """Empty role type ('') in BW_ROLE_TYPE_LABEL resolves to 'Membre'."""
+    assert BW_ROLE_TYPE_LABEL.get("", "") == "Membre"

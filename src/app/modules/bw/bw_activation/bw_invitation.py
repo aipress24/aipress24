@@ -42,6 +42,7 @@ from app.services.emails import (
 from app.services.notifications import NotificationService
 
 BW_ROLE_TYPE_LABEL: dict[str, str] = {
+    "": "Membre",
     "BW_OWNER": "Business Wall Owner",
     "BWMi": "Business Wall Manager (internal)",
     "BWPRi": "PR Manager (internal)",
