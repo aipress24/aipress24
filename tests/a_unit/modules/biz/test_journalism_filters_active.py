@@ -54,10 +54,14 @@ class TestJournalismFiltersActive:
         ):
             assert _journalism_filters_active() is False
 
-    def test_inactive_on_default_tab(self, app: Flask):
-        """No `current_tab` query param → defaults to `stories` →
-        journalism filters never apply."""
+    def test_active_on_default_tab_with_journalism_category(self, app: Flask):
+        """No `current_tab` query param → defaults to `missions` →
+        journalism filters apply when category=journalisme."""
         with app.test_request_context("/biz/?category=journalisme"):
+            assert _journalism_filters_active() is True
+
+    def test_inactive_on_default_tab_without_category(self, app: Flask):
+        with app.test_request_context("/biz/"):
             assert _journalism_filters_active() is False
 
     def test_inactive_on_jobs_tab(self, app: Flask):

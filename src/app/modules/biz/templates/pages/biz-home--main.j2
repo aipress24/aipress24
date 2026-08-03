@@ -1,4 +1,4 @@
-{% set _tab = request.args.get("current_tab", "subscriptions") %}
+{% set _tab = request.args.get("current_tab", "missions") %}
 {% set _biz_url = url_for('biz.biz', current_tab=_tab) %}
 
 {% macro project_selector(filter) %}
