@@ -45,12 +45,12 @@ class TestGetTabs:
             assert "href" in tab
             assert "current" in tab
 
-    def test_default_tab_is_stories(self, app: Flask):
-        """No `?current_tab=…` query arg → `stories` is current."""
+    def test_default_tab_is_subscriptions(self, app: Flask):
+        """No `?current_tab=…` query arg → `subscriptions` is current."""
         with app.test_request_context("/biz/"):
             result = _get_tabs()
         currents = [t["id"] for t in result if t["current"]]
-        assert currents == ["stories"]
+        assert currents == ["subscriptions"]
 
     def test_query_param_marks_matching_tab_current(self, app: Flask):
         with app.test_request_context("/biz/?current_tab=missions"):
