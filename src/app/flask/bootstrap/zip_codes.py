@@ -17,7 +17,9 @@ from app.services.zip_codes import CountryEntry, ZipCodeEntry, ZipCodeRepository
 COUNTRY_SRC = Path("bootstrap_data/country_zip_code/pays.json")
 ZIP_CODE_SRC = Path("bootstrap_data/country_zip_code/towns")
 
-DEFAULT_NO_ZIP_CODE = [{"name": "Aucune information", "zip_code": "000"}]
+DEFAULT_NO_ZIP_CODE = [
+    {"name": "Aucune information sur les codes postaux", "zip_code": "000"}
+]
 
 
 def import_countries() -> None:
