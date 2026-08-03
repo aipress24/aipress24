@@ -12,7 +12,6 @@ from flask import flash, redirect, render_template, request, url_for
 from sqlalchemy import select
 
 from app.flask.extensions import db
-from app.flask.lib.nav import nav
 from app.logging import warn
 from app.models.auth import User
 from app.models.organisation import Organisation
@@ -281,7 +280,6 @@ def _relink_bws() -> dict[str, int]:
 
 
 @blueprint.route("/relink-bws", methods=["GET", "POST"])
-@nav(parent="index", icon="link", label="Debug relink BW/orgs")
 def relink_bws():
     """Debug page to enforce BW/Organisation/User links."""
     if request.method == "POST":
