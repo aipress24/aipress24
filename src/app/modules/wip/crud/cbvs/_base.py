@@ -6,8 +6,10 @@ from __future__ import annotations
 
 import abc
 from collections.abc import Callable
+from datetime import UTC, datetime
 from operator import itemgetter
 from typing import TYPE_CHECKING, cast
+from zoneinfo import ZoneInfo
 
 from arrow import now
 from flask import flash, g, redirect, request, url_for
@@ -317,11 +319,33 @@ class BaseWipView(FlaskView, abc.ABC):
         if hasattr(model, "media_id"):
             model.media_id = int(model.media_id)
 
+        self._normalize_model_datetimes(model)
         self._post_update_model(model)
         repo.add(model, auto_commit=True)
 
         flash("Enregistré")
         return redirect(self._url_for("index"))
+
+    def _normalize_model_datetimes(self, model: object) -> None:
+        """Convert any naive datetimes on model attributes (from form inputs) to aware UTC datetimes."""
+        datetime_attrs = [
+            "embargoed_until",
+            "published_at",
+            "date_parution_prevue",
+            "date_publication_aip24",
+            "date_debut_enquete",
+            "date_fin_enquete",
+            "date_bouclage",
+            "date_limite_validite",
+            "start_time",
+            "end_time",
+        ]
+        for attr in datetime_attrs:
+            if hasattr(model, attr):
+                val = getattr(model, attr)
+                if isinstance(val, datetime) and val.tzinfo is None:
+                    local_dt = val.replace(tzinfo=ZoneInfo(LOCAL_TZ))
+                    setattr(model, attr, local_dt.astimezone(UTC))
 
     def _make_media_choices(self, form) -> None:
         if hasattr(form, "media_id"):
