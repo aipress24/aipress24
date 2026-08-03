@@ -203,4 +203,9 @@ ADMIN_MENU = [
         "endpoint": "/admin/export-db/",
         "icon": "database",
     },
+    {
+        "label": "Recharger zip codes",
+        "endpoint": "admin.reload_zip_codes",
+        "icon": "refresh-cw",
+    },
 ]

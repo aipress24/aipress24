@@ -1,0 +1,29 @@
+{% extends "admin/layout/_base.j2" %}
+
+{% block main %}
+    <h1 class="text-2xl font-semibold text-gray-900 mb-4">Recharger les codes postaux et pays</h1>
+
+    <div class="bg-blue-50 border border-blue-200 rounded p-4 mb-6 text-sm text-blue-900">
+        <p class="font-medium mb-2">
+            Réimporter les pays et leurs codes postaux à partir des données de configuration de bootstrap_data/country_zip_code/.
+        </p>
+        <p class="font-medium mb-2">
+            Ceci peut durer environ ~1 minute...
+        </p>
+        <ul class="list-disc list-inside space-y-1 text-blue-800">
+            <li><strong>Pays enregistrés :</strong> {{ countries_count }}</li>
+            <li><strong>Codes postaux enregistrés :</strong> {{ zip_codes_count }}</li>
+        </ul>
+    </div>
+
+    <form action="{{ url_for('.reload_zip_codes') }}" method="POST" class="flex items-center gap-4">
+        <a href="{{ url_for('admin.dashboard') }}"
+           class="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+            Annuler
+        </a>
+        <button type="submit"
+                class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-teal-600 hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500">
+            Recharger les codes postaux
+        </button>
+    </form>
+{% endblock %}

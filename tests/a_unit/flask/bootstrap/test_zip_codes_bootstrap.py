@@ -16,6 +16,7 @@ from app.services.zip_codes import ZipCodeEntry
 
 def test_import_default_zip_code_for_country(db) -> None:
     iso3 = "XYZ"
+    msg = "Aucune information sur les codes postaux"
     import_default_zip_code_for_country(iso3)
     db.session.flush()
 
@@ -26,6 +27,6 @@ def test_import_default_zip_code_for_country(db) -> None:
     entry = entries[0]
     assert entry.iso3 == "XYZ"
     assert entry.zip_code == "000"
-    assert entry.name == "Aucune information"
-    assert entry.value == "XYZ / 000 Aucune information"
-    assert entry.label == "000 Aucune information"
+    assert entry.name == msg
+    assert entry.value == f"XYZ / 000 {msg}"
+    assert entry.label == f"000 {msg}"
