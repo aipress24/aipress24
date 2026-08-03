@@ -152,7 +152,7 @@
                     {% for ra in role_assignments %}
                         <tr class="border-t">
                             <td class="px-3 py-2">{{ bw_name_map.get(ra.business_wall_id|string, ra.business_wall_id) }}</td>
-                            <td class="px-3 py-2">{{ BW_ROLE_TYPE_LABEL.get(ra.role_type, ra.role_type) }}</td>
+                            <td class="px-3 py-2">{{ BW_ROLE_TYPE_LABEL.get(ra.role_type, ra.role_type) or "Membre" }}</td>
                             <td class="px-3 py-2">{{ ra.invitation_status }}</td>
                         </tr>
                     {% endfor %}
@@ -223,7 +223,7 @@
                     {% for ri in role_invitations %}
                         <tr class="border-t">
                             <td class="px-3 py-2">{{ bw_name_map.get(ri.business_wall_id|string, ri.business_wall_id) }}</td>
-                            <td class="px-3 py-2">{{ BW_ROLE_TYPE_LABEL.get(ri.role_type, ri.role_type) }}</td>
+                            <td class="px-3 py-2">{{ BW_ROLE_TYPE_LABEL.get(ri.role_type, ri.role_type) or "Membre" }}</td>
                             <td class="px-3 py-2">{{ ri.invitation_status }}</td>
                         </tr>
                     {% endfor %}
