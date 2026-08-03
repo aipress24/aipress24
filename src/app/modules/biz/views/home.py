@@ -23,7 +23,6 @@ from app.modules.biz.models import (
     MissionOffer,
 )
 from app.modules.biz.repositories import (
-    EditorialProductRepository,
     JobOfferRepository,
     MissionOfferRepository,
     ProjectOfferRepository,
@@ -52,7 +51,7 @@ DEFAULT_BUDGETS = ["1000", "10000"]
 @blueprint.route("/", methods=["GET", "POST"])
 def biz():
     """Marketplace."""
-    current_tab = request.args.get("current_tab", "subscriptions")
+    current_tab = request.args.get("current_tab", "missions")
     project_filter_bar = ProjectFilterBar()
     job_filter_bar = JobFilterBar()
     mission_filter_bar = MissionFilterBar()
@@ -89,12 +88,8 @@ def _get_objs(
     (status-only, per ``is_public(MarketplaceContent)``) rather than restating
     it inline.
     """
-    current_tab = request.args.get("current_tab", "subscriptions")
+    current_tab = request.args.get("current_tab", "missions")
     match current_tab:
-        case "subscriptions":
-            repo = container.get(EditorialProductRepository)
-            rows, _ = repo.list_public(limit=30, offset=0)
-            return list(rows)
         case "missions":
             # Bug #0186 — Journalism missions are visible only to PRESS_MEDIA.
             # Other communities don't get to know what journalists post. NULL
@@ -144,7 +139,7 @@ def _get_filters(
     When on the Jobs tab, replaced generic filters by job specific
     filters (Secteur, Type contrat, Pays, Département, Ville).
     """
-    current_tab = request.args.get("current_tab", "subscriptions")
+    current_tab = request.args.get("current_tab", "missions")
 
     if current_tab == "missions":
         if mission_filter_bar is None:
@@ -222,7 +217,7 @@ def _journalism_filters_active(
 ) -> bool:
     """The expanded journalism filter set is shown on the Missions tab when the
     JOURNALISME category is selected."""
-    if request.args.get("current_tab", "subscriptions") != "missions":
+    if request.args.get("current_tab", "missions") != "missions":
         return False
     if request.args.get("category", "") == "journalisme":
         return True
@@ -279,7 +274,7 @@ def _get_distinct_values(column_name: str) -> list[str]:
 
 def _get_tabs() -> list[dict]:
     """Build tabs with current tab state."""
-    current_tab = request.args.get("current_tab", "subscriptions")
+    current_tab = request.args.get("current_tab", "missions")
     tabs = []
     for tab in TABS:
         tab_id = tab["id"]

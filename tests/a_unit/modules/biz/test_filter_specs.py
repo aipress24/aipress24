@@ -53,7 +53,7 @@ class TestTabs:
         (URL params, nav labels). Pin so a future refactor doesn't
         silently drop one and route 5xx on /biz/?current_tab=missions."""
         ids = {t["id"] for t in TABS}
-        for canonical in ("subscriptions", "missions", "projects", "jobs"):
+        for canonical in ("missions", "projects", "jobs"):
             assert canonical in ids, f"canonical tab {canonical!r} missing from TABS"
 
 

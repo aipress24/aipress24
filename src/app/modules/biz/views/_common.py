@@ -29,11 +29,6 @@ class TabSpec(TypedDict, total=False):
 
 TABS: list[TabSpec] = [
     {
-        "id": "subscriptions",
-        "label": "Abonnements",
-        "tip": "",
-    },
-    {
         "id": "missions",
         "label": "Missions",
         "tip": "",
