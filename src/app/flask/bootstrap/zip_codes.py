@@ -17,18 +17,15 @@ from app.services.zip_codes import CountryEntry, ZipCodeEntry, ZipCodeRepository
 COUNTRY_SRC = Path("bootstrap_data/country_zip_code/pays.json")
 ZIP_CODE_SRC = Path("bootstrap_data/country_zip_code/towns")
 
+DEFAULT_NO_ZIP_CODE = [{"name": "Aucune information", "zip_code": "000"}]
+
 
 def import_countries() -> None:
     db.session.execute(delete(CountryEntry))
     db.session.commit()
 
     data = json.loads(COUNTRY_SRC.read_text())
-    # filter agains actual countries having zip codes
-    country_list = [
-        (item["iso3"], item["name"])
-        for item in data
-        if ZIP_CODE_SRC.joinpath(f"{item['iso3']}.json").is_file()
-    ]
+    country_list = [(item["iso3"], item["name"]) for item in data]
     print(f"importing {len(country_list)} country names")
 
     def sorter(country: tuple) -> str:
@@ -51,9 +48,31 @@ def import_zip_codes() -> None:
     db.session.commit()
 
     print("importing zip codes")
-    for path in sorted(ZIP_CODE_SRC.glob("*.json")):
-        print(f"importing {path}")
-        import_zip_codes_for_country(path)
+    data = json.loads(COUNTRY_SRC.read_text())
+    for item in data:
+        iso3 = item["iso3"]
+        path = ZIP_CODE_SRC.joinpath(f"{iso3}.json")
+        if path.is_file():
+            print(f"importing {path}")
+            import_zip_codes_for_country(path)
+        else:
+            print(f"importing default zip code for {iso3}")
+            import_default_zip_code_for_country(iso3)
+
+
+def import_default_zip_code_for_country(iso3: str) -> None:
+    repo = ZipCodeRepository(session=db.session)  # type: ignore[arg-type]
+    zip_codes = []
+    for item in DEFAULT_NO_ZIP_CODE:
+        zip_code = item["zip_code"]
+        name = item["name"]
+        value = f"{iso3} / {zip_code} {name}"
+        label = f"{zip_code} {name}"
+        zip_code_entry = ZipCodeEntry(
+            iso3=iso3, zip_code=zip_code, name=name, value=value, label=label
+        )
+        zip_codes.append(zip_code_entry)
+    repo.add_many(zip_codes, auto_commit=True, auto_expunge=True)
 
 
 def import_zip_codes_for_country(path: Path) -> None:
