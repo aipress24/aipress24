@@ -311,6 +311,18 @@ class OrgVM(ViewModel):
         return cast("Organisation", self._model)
 
     @property
+    def members(self) -> list[User]:
+        return self.get_members()
+
+    @property
+    def press_releases(self) -> list:
+        return self.get_press_releases()
+
+    @property
+    def is_auto(self) -> bool:
+        return self.org.is_auto
+
+    @property
     def bw(self) -> BusinessWall | None:
         """Get active BusinessWall for this organisation (lazy load)."""
         if self._cached_bw is None and self.org.has_bw:
@@ -695,9 +707,13 @@ class OrgVM(ViewModel):
             return self.bw.positionnement_editorial
         return ""
 
+    @property
+    def presentation(self) -> str:
+        return self._get_presentation()
+
     def _get_presentation(self) -> str:
         if self.bw is not None:
-            return self.bw.presentation
+            return self.bw.presentation or ""
         return ""
 
     def get_type_organisation(self) -> str:
