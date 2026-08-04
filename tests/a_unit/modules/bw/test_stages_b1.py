@@ -100,6 +100,7 @@ class TestParseContentFormScalars:
             "agrement",
             "name_official",
             "positionnement_editorial",
+            "presentation",
             "audience_cible",
             "periodicite",
             "tel_standard",

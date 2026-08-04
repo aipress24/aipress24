@@ -354,6 +354,7 @@ class OrgVM(ViewModel):
             "secteurs_activite": self.get_secteurs_activite(),
             "site_url": self._get_site_url(),
             "description": self._get_description(),
+            "presentation": self._get_presentation(),
             "bw_gallery_images": self._get_bw_gallery_images(),
             "bw_name": self._get_bw_name(),
             "bw_media_name": self._get_bw_media_name(),
@@ -692,6 +693,11 @@ class OrgVM(ViewModel):
     def _get_description(self) -> str:
         if self.bw is not None:
             return self.bw.positionnement_editorial
+        return ""
+
+    def _get_presentation(self) -> str:
+        if self.bw is not None:
+            return self.bw.presentation
         return ""
 
     def get_type_organisation(self) -> str:
