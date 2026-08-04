@@ -16,7 +16,7 @@ import pytz
 from arrow import Arrow
 from flask import send_file
 from odsgenerator import odsgenerator
-from sqlalchemy import desc, false, nulls_last, select, true
+from sqlalchemy import case, desc, false, nulls_last, select, true
 from werkzeug.exceptions import NotFound
 
 from app.constants import BW_TRIGGER_LABEL, LABEL_INSCRIPTION_VALIDEE, LOCAL_TZ
@@ -650,11 +650,18 @@ class OrganisationsExporter(BaseExporter):
         "modified_at",
         "name",
         "status",
+        "has_bw",
+        "bw_name",
+        "bw_type",
+        "bw_status",
         "bw_id",
-        "bw_active",
         "nb_members",
         "members",
     ]
+
+    def __init__(self) -> None:
+        super().__init__()
+        self.bw_by_id: dict[Any, BusinessWall] = {}
 
     @property
     def title(self) -> str:
@@ -668,59 +675,87 @@ class OrganisationsExporter(BaseExporter):
         return f"organisation_{self.date_now.strftime('%Y-%m-%d')}.ods"
 
     def init_columns_definition(self) -> None:
-        # Use base class width constants
         text3 = self.WIDTH_TEXT3
         text4 = self.WIDTH_TEXT4
+        text6 = self.WIDTH_TEXT6
         text8 = self.WIDTH_TEXT8
         text12 = self.WIDTH_TEXT12
-        # short = self.WIDTH_SHORT
         small = self.WIDTH_SMALL
+
         fields = [
             FieldColumn("id", "ID", text3),
             FieldColumn("created_at", "Création", text3),
             FieldColumn("modified_at", "Modification", text3),
-            FieldColumn("name", "Nom", text4),
-            FieldColumn("status", "Statut", text8),
-            FieldColumn("bw_id", "Statut", text12),
-            FieldColumn("bw_active", "Statut", text8),
+            FieldColumn("name", "Nom organisation", text8),
+            FieldColumn("status", "Statut orga", small),
+            FieldColumn("has_bw", "Avec BW", small),
+            FieldColumn("bw_name", "Nom BW", text6),
+            FieldColumn("bw_type", "Type BW", text4),
+            FieldColumn("bw_status", "Statut BW", text4),
+            FieldColumn("bw_id", "ID BW", text12),
             FieldColumn("nb_members", "Nb membres", small),
             FieldColumn("members", "Membres", text12),
         ]
         self.columns_definition = {f.name: f for f in fields}
-
-    # Organization attribute names that are directly accessible
-    _ORG_ATTRS: ClassVar[set[str]] = {
-        "name",
-        "status",
-        "bw_active",
-    }
 
     def cell_value(
         self,
         org: Organisation,
         name: str,
     ) -> str | datetime | int | bool | None:
-        # Handle special cases
+        has_bw = bool(org.bw_id is not None)
+        if has_bw:
+            bw = self.bw_by_id.get(org.bw_id)
+        else:
+            bw = None
+
         value: str | datetime | int | bool | list | None
         match name:
-            case "members":
-                value = ", ".join(u.email for u in org.members)
             case "id":
                 value = str(org.id)
-            case "created_at" | "validated_at" | "modified_at":
+            case "created_at" | "modified_at":
                 value = self.get_datetime_attr(org, name)
+            case "name":
+                value = org.name or ""
+            case "status":
+                if org.status:
+                    value = org.status
+                else:
+                    value = "Actif" if org.active else "Inactif"
+            case "has_bw":
+                value = "Oui" if has_bw else "Non"
+            case "bw_name":
+                if not has_bw:
+                    value = ""
+                elif bw and bw.name:
+                    value = bw.name
+                else:
+                    value = org.bw_name or ""
+            case "bw_type":
+                if not has_bw:
+                    value = ""
+                elif bw and bw.bw_type:
+                    value = bw.bw_type
+                else:
+                    value = org.bw_active or ""
+            case "bw_status":
+                if not has_bw or not bw:
+                    value = ""
+                else:
+                    value = bw.status or ""
             case "bw_id":
-                value = str(self.get_datetime_attr(org, "bw_id"))
+                if not has_bw or not org.bw_id:
+                    value = ""
+                else:
+                    value = str(org.bw_id)
             case "nb_members":
                 value = len(org.members)
-            case _ if name in self._ORG_ATTRS:
-                # Handle direct attributes
-                value = getattr(org, name)
+            case "members":
+                value = ", ".join(u.email for u in org.members if u.email)
             case _:
                 msg = f"cell_value() Inconsistent key: {name}"
                 raise KeyError(msg)
 
-        # Format and return value
         match value:
             case list():
                 return self.list_to_str(value)
@@ -730,12 +765,19 @@ class OrganisationsExporter(BaseExporter):
                 return value
 
     def fetch_data(self) -> list[Organisation]:
+        bws = db.session.scalars(select(BusinessWall)).all()
+        self.bw_by_id = {bw.id: bw for bw in bws if bw.id}
+
         stmt = (
             select(Organisation)
             .where(
-                Organisation.bw_id.is_not(None),
+                Organisation.active == true(),
+                Organisation.deleted_at.is_(None),
             )
-            .order_by(nulls_last(Organisation.name))
+            .order_by(
+                case((Organisation.bw_id.is_not(None), 0), else_=1),
+                nulls_last(Organisation.name),
+            )
         )
         return list(db.session.scalars(stmt))
 
