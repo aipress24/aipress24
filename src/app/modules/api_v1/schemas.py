@@ -245,6 +245,7 @@ class BusinessWallSchema(Schema):
     name_institution = fields.Str()
     name_press = fields.Str()
     positionnement_editorial = fields.Str()
+    presentation = fields.Str()
     audience_cible = fields.Str()
     periodicite = fields.Str()
     site_url = fields.Str()

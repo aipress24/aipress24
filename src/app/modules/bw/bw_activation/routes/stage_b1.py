@@ -87,6 +87,7 @@ def parse_content_form(form: dict[str, Any]) -> dict[str, Any]:
         "agrement",
         "name_official",
         "positionnement_editorial",
+        "presentation",
         "audience_cible",
         "periodicite",
         "tel_standard",
