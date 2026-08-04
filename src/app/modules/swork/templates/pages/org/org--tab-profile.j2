@@ -1,22 +1,27 @@
 <div x-show="tab === 'profile'">
-  <h2 class="text-lg font-medium mb-2">Profil</h2>
+    <h2 class="text-lg font-medium mb-2">Profil</h2>
 
-  <dl class="mt-2 border-t border-b border-gray-200 divide-y divide-gray-200">
+    <dl class="mt-2 border-t border-b border-gray-200 divide-y divide-gray-200">
       {# if org.bw_type #}
       {# line("Type", org.bw_type) #}
     {# endif #}
-    {{ line("Nombre d'employés / membres", org.members | length) }}
-    {% if not org.is_auto %}
-      {{ line("Nombre de communiqués", org.press_releases | length) }}
-      {{ line("Nombre de likes", 0) }}
-    {% endif %}
-  </dl>
-
-  {% if not org.is_auto %}
-    <h2 class="text-lg font-medium mt-6 mb-2">Coordonnées</h2>
-    <dl class="mt-2 border-t border-b border-gray-200 divide-y divide-gray-200">
-      {{ line("Adresse du siège social", org.address_formatted) }}
+        {{ line("Nombre d'employés / membres", org.members | length) }}
+        {% if not org.is_auto %}
+            {{ line("Nombre de communiqués", org.press_releases | length) }}
+            {{ line("Nombre de likes", 0) }}
+        {% endif %}
     </dl>
-  {% endif %}
+
+    {% if org.presentation %}
+        <h2 class="text-lg font-medium mt-6 mb-2">Présentation</h2>
+        <div class="mt-2 text-sm text-gray-900 whitespace-pre-wrap">{{ org.presentation | sanitize }}</div>
+    {% endif %}
+
+    {% if not org.is_auto %}
+        <h2 class="text-lg font-medium mt-6 mb-2">Coordonnées</h2>
+        <dl class="mt-2 border-t border-b border-gray-200 divide-y divide-gray-200">
+            {{ line("Adresse du siège social", org.address_formatted) }}
+        </dl>
+    {% endif %}
 
 </div>
