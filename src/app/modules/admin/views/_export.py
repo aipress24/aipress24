@@ -24,7 +24,8 @@ from app.flask.extensions import db
 from app.models.auth import KYCProfile, User
 from app.models.organisation import Organisation
 from app.modules.admin import blueprint
-from app.modules.bw.bw_activation.models.business_wall import BusinessWall
+from app.modules.bw.bw_activation.models.business_wall import BusinessWall, BWStatus
+from app.modules.kyc.field_label import country_code_to_country_name
 from app.modules.wire.services.purchase_aggregates import (
     PaidPurchaseRow,
     list_paid_purchases,
@@ -796,18 +797,23 @@ class OrganisationsExporter(BaseExporter):
 
 
 class BusinessWallExporter(BaseExporter):
-    """Export all Business Walls (any status) as a single sheet."""
+    """Export active Business Walls sheet."""
 
     sheet_name = "Business Walls"
     columns: ClassVar[list] = [
         "id",
         "created_at",
-        "activated_at",
         "bw_type",
         "status",
         "name",
         "name_entity",
         "name_official",
+        "name_group",
+        "name_institution",
+        "type_organisation",
+        "type_entreprise_media",
+        "type_presse_et_media",
+        "taille_orga",
         "organisation_id",
         "organisation_name",
         "owner_email",
@@ -816,7 +822,8 @@ class BusinessWallExporter(BaseExporter):
         "tva",
         "tel_standard",
         "postal_address",
-        "pays_zip_ville",
+        "pays",
+        "code_postal_ville",
         "site_url",
     ]
 
@@ -836,17 +843,22 @@ class BusinessWallExporter(BaseExporter):
         text4 = self.WIDTH_TEXT4
         text6 = self.WIDTH_TEXT6
         text8 = self.WIDTH_TEXT8
-        text12 = self.WIDTH_TEXT12
+        small = self.WIDTH_SMALL
         fields = [
-            FieldColumn("id", "ID", text12),
+            FieldColumn("id", "ID", text8),
             FieldColumn("created_at", "Création", text3),
-            FieldColumn("activated_at", "Activation", text3),
             FieldColumn("bw_type", "Type", text3),
             FieldColumn("status", "Statut", text3),
             FieldColumn("name", "Nom du BW", text6),
             FieldColumn("name_entity", "Nom entité", text6),
             FieldColumn("name_official", "Nom officiel", text6),
-            FieldColumn("organisation_id", "Org ID", text3),
+            FieldColumn("name_group", "Nom groupe", text6),
+            FieldColumn("name_institution", "Nom institution", text6),
+            FieldColumn("type_organisation", "Type organisation", text6),
+            FieldColumn("type_entreprise_media", "Nature organe de presse", text6),
+            FieldColumn("type_presse_et_media", "Type de presse", text6),
+            FieldColumn("taille_orga", "Taille organisation", text4),
+            FieldColumn("organisation_id", "Org ID", text6),
             FieldColumn("organisation_name", "Organisation", text6),
             FieldColumn("owner_email", "Owner", text6),
             FieldColumn("payer_email", "Payer", text6),
@@ -854,7 +866,8 @@ class BusinessWallExporter(BaseExporter):
             FieldColumn("tva", "TVA", text4),
             FieldColumn("tel_standard", "Tél.", text4),
             FieldColumn("postal_address", "Adresse", text8),
-            FieldColumn("pays_zip_ville", "Pays/Ville", text6),
+            FieldColumn("pays", "Pays", small),
+            FieldColumn("code_postal_ville", "Code postal / ville", text6),
             FieldColumn("site_url", "Site", text6),
         ]
         self.columns_definition = {f.name: f for f in fields}
@@ -866,11 +879,16 @@ class BusinessWallExporter(BaseExporter):
         "name",
         "name_entity",
         "name_official",
+        "name_group",
+        "name_institution",
+        "type_organisation",
+        "type_entreprise_media",
+        "type_presse_et_media",
+        "taille_orga",
         "siren",
         "tva",
         "tel_standard",
         "postal_address",
-        "pays_zip_ville",
         "site_url",
     }
 
@@ -883,10 +901,10 @@ class BusinessWallExporter(BaseExporter):
         match name:
             case "id":
                 value = str(bw.id)
-            case "created_at" | "activated_at":
+            case "created_at":
                 value = self.get_datetime_attr(bw, name)
             case "organisation_id":
-                value = bw.organisation_id or ""
+                value = str(bw.organisation_id) if bw.organisation_id else ""
             case "organisation_name":
                 org = (
                     db.session.get(Organisation, bw.organisation_id)
@@ -900,20 +918,38 @@ class BusinessWallExporter(BaseExporter):
             case "payer_email":
                 payer = db.session.get(User, bw.payer_id)
                 value = payer.email if payer else ""
+            case "pays":
+                raw_pays = (
+                    bw.pays_zip_ville.split(" / ")[0].strip()
+                    if bw.pays_zip_ville
+                    else ""
+                )
+                value = country_code_to_country_name(raw_pays)
+            case "code_postal_ville":
+                if bw.pays_zip_ville_detail:
+                    value = bw.pays_zip_ville_detail
+                else:
+                    cp_ville = f"{bw.code_postal or ''} {bw.ville or ''}".strip()
+                    value = cp_ville
             case _ if name in self._BW_ATTRS:
                 value = getattr(bw, name, "") or ""
             case _:
                 msg = f"cell_value() Inconsistent key: {name}"
                 raise KeyError(msg)
 
-        if isinstance(value, datetime):
-            return as_naive_localtz(value)
-        return value
+        match value:
+            case list():
+                return self.list_to_str(value)
+            case datetime():
+                return as_naive_localtz(value)
+            case _:
+                return value
 
     def fetch_data(self) -> list[BusinessWall]:
-        stmt = select(BusinessWall).order_by(
-            BusinessWall.bw_type,
-            nulls_last(BusinessWall.created_at),
+        stmt = (
+            select(BusinessWall)
+            .where(BusinessWall.status == BWStatus.ACTIVE.value)
+            .order_by(nulls_last(BusinessWall.name))
         )
         return list(db.session.scalars(stmt))
 
