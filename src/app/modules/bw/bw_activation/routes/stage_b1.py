@@ -309,6 +309,12 @@ def configure_content():
             business_wall.type_presse_et_media = type_presse_et_media
             modified = True
 
+        # presentation
+        presentation = request.form.get("presentation", "").strip()
+        if presentation != business_wall.presentation:
+            business_wall.presentation = presentation
+            modified = True
+
         # positionnement_editorial (Positionnement éditorial)
         positionnement_editorial = request.form.get(
             "positionnement_editorial", ""

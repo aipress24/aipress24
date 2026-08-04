@@ -538,6 +538,15 @@
                 <fieldset>
                     <legend class="text-2xl font-semibold text-purple-800 border-b pb-3 mb-6 w-full">Description de l'Activité</legend>
                     <div class="space-y-6">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-900 mb-2">Présentation</label>
+                            <textarea name="presentation"
+                                      rows="4"
+                                      placeholder="Présentez votre organisation..."
+                                      maxlength="500"
+                                      class="block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-600 focus:ring-purple-600 sm:text-sm px-4 py-2 border">{{ business_wall.presentation or '' }}</textarea>
+                            <p class="mt-1 text-xs text-gray-500">Maximum 500 caractères</p>
+                        </div>
                         <!-- For Media types -->
                         {% if bw_type in ['media', 'news_agency', 'micro', 'corporate_media'] %}
                             <div>
