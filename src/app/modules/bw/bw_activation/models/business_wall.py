@@ -153,6 +153,9 @@ class BusinessWall(UUIDAuditBase):
 
     name_institution: Mapped[str] = mapped_column(default="")
 
+    # all, 500 signes
+    presentation: Mapped[str] = mapped_column(default="")
+
     # média, micro, corporate.  300 signes
     positionnement_editorial: Mapped[str] = mapped_column(default="")
 
