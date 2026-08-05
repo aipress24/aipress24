@@ -47,7 +47,6 @@ class BusinessWall(TypedDict, total=False):
     name_group: str
     name_institution: str
     name_official: str
-    name_press: str
     organisation_id: int
     periodicite: str
     positionnement_editorial: str

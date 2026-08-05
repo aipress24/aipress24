@@ -369,7 +369,6 @@ class OrgVM(ViewModel):
             "presentation": self._get_presentation(),
             "bw_gallery_images": self._get_bw_gallery_images(),
             "bw_name": self._get_bw_name(),
-            "bw_media_name": self._get_bw_media_name(),
             "bw_group_name": self._get_bw_grouo_name(),
             "bw_entity_name": self._get_bw_entity_name(),
             "bw_official_name": self._get_bw_official_name(),
@@ -389,12 +388,6 @@ class OrgVM(ViewModel):
         if self.bw is None:
             return ""
         return self.bw.name or ""
-
-    def _get_bw_media_name(self) -> str:
-        """Return media title name for media BWs or empty string."""
-        if self.bw is None:
-            return ""
-        return self.bw.name_press or ""
 
     def _get_bw_grouo_name(self) -> str:
         """Return BW group name or empty string."""
