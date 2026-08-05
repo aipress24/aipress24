@@ -61,7 +61,8 @@
                             </button>
                         </form>
                         <button
-                            @click="showOtherOptions = true"
+                            @click="showOtherOptions = true; $nextTick(() => {
+                                    $refs.otherOptionsHeading.scrollIntoView({ behavior: 'smooth', block: 'start' }) })"
                             class="flex-1 rounded-md bg-white px-4 py-2.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50"
                         >
                             Non, choisir un autre abonnement
@@ -76,7 +77,10 @@
                 x-transition
                 class="mt-10"
             >
-                <h2 class="text-xl font-semibold text-gray-800 mb-2">
+                <h2
+                    x-ref="otherOptionsHeading"
+                    class="text-xl font-semibold text-gray-800 mb-2"
+                >
                     Choisissez l'abonnement qui correspond à votre organisation
                 </h2>
                 <p class="text-sm text-gray-600 mb-6">
@@ -103,13 +107,13 @@
                                     {% if not info.free %}
                                         <span
                                             class="inline-block mt-2 px-3 py-1 bg-green-100 text-green-800 text-xs font-semibold rounded-full"
-                                            >Abonnement payant</span
-                                        >
+                                        >Abonnement payant</span
+                                            >
                                     {% else %}
                                         <span
                                             class="inline-block mt-2 px-3 py-1 bg-blue-100 text-blue-800 text-xs font-semibold rounded-full"
-                                            >Abonnement gratuit</span
-                                        >
+                                        >Abonnement gratuit</span
+                                            >
                                     {% endif %}
                                 </div>
                             </div>
