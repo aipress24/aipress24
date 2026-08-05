@@ -57,7 +57,6 @@ def organisation(db_session: Session) -> Organisation:
         # siren
         # tva
         # agrement
-        name_press="bw journal name",
         # type_presse_et_media
         # type_entreprise_media
         # type_agence_rp

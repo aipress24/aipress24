@@ -124,8 +124,6 @@ class BusinessWall(UUIDAuditBase):
 
     agrement: Mapped[str] = mapped_column(default="")
 
-    name_press: Mapped[str] = mapped_column(default="")
-
     # ONTOLOGIES/Types de presse et média
     # média, micro, corporate
     type_presse_et_media: Mapped[list] = mapped_column(JSON, default=list)
