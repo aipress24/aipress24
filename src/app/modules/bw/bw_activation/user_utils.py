@@ -186,10 +186,15 @@ def guess_best_bw_type(user: User) -> BWType:
     guessed = PROFILE_CODE_TO_BW2_TYPE.get(profile_code, BWType.MEDIA)
     # if evaluated profile_code is Media, maybe we can detect a press agency if
     # the field type_entreprise_media is "Agence de presse":
-    if guessed == BWType.MEDIA and user.profile.get_value("type_entreprise_media") == [
-        "Agence de presse"
-    ]:
-        guessed = BWType.NEWS_AGENCY
+    profile = getattr(user, "profile", None)
+    if guessed == BWType.MEDIA and profile:
+        get_val = getattr(profile, "get_value", None)
+        if callable(get_val):
+            type_ent = get_val("type_entreprise_media")
+        else:
+            type_ent = getattr(profile, "type_entreprise_media", None)
+        if type_ent in (["Agence de presse"], "Agence de presse"):
+            guessed = BWType.NEWS_AGENCY
     if getattr(guessed, "value", guessed) in DEPRECATED_BW_TYPES:
         return BWType.MEDIA  # type: ignore[invalid-return-type]
     return guessed  # type: ignore[invalid-return-type]
