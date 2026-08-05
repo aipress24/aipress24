@@ -11,10 +11,12 @@ from app.models.organisation import Organisation
 from app.modules.admin.views._export import BusinessWallExporter
 from app.modules.bw.bw_activation.models import BusinessWall, BWStatus
 from app.modules.kyc.field_label import country_code_to_country_name
+from app.modules.kyc.ontology_loader import get_ontology_content
 from app.services.zip_codes import CountryEntry
 
 
 def test_business_wall_exporter(db_session) -> None:
+    get_ontology_content.cache.clear()
     country_code_to_country_name.cache_clear()
     c_fra = CountryEntry(iso3="FRA", name="France", seq=1)
     c_bel = CountryEntry(iso3="BEL", name="Belgique", seq=2)

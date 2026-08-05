@@ -6,6 +6,10 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+import pytest
+
+from app.modules.kyc.field_label import country_code_to_country_name
+from app.modules.kyc.ontology_loader import get_ontology_content
 from app.services.zip_codes import create_country_entry, get_country
 from app.services.zip_codes._country_service import (
     check_countries_exist,
@@ -16,6 +20,12 @@ from app.services.zip_codes._country_service import (
 
 if TYPE_CHECKING:
     from flask_sqlalchemy import SQLAlchemy
+
+
+@pytest.fixture(autouse=True)
+def _clear_country_caches() -> None:
+    get_ontology_content.cache.clear()
+    country_code_to_country_name.cache_clear()
 
 
 class TestGetCountry:
