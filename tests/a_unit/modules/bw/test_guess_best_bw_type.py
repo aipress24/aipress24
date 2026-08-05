@@ -35,11 +35,20 @@ from app.modules.bw.bw_activation.user_utils import (
 
 
 class _Profile:
-    """Minimal stand-in for the KYC profile attached to a user. The
-    helper only reads `.profile_code`, so nothing else is needed."""
+    """Minimal stand-in for the KYC profile attached to a user."""
 
-    def __init__(self, profile_code: str) -> None:
+    def __init__(
+        self,
+        profile_code: str,
+        type_entreprise_media: list[str] | str | None = None,
+    ) -> None:
         self.profile_code = profile_code
+        self.type_entreprise_media = type_entreprise_media
+
+    def get_value(self, field_name: str) -> list[str] | str | None:
+        if field_name == "type_entreprise_media":
+            return self.type_entreprise_media
+        return getattr(self, field_name, None)
 
 
 class _User:
@@ -180,4 +189,25 @@ class TestUnmappedProfileEnumDefaults:
                 "fallback can't be exercised."
             )
         user = _user_with_profile_code(unmapped[0].name)
+        assert guess_best_bw_type(user) == BWType.MEDIA
+
+
+class TestNewsAgencyGuess:
+    """When profile_code maps to MEDIA and type_entreprise_media is
+    ['Agence de presse'], return BWType.NEWS_AGENCY."""
+
+    def test_media_profile_with_agence_de_presse_returns_news_agency(self) -> None:
+        profile = _Profile(
+            ProfileEnum.PM_DIR.name,
+            type_entreprise_media=["Agence de presse"],
+        )
+        user = _User(profile)
+        assert guess_best_bw_type(user) == BWType.NEWS_AGENCY
+
+    def test_media_profile_without_agence_de_presse_returns_media(self) -> None:
+        profile = _Profile(
+            ProfileEnum.PM_DIR.name,
+            type_entreprise_media=["presse_en_ligne"],
+        )
+        user = _User(profile)
         assert guess_best_bw_type(user) == BWType.MEDIA
