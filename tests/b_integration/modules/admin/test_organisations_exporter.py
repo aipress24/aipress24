@@ -8,7 +8,7 @@ from __future__ import annotations
 
 from app.models.auth import User
 from app.models.organisation import Organisation
-from app.modules.admin.views._export import OrganisationsExporter
+from app.modules.admin.views._export import MixedBWOrgExporter, OrganisationsExporter
 from app.modules.bw.bw_activation.models import BusinessWall, BWStatus
 
 
@@ -72,3 +72,32 @@ def test_organisations_exporter_includes_all_orgs_bw_first(db_session) -> None:
     assert exporter.cell_value(org_no_bw, "bw_type") == ""
     assert exporter.cell_value(org_no_bw, "bw_status") == ""
     assert exporter.cell_value(org_no_bw, "bw_id") == ""
+
+
+def test_mixed_exporter_sheets_populated(db_session) -> None:
+    org = Organisation(name="Mixed Test Org")
+    db_session.add(org)
+    db_session.flush()
+
+    user = User(email="mixeduser@example.com", organisation_id=org.id)
+    db_session.add(user)
+    db_session.flush()
+
+    bw = BusinessWall(
+        bw_type="media",
+        status=BWStatus.ACTIVE.value,
+        name="Mixed BW",
+        owner_id=user.id,
+        payer_id=user.id,
+        organisation_id=org.id,
+    )
+    db_session.add(bw)
+    db_session.flush()
+
+    org.bw_id = bw.id
+    db_session.flush()
+
+    exporter = MixedBWOrgExporter()
+    exporter.run()
+
+    assert len(exporter.document) > 0
