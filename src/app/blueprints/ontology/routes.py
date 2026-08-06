@@ -10,6 +10,7 @@ from flask_wtf import FlaskForm
 from sqlalchemy import select
 
 from app.flask.extensions import db
+from app.modules.kyc.ontology_loader import clear_ontology_cache
 from app.services.taxonomies import (
     TaxonomyEntry,
     check_taxonomy_exists,
@@ -93,6 +94,7 @@ def create():
             seq=form.seq.data or 0,
         )
         db.session.commit()
+        clear_ontology_cache()
         flash(f"Entry '{form.name.data}' created successfully.", "success")
         return redirect(url_for(".list_entries", taxonomy_name=taxonomy_name))
 
@@ -123,6 +125,7 @@ def edit(entry_id: int):
             seq=form.seq.data or 0,
         )
         db.session.commit()
+        clear_ontology_cache()
         flash(f"Entry '{form.name.data}' updated successfully.", "success")
         return redirect(url_for(".list_entries", taxonomy_name=entry.taxonomy_name))
 
@@ -156,6 +159,7 @@ def delete(entry_id: int):
         taxonomy_name = entry.taxonomy_name
         db.session.delete(entry)
         db.session.commit()
+        clear_ontology_cache()
         flash(f"Entry '{entry.name}' has been deleted.", "success")
         return redirect(url_for(".list_entries", taxonomy_name=taxonomy_name))
 
@@ -203,6 +207,7 @@ def import_ods(taxonomy_name: str):
     try:
         count = import_taxonomy_from_ods(taxonomy_name, form.ods_file.data)
         db.session.commit()
+        clear_ontology_cache()
         flash(
             f"Taxonomy '{taxonomy_name}' imported successfully: {count} entries loaded.",
             "success",
