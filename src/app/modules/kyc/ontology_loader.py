@@ -187,6 +187,11 @@ def get_ontology_content(ontology: str) -> list | dict:
     return get_taxonomy_dual_select(ontology)
 
 
+def clear_ontology_cache() -> None:
+    """Clear the in memory TTLCache of ontologie content."""
+    get_ontology_content.cache.clear()
+
+
 def get_choices(field_type: str) -> list | dict:
     ontology = ONTOLOGY_MAP.get(field_type)
     if not ontology and field_type in ONTOLOGY_DB_LIST:

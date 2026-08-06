@@ -15,6 +15,7 @@ from slugify import slugify
 from sqlalchemy import delete
 
 from app.flask.extensions import db
+from app.modules.kyc.ontology_loader import clear_ontology_cache
 from app.services.taxonomies import (
     TaxonomyEntry,
     check_taxonomy_exists,
@@ -114,6 +115,7 @@ def import_taxonomies() -> None:
         except KeyError as e:
             print("************** Probable missing ontology for", taxonomy_name)
             print(e)
+    clear_ontology_cache()
 
 
 def upgrade_taxonomies() -> None:
@@ -132,6 +134,7 @@ def upgrade_taxonomies() -> None:
         except KeyError as e:
             print("************** Probable missing ontology for", taxonomy_name)
             print(e)
+    clear_ontology_cache()
 
 
 # Used for debug

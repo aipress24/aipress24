@@ -120,6 +120,12 @@ def export_taxonomy_to_ods(taxonomy_name: str) -> io.BytesIO:
     return memory_buffer
 
 
+def _clear_cache() -> None:
+    from app.modules.kyc.ontology_loader import clear_ontology_cache
+
+    clear_ontology_cache()
+
+
 def create_entry(
     taxonomy_name: str,
     name: str,
@@ -137,6 +143,7 @@ def create_entry(
         taxonomy_name=taxonomy_name, name=name, category=category, value=value, seq=seq
     )
     db.session.add(entry)
+    _clear_cache()
 
 
 def update_entry(
@@ -176,6 +183,7 @@ def update_entry(
     result.name = name
     result.category = category
     result.seq = seq
+    _clear_cache()
 
     return True
 
@@ -233,4 +241,5 @@ def import_taxonomy_from_ods(taxonomy_name: str, file_storage) -> int:
         )
         count += 1
 
+    _clear_cache()
     return count
