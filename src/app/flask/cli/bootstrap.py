@@ -16,10 +16,15 @@ from rich import print
 from svcs.flask import container
 
 from app.enums import RoleEnum
-from app.flask.bootstrap import import_countries, import_taxonomies, import_zip_codes
+from app.flask.bootstrap import (
+    import_countries,
+    import_taxonomies,
+    import_zip_codes,
+)
 from app.flask.extensions import db
 from app.models.auth import Role
 from app.models.repositories import RoleRepository
+from app.modules.kyc.ontology_loader import clear_ontology_cache
 from app.services.promotions import PromotionService
 
 BOX_SLUGS = [
@@ -46,6 +51,16 @@ BOOTSTRAP_DATA_PATH = Path("bootstrap_data")
 def bootstrap_cmd() -> None:
     fetch_bootstrap_data()
     bootstrap()
+
+
+@command("reload-taxonomies", short_help="Re import ontologies and clear caches")
+@with_appcontext
+def reload_taxonomies_cmd() -> None:
+    print("Reloading taxonomies from bootstrap_data...")
+    import_taxonomies()
+    db.session.commit()
+    clear_ontology_cache()
+    print("Taxonomies reloaded and cache cleared successfully.")
 
 
 def fetch_bootstrap_data() -> None:
