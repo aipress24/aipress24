@@ -422,15 +422,15 @@ Quand `expired_at` est atteint :
 
 ```python
 # Vérifications
-article.can_publish()    # True si status == DRAFT
+article.can_publish()  # True si status == DRAFT
 article.can_unpublish()  # True si status == PUBLIC
-article.is_draft         # Property
-article.is_public        # Property
-article.is_expired       # True si expired_at < maintenant
+article.is_draft  # Property
+article.is_public  # Property
+article.is_expired  # True si expired_at < maintenant
 
 # Actions
 article.publish(publisher_id=None)  # DRAFT → PUBLIC
-article.unpublish()                 # PUBLIC → DRAFT
+article.unpublish()  # PUBLIC → DRAFT
 ```
 
 ---
@@ -847,6 +847,7 @@ class TypeAvis(Enum):
     APPEL_A_TEMOIN = "appel_a_temoin"
     APPEL_A_EXPERT = "appel_a_expert"
 
+
 # Statut réponse expert
 class StatutAvis(Enum):
     EN_ATTENTE = "en_attente"
@@ -854,11 +855,13 @@ class StatutAvis(Enum):
     REFUSE = "refuse"
     REFUSE_SUGGESTION = "refuse_suggestion"
 
+
 # Type de RDV
 class RDVType(Enum):
     PHONE = "phone"
     VIDEO = "video"
     F2F = "f2f"
+
 
 # Statut RDV
 class RDVStatus(Enum):
@@ -866,6 +869,7 @@ class RDVStatus(Enum):
     PROPOSED = "proposed"
     ACCEPTED = "accepted"
     CONFIRMED = "confirmed"
+
 
 # Statut publication article
 class PublicationStatus(Enum):

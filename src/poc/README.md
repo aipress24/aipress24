@@ -202,6 +202,7 @@ from flask import Blueprint, render_template
 
 bp = Blueprint("mon_poc", __name__, template_folder="../templates")
 
+
 @bp.route("/")
 def index():
     return render_template("mon_poc.html")
@@ -219,6 +220,7 @@ def index():
 3. Enregistrer le blueprint dans `src/poc/app.py`:
 ```python
 from poc.blueprints.mon_poc import bp as mon_poc_bp
+
 app.register_blueprint(mon_poc_bp, url_prefix="/mon-poc")
 ```
 
@@ -247,6 +249,7 @@ Le POC "Business Wall Activation Full" utilise une architecture modulaire en pac
 ```python
 # Dans chaque module de route (ex: routes/stage1.py)
 from .. import bp
+
 
 @bp.route("/endpoint")
 def handler():

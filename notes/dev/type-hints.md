@@ -8,48 +8,49 @@ Ce guide documente les conventions de typage utilisées dans le projet AiPress24
 
 ```python
 # Moderne (préféré)
-def process(value: str | int) -> str | None:
-    ...
+def process(value: str | int) -> str | None: ...
+
 
 # Ancien (éviter)
 from typing import Union, Optional
-def process(value: Union[str, int]) -> Optional[str]:
-    ...
+
+
+def process(value: Union[str, int]) -> Optional[str]: ...
 ```
 
 ### Optional
 
 ```python
 # Moderne (préféré)
-def find_user(id: int) -> User | None:
-    ...
+def find_user(id: int) -> User | None: ...
+
 
 # Équivalent à
-def find_user(id: int) -> Optional[User]:
-    ...
+def find_user(id: int) -> Optional[User]: ...
+
 
 # Pour les paramètres avec valeur par défaut None
-def search(query: str, limit: int | None = None) -> list[User]:
-    ...
+def search(query: str, limit: int | None = None) -> list[User]: ...
 ```
 
 ### Collections
 
 ```python
 # Moderne (préféré) - utiliser les built-ins
-def get_users() -> list[User]:
-    ...
+def get_users() -> list[User]: ...
 
-def get_config() -> dict[str, Any]:
-    ...
 
-def get_ids() -> set[int]:
-    ...
+def get_config() -> dict[str, Any]: ...
+
+
+def get_ids() -> set[int]: ...
+
 
 # Ancien (éviter)
 from typing import List, Dict, Set
-def get_users() -> List[User]:
-    ...
+
+
+def get_users() -> List[User]: ...
 ```
 
 ### Tuple
@@ -58,6 +59,7 @@ def get_users() -> List[User]:
 # Tuple de taille fixe
 def get_coordinates() -> tuple[float, float]:
     return (1.0, 2.0)
+
 
 # Tuple de taille variable (homogène)
 def get_values() -> tuple[int, ...]:
@@ -74,6 +76,7 @@ handler: Callable[[], str]
 
 # Fonction avec arguments
 processor: Callable[[str, int], bool]
+
 
 # Fonction avec arguments variés
 def apply(func: Callable[..., Any], *args: Any) -> Any:
@@ -95,6 +98,7 @@ if TYPE_CHECKING:
     from app.models.auth import User
     from app.models.organisation import Organisation
 
+
 class MyService:
     def get_user(self, id: int) -> User:  # OK grâce à __future__.annotations
         ...
@@ -110,11 +114,11 @@ if TYPE_CHECKING:
     from sqlalchemy.orm import Session
     from flask import Flask
 
-def init_app(app: Flask) -> None:
-    ...
 
-def get_session() -> Session:
-    ...
+def init_app(app: Flask) -> None: ...
+
+
+def get_session() -> Session: ...
 ```
 
 ### Quand NE PAS l'utiliser
@@ -122,6 +126,7 @@ def get_session() -> Session:
 ```python
 # Ne pas utiliser TYPE_CHECKING pour les types utilisés à runtime
 from app.enums import RoleEnum  # Utilisé dans la logique
+
 
 def has_role(user: User, role: RoleEnum) -> bool:
     return role in user.roles  # RoleEnum utilisé à runtime
@@ -160,14 +165,11 @@ class User(IdMixin, LifeCycleMixin, Base):
     )
 
     # Relationship (many-to-one)
-    organisation: Mapped[Organisation | None] = relationship(
-        back_populates="members"
-    )
+    organisation: Mapped[Organisation | None] = relationship(back_populates="members")
 
     # Relationship (one-to-many)
     posts: Mapped[list[Post]] = relationship(
-        back_populates="author",
-        default_factory=list
+        back_populates="author", default_factory=list
     )
 ```
 
@@ -183,9 +185,7 @@ class Profile(Base):
     settings: Mapped[dict] = mapped_column(JSON, default=dict)
 
     # JSON nullable
-    metadata_: Mapped[dict | None] = mapped_column(
-        "metadata", JSON, nullable=True
-    )
+    metadata_: Mapped[dict | None] = mapped_column("metadata", JSON, nullable=True)
 ```
 
 ### Colonnes Enum
@@ -199,8 +199,7 @@ from app.enums import PublicationStatus
 
 class Article(Base):
     status: Mapped[PublicationStatus] = mapped_column(
-        SAEnum(PublicationStatus),
-        default=PublicationStatus.DRAFT
+        SAEnum(PublicationStatus), default=PublicationStatus.DRAFT
     )
 ```
 
@@ -213,28 +212,21 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 class Organisation(Base):
     # One-to-many
     members: Mapped[list[User]] = relationship(
-        back_populates="organisation",
-        default_factory=list
+        back_populates="organisation", default_factory=list
     )
 
     # Many-to-many (avec table d'association)
     tags: Mapped[list[Tag]] = relationship(
-        secondary=organisation_tags_table,
-        back_populates="organisations"
+        secondary=organisation_tags_table, back_populates="organisations"
     )
 
 
 class User(Base):
     # Many-to-one
-    organisation: Mapped[Organisation | None] = relationship(
-        back_populates="members"
-    )
+    organisation: Mapped[Organisation | None] = relationship(back_populates="members")
 
     # One-to-one
-    profile: Mapped[Profile | None] = relationship(
-        back_populates="user",
-        uselist=False
-    )
+    profile: Mapped[Profile | None] = relationship(back_populates="user", uselist=False)
 ```
 
 ### Select Statements
@@ -290,14 +282,11 @@ T = TypeVar("T")
 class Repository(Generic[T]):
     model_class: type[T]
 
-    def get(self, id: int) -> T | None:
-        ...
+    def get(self, id: int) -> T | None: ...
 
-    def get_all(self) -> list[T]:
-        ...
+    def get_all(self) -> list[T]: ...
 
-    def create(self, **kwargs: Any) -> T:
-        ...
+    def create(self, **kwargs: Any) -> T: ...
 
 
 class UserRepository(Repository[User]):
@@ -311,18 +300,15 @@ from typing import Protocol
 
 
 class Renderable(Protocol):
-    def render(self) -> str:
-        ...
+    def render(self) -> str: ...
 
 
 class HTMLComponent(Protocol):
     id: str
 
-    def render(self) -> str:
-        ...
+    def render(self) -> str: ...
 
-    def get_context(self) -> dict[str, Any]:
-        ...
+    def get_context(self) -> dict[str, Any]: ...
 
 
 def render_all(components: list[Renderable]) -> str:
@@ -421,11 +407,12 @@ def send_notification(user_id: int, message: str) -> None:
 
 ```python
 # Erreur: User is not defined
-def get_user() -> User:
-    ...
+def get_user() -> User: ...
+
 
 # Solution: Utiliser annotations différées
 from __future__ import annotations
+
 
 def get_user() -> User:  # OK maintenant
     ...
@@ -435,8 +422,8 @@ def get_user() -> User:  # OK maintenant
 
 ```python
 # Erreur: Argument of type "str | None" cannot be assigned to parameter of type "str"
-def process(value: str) -> None:
-    ...
+def process(value: str) -> None: ...
+
 
 name: str | None = get_name()
 process(name)  # Erreur!
@@ -454,10 +441,12 @@ process(name or "default")  # OK
 ```python
 from collections.abc import Sequence
 
+
 # Accepte list, tuple, etc. (lecture seule)
 def process_items(items: Sequence[str]) -> None:
     for item in items:
         print(item)
+
 
 # Accepte seulement list (mutation possible)
 def append_item(items: list[str], item: str) -> None:

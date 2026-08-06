@@ -15,6 +15,7 @@ def test_toggle_like_adds_like(db_session, user, post):
     db_session.flush()
     assert post.like_count == 1
 
+
 # Avoid: Verify internal calls
 def test_toggle_like_calls_like_method(mock_user, post):
     toggle_like(post)
@@ -33,6 +34,7 @@ def _get_logo_url(org) -> str:
     if org.is_auto:
         return "/static/img/logo-page-non-officielle.png"
     return org.logo_image_signed_url()
+
 
 # Test is simple
 def test_returns_placeholder_for_auto_org():
@@ -76,6 +78,7 @@ def toggle_like(obj: Post) -> str:
     db.session.commit()  # ❌ Breaks test isolation
     return str(obj.like_count)
 
+
 # GOOD: Flush makes changes visible without committing
 def toggle_like(obj: Post) -> str:
     user = adapt(g.user)
@@ -86,6 +89,7 @@ def toggle_like(obj: Post) -> str:
     db.session.flush()  # ✅ Changes visible, transaction intact
     obj.like_count = adapt(obj).num_likes()
     return str(obj.like_count)
+
 
 # View layer commits
 @blueprint.post("/likes/<cls>/<id>")
@@ -120,6 +124,7 @@ def add_user_to_group(user, group):
     group.members.append(user)
     db.session.commit()  # Breaks test isolation
 
+
 # ✅ Better: Flush in helper, commit in view
 def add_user_to_group(user, group):
     group.members.append(user)
@@ -134,6 +139,7 @@ def test_search_results(app):
     results = SearchResults(qs="test", filter="all")  # Calls Typesense
     assert len(results.result_sets) > 0
 
+
 # ✅ Better: Test components that don't need external services
 def test_hit_properties():
     hit = Hit({"document": {"title": "Test", "url": "/test"}})
@@ -146,10 +152,13 @@ def test_hit_properties():
 # ❌ Antipattern: Import inside method (fails PLC0415)
 def test_something(self):
     from app.models import User
+
     user = User()
+
 
 # ✅ Better: Import at top of file
 from app.models import User
+
 
 def test_something(self):
     user = User()
@@ -163,6 +172,7 @@ def test_user_creation(mock_db, mock_session, mock_user_class):
     mock_user_class.return_value = mock_user
     create_user("test@example.com")
     mock_session.add.assert_called_once()
+
 
 # ✅ Better: Use real objects with test database
 def test_user_creation(db_session):
@@ -179,6 +189,7 @@ def test_filter_options_is_list():
     filter = MyFilter()
     assert isinstance(filter.options, list)
     assert filter._internal_cache == {}
+
 
 # ✅ Better: Test observable behavior
 def test_filter_returns_active_options():
@@ -216,11 +227,9 @@ tests/
 
 ```python
 class TestFilterByCity:
-    def test_selector_returns_city(self):
-        ...
+    def test_selector_returns_city(self): ...
 
-    def test_apply_with_no_active_options(self):
-        ...
+    def test_apply_with_no_active_options(self): ...
 ```
 
 ---
@@ -246,6 +255,7 @@ class TestFilterByCity:
 def test_events_table_id():
     table = EventsTable()
     assert table.id == "events-table"
+
 
 def test_view_has_model_class():
     assert EventsWipView.model_class == Event
@@ -281,6 +291,7 @@ def organisation(db_session: Session) -> Organisation:
     db_session.flush()
     return org
 
+
 @pytest.fixture
 def user_with_org(db_session: Session, organisation: Organisation) -> User:
     user = User(email="member@example.com", organisation_id=organisation.id)
@@ -299,6 +310,7 @@ def user_with_org(db_session: Session, organisation: Organisation) -> User:
 def test_view_model_in_context(app, db_session, test_data):
     with app.test_request_context():
         from flask import g
+
         g.user = test_user  # Set up request context
 
         vm = MyViewModel(test_data)
