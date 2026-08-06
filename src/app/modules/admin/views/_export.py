@@ -10,6 +10,7 @@ from collections import namedtuple
 from datetime import datetime, timedelta
 from io import BytesIO
 from typing import Any, ClassVar, cast
+from uuid import UUID
 from zoneinfo import ZoneInfo
 
 import pytz
@@ -25,6 +26,14 @@ from app.models.auth import KYCProfile, User
 from app.models.organisation import Organisation
 from app.modules.admin import blueprint
 from app.modules.bw.bw_activation.models.business_wall import BusinessWall, BWStatus
+from app.modules.bw.bw_activation.models.partnership import (
+    PartnershipStatus,
+)
+from app.modules.bw.bw_activation.models.role import (
+    BWRoleType,
+    InvitationStatus,
+    RoleAssignment,
+)
 from app.modules.kyc.field_label import country_code_to_country_name
 from app.modules.wire.services.purchase_aggregates import (
     PaidPurchaseRow,
@@ -811,13 +820,19 @@ class BusinessWallExporter(BaseExporter):
         "name_group",
         "name_institution",
         "type_organisation",
+        "secteurs_activite",
         "type_entreprise_media",
         "type_presse_et_media",
+        "count_bw_members",
         "taille_orga",
         "organisation_id",
         "organisation_name",
         "owner_email",
         "payer_email",
+        "bwmi",
+        "bwpri",
+        "pr_agency",
+        "bwpre",
         "siren",
         "tva",
         "tel_standard",
@@ -848,20 +863,26 @@ class BusinessWallExporter(BaseExporter):
             FieldColumn("id", "ID", text8),
             FieldColumn("created_at", "Création", text3),
             FieldColumn("bw_type", "Type", text3),
-            FieldColumn("status", "Statut", text3),
+            FieldColumn("status", "Statut", small),
             FieldColumn("name", "Nom du BW", text6),
             FieldColumn("name_entity", "Nom entité", text6),
             FieldColumn("name_official", "Nom officiel", text6),
             FieldColumn("name_group", "Nom groupe", text6),
             FieldColumn("name_institution", "Nom institution", text6),
             FieldColumn("type_organisation", "Type organisation", text6),
+            FieldColumn("secteurs_activite", "Secteurs activité", text6),
             FieldColumn("type_entreprise_media", "Nature organe de presse", text6),
             FieldColumn("type_presse_et_media", "Type de presse", text6),
+            FieldColumn("count_bw_members", "Membres du BW", small),
             FieldColumn("taille_orga", "Taille organisation", text4),
             FieldColumn("organisation_id", "Org ID", text6),
             FieldColumn("organisation_name", "Organisation", text6),
             FieldColumn("owner_email", "Owner", text6),
             FieldColumn("payer_email", "Payer", text6),
+            FieldColumn("bwmi", "BWMi", text6),
+            FieldColumn("bwpri", "BWPRi", text6),
+            FieldColumn("pr_agency", "PR Agency", text6),
+            FieldColumn("bwpre", "BWPRe", text6),
             FieldColumn("siren", "SIREN", text4),
             FieldColumn("tva", "TVA", text4),
             FieldColumn("tel_standard", "Tél.", text4),
@@ -882,6 +903,7 @@ class BusinessWallExporter(BaseExporter):
         "name_group",
         "name_institution",
         "type_organisation",
+        "secteurs_activite",
         "type_entreprise_media",
         "type_presse_et_media",
         "taille_orga",
@@ -903,6 +925,20 @@ class BusinessWallExporter(BaseExporter):
                 value = str(bw.id)
             case "created_at":
                 value = self.get_datetime_attr(bw, name)
+            case "count_bw_members":
+                bw_members_ids = set(
+                    db.session.scalars(
+                        select(RoleAssignment.user_id)
+                        .where(RoleAssignment.business_wall_id == bw.id)
+                        .where(
+                            RoleAssignment.invitation_status
+                            == InvitationStatus.ACCEPTED.value
+                        )
+                    ).all()
+                )
+                if bw.owner_id:
+                    bw_members_ids.add(bw.owner_id)
+                value = len(bw_members_ids)
             case "organisation_id":
                 value = str(bw.organisation_id) if bw.organisation_id else ""
             case "organisation_name":
@@ -918,6 +954,115 @@ class BusinessWallExporter(BaseExporter):
             case "payer_email":
                 payer = db.session.get(User, bw.payer_id)
                 value = payer.email if payer else ""
+            case "bwmi":
+                bwmi_users_ids = list(
+                    db.session.scalars(
+                        select(RoleAssignment.user_id)
+                        .where(RoleAssignment.business_wall_id == bw.id)
+                        .where(RoleAssignment.role_type == BWRoleType.BWMI.value)
+                        .where(
+                            RoleAssignment.invitation_status
+                            == InvitationStatus.ACCEPTED.value
+                        )
+                    ).all()
+                )
+                if bwmi_users_ids:
+                    emails = list(
+                        db.session.scalars(
+                            select(User.email).where(User.id.in_(bwmi_users_ids))
+                        ).all()
+                    )
+                    value = ", ".join(emails)
+                else:
+                    value = ""
+            case "bwpri":
+                bwpri_users_ids = list(
+                    db.session.scalars(
+                        select(RoleAssignment.user_id)
+                        .where(RoleAssignment.business_wall_id == bw.id)
+                        .where(RoleAssignment.role_type == BWRoleType.BWPRI.value)
+                        .where(
+                            RoleAssignment.invitation_status
+                            == InvitationStatus.ACCEPTED.value
+                        )
+                    ).all()
+                )
+                if bwpri_users_ids:
+                    emails = list(
+                        db.session.scalars(
+                            select(User.email).where(User.id.in_(bwpri_users_ids))
+                        ).all()
+                    )
+                    value = ", ".join(emails)
+                else:
+                    value = ""
+            case "pr_agency":
+                agency_names: set[str] = set()
+
+                for partnership in bw.partnerships or []:
+                    if (
+                        partnership.status
+                        in (
+                            PartnershipStatus.ACTIVE.value,
+                            PartnershipStatus.ACCEPTED.value,
+                        )
+                        and partnership.partner_bw_id
+                    ):
+                        try:
+                            partner_bw = db.session.get(
+                                BusinessWall, UUID(partnership.partner_bw_id)
+                            )
+                            if partner_bw and partner_bw.name:
+                                agency_names.add(partner_bw.name)
+                        except (ValueError, TypeError):
+                            pass
+
+                bwpre_user_ids = list(
+                    db.session.scalars(
+                        select(RoleAssignment.user_id)
+                        .where(RoleAssignment.business_wall_id == bw.id)
+                        .where(RoleAssignment.role_type == BWRoleType.BWPRE.value)
+                        .where(
+                            RoleAssignment.invitation_status
+                            == InvitationStatus.ACCEPTED.value
+                        )
+                    ).all()
+                )
+                if bwpre_user_ids:
+                    bwpre_users = db.session.scalars(
+                        select(User).where(User.id.in_(bwpre_user_ids))
+                    ).all()
+                    for u in bwpre_users:
+                        org = (
+                            u.get_organisation()
+                            if hasattr(u, "get_organisation")
+                            else None
+                        )
+                        if org and org.name:
+                            agency_names.add(org.name)
+
+                value = ", ".join(sorted(agency_names)) if agency_names else ""
+            case "bwpre":
+                bwpre_users_ids = list(
+                    db.session.scalars(
+                        select(RoleAssignment.user_id)
+                        .where(RoleAssignment.business_wall_id == bw.id)
+                        .where(RoleAssignment.role_type == BWRoleType.BWPRE.value)
+                        .where(
+                            RoleAssignment.invitation_status
+                            == InvitationStatus.ACCEPTED.value
+                        )
+                    ).all()
+                )
+                if bwpre_users_ids:
+                    emails = list(
+                        db.session.scalars(
+                            select(User.email).where(User.id.in_(bwpre_users_ids))
+                        ).all()
+                    )
+                    value = ", ".join(emails)
+                else:
+                    value = ""
             case "pays":
                 raw_pays = (
                     bw.pays_zip_ville.split(" / ")[0].strip()
