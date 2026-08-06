@@ -220,10 +220,14 @@ class BaseSelector(abc.ABC):
             label_text = self._label_for(value)
             selected = "selected" if is_selected else ""
             display = f"{label_text} ({count})"
-            sort_key = _normalize(label_text)
+            sort_key = self._sort_key_for(value, label_text)
             rows.append((sort_key, FilterOption(value, display, selected)))
         rows.sort(key=lambda r: r[0])
         return [opt for _, opt in rows]
+
+    def _sort_key_for(self, value: str, label_text: str) -> Any:
+        """Sort key for dropdown options."""
+        return _normalize(label_text)
 
 
 def _normalize(text: str) -> str:
@@ -557,6 +561,14 @@ class TailleOrganisationSelector(BaseSelector):
 
     def _label_for(self, value: str) -> str:
         return taille_orga_code_to_label(value)
+
+    def _sort_key_for(self, value: str, label_text: str) -> Any:
+        if value == "+":
+            return (1, 999999999)
+        try:
+            return (1, int(value))
+        except ValueError:
+            return (0, _normalize(label_text))
 
 
 class PaysSelector(BaseSelector):

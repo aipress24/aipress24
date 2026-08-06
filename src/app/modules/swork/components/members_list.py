@@ -248,6 +248,16 @@ class FilterByTypeAgenceRP(Filter):
         return stmt
 
 
+def _taille_orga_sort_key(code: str) -> int:
+    """Sort key for taille_organisation codes in ascending numeric order."""
+    if code == "+":
+        return 999999999
+    try:
+        return int(code)
+    except ValueError:
+        return 999999
+
+
 def _taille_orga_label(value: str) -> str:
     if value == "+":
         return "Plus de 1 000 000"
@@ -268,10 +278,13 @@ class FilterByTailleOrganisation(Filter):
     def __init__(self, objects: list | None = None) -> None:
         if not objects:
             return
-
-        options = sorted({self.selector(obj) for obj in objects})
+        raw_options = {self.selector(obj) for obj in objects}
+        options = sorted(
+            [opt for opt in raw_options if opt and opt.code],
+            key=lambda opt: _taille_orga_sort_key(opt.code),
+        )
         # pyrefly: ignore [read-only]
-        self.options = [opt for opt in options if opt]  # ty:ignore[invalid-attribute-access]
+        self.options = options  # ty:ignore[invalid-attribute-access]
 
     @staticmethod
     def selector(user: User) -> FilterOption:
