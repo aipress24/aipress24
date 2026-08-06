@@ -7,6 +7,7 @@
 from __future__ import annotations
 
 from collections import namedtuple
+from copy import deepcopy
 from datetime import datetime, timedelta
 from io import BytesIO
 from typing import Any, ClassVar, cast
@@ -1253,16 +1254,16 @@ class MixedBWOrgExporter(BaseExporter):
         self.date_now = datetime.now(tz=ZoneInfo(LOCAL_TZ))
 
         orgs_exporter = OrganisationsExporter()
-        orgs_exporter.run()
+        orgs_exporter.make_sheet()
         bws_exporter = BusinessWallExporter()
-        bws_exporter.run()
+        bws_exporter.make_sheet()
 
         members_sheet = self._build_members_sheet()
 
         content = {
             "body": [
-                orgs_exporter.sheet,
-                bws_exporter.sheet,
+                deepcopy(orgs_exporter.sheet),
+                deepcopy(bws_exporter.sheet),
                 members_sheet,
             ]
         }
@@ -1276,6 +1277,7 @@ class MixedBWOrgExporter(BaseExporter):
         FieldColumn("organisation_id", "Org ID", "3cm"),
         FieldColumn("organisation_name", "Organisation", "6cm"),
         FieldColumn("bw_id", "BW ID", "6cm"),
+        FieldColumn("bw_name", "Nom du BW", "6cm"),
         FieldColumn("bw_type", "BW Type", "3cm"),
         FieldColumn("bw_status", "BW Statut", "3cm"),
     ]
@@ -1292,6 +1294,18 @@ class MixedBWOrgExporter(BaseExporter):
                             "value": "Membres (utilisateurs × organisations × BW)",
                             "style": "bold",
                         }
+                    ],
+                    "style": "default_table_row",
+                },
+                {"row": [], "style": "default_table_row"},
+                {
+                    "row": [
+                        {"value": "Date export:"},
+                        {
+                            "value": self.date_now.isoformat(" ", "minutes")
+                            if self.date_now
+                            else ""
+                        },
                     ],
                     "style": "default_table_row",
                 },
@@ -1334,6 +1348,7 @@ class MixedBWOrgExporter(BaseExporter):
                 str(org.id) if org else "",
                 org.name if org else "",
                 str(bw.id) if bw else "",
+                bw.name if bw and bw.name else "",
                 bw.bw_type if bw else "",
                 bw.status if bw else "",
             ]
