@@ -357,6 +357,16 @@ class OrgFilterBySecteurActivite(_OrgListJsonArrayFilter):
     bw_field = "secteurs_activite_detail"
 
 
+def _taille_orga_sort_key(code: str) -> int:
+    """Sort key for taille_organisation codes in ascending numeric order."""
+    if code == "+":
+        return 999999999
+    try:
+        return int(code)
+    except ValueError:
+        return 999999
+
+
 def _taille_orga_label(value: str) -> str:
     """Mirror of MembersList helper — converts the raw ontology code
     (« 1 », « 49 », « + ») into a user-friendly label."""
@@ -383,7 +393,10 @@ class OrgFilterByTailleOrganisation(Filter):
     def __init__(self, bws: list[BusinessWall] | None = None) -> None:
         if not bws:
             return
-        codes = sorted({str(bw.taille_orga) for bw in bws if bw.taille_orga})
+        codes = sorted(
+            {str(bw.taille_orga) for bw in bws if bw.taille_orga},
+            key=_taille_orga_sort_key,
+        )
         # pyrefly: ignore [read-only]
         self.options = [  # ty:ignore[invalid-attribute-access]
             FilterOption(_taille_orga_label(code), code) for code in codes
