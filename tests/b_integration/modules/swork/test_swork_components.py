@@ -814,7 +814,7 @@ class TestOrganisationsListFilters:
         f = OrgFilterByTailleOrganisation(bws)  # type: ignore[arg-type]
         codes = [opt.code for opt in f.options]
         labels = [opt.option for opt in f.options]
-        assert codes == ["+", "1", "49"]
+        assert codes == ["1", "49", "+"]
         assert "1 personne" in labels
         assert "Plus de 1 000 000" in labels
 
