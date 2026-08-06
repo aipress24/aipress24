@@ -84,7 +84,9 @@ as `me/press-releases`, `me/articles` or `me/events`.
 
 ```python
 # Author a press release on your own behalf, then publish it.
-pr = api.create("me/press-releases", {"titre": "Acme launches …", "contenu": "<p>…</p>"})
+pr = api.create(
+    "me/press-releases", {"titre": "Acme launches …", "contenu": "<p>…</p>"}
+)
 api.publish("me/press-releases", pr["id"])
 ```
 

@@ -185,35 +185,41 @@ from poc.blueprints.bw_activation.models import (
 service = BusinessWallService()
 
 # Create free BW
-bw = service.create({
-    "bw_type": "media",
-    "status": "draft",
-    "is_free": True,
-    "owner_id": user.id,
-    "payer_id": user.id,
-})
+bw = service.create(
+    {
+        "bw_type": "media",
+        "status": "draft",
+        "is_free": True,
+        "owner_id": user.id,
+        "payer_id": user.id,
+    }
+)
 
 # Create paid BW with subscription
-bw = service.create({
-    "bw_type": "pr",
-    "status": "draft",
-    "is_free": False,
-    "owner_id": owner.id,
-    "payer_id": payer.id,
-})
+bw = service.create(
+    {
+        "bw_type": "pr",
+        "status": "draft",
+        "is_free": False,
+        "owner_id": owner.id,
+        "payer_id": payer.id,
+    }
+)
 
 # Add subscription
 from poc.blueprints.bw_activation.models import SubscriptionService
 
 sub_service = SubscriptionService()
-subscription = sub_service.create({
-    "business_wall_id": bw.id,
-    "pricing_field": "client_count",
-    "pricing_tier": "11-50",
-    "monthly_price": 299.00,
-    "annual_price": 2990.00,
-    "billing_cycle": "monthly",
-})
+subscription = sub_service.create(
+    {
+        "business_wall_id": bw.id,
+        "pricing_field": "client_count",
+        "pricing_tier": "11-50",
+        "monthly_price": 299.00,
+        "annual_price": 2990.00,
+        "billing_cycle": "monthly",
+    }
+)
 ```
 
 ### Assigning Roles and Permissions
@@ -226,21 +232,25 @@ from poc.blueprints.bw_activation.models import (
 
 # Assign PR Manager role
 role_service = RoleAssignmentService()
-role = role_service.create({
-    "business_wall_id": bw.id,
-    "user_id": manager.id,
-    "role_type": "BWPRi",
-    "invitation_status": "accepted",
-})
+role = role_service.create(
+    {
+        "business_wall_id": bw.id,
+        "user_id": manager.id,
+        "role_type": "BWPRi",
+        "invitation_status": "accepted",
+    }
+)
 
 # Grant specific permissions
 perm_service = RolePermissionService()
 for perm_type in ["press_release", "events", "missions"]:
-    perm_service.create({
-        "role_assignment_id": role.id,
-        "permission_type": perm_type,
-        "is_granted": True,
-    })
+    perm_service.create(
+        {
+            "role_assignment_id": role.id,
+            "permission_type": perm_type,
+            "is_granted": True,
+        }
+    )
 ```
 
 ### Managing PR Agency Partnerships
@@ -251,19 +261,24 @@ from poc.blueprints.bw_activation.models import PartnershipService
 partnership_service = PartnershipService()
 
 # Invite PR agency
-partnership = partnership_service.create({
-    "business_wall_id": bw.id,
-    "partner_org_id": agency.id,
-    "invited_by_user_id": current_user.id,
-    "invitation_message": "We'd like to work with you...",
-    "status": "invited",
-})
+partnership = partnership_service.create(
+    {
+        "business_wall_id": bw.id,
+        "partner_org_id": agency.id,
+        "invited_by_user_id": current_user.id,
+        "invitation_message": "We'd like to work with you...",
+        "status": "invited",
+    }
+)
 
 # Accept partnership
-partnership_service.update(partnership, {
-    "status": "accepted",
-    "accepted_at": datetime.utcnow(),
-})
+partnership_service.update(
+    partnership,
+    {
+        "status": "accepted",
+        "accepted_at": datetime.utcnow(),
+    },
+)
 ```
 
 ### Configuring Content
@@ -295,19 +310,21 @@ gallery = [
     for i, img_bytes in enumerate(gallery_images)
 ]
 
-content = content_service.create({
-    "business_wall_id": bw.id,
-    "official_name": "My Organization",
-    "organization_type": "Entreprise",
-    "logo": logo,
-    "banner": banner,
-    "gallery": gallery,
-    "description": "We are a leading media company...",
-    "website": "https://example.com",
-    "email": "contact@example.com",
-    "topics": ["technology", "business", "innovation"],
-    "geographic_zones": ["france", "europe"],
-})
+content = content_service.create(
+    {
+        "business_wall_id": bw.id,
+        "official_name": "My Organization",
+        "organization_type": "Entreprise",
+        "logo": logo,
+        "banner": banner,
+        "gallery": gallery,
+        "description": "We are a leading media company...",
+        "website": "https://example.com",
+        "email": "contact@example.com",
+        "topics": ["technology", "business", "innovation"],
+        "geographic_zones": ["france", "europe"],
+    }
+)
 ```
 
 ## Enums
@@ -366,6 +383,7 @@ All models use SQLAlchemy 2.0 `Mapped` type hints for type safety:
 ```python
 from sqlalchemy.orm import Mapped, mapped_column
 
+
 class BusinessWall(UUIDAuditBase):
     bw_type: Mapped[str] = mapped_column(String(50), nullable=False)
     is_free: Mapped[bool] = mapped_column(default=False)
@@ -383,6 +401,7 @@ Models are designed to be testable with factories:
 import pytest
 from poc.blueprints.bw_activation.models import BusinessWall
 
+
 @pytest.fixture
 def business_wall(db_session):
     bw = BusinessWall(
@@ -395,6 +414,7 @@ def business_wall(db_session):
     db_session.add(bw)
     db_session.commit()
     return bw
+
 
 def test_business_wall_creation(business_wall):
     assert business_wall.bw_type == "media"
@@ -470,9 +490,7 @@ from advanced_alchemy.types.file_object.backends.fsspec import FSSpecBackend
 import fsspec
 
 # Local storage for development
-storages.register_backend(
-    FSSpecBackend(fs=fsspec.filesystem("file"), key="local")
-)
+storages.register_backend(FSSpecBackend(fs=fsspec.filesystem("file"), key="local"))
 
 # S3 storage for production
 s3_fs = fsspec.S3FileSystem(

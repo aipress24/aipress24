@@ -70,6 +70,7 @@ tests/
 ```python
 # tests/a_unit/modules/wip/services/test_expert_filter_service.py
 
+
 class TestSectorSelector:
     """Tests pour le filtrage par secteur d'activité."""
 
@@ -181,6 +182,7 @@ class TestExpertSelection:
 ```python
 # tests/a_unit/modules/wip/newsroom/test_contact_response.py
 
+
 class TestContactInitialState:
     """Tests pour l'état initial du contact."""
 
@@ -241,6 +243,7 @@ Elle permet au journaliste de notifier les participants d'une enquête que l'art
 ```python
 # tests/a_unit/modules/wip/newsroom/test_notification_publication.py
 
+
 class TestNotificationCreation:
     """Tests pour la création de notification."""
 
@@ -279,6 +282,7 @@ class TestNotificationContacts:
 
 ```python
 # tests/b_integration/modules/wip/test_publication_cycle.py
+
 
 class TestFullPublicationCycle:
     """Test du cycle complet de publication."""
@@ -376,6 +380,7 @@ class TestNotificationAfterPublication:
 ```python
 # tests/c_e2e/modules/wip/newsroom/test_avis_enquete_views.py
 
+
 class TestJournalistAvisEnqueteViews:
     """Tests E2E pour les vues journaliste."""
 
@@ -414,6 +419,7 @@ class TestExpertAvisEnqueteViews:
 
 ```python
 # tests/c_e2e/modules/wip/newsroom/test_rdv_workflow_e2e.py
+
 
 class TestRdvSchedulingE2E:
     """Tests E2E du workflow RDV complet."""
@@ -468,33 +474,41 @@ class TestRdvSchedulingE2E:
 ```python
 # tests/conftest.py ou tests/fixtures/newsroom.py
 
+
 @pytest.fixture
 def journalist(db_session):
     """Créer un utilisateur journaliste."""
+
 
 @pytest.fixture
 def expert(db_session):
     """Créer un utilisateur expert avec profil complet."""
 
+
 @pytest.fixture
 def expert_with_profile(db_session, secteur, metier, pays):
     """Expert avec profil filtrable."""
+
 
 @pytest.fixture
 def media_organisation(db_session):
     """Organisation média."""
 
+
 @pytest.fixture
 def avis_enquete(db_session, journalist, media_organisation):
     """Avis d'enquête prêt à l'emploi."""
+
 
 @pytest.fixture
 def contact_accepted(db_session, avis_enquete, expert):
     """Contact avec statut ACCEPTE."""
 
+
 @pytest.fixture
 def published_article(db_session, journalist, media_organisation):
     """Article publié."""
+
 
 @pytest.fixture
 def notification_publication(db_session, avis_enquete, published_article):

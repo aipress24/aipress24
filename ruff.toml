@@ -57,6 +57,7 @@ lint.ignore = [
     "A001", #    builtin-variable-shadowing
     "A004", #    builtin-import-shadowing
     "N806", # Variable names starting with a capital
+    "PLR09", # Too many positional arguments
     #
     # Security issues that are not relevant (a priori)
     #
@@ -75,6 +76,7 @@ lint.ignore = [
     "PLR0912", #	too-many-branches
     "PLR0915", #    too many statements
     "T201", #       print
+    "CPY001", # TODO: add copyright
 ]
 
 [lint.extend-per-file-ignores]

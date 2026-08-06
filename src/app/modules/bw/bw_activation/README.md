@@ -51,6 +51,7 @@ Each route module focuses on a specific workflow stage and imports the blueprint
 ```python
 from .. import bp
 
+
 @bp.route("/endpoint")
 def handler():
     # Route logic
@@ -146,12 +147,14 @@ The package uses the standard Flask blueprint pattern:
 1. **Blueprint creation** (`__init__.py`):
    ```python
    from flask import Blueprint
+
    bp = Blueprint("bw_activation", __name__, template_folder="../../templates")
    ```
 
 2. **Route registration** (each route module):
    ```python
    from .. import bp
+
 
    @bp.route("/endpoint")
    def handler():
@@ -227,7 +230,7 @@ from poc.blueprints.bw_activation import bp
 from poc.app import create_app
 
 app = create_app()
-routes = [r for r in app.url_map.iter_rules() if 'bw_activation' in r.endpoint]
+routes = [r for r in app.url_map.iter_rules() if "bw_activation" in r.endpoint]
 
 # Should show 20 routes registered
 print(f"Routes: {len(routes)}")

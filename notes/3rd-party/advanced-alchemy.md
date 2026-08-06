@@ -62,7 +62,10 @@ class UserRepository(repository.SQLAlchemySyncRepository[User]):
     model_type = User
 
 
-db = config.SQLAlchemySyncConfig(connection_string="duckdb:///:memory:", session_config=config.SyncSessionConfig(expire_on_commit=False))
+db = config.SQLAlchemySyncConfig(
+    connection_string="duckdb:///:memory:",
+    session_config=config.SyncSessionConfig(expire_on_commit=False),
+)
 
 # Initializes the database.
 with db.get_engine().begin() as conn:
@@ -72,17 +75,19 @@ with db.get_session() as db_session:
     repo = UserRepository(session=db_session)
     # 1) Create multiple users with `add_many`
     bulk_users = [
-        {"email": 'cody@litestar.dev', 'name': 'Cody'},
-        {"email": 'janek@litestar.dev', 'name': 'Janek'},
-        {"email": 'peter@litestar.dev', 'name': 'Peter'},
-        {"email": 'jacob@litestar.dev', 'name': 'Jacob'}
+        {"email": "cody@litestar.dev", "name": "Cody"},
+        {"email": "janek@litestar.dev", "name": "Janek"},
+        {"email": "peter@litestar.dev", "name": "Peter"},
+        {"email": "jacob@litestar.dev", "name": "Jacob"},
     ]
     objs = repo.add_many([User(**raw_user) for raw_user in bulk_users])
     db_session.commit()
     print(f"Created {len(objs)} new objects.")
 
     # 2) Select paginated data and total row count.  Pass additional filters as kwargs
-    created_objs, total_objs = repo.list_and_count(LimitOffset(limit=10, offset=0), name="Cody")
+    created_objs, total_objs = repo.list_and_count(
+        LimitOffset(limit=10, offset=0), name="Cody"
+    )
     print(f"Selected {len(created_objs)} records out of a total of {total_objs}.")
 
     # 3) Let's remove the batch of records selected.
@@ -113,8 +118,10 @@ class User(base.UUIDBase):
     email: Mapped[str]
     name: Mapped[str]
 
+
 class UserService(service.SQLAlchemySyncRepositoryService[User]):
     """User repository."""
+
     class Repo(repository.SQLAlchemySyncRepository[User]):
         """User repository."""
 
@@ -122,7 +129,11 @@ class UserService(service.SQLAlchemySyncRepositoryService[User]):
 
     repository_type = Repo
 
-db = config.SQLAlchemySyncConfig(connection_string="duckdb:///:memory:", session_config=config.SyncSessionConfig(expire_on_commit=False))
+
+db = config.SQLAlchemySyncConfig(
+    connection_string="duckdb:///:memory:",
+    session_config=config.SyncSessionConfig(expire_on_commit=False),
+)
 
 # Initializes the database.
 with db.get_engine().begin() as conn:
@@ -131,17 +142,21 @@ with db.get_engine().begin() as conn:
 with db.get_session() as db_session:
     service = UserService(session=db_session)
     # 1) Create multiple users with `add_many`
-    objs = service.create_many([
-        {"email": 'cody@litestar.dev', 'name': 'Cody'},
-        {"email": 'janek@litestar.dev', 'name': 'Janek'},
-        {"email": 'peter@litestar.dev', 'name': 'Peter'},
-        {"email": 'jacob@litestar.dev', 'name': 'Jacob'}
-    ])
+    objs = service.create_many(
+        [
+            {"email": "cody@litestar.dev", "name": "Cody"},
+            {"email": "janek@litestar.dev", "name": "Janek"},
+            {"email": "peter@litestar.dev", "name": "Peter"},
+            {"email": "jacob@litestar.dev", "name": "Jacob"},
+        ]
+    )
     print(objs)
     print(f"Created {len(objs)} new objects.")
 
     # 2) Select paginated data and total row count.  Pass additional filters as kwargs
-    created_objs, total_objs = service.list_and_count(LimitOffset(limit=10, offset=0), name="Cody")
+    created_objs, total_objs = service.list_and_count(
+        LimitOffset(limit=10, offset=0), name="Cody"
+    )
     print(f"Selected {len(created_objs)} records out of a total of {total_objs}.")
 
     # 3) Let's remove the batch of records selected.
@@ -165,7 +180,8 @@ from advanced_alchemy.extensions.flask import AdvancedAlchemy, SQLAlchemySyncCon
 
 app = Flask(__name__)
 alchemy = AdvancedAlchemy(
-    config=SQLAlchemySyncConfig(connection_string="duckdb:///:memory:"), app=app,
+    config=SQLAlchemySyncConfig(connection_string="duckdb:///:memory:"),
+    app=app,
 )
 ```
 
@@ -230,18 +246,25 @@ class AuthorSchema(Struct):
 
 
 app = Flask(__name__)
-alchemy_config = SQLAlchemySyncConfig(connection_string="sqlite:///local.db", commit_mode="autocommit", create_all=True)
+alchemy_config = SQLAlchemySyncConfig(
+    connection_string="sqlite:///local.db", commit_mode="autocommit", create_all=True
+)
 alchemy = AdvancedAlchemy(alchemy_config, app)
 
 
 @app.route("/authors", methods=["GET"])
 def list_authors():
     """List authors with pagination."""
-    page, page_size = request.args.get("currentPage", 1, type=int), request.args.get("pageSize", 10, type=int)
+    page, page_size = (
+        request.args.get("currentPage", 1, type=int),
+        request.args.get("pageSize", 10, type=int),
+    )
     limit_offset = filters.LimitOffset(limit=page_size, offset=page_size * (page - 1))
     service = AuthorService(session=alchemy.get_sync_session())
     results, total = service.list_and_count(limit_offset)
-    response = service.to_schema(results, total, filters=[limit_offset], schema_type=AuthorSchema)
+    response = service.to_schema(
+        results, total, filters=[limit_offset], schema_type=AuthorSchema
+    )
     return service.jsonify(response)
 
 
@@ -279,7 +302,6 @@ def delete_author(author_id: UUID):
 
 if __name__ == "__main__":
     app.run(debug=os.environ["ENV"] == "dev")
-
 ```
 
 # Modeling
@@ -370,6 +392,7 @@ from typing import Optional
 from advanced_alchemy.base import BigIntAuditBase
 from sqlalchemy.orm import Mapped, mapped_column
 
+
 class Post(BigIntAuditBase):
     """Blog post model with auto-incrementing ID and audit fields.
 
@@ -408,21 +431,20 @@ post_tag = Table(
     "post_tag",
     orm_registry.metadata,
     Column("post_id", ForeignKey("post.id", ondelete="CASCADE"), primary_key=True),
-    Column("tag_id", ForeignKey("tag.id", ondelete="CASCADE"), primary_key=True)
+    Column("tag_id", ForeignKey("tag.id", ondelete="CASCADE"), primary_key=True),
 )
 
-class Post(BigIntAuditBase):
 
+class Post(BigIntAuditBase):
     title: Mapped[str] = mapped_column(index=True)
     content: Mapped[str]
     published: Mapped[bool] = mapped_column(default=False)
 
     # Many-to-many relationship with tags
     tags: Mapped[List["Tag"]] = relationship(
-        secondary=post_tag,
-        back_populates="posts",
-        lazy="selectin"
+        secondary=post_tag, back_populates="posts", lazy="selectin"
     )
+
 
 class Tag(BigIntAuditBase, SlugKey):
     """Tag model with automatic slug generation.
@@ -432,9 +454,7 @@ class Tag(BigIntAuditBase, SlugKey):
 
     name: Mapped[str] = mapped_column(unique=True, index=True)
     posts: Mapped[List[Post]] = relationship(
-        secondary=post_tag,
-        back_populates="tags",
-        viewonly=True
+        secondary=post_tag, back_populates="tags", viewonly=True
     )
 ```
 
@@ -445,16 +465,19 @@ like the following:
 from sqlalchemy.ext.asyncio import AsyncSession
 from advanced_alchemy.utils.text import slugify
 
+
 async def add_tags_to_post(
-    db_session: AsyncSession,
-    post: Post,
-    tag_names: list[str]
+    db_session: AsyncSession, post: Post, tag_names: list[str]
 ) -> Post:
     """Add tags to a post, looking up existing tags and creating new ones if needed."""
     existing_tags = await db_session.scalars(
         select(Tag).filter(Tag.slug.in_([slugify(name) for name in tag_names]))
     )
-    new_tags = [Tag(name=name, slug=slugify(name)) for name in tag_names if name not in {tag.name for tag in existing_tags}]
+    new_tags = [
+        Tag(name=name, slug=slugify(name))
+        for name in tag_names
+        if name not in {tag.name for tag in existing_tags}
+    ]
     post.tags.extend(new_tags + list(existing_tags))
     db_session.merge(post)
     await db_session.flush()
@@ -488,6 +511,7 @@ from advanced_alchemy.utils.text import slugify
 from sqlalchemy.sql.elements import ColumnElement
 from typing import Hashable
 
+
 class Tag(BigIntAuditBase, SlugKey, UniqueMixin):
     """Tag model with unique name constraint and automatic slug generation.
 
@@ -499,9 +523,7 @@ class Tag(BigIntAuditBase, SlugKey, UniqueMixin):
 
     name: Mapped[str] = mapped_column(unique=True, index=True)
     posts: Mapped[list[Post]] = relationship(
-        secondary=post_tag,
-        back_populates="tags",
-        viewonly=True
+        secondary=post_tag, back_populates="tags", viewonly=True
     )
 
     @classmethod
@@ -527,10 +549,9 @@ the logic.
 from sqlalchemy.ext.asyncio import AsyncSession
 from advanced_alchemy.utils.text import slugify
 
+
 async def add_tags_to_post(
-    db_session: AsyncSession,
-    post: Post,
-    tag_names: list[str]
+    db_session: AsyncSession, post: Post, tag_names: list[str]
 ) -> Post:
     """Add tags to a post, creating new tags if needed."""
     # The UniqueMixin automatically handles:
@@ -538,8 +559,8 @@ async def add_tags_to_post(
     # 2. Creating new tags if needed
     # 3. Merging duplicates
     post.tags = [
-      await Tag.as_unique_async(db_session, name=tag_text, slug=slugify(tag_text))
-      for tag_text in tag_names
+        await Tag.as_unique_async(db_session, name=tag_text, slug=slugify(tag_text))
+        for tag_text in tag_names
     ]
     db_session.merge(post)
     await db_session.flush()
@@ -573,7 +594,9 @@ from sqlalchemy.orm import (
 class ServerSideUUIDPrimaryKey:
     """UUID Primary Key Field Mixin."""
 
-    id: Mapped[UUID] = mapped_column(default=uuid4, primary_key=True, server_default=text("gen_random_uuid()"))
+    id: Mapped[UUID] = mapped_column(
+        default=uuid4, primary_key=True, server_default=text("gen_random_uuid()")
+    )
     """UUID Primary key column."""
 
     # noinspection PyMethodParameters
@@ -583,7 +606,9 @@ class ServerSideUUIDPrimaryKey:
         return orm_insert_sentinel(name="sa_orm_sentinel")
 
 
-class ServerSideUUIDBase(ServerSideUUIDPrimaryKey, CommonTableAttributes, DeclarativeBase):
+class ServerSideUUIDBase(
+    ServerSideUUIDPrimaryKey, CommonTableAttributes, DeclarativeBase
+):
     """Base for all SQLAlchemy declarative models with the custom UUID primary key ."""
 
     registry = orm_registry
@@ -678,11 +703,16 @@ from advanced_alchemy.repository import SQLAlchemyAsyncRepository
 from sqlalchemy.ext.asyncio import AsyncSession
 from uuid import UUID
 
+
 class PostRepository(SQLAlchemyAsyncRepository[Post]):
     """Repository for managing blog posts."""
+
     model_type = Post
 
-async def create_post(db_session: AsyncSession, title: str, content: str, author_id: UUID) -> Post:
+
+async def create_post(
+    db_session: AsyncSession, title: str, content: str, author_id: UUID
+) -> Post:
     repository = PostRepository(session=db_session)
     return await repository.add(
         Post(title=title, content=content, author_id=author_id), auto_commit=True
@@ -696,13 +726,14 @@ Advanced Alchemy provides powerful filtering capabilities:
 ```python
 import datetime
 
+
 async def get_recent_posts(db_session: AsyncSession) -> list[Post]:
     repository = PostRepository(session=db_session)
 
     # Create filter for posts from last week
     return await repository.list(
         Post.published == True,
-        Post.created_at > (datetime.datetime.utcnow() - timedelta(days=7))
+        Post.created_at > (datetime.datetime.utcnow() - timedelta(days=7)),
     )
 ```
 
@@ -714,10 +745,9 @@ queries that include a total count of rows.
 ```python
 from advanced_alchemy.filters import LimitOffset
 
+
 async def get_paginated_posts(
-    db_session: AsyncSession,
-    page: int = 1,
-    page_size: int = 20
+    db_session: AsyncSession, page: int = 1, page_size: int = 20
 ) -> tuple[list[Post], int]:
     repository = PostRepository(session=db_session)
 
@@ -738,13 +768,18 @@ Repositories support efficient bulk operations:
 ## Add Many
 
 ```python
-async def create_posts(db_session: AsyncSession, data: list[tuple[str, str, UUID]]) -> Sequence[Post]:
+async def create_posts(
+    db_session: AsyncSession, data: list[tuple[str, str, UUID]]
+) -> Sequence[Post]:
     repository = PostRepository(session=db_session)
 
     # Create posts
     return await repository.add_many(
-        [Post(title=title, content=content, author_id=author_id) for title, content, author_id in data],
-        auto_commit=True
+        [
+            Post(title=title, content=content, author_id=author_id)
+            for title, content, author_id in data
+        ],
+        auto_commit=True,
     )
 ```
 
@@ -755,7 +790,7 @@ async def publish_posts(db_session: AsyncSession, post_ids: list[int]) -> list[P
     repository = PostRepository(session=db_session)
 
     # Fetch posts to update
-    posts = await repository.list(Post.id.in_(post_ids), published =False)
+    posts = await repository.list(Post.id.in_(post_ids), published=False)
 
     # Update all posts
     for post in posts:
@@ -776,7 +811,7 @@ async def delete_posts(db_session: AsyncSession, post_ids: list[int]) -> list[Po
 ## Delete Where
 
 ```python
-async def delete_unpublished_posts (db_session: AsyncSession) -> list[Post]:
+async def delete_unpublished_posts(db_session: AsyncSession) -> list[Post]:
     repository = PostRepository(session=db_session)
 
     return await repository.delete_where(Post.published == False)
@@ -786,10 +821,7 @@ async def delete_unpublished_posts (db_session: AsyncSession) -> list[Post]:
 
 ```python
 async def create_post_with_tags(
-    db_session: AsyncSession,
-    title: str,
-    content: str,
-    tag_names: list[str]
+    db_session: AsyncSession, title: str, content: str, tag_names: list[str]
 ) -> Post:
     # Both repositories share the same transaction
     post_repo = PostRepository(session=db_session)
@@ -806,8 +838,7 @@ async def create_post_with_tags(
 
         # Create post with tags
         post = await post_repo.add(
-            Post(title=title, content=content, tags=tags),
-            auto_commit=True
+            Post(title=title, content=content, tags=tags), auto_commit=True
         )
 
         return post
@@ -832,9 +863,12 @@ there is a specialized Slug repository that adds a `get_by_slug` method:
 ```python
 from advanced_alchemy.repository import SQLAlchemyAsyncSlugRepository
 
+
 class ArticleRepository(SQLAlchemyAsyncSlugRepository[Article]):
     """Repository for articles with slug-based lookups."""
+
     model_type = Article
+
 
 async def get_article_by_slug(db_session: AsyncSession, slug: str) -> Article:
     repository = ArticleRepository(session=db_session)
@@ -849,9 +883,12 @@ For complex custom queries:
 from advanced_alchemy.repository import SQLAlchemyAsyncQueryRepository
 from sqlalchemy import select, func
 
+
 async def get_posts_per_author(db_session: AsyncSession) -> list[tuple[UUID, int]]:
     repository = SQLAlchemyAsyncQueryRepository(session=db_session)
-    return await repository.list(select(Post.author_id, func.count(Post.id)).group_by(Post.author_id))
+    return await repository.list(
+        select(Post.author_id, func.count(Post.id)).group_by(Post.author_id)
+    )
 ```
 
 This covers the core functionality of repositories. The next section
@@ -886,13 +923,16 @@ from advanced_alchemy.types import (
     FileObject,
 )
 
+
 class User(DefaultBase):
     __tablename__ = "users"
     id: Mapped[UUID] = mapped_column(GUID, primary_key=True)
     created_at: Mapped[datetime] = mapped_column(DateTimeUTC)
     password: Mapped[str] = mapped_column(EncryptedString(key="secret-key"))
     preferences: Mapped[dict] = mapped_column(JsonB)
-    avatar: Mapped[Optional[FileObject]] = mapped_column(StoredObject(backend="local_store"))
+    avatar: Mapped[Optional[FileObject]] = mapped_column(
+        StoredObject(backend="local_store")
+    )
 ```
 
 ## DateTime UTC
@@ -907,6 +947,7 @@ from datetime import datetime
 from sqlalchemy.orm import Mapped, mapped_column
 from advanced_alchemy.base import DefaultBase
 from advanced_alchemy.types import DateTimeUTC
+
 
 class MyModel(DefaultBase):
     created_at: Mapped[datetime] = mapped_column(DateTimeUTC)
@@ -926,6 +967,7 @@ from sqlalchemy.orm import Mapped, mapped_column
 from advanced_alchemy.base import DefaultBase
 from advanced_alchemy.types import EncryptedString
 
+
 class MyModel(DefaultBase):
     secret: Mapped[str] = mapped_column(EncryptedString(key="my-secret-key"))
 ```
@@ -938,6 +980,7 @@ For storing larger encrypted text content (CLOB).
 from sqlalchemy.orm import Mapped, mapped_column
 from advanced_alchemy.base import DefaultBase
 from advanced_alchemy.types import EncryptedText
+
 
 class MyModel(DefaultBase):
     large_secret: Mapped[str] = mapped_column(EncryptedText(key="my-secret-key"))
@@ -971,6 +1014,7 @@ from advanced_alchemy.base import DefaultBase
 from advanced_alchemy.types import GUID
 from uuid import UUID
 
+
 class MyModel(DefaultBase):
     __tablename__ = "my_model"
     id: Mapped[UUID] = mapped_column(GUID, primary_key=True)
@@ -984,6 +1028,7 @@ A BigInteger type that automatically falls back to Integer for SQLite:
 from sqlalchemy.orm import Mapped, mapped_column
 from advanced_alchemy.base import DefaultBase
 from advanced_alchemy.types import BigIntIdentity
+
 
 class MyModel(DefaultBase):
     __tablename__ = "my_model"
@@ -1002,6 +1047,7 @@ A JSON type that uses the most efficient JSON storage for each database:
 from sqlalchemy.orm import Mapped, mapped_column
 from advanced_alchemy.base import DefaultBase
 from advanced_alchemy.types import JsonB
+
 
 class MyModel(DefaultBase):
     data: Mapped[dict] = mapped_column(JsonB)
@@ -1028,11 +1074,12 @@ from advanced_alchemy.types import PasswordHash
 from advanced_alchemy.types.password_hash.pwdlib import PwdlibHasher
 from pwdlib.hashers.argon2 import Argon2Hasher as PwdlibArgon2Hasher
 
+
 class MyModel(DefaultBase):
     __tablename__ = "my_model"
     password: Mapped[str] = mapped_column(
-    PasswordHash(backend=PwdlibHasher(hasher=PwdlibArgon2Hasher()))
-)
+        PasswordHash(backend=PwdlibHasher(hasher=PwdlibArgon2Hasher()))
+    )
 ```
 
 ## File Object Storage
@@ -1049,19 +1096,18 @@ from advanced_alchemy.base import UUIDBase
 from advanced_alchemy.types.file_object import FileObject, FileObjectList, StoredObject
 from sqlalchemy.orm import Mapped, mapped_column
 
+
 class Document(UUIDBase):
     __tablename__ = "documents"
 
     # Single file storage
     attachment: Mapped[Optional[FileObject]] = mapped_column(
-        StoredObject(backend="s3"),
-        nullable=True
+        StoredObject(backend="s3"), nullable=True
     )
 
     # Multiple file storage
     images: Mapped[Optional[FileObjectList]] = mapped_column(
-        StoredObject(backend="s3", multiple=True),
-        nullable=True
+        StoredObject(backend="s3", multiple=True), nullable=True
     )
 ```
 
@@ -1101,19 +1147,23 @@ from advanced_alchemy.types.file_object.backends.obstore import ObstoreBackend
 from advanced_alchemy.types.file_object import storages
 
 # Local storage
-storages.register_backend(ObstoreBackend(
-    key="local",
-    fs="file:///path/to/storage",
-))
+storages.register_backend(
+    ObstoreBackend(
+        key="local",
+        fs="file:///path/to/storage",
+    )
+)
 
 # S3 storage
-storages.register_backend(ObstoreBackend(
-    key="s3",
-    fs="s3://your-bucket/",
-    aws_access_key_id="your-access-key",
-    aws_secret_access_key="your-secret-key",
-    aws_endpoint="https://your-s3-endpoint",
-))
+storages.register_backend(
+    ObstoreBackend(
+        key="s3",
+        fs="s3://your-bucket/",
+        aws_access_key_id="your-access-key",
+        aws_secret_access_key="your-secret-key",
+        aws_endpoint="https://your-s3-endpoint",
+    )
+)
 ```
 
 ### Metadata
@@ -1245,11 +1295,11 @@ This allows you to use the types in migrations like this:
 # In generated migration file
 def upgrade():
     op.create_table(
-        'users',
-        sa.Column('id', sa.GUID(), primary_key=True),
-        sa.Column('created_at', sa.DateTimeUTC(), nullable=False),
-        sa.Column('secret', sa.EncryptedString(), nullable=True),
-        sa.Column('avatar', sa.StoredObject(backend="local_store"), nullable=True),
+        "users",
+        sa.Column("id", sa.GUID(), primary_key=True),
+        sa.Column("created_at", sa.DateTimeUTC(), nullable=False),
+        sa.Column("secret", sa.EncryptedString(), nullable=True),
+        sa.Column("avatar", sa.StoredObject(backend="local_store"), nullable=True),
     )
 ```
 
@@ -1277,8 +1327,11 @@ from advanced_alchemy.extensions.flask import (
 )
 
 app = Flask(__name__)
-alchemy_config = SQLAlchemySyncConfig(connection_string="sqlite:///local.db", commit_mode="autocommit", create_all=True)
+alchemy_config = SQLAlchemySyncConfig(
+    connection_string="sqlite:///local.db", commit_mode="autocommit", create_all=True
+)
 alchemy = AdvancedAlchemy(alchemy_config, app)
+
 
 # Use standard SQLAlchemy session in your routes
 @app.route("/users")
@@ -1312,7 +1365,9 @@ is not `default`.
 ```python
 configs = [
     SQLAlchemySyncConfig(connection_string="sqlite:///users.db", bind_key="users"),
-    SQLAlchemySyncConfig(connection_string="sqlite:///products.db", bind_key="products"),
+    SQLAlchemySyncConfig(
+        connection_string="sqlite:///products.db", bind_key="products"
+    ),
 ]
 
 alchemy = AdvancedAlchemy(configs, app)
@@ -1334,8 +1389,11 @@ from advanced_alchemy.extensions.flask import (
 from sqlalchemy import select
 
 app = Flask(__name__)
-alchemy_config = SQLAlchemyAsyncConfig(connection_string="postgresql+asyncpg://user:pass@localhost/db", create_all=True)
+alchemy_config = SQLAlchemyAsyncConfig(
+    connection_string="postgresql+asyncpg://user:pass@localhost/db", create_all=True
+)
 alchemy = AdvancedAlchemy(alchemy_config, app)
+
 
 # Use async session in your routes
 @app.route("/users")
@@ -1411,11 +1469,13 @@ from advanced_alchemy.extensions.flask import (
     base,
 )
 
+
 class Author(base.UUIDBase):
     """Author model."""
 
     name: Mapped[str]
     dob: Mapped[Optional[datetime.date]]
+
 
 class AuthorSchema(Struct):
     """Author schema."""
@@ -1431,19 +1491,27 @@ class AuthorService(FlaskServiceMixin, service.SQLAlchemySyncRepositoryService[A
 
     repository_type = Repo
 
+
 app = Flask(__name__)
-alchemy_config = SQLAlchemySyncConfig(connection_string="sqlite:///local.db", commit_mode="autocommit", create_all=True)
+alchemy_config = SQLAlchemySyncConfig(
+    connection_string="sqlite:///local.db", commit_mode="autocommit", create_all=True
+)
 alchemy = AdvancedAlchemy(alchemy_config, app)
 
 
 @app.route("/authors", methods=["GET"])
 def list_authors():
     """List authors with pagination."""
-    page, page_size = request.args.get("currentPage", 1, type=int), request.args.get("pageSize", 10, type=int)
+    page, page_size = (
+        request.args.get("currentPage", 1, type=int),
+        request.args.get("pageSize", 10, type=int),
+    )
     limit_offset = filters.LimitOffset(limit=page_size, offset=page_size * (page - 1))
     service = AuthorService(session=alchemy.get_sync_session())
     results, total = service.list_and_count(limit_offset)
-    response = service.to_schema(results, total, filters=[limit_offset], schema_type=AuthorSchema)
+    response = service.to_schema(
+        results, total, filters=[limit_offset], schema_type=AuthorSchema
+    )
     return service.jsonify(response)
 
 

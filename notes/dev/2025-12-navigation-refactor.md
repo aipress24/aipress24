@@ -83,6 +83,7 @@ def members():
     """Membres"""  # ← label = "Membres"
     ...
 
+
 def user_groups():  # ← label = "User Groups"
     ...
 ```
@@ -188,7 +189,9 @@ Both routes map to endpoint `wire.wire`, single nav entry.
 # src/app/modules/swork/__init__.py
 from flask import Blueprint
 
-blueprint = Blueprint("swork", __name__, url_prefix="/swork", template_folder="templates")
+blueprint = Blueprint(
+    "swork", __name__, url_prefix="/swork", template_folder="templates"
+)
 
 blueprint.nav = {
     "label": "Social",
@@ -220,7 +223,7 @@ blueprint.nav = {
 ```python
 @app.context_processor
 def inject_navigation():
-    if hasattr(g, 'nav'):
+    if hasattr(g, "nav"):
         return {
             "breadcrumbs": g.nav.breadcrumbs(),
             "main_menu": g.nav.menu("main"),
@@ -281,7 +284,7 @@ CREATE_MENU = [
 
 Access via:
 ```python
-g.nav.menu("user")    # returns USER_MENU, filtered by permissions
+g.nav.menu("user")  # returns USER_MENU, filtered by permissions
 g.nav.menu("create")  # returns CREATE_MENU, filtered by permissions
 ```
 
@@ -293,6 +296,7 @@ g.nav.menu("create")  # returns CREATE_MENU, filtered by permissions
 
 ```python
 # src/app/flask/lib/nav/decorator.py
+
 
 def nav(
     *,
@@ -315,6 +319,7 @@ def nav(
         menu: If False, page has breadcrumbs but not in menus
         hidden: If True, page excluded from nav entirely
     """
+
     def decorator(f):
         f._nav_meta = {
             "parent": parent,
@@ -326,6 +331,7 @@ def nav(
             "hidden": hidden,
         }
         return f
+
     return decorator
 ```
 
@@ -336,6 +342,7 @@ def nav(
 
 from flask import g, request
 from app.flask.lib.nav.tree import nav_tree
+
 
 class NavRequest:
     """Request-scoped navigation state. Attached to g.nav."""
@@ -404,18 +411,20 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from flask import Flask, url_for
 
+
 @dataclass
 class NavNode:
     """A node in the navigation tree."""
-    name: str                           # endpoint name (e.g., "swork.members")
-    label: str                          # display label
-    url_rule: str                       # URL pattern (e.g., "/members/<id>")
-    parent: str | None = None           # parent endpoint name
+
+    name: str  # endpoint name (e.g., "swork.members")
+    label: str  # display label
+    url_rule: str  # URL pattern (e.g., "/members/<id>")
+    parent: str | None = None  # parent endpoint name
     icon: str = ""
     order: int = 99
     acl: list = field(default_factory=list)
     in_menu: bool = True
-    is_section: bool = False            # True for blueprint roots
+    is_section: bool = False  # True for blueprint roots
 
     def url_for(self, **kwargs) -> str:
         """Generate URL for this node."""
@@ -502,7 +511,9 @@ class NavTree:
             )
             self._nodes[endpoint] = node
 
-    def _infer_parent(self, url_rule: str, section: str, override: str | None) -> str | None:
+    def _infer_parent(
+        self, url_rule: str, section: str, override: str | None
+    ) -> str | None:
         """Infer parent from URL pattern."""
         if override:
             return f"{section}.{override}" if "." not in override else override
@@ -566,7 +577,8 @@ class NavTree:
     def children_of(self, parent: str) -> list[NavNode]:
         """Get direct children of a node."""
         children = [
-            node for node in self._nodes.values()
+            node
+            for node in self._nodes.values()
             if node.parent == parent and node.in_menu
         ]
         return sorted(children, key=lambda n: (n.order, n.label))
@@ -602,15 +614,16 @@ class NavTree:
 
             # Filter view_args to only include params in parent's URL
             parent_args = {
-                k: v for k, v in view_args.items()
-                if f"<{k}>" in parent_node.url_rule
+                k: v for k, v in view_args.items() if f"<{k}>" in parent_node.url_rule
             }
 
-            crumbs.append(BreadCrumb(
-                label=parent_node.label,
-                url=parent_node.url_for(**parent_args),
-                current=False,
-            ))
+            crumbs.append(
+                BreadCrumb(
+                    label=parent_node.label,
+                    url=parent_node.url_for(**parent_args),
+                    current=False,
+                )
+            )
 
             parent_name = parent_node.parent
 
@@ -637,12 +650,14 @@ class NavTree:
             if not node.is_visible_to(user):
                 continue
 
-            items.append(MenuItem(
-                label=node.label,
-                url=node.url_for(),
-                icon=node.icon,
-                active=self._is_active(node.name, current_endpoint),
-            ))
+            items.append(
+                MenuItem(
+                    label=node.label,
+                    url=node.url_for(),
+                    icon=node.icon,
+                    active=self._is_active(node.name, current_endpoint),
+                )
+            )
 
         return items
 
@@ -655,12 +670,15 @@ class NavTree:
             if not node.is_visible_to(user):
                 continue
 
-            items.append(MenuItem(
-                label=node.label,
-                url=node.url_for(),
-                icon=node.icon,
-                active=current_endpoint.startswith(node.name + ".") or current_endpoint == node.name,
-            ))
+            items.append(
+                MenuItem(
+                    label=node.label,
+                    url=node.url_for(),
+                    icon=node.icon,
+                    active=current_endpoint.startswith(node.name + ".")
+                    or current_endpoint == node.name,
+                )
+            )
 
         return items
 
@@ -673,12 +691,14 @@ class NavTree:
 
         for entry in config:
             # TODO: ACL check
-            items.append(MenuItem(
-                label=entry["label"],
-                url=url_for(entry["endpoint"]),
-                icon=entry.get("icon", ""),
-                active=False,
-            ))
+            items.append(
+                MenuItem(
+                    label=entry["label"],
+                    url=url_for(entry["endpoint"]),
+                    icon=entry.get("icon", ""),
+                    active=False,
+                )
+            )
 
         return items
 
@@ -767,15 +787,18 @@ import click
 from flask.cli import with_appcontext
 from app.flask.lib.nav import nav_tree
 
+
 @click.group()
 def nav():
     """Navigation debugging commands."""
     pass
 
+
 @nav.command()
 @with_appcontext
 def tree():
     """Print the full navigation tree."""
+
     def print_node(node, indent=0):
         prefix = "  " * indent
         marker = "[S]" if node.is_section else "[P]"
@@ -800,6 +823,7 @@ def tree():
                 print_node(grandchild, indent=2)
 
         click.echo()
+
 
 @nav.command()
 @with_appcontext
@@ -929,6 +953,7 @@ def member(id: str):
 3. **Internationalization**: No i18n needed currently. For localized labels, use lazy strings:
    ```python
    from flask_babel import lazy_gettext as _
+
 
    @nav(label=_("Membres"))
    def members(): ...
@@ -1070,7 +1095,7 @@ Check for `url_for` calls in routing modules that may need updating when migrati
 **Solution:** Add a `url_string` attribute to old Page classes that maps to the new view endpoint:
 
 ```python
-#@page  # Disabled - using views instead
+# @page  # Disabled - using views instead
 class PrefPasswordPage(BasePreferencesPage):
     name = "Mot de passe"  # Old French name
     url_string = ".password"  # Maps to new view endpoint
@@ -1106,6 +1131,7 @@ This creates chains like: `swork.__init__` → `swork.views` → `social_graph` 
 # Use lazy import inside functions:
 def swork():
     from app.services.social_graph import adapt  # Imported when function runs
+
     followees = adapt(g.user).get_followees()
     ...
 ```

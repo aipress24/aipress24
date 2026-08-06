@@ -28,6 +28,7 @@ The detector normalizes queries to identify patterns:
 ```python
 # These queries are grouped together:
 "SELECT * FROM users WHERE id = 1"
+
 "SELECT * FROM users WHERE id = 2"
 "SELECT * FROM users WHERE id = 3"
 
@@ -63,8 +64,8 @@ N_PLUS_ONE_RAISE = False
 
 ```python
 # In config or .env
-N_PLUS_ONE_ENABLED=true
-N_PLUS_ONE_THRESHOLD=5  # Higher threshold for production
+N_PLUS_ONE_ENABLED = true
+N_PLUS_ONE_THRESHOLD = 5  # Higher threshold for production
 ```
 
 ### Enable in Tests
@@ -110,9 +111,7 @@ for user in users:
 from sqlalchemy.orm import selectinload
 
 users = db.session.scalars(
-    select(User)
-    .options(selectinload(User.organisation))
-    .limit(10)
+    select(User).options(selectinload(User.organisation)).limit(10)
 )
 for user in users:
     print(user.organisation.name)  # Already loaded
@@ -130,8 +129,7 @@ for org in orgs:
 **Solution: Use `selectinload` or `subqueryload`**
 ```python
 orgs = db.session.scalars(
-    select(Organisation)
-    .options(selectinload(Organisation.members))
+    select(Organisation).options(selectinload(Organisation.members))
 )
 ```
 
@@ -147,11 +145,7 @@ for post in posts:
 **Solution: Chain eager loading**
 ```python
 posts = db.session.scalars(
-    select(Post)
-    .options(
-        selectinload(Post.author)
-        .selectinload(User.organisation)
-    )
+    select(Post).options(selectinload(Post.author).selectinload(User.organisation))
 )
 ```
 
@@ -167,10 +161,7 @@ posts = db.session.scalars(
 **Solution: Eager load in view/component**
 ```python
 def get_users():
-    return db.session.scalars(
-        select(User)
-        .options(selectinload(User.organisation))
-    )
+    return db.session.scalars(select(User).options(selectinload(User.organisation)))
 ```
 
 ## Choosing Eager Loading Strategy
@@ -189,6 +180,7 @@ def get_users():
 
 ```python
 from app.flask.lib.n_plus_one_detector import get_query_count
+
 
 @app.after_request
 def log_query_count(response):
@@ -249,6 +241,7 @@ def test_list_users_no_n_plus_one(client, assert_no_n_plus_one):
 
 ```python
 from app.flask.lib.n_plus_one_detector import get_query_stats
+
 
 def test_list_users_query_efficiency(client, db_session):
     # Create test data

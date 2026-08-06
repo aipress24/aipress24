@@ -54,15 +54,15 @@ The application uses a defense-in-depth approach with four access control layers
 ```python
 class RoleEnum(StrEnum):
     ADMIN = "admin"
-    LEADER = "leader"        # Org leadership role
-    MANAGER = "manager"      # Org management role
+    LEADER = "leader"  # Org leadership role
+    MANAGER = "manager"  # Org management role
     PRESS_MEDIA = "journalist"
     PRESS_RELATIONS = "press_relations"
     EXPERT = "expert"
     ACADEMIC = "academic"
     TRANSFORMER = "transformer"
     # Magic roles (evaluated at runtime, not stored in database)
-    SELF = "self"            # Owner of the resource
+    SELF = "self"  # Owner of the resource
 ```
 
 ## Decision
@@ -91,7 +91,7 @@ class RoleEnum(StrEnum):
     TRANSFORMER = "transformer"
 
     # Magic roles (evaluated at runtime)
-    SELF = "self"              # Owner of the resource (implemented)
+    SELF = "self"  # Owner of the resource (implemented)
     # ORG_MEMBER = "org_member"  # Future: Member of the same organisation
 ```
 
@@ -129,10 +129,13 @@ def billing():
 **Current approach** (without ORG_MEMBER):
 ```python
 @blueprint.route("/org-profile")
-@nav(icon="building-library", acl=[
-    ("Allow", RoleEnum.MANAGER, "view"),
-    ("Allow", RoleEnum.LEADER, "view"),
-])
+@nav(
+    icon="building-library",
+    acl=[
+        ("Allow", RoleEnum.MANAGER, "view"),
+        ("Allow", RoleEnum.LEADER, "view"),
+    ],
+)
 def org_profile():
     """Page institutionnelle"""
     # Explicit role check in view

@@ -118,12 +118,15 @@ article_published = signal("article-published")
 # In swork/views/member.py
 from app.events import user_followed
 
+
 def follow_user(target):
     # ... perform follow ...
     user_followed.send(actor=g.user, target=target)
 
+
 # In services/activity_stream/_service.py
 from app.events import user_followed
+
 
 @user_followed.connect
 def on_user_followed(sender, actor, target):

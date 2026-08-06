@@ -70,7 +70,9 @@ class NavConfig(TypedDict, total=False):
     order: int
     acl: list[tuple[str, Any, str]]
 
+
 _NAV_REGISTRY: dict[str, NavConfig] = {}
+
 
 def configure_nav(
     blueprint: Blueprint,
@@ -84,6 +86,7 @@ def configure_nav(
     if acl is not None:
         config["acl"] = acl
     _NAV_REGISTRY[blueprint.name] = config
+
 
 def get_nav_config(blueprint_name: str) -> NavConfig | None:
     return _NAV_REGISTRY.get(blueprint_name)
@@ -151,6 +154,7 @@ The single most impactful testing principle in this codebase. Most testing pitfa
 # BEFORE: Mock-heavy test that doesn't test real behavior
 from unittest.mock import MagicMock, patch
 
+
 def test_extract_fragment():
     with patch("app.flask.lib.htmx.htmx", MagicMock()):
         result = extract_fragment(html, id="content")
@@ -177,6 +181,7 @@ def _extract_by_id(html: str, element_id: str) -> str:
         return etree.tounicode(node, method="html")
     except Exception:
         return html
+
 
 def test_extract_by_id() -> None:
     """Test extraction by element id."""
@@ -283,6 +288,7 @@ def test_format_constant() -> None:
     result = dt.strftime(FORMAT)  # Tests strftime, not our code
     assert "15" in result
 
+
 def test_localtz_is_valid_timezone() -> None:
     """Test LOCALTZ is a valid pytz timezone."""
     assert LOCALTZ is not None  # Tests pytz, not our code
@@ -304,6 +310,7 @@ def test_snowflake_str_conversion() -> None: ...
 def test_snowflake_process_id() -> None: ...
 def test_snowflake_worker_id() -> None: ...
 def test_snowflake_generation() -> None: ...
+
 
 # AFTER: One test verifying the class works
 def test_snowflake_attributes_and_conversions() -> None:
@@ -331,6 +338,7 @@ def test_make_label_bw_type() -> None: ...
 def test_make_label_profile() -> None: ...
 def test_make_label_all_organisation_types() -> None: ...  # Redundant!
 def test_make_label_all_profiles() -> None: ...  # Redundant!
+
 
 # AFTER: One comprehensive test per enum
 def test_make_label_for_all_profiles() -> None:
@@ -360,9 +368,11 @@ class FilterBarTestMixin:
         bar.add_filter(self.sample_filter_id, "value")
         assert bar.has_filter(self.sample_filter_id, "value")
 
+
 class TestWireFilterBar(FilterBarTestMixin):
     filter_bar_class = FilterBar
     sample_filter_id = "sector"
+
 
 class TestEventsFilterBar(FilterBarTestMixin):
     filter_bar_class = FilterBar
@@ -407,12 +417,17 @@ Guidelines:
 
 ```python
 # GOOD: Parametrized test - all cases visible in one place
-@pytest.mark.parametrize("filter_id,value,expected_tag", [
-    ("sector", "tech", "secteur"),
-    ("genre", "news", "genre"),
-    ("topic", "ai", "rubrique"),
-])
-def test_active_filters_tag_label(filter_id: str, value: str, expected_tag: str) -> None:
+@pytest.mark.parametrize(
+    "filter_id,value,expected_tag",
+    [
+        ("sector", "tech", "secteur"),
+        ("genre", "news", "genre"),
+        ("topic", "ai", "rubrique"),
+    ],
+)
+def test_active_filters_tag_label(
+    filter_id: str, value: str, expected_tag: str
+) -> None:
     """Test active_filters returns correct tag_label for each filter type."""
     bar = _create_bar({"filters": [{"id": filter_id, "value": value}]})
     active = bar.active_filters
@@ -435,6 +450,7 @@ Use `@pytest.mark.parametrize` when testing the same behavior with different inp
 ```python
 # FilterBar's state manipulation is just dictionary operations
 # Test the dict operations, not the Flask-dependent class initialization
+
 
 def test_add_filter(self) -> None:
     bar = self._create_bar()  # Bypass __init__, set state directly
@@ -480,6 +496,7 @@ def test_merge_dicts_nested() -> None: ...
 def test_merge_dicts_deeply_nested() -> None: ...  # Same as nested!
 def test_merge_dicts_replace_non_dict_with_dict() -> None: ...
 def test_merge_dicts_replace_dict_with_scalar() -> None: ...
+
 
 # AFTER: 4 focused tests
 def test_merge_dicts_flat_and_overwrite() -> None: ...
@@ -535,7 +552,10 @@ def test_flakes_are_unique() -> None:
 assert make_label(OrganisationTypeEnum.COM) == "Communication"  # Wrong!
 
 # GOOD: Use the source of truth
-assert make_label(OrganisationTypeEnum.COM) == LABELS_ORGANISATION_TYPE[OrganisationTypeEnum.COM]
+assert (
+    make_label(OrganisationTypeEnum.COM)
+    == LABELS_ORGANISATION_TYPE[OrganisationTypeEnum.COM]
+)
 ```
 
 ### Pitfall 3: Testing Empty Collections Separately
@@ -547,8 +567,10 @@ assert make_label(OrganisationTypeEnum.COM) == LABELS_ORGANISATION_TYPE[Organisa
 def test_empty_list_returns_empty_list() -> None:
     assert convert([]) == []
 
+
 def test_empty_dict_returns_empty_list() -> None:
     assert convert({}) == []
+
 
 # GOOD: One test covers the empty case
 def test_empty_input() -> None:

@@ -34,7 +34,7 @@ from app.modules.bw.bw_activation.utils import DASHBOARD_ACCESS_ROLES
 # to templates. Includes `list[str]` so step 2 can expose the user's
 # full list of available fonctions for the autocomplete datalist
 # (bug #0107).
-StdDict = dict[str, str | int | float | bool | None | list[str]]
+StdDict = dict[str, str | int | float | bool | list[str] | None]
 
 if TYPE_CHECKING:
     from app.models.auth import User
