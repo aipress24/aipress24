@@ -91,10 +91,39 @@ def test_business_wall_exporter(db_session) -> None:
     assert exporter.cell_value(bw_b, "name_group") == "Group B"
     assert exporter.cell_value(bw_b, "name_institution") == "Inst B"
 
+    bw_b.secteurs_activite = ["batiment", "informatique"]
+    db_session.flush()
+
+    assert "secteurs_activite" in exporter.columns
+    idx_type_org = exporter.columns.index("type_organisation")
+    idx_secteurs = exporter.columns.index("secteurs_activite")
+    assert idx_secteurs == idx_type_org + 1
+
+    assert "count_bw_members" in exporter.columns
+    idx_press_type = exporter.columns.index("type_presse_et_media")
+    idx_members = exporter.columns.index("count_bw_members")
+    assert idx_members == idx_press_type + 1
+
+    assert "bwmi" in exporter.columns
+    assert "bwpri" in exporter.columns
+    assert "pr_agency" in exporter.columns
+    assert "bwpre" in exporter.columns
+    idx_payer = exporter.columns.index("payer_email")
+    assert exporter.columns.index("bwmi") == idx_payer + 1
+    assert exporter.columns.index("bwpri") == idx_payer + 2
+    assert exporter.columns.index("pr_agency") == idx_payer + 3
+    assert exporter.columns.index("bwpre") == idx_payer + 4
+
     assert exporter.cell_value(bw_b, "type_organisation") == "entreprise_media"
+    assert exporter.cell_value(bw_b, "secteurs_activite") == "batiment, informatique"
     assert exporter.cell_value(bw_b, "type_entreprise_media") == "presse_en_ligne"
     assert exporter.cell_value(bw_b, "type_presse_et_media") == "pqr"
+    assert exporter.cell_value(bw_b, "count_bw_members") == 1
     assert exporter.cell_value(bw_b, "taille_orga") == "10_49"
+    assert exporter.cell_value(bw_b, "bwmi") == ""
+    assert exporter.cell_value(bw_b, "bwpri") == ""
+    assert exporter.cell_value(bw_b, "pr_agency") == ""
+    assert exporter.cell_value(bw_b, "bwpre") == ""
 
     assert exporter.cell_value(bw_b, "pays") == "France"
     assert exporter.cell_value(bw_b, "code_postal_ville") == "FRA / 75001 Paris"
