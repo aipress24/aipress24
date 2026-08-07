@@ -6,6 +6,8 @@
 
 from __future__ import annotations
 
+from pathlib import Path
+
 from flask import flash, redirect, render_template, request, url_for
 from sqlalchemy import func, select
 
@@ -16,6 +18,14 @@ from app.modules.admin import blueprint
 from app.services.zip_codes import CountryEntry, ZipCodeEntry
 
 
+def _country_update_path() -> tuple[Path, Path]:
+    root_path = Path(__file__).resolve().parent.parent.parent.parent.parent.parent
+    update_path = root_path / "update_data"
+    countries_path = update_path / "country_zip_code" / "pays.json"
+    zipcodes_path = update_path / "country_zip_code" / "towns"
+    return countries_path, zipcodes_path
+
+
 @blueprint.route("/reload-zip-codes", methods=["GET", "POST"])
 @nav(
     parent="index",
@@ -24,10 +34,11 @@ from app.services.zip_codes import CountryEntry, ZipCodeEntry
 )
 def reload_zip_codes():
     """Reload country and zip code data."""
+    countries_path, zipcodes_path = _country_update_path()
     if request.method == "POST":
         try:
-            import_countries()
-            import_zip_codes()
+            import_countries(countries_path)
+            import_zip_codes(countries_path, zipcodes_path)
             db.session.commit()
             flash("Les pays et codes postaux ont été chargés.", "success")
         except Exception as e:

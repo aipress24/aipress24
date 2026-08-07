@@ -1,0 +1,30 @@
+[
+    {
+        "name": "Canillo",
+        "zip_code": "AD100"
+    },
+    {
+        "name": "Encamp",
+        "zip_code": "AD200"
+    },
+    {
+        "name": "La Massana",
+        "zip_code": "AD400"
+    },
+    {
+        "name": "Ordino",
+        "zip_code": "AD300"
+    },
+    {
+        "name": "Sant Julià de Lòria",
+        "zip_code": "AD600"
+    },
+    {
+        "name": "Andorra la Vella",
+        "zip_code": "AD500"
+    },
+    {
+        "name": "Escaldes-Engordany",
+        "zip_code": "AD700"
+    }
+]

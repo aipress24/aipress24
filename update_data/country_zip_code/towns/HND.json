@@ -1,0 +1,154 @@
+[
+    {
+        "name": "La Ceiba",
+        "zip_code": "31101"
+    },
+    {
+        "name": "Tela",
+        "zip_code": "31301"
+    },
+    {
+        "name": "Choluteca",
+        "zip_code": "51101"
+    },
+    {
+        "name": "Pespire",
+        "zip_code": "51201"
+    },
+    {
+        "name": "Trujillo",
+        "zip_code": "32101"
+    },
+    {
+        "name": "Tocoa",
+        "zip_code": "32301"
+    },
+    {
+        "name": "Comayagua",
+        "zip_code": "12101"
+    },
+    {
+        "name": "Siguatepeque",
+        "zip_code": "12111"
+    },
+    {
+        "name": "Santa Rosa de Copan",
+        "zip_code": "41101"
+    },
+    {
+        "name": "La Entrada",
+        "zip_code": "41202"
+    },
+    {
+        "name": "Sector N.E.",
+        "zip_code": "21101"
+    },
+    {
+        "name": "Sector N.O.",
+        "zip_code": "21102"
+    },
+    {
+        "name": "Sector S.E.",
+        "zip_code": "21103"
+    },
+    {
+        "name": "Sector S.O.",
+        "zip_code": "21104"
+    },
+    {
+        "name": "Choloma",
+        "zip_code": "21112"
+    },
+    {
+        "name": "Puerto Cortes",
+        "zip_code": "21301"
+    },
+    {
+        "name": "Yuscaran",
+        "zip_code": "13101"
+    },
+    {
+        "name": "Danli",
+        "zip_code": "13201"
+    },
+    {
+        "name": "Tegucigalpa",
+        "zip_code": "11101"
+    },
+    {
+        "name": "Comayaguela",
+        "zip_code": "12101"
+    },
+    {
+        "name": "Puerto Lempira",
+        "zip_code": "33101"
+    },
+    {
+        "name": "La Esperanza",
+        "zip_code": "14101"
+    },
+    {
+        "name": "Jesus de Otoro",
+        "zip_code": "14201"
+    },
+    {
+        "name": "Roatan",
+        "zip_code": "34101"
+    },
+    {
+        "name": "La Paz",
+        "zip_code": "15101"
+    },
+    {
+        "name": "Marcala",
+        "zip_code": "15201"
+    },
+    {
+        "name": "Gracias",
+        "zip_code": "42101"
+    },
+    {
+        "name": "Erandique",
+        "zip_code": "42201"
+    },
+    {
+        "name": "Ocotepeque",
+        "zip_code": "43101"
+    },
+    {
+        "name": "San Marcos de Ocotepeque",
+        "zip_code": "43201"
+    },
+    {
+        "name": "Juticalpa",
+        "zip_code": "16101"
+    },
+    {
+        "name": "Catacamas",
+        "zip_code": "16201"
+    },
+    {
+        "name": "Santa Barbara",
+        "zip_code": "22101"
+    },
+    {
+        "name": "Trinidad",
+        "zip_code": "22114"
+    },
+    {
+        "name": "Nacaome",
+        "zip_code": "52101"
+    },
+    {
+        "name": "San Lorenzo",
+        "zip_code": "52102"
+    },
+    {
+        "name": "Yoro",
+        "zip_code": "23101"
+    },
+    {
+        "name": "El Progreso",
+        "zip_code": "23201"
+    }
+]

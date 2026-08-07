@@ -1,0 +1,522 @@
+[
+    {
+        "name": "Tórshavn",
+        "zip_code": "100"
+    },
+    {
+        "name": "Tórshavn",
+        "zip_code": "110"
+    },
+    {
+        "name": "Argir",
+        "zip_code": "160"
+    },
+    {
+        "name": "Argir",
+        "zip_code": "165"
+    },
+    {
+        "name": "Kirkjubøur",
+        "zip_code": "175"
+    },
+    {
+        "name": "Velbastadur",
+        "zip_code": "176"
+    },
+    {
+        "name": "Sydradalur, Streymoy",
+        "zip_code": "177"
+    },
+    {
+        "name": "Nordradalur",
+        "zip_code": "178"
+    },
+    {
+        "name": "Kaldbak",
+        "zip_code": "180"
+    },
+    {
+        "name": "Kaldbaksbotnur",
+        "zip_code": "185"
+    },
+    {
+        "name": "Sund",
+        "zip_code": "186"
+    },
+    {
+        "name": "Hvitanes",
+        "zip_code": "187"
+    },
+    {
+        "name": "Hoyvik",
+        "zip_code": "188"
+    },
+    {
+        "name": "Sandur",
+        "zip_code": "210"
+    },
+    {
+        "name": "Sandur",
+        "zip_code": "215"
+    },
+    {
+        "name": "Skálavik",
+        "zip_code": "220"
+    },
+    {
+        "name": "Húsavik",
+        "zip_code": "230"
+    },
+    {
+        "name": "Dalur",
+        "zip_code": "235"
+    },
+    {
+        "name": "Skarvanes",
+        "zip_code": "236"
+    },
+    {
+        "name": "Skopun",
+        "zip_code": "240"
+    },
+    {
+        "name": "Skúvoy",
+        "zip_code": "260"
+    },
+    {
+        "name": "Nólsoy",
+        "zip_code": "270"
+    },
+    {
+        "name": "Hestur",
+        "zip_code": "280"
+    },
+    {
+        "name": "Koltur",
+        "zip_code": "285"
+    },
+    {
+        "name": "Stóra Dimun",
+        "zip_code": "286"
+    },
+    {
+        "name": "Stykkid",
+        "zip_code": "330"
+    },
+    {
+        "name": "Leynar",
+        "zip_code": "335"
+    },
+    {
+        "name": "Skællingur",
+        "zip_code": "336"
+    },
+    {
+        "name": "Kvivik",
+        "zip_code": "340"
+    },
+    {
+        "name": "Vestmanna",
+        "zip_code": "350"
+    },
+    {
+        "name": "Vestmanna",
+        "zip_code": "355"
+    },
+    {
+        "name": "Válur",
+        "zip_code": "358"
+    },
+    {
+        "name": "Sandavágur",
+        "zip_code": "360"
+    },
+    {
+        "name": "Midvágur",
+        "zip_code": "370"
+    },
+    {
+        "name": "Midvágur",
+        "zip_code": "375"
+    },
+    {
+        "name": "Sørvágur",
+        "zip_code": "380"
+    },
+    {
+        "name": "Vatnsoyrar",
+        "zip_code": "385"
+    },
+    {
+        "name": "Bøur",
+        "zip_code": "386"
+    },
+    {
+        "name": "Gásadalur",
+        "zip_code": "387"
+    },
+    {
+        "name": "Mykines",
+        "zip_code": "388"
+    },
+    {
+        "name": "Oyrarbakki",
+        "zip_code": "400"
+    },
+    {
+        "name": "Oyrarbakki",
+        "zip_code": "405"
+    },
+    {
+        "name": "Kollafjørdur",
+        "zip_code": "410"
+    },
+    {
+        "name": "Oyrareingir",
+        "zip_code": "415"
+    },
+    {
+        "name": "Signabøur",
+        "zip_code": "416"
+    },
+    {
+        "name": "Hósvik",
+        "zip_code": "420"
+    },
+    {
+        "name": "Hvalvik",
+        "zip_code": "430"
+    },
+    {
+        "name": "Streymnes",
+        "zip_code": "435"
+    },
+    {
+        "name": "Saksun",
+        "zip_code": "436"
+    },
+    {
+        "name": "Nesvik",
+        "zip_code": "437"
+    },
+    {
+        "name": "Langasandur",
+        "zip_code": "438"
+    },
+    {
+        "name": "Haldarsvik",
+        "zip_code": "440"
+    },
+    {
+        "name": "Tjørnuvik",
+        "zip_code": "445"
+    },
+    {
+        "name": "Oyri",
+        "zip_code": "450"
+    },
+    {
+        "name": "Nordskáli",
+        "zip_code": "460"
+    },
+    {
+        "name": "Svináir",
+        "zip_code": "465"
+    },
+    {
+        "name": "Ljósá",
+        "zip_code": "466"
+    },
+    {
+        "name": "Eidi",
+        "zip_code": "470"
+    },
+    {
+        "name": "Funningur",
+        "zip_code": "475"
+    },
+    {
+        "name": "Gjógv",
+        "zip_code": "476"
+    },
+    {
+        "name": "Funningsfjørdur",
+        "zip_code": "477"
+    },
+    {
+        "name": "Elduvik",
+        "zip_code": "478"
+    },
+    {
+        "name": "Skáli",
+        "zip_code": "480"
+    },
+    {
+        "name": "Skálafjørdur",
+        "zip_code": "485"
+    },
+    {
+        "name": "Strendur",
+        "zip_code": "490"
+    },
+    {
+        "name": "Innan Glyvur",
+        "zip_code": "494"
+    },
+    {
+        "name": "Kolbanargjógv",
+        "zip_code": "495"
+    },
+    {
+        "name": "Morskranes",
+        "zip_code": "496"
+    },
+    {
+        "name": "Selatrad",
+        "zip_code": "497"
+    },
+    {
+        "name": "Gøta",
+        "zip_code": "510"
+    },
+    {
+        "name": "Gøtugjógv",
+        "zip_code": "511"
+    },
+    {
+        "name": "Nordragøta",
+        "zip_code": "512"
+    },
+    {
+        "name": "Sydrugøta",
+        "zip_code": "513"
+    },
+    {
+        "name": "Gøta",
+        "zip_code": "515"
+    },
+    {
+        "name": "Leirvik",
+        "zip_code": "520"
+    },
+    {
+        "name": "Fuglafjørdur",
+        "zip_code": "530"
+    },
+    {
+        "name": "Fuglafjørdur",
+        "zip_code": "535"
+    },
+    {
+        "name": "Saltangará",
+        "zip_code": "600"
+    },
+    {
+        "name": "Saltangará",
+        "zip_code": "610"
+    },
+    {
+        "name": "Runavik",
+        "zip_code": "620"
+    },
+    {
+        "name": "Glyvrar",
+        "zip_code": "625"
+    },
+    {
+        "name": "Lambareidi",
+        "zip_code": "626"
+    },
+    {
+        "name": "Lambi",
+        "zip_code": "627"
+    },
+    {
+        "name": "Rituvik",
+        "zip_code": "640"
+    },
+    {
+        "name": "Æduvik",
+        "zip_code": "645"
+    },
+    {
+        "name": "Toftir",
+        "zip_code": "650"
+    },
+    {
+        "name": "Nes, Eysturoy",
+        "zip_code": "655"
+    },
+    {
+        "name": "Saltnes",
+        "zip_code": "656"
+    },
+    {
+        "name": "Søldarfjørdur",
+        "zip_code": "660"
+    },
+    {
+        "name": "Skipanes",
+        "zip_code": "665"
+    },
+    {
+        "name": "Gøtueidi",
+        "zip_code": "666"
+    },
+    {
+        "name": "Oyndarfjørdur",
+        "zip_code": "690"
+    },
+    {
+        "name": "Hellur",
+        "zip_code": "695"
+    },
+    {
+        "name": "Klaksvik",
+        "zip_code": "700"
+    },
+    {
+        "name": "Klaksvík",
+        "zip_code": "710"
+    },
+    {
+        "name": "Nordoyri",
+        "zip_code": "725"
+    },
+    {
+        "name": "Ánir",
+        "zip_code": "726"
+    },
+    {
+        "name": "Árnafjørdur",
+        "zip_code": "727"
+    },
+    {
+        "name": "Norddepil",
+        "zip_code": "730"
+    },
+    {
+        "name": "Depil",
+        "zip_code": "735"
+    },
+    {
+        "name": "Nordtoftir",
+        "zip_code": "736"
+    },
+    {
+        "name": "Múli",
+        "zip_code": "737"
+    },
+    {
+        "name": "Hvannasund",
+        "zip_code": "740"
+    },
+    {
+        "name": "Vidareidi",
+        "zip_code": "750"
+    },
+    {
+        "name": "Svinoy",
+        "zip_code": "765"
+    },
+    {
+        "name": "Kirkja",
+        "zip_code": "766"
+    },
+    {
+        "name": "Hattarvik",
+        "zip_code": "767"
+    },
+    {
+        "name": "Kunoy",
+        "zip_code": "780"
+    },
+    {
+        "name": "Haraldssund",
+        "zip_code": "785"
+    },
+    {
+        "name": "Sydradalur, Kalsoy",
+        "zip_code": "795"
+    },
+    {
+        "name": "Húsar",
+        "zip_code": "796"
+    },
+    {
+        "name": "Mikladalur",
+        "zip_code": "797"
+    },
+    {
+        "name": "Trøllanes",
+        "zip_code": "798"
+    },
+    {
+        "name": "Tvøroyri",
+        "zip_code": "800"
+    },
+    {
+        "name": "Tvøroyri",
+        "zip_code": "810"
+    },
+    {
+        "name": "Frodba",
+        "zip_code": "825"
+    },
+    {
+        "name": "Trongisvágur",
+        "zip_code": "826"
+    },
+    {
+        "name": "Øravik",
+        "zip_code": "827"
+    },
+    {
+        "name": "Hvalba",
+        "zip_code": "850"
+    },
+    {
+        "name": "Sandvik",
+        "zip_code": "860"
+    },
+    {
+        "name": "Fámjin",
+        "zip_code": "870"
+    },
+    {
+        "name": "Vágur",
+        "zip_code": "900"
+    },
+    {
+        "name": "Vágur",
+        "zip_code": "910"
+    },
+    {
+        "name": "Nes, Vágur",
+        "zip_code": "925"
+    },
+    {
+        "name": "Lopra",
+        "zip_code": "926"
+    },
+    {
+        "name": "Akrar",
+        "zip_code": "927"
+    },
+    {
+        "name": "Vikarbyrgi",
+        "zip_code": "928"
+    },
+    {
+        "name": "Porkeri",
+        "zip_code": "950"
+    },
+    {
+        "name": "Hov",
+        "zip_code": "960"
+    },
+    {
+        "name": "Sumba",
+        "zip_code": "970"
+    }
+]
