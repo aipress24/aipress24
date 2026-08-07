@@ -1,0 +1,5302 @@
+[
+    {
+        "name": "Al Hoceima",
+        "zip_code": "32000"
+    },
+    {
+        "name": "Ait Youssef Ou Ali",
+        "zip_code": "32003"
+    },
+    {
+        "name": "Arbaa Taourirt",
+        "zip_code": "32004"
+    },
+    {
+        "name": "Rouadi",
+        "zip_code": "32006"
+    },
+    {
+        "name": "Senada",
+        "zip_code": "32013"
+    },
+    {
+        "name": "Torres De Alcala",
+        "zip_code": "32014"
+    },
+    {
+        "name": "Ait Kamra",
+        "zip_code": "32022"
+    },
+    {
+        "name": "Chakrane",
+        "zip_code": "32023"
+    },
+    {
+        "name": "Izemmouren",
+        "zip_code": "32024"
+    },
+    {
+        "name": "Bni Bouayach",
+        "zip_code": "32050"
+    },
+    {
+        "name": "Nekkour",
+        "zip_code": "32072"
+    },
+    {
+        "name": "Bni Boufrah",
+        "zip_code": "32102"
+    },
+    {
+        "name": "Beni Gmil Mestassa",
+        "zip_code": "32122"
+    },
+    {
+        "name": "Bni Hadifa",
+        "zip_code": "32152"
+    },
+    {
+        "name": "Bni Abdallah",
+        "zip_code": "32172"
+    },
+    {
+        "name": "Imrabten",
+        "zip_code": "32202"
+    },
+    {
+        "name": "Imzouren",
+        "zip_code": "32250"
+    },
+    {
+        "name": "Troukout",
+        "zip_code": "32253"
+    },
+    {
+        "name": "Issaguen",
+        "zip_code": "32302"
+    },
+    {
+        "name": "Ikaouen",
+        "zip_code": "32322"
+    },
+    {
+        "name": "Ketama",
+        "zip_code": "32323"
+    },
+    {
+        "name": "Tabarannt",
+        "zip_code": "32324"
+    },
+    {
+        "name": "Taghzout",
+        "zip_code": "32325"
+    },
+    {
+        "name": "Tizi Tchen",
+        "zip_code": "32326"
+    },
+    {
+        "name": "Targuist",
+        "zip_code": "32350"
+    },
+    {
+        "name": "Bni Ammart",
+        "zip_code": "32352"
+    },
+    {
+        "name": "Ain Benabbou",
+        "zip_code": "32372"
+    },
+    {
+        "name": "Bni Bounsar",
+        "zip_code": "32373"
+    },
+    {
+        "name": "Bni Bchir",
+        "zip_code": "32374"
+    },
+    {
+        "name": "Sidi Bouzineb",
+        "zip_code": "32375"
+    },
+    {
+        "name": "Chefchaouen",
+        "zip_code": "91000"
+    },
+    {
+        "name": "Bab Taza",
+        "zip_code": "91002"
+    },
+    {
+        "name": "Steha",
+        "zip_code": "91003"
+    },
+    {
+        "name": "Ain Beida",
+        "zip_code": "91022"
+    },
+    {
+        "name": "Asifane",
+        "zip_code": "91023"
+    },
+    {
+        "name": "Asjen",
+        "zip_code": "91024"
+    },
+    {
+        "name": "Beni Rzen",
+        "zip_code": "91025"
+    },
+    {
+        "name": "Brikcha",
+        "zip_code": "91026"
+    },
+    {
+        "name": "Derkoul",
+        "zip_code": "91032"
+    },
+    {
+        "name": "Fifi",
+        "zip_code": "91033"
+    },
+    {
+        "name": "Beni Bouzra",
+        "zip_code": "91034"
+    },
+    {
+        "name": "Kaa Asrass",
+        "zip_code": "91035"
+    },
+    {
+        "name": "Tassift",
+        "zip_code": "91036"
+    },
+    {
+        "name": "Derdera",
+        "zip_code": "91042"
+    },
+    {
+        "name": "Had Rhdir Krouch",
+        "zip_code": "91043"
+    },
+    {
+        "name": "Talembote",
+        "zip_code": "91044"
+    },
+    {
+        "name": "Tanacob",
+        "zip_code": "91045"
+    },
+    {
+        "name": "Tlata Assifane",
+        "zip_code": "91046"
+    },
+    {
+        "name": "Bab Berret",
+        "zip_code": "91052"
+    },
+    {
+        "name": "Tamorote",
+        "zip_code": "91072"
+    },
+    {
+        "name": "Iouane",
+        "zip_code": "91073"
+    },
+    {
+        "name": "Bni Ahmed",
+        "zip_code": "91102"
+    },
+    {
+        "name": "El Melha",
+        "zip_code": "91122"
+    },
+    {
+        "name": "Bni Ahmed Gharbia",
+        "zip_code": "91123"
+    },
+    {
+        "name": "Mansoura",
+        "zip_code": "91124"
+    },
+    {
+        "name": "Mokrisset",
+        "zip_code": "91152"
+    },
+    {
+        "name": "Jebha",
+        "zip_code": "91153"
+    },
+    {
+        "name": "Bni Smih",
+        "zip_code": "91172"
+    },
+    {
+        "name": "Amtar",
+        "zip_code": "91173"
+    },
+    {
+        "name": "Ouaouzgane",
+        "zip_code": "91174"
+    },
+    {
+        "name": "Zoumi",
+        "zip_code": "91202"
+    },
+    {
+        "name": "Bahraouiyne Tanja",
+        "zip_code": "94022"
+    },
+    {
+        "name": "Bahriyne El Aouama",
+        "zip_code": "94023"
+    },
+    {
+        "name": "El Borch",
+        "zip_code": "94025"
+    },
+    {
+        "name": "Zoco Jemis De Anyera",
+        "zip_code": "94026"
+    },
+    {
+        "name": "Hakkama",
+        "zip_code": "94031"
+    },
+    {
+        "name": "Melloussa",
+        "zip_code": "94053"
+    },
+    {
+        "name": "Tarhremt",
+        "zip_code": "94122"
+    },
+    {
+        "name": "Ksar Sghir",
+        "zip_code": "94152"
+    },
+    {
+        "name": "Larache",
+        "zip_code": "92000"
+    },
+    {
+        "name": "Sebt Bni Garfet",
+        "zip_code": "92002"
+    },
+    {
+        "name": "Arbaa Ayacha",
+        "zip_code": "92022"
+    },
+    {
+        "name": "Sidi Ali",
+        "zip_code": "92023"
+    },
+    {
+        "name": "Zaaroura",
+        "zip_code": "92024"
+    },
+    {
+        "name": "Al Aouamra",
+        "zip_code": "92052"
+    },
+    {
+        "name": "Zouada",
+        "zip_code": "92072"
+    },
+    {
+        "name": "Khemis Sahel",
+        "zip_code": "92102"
+    },
+    {
+        "name": "Ksar El Kebir",
+        "zip_code": "92150"
+    },
+    {
+        "name": "Mecherah",
+        "zip_code": "92172"
+    },
+    {
+        "name": "Souk Tolba",
+        "zip_code": "92173"
+    },
+    {
+        "name": "Tatoufet",
+        "zip_code": "92202"
+    },
+    {
+        "name": "Tlata Rissana",
+        "zip_code": "92252"
+    },
+    {
+        "name": "Rissana Janoubia",
+        "zip_code": "92272"
+    },
+    {
+        "name": "Moulay Abdesslam",
+        "zip_code": "93034"
+    },
+    {
+        "name": "Hajr Enhal",
+        "zip_code": "90025"
+    },
+    {
+        "name": "Sebt Zeniate",
+        "zip_code": "90036"
+    },
+    {
+        "name": "Assilah",
+        "zip_code": "90050"
+    },
+    {
+        "name": "Dar Chaoui",
+        "zip_code": "90052"
+    },
+    {
+        "name": "Tnine Sidi El Yamani",
+        "zip_code": "90054"
+    },
+    {
+        "name": "Gzenaya",
+        "zip_code": "90102"
+    },
+    {
+        "name": "Had Rharbia",
+        "zip_code": "90302"
+    },
+    {
+        "name": "Bghaghza",
+        "zip_code": "90072"
+    },
+    {
+        "name": "Asmaten",
+        "zip_code": "93015"
+    },
+    {
+        "name": "Azla",
+        "zip_code": "93022"
+    },
+    {
+        "name": "Beni Yder",
+        "zip_code": "93023"
+    },
+    {
+        "name": "Dar Ben Saddouk",
+        "zip_code": "93024"
+    },
+    {
+        "name": "El Fendeq",
+        "zip_code": "93026"
+    },
+    {
+        "name": "Zaouia Sidi Kacem",
+        "zip_code": "93032"
+    },
+    {
+        "name": "Jemaa El Oued",
+        "zip_code": "93033"
+    },
+    {
+        "name": "Bni Karrich Fouki",
+        "zip_code": "93052"
+    },
+    {
+        "name": "Fnidq",
+        "zip_code": "93100"
+    },
+    {
+        "name": "Martil",
+        "zip_code": "93150"
+    },
+    {
+        "name": "M'Diq",
+        "zip_code": "93200"
+    },
+    {
+        "name": "Oued Laou",
+        "zip_code": "93250"
+    },
+    {
+        "name": "Ahfir",
+        "zip_code": "63050"
+    },
+    {
+        "name": "Arhbal",
+        "zip_code": "63072"
+    },
+    {
+        "name": "Ain Erreggada",
+        "zip_code": "63200"
+    },
+    {
+        "name": "Aklim",
+        "zip_code": "63250"
+    },
+    {
+        "name": "Madagh",
+        "zip_code": "63303"
+    },
+    {
+        "name": "Zayest",
+        "zip_code": "63322"
+    },
+    {
+        "name": "Zegzel",
+        "zip_code": "63323"
+    },
+    {
+        "name": "Laatmna",
+        "zip_code": "63324"
+    },
+    {
+        "name": "Saidia",
+        "zip_code": "63600"
+    },
+    {
+        "name": "Sidi Bouhouria",
+        "zip_code": "63652"
+    },
+    {
+        "name": "Rislane",
+        "zip_code": "63672"
+    },
+    {
+        "name": "Taforhalt",
+        "zip_code": "63752"
+    },
+    {
+        "name": "Figuig",
+        "zip_code": "61000"
+    },
+    {
+        "name": "Ain Chouater",
+        "zip_code": "61052"
+    },
+    {
+        "name": "Beni Tajjite",
+        "zip_code": "61102"
+    },
+    {
+        "name": "Ait Ahmad Ou Haddou",
+        "zip_code": "61122"
+    },
+    {
+        "name": "Bouanane",
+        "zip_code": "61152"
+    },
+    {
+        "name": "Bouarfa",
+        "zip_code": "61200"
+    },
+    {
+        "name": "Ain Echchair",
+        "zip_code": "61222"
+    },
+    {
+        "name": "Mengoub",
+        "zip_code": "61223"
+    },
+    {
+        "name": "Talsinnt",
+        "zip_code": "61252"
+    },
+    {
+        "name": "Anoual Bouchaouen",
+        "zip_code": "61272"
+    },
+    {
+        "name": "Boumeriem",
+        "zip_code": "61273"
+    },
+    {
+        "name": "Tendrara",
+        "zip_code": "61302"
+    },
+    {
+        "name": "Oued El Heimer",
+        "zip_code": "64022"
+    },
+    {
+        "name": "Ain Bni Mathar",
+        "zip_code": "64100"
+    },
+    {
+        "name": "Merija",
+        "zip_code": "64122"
+    },
+    {
+        "name": "Ouled Ghziyel",
+        "zip_code": "64123"
+    },
+    {
+        "name": "Ain El Guenfouda",
+        "zip_code": "64152"
+    },
+    {
+        "name": "Hassi Blal",
+        "zip_code": "64500"
+    },
+    {
+        "name": "Jerada",
+        "zip_code": "64550"
+    },
+    {
+        "name": "El Aouinet",
+        "zip_code": "64572"
+    },
+    {
+        "name": "Guefait",
+        "zip_code": "64573"
+    },
+    {
+        "name": "Touissit",
+        "zip_code": "64850"
+    },
+    {
+        "name": "Tiouli",
+        "zip_code": "64872"
+    },
+    {
+        "name": "Zellidja Boubker",
+        "zip_code": "64902"
+    },
+    {
+        "name": "Aazanen",
+        "zip_code": "62022"
+    },
+    {
+        "name": "Bouarg",
+        "zip_code": "62023"
+    },
+    {
+        "name": "Farkhana",
+        "zip_code": "62024"
+    },
+    {
+        "name": "Mechra Klila",
+        "zip_code": "62025"
+    },
+    {
+        "name": "Taouima",
+        "zip_code": "62026"
+    },
+    {
+        "name": "Bni Ansar",
+        "zip_code": "62050"
+    },
+    {
+        "name": "Ben Tib",
+        "zip_code": "62102"
+    },
+    {
+        "name": "Tizirhine",
+        "zip_code": "62122"
+    },
+    {
+        "name": "Talilit",
+        "zip_code": "62123"
+    },
+    {
+        "name": "Boudinar",
+        "zip_code": "62152"
+    },
+    {
+        "name": "Oulad Amghar",
+        "zip_code": "62172"
+    },
+    {
+        "name": "Dar Kebdani",
+        "zip_code": "62202"
+    },
+    {
+        "name": "Ain Zorah",
+        "zip_code": "62252"
+    },
+    {
+        "name": "Driouch",
+        "zip_code": "62253"
+    },
+    {
+        "name": "Oulad Boubker",
+        "zip_code": "62272"
+    },
+    {
+        "name": "Had Bni Chiker",
+        "zip_code": "62302"
+    },
+    {
+        "name": "Kariat Arkmane",
+        "zip_code": "62352"
+    },
+    {
+        "name": "Khemis Temsamane",
+        "zip_code": "62402"
+    },
+    {
+        "name": "Ajermounas",
+        "zip_code": "62422"
+    },
+    {
+        "name": "Mhajer",
+        "zip_code": "62452"
+    },
+    {
+        "name": "Midar",
+        "zip_code": "62502"
+    },
+    {
+        "name": "Kaceta",
+        "zip_code": "62522"
+    },
+    {
+        "name": "Tleta Tazlaft",
+        "zip_code": "62523"
+    },
+    {
+        "name": "Al Aaroui",
+        "zip_code": "62550"
+    },
+    {
+        "name": "Ras El Ma",
+        "zip_code": "62602"
+    },
+    {
+        "name": "Zeghanghane",
+        "zip_code": "62650"
+    },
+    {
+        "name": "Beni Bou Ifrour",
+        "zip_code": "62672"
+    },
+    {
+        "name": "Ihaddadene",
+        "zip_code": "62673"
+    },
+    {
+        "name": "Selouane",
+        "zip_code": "62702"
+    },
+    {
+        "name": "Tafersite",
+        "zip_code": "62752"
+    },
+    {
+        "name": "Tiztoutine",
+        "zip_code": "62802"
+    },
+    {
+        "name": "Afsou",
+        "zip_code": "62822"
+    },
+    {
+        "name": "Tleta Jbel",
+        "zip_code": "62852"
+    },
+    {
+        "name": "Bni Sidel Louta",
+        "zip_code": "62872"
+    },
+    {
+        "name": "Zaio",
+        "zip_code": "62900"
+    },
+    {
+        "name": "Hassi Berkane",
+        "zip_code": "62902"
+    },
+    {
+        "name": "Oulad Daoud Zkhanine",
+        "zip_code": "62922"
+    },
+    {
+        "name": "Ain Es Sfa",
+        "zip_code": "60005"
+    },
+    {
+        "name": "El Bessara",
+        "zip_code": "60006"
+    },
+    {
+        "name": "Aereport Oujda Angad",
+        "zip_code": "60023"
+    },
+    {
+        "name": "Zoudj Bghal",
+        "zip_code": "60024"
+    },
+    {
+        "name": "Mesteferki",
+        "zip_code": "60025"
+    },
+    {
+        "name": "Oujda Bni Oukil",
+        "zip_code": "60032"
+    },
+    {
+        "name": "Naima",
+        "zip_code": "60070"
+    },
+    {
+        "name": "Bni Drar",
+        "zip_code": "60350"
+    },
+    {
+        "name": "Debdou",
+        "zip_code": "65400"
+    },
+    {
+        "name": "El Aioune",
+        "zip_code": "65450"
+    },
+    {
+        "name": "Mechra Hoummadi",
+        "zip_code": "65472"
+    },
+    {
+        "name": "Mestigmer",
+        "zip_code": "65473"
+    },
+    {
+        "name": "Tancherfi",
+        "zip_code": "65474"
+    },
+    {
+        "name": "Taourirt",
+        "zip_code": "65800"
+    },
+    {
+        "name": "Sidi Lahcen",
+        "zip_code": "65822"
+    },
+    {
+        "name": "Melg El Ouidane",
+        "zip_code": "65823"
+    },
+    {
+        "name": "Ain El Orma",
+        "zip_code": "50022"
+    },
+    {
+        "name": "Ain Kerma",
+        "zip_code": "50023"
+    },
+    {
+        "name": "Ait Aissa Addi",
+        "zip_code": "50024"
+    },
+    {
+        "name": "Oued Rommane",
+        "zip_code": "50025"
+    },
+    {
+        "name": "Ait Rahhou Mjatt",
+        "zip_code": "50026"
+    },
+    {
+        "name": "Zoualet",
+        "zip_code": "50044"
+    },
+    {
+        "name": "Bridia",
+        "zip_code": "50046"
+    },
+    {
+        "name": "Ain Jemaa",
+        "zip_code": "50052"
+    },
+    {
+        "name": "El Hadj Kaddour",
+        "zip_code": "50102"
+    },
+    {
+        "name": "Toulal",
+        "zip_code": "50110"
+    },
+    {
+        "name": "Sidi Slimane Mjatt",
+        "zip_code": "50122"
+    },
+    {
+        "name": "Tnine Mhaya",
+        "zip_code": "50152"
+    },
+    {
+        "name": "Boufakrane",
+        "zip_code": "50300"
+    },
+    {
+        "name": "Nzalate Bni Ammar",
+        "zip_code": "50352"
+    },
+    {
+        "name": "Beni Ammar",
+        "zip_code": "50372"
+    },
+    {
+        "name": "Kermat Ben Salem",
+        "zip_code": "50373"
+    },
+    {
+        "name": "Moussaoua",
+        "zip_code": "50374"
+    },
+    {
+        "name": "Mrhassiyne",
+        "zip_code": "50375"
+    },
+    {
+        "name": "Sidi Ali Benhamdouche",
+        "zip_code": "50376"
+    },
+    {
+        "name": "Volubilis",
+        "zip_code": "50382"
+    },
+    {
+        "name": "Hafrat Ben Taybi",
+        "zip_code": "50383"
+    },
+    {
+        "name": "Oued Al Jadidah",
+        "zip_code": "51172"
+    },
+    {
+        "name": "Boulemane",
+        "zip_code": "33000"
+    },
+    {
+        "name": "Enjil",
+        "zip_code": "33002"
+    },
+    {
+        "name": "Achlouj",
+        "zip_code": "33022"
+    },
+    {
+        "name": "Enjil Ait Lahcen",
+        "zip_code": "33023"
+    },
+    {
+        "name": "Ifkirne",
+        "zip_code": "33024"
+    },
+    {
+        "name": "Tafraoute Ait Ali Oulahcen",
+        "zip_code": "33025"
+    },
+    {
+        "name": "Ait Hamza",
+        "zip_code": "33052"
+    },
+    {
+        "name": "Almis Guigou",
+        "zip_code": "33053"
+    },
+    {
+        "name": "El Mers",
+        "zip_code": "33102"
+    },
+    {
+        "name": "Ait Abdallah Boukhamouj",
+        "zip_code": "33122"
+    },
+    {
+        "name": "Imouzzer Marmoucha",
+        "zip_code": "33152"
+    },
+    {
+        "name": "Ait Bazza",
+        "zip_code": "33172"
+    },
+    {
+        "name": "Ait El Mane",
+        "zip_code": "33173"
+    },
+    {
+        "name": "Almis Marmoucha",
+        "zip_code": "33174"
+    },
+    {
+        "name": "Ouaoulzemt",
+        "zip_code": "33175"
+    },
+    {
+        "name": "Talzemt",
+        "zip_code": "33176"
+    },
+    {
+        "name": "Ksabi",
+        "zip_code": "33202"
+    },
+    {
+        "name": "Missour",
+        "zip_code": "33250"
+    },
+    {
+        "name": "Oulad Sghir",
+        "zip_code": "33272"
+    },
+    {
+        "name": "Ouizeght",
+        "zip_code": "33273"
+    },
+    {
+        "name": "Outat El Haj",
+        "zip_code": "33300"
+    },
+    {
+        "name": "Ouled Ali",
+        "zip_code": "33302"
+    },
+    {
+        "name": "Tindit",
+        "zip_code": "33303"
+    },
+    {
+        "name": "Fritissa",
+        "zip_code": "33322"
+    },
+    {
+        "name": "Tissaf",
+        "zip_code": "33323"
+    },
+    {
+        "name": "El Orjane",
+        "zip_code": "33324"
+    },
+    {
+        "name": "Skoura Seghrouchen",
+        "zip_code": "33352"
+    },
+    {
+        "name": "Taghroute",
+        "zip_code": "33372"
+    },
+    {
+        "name": "El Hajeb",
+        "zip_code": "51000"
+    },
+    {
+        "name": "Ait Yaazem",
+        "zip_code": "51025"
+    },
+    {
+        "name": "Bouderbala",
+        "zip_code": "51026"
+    },
+    {
+        "name": "Ras Jerri",
+        "zip_code": "51032"
+    },
+    {
+        "name": "Agourai",
+        "zip_code": "51050"
+    },
+    {
+        "name": "Sebt Jehjouh",
+        "zip_code": "51052"
+    },
+    {
+        "name": "Ain Taoujdate",
+        "zip_code": "51100"
+    },
+    {
+        "name": "Bittit",
+        "zip_code": "51123"
+    },
+    {
+        "name": "Laqsir",
+        "zip_code": "51124"
+    },
+    {
+        "name": "Sabaa Aiyoun",
+        "zip_code": "51150"
+    },
+    {
+        "name": "Oulad Ettayeb",
+        "zip_code": "30023"
+    },
+    {
+        "name": "Sidi Harazem",
+        "zip_code": "30205"
+    },
+    {
+        "name": "Ifrane",
+        "zip_code": "53000"
+    },
+    {
+        "name": "Ait Hamad Ribaa",
+        "zip_code": "53022"
+    },
+    {
+        "name": "Dayat Aoua",
+        "zip_code": "53023"
+    },
+    {
+        "name": "Zaouia Ait Sidi Abdesslam",
+        "zip_code": "53024"
+    },
+    {
+        "name": "Ain Leuh",
+        "zip_code": "53052"
+    },
+    {
+        "name": "Azrou",
+        "zip_code": "53100"
+    },
+    {
+        "name": "Sidi Addi",
+        "zip_code": "53102"
+    },
+    {
+        "name": "Souk El Had Oued Ifrane",
+        "zip_code": "53103"
+    },
+    {
+        "name": "Timahdite",
+        "zip_code": "53104"
+    },
+    {
+        "name": "Ait Yahia Ou Alla",
+        "zip_code": "53122"
+    },
+    {
+        "name": "Ben Smim",
+        "zip_code": "53123"
+    },
+    {
+        "name": "Ougmas",
+        "zip_code": "53124"
+    },
+    {
+        "name": "Sefrou",
+        "zip_code": "31000"
+    },
+    {
+        "name": "Azzaba",
+        "zip_code": "31002"
+    },
+    {
+        "name": "El Aderj",
+        "zip_code": "31003"
+    },
+    {
+        "name": "Tazouta",
+        "zip_code": "31004"
+    },
+    {
+        "name": "Aioun Sename",
+        "zip_code": "31022"
+    },
+    {
+        "name": "Arhbalou Akorare",
+        "zip_code": "31023"
+    },
+    {
+        "name": "Sidi Youssef Ben Ahmed Senhaja",
+        "zip_code": "31024"
+    },
+    {
+        "name": "Sidi Lahcen El Youssi",
+        "zip_code": "31025"
+    },
+    {
+        "name": "Dar El Hamra",
+        "zip_code": "31026"
+    },
+    {
+        "name": "Tafajight",
+        "zip_code": "31032"
+    },
+    {
+        "name": "Ain Cheggag",
+        "zip_code": "31052"
+    },
+    {
+        "name": "Bhalil",
+        "zip_code": "31100"
+    },
+    {
+        "name": "Bir Tamtam",
+        "zip_code": "31152"
+    },
+    {
+        "name": "El Menzel",
+        "zip_code": "31200"
+    },
+    {
+        "name": "Ouled M'Koudou",
+        "zip_code": "31202"
+    },
+    {
+        "name": "Mtarnargha",
+        "zip_code": "31222"
+    },
+    {
+        "name": "Zaouia Bougrine",
+        "zip_code": "31223"
+    },
+    {
+        "name": "Imouzzer Kandar",
+        "zip_code": "31250"
+    },
+    {
+        "name": "Ait Sebaa",
+        "zip_code": "31272"
+    },
+    {
+        "name": "Zaouiat El Kermate",
+        "zip_code": "31273"
+    },
+    {
+        "name": "Ribate El Kheir",
+        "zip_code": "31350"
+    },
+    {
+        "name": "Ighezren",
+        "zip_code": "31372"
+    },
+    {
+        "name": "Taounate",
+        "zip_code": "34000"
+    },
+    {
+        "name": "Khlalfa",
+        "zip_code": "34002"
+    },
+    {
+        "name": "Ain Mediouna",
+        "zip_code": "34003"
+    },
+    {
+        "name": "Bni Oulid",
+        "zip_code": "34004"
+    },
+    {
+        "name": "Bni Korra",
+        "zip_code": "34005"
+    },
+    {
+        "name": "Bouhouda",
+        "zip_code": "34006"
+    },
+    {
+        "name": "Bouarous",
+        "zip_code": "34012"
+    },
+    {
+        "name": "Tafrannt",
+        "zip_code": "34013"
+    },
+    {
+        "name": "Tabouda",
+        "zip_code": "34014"
+    },
+    {
+        "name": "Bab Ouandar",
+        "zip_code": "34022"
+    },
+    {
+        "name": "El Haddada",
+        "zip_code": "34023"
+    },
+    {
+        "name": "Galaz",
+        "zip_code": "34024"
+    },
+    {
+        "name": "Mezraoua",
+        "zip_code": "34025"
+    },
+    {
+        "name": "Rghioua",
+        "zip_code": "34026"
+    },
+    {
+        "name": "Quallaline",
+        "zip_code": "34032"
+    },
+    {
+        "name": "Moulay Bouchta",
+        "zip_code": "34033"
+    },
+    {
+        "name": "Sgoura",
+        "zip_code": "34034"
+    },
+    {
+        "name": "Beni Selmane",
+        "zip_code": "34035"
+    },
+    {
+        "name": "Sidi El Mokhfi",
+        "zip_code": "34036"
+    },
+    {
+        "name": "Timezgana",
+        "zip_code": "34042"
+    },
+    {
+        "name": "Zrizer",
+        "zip_code": "34043"
+    },
+    {
+        "name": "Ourtzarh",
+        "zip_code": "34044"
+    },
+    {
+        "name": "Karia Ba Mohamed",
+        "zip_code": "34050"
+    },
+    {
+        "name": "Bouchabel",
+        "zip_code": "34072"
+    },
+    {
+        "name": "Jbabra",
+        "zip_code": "34073"
+    },
+    {
+        "name": "Loulja",
+        "zip_code": "34074"
+    },
+    {
+        "name": "Mkannssa",
+        "zip_code": "34075"
+    },
+    {
+        "name": "Rhouazi",
+        "zip_code": "34076"
+    },
+    {
+        "name": "Sidi El Abed",
+        "zip_code": "34082"
+    },
+    {
+        "name": "Moulay Abdelkrim",
+        "zip_code": "34083"
+    },
+    {
+        "name": "Ghafsai",
+        "zip_code": "34100"
+    },
+    {
+        "name": "Retba",
+        "zip_code": "34102"
+    },
+    {
+        "name": "Ain Barda",
+        "zip_code": "34122"
+    },
+    {
+        "name": "Klaia",
+        "zip_code": "34123"
+    },
+    {
+        "name": "Oulad Salah",
+        "zip_code": "34124"
+    },
+    {
+        "name": "Tamesnite",
+        "zip_code": "34125"
+    },
+    {
+        "name": "Lamkmmel",
+        "zip_code": "34126"
+    },
+    {
+        "name": "Tnine Zghariyine",
+        "zip_code": "34132"
+    },
+    {
+        "name": "Sidi Haj Mhamed",
+        "zip_code": "34133"
+    },
+    {
+        "name": "Thar Es-Souk",
+        "zip_code": "34150"
+    },
+    {
+        "name": "Beni Ounjil Tafraoute",
+        "zip_code": "34172"
+    },
+    {
+        "name": "Tamedit",
+        "zip_code": "34173"
+    },
+    {
+        "name": "Tissa",
+        "zip_code": "34200"
+    },
+    {
+        "name": "Ain Legdeh",
+        "zip_code": "34222"
+    },
+    {
+        "name": "El Bessabssa",
+        "zip_code": "34223"
+    },
+    {
+        "name": "Messassa",
+        "zip_code": "34224"
+    },
+    {
+        "name": "Oued Jemaa",
+        "zip_code": "34225"
+    },
+    {
+        "name": "Outa Bouabane",
+        "zip_code": "34226"
+    },
+    {
+        "name": "Ras El Oued",
+        "zip_code": "34232"
+    },
+    {
+        "name": "Sidi Mhamed Ben Lahcen",
+        "zip_code": "34233"
+    },
+    {
+        "name": "Ain Aicha",
+        "zip_code": "34252"
+    },
+    {
+        "name": "Ain Maatouf",
+        "zip_code": "34272"
+    },
+    {
+        "name": "Oulad Daoud",
+        "zip_code": "34273"
+    },
+    {
+        "name": "Oulad Ayyad",
+        "zip_code": "35224"
+    },
+    {
+        "name": "Taza",
+        "zip_code": "35000"
+    },
+    {
+        "name": "Arbaa Beni Ftah",
+        "zip_code": "35002"
+    },
+    {
+        "name": "Bab El Mrouj",
+        "zip_code": "35003"
+    },
+    {
+        "name": "Bab Marzouka",
+        "zip_code": "35004"
+    },
+    {
+        "name": "Beni Lennt",
+        "zip_code": "35005"
+    },
+    {
+        "name": "Meknassa Acharqia",
+        "zip_code": "35006"
+    },
+    {
+        "name": "Merhraoua",
+        "zip_code": "35012"
+    },
+    {
+        "name": "Sebt Bni Frassen",
+        "zip_code": "35013"
+    },
+    {
+        "name": "Taineste",
+        "zip_code": "35014"
+    },
+    {
+        "name": "Bab Bouidir",
+        "zip_code": "35022"
+    },
+    {
+        "name": "Bechiyine",
+        "zip_code": "35023"
+    },
+    {
+        "name": "Beni Ali",
+        "zip_code": "35024"
+    },
+    {
+        "name": "Gueldamane",
+        "zip_code": "35025"
+    },
+    {
+        "name": "Msoun",
+        "zip_code": "35026"
+    },
+    {
+        "name": "Touahar",
+        "zip_code": "35036"
+    },
+    {
+        "name": "Had Oulad Zbair",
+        "zip_code": "35042"
+    },
+    {
+        "name": "Houara Oulad Rahho",
+        "zip_code": "35043"
+    },
+    {
+        "name": "Kahf El Rhar",
+        "zip_code": "35044"
+    },
+    {
+        "name": "Tnine Taifa",
+        "zip_code": "35045"
+    },
+    {
+        "name": "Oulad Chrif",
+        "zip_code": "35046"
+    },
+    {
+        "name": "Aknoul",
+        "zip_code": "35050"
+    },
+    {
+        "name": "Ajdir",
+        "zip_code": "35052"
+    },
+    {
+        "name": "Boured",
+        "zip_code": "35053"
+    },
+    {
+        "name": "Oulad Bourima",
+        "zip_code": "35055"
+    },
+    {
+        "name": "Tlata Traiba",
+        "zip_code": "35056"
+    },
+    {
+        "name": "Tazarine Msara",
+        "zip_code": "35062"
+    },
+    {
+        "name": "Jbarna",
+        "zip_code": "35072"
+    },
+    {
+        "name": "Tighezratine",
+        "zip_code": "35073"
+    },
+    {
+        "name": "Ain El Hamra",
+        "zip_code": "35074"
+    },
+    {
+        "name": "Inahnahen",
+        "zip_code": "35075"
+    },
+    {
+        "name": "Guercif",
+        "zip_code": "35100"
+    },
+    {
+        "name": "Berkine",
+        "zip_code": "35102"
+    },
+    {
+        "name": "Mahirija",
+        "zip_code": "35103"
+    },
+    {
+        "name": "Mezguitem",
+        "zip_code": "35104"
+    },
+    {
+        "name": "Saka",
+        "zip_code": "35105"
+    },
+    {
+        "name": "Rchida",
+        "zip_code": "35122"
+    },
+    {
+        "name": "Tighza",
+        "zip_code": "35123"
+    },
+    {
+        "name": "Assebbab",
+        "zip_code": "35124"
+    },
+    {
+        "name": "Ras Laksar",
+        "zip_code": "35125"
+    },
+    {
+        "name": "Had Msila",
+        "zip_code": "35152"
+    },
+    {
+        "name": "El Gouzat",
+        "zip_code": "35172"
+    },
+    {
+        "name": "Bouzemlane",
+        "zip_code": "35202"
+    },
+    {
+        "name": "Matmata",
+        "zip_code": "35203"
+    },
+    {
+        "name": "Ain Boumassay",
+        "zip_code": "35222"
+    },
+    {
+        "name": "Aoura",
+        "zip_code": "35223"
+    },
+    {
+        "name": "Zaouia Sidi Abdejlil",
+        "zip_code": "35225"
+    },
+    {
+        "name": "Oued Amlil",
+        "zip_code": "35250"
+    },
+    {
+        "name": "Beni Mgara",
+        "zip_code": "35272"
+    },
+    {
+        "name": "Bouchfaa",
+        "zip_code": "35273"
+    },
+    {
+        "name": "Bouhlou",
+        "zip_code": "35274"
+    },
+    {
+        "name": "Kaouane",
+        "zip_code": "35275"
+    },
+    {
+        "name": "Tahla",
+        "zip_code": "35300"
+    },
+    {
+        "name": "Ain El Fendel",
+        "zip_code": "35322"
+    },
+    {
+        "name": "Ifrane Ait Assou",
+        "zip_code": "35323"
+    },
+    {
+        "name": "Sidi Ali Bennacer",
+        "zip_code": "35324"
+    },
+    {
+        "name": "Smiaa",
+        "zip_code": "35325"
+    },
+    {
+        "name": "Tizi Ouzli",
+        "zip_code": "35352"
+    },
+    {
+        "name": "Sidi Ali Bourakba",
+        "zip_code": "35372"
+    },
+    {
+        "name": "Zerarda",
+        "zip_code": "35402"
+    },
+    {
+        "name": "Kassarat",
+        "zip_code": "35422"
+    },
+    {
+        "name": "Oued El Maleh",
+        "zip_code": "35423"
+    },
+    {
+        "name": "Oued Lahmar",
+        "zip_code": "35424"
+    },
+    {
+        "name": "Sebaa Rouadi",
+        "zip_code": "36104"
+    },
+    {
+        "name": "Ain Chkef",
+        "zip_code": "36122"
+    },
+    {
+        "name": "Hamria",
+        "zip_code": "36123"
+    },
+    {
+        "name": "Laajajra",
+        "zip_code": "36124"
+    },
+    {
+        "name": "Mikkes",
+        "zip_code": "36125"
+    },
+    {
+        "name": "Souk Sebt Oulad Mimoun",
+        "zip_code": "36126"
+    },
+    {
+        "name": "Moulay Yacoub",
+        "zip_code": "36150"
+    },
+    {
+        "name": "Sidi Ahmed El Bernoussi",
+        "zip_code": "36152"
+    },
+    {
+        "name": "Sidi Daoud",
+        "zip_code": "36172"
+    },
+    {
+        "name": "Ain Kansara",
+        "zip_code": "36222"
+    },
+    {
+        "name": "Souk Tleta El Gharb",
+        "zip_code": "14005"
+    },
+    {
+        "name": "Ben Mansour",
+        "zip_code": "14022"
+    },
+    {
+        "name": "El Morhrane",
+        "zip_code": "14023"
+    },
+    {
+        "name": "Sidi Taibi",
+        "zip_code": "14025"
+    },
+    {
+        "name": "Ain Ariss",
+        "zip_code": "14026"
+    },
+    {
+        "name": "M'Saada",
+        "zip_code": "14046"
+    },
+    {
+        "name": "Allal Tazi",
+        "zip_code": "14052"
+    },
+    {
+        "name": "Mnasra",
+        "zip_code": "14053"
+    },
+    {
+        "name": "Arbaoua",
+        "zip_code": "14102"
+    },
+    {
+        "name": "Mehdya",
+        "zip_code": "14110"
+    },
+    {
+        "name": "Sidi Boubker El Haj",
+        "zip_code": "14122"
+    },
+    {
+        "name": "Oued El Makhazine",
+        "zip_code": "14123"
+    },
+    {
+        "name": "Lalla Mimouna",
+        "zip_code": "14152"
+    },
+    {
+        "name": "Sidi Slimane",
+        "zip_code": "14200"
+    },
+    {
+        "name": "Dar Bel Amri",
+        "zip_code": "14222"
+    },
+    {
+        "name": "Sfafaa",
+        "zip_code": "14223"
+    },
+    {
+        "name": "Azghar",
+        "zip_code": "14224"
+    },
+    {
+        "name": "Ouled Ben Hammadi",
+        "zip_code": "14225"
+    },
+    {
+        "name": "Sidi Yahya El Gharb",
+        "zip_code": "14250"
+    },
+    {
+        "name": "Souk El Arbaa Du Rharb",
+        "zip_code": "14300"
+    },
+    {
+        "name": "Moulay Bouselham",
+        "zip_code": "14302"
+    },
+    {
+        "name": "Karia Benaouda",
+        "zip_code": "14322"
+    },
+    {
+        "name": "Sidi Mohamed El Ahmar",
+        "zip_code": "14323"
+    },
+    {
+        "name": "Chouafaa",
+        "zip_code": "14325"
+    },
+    {
+        "name": "Khemis Ait Yaddine",
+        "zip_code": "15003"
+    },
+    {
+        "name": "Sfassif",
+        "zip_code": "15004"
+    },
+    {
+        "name": "Sidi Allal Lemsedder",
+        "zip_code": "15005"
+    },
+    {
+        "name": "El Hammam Jbel Doum",
+        "zip_code": "15022"
+    },
+    {
+        "name": "Had Ait Mimoun",
+        "zip_code": "15023"
+    },
+    {
+        "name": "Had Ait Ouribel",
+        "zip_code": "15024"
+    },
+    {
+        "name": "Souk Sebt Oued Beht",
+        "zip_code": "15025"
+    },
+    {
+        "name": "El Kensara",
+        "zip_code": "15026"
+    },
+    {
+        "name": "Majmaa Tolba",
+        "zip_code": "15032"
+    },
+    {
+        "name": "Sidi El Rhandour",
+        "zip_code": "15033"
+    },
+    {
+        "name": "Sebt Ait Ikkou",
+        "zip_code": "15052"
+    },
+    {
+        "name": "Maaziz",
+        "zip_code": "15053"
+    },
+    {
+        "name": "Moulay Driss Arhbal",
+        "zip_code": "15072"
+    },
+    {
+        "name": "Souk Jemaa Houderrane",
+        "zip_code": "15073"
+    },
+    {
+        "name": "Oulmes",
+        "zip_code": "15102"
+    },
+    {
+        "name": "Boukchmir",
+        "zip_code": "15122"
+    },
+    {
+        "name": "Tarmilet",
+        "zip_code": "15123"
+    },
+    {
+        "name": "Ait Ichou",
+        "zip_code": "15124"
+    },
+    {
+        "name": "Rommani",
+        "zip_code": "15150"
+    },
+    {
+        "name": "Ain Sbit",
+        "zip_code": "15152"
+    },
+    {
+        "name": "Had Brachoua",
+        "zip_code": "15153"
+    },
+    {
+        "name": "Zhiliga",
+        "zip_code": "15154"
+    },
+    {
+        "name": "Had Rhoualem",
+        "zip_code": "15172"
+    },
+    {
+        "name": "Jemaa Moul Leblad",
+        "zip_code": "15173"
+    },
+    {
+        "name": "Marchouch",
+        "zip_code": "15174"
+    },
+    {
+        "name": "Khemis Nkheila",
+        "zip_code": "15175"
+    },
+    {
+        "name": "Sidi Abderrazak",
+        "zip_code": "15202"
+    },
+    {
+        "name": "Sidi Allal El Bahraoui",
+        "zip_code": "15252"
+    },
+    {
+        "name": "Souk Tnine Moghane",
+        "zip_code": "15272"
+    },
+    {
+        "name": "Sidi Boukhalkhal",
+        "zip_code": "15273"
+    },
+    {
+        "name": "Tiddas",
+        "zip_code": "15352"
+    },
+    {
+        "name": "Tiflet",
+        "zip_code": "15400"
+    },
+    {
+        "name": "Ain Johra",
+        "zip_code": "15422"
+    },
+    {
+        "name": "Khemis Sidi Yahia",
+        "zip_code": "15423"
+    },
+    {
+        "name": "Mkam Tolba",
+        "zip_code": "15424"
+    },
+    {
+        "name": "Ait Belkacem",
+        "zip_code": "15425"
+    },
+    {
+        "name": "Arbaa Shoul",
+        "zip_code": "11022"
+    },
+    {
+        "name": "El Arjate",
+        "zip_code": "11023"
+    },
+    {
+        "name": "Bouknadel",
+        "zip_code": "11052"
+    },
+    {
+        "name": "Sidi-Kacem",
+        "zip_code": "16000"
+    },
+    {
+        "name": "Sidi Bousber",
+        "zip_code": "16004"
+    },
+    {
+        "name": "Dar Gueddari",
+        "zip_code": "16010"
+    },
+    {
+        "name": "Jorf El Melha",
+        "zip_code": "16020"
+    },
+    {
+        "name": "Bir Taleb",
+        "zip_code": "16022"
+    },
+    {
+        "name": "Zagota",
+        "zip_code": "16023"
+    },
+    {
+        "name": "Zirara",
+        "zip_code": "16024"
+    },
+    {
+        "name": "Dar Laaslouji",
+        "zip_code": "16026"
+    },
+    {
+        "name": "Sidi Ahmed Cherif",
+        "zip_code": "16032"
+    },
+    {
+        "name": "Chbanate",
+        "zip_code": "16033"
+    },
+    {
+        "name": "Had Kourt",
+        "zip_code": "16050"
+    },
+    {
+        "name": "Ain Deffali",
+        "zip_code": "16052"
+    },
+    {
+        "name": "Sidi Azzouz",
+        "zip_code": "16072"
+    },
+    {
+        "name": "Khenichet",
+        "zip_code": "16102"
+    },
+    {
+        "name": "Mechra Bel Ksiri",
+        "zip_code": "16150"
+    },
+    {
+        "name": "Jemaa Haouafate",
+        "zip_code": "16172"
+    },
+    {
+        "name": "Nouirate",
+        "zip_code": "16173"
+    },
+    {
+        "name": "Sefsaf",
+        "zip_code": "16174"
+    },
+    {
+        "name": "Sidi Al Kamel",
+        "zip_code": "16175"
+    },
+    {
+        "name": "Ouezzane",
+        "zip_code": "16200"
+    },
+    {
+        "name": "Sidi Redouane",
+        "zip_code": "16202"
+    },
+    {
+        "name": "Ain Dorij",
+        "zip_code": "16222"
+    },
+    {
+        "name": "Sebt Rmel",
+        "zip_code": "16223"
+    },
+    {
+        "name": "Bni Quolla",
+        "zip_code": "16224"
+    },
+    {
+        "name": "Ounnana",
+        "zip_code": "16225"
+    },
+    {
+        "name": "Teroual",
+        "zip_code": "16252"
+    },
+    {
+        "name": "Sidi Ammar El Hadi",
+        "zip_code": "16324"
+    },
+    {
+        "name": "Ain Attig",
+        "zip_code": "12013"
+    },
+    {
+        "name": "Mers El Kheir",
+        "zip_code": "12025"
+    },
+    {
+        "name": "Skhirate",
+        "zip_code": "12050"
+    },
+    {
+        "name": "Sebbah",
+        "zip_code": "12072"
+    },
+    {
+        "name": "Ain El Aouda",
+        "zip_code": "12100"
+    },
+    {
+        "name": "Oumazza",
+        "zip_code": "12122"
+    },
+    {
+        "name": "El Menzeh",
+        "zip_code": "12123"
+    },
+    {
+        "name": "Sidi Yahia Zaers",
+        "zip_code": "12152"
+    },
+    {
+        "name": "Tamesna",
+        "zip_code": "12200"
+    },
+    {
+        "name": "Azilal",
+        "zip_code": "22000"
+    },
+    {
+        "name": "Zaouia Ahensal",
+        "zip_code": "22002"
+    },
+    {
+        "name": "Skatt",
+        "zip_code": "22022"
+    },
+    {
+        "name": "Afourer",
+        "zip_code": "22052"
+    },
+    {
+        "name": "Ait Ouarda",
+        "zip_code": "22072"
+    },
+    {
+        "name": "Ait Attab",
+        "zip_code": "22102"
+    },
+    {
+        "name": "Taounza",
+        "zip_code": "22122"
+    },
+    {
+        "name": "Ait Mhamed",
+        "zip_code": "22152"
+    },
+    {
+        "name": "Igmir",
+        "zip_code": "22172"
+    },
+    {
+        "name": "Bine El Ouidane",
+        "zip_code": "22202"
+    },
+    {
+        "name": "Bzou",
+        "zip_code": "22250"
+    },
+    {
+        "name": "Aghbalou Zaouia",
+        "zip_code": "22272"
+    },
+    {
+        "name": "Imadahen",
+        "zip_code": "22273"
+    },
+    {
+        "name": "Rfala",
+        "zip_code": "22274"
+    },
+    {
+        "name": "Demnate",
+        "zip_code": "22300"
+    },
+    {
+        "name": "Ait Blal",
+        "zip_code": "22322"
+    },
+    {
+        "name": "Ait Tamlil",
+        "zip_code": "22323"
+    },
+    {
+        "name": "Anzou",
+        "zip_code": "22324"
+    },
+    {
+        "name": "Tidili Fetouaka",
+        "zip_code": "22325"
+    },
+    {
+        "name": "Tifni",
+        "zip_code": "22326"
+    },
+    {
+        "name": "Tislit",
+        "zip_code": "22352"
+    },
+    {
+        "name": "Foum Jemaa",
+        "zip_code": "22353"
+    },
+    {
+        "name": "Bni Hassane",
+        "zip_code": "22372"
+    },
+    {
+        "name": "Tabia",
+        "zip_code": "22373"
+    },
+    {
+        "name": "Ouaouizarht",
+        "zip_code": "22402"
+    },
+    {
+        "name": "Tabannt",
+        "zip_code": "22452"
+    },
+    {
+        "name": "Abachkou",
+        "zip_code": "22472"
+    },
+    {
+        "name": "Taguelft",
+        "zip_code": "22502"
+    },
+    {
+        "name": "Ait Tamejoute",
+        "zip_code": "22522"
+    },
+    {
+        "name": "Arbaa Ouakabli",
+        "zip_code": "22523"
+    },
+    {
+        "name": "Tanannt",
+        "zip_code": "22552"
+    },
+    {
+        "name": "Ait Taguella",
+        "zip_code": "22572"
+    },
+    {
+        "name": "Arbaa Ou Aoula",
+        "zip_code": "22573"
+    },
+    {
+        "name": "Bouantar",
+        "zip_code": "22574"
+    },
+    {
+        "name": "Khemis Majden",
+        "zip_code": "22575"
+    },
+    {
+        "name": "Ouzoud",
+        "zip_code": "22576"
+    },
+    {
+        "name": "Tilougguite",
+        "zip_code": "22602"
+    },
+    {
+        "name": "Anergui",
+        "zip_code": "22622"
+    },
+    {
+        "name": "Bni Ayat",
+        "zip_code": "22652"
+    },
+    {
+        "name": "Tnine Timoulilt",
+        "zip_code": "22702"
+    },
+    {
+        "name": "Bni Oukil",
+        "zip_code": "23005"
+    },
+    {
+        "name": "Foum Oudi",
+        "zip_code": "23006"
+    },
+    {
+        "name": "Laayayta",
+        "zip_code": "23022"
+    },
+    {
+        "name": "M'Ghila",
+        "zip_code": "23023"
+    },
+    {
+        "name": "Arhbala",
+        "zip_code": "23052"
+    },
+    {
+        "name": "Boutfarda",
+        "zip_code": "23072"
+    },
+    {
+        "name": "Tizi Nisly",
+        "zip_code": "23073"
+    },
+    {
+        "name": "Dar Ould Zidouh",
+        "zip_code": "23102"
+    },
+    {
+        "name": "Had Oulad Boumoussa",
+        "zip_code": "23122"
+    },
+    {
+        "name": "El Ksiba",
+        "zip_code": "23150"
+    },
+    {
+        "name": "Fquih Ben Salah",
+        "zip_code": "23200"
+    },
+    {
+        "name": "El Krifate",
+        "zip_code": "23222"
+    },
+    {
+        "name": "Hal El Marbaa",
+        "zip_code": "23223"
+    },
+    {
+        "name": "Khemis Bni Chagdal",
+        "zip_code": "23224"
+    },
+    {
+        "name": "Oulad Hassoun",
+        "zip_code": "23225"
+    },
+    {
+        "name": "Ouled Abdellah",
+        "zip_code": "23226"
+    },
+    {
+        "name": "Foum El Anser",
+        "zip_code": "23252"
+    },
+    {
+        "name": "Fechtala",
+        "zip_code": "23272"
+    },
+    {
+        "name": "Had Bradia",
+        "zip_code": "23302"
+    },
+    {
+        "name": "Lahlalma",
+        "zip_code": "23322"
+    },
+    {
+        "name": "Oulad Ali Loued",
+        "zip_code": "23323"
+    },
+    {
+        "name": "Oulad Driss Bradia",
+        "zip_code": "23324"
+    },
+    {
+        "name": "Kasba Tadla",
+        "zip_code": "23350"
+    },
+    {
+        "name": "Guettaya",
+        "zip_code": "23372"
+    },
+    {
+        "name": "Oulad Said El Oued",
+        "zip_code": "23373"
+    },
+    {
+        "name": "Ouled Youssef",
+        "zip_code": "23374"
+    },
+    {
+        "name": "Semguet",
+        "zip_code": "23375"
+    },
+    {
+        "name": "Douar Ait Ali",
+        "zip_code": "23376"
+    },
+    {
+        "name": "Oulad Ayad",
+        "zip_code": "23400"
+    },
+    {
+        "name": "Ouled Mbarek",
+        "zip_code": "23452"
+    },
+    {
+        "name": "Ouled Yaiche",
+        "zip_code": "23502"
+    },
+    {
+        "name": "El Bazzaza",
+        "zip_code": "23522"
+    },
+    {
+        "name": "Zouair",
+        "zip_code": "23523"
+    },
+    {
+        "name": "Sebt Oulad Nemma",
+        "zip_code": "23550"
+    },
+    {
+        "name": "El Krazza",
+        "zip_code": "23572"
+    },
+    {
+        "name": "Oulad Bourahmoune",
+        "zip_code": "23573"
+    },
+    {
+        "name": "Sidi Aissa",
+        "zip_code": "23574"
+    },
+    {
+        "name": "Ouled Zmam",
+        "zip_code": "23575"
+    },
+    {
+        "name": "Sidi Jaber",
+        "zip_code": "23602"
+    },
+    {
+        "name": "Taghzirt",
+        "zip_code": "23652"
+    },
+    {
+        "name": "Feryata",
+        "zip_code": "23672"
+    },
+    {
+        "name": "Rhorm El Alem",
+        "zip_code": "23673"
+    },
+    {
+        "name": "Tanorha",
+        "zip_code": "23674"
+    },
+    {
+        "name": "Zaouiat Cheikh",
+        "zip_code": "23700"
+    },
+    {
+        "name": "Kaf Nsour",
+        "zip_code": "54002"
+    },
+    {
+        "name": "Tighessaline",
+        "zip_code": "54003"
+    },
+    {
+        "name": "El Hri",
+        "zip_code": "54022"
+    },
+    {
+        "name": "Sidi Bouabbed",
+        "zip_code": "54023"
+    },
+    {
+        "name": "Aguelmouss",
+        "zip_code": "54052"
+    },
+    {
+        "name": "Ouaoumana",
+        "zip_code": "54102"
+    },
+    {
+        "name": "Ait Ishak",
+        "zip_code": "54103"
+    },
+    {
+        "name": "Aghbalou Nserdane",
+        "zip_code": "54152"
+    },
+    {
+        "name": "Ain Aicha Ait Saadelli",
+        "zip_code": "54153"
+    },
+    {
+        "name": "Boumia",
+        "zip_code": "54154"
+    },
+    {
+        "name": "Sidi Yahya Ou Saad",
+        "zip_code": "54202"
+    },
+    {
+        "name": "El Kebab",
+        "zip_code": "54203"
+    },
+    {
+        "name": "Ait Hnini",
+        "zip_code": "54222"
+    },
+    {
+        "name": "Itzer",
+        "zip_code": "54252"
+    },
+    {
+        "name": "Ait Oufella",
+        "zip_code": "54272"
+    },
+    {
+        "name": "Tamayouste",
+        "zip_code": "54273"
+    },
+    {
+        "name": "Kerrouchen",
+        "zip_code": "54302"
+    },
+    {
+        "name": "Midelt",
+        "zip_code": "54350"
+    },
+    {
+        "name": "Bouayache",
+        "zip_code": "54352"
+    },
+    {
+        "name": "Ait Oumghar",
+        "zip_code": "54372"
+    },
+    {
+        "name": "Mibladen",
+        "zip_code": "54373"
+    },
+    {
+        "name": "Taakit",
+        "zip_code": "54374"
+    },
+    {
+        "name": "Zaida",
+        "zip_code": "54375"
+    },
+    {
+        "name": "Taghzoute Chorafa",
+        "zip_code": "54376"
+    },
+    {
+        "name": "Souk Had Bouhsoussen",
+        "zip_code": "54402"
+    },
+    {
+        "name": "Moulay Bouazza",
+        "zip_code": "54403"
+    },
+    {
+        "name": "Souk Sebt Ait Rahou",
+        "zip_code": "54423"
+    },
+    {
+        "name": "Souk Tnine Ait Boukhayyou",
+        "zip_code": "54424"
+    },
+    {
+        "name": "Sidi Mhamed Ben Mbarek",
+        "zip_code": "54425"
+    },
+    {
+        "name": "M'Rirt",
+        "zip_code": "54450"
+    },
+    {
+        "name": "El Hammam",
+        "zip_code": "54452"
+    },
+    {
+        "name": "Jbel Aouama",
+        "zip_code": "54472"
+    },
+    {
+        "name": "Oum Rabia",
+        "zip_code": "54473"
+    },
+    {
+        "name": "Tounfite",
+        "zip_code": "54502"
+    },
+    {
+        "name": "Agoudim",
+        "zip_code": "54522"
+    },
+    {
+        "name": "Sidi Yahia O Youssef",
+        "zip_code": "54523"
+    },
+    {
+        "name": "Anemzi",
+        "zip_code": "54524"
+    },
+    {
+        "name": "Sebt Beni Yakhlef",
+        "zip_code": "25003"
+    },
+    {
+        "name": "El Fokra",
+        "zip_code": "25022"
+    },
+    {
+        "name": "Ouled Abdoun",
+        "zip_code": "25023"
+    },
+    {
+        "name": "Bejaad",
+        "zip_code": "25060"
+    },
+    {
+        "name": "Boukhrisse",
+        "zip_code": "25072"
+    },
+    {
+        "name": "Oulad Gouaouch",
+        "zip_code": "25073"
+    },
+    {
+        "name": "Boujniba",
+        "zip_code": "25100"
+    },
+    {
+        "name": "Boulanouar",
+        "zip_code": "25152"
+    },
+    {
+        "name": "El Gueffaf",
+        "zip_code": "25202"
+    },
+    {
+        "name": "Had Bni Batao",
+        "zip_code": "25252"
+    },
+    {
+        "name": "Tleta Beni Zrantil",
+        "zip_code": "25272"
+    },
+    {
+        "name": "Hattane",
+        "zip_code": "25300"
+    },
+    {
+        "name": "Mfassis",
+        "zip_code": "25322"
+    },
+    {
+        "name": "Oulad Azzouz",
+        "zip_code": "25323"
+    },
+    {
+        "name": "Oued Zem",
+        "zip_code": "25350"
+    },
+    {
+        "name": "Arbaa Maadna",
+        "zip_code": "25372"
+    },
+    {
+        "name": "Bir Mezoui",
+        "zip_code": "25373"
+    },
+    {
+        "name": "Bni Smir",
+        "zip_code": "25374"
+    },
+    {
+        "name": "Jemaa Oulad Aissa",
+        "zip_code": "25375"
+    },
+    {
+        "name": "Kasbat Troch",
+        "zip_code": "25376"
+    },
+    {
+        "name": "Oulad Fennane",
+        "zip_code": "25382"
+    },
+    {
+        "name": "Sebt Dechra Braksa",
+        "zip_code": "25383"
+    },
+    {
+        "name": "Ouled Boughadi",
+        "zip_code": "25402"
+    },
+    {
+        "name": "Ait Ammar",
+        "zip_code": "25422"
+    },
+    {
+        "name": "Oulad Ftata",
+        "zip_code": "25423"
+    },
+    {
+        "name": "Tleta Gnadiz",
+        "zip_code": "25424"
+    },
+    {
+        "name": "Tachreft",
+        "zip_code": "25452"
+    },
+    {
+        "name": "Ain Kicher",
+        "zip_code": "25472"
+    },
+    {
+        "name": "Tleta Chougrane",
+        "zip_code": "25502"
+    },
+    {
+        "name": "Rouached",
+        "zip_code": "25522"
+    },
+    {
+        "name": "Benslimane",
+        "zip_code": "13000"
+    },
+    {
+        "name": "Fedalate",
+        "zip_code": "13003"
+    },
+    {
+        "name": "Bennabet",
+        "zip_code": "13022"
+    },
+    {
+        "name": "El Krassi",
+        "zip_code": "13024"
+    },
+    {
+        "name": "Tnine Oulad Ali",
+        "zip_code": "13025"
+    },
+    {
+        "name": "Ziaida",
+        "zip_code": "13026"
+    },
+    {
+        "name": "Soualem Et Tirs",
+        "zip_code": "13032"
+    },
+    {
+        "name": "Moulaine El Oued",
+        "zip_code": "13033"
+    },
+    {
+        "name": "El Mansouria",
+        "zip_code": "13072"
+    },
+    {
+        "name": "Bouznika",
+        "zip_code": "13100"
+    },
+    {
+        "name": "Sidi Bettache",
+        "zip_code": "13162"
+    },
+    {
+        "name": "Mellila",
+        "zip_code": "13202"
+    },
+    {
+        "name": "Ahlaf",
+        "zip_code": "13322"
+    },
+    {
+        "name": "Moulay Abdellah",
+        "zip_code": "24003"
+    },
+    {
+        "name": "Ouled Amrane",
+        "zip_code": "24004"
+    },
+    {
+        "name": "Sidi Bouzid",
+        "zip_code": "24005"
+    },
+    {
+        "name": "Oulad Aissa",
+        "zip_code": "24022"
+    },
+    {
+        "name": "Oulad Hassine",
+        "zip_code": "24023"
+    },
+    {
+        "name": "Sidi Moussa Plage",
+        "zip_code": "24024"
+    },
+    {
+        "name": "Jorf Lasfar",
+        "zip_code": "24025"
+    },
+    {
+        "name": "Kridid",
+        "zip_code": "24026"
+    },
+    {
+        "name": "Sidi Abed",
+        "zip_code": "24032"
+    },
+    {
+        "name": "Arbaa Aounate",
+        "zip_code": "24052"
+    },
+    {
+        "name": "Khemis Ksiba",
+        "zip_code": "24072"
+    },
+    {
+        "name": "Matrann",
+        "zip_code": "24073"
+    },
+    {
+        "name": "Tleta Boulaouane",
+        "zip_code": "24074"
+    },
+    {
+        "name": "Azemmour",
+        "zip_code": "24100"
+    },
+    {
+        "name": "Boucedra",
+        "zip_code": "24122"
+    },
+    {
+        "name": "Haouzia",
+        "zip_code": "24123"
+    },
+    {
+        "name": "Mhaioula",
+        "zip_code": "24124"
+    },
+    {
+        "name": "Lbir Jdid",
+        "zip_code": "24150"
+    },
+    {
+        "name": "Arbaa Chtouka",
+        "zip_code": "24172"
+    },
+    {
+        "name": "Oulja Des Chiadma",
+        "zip_code": "24173"
+    },
+    {
+        "name": "Tnine Chtouka",
+        "zip_code": "24175"
+    },
+    {
+        "name": "Khemis Des Zemamra",
+        "zip_code": "24200"
+    },
+    {
+        "name": "Laaouissate",
+        "zip_code": "24222"
+    },
+    {
+        "name": "El Hagagcha",
+        "zip_code": "24223"
+    },
+    {
+        "name": "Lamnakra El Haddada",
+        "zip_code": "24224"
+    },
+    {
+        "name": "Oulad Ben Chaoui",
+        "zip_code": "24225"
+    },
+    {
+        "name": "Saniat Benrkik",
+        "zip_code": "24226"
+    },
+    {
+        "name": "Zaouiat Ben Hamdoune",
+        "zip_code": "24232"
+    },
+    {
+        "name": "Oualidia",
+        "zip_code": "24252"
+    },
+    {
+        "name": "Oulad Rhanem",
+        "zip_code": "24272"
+    },
+    {
+        "name": "Ouled Frej",
+        "zip_code": "24302"
+    },
+    {
+        "name": "Khemis Mtouh",
+        "zip_code": "24322"
+    },
+    {
+        "name": "Oulad Hamdane",
+        "zip_code": "24323"
+    },
+    {
+        "name": "Oulad Sidi Ali Ben Youssef",
+        "zip_code": "24324"
+    },
+    {
+        "name": "Sidi Bennour",
+        "zip_code": "24350"
+    },
+    {
+        "name": "Sebt Beni Hlal",
+        "zip_code": "24352"
+    },
+    {
+        "name": "Mtal",
+        "zip_code": "24372"
+    },
+    {
+        "name": "El Mechrek",
+        "zip_code": "24373"
+    },
+    {
+        "name": "Sidi Smail",
+        "zip_code": "24402"
+    },
+    {
+        "name": "Sebt Saiss",
+        "zip_code": "24422"
+    },
+    {
+        "name": "Tnine Gharbia",
+        "zip_code": "24452"
+    },
+    {
+        "name": "Casa Aeroport Mohamed V",
+        "zip_code": "29002"
+    },
+    {
+        "name": "Casablanca Aeroport Mohamed V Terminal",
+        "zip_code": "29003"
+    },
+    {
+        "name": "Casa Lahraouyine",
+        "zip_code": "29004"
+    },
+    {
+        "name": "Mediouna",
+        "zip_code": "29490"
+    },
+    {
+        "name": "Tit Mellil",
+        "zip_code": "29640"
+    },
+    {
+        "name": "Oued Hassar",
+        "zip_code": "29672"
+    },
+    {
+        "name": "Ain Harrouda",
+        "zip_code": "28630"
+    },
+    {
+        "name": "Sidi Moussa Ben Ali",
+        "zip_code": "28814"
+    },
+    {
+        "name": "Beni Yakhlef",
+        "zip_code": "28815"
+    },
+    {
+        "name": "Souk Jemaa Sidi El Ayachi",
+        "zip_code": "27123"
+    },
+    {
+        "name": "Bouskoura",
+        "zip_code": "27182"
+    },
+    {
+        "name": "Ben Abid",
+        "zip_code": "27222"
+    },
+    {
+        "name": "Dar Bouazza",
+        "zip_code": "27223"
+    },
+    {
+        "name": "Settat",
+        "zip_code": "26000"
+    },
+    {
+        "name": "Settat Bir Baouch",
+        "zip_code": "26006"
+    },
+    {
+        "name": "Ain Nzarh",
+        "zip_code": "26022"
+    },
+    {
+        "name": "Had Mzoura",
+        "zip_code": "26023"
+    },
+    {
+        "name": "Sebt Oulad Friha",
+        "zip_code": "26024"
+    },
+    {
+        "name": "Sidi El Aidi",
+        "zip_code": "26026"
+    },
+    {
+        "name": "Ben Ahmed",
+        "zip_code": "26050"
+    },
+    {
+        "name": "Mgarto",
+        "zip_code": "26072"
+    },
+    {
+        "name": "Oulad Mhamed",
+        "zip_code": "26073"
+    },
+    {
+        "name": "Sidi Dahbi",
+        "zip_code": "26074"
+    },
+    {
+        "name": "Berrechid",
+        "zip_code": "26100"
+    },
+    {
+        "name": "Riah",
+        "zip_code": "26122"
+    },
+    {
+        "name": "Bni Khloug",
+        "zip_code": "26152"
+    },
+    {
+        "name": "Dar Chaffai",
+        "zip_code": "26172"
+    },
+    {
+        "name": "Oulad N'Jima",
+        "zip_code": "26173"
+    },
+    {
+        "name": "Sidi Ahmed El Khadir",
+        "zip_code": "26174"
+    },
+    {
+        "name": "Sidi Rahhal Plage",
+        "zip_code": "26175"
+    },
+    {
+        "name": "Deroua Oulad Ziane",
+        "zip_code": "26202"
+    },
+    {
+        "name": "Tleta Oulad Sghir",
+        "zip_code": "26232"
+    },
+    {
+        "name": "El Borouj",
+        "zip_code": "26250"
+    },
+    {
+        "name": "Arba Oulad Bou Ali",
+        "zip_code": "26272"
+    },
+    {
+        "name": "Krakra",
+        "zip_code": "26273"
+    },
+    {
+        "name": "Oulad Belkacem",
+        "zip_code": "26274"
+    },
+    {
+        "name": "Oulad Driss",
+        "zip_code": "26275"
+    },
+    {
+        "name": "Oulad Hammou",
+        "zip_code": "26276"
+    },
+    {
+        "name": "El Gara",
+        "zip_code": "26300"
+    },
+    {
+        "name": "Guisser",
+        "zip_code": "26352"
+    },
+    {
+        "name": "Rima",
+        "zip_code": "26372"
+    },
+    {
+        "name": "Had Soualem",
+        "zip_code": "26402"
+    },
+    {
+        "name": "Oulad Ziane",
+        "zip_code": "26422"
+    },
+    {
+        "name": "Oulad Abbou",
+        "zip_code": "26450"
+    },
+    {
+        "name": "Oued Bers",
+        "zip_code": "26472"
+    },
+    {
+        "name": "Rhnimiyne",
+        "zip_code": "26473"
+    },
+    {
+        "name": "Sidi Said Maachou",
+        "zip_code": "26474"
+    },
+    {
+        "name": "Oulad Said",
+        "zip_code": "26502"
+    },
+    {
+        "name": "Khemis Gdana",
+        "zip_code": "26522"
+    },
+    {
+        "name": "Ras El Ain",
+        "zip_code": "26552"
+    },
+    {
+        "name": "Oued Naanaa",
+        "zip_code": "26572"
+    },
+    {
+        "name": "Douar Ouled Naceur",
+        "zip_code": "26573"
+    },
+    {
+        "name": "Sidi Hajjaj",
+        "zip_code": "26600"
+    },
+    {
+        "name": "Mrizig",
+        "zip_code": "26622"
+    },
+    {
+        "name": "Tleta Oulad Fares",
+        "zip_code": "26623"
+    },
+    {
+        "name": "Sidi Rahhal Chaouia",
+        "zip_code": "26652"
+    },
+    {
+        "name": "Imfout",
+        "zip_code": "26672"
+    },
+    {
+        "name": "Mechra Ben Abbou",
+        "zip_code": "26673"
+    },
+    {
+        "name": "Tleta Ain Blal",
+        "zip_code": "26674"
+    },
+    {
+        "name": "Tnine Toualet",
+        "zip_code": "26675"
+    },
+    {
+        "name": "Zemamra Chaouia",
+        "zip_code": "26676"
+    },
+    {
+        "name": "Tleta Loulad",
+        "zip_code": "26700"
+    },
+    {
+        "name": "Nkhila",
+        "zip_code": "26722"
+    },
+    {
+        "name": "Oukaimeden",
+        "zip_code": "40273"
+    },
+    {
+        "name": "Ait Ourir",
+        "zip_code": "42050"
+    },
+    {
+        "name": "Had Abadallah Rhiate",
+        "zip_code": "42051"
+    },
+    {
+        "name": "Abadou",
+        "zip_code": "42072"
+    },
+    {
+        "name": "Ait Aadel",
+        "zip_code": "42073"
+    },
+    {
+        "name": "Arbaa Tirhedouine",
+        "zip_code": "42074"
+    },
+    {
+        "name": "Had Zerkten",
+        "zip_code": "42075"
+    },
+    {
+        "name": "Taddart",
+        "zip_code": "42076"
+    },
+    {
+        "name": "Ait Faska",
+        "zip_code": "42082"
+    },
+    {
+        "name": "Ait Sidi Daoud",
+        "zip_code": "42083"
+    },
+    {
+        "name": "Tazzarte",
+        "zip_code": "42084"
+    },
+    {
+        "name": "Tidili Mesfioua",
+        "zip_code": "42085"
+    },
+    {
+        "name": "Touama",
+        "zip_code": "42086"
+    },
+    {
+        "name": "Tizguine",
+        "zip_code": "42102"
+    },
+    {
+        "name": "Amizmiz",
+        "zip_code": "42103"
+    },
+    {
+        "name": "Azgour",
+        "zip_code": "42122"
+    },
+    {
+        "name": "Anougal",
+        "zip_code": "42124"
+    },
+    {
+        "name": "Asni",
+        "zip_code": "42152"
+    },
+    {
+        "name": "Imgdal",
+        "zip_code": "42172"
+    },
+    {
+        "name": "Ouirgane",
+        "zip_code": "42173"
+    },
+    {
+        "name": "Moulay Brahim",
+        "zip_code": "42174"
+    },
+    {
+        "name": "Lalla Takarkouste",
+        "zip_code": "42202"
+    },
+    {
+        "name": "Rhmate",
+        "zip_code": "42252"
+    },
+    {
+        "name": "Tamazouzte",
+        "zip_code": "42272"
+    },
+    {
+        "name": "Tahanaoute",
+        "zip_code": "42302"
+    },
+    {
+        "name": "Tameslouhte",
+        "zip_code": "42312"
+    },
+    {
+        "name": "Tleta Nyacoub",
+        "zip_code": "42353"
+    },
+    {
+        "name": "Igoudar",
+        "zip_code": "42402"
+    },
+    {
+        "name": "Tnine Ourika",
+        "zip_code": "42452"
+    },
+    {
+        "name": "Aghbalou",
+        "zip_code": "42472"
+    },
+    {
+        "name": "Chichaoua",
+        "zip_code": "41000"
+    },
+    {
+        "name": "Mzoudia",
+        "zip_code": "41022"
+    },
+    {
+        "name": "Saidate",
+        "zip_code": "41023"
+    },
+    {
+        "name": "Zaouia Nouaceur",
+        "zip_code": "41024"
+    },
+    {
+        "name": "Ahdil",
+        "zip_code": "41025"
+    },
+    {
+        "name": "Imintanoute",
+        "zip_code": "41050"
+    },
+    {
+        "name": "Asserratou",
+        "zip_code": "41072"
+    },
+    {
+        "name": "Bouaboute",
+        "zip_code": "41073"
+    },
+    {
+        "name": "Lalla Aziza",
+        "zip_code": "41074"
+    },
+    {
+        "name": "Taouloukout",
+        "zip_code": "41075"
+    },
+    {
+        "name": "Timezguadiouine",
+        "zip_code": "41076"
+    },
+    {
+        "name": "Ouad Lbour",
+        "zip_code": "41082"
+    },
+    {
+        "name": "Ichamraren",
+        "zip_code": "41083"
+    },
+    {
+        "name": "Afalla Issen",
+        "zip_code": "41084"
+    },
+    {
+        "name": "Ait Hadi",
+        "zip_code": "41102"
+    },
+    {
+        "name": "Sidi Mokhtar",
+        "zip_code": "41152"
+    },
+    {
+        "name": "Arbaa Douirane",
+        "zip_code": "41202"
+    },
+    {
+        "name": "Boulaouane",
+        "zip_code": "41222"
+    },
+    {
+        "name": "Guemassa",
+        "zip_code": "41223"
+    },
+    {
+        "name": "Had Mjatt",
+        "zip_code": "41224"
+    },
+    {
+        "name": "Sebt Mzouda",
+        "zip_code": "41225"
+    },
+    {
+        "name": "Zaouiat Annahlia",
+        "zip_code": "41226"
+    },
+    {
+        "name": "Assif El Mal",
+        "zip_code": "42123"
+    },
+    {
+        "name": "El Kelaa Des Sraghna",
+        "zip_code": "43000"
+    },
+    {
+        "name": "El Hydana",
+        "zip_code": "43022"
+    },
+    {
+        "name": "Mayate",
+        "zip_code": "43023"
+    },
+    {
+        "name": "Oulad Yacoub",
+        "zip_code": "43024"
+    },
+    {
+        "name": "Sebt Ounasdass",
+        "zip_code": "43025"
+    },
+    {
+        "name": "Oulad Zarrad",
+        "zip_code": "43026"
+    },
+    {
+        "name": "El Aamria",
+        "zip_code": "43052"
+    },
+    {
+        "name": "Ain Igli",
+        "zip_code": "43072"
+    },
+    {
+        "name": "Chtaiba",
+        "zip_code": "43073"
+    },
+    {
+        "name": "Dechra",
+        "zip_code": "43074"
+    },
+    {
+        "name": "Pont Tassaoute",
+        "zip_code": "43075"
+    },
+    {
+        "name": "Oulad Aamer",
+        "zip_code": "43076"
+    },
+    {
+        "name": "Sidi El Hattab",
+        "zip_code": "43082"
+    },
+    {
+        "name": "Oulad Msabbel",
+        "zip_code": "43083"
+    },
+    {
+        "name": "Laattaouia",
+        "zip_code": "43100"
+    },
+    {
+        "name": "Bouya Omar",
+        "zip_code": "43122"
+    },
+    {
+        "name": "Dzouz",
+        "zip_code": "43123"
+    },
+    {
+        "name": "Had Fraita",
+        "zip_code": "43124"
+    },
+    {
+        "name": "Laatmna Srarhna",
+        "zip_code": "43125"
+    },
+    {
+        "name": "Ben Guerir",
+        "zip_code": "43150"
+    },
+    {
+        "name": "Benguerir Base Militaire",
+        "zip_code": "43153"
+    },
+    {
+        "name": "Tnine Bouchane",
+        "zip_code": "43154"
+    },
+    {
+        "name": "Jemaa El Ma Bared",
+        "zip_code": "43172"
+    },
+    {
+        "name": "Sebt Brikyine",
+        "zip_code": "43173"
+    },
+    {
+        "name": "Oulad Aamer Tizmarine",
+        "zip_code": "43174"
+    },
+    {
+        "name": "Ait Hammou",
+        "zip_code": "43175"
+    },
+    {
+        "name": "Oulad Hassoune Hamri",
+        "zip_code": "43176"
+    },
+    {
+        "name": "Had Ras El Ain",
+        "zip_code": "43202"
+    },
+    {
+        "name": "Akerma",
+        "zip_code": "43222"
+    },
+    {
+        "name": "Jaidate",
+        "zip_code": "43223"
+    },
+    {
+        "name": "Sahrij",
+        "zip_code": "43252"
+    },
+    {
+        "name": "Louad Lakhdar",
+        "zip_code": "43272"
+    },
+    {
+        "name": "Ouargui",
+        "zip_code": "43273"
+    },
+    {
+        "name": "Sidi Aissa Ben Slimane",
+        "zip_code": "43274"
+    },
+    {
+        "name": "Sidi Driss",
+        "zip_code": "43275"
+    },
+    {
+        "name": "Tleta Mzem",
+        "zip_code": "43276"
+    },
+    {
+        "name": "Nzalate Laadim",
+        "zip_code": "43302"
+    },
+    {
+        "name": "Sidi Bou Othmane",
+        "zip_code": "43303"
+    },
+    {
+        "name": "Sidi Boubker",
+        "zip_code": "43322"
+    },
+    {
+        "name": "Tnine Mhara",
+        "zip_code": "43323"
+    },
+    {
+        "name": "Lamharra",
+        "zip_code": "43324"
+    },
+    {
+        "name": "Sidi Rahhal",
+        "zip_code": "43350"
+    },
+    {
+        "name": "Zemrane",
+        "zip_code": "43372"
+    },
+    {
+        "name": "Skhour Rehamna",
+        "zip_code": "43402"
+    },
+    {
+        "name": "Had Jaafra",
+        "zip_code": "43422"
+    },
+    {
+        "name": "Sidi Abdallah",
+        "zip_code": "43423"
+    },
+    {
+        "name": "Sidi Ghanem",
+        "zip_code": "43424"
+    },
+    {
+        "name": "Tamallalt",
+        "zip_code": "43450"
+    },
+    {
+        "name": "Ejjouala",
+        "zip_code": "43472"
+    },
+    {
+        "name": "Jbiel",
+        "zip_code": "43473"
+    },
+    {
+        "name": "Zemrane Cherqia",
+        "zip_code": "43474"
+    },
+    {
+        "name": "Essaouira",
+        "zip_code": "44000"
+    },
+    {
+        "name": "Had Draa",
+        "zip_code": "44003"
+    },
+    {
+        "name": "Zaouia Ben Hmida",
+        "zip_code": "44004"
+    },
+    {
+        "name": "Arbaa Ida Ougourd",
+        "zip_code": "44005"
+    },
+    {
+        "name": "Smimou",
+        "zip_code": "44053"
+    },
+    {
+        "name": "Ait Daoud",
+        "zip_code": "44060"
+    },
+    {
+        "name": "Ida Ouazza",
+        "zip_code": "44072"
+    },
+    {
+        "name": "Sebt Meknafa",
+        "zip_code": "44073"
+    },
+    {
+        "name": "Tafedna",
+        "zip_code": "44074"
+    },
+    {
+        "name": "Tidzi",
+        "zip_code": "44075"
+    },
+    {
+        "name": "Tnine Imi Ntlit",
+        "zip_code": "44076"
+    },
+    {
+        "name": "Sidi Ahmed Essayeh",
+        "zip_code": "44082"
+    },
+    {
+        "name": "Assais",
+        "zip_code": "44083"
+    },
+    {
+        "name": "Taftecht",
+        "zip_code": "44102"
+    },
+    {
+        "name": "Had Mramer",
+        "zip_code": "44122"
+    },
+    {
+        "name": "Lamzilate",
+        "zip_code": "44123"
+    },
+    {
+        "name": "Mejji",
+        "zip_code": "44124"
+    },
+    {
+        "name": "Sidi Kaouki",
+        "zip_code": "44125"
+    },
+    {
+        "name": "Akermoud",
+        "zip_code": "44126"
+    },
+    {
+        "name": "Khemis Takate",
+        "zip_code": "44132"
+    },
+    {
+        "name": "Ounagha",
+        "zip_code": "44133"
+    },
+    {
+        "name": "Sidi Ishaq",
+        "zip_code": "44134"
+    },
+    {
+        "name": "Talmest",
+        "zip_code": "44150"
+    },
+    {
+        "name": "Tamanar",
+        "zip_code": "44200"
+    },
+    {
+        "name": "Arbaa Ida Ou Trouma",
+        "zip_code": "44222"
+    },
+    {
+        "name": "Ida Ou Guelloul",
+        "zip_code": "44223"
+    },
+    {
+        "name": "Sebt Imghade",
+        "zip_code": "44224"
+    },
+    {
+        "name": "Timzguida Ouftas",
+        "zip_code": "44225"
+    },
+    {
+        "name": "Ida Ou Kazzou",
+        "zip_code": "44226"
+    },
+    {
+        "name": "Tlata Hanchane",
+        "zip_code": "44250"
+    },
+    {
+        "name": "Bizdad",
+        "zip_code": "44252"
+    },
+    {
+        "name": "Sebt Korimate",
+        "zip_code": "44272"
+    },
+    {
+        "name": "Ain Zelten",
+        "zip_code": "44273"
+    },
+    {
+        "name": "Khemis Meskala",
+        "zip_code": "44274"
+    },
+    {
+        "name": "Tnine Ida Ou Zemzem",
+        "zip_code": "44275"
+    },
+    {
+        "name": "Mouarid",
+        "zip_code": "44276"
+    },
+    {
+        "name": "Chouiter",
+        "zip_code": "40023"
+    },
+    {
+        "name": "Mrabtine",
+        "zip_code": "40026"
+    },
+    {
+        "name": "Oued Lahjar",
+        "zip_code": "40062"
+    },
+    {
+        "name": "Oulad Belaaguid",
+        "zip_code": "40063"
+    },
+    {
+        "name": "Oulad Dlim",
+        "zip_code": "40064"
+    },
+    {
+        "name": "Tassoultante",
+        "zip_code": "40065"
+    },
+    {
+        "name": "Kettara",
+        "zip_code": "40152"
+    },
+    {
+        "name": "Nzalat El Harmel",
+        "zip_code": "40172"
+    },
+    {
+        "name": "Had Mnabha",
+        "zip_code": "40173"
+    },
+    {
+        "name": "Sidi Zouine",
+        "zip_code": "40202"
+    },
+    {
+        "name": "Tnine Oudaya",
+        "zip_code": "40253"
+    },
+    {
+        "name": "Sebt Ait Imour",
+        "zip_code": "40272"
+    },
+    {
+        "name": "Tamensourt",
+        "zip_code": "40300"
+    },
+    {
+        "name": "Had Harara",
+        "zip_code": "46006"
+    },
+    {
+        "name": "Arbaa Khattazakarne",
+        "zip_code": "46022"
+    },
+    {
+        "name": "Beddouza",
+        "zip_code": "46023"
+    },
+    {
+        "name": "Sidi Tiji",
+        "zip_code": "46024"
+    },
+    {
+        "name": "Souira Kedima",
+        "zip_code": "46025"
+    },
+    {
+        "name": "Dar Si Aissa",
+        "zip_code": "46026"
+    },
+    {
+        "name": "Souk Eyr",
+        "zip_code": "46034"
+    },
+    {
+        "name": "Ouled Selmane",
+        "zip_code": "46035"
+    },
+    {
+        "name": "Tleta Irhoud",
+        "zip_code": "46052"
+    },
+    {
+        "name": "Chemmaia",
+        "zip_code": "46053"
+    },
+    {
+        "name": "Atiamim",
+        "zip_code": "46072"
+    },
+    {
+        "name": "Jdour",
+        "zip_code": "46073"
+    },
+    {
+        "name": "Lakhoualqa",
+        "zip_code": "46074"
+    },
+    {
+        "name": "Ras El Ain Ahmar",
+        "zip_code": "46075"
+    },
+    {
+        "name": "Sidi Chiker",
+        "zip_code": "46076"
+    },
+    {
+        "name": "Jnane Bouih",
+        "zip_code": "46082"
+    },
+    {
+        "name": "Jamaat Shaim",
+        "zip_code": "46100"
+    },
+    {
+        "name": "Labkhati",
+        "zip_code": "46122"
+    },
+    {
+        "name": "Moul Bergui",
+        "zip_code": "46123"
+    },
+    {
+        "name": "Tleta Sidi Aissa",
+        "zip_code": "46124"
+    },
+    {
+        "name": "Lamsabih",
+        "zip_code": "46125"
+    },
+    {
+        "name": "Sebt Gzoula",
+        "zip_code": "46150"
+    },
+    {
+        "name": "Atouabet",
+        "zip_code": "46172"
+    },
+    {
+        "name": "Khemis Nga",
+        "zip_code": "46173"
+    },
+    {
+        "name": "Tnine Rhiate",
+        "zip_code": "46174"
+    },
+    {
+        "name": "Lamrasla",
+        "zip_code": "46175"
+    },
+    {
+        "name": "Sidi Ahmed",
+        "zip_code": "46202"
+    },
+    {
+        "name": "Tleta Sidi Bouguedra",
+        "zip_code": "46252"
+    },
+    {
+        "name": "Youssoufia",
+        "zip_code": "46300"
+    },
+    {
+        "name": "Esbiaat",
+        "zip_code": "46322"
+    },
+    {
+        "name": "Errachidia",
+        "zip_code": "52000"
+    },
+    {
+        "name": "Asrir Oued Ferkla",
+        "zip_code": "52002"
+    },
+    {
+        "name": "Ait Othman",
+        "zip_code": "52022"
+    },
+    {
+        "name": "Chorfa Mdarhra",
+        "zip_code": "52023"
+    },
+    {
+        "name": "Kheng",
+        "zip_code": "52024"
+    },
+    {
+        "name": "Meski",
+        "zip_code": "52025"
+    },
+    {
+        "name": "Zrigate",
+        "zip_code": "52052"
+    },
+    {
+        "name": "Aoufous",
+        "zip_code": "52053"
+    },
+    {
+        "name": "Douira",
+        "zip_code": "52072"
+    },
+    {
+        "name": "Oulad Chaker",
+        "zip_code": "52073"
+    },
+    {
+        "name": "Assoul",
+        "zip_code": "52102"
+    },
+    {
+        "name": "Ait Hani",
+        "zip_code": "52122"
+    },
+    {
+        "name": "Boudnib",
+        "zip_code": "52150"
+    },
+    {
+        "name": "Ksar Sahli",
+        "zip_code": "52172"
+    },
+    {
+        "name": "Tazougarte",
+        "zip_code": "52173"
+    },
+    {
+        "name": "Arfoud",
+        "zip_code": "52200"
+    },
+    {
+        "name": "Merzouga",
+        "zip_code": "52202"
+    },
+    {
+        "name": "Mfiss",
+        "zip_code": "52222"
+    },
+    {
+        "name": "Sifa Arab Sebbah Ziz",
+        "zip_code": "52223"
+    },
+    {
+        "name": "Taouz",
+        "zip_code": "52224"
+    },
+    {
+        "name": "Hannabou",
+        "zip_code": "52225"
+    },
+    {
+        "name": "Goulmima",
+        "zip_code": "52250"
+    },
+    {
+        "name": "Tilouine",
+        "zip_code": "52252"
+    },
+    {
+        "name": "Amelago",
+        "zip_code": "52272"
+    },
+    {
+        "name": "Tamhrach Rheriss",
+        "zip_code": "52273"
+    },
+    {
+        "name": "Gourrama",
+        "zip_code": "52302"
+    },
+    {
+        "name": "Jorf",
+        "zip_code": "52350"
+    },
+    {
+        "name": "Fazna",
+        "zip_code": "52372"
+    },
+    {
+        "name": "Er-Rich",
+        "zip_code": "52400"
+    },
+    {
+        "name": "Guers Tiallaline",
+        "zip_code": "52402"
+    },
+    {
+        "name": "Imilchil",
+        "zip_code": "52403"
+    },
+    {
+        "name": "Amouguer",
+        "zip_code": "52422"
+    },
+    {
+        "name": "Mzizil Tillechte",
+        "zip_code": "52423"
+    },
+    {
+        "name": "Nzala Ait Izdeg",
+        "zip_code": "52424"
+    },
+    {
+        "name": "Zaouia Sidi Hamza",
+        "zip_code": "52425"
+    },
+    {
+        "name": "Agdal Imilchil",
+        "zip_code": "52426"
+    },
+    {
+        "name": "Outerbat",
+        "zip_code": "52432"
+    },
+    {
+        "name": "Bou Azmou",
+        "zip_code": "52433"
+    },
+    {
+        "name": "Sidi Aayad",
+        "zip_code": "52434"
+    },
+    {
+        "name": "Rissani",
+        "zip_code": "52450"
+    },
+    {
+        "name": "Alnif",
+        "zip_code": "52452"
+    },
+    {
+        "name": "Seffalate",
+        "zip_code": "52453"
+    },
+    {
+        "name": "Bni Mhammed",
+        "zip_code": "52472"
+    },
+    {
+        "name": "Hssyia",
+        "zip_code": "52473"
+    },
+    {
+        "name": "Mssici",
+        "zip_code": "52474"
+    },
+    {
+        "name": "Sidi Ali Tafraout",
+        "zip_code": "52475"
+    },
+    {
+        "name": "Jbiyel",
+        "zip_code": "52476"
+    },
+    {
+        "name": "Achbarou",
+        "zip_code": "52482"
+    },
+    {
+        "name": "Tadirhoust",
+        "zip_code": "52502"
+    },
+    {
+        "name": "Timezguite",
+        "zip_code": "52522"
+    },
+    {
+        "name": "Tinejdad",
+        "zip_code": "52600"
+    },
+    {
+        "name": "Mellab",
+        "zip_code": "52602"
+    },
+    {
+        "name": "Arhbalou Nkerdouss",
+        "zip_code": "52622"
+    },
+    {
+        "name": "Touroug",
+        "zip_code": "52623"
+    },
+    {
+        "name": "Ouarzazate",
+        "zip_code": "45000"
+    },
+    {
+        "name": "Ouarzazate Tarmigt",
+        "zip_code": "45006"
+    },
+    {
+        "name": "Ghessate",
+        "zip_code": "45022"
+    },
+    {
+        "name": "Tabourahte",
+        "zip_code": "45023"
+    },
+    {
+        "name": "Tiouine",
+        "zip_code": "45024"
+    },
+    {
+        "name": "Guernane",
+        "zip_code": "45025"
+    },
+    {
+        "name": "Amerzgane",
+        "zip_code": "45102"
+    },
+    {
+        "name": "Ait Ben Haddou",
+        "zip_code": "45122"
+    },
+    {
+        "name": "Imini",
+        "zip_code": "45123"
+    },
+    {
+        "name": "Tamdakhte",
+        "zip_code": "45124"
+    },
+    {
+        "name": "Boumalne Dades",
+        "zip_code": "45150"
+    },
+    {
+        "name": "Ait Sedrate Jbel",
+        "zip_code": "45172"
+    },
+    {
+        "name": "Ait Youl",
+        "zip_code": "45173"
+    },
+    {
+        "name": "Ait Sedrate Jbel El Oulia",
+        "zip_code": "45174"
+    },
+    {
+        "name": "Kalaat M'Gouna",
+        "zip_code": "45200"
+    },
+    {
+        "name": "Ait Ridi",
+        "zip_code": "45222"
+    },
+    {
+        "name": "Ait Sedrate Sahl Charkia",
+        "zip_code": "45223"
+    },
+    {
+        "name": "Taberkhachte",
+        "zip_code": "45224"
+    },
+    {
+        "name": "Talouet",
+        "zip_code": "45252"
+    },
+    {
+        "name": "Ighrem Nougdal",
+        "zip_code": "45253"
+    },
+    {
+        "name": "Douar Sour",
+        "zip_code": "45272"
+    },
+    {
+        "name": "Anmiter Ounilla",
+        "zip_code": "45273"
+    },
+    {
+        "name": "Ikniouen",
+        "zip_code": "45302"
+    },
+    {
+        "name": "Khemis Dades",
+        "zip_code": "45352"
+    },
+    {
+        "name": "Zaouit El Bir",
+        "zip_code": "45372"
+    },
+    {
+        "name": "Msemrir",
+        "zip_code": "45452"
+    },
+    {
+        "name": "Oussikis Ait Azza",
+        "zip_code": "45472"
+    },
+    {
+        "name": "Tilmi",
+        "zip_code": "45473"
+    },
+    {
+        "name": "Skoura Ahl Al Oust",
+        "zip_code": "45502"
+    },
+    {
+        "name": "Idelsane",
+        "zip_code": "45522"
+    },
+    {
+        "name": "Imassine",
+        "zip_code": "45523"
+    },
+    {
+        "name": "Tarhzoute Nait Atta",
+        "zip_code": "45652"
+    },
+    {
+        "name": "Ait El Farsi",
+        "zip_code": "45672"
+    },
+    {
+        "name": "Taznakht",
+        "zip_code": "45750"
+    },
+    {
+        "name": "Anzal",
+        "zip_code": "45772"
+    },
+    {
+        "name": "Asdif",
+        "zip_code": "45773"
+    },
+    {
+        "name": "Bouazzer",
+        "zip_code": "45774"
+    },
+    {
+        "name": "Khouzama",
+        "zip_code": "45775"
+    },
+    {
+        "name": "Tinghir",
+        "zip_code": "45800"
+    },
+    {
+        "name": "Imider",
+        "zip_code": "45822"
+    },
+    {
+        "name": "Ouaklim",
+        "zip_code": "45823"
+    },
+    {
+        "name": "Toudgha El Oulia",
+        "zip_code": "45824"
+    },
+    {
+        "name": "Toudgha El Soufla",
+        "zip_code": "45825"
+    },
+    {
+        "name": "Toundoute",
+        "zip_code": "45852"
+    },
+    {
+        "name": "Imi Noulaouen",
+        "zip_code": "45872"
+    },
+    {
+        "name": "Agdz",
+        "zip_code": "47050"
+    },
+    {
+        "name": "Ait Saoun",
+        "zip_code": "47072"
+    },
+    {
+        "name": "Tamezmoute",
+        "zip_code": "47073"
+    },
+    {
+        "name": "Tanssifte",
+        "zip_code": "47074"
+    },
+    {
+        "name": "Zaouia Kadiria",
+        "zip_code": "47075"
+    },
+    {
+        "name": "Afra",
+        "zip_code": "47076"
+    },
+    {
+        "name": "Mhamid",
+        "zip_code": "47402"
+    },
+    {
+        "name": "Oulad Driss El Ghouzlane",
+        "zip_code": "47422"
+    },
+    {
+        "name": "Tagounite",
+        "zip_code": "47552"
+    },
+    {
+        "name": "El Blida",
+        "zip_code": "47572"
+    },
+    {
+        "name": "Nesrate",
+        "zip_code": "47573"
+    },
+    {
+        "name": "Zaouit Sidi Salah",
+        "zip_code": "47574"
+    },
+    {
+        "name": "Tamegroute",
+        "zip_code": "47602"
+    },
+    {
+        "name": "Fezouata",
+        "zip_code": "47622"
+    },
+    {
+        "name": "Nkob",
+        "zip_code": "47702"
+    },
+    {
+        "name": "Tazzarine",
+        "zip_code": "47703"
+    },
+    {
+        "name": "Tarhbalte",
+        "zip_code": "47722"
+    },
+    {
+        "name": "Ait Ouallal",
+        "zip_code": "47723"
+    },
+    {
+        "name": "Taftechna",
+        "zip_code": "47724"
+    },
+    {
+        "name": "Douar Site",
+        "zip_code": "47725"
+    },
+    {
+        "name": "Zagora",
+        "zip_code": "47900"
+    },
+    {
+        "name": "Bni Zoli",
+        "zip_code": "47922"
+    },
+    {
+        "name": "Ternata",
+        "zip_code": "47923"
+    },
+    {
+        "name": "Tinzouline",
+        "zip_code": "47924"
+    },
+    {
+        "name": "Bouzeroual",
+        "zip_code": "47925"
+    },
+    {
+        "name": "Bleida",
+        "zip_code": "47926"
+    },
+    {
+        "name": "Taghazoute",
+        "zip_code": "80022"
+    },
+    {
+        "name": "Tamraght",
+        "zip_code": "80023"
+    },
+    {
+        "name": "Amskroud",
+        "zip_code": "80302"
+    },
+    {
+        "name": "Imouzzer Ida Ou Tanane",
+        "zip_code": "80303"
+    },
+    {
+        "name": "Aksri",
+        "zip_code": "80322"
+    },
+    {
+        "name": "Idmine",
+        "zip_code": "80323"
+    },
+    {
+        "name": "Tiqqi",
+        "zip_code": "80324"
+    },
+    {
+        "name": "Aziar",
+        "zip_code": "80325"
+    },
+    {
+        "name": "Tadrart",
+        "zip_code": "80326"
+    },
+    {
+        "name": "Tamri",
+        "zip_code": "80502"
+    },
+    {
+        "name": "Sebt Assaka",
+        "zip_code": "80522"
+    },
+    {
+        "name": "Aourir",
+        "zip_code": "80750"
+    },
+    {
+        "name": "Ait Amira",
+        "zip_code": "87052"
+    },
+    {
+        "name": "Ait Baha",
+        "zip_code": "87100"
+    },
+    {
+        "name": "Sidi Bouaz",
+        "zip_code": "87112"
+    },
+    {
+        "name": "Timezguida Ouasrir",
+        "zip_code": "87113"
+    },
+    {
+        "name": "Had Targa Ntouchka",
+        "zip_code": "87122"
+    },
+    {
+        "name": "Hallate",
+        "zip_code": "87123"
+    },
+    {
+        "name": "Imi El Had Tasguedelft",
+        "zip_code": "87124"
+    },
+    {
+        "name": "Jemaa Takouchte",
+        "zip_code": "87125"
+    },
+    {
+        "name": "Sidi Abdellah El Bouchouari",
+        "zip_code": "87126"
+    },
+    {
+        "name": "Ait Ouadrim",
+        "zip_code": "87132"
+    },
+    {
+        "name": "Khemis Ait Moussa",
+        "zip_code": "87133"
+    },
+    {
+        "name": "Biougra",
+        "zip_code": "87200"
+    },
+    {
+        "name": "Imi Mqourn",
+        "zip_code": "87222"
+    },
+    {
+        "name": "Oued Essafa",
+        "zip_code": "87223"
+    },
+    {
+        "name": "Had Ait Belfaa",
+        "zip_code": "87252"
+    },
+    {
+        "name": "Inchaden",
+        "zip_code": "87272"
+    },
+    {
+        "name": "Sebt Ait Milk",
+        "zip_code": "87273"
+    },
+    {
+        "name": "Sidi Bibi",
+        "zip_code": "87274"
+    },
+    {
+        "name": "Khmis Ida Ou Gnidif",
+        "zip_code": "87402"
+    },
+    {
+        "name": "Aguerd Ntezke",
+        "zip_code": "87422"
+    },
+    {
+        "name": "Imhilen",
+        "zip_code": "87423"
+    },
+    {
+        "name": "Massa",
+        "zip_code": "87452"
+    },
+    {
+        "name": "Sidi Rbat",
+        "zip_code": "87472"
+    },
+    {
+        "name": "Massa Tassila",
+        "zip_code": "87473"
+    },
+    {
+        "name": "Tanalt",
+        "zip_code": "87552"
+    },
+    {
+        "name": "Tlata Ou Guenz",
+        "zip_code": "87572"
+    },
+    {
+        "name": "Tnine Hilala",
+        "zip_code": "87702"
+    },
+    {
+        "name": "Ait Melloul",
+        "zip_code": "86150"
+    },
+    {
+        "name": "Lqliaa",
+        "zip_code": "86356"
+    },
+    {
+        "name": "Temsia",
+        "zip_code": "86602"
+    },
+    {
+        "name": "Agadir Aereport",
+        "zip_code": "86603"
+    },
+    {
+        "name": "Souk El Had Oulad Dahou",
+        "zip_code": "86622"
+    },
+    {
+        "name": "Taroudannt",
+        "zip_code": "83000"
+    },
+    {
+        "name": "Ahmar",
+        "zip_code": "83022"
+    },
+    {
+        "name": "Had Imoulass",
+        "zip_code": "83023"
+    },
+    {
+        "name": "Mechraa El Ain",
+        "zip_code": "83024"
+    },
+    {
+        "name": "Sebt Tafraoute",
+        "zip_code": "83025"
+    },
+    {
+        "name": "Sidi Borja",
+        "zip_code": "83026"
+    },
+    {
+        "name": "Had Menizla",
+        "zip_code": "83032"
+    },
+    {
+        "name": "Ida Ou Moumen",
+        "zip_code": "83034"
+    },
+    {
+        "name": "Tazzemmourte",
+        "zip_code": "83035"
+    },
+    {
+        "name": "Tlata Ait Taleb",
+        "zip_code": "83036"
+    },
+    {
+        "name": "Zaouiat Sidi Tahar",
+        "zip_code": "83042"
+    },
+    {
+        "name": "Aoulouz",
+        "zip_code": "83052"
+    },
+    {
+        "name": "El Faid",
+        "zip_code": "83072"
+    },
+    {
+        "name": "Iouzioua Ou Neine",
+        "zip_code": "83073"
+    },
+    {
+        "name": "Tisrasse",
+        "zip_code": "83074"
+    },
+    {
+        "name": "Argana",
+        "zip_code": "83102"
+    },
+    {
+        "name": "Khemis Bigoudine",
+        "zip_code": "83122"
+    },
+    {
+        "name": "Imilmaiss",
+        "zip_code": "83123"
+    },
+    {
+        "name": "Askaoun",
+        "zip_code": "83152"
+    },
+    {
+        "name": "Ahl Tifnoute",
+        "zip_code": "83172"
+    },
+    {
+        "name": "Iguidi",
+        "zip_code": "83173"
+    },
+    {
+        "name": "Taouyalte",
+        "zip_code": "83174"
+    },
+    {
+        "name": "Toubkal",
+        "zip_code": "83175"
+    },
+    {
+        "name": "Ait Iaaza",
+        "zip_code": "83200"
+    },
+    {
+        "name": "Ait Igas",
+        "zip_code": "83222"
+    },
+    {
+        "name": "Nouara",
+        "zip_code": "83223"
+    },
+    {
+        "name": "Tioute",
+        "zip_code": "83224"
+    },
+    {
+        "name": "Azrar",
+        "zip_code": "83225"
+    },
+    {
+        "name": "Irherm",
+        "zip_code": "83250"
+    },
+    {
+        "name": "Ait Abdallah",
+        "zip_code": "83252"
+    },
+    {
+        "name": "Sebt Tataoute",
+        "zip_code": "83253"
+    },
+    {
+        "name": "Had Imaouen",
+        "zip_code": "83272"
+    },
+    {
+        "name": "Oulkadi",
+        "zip_code": "83273"
+    },
+    {
+        "name": "Tantamt",
+        "zip_code": "83274"
+    },
+    {
+        "name": "Tleta Nihit",
+        "zip_code": "83275"
+    },
+    {
+        "name": "Tnine Addar",
+        "zip_code": "83276"
+    },
+    {
+        "name": "Tnine Touflaazt",
+        "zip_code": "83282"
+    },
+    {
+        "name": "Ouzoune",
+        "zip_code": "83283"
+    },
+    {
+        "name": "Tindine",
+        "zip_code": "83284"
+    },
+    {
+        "name": "Oulad Berhil",
+        "zip_code": "83300"
+    },
+    {
+        "name": "Dar Bahbaz",
+        "zip_code": "83322"
+    },
+    {
+        "name": "Had Igli",
+        "zip_code": "83323"
+    },
+    {
+        "name": "Khemis Arazane",
+        "zip_code": "83324"
+    },
+    {
+        "name": "Khemis Talagjount",
+        "zip_code": "83325"
+    },
+    {
+        "name": "Tnine Ida Ou Gailal",
+        "zip_code": "83326"
+    },
+    {
+        "name": "Tnine Tigouga",
+        "zip_code": "83332"
+    },
+    {
+        "name": "Toughmart",
+        "zip_code": "83333"
+    },
+    {
+        "name": "Sidi Ouaaziz",
+        "zip_code": "83334"
+    },
+    {
+        "name": "Oulad Teima",
+        "zip_code": "83350"
+    },
+    {
+        "name": "El Koudia",
+        "zip_code": "83372"
+    },
+    {
+        "name": "Issen",
+        "zip_code": "83374"
+    },
+    {
+        "name": "Ksiba Ahl Rmel",
+        "zip_code": "83375"
+    },
+    {
+        "name": "Sebt Kfifate",
+        "zip_code": "83376"
+    },
+    {
+        "name": "Sidi Ahmed Ou Amar",
+        "zip_code": "83382"
+    },
+    {
+        "name": "Sidi Boumoussa",
+        "zip_code": "83383"
+    },
+    {
+        "name": "Sidi Moussa",
+        "zip_code": "83384"
+    },
+    {
+        "name": "Sebt El Guerdane",
+        "zip_code": "83400"
+    },
+    {
+        "name": "Arbaa Assads",
+        "zip_code": "83422"
+    },
+    {
+        "name": "Lakhnafif",
+        "zip_code": "83423"
+    },
+    {
+        "name": "Lamhadi",
+        "zip_code": "83424"
+    },
+    {
+        "name": "Tidsi Nissendalene",
+        "zip_code": "83425"
+    },
+    {
+        "name": "Tafingoult",
+        "zip_code": "83452"
+    },
+    {
+        "name": "Ouneine",
+        "zip_code": "83472"
+    },
+    {
+        "name": "Taliouine",
+        "zip_code": "83500"
+    },
+    {
+        "name": "Arbaa Assais",
+        "zip_code": "83522"
+    },
+    {
+        "name": "Assaki",
+        "zip_code": "83523"
+    },
+    {
+        "name": "Irhil Nourhou",
+        "zip_code": "83524"
+    },
+    {
+        "name": "Sidi Hsaine",
+        "zip_code": "83525"
+    },
+    {
+        "name": "Tassousfi",
+        "zip_code": "83526"
+    },
+    {
+        "name": "Agadir Melloul",
+        "zip_code": "83532"
+    },
+    {
+        "name": "Tizgzaouine",
+        "zip_code": "83533"
+    },
+    {
+        "name": "Tata",
+        "zip_code": "84000"
+    },
+    {
+        "name": "Akka Ighane",
+        "zip_code": "84022"
+    },
+    {
+        "name": "Khemis Addis",
+        "zip_code": "84023"
+    },
+    {
+        "name": "Oum El Guerdane",
+        "zip_code": "84024"
+    },
+    {
+        "name": "Tlata Tagmoute",
+        "zip_code": "84025"
+    },
+    {
+        "name": "Ibn Yacoub",
+        "zip_code": "84026"
+    },
+    {
+        "name": "Akka",
+        "zip_code": "84050"
+    },
+    {
+        "name": "Khemis Issafen",
+        "zip_code": "84052"
+    },
+    {
+        "name": "Tissint",
+        "zip_code": "84053"
+    },
+    {
+        "name": "Ait Ouabelli",
+        "zip_code": "84072"
+    },
+    {
+        "name": "Kasbat Sidi Abdellah Ben Mbarek",
+        "zip_code": "84073"
+    },
+    {
+        "name": "Tizouinine",
+        "zip_code": "84074"
+    },
+    {
+        "name": "Tizaghte",
+        "zip_code": "84075"
+    },
+    {
+        "name": "Aguinane",
+        "zip_code": "84076"
+    },
+    {
+        "name": "Fam El Hisn",
+        "zip_code": "84100"
+    },
+    {
+        "name": "Aguerd Tamanart",
+        "zip_code": "84122"
+    },
+    {
+        "name": "Foum Zguid",
+        "zip_code": "84150"
+    },
+    {
+        "name": "Allougoum",
+        "zip_code": "84172"
+    },
+    {
+        "name": "Lakhriouia",
+        "zip_code": "84173"
+    },
+    {
+        "name": "Tlite",
+        "zip_code": "84174"
+    },
+    {
+        "name": "Tiznit",
+        "zip_code": "85000"
+    },
+    {
+        "name": "Arbaa Sahel",
+        "zip_code": "85002"
+    },
+    {
+        "name": "Sebt Ouijjane",
+        "zip_code": "85003"
+    },
+    {
+        "name": "Tnine Aglou",
+        "zip_code": "85004"
+    },
+    {
+        "name": "El Maader El Kebir",
+        "zip_code": "85022"
+    },
+    {
+        "name": "Had Raggada",
+        "zip_code": "85023"
+    },
+    {
+        "name": "Ighir Melloulen",
+        "zip_code": "85024"
+    },
+    {
+        "name": "Oulad Jerrar",
+        "zip_code": "85025"
+    },
+    {
+        "name": "Laouina",
+        "zip_code": "85026"
+    },
+    {
+        "name": "Aglou Plage",
+        "zip_code": "85032"
+    },
+    {
+        "name": "Toubouzar",
+        "zip_code": "85033"
+    },
+    {
+        "name": "El Kreima",
+        "zip_code": "85034"
+    },
+    {
+        "name": "Assaka",
+        "zip_code": "85035"
+    },
+    {
+        "name": "Ighrem Oulad Jerrar",
+        "zip_code": "85042"
+    },
+    {
+        "name": "Ouled Noummeur",
+        "zip_code": "85043"
+    },
+    {
+        "name": "Bouzerz",
+        "zip_code": "85044"
+    },
+    {
+        "name": "Ait Erkha",
+        "zip_code": "85052"
+    },
+    {
+        "name": "Sidi Abdellah Ou Belaid",
+        "zip_code": "85072"
+    },
+    {
+        "name": "Tirhmi",
+        "zip_code": "85102"
+    },
+    {
+        "name": "Anezi",
+        "zip_code": "85103"
+    },
+    {
+        "name": "Aday Almezouarte",
+        "zip_code": "85122"
+    },
+    {
+        "name": "Arba Ait Ahmed",
+        "zip_code": "85123"
+    },
+    {
+        "name": "Tafraout El Mouloud",
+        "zip_code": "85124"
+    },
+    {
+        "name": "Tifermite",
+        "zip_code": "85125"
+    },
+    {
+        "name": "Tlata Ida Gougmar",
+        "zip_code": "85126"
+    },
+    {
+        "name": "Zaouia Sidi Ahmed Ou Moussa",
+        "zip_code": "85132"
+    },
+    {
+        "name": "Ait Issafen",
+        "zip_code": "85133"
+    },
+    {
+        "name": "Jemaa Ida Oussemlal",
+        "zip_code": "85134"
+    },
+    {
+        "name": "Arbaa Ras Mouka",
+        "zip_code": "85152"
+    },
+    {
+        "name": "Ait Brahim Ou Youssef",
+        "zip_code": "85172"
+    },
+    {
+        "name": "Sidi Ifni",
+        "zip_code": "85200"
+    },
+    {
+        "name": "Sbouya",
+        "zip_code": "85203"
+    },
+    {
+        "name": "Jemaa Ntighirt",
+        "zip_code": "85252"
+    },
+    {
+        "name": "Anfeg",
+        "zip_code": "85272"
+    },
+    {
+        "name": "Sebt Ennabour",
+        "zip_code": "85273"
+    },
+    {
+        "name": "Ibdar",
+        "zip_code": "85274"
+    },
+    {
+        "name": "Boutrouch",
+        "zip_code": "85275"
+    },
+    {
+        "name": "Mesti",
+        "zip_code": "85302"
+    },
+    {
+        "name": "Mirleft",
+        "zip_code": "85352"
+    },
+    {
+        "name": "Sebt Bounaamane",
+        "zip_code": "85402"
+    },
+    {
+        "name": "Sidi Bouabdelli",
+        "zip_code": "85422"
+    },
+    {
+        "name": "Tafraoute Nait Daoud",
+        "zip_code": "85423"
+    },
+    {
+        "name": "Tafraout",
+        "zip_code": "85450"
+    },
+    {
+        "name": "Had Tahala",
+        "zip_code": "85452"
+    },
+    {
+        "name": "Anameur",
+        "zip_code": "85472"
+    },
+    {
+        "name": "Had Affela Irhir",
+        "zip_code": "85473"
+    },
+    {
+        "name": "Izerbi",
+        "zip_code": "85474"
+    },
+    {
+        "name": "Ou Mesnate",
+        "zip_code": "85475"
+    },
+    {
+        "name": "Tanfit Ait Oumzil",
+        "zip_code": "85476"
+    },
+    {
+        "name": "Tleta Tidli",
+        "zip_code": "85482"
+    },
+    {
+        "name": "Tizoughane",
+        "zip_code": "85483"
+    },
+    {
+        "name": "Khemis Ait Oufka",
+        "zip_code": "85484"
+    },
+    {
+        "name": "Tnine Tarsouat",
+        "zip_code": "85485"
+    },
+    {
+        "name": "Tleta Tassrirt",
+        "zip_code": "85486"
+    },
+    {
+        "name": "Tiourhza",
+        "zip_code": "85502"
+    },
+    {
+        "name": "Arbaa Ait Abdellah",
+        "zip_code": "85522"
+    },
+    {
+        "name": "Tleta El Akhsass",
+        "zip_code": "85550"
+    },
+    {
+        "name": "Sidi Hsaine Ou Ali",
+        "zip_code": "85572"
+    },
+    {
+        "name": "Tnine Amellou",
+        "zip_code": "85602"
+    },
+    {
+        "name": "Tangarfa",
+        "zip_code": "85622"
+    },
+    {
+        "name": "Zag",
+        "zip_code": "81006"
+    },
+    {
+        "name": "Assa",
+        "zip_code": "81010"
+    },
+    {
+        "name": "Aouinate Ait Oussa",
+        "zip_code": "81022"
+    },
+    {
+        "name": "Aouinate Tourkoz",
+        "zip_code": "81023"
+    },
+    {
+        "name": "Labouirat",
+        "zip_code": "81035"
+    },
+    {
+        "name": "Al Mahbass",
+        "zip_code": "81036"
+    },
+    {
+        "name": "Guelmim",
+        "zip_code": "81000"
+    },
+    {
+        "name": "Fask",
+        "zip_code": "81003"
+    },
+    {
+        "name": "Ksabi Ait Lahcen",
+        "zip_code": "81005"
+    },
+    {
+        "name": "Abainou",
+        "zip_code": "81024"
+    },
+    {
+        "name": "Afereket Ait Yassine",
+        "zip_code": "81025"
+    },
+    {
+        "name": "Asrir Azouafit",
+        "zip_code": "81026"
+    },
+    {
+        "name": "Targa Wassay",
+        "zip_code": "81032"
+    },
+    {
+        "name": "Imi Nfast",
+        "zip_code": "81033"
+    },
+    {
+        "name": "Rass Oumlil",
+        "zip_code": "81034"
+    },
+    {
+        "name": "Labiar",
+        "zip_code": "81042"
+    },
+    {
+        "name": "Tilouine Assaka",
+        "zip_code": "81043"
+    },
+    {
+        "name": "Tighmert Azouafit",
+        "zip_code": "81044"
+    },
+    {
+        "name": "Bouizakarne",
+        "zip_code": "81050"
+    },
+    {
+        "name": "Tagante",
+        "zip_code": "81052"
+    },
+    {
+        "name": "Timoulay",
+        "zip_code": "81053"
+    },
+    {
+        "name": "Ait Boufoulne",
+        "zip_code": "81072"
+    },
+    {
+        "name": "Ifrane Atlas Seghir",
+        "zip_code": "81102"
+    },
+    {
+        "name": "Amsra",
+        "zip_code": "81122"
+    },
+    {
+        "name": "Tankert",
+        "zip_code": "81123"
+    },
+    {
+        "name": "Tarhjijt",
+        "zip_code": "81152"
+    },
+    {
+        "name": "Tnine Adai",
+        "zip_code": "81172"
+    },
+    {
+        "name": "Tan Tan",
+        "zip_code": "82000"
+    },
+    {
+        "name": "El Ouatia",
+        "zip_code": "82010"
+    },
+    {
+        "name": "Abteh",
+        "zip_code": "82022"
+    },
+    {
+        "name": "M'Sied",
+        "zip_code": "82023"
+    },
+    {
+        "name": "Boujdour",
+        "zip_code": "71000"
+    },
+    {
+        "name": "Es-Semara",
+        "zip_code": "72000"
+    },
+    {
+        "name": "Foum El Oued",
+        "zip_code": "70022"
+    },
+    {
+        "name": "Dcheira Tafoudart",
+        "zip_code": "70023"
+    },
+    {
+        "name": "Tarfaya",
+        "zip_code": "70050"
+    },
+    {
+        "name": "Daoura",
+        "zip_code": "70072"
+    },
+    {
+        "name": "Akhfennir",
+        "zip_code": "70073"
+    },
+    {
+        "name": "Aousserd",
+        "zip_code": "74002"
+    },
+    {
+        "name": "Dakhla",
+        "zip_code": "73000"
+    }
+]

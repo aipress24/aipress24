@@ -22,11 +22,11 @@ DEFAULT_NO_ZIP_CODE = [
 ]
 
 
-def import_countries() -> None:
+def import_countries(countries_path: Path = COUNTRY_SRC) -> None:
     db.session.execute(delete(CountryEntry))
     db.session.commit()
 
-    data = json.loads(COUNTRY_SRC.read_text())
+    data = json.loads(countries_path.read_text())
     country_list = [(item["iso3"], item["name"]) for item in data]
     print(f"importing {len(country_list)} country names")
 
@@ -45,15 +45,17 @@ def import_countries() -> None:
     db.session.flush()
 
 
-def import_zip_codes() -> None:
+def import_zip_codes(
+    countries_path: Path = COUNTRY_SRC, zipcodes_path: Path = ZIP_CODE_SRC
+) -> None:
     db.session.execute(delete(ZipCodeEntry))
     db.session.commit()
 
     print("importing zip codes")
-    data = json.loads(COUNTRY_SRC.read_text())
+    data = json.loads(countries_path.read_text())
     for item in data:
         iso3 = item["iso3"]
-        path = ZIP_CODE_SRC.joinpath(f"{iso3}.json")
+        path = zipcodes_path.joinpath(f"{iso3}.json")
         if path.is_file():
             print(f"importing {path}")
             import_zip_codes_for_country(path)

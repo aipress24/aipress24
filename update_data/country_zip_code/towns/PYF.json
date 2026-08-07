@@ -1,0 +1,830 @@
+[
+    {
+        "name": "Arue",
+        "zip_code": "98701"
+    },
+    {
+        "name": "Faaa",
+        "zip_code": "98704"
+    },
+    {
+        "name": "Hitiaa",
+        "zip_code": "98705"
+    },
+    {
+        "name": "Mahaena",
+        "zip_code": "98706"
+    },
+    {
+        "name": "Papenoo",
+        "zip_code": "98707"
+    },
+    {
+        "name": "Tiarei",
+        "zip_code": "98708"
+    },
+    {
+        "name": "Mahina",
+        "zip_code": "98709"
+    },
+    {
+        "name": "Orofara",
+        "zip_code": "98710"
+    },
+    {
+        "name": "Maatea",
+        "zip_code": "98728"
+    },
+    {
+        "name": "Teavaro",
+        "zip_code": "98728"
+    },
+    {
+        "name": "Afareaitu",
+        "zip_code": "98728"
+    },
+    {
+        "name": "Temae",
+        "zip_code": "98728"
+    },
+    {
+        "name": "Tiaia",
+        "zip_code": "98728"
+    },
+    {
+        "name": "Vaiare",
+        "zip_code": "98728"
+    },
+    {
+        "name": "Haumi",
+        "zip_code": "98728"
+    },
+    {
+        "name": "Paopao",
+        "zip_code": "98728"
+    },
+    {
+        "name": "Maharepa",
+        "zip_code": "98728"
+    },
+    {
+        "name": "Paopao",
+        "zip_code": "98729"
+    },
+    {
+        "name": "Varari",
+        "zip_code": "98729"
+    },
+    {
+        "name": "Atiha",
+        "zip_code": "98729"
+    },
+    {
+        "name": "Opunohu",
+        "zip_code": "98729"
+    },
+    {
+        "name": "Papetoai",
+        "zip_code": "98729"
+    },
+    {
+        "name": "Pihaena",
+        "zip_code": "98729"
+    },
+    {
+        "name": "Tiahura",
+        "zip_code": "98729"
+    },
+    {
+        "name": "Maiao",
+        "zip_code": "98729"
+    },
+    {
+        "name": "Hauru",
+        "zip_code": "98729"
+    },
+    {
+        "name": "Vaianae",
+        "zip_code": "98729"
+    },
+    {
+        "name": "Haapiti",
+        "zip_code": "98729"
+    },
+    {
+        "name": "Paea",
+        "zip_code": "98711"
+    },
+    {
+        "name": "Papara",
+        "zip_code": "98712"
+    },
+    {
+        "name": "Papeete",
+        "zip_code": "98714"
+    },
+    {
+        "name": "Pirae",
+        "zip_code": "98716"
+    },
+    {
+        "name": "Punaauia",
+        "zip_code": "98703"
+    },
+    {
+        "name": "Punaauia",
+        "zip_code": "98718"
+    },
+    {
+        "name": "Taravao",
+        "zip_code": "98719"
+    },
+    {
+        "name": "Afaahiti",
+        "zip_code": "98719"
+    },
+    {
+        "name": "Faaone",
+        "zip_code": "98720"
+    },
+    {
+        "name": "Pueu",
+        "zip_code": "98721"
+    },
+    {
+        "name": "Tautira",
+        "zip_code": "98722"
+    },
+    {
+        "name": "Teahupoo",
+        "zip_code": "98723"
+    },
+    {
+        "name": "Toahotu",
+        "zip_code": "98724"
+    },
+    {
+        "name": "Vairao",
+        "zip_code": "98725"
+    },
+    {
+        "name": "Mataiea",
+        "zip_code": "98726"
+    },
+    {
+        "name": "Papeari",
+        "zip_code": "98727"
+    },
+    {
+        "name": "Vaitape",
+        "zip_code": "98730"
+    },
+    {
+        "name": "Faanui",
+        "zip_code": "98730"
+    },
+    {
+        "name": "Nunue",
+        "zip_code": "98730"
+    },
+    {
+        "name": "Anau",
+        "zip_code": "98730"
+    },
+    {
+        "name": "Tefarerii",
+        "zip_code": "98731"
+    },
+    {
+        "name": "Fare",
+        "zip_code": "98731"
+    },
+    {
+        "name": "Faie",
+        "zip_code": "98731"
+    },
+    {
+        "name": "Fitii",
+        "zip_code": "98731"
+    },
+    {
+        "name": "Maeva",
+        "zip_code": "98731"
+    },
+    {
+        "name": "Haapu",
+        "zip_code": "98731"
+    },
+    {
+        "name": "Huahine",
+        "zip_code": "98731"
+    },
+    {
+        "name": "Maroe",
+        "zip_code": "98731"
+    },
+    {
+        "name": "Parea",
+        "zip_code": "98731"
+    },
+    {
+        "name": "Avera",
+        "zip_code": "98732"
+    },
+    {
+        "name": "Mopelia",
+        "zip_code": "98732"
+    },
+    {
+        "name": "Maupiti",
+        "zip_code": "98732"
+    },
+    {
+        "name": "Motu One",
+        "zip_code": "98732"
+    },
+    {
+        "name": "Scilly",
+        "zip_code": "98732"
+    },
+    {
+        "name": "Tapuamu",
+        "zip_code": "98733"
+    },
+    {
+        "name": "Hipu",
+        "zip_code": "98733"
+    },
+    {
+        "name": "Patio",
+        "zip_code": "98733"
+    },
+    {
+        "name": "Ruutia",
+        "zip_code": "98733"
+    },
+    {
+        "name": "Iripau",
+        "zip_code": "98733"
+    },
+    {
+        "name": "Tahaa",
+        "zip_code": "98733"
+    },
+    {
+        "name": "Tiva",
+        "zip_code": "98733"
+    },
+    {
+        "name": "Faaaha",
+        "zip_code": "98734"
+    },
+    {
+        "name": "Haamene",
+        "zip_code": "98734"
+    },
+    {
+        "name": "Vaitoare",
+        "zip_code": "98734"
+    },
+    {
+        "name": "Poutoru",
+        "zip_code": "98734"
+    },
+    {
+        "name": "Niua",
+        "zip_code": "98734"
+    },
+    {
+        "name": "Taputapuatea",
+        "zip_code": "98735"
+    },
+    {
+        "name": "Avera",
+        "zip_code": "98735"
+    },
+    {
+        "name": "Opoa",
+        "zip_code": "98735"
+    },
+    {
+        "name": "Puohine",
+        "zip_code": "98735"
+    },
+    {
+        "name": "Tevaitoa",
+        "zip_code": "98735"
+    },
+    {
+        "name": "Tehurui",
+        "zip_code": "98735"
+    },
+    {
+        "name": "Fetuna",
+        "zip_code": "98735"
+    },
+    {
+        "name": "Tumaraa",
+        "zip_code": "98735"
+    },
+    {
+        "name": "Uturoa",
+        "zip_code": "98735"
+    },
+    {
+        "name": "Tuuhora",
+        "zip_code": "98760"
+    },
+    {
+        "name": "Hitianau",
+        "zip_code": "98786"
+    },
+    {
+        "name": "Tepupahea",
+        "zip_code": "98790"
+    },
+    {
+        "name": "Rautini",
+        "zip_code": "98761"
+    },
+    {
+        "name": "Niutahi",
+        "zip_code": "98762"
+    },
+    {
+        "name": "Raitahiti",
+        "zip_code": "98785"
+    },
+    {
+        "name": "Rotoava",
+        "zip_code": "98763"
+    },
+    {
+        "name": "Paparara",
+        "zip_code": "98764"
+    },
+    {
+        "name": "Tearavero",
+        "zip_code": "98787"
+    },
+    {
+        "name": "Ofare",
+        "zip_code": "98790"
+    },
+    {
+        "name": "Toau",
+        "zip_code": "98790"
+    },
+    {
+        "name": "Motu Tapu",
+        "zip_code": "98790"
+    },
+    {
+        "name": "Teana",
+        "zip_code": "98765"
+    },
+    {
+        "name": "Tarione",
+        "zip_code": "98766"
+    },
+    {
+        "name": "Mangareva",
+        "zip_code": "98755"
+    },
+    {
+        "name": "Taravai",
+        "zip_code": "98755"
+    },
+    {
+        "name": "Makaroa",
+        "zip_code": "98755"
+    },
+    {
+        "name": "Akamaru",
+        "zip_code": "98755"
+    },
+    {
+        "name": "Aukena",
+        "zip_code": "98755"
+    },
+    {
+        "name": "Kamaka",
+        "zip_code": "98755"
+    },
+    {
+        "name": "Angakauitai",
+        "zip_code": "98755"
+    },
+    {
+        "name": "Rikitea",
+        "zip_code": "98755"
+    },
+    {
+        "name": "Maniui",
+        "zip_code": "98755"
+    },
+    {
+        "name": "Temoe",
+        "zip_code": "98792"
+    },
+    {
+        "name": "Morane",
+        "zip_code": "98792"
+    },
+    {
+        "name": "Tenararo",
+        "zip_code": "98792"
+    },
+    {
+        "name": "Maria Est",
+        "zip_code": "98792"
+    },
+    {
+        "name": "Motureivavao",
+        "zip_code": "98792"
+    },
+    {
+        "name": "Tenarunga",
+        "zip_code": "98792"
+    },
+    {
+        "name": "Vahanga",
+        "zip_code": "98792"
+    },
+    {
+        "name": "Marutea Sud",
+        "zip_code": "98793"
+    },
+    {
+        "name": "Otepa",
+        "zip_code": "98767"
+    },
+    {
+        "name": "Nengonengo",
+        "zip_code": "98790"
+    },
+    {
+        "name": "Manuhangi",
+        "zip_code": "98790"
+    },
+    {
+        "name": "Herehretue",
+        "zip_code": "98790"
+    },
+    {
+        "name": "Hikitake",
+        "zip_code": "98790"
+    },
+    {
+        "name": "Otetou",
+        "zip_code": "98790"
+    },
+    {
+        "name": "Teanoga",
+        "zip_code": "98790"
+    },
+    {
+        "name": "Amanu",
+        "zip_code": "98790"
+    },
+    {
+        "name": "Ahunui",
+        "zip_code": "98790"
+    },
+    {
+        "name": "Paraoa",
+        "zip_code": "98790"
+    },
+    {
+        "name": "Tupapati",
+        "zip_code": "98768"
+    },
+    {
+        "name": "Motutapu",
+        "zip_code": "98790"
+    },
+    {
+        "name": "Tepeperu",
+        "zip_code": "98790"
+    },
+    {
+        "name": "Mahetika",
+        "zip_code": "98790"
+    },
+    {
+        "name": "Ravahere",
+        "zip_code": "98790"
+    },
+    {
+        "name": "Pouheva",
+        "zip_code": "98769"
+    },
+    {
+        "name": "Hitianau",
+        "zip_code": "98789"
+    },
+    {
+        "name": "Tepoto Sud",
+        "zip_code": "98790"
+    },
+    {
+        "name": "Hiti",
+        "zip_code": "98790"
+    },
+    {
+        "name": "Haraiki",
+        "zip_code": "98790"
+    },
+    {
+        "name": "Garumaoa",
+        "zip_code": "98790"
+    },
+    {
+        "name": "Henuaparea",
+        "zip_code": "98790"
+    },
+    {
+        "name": "Otatake",
+        "zip_code": "98790"
+    },
+    {
+        "name": "Marutea Nord",
+        "zip_code": "98790"
+    },
+    {
+        "name": "Tuanake",
+        "zip_code": "98790"
+    },
+    {
+        "name": "Tenokupara",
+        "zip_code": "98770"
+    },
+    {
+        "name": "Turipaoa",
+        "zip_code": "98771"
+    },
+    {
+        "name": "Tepukamaruia",
+        "zip_code": "98772"
+    },
+    {
+        "name": "Tavava",
+        "zip_code": "98773"
+    },
+    {
+        "name": "Temanufaara",
+        "zip_code": "98788"
+    },
+    {
+        "name": "Teonemahina",
+        "zip_code": "98774"
+    },
+    {
+        "name": "Avatoru",
+        "zip_code": "98775"
+    },
+    {
+        "name": "Tiputa",
+        "zip_code": "98776"
+    },
+    {
+        "name": "Pahua",
+        "zip_code": "98777"
+    },
+    {
+        "name": "Tuherahera",
+        "zip_code": "98778"
+    },
+    {
+        "name": "Vaitepaua",
+        "zip_code": "98790"
+    },
+    {
+        "name": "Tapuarava",
+        "zip_code": "98779"
+    },
+    {
+        "name": "Marautagaroa",
+        "zip_code": "98780"
+    },
+    {
+        "name": "Teavaroa",
+        "zip_code": "98781"
+    },
+    {
+        "name": "Fakatopatere",
+        "zip_code": "98782"
+    },
+    {
+        "name": "Tikei",
+        "zip_code": "98790"
+    },
+    {
+        "name": "Tumukuru",
+        "zip_code": "98783"
+    },
+    {
+        "name": "Fakamaru",
+        "zip_code": "98784"
+    },
+    {
+        "name": "Omoa",
+        "zip_code": "98740"
+    },
+    {
+        "name": "Hanavave",
+        "zip_code": "98740"
+    },
+    {
+        "name": "Nahoe",
+        "zip_code": "98741"
+    },
+    {
+        "name": "Paumau",
+        "zip_code": "98741"
+    },
+    {
+        "name": "Hanaiapa",
+        "zip_code": "98741"
+    },
+    {
+        "name": "Atuona",
+        "zip_code": "98741"
+    },
+    {
+        "name": "Motu Ua",
+        "zip_code": "98741"
+    },
+    {
+        "name": "Eiaone",
+        "zip_code": "98741"
+    },
+    {
+        "name": "Hanapaoa",
+        "zip_code": "98741"
+    },
+    {
+        "name": "Puamau",
+        "zip_code": "98749"
+    },
+    {
+        "name": "Fatu Huku",
+        "zip_code": "98796"
+    },
+    {
+        "name": "Mohotani",
+        "zip_code": "98796"
+    },
+    {
+        "name": "Nukuataha",
+        "zip_code": "98742"
+    },
+    {
+        "name": "Taiohae",
+        "zip_code": "98742"
+    },
+    {
+        "name": "Terre Deserte",
+        "zip_code": "98742"
+    },
+    {
+        "name": "Taipivai",
+        "zip_code": "98742"
+    },
+    {
+        "name": "Aakapa",
+        "zip_code": "98742"
+    },
+    {
+        "name": "Hatiheu",
+        "zip_code": "98748"
+    },
+    {
+        "name": "Hatutaa",
+        "zip_code": "98796"
+    },
+    {
+        "name": "Hatu Iti",
+        "zip_code": "98796"
+    },
+    {
+        "name": "Eiao",
+        "zip_code": "98796"
+    },
+    {
+        "name": "Motopu",
+        "zip_code": "98743"
+    },
+    {
+        "name": "Hapatoni",
+        "zip_code": "98743"
+    },
+    {
+        "name": "Hanatetena",
+        "zip_code": "98743"
+    },
+    {
+        "name": "Vaitahu",
+        "zip_code": "98743"
+    },
+    {
+        "name": "Vaipaee",
+        "zip_code": "98744"
+    },
+    {
+        "name": "Hane",
+        "zip_code": "98747"
+    },
+    {
+        "name": "Hakahetau",
+        "zip_code": "98745"
+    },
+    {
+        "name": "Hakatao",
+        "zip_code": "98745"
+    },
+    {
+        "name": "Hohoi",
+        "zip_code": "98745"
+    },
+    {
+        "name": "Hakahau",
+        "zip_code": "98745"
+    },
+    {
+        "name": "Hakamaii",
+        "zip_code": "98746"
+    },
+    {
+        "name": "Haakuti",
+        "zip_code": "98746"
+    },
+    {
+        "name": "Anatonu",
+        "zip_code": "98750"
+    },
+    {
+        "name": "Mahanatoa",
+        "zip_code": "98750"
+    },
+    {
+        "name": "Rairua",
+        "zip_code": "98750"
+    },
+    {
+        "name": "Vaiuru",
+        "zip_code": "98750"
+    },
+    {
+        "name": "Ahurei",
+        "zip_code": "98751"
+    },
+    {
+        "name": "Marotiri",
+        "zip_code": "98794"
+    },
+    {
+        "name": "Amaru",
+        "zip_code": "98752"
+    },
+    {
+        "name": "Mutuaura",
+        "zip_code": "98752"
+    },
+    {
+        "name": "Rimatara",
+        "zip_code": "98752"
+    },
+    {
+        "name": "Anapoto",
+        "zip_code": "98752"
+    },
+    {
+        "name": "Maria Ilots",
+        "zip_code": "98795"
+    },
+    {
+        "name": "Avera",
+        "zip_code": "98753"
+    },
+    {
+        "name": "Hauti",
+        "zip_code": "98753"
+    },
+    {
+        "name": "Moerai",
+        "zip_code": "98753"
+    },
+    {
+        "name": "Mahu",
+        "zip_code": "98754"
+    },
+    {
+        "name": "Taahuaia",
+        "zip_code": "98754"
+    },
+    {
+        "name": "Mataura",
+        "zip_code": "98754"
+    }
+]

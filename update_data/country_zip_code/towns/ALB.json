@@ -1,0 +1,1978 @@
+[
+    {
+        "name": "Qender Berat",
+        "zip_code": "5001"
+    },
+    {
+        "name": "Berati",
+        "zip_code": "5002"
+    },
+    {
+        "name": "Berati",
+        "zip_code": "5003"
+    },
+    {
+        "name": "Berati",
+        "zip_code": "5004"
+    },
+    {
+        "name": "Berati",
+        "zip_code": "5005"
+    },
+    {
+        "name": "Berati",
+        "zip_code": "5006"
+    },
+    {
+        "name": "Ura Vajgurore",
+        "zip_code": "5007"
+    },
+    {
+        "name": "Poshnje",
+        "zip_code": "5008"
+    },
+    {
+        "name": "Kutalli",
+        "zip_code": "5009"
+    },
+    {
+        "name": "Otllak",
+        "zip_code": "5010"
+    },
+    {
+        "name": "Sinje",
+        "zip_code": "5011"
+    },
+    {
+        "name": "Velabisht",
+        "zip_code": "5012"
+    },
+    {
+        "name": "Lumas",
+        "zip_code": "5013"
+    },
+    {
+        "name": "Roshnik",
+        "zip_code": "5014"
+    },
+    {
+        "name": "Terpan",
+        "zip_code": "5015"
+    },
+    {
+        "name": "Mbrakull",
+        "zip_code": "5016"
+    },
+    {
+        "name": "Vertop",
+        "zip_code": "5017"
+    },
+    {
+        "name": "Cukalat",
+        "zip_code": "5018"
+    },
+    {
+        "name": "Cukalat",
+        "zip_code": "5019"
+    },
+    {
+        "name": "Lapardha",
+        "zip_code": "5020"
+    },
+    {
+        "name": "Ura e Kucit",
+        "zip_code": "5021"
+    },
+    {
+        "name": "Syzez",
+        "zip_code": "5022"
+    },
+    {
+        "name": "Kucove Qender",
+        "zip_code": "5301"
+    },
+    {
+        "name": "Kucove",
+        "zip_code": "5302"
+    },
+    {
+        "name": "Kucove",
+        "zip_code": "5303"
+    },
+    {
+        "name": "Kucove",
+        "zip_code": "5304"
+    },
+    {
+        "name": "Kozare",
+        "zip_code": "5305"
+    },
+    {
+        "name": "Perondi",
+        "zip_code": "5306"
+    },
+    {
+        "name": "Gege",
+        "zip_code": "5307"
+    },
+    {
+        "name": "Tapi",
+        "zip_code": "5308"
+    },
+    {
+        "name": "Çorovode Qender",
+        "zip_code": "5401"
+    },
+    {
+        "name": "Çorovode",
+        "zip_code": "5402"
+    },
+    {
+        "name": "Polican",
+        "zip_code": "5403"
+    },
+    {
+        "name": "Polican",
+        "zip_code": "5404"
+    },
+    {
+        "name": "Bogove",
+        "zip_code": "5405"
+    },
+    {
+        "name": "Cepan",
+        "zip_code": "5406"
+    },
+    {
+        "name": "Potom",
+        "zip_code": "5407"
+    },
+    {
+        "name": "Gjerbes",
+        "zip_code": "5408"
+    },
+    {
+        "name": "Vendresh",
+        "zip_code": "5409"
+    },
+    {
+        "name": "Konak",
+        "zip_code": "5410"
+    },
+    {
+        "name": "Verzhezh",
+        "zip_code": "5411"
+    },
+    {
+        "name": "Velush",
+        "zip_code": "5412"
+    },
+    {
+        "name": "Radesh",
+        "zip_code": "5413"
+    },
+    {
+        "name": "Qender Bulqize",
+        "zip_code": "8401"
+    },
+    {
+        "name": "Bulqiza",
+        "zip_code": "8402"
+    },
+    {
+        "name": "Martanesh/Kraste",
+        "zip_code": "8403"
+    },
+    {
+        "name": "Shupenze",
+        "zip_code": "8404"
+    },
+    {
+        "name": "Ostren",
+        "zip_code": "8405"
+    },
+    {
+        "name": "Zerqan",
+        "zip_code": "8406"
+    },
+    {
+        "name": "Gjorice",
+        "zip_code": "8407"
+    },
+    {
+        "name": "Zyrat Postare Trebisht",
+        "zip_code": "8408"
+    },
+    {
+        "name": "Fushe-Bulqize",
+        "zip_code": "8409"
+    },
+    {
+        "name": "Peshkopi",
+        "zip_code": "8301"
+    },
+    {
+        "name": "Maqellare",
+        "zip_code": "8302"
+    },
+    {
+        "name": "Melan",
+        "zip_code": "8303"
+    },
+    {
+        "name": "Tomin",
+        "zip_code": "8304"
+    },
+    {
+        "name": "Kastriot",
+        "zip_code": "8305"
+    },
+    {
+        "name": "Fushe-Cidhen",
+        "zip_code": "8306"
+    },
+    {
+        "name": "Sllove",
+        "zip_code": "8307"
+    },
+    {
+        "name": "Kala e Dodes",
+        "zip_code": "8308"
+    },
+    {
+        "name": "Zalle - Dardhe",
+        "zip_code": "8309"
+    },
+    {
+        "name": "Rec",
+        "zip_code": "8310"
+    },
+    {
+        "name": "Arras",
+        "zip_code": "8311"
+    },
+    {
+        "name": "Lure",
+        "zip_code": "8312"
+    },
+    {
+        "name": "Selishte",
+        "zip_code": "8313"
+    },
+    {
+        "name": "Luzni",
+        "zip_code": "8314"
+    },
+    {
+        "name": "Muhur",
+        "zip_code": "8315"
+    },
+    {
+        "name": "Burrel",
+        "zip_code": "8001"
+    },
+    {
+        "name": "Klos",
+        "zip_code": "8002"
+    },
+    {
+        "name": "Ulez (qytet)",
+        "zip_code": "8003"
+    },
+    {
+        "name": "Baz",
+        "zip_code": "8004"
+    },
+    {
+        "name": "Komsi",
+        "zip_code": "8005"
+    },
+    {
+        "name": "Gurre",
+        "zip_code": "8006"
+    },
+    {
+        "name": "Suç",
+        "zip_code": "8007"
+    },
+    {
+        "name": "Xiber",
+        "zip_code": "8008"
+    },
+    {
+        "name": "Lis",
+        "zip_code": "8009"
+    },
+    {
+        "name": "Derjan",
+        "zip_code": "8010"
+    },
+    {
+        "name": "Macukull",
+        "zip_code": "8011"
+    },
+    {
+        "name": "Rukaj/Bruç",
+        "zip_code": "8012"
+    },
+    {
+        "name": "Cerruje",
+        "zip_code": "8013"
+    },
+    {
+        "name": "Bejn",
+        "zip_code": "8014"
+    },
+    {
+        "name": "Durres Qender",
+        "zip_code": "2001"
+    },
+    {
+        "name": "Durresi",
+        "zip_code": "2002"
+    },
+    {
+        "name": "Durresi",
+        "zip_code": "2003"
+    },
+    {
+        "name": "Durresi",
+        "zip_code": "2004"
+    },
+    {
+        "name": "Durresi",
+        "zip_code": "2005"
+    },
+    {
+        "name": "Durresi",
+        "zip_code": "2006"
+    },
+    {
+        "name": "Shkozet",
+        "zip_code": "2007"
+    },
+    {
+        "name": "Plazh",
+        "zip_code": "2008"
+    },
+    {
+        "name": "Spitalle",
+        "zip_code": "2009"
+    },
+    {
+        "name": "Sukth",
+        "zip_code": "2010"
+    },
+    {
+        "name": "Manze",
+        "zip_code": "2011"
+    },
+    {
+        "name": "Kulle",
+        "zip_code": "2012"
+    },
+    {
+        "name": "Shijak",
+        "zip_code": "2013"
+    },
+    {
+        "name": "Shijak/",
+        "zip_code": "2014"
+    },
+    {
+        "name": "Ishem",
+        "zip_code": "2015"
+    },
+    {
+        "name": "Draç",
+        "zip_code": "2016"
+    },
+    {
+        "name": "Katundi i Ri",
+        "zip_code": "2017"
+    },
+    {
+        "name": "4 Rruget e Shijakut",
+        "zip_code": "2018"
+    },
+    {
+        "name": "Xhafzotaj",
+        "zip_code": "2019"
+    },
+    {
+        "name": "Maminas",
+        "zip_code": "2020"
+    },
+    {
+        "name": "Rrashbull",
+        "zip_code": "2021"
+    },
+    {
+        "name": "Gjepalaj",
+        "zip_code": "2022"
+    },
+    {
+        "name": "Kruja",
+        "zip_code": "1501"
+    },
+    {
+        "name": "Fushe Kruje",
+        "zip_code": "1502"
+    },
+    {
+        "name": "Thumane",
+        "zip_code": "1503"
+    },
+    {
+        "name": "Nikel",
+        "zip_code": "1504"
+    },
+    {
+        "name": "Bubq",
+        "zip_code": "1505"
+    },
+    {
+        "name": "Thumane",
+        "zip_code": "1506"
+    },
+    {
+        "name": "Sukth",
+        "zip_code": "1507"
+    },
+    {
+        "name": "Bruz",
+        "zip_code": "1508"
+    },
+    {
+        "name": "Elbasan",
+        "zip_code": "3001"
+    },
+    {
+        "name": "Elbasan",
+        "zip_code": "3002"
+    },
+    {
+        "name": "Elbasan",
+        "zip_code": "3003"
+    },
+    {
+        "name": "Elbasan",
+        "zip_code": "3004"
+    },
+    {
+        "name": "Elbasan",
+        "zip_code": "3005"
+    },
+    {
+        "name": "Elbasan",
+        "zip_code": "3006"
+    },
+    {
+        "name": "Cerrik",
+        "zip_code": "3007"
+    },
+    {
+        "name": "Belsh",
+        "zip_code": "3008"
+    },
+    {
+        "name": "Bradashesh",
+        "zip_code": "3009"
+    },
+    {
+        "name": "Labinot Fushe",
+        "zip_code": "3010"
+    },
+    {
+        "name": "Shirgjan",
+        "zip_code": "3011"
+    },
+    {
+        "name": "Gracen",
+        "zip_code": "3012"
+    },
+    {
+        "name": "Funar",
+        "zip_code": "3013"
+    },
+    {
+        "name": "Gjinar",
+        "zip_code": "3014"
+    },
+    {
+        "name": "Zavaline",
+        "zip_code": "3015"
+    },
+    {
+        "name": "Paper",
+        "zip_code": "3016"
+    },
+    {
+        "name": "Shales",
+        "zip_code": "3017"
+    },
+    {
+        "name": "Gostime",
+        "zip_code": "3018"
+    },
+    {
+        "name": "Mollas",
+        "zip_code": "3019"
+    },
+    {
+        "name": "Klos",
+        "zip_code": "3020"
+    },
+    {
+        "name": "Grekan",
+        "zip_code": "3021"
+    },
+    {
+        "name": "Kajan",
+        "zip_code": "3022"
+    },
+    {
+        "name": "Fierze",
+        "zip_code": "3023"
+    },
+    {
+        "name": "Labinot Mal",
+        "zip_code": "3024"
+    },
+    {
+        "name": "Shushice",
+        "zip_code": "3025"
+    },
+    {
+        "name": "Tregan",
+        "zip_code": "3026"
+    },
+    {
+        "name": "Gjergjan",
+        "zip_code": "3027"
+    },
+    {
+        "name": "Librazhd",
+        "zip_code": "3401"
+    },
+    {
+        "name": "Librazhd",
+        "zip_code": "3402"
+    },
+    {
+        "name": "Prrenjas",
+        "zip_code": "3403"
+    },
+    {
+        "name": "Prrenjas",
+        "zip_code": "3404"
+    },
+    {
+        "name": "Rrajce",
+        "zip_code": "3405"
+    },
+    {
+        "name": "Stravaj",
+        "zip_code": "3406"
+    },
+    {
+        "name": "Qukes",
+        "zip_code": "3407"
+    },
+    {
+        "name": "Hotolisht",
+        "zip_code": "3408"
+    },
+    {
+        "name": "Polis",
+        "zip_code": "3409"
+    },
+    {
+        "name": "Lunik",
+        "zip_code": "3410"
+    },
+    {
+        "name": "Komune Qender",
+        "zip_code": "3411"
+    },
+    {
+        "name": "Stebleve",
+        "zip_code": "3412"
+    },
+    {
+        "name": "Prrenjas",
+        "zip_code": "3413"
+    },
+    {
+        "name": "Fier Qender",
+        "zip_code": "9301"
+    },
+    {
+        "name": "Fier",
+        "zip_code": "9302"
+    },
+    {
+        "name": "Fier",
+        "zip_code": "9303"
+    },
+    {
+        "name": "Fier",
+        "zip_code": "9304"
+    },
+    {
+        "name": "Fier",
+        "zip_code": "9305"
+    },
+    {
+        "name": "Roskovec",
+        "zip_code": "9306"
+    },
+    {
+        "name": "Patos",
+        "zip_code": "9307"
+    },
+    {
+        "name": "Ballsh",
+        "zip_code": "9308"
+    },
+    {
+        "name": "Deremenas",
+        "zip_code": "9309"
+    },
+    {
+        "name": "Libofshe",
+        "zip_code": "9310"
+    },
+    {
+        "name": "Cakran",
+        "zip_code": "9311"
+    },
+    {
+        "name": "Ruzhdie",
+        "zip_code": "9312"
+    },
+    {
+        "name": "Frakull",
+        "zip_code": "9313"
+    },
+    {
+        "name": "Levan",
+        "zip_code": "9314"
+    },
+    {
+        "name": "Kuman",
+        "zip_code": "9315"
+    },
+    {
+        "name": "Kurjan",
+        "zip_code": "9316"
+    },
+    {
+        "name": "Zharez",
+        "zip_code": "9317"
+    },
+    {
+        "name": "Portez",
+        "zip_code": "9318"
+    },
+    {
+        "name": "Strum",
+        "zip_code": "9319"
+    },
+    {
+        "name": "Suk",
+        "zip_code": "9320"
+    },
+    {
+        "name": "Ngjeqar",
+        "zip_code": "9321"
+    },
+    {
+        "name": "Fier-Ferme",
+        "zip_code": "9322"
+    },
+    {
+        "name": "Povelce",
+        "zip_code": "9323"
+    },
+    {
+        "name": "Kreshpan",
+        "zip_code": "9324"
+    },
+    {
+        "name": "Buzemadh",
+        "zip_code": "9325"
+    },
+    {
+        "name": "Seman",
+        "zip_code": "9326"
+    },
+    {
+        "name": "Verri",
+        "zip_code": "9327"
+    },
+    {
+        "name": "Fratar",
+        "zip_code": "9328"
+    },
+    {
+        "name": "Kute",
+        "zip_code": "9329"
+    },
+    {
+        "name": "Aranitas",
+        "zip_code": "9330"
+    },
+    {
+        "name": "Greshice",
+        "zip_code": "9331"
+    },
+    {
+        "name": "Hekal",
+        "zip_code": "9332"
+    },
+    {
+        "name": "Dukas",
+        "zip_code": "9333"
+    },
+    {
+        "name": "Ngracan",
+        "zip_code": "9334"
+    },
+    {
+        "name": "Selite",
+        "zip_code": "9335"
+    },
+    {
+        "name": "Lushnje Qender",
+        "zip_code": "9001"
+    },
+    {
+        "name": "Karbunare e Vogel",
+        "zip_code": "9002"
+    },
+    {
+        "name": "Saver (agjent postar)",
+        "zip_code": "9003"
+    },
+    {
+        "name": "Remas",
+        "zip_code": "9004"
+    },
+    {
+        "name": "Allkaj",
+        "zip_code": "9005"
+    },
+    {
+        "name": "Krutje",
+        "zip_code": "9006"
+    },
+    {
+        "name": "Kolonje",
+        "zip_code": "9007"
+    },
+    {
+        "name": "Karbunare e Madhe",
+        "zip_code": "9008"
+    },
+    {
+        "name": "Hysgjokaj",
+        "zip_code": "9009"
+    },
+    {
+        "name": "Dushk",
+        "zip_code": "9010"
+    },
+    {
+        "name": "Grabijan",
+        "zip_code": "9011"
+    },
+    {
+        "name": "Golem",
+        "zip_code": "9012"
+    },
+    {
+        "name": "Fiershegan",
+        "zip_code": "9013"
+    },
+    {
+        "name": "Gradishte",
+        "zip_code": "9014"
+    },
+    {
+        "name": "Terbuf",
+        "zip_code": "9015"
+    },
+    {
+        "name": "Bubullime",
+        "zip_code": "9016"
+    },
+    {
+        "name": "Ballagat",
+        "zip_code": "9017"
+    },
+    {
+        "name": "Pluk",
+        "zip_code": "9018"
+    },
+    {
+        "name": "Gorre",
+        "zip_code": "9019"
+    },
+    {
+        "name": "Kashte Bardhe",
+        "zip_code": "9020"
+    },
+    {
+        "name": "Kemishtaj",
+        "zip_code": "9021"
+    },
+    {
+        "name": "Divjake",
+        "zip_code": "9022"
+    },
+    {
+        "name": "Qender",
+        "zip_code": "6001"
+    },
+    {
+        "name": "Gjirokastra",
+        "zip_code": "6002"
+    },
+    {
+        "name": "Libohove",
+        "zip_code": "6003"
+    },
+    {
+        "name": "Lazarat",
+        "zip_code": "6004"
+    },
+    {
+        "name": "Sofratike",
+        "zip_code": "6005"
+    },
+    {
+        "name": "Vrisera",
+        "zip_code": "6006"
+    },
+    {
+        "name": "Polican",
+        "zip_code": "6007"
+    },
+    {
+        "name": "Erind",
+        "zip_code": "6008"
+    },
+    {
+        "name": "Palokaster",
+        "zip_code": "6009"
+    },
+    {
+        "name": "Dervican",
+        "zip_code": "6010"
+    },
+    {
+        "name": "Jorgucat",
+        "zip_code": "6011"
+    },
+    {
+        "name": "Nivan",
+        "zip_code": "6012"
+    },
+    {
+        "name": "Valare",
+        "zip_code": "6013"
+    },
+    {
+        "name": "Ura e Kardhiqit",
+        "zip_code": "6014"
+    },
+    {
+        "name": "Labove",
+        "zip_code": "6015"
+    },
+    {
+        "name": "Suhe",
+        "zip_code": "6016"
+    },
+    {
+        "name": "Antigone",
+        "zip_code": "6017"
+    },
+    {
+        "name": "Dhoksat",
+        "zip_code": "6018"
+    },
+    {
+        "name": "Picar",
+        "zip_code": "6019"
+    },
+    {
+        "name": "Qender Ersek",
+        "zip_code": "7401"
+    },
+    {
+        "name": "Qender Leskovik",
+        "zip_code": "7402"
+    },
+    {
+        "name": "Mollas",
+        "zip_code": "7403"
+    },
+    {
+        "name": "Barmash",
+        "zip_code": "7404"
+    },
+    {
+        "name": "Novosele",
+        "zip_code": "7405"
+    },
+    {
+        "name": "Clirim",
+        "zip_code": "7406"
+    },
+    {
+        "name": "Qender",
+        "zip_code": "7001"
+    },
+    {
+        "name": "Korca",
+        "zip_code": "7002"
+    },
+    {
+        "name": "Korca",
+        "zip_code": "7003"
+    },
+    {
+        "name": "Korca",
+        "zip_code": "7004"
+    },
+    {
+        "name": "Qender Maliq",
+        "zip_code": "7005"
+    },
+    {
+        "name": "Qender Bilisht",
+        "zip_code": "7006"
+    },
+    {
+        "name": "Miras",
+        "zip_code": "7007"
+    },
+    {
+        "name": "Bitincke",
+        "zip_code": "7008"
+    },
+    {
+        "name": "Hocisht",
+        "zip_code": "7009"
+    },
+    {
+        "name": "Fitore",
+        "zip_code": "7010"
+    },
+    {
+        "name": "Proger",
+        "zip_code": "7011"
+    },
+    {
+        "name": "Vishocice",
+        "zip_code": "7012"
+    },
+    {
+        "name": "Bulgarec",
+        "zip_code": "7013"
+    },
+    {
+        "name": "Pojan",
+        "zip_code": "7014"
+    },
+    {
+        "name": "Plase",
+        "zip_code": "7015"
+    },
+    {
+        "name": "Pirg",
+        "zip_code": "7016"
+    },
+    {
+        "name": "Mollaj",
+        "zip_code": "7017"
+    },
+    {
+        "name": "Moglice",
+        "zip_code": "7018"
+    },
+    {
+        "name": "Lumalas",
+        "zip_code": "7019"
+    },
+    {
+        "name": "Liqenas",
+        "zip_code": "7020"
+    },
+    {
+        "name": "Libonik",
+        "zip_code": "7021"
+    },
+    {
+        "name": "Lekas",
+        "zip_code": "7022"
+    },
+    {
+        "name": "Drenove",
+        "zip_code": "7023"
+    },
+    {
+        "name": "Dishnice",
+        "zip_code": "7024"
+    },
+    {
+        "name": "Vithkuq",
+        "zip_code": "7025"
+    },
+    {
+        "name": "Voskop",
+        "zip_code": "7026"
+    },
+    {
+        "name": "Zvarisht",
+        "zip_code": "7027"
+    },
+    {
+        "name": "Vreshtas",
+        "zip_code": "7028"
+    },
+    {
+        "name": "Voskopoje",
+        "zip_code": "7029"
+    },
+    {
+        "name": "Qender Pogradec",
+        "zip_code": "7301"
+    },
+    {
+        "name": "Pogradec",
+        "zip_code": "7302"
+    },
+    {
+        "name": "Pogradec",
+        "zip_code": "7303"
+    },
+    {
+        "name": "Bucimas",
+        "zip_code": "7304"
+    },
+    {
+        "name": "Udenisht",
+        "zip_code": "7305"
+    },
+    {
+        "name": "Cerrave",
+        "zip_code": "7306"
+    },
+    {
+        "name": "Trebinje",
+        "zip_code": "7307"
+    },
+    {
+        "name": "Proptisht",
+        "zip_code": "7308"
+    },
+    {
+        "name": "Dardhas",
+        "zip_code": "7309"
+    },
+    {
+        "name": "Velçan",
+        "zip_code": "7310"
+    },
+    {
+        "name": "Qender",
+        "zip_code": "8601"
+    },
+    {
+        "name": "Krume",
+        "zip_code": "8602"
+    },
+    {
+        "name": "Golaj",
+        "zip_code": "8603"
+    },
+    {
+        "name": "Fajza",
+        "zip_code": "8604"
+    },
+    {
+        "name": "Gjinaj",
+        "zip_code": "8605"
+    },
+    {
+        "name": "Qender",
+        "zip_code": "8501"
+    },
+    {
+        "name": "Kukes",
+        "zip_code": "8502"
+    },
+    {
+        "name": "Kukes",
+        "zip_code": "8503"
+    },
+    {
+        "name": "Bicaj",
+        "zip_code": "8504"
+    },
+    {
+        "name": "Ujmisht",
+        "zip_code": "8505"
+    },
+    {
+        "name": "Bushtrice",
+        "zip_code": "8506"
+    },
+    {
+        "name": "Gryk-Caje",
+        "zip_code": "8507"
+    },
+    {
+        "name": "Kalis",
+        "zip_code": "8508"
+    },
+    {
+        "name": "Arren",
+        "zip_code": "8509"
+    },
+    {
+        "name": "Surroj",
+        "zip_code": "8510"
+    },
+    {
+        "name": "Kolsh",
+        "zip_code": "8511"
+    },
+    {
+        "name": "Shemri",
+        "zip_code": "8512"
+    },
+    {
+        "name": "Shtiqen",
+        "zip_code": "8513"
+    },
+    {
+        "name": "Bardhoc",
+        "zip_code": "8514"
+    },
+    {
+        "name": "Zapod",
+        "zip_code": "8515"
+    },
+    {
+        "name": "Topojan",
+        "zip_code": "8516"
+    },
+    {
+        "name": "Shishtavec",
+        "zip_code": "8517"
+    },
+    {
+        "name": "Novosej",
+        "zip_code": "8518"
+    },
+    {
+        "name": "Borje",
+        "zip_code": "8519"
+    },
+    {
+        "name": "Dogana |Morine",
+        "zip_code": "8520"
+    },
+    {
+        "name": "Qender",
+        "zip_code": "8701"
+    },
+    {
+        "name": "Bajram Curri",
+        "zip_code": "8702"
+    },
+    {
+        "name": "Tropoje",
+        "zip_code": "8703"
+    },
+    {
+        "name": "Fierze",
+        "zip_code": "8704"
+    },
+    {
+        "name": "Pac",
+        "zip_code": "8705"
+    },
+    {
+        "name": "Lekbibaj",
+        "zip_code": "8706"
+    },
+    {
+        "name": "Bujan",
+        "zip_code": "8706"
+    },
+    {
+        "name": "Margegaj",
+        "zip_code": "8706"
+    },
+    {
+        "name": "Llugaj",
+        "zip_code": "8706"
+    },
+    {
+        "name": "Dogan MorineTropoje",
+        "zip_code": "8707"
+    },
+    {
+        "name": "Qender Lac",
+        "zip_code": "4701"
+    },
+    {
+        "name": "Qender Lac",
+        "zip_code": "4702"
+    },
+    {
+        "name": "Sanxhak",
+        "zip_code": "4703"
+    },
+    {
+        "name": "Mamuras",
+        "zip_code": "4704"
+    },
+    {
+        "name": "Milot",
+        "zip_code": "4705"
+    },
+    {
+        "name": "Fushe Kuqe",
+        "zip_code": "4706"
+    },
+    {
+        "name": "Qendre Lezhe",
+        "zip_code": "4501"
+    },
+    {
+        "name": "Lezhe 1/Pensionet",
+        "zip_code": "4502"
+    },
+    {
+        "name": "Shengjin",
+        "zip_code": "4503"
+    },
+    {
+        "name": "Balldre",
+        "zip_code": "4504"
+    },
+    {
+        "name": "Blinisht",
+        "zip_code": "4505"
+    },
+    {
+        "name": "Dajc",
+        "zip_code": "4506"
+    },
+    {
+        "name": "Kallmet",
+        "zip_code": "4507"
+    },
+    {
+        "name": "Ungrej",
+        "zip_code": "4508"
+    },
+    {
+        "name": "Rrile",
+        "zip_code": "4509"
+    },
+    {
+        "name": "Zejmen",
+        "zip_code": "4510"
+    },
+    {
+        "name": "Shenkoll",
+        "zip_code": "4511"
+    },
+    {
+        "name": "Rreshen",
+        "zip_code": "4601"
+    },
+    {
+        "name": "Rreshen",
+        "zip_code": "4602"
+    },
+    {
+        "name": "Rubik",
+        "zip_code": "4603"
+    },
+    {
+        "name": "Selite",
+        "zip_code": "4604"
+    },
+    {
+        "name": "Orosh",
+        "zip_code": "4605"
+    },
+    {
+        "name": "Kthelle",
+        "zip_code": "4606"
+    },
+    {
+        "name": "Kacinar",
+        "zip_code": "4607"
+    },
+    {
+        "name": "Fan",
+        "zip_code": "4608"
+    },
+    {
+        "name": "Koplik",
+        "zip_code": "4301"
+    },
+    {
+        "name": "Gruemire",
+        "zip_code": "4302"
+    },
+    {
+        "name": "Grizhe",
+        "zip_code": "4303"
+    },
+    {
+        "name": "Tamare",
+        "zip_code": "4304"
+    },
+    {
+        "name": "Dedaj",
+        "zip_code": "4305"
+    },
+    {
+        "name": "Bajze",
+        "zip_code": "4306"
+    },
+    {
+        "name": "Puke",
+        "zip_code": "4401"
+    },
+    {
+        "name": "Fushe-Arrez",
+        "zip_code": "4402"
+    },
+    {
+        "name": "Iballe",
+        "zip_code": "4403"
+    },
+    {
+        "name": "Blerim",
+        "zip_code": "4404"
+    },
+    {
+        "name": "Qelez",
+        "zip_code": "4405"
+    },
+    {
+        "name": "Qafe Mali",
+        "zip_code": "4406"
+    },
+    {
+        "name": "Rrape (agjent postar)",
+        "zip_code": "4407"
+    },
+    {
+        "name": "Gjegjan",
+        "zip_code": "4408"
+    },
+    {
+        "name": "Luf",
+        "zip_code": "4409"
+    },
+    {
+        "name": "Qender",
+        "zip_code": "4001"
+    },
+    {
+        "name": "Shkoder",
+        "zip_code": "4002"
+    },
+    {
+        "name": "Shkoder",
+        "zip_code": "4003"
+    },
+    {
+        "name": "Shkoder",
+        "zip_code": "4004"
+    },
+    {
+        "name": "Shkoder",
+        "zip_code": "4005"
+    },
+    {
+        "name": "Shkoder",
+        "zip_code": "4006"
+    },
+    {
+        "name": "Shkoder",
+        "zip_code": "4007"
+    },
+    {
+        "name": "Vau i Dejes",
+        "zip_code": "4008"
+    },
+    {
+        "name": "Dukagjin",
+        "zip_code": "4009"
+    },
+    {
+        "name": "Pult (agjent postar)",
+        "zip_code": "4010"
+    },
+    {
+        "name": "Shosh (agjent postar)",
+        "zip_code": "4011"
+    },
+    {
+        "name": "Mes",
+        "zip_code": "4012"
+    },
+    {
+        "name": "Koman (agjent postar)",
+        "zip_code": "4013"
+    },
+    {
+        "name": "Shllak (agjent postar)",
+        "zip_code": "4014"
+    },
+    {
+        "name": "Dobrac",
+        "zip_code": "4015"
+    },
+    {
+        "name": "Guri i ZI",
+        "zip_code": "4016"
+    },
+    {
+        "name": "Oblike",
+        "zip_code": "4017"
+    },
+    {
+        "name": "Berdice",
+        "zip_code": "4018"
+    },
+    {
+        "name": "Dajc",
+        "zip_code": "4019"
+    },
+    {
+        "name": "Velipoje",
+        "zip_code": "4020"
+    },
+    {
+        "name": "Bushat",
+        "zip_code": "4021"
+    },
+    {
+        "name": "Barbullush",
+        "zip_code": "4022"
+    },
+    {
+        "name": "Ashte (agjent postar)",
+        "zip_code": "4023"
+    },
+    {
+        "name": "Stajke",
+        "zip_code": "4024"
+    },
+    {
+        "name": "Rranza (agjent postar)",
+        "zip_code": "4025"
+    },
+    {
+        "name": "Mjede",
+        "zip_code": "4026"
+    },
+    {
+        "name": "Kace (agjent postar)",
+        "zip_code": "4027"
+    },
+    {
+        "name": "Mnele-Vig (agjent postar)",
+        "zip_code": "4028"
+    },
+    {
+        "name": "Hajmel",
+        "zip_code": "4029"
+    },
+    {
+        "name": "Fierze",
+        "zip_code": "4030"
+    },
+    {
+        "name": "Tirana Kamez",
+        "zip_code": "1029"
+    },
+    {
+        "name": "Kamez",
+        "zip_code": "1030"
+    },
+    {
+        "name": "Tirane",
+        "zip_code": "1031"
+    },
+    {
+        "name": "Babrru",
+        "zip_code": "1047"
+    },
+    {
+        "name": "Bathore",
+        "zip_code": "1054"
+    },
+    {
+        "name": "Kavaja Qender",
+        "zip_code": "2501"
+    },
+    {
+        "name": "Kavaja",
+        "zip_code": "2502"
+    },
+    {
+        "name": "Rrogozhine",
+        "zip_code": "2503"
+    },
+    {
+        "name": "Golem",
+        "zip_code": "2504"
+    },
+    {
+        "name": "Synej",
+        "zip_code": "2505"
+    },
+    {
+        "name": "Helmas",
+        "zip_code": "2506"
+    },
+    {
+        "name": "Lekaj",
+        "zip_code": "2507"
+    },
+    {
+        "name": "Gose",
+        "zip_code": "2508"
+    },
+    {
+        "name": "Luz i Vogel",
+        "zip_code": "2509"
+    },
+    {
+        "name": "Kryevidh",
+        "zip_code": "2510"
+    },
+    {
+        "name": "Sinaballaj",
+        "zip_code": "2511"
+    },
+    {
+        "name": "Tirana",
+        "zip_code": "1001"
+    },
+    {
+        "name": "Tirana",
+        "zip_code": "1002"
+    },
+    {
+        "name": "Tirana",
+        "zip_code": "1003"
+    },
+    {
+        "name": "Tirana",
+        "zip_code": "1004"
+    },
+    {
+        "name": "Tirana 14 (22)",
+        "zip_code": "1005"
+    },
+    {
+        "name": "Tirana",
+        "zip_code": "1006"
+    },
+    {
+        "name": "Tirana",
+        "zip_code": "1007"
+    },
+    {
+        "name": "Tirana",
+        "zip_code": "1008"
+    },
+    {
+        "name": "Tirana",
+        "zip_code": "1009"
+    },
+    {
+        "name": "Tirana 1,",
+        "zip_code": "1010"
+    },
+    {
+        "name": "Tirana",
+        "zip_code": "1011"
+    },
+    {
+        "name": "Tirana",
+        "zip_code": "1012"
+    },
+    {
+        "name": "Tirana",
+        "zip_code": "1013"
+    },
+    {
+        "name": "Tirana",
+        "zip_code": "1014"
+    },
+    {
+        "name": "Tirana",
+        "zip_code": "1015"
+    },
+    {
+        "name": "Tirana",
+        "zip_code": "1016"
+    },
+    {
+        "name": "Tirana 3,",
+        "zip_code": "1017"
+    },
+    {
+        "name": "Tirana",
+        "zip_code": "1018"
+    },
+    {
+        "name": "Tirana",
+        "zip_code": "1019"
+    },
+    {
+        "name": "Tirana 8/1,",
+        "zip_code": "1020"
+    },
+    {
+        "name": "Tirana 8/1, 8/2,",
+        "zip_code": "1020"
+    },
+    {
+        "name": "Tirana 8/",
+        "zip_code": "1021"
+    },
+    {
+        "name": "Tirana",
+        "zip_code": "1022"
+    },
+    {
+        "name": "Tirana 9,",
+        "zip_code": "1023"
+    },
+    {
+        "name": "Tirana",
+        "zip_code": "1024"
+    },
+    {
+        "name": "Tirana 7,",
+        "zip_code": "1025"
+    },
+    {
+        "name": "Tirana",
+        "zip_code": "1026"
+    },
+    {
+        "name": "Tirana 6,",
+        "zip_code": "1027"
+    },
+    {
+        "name": "Tirana",
+        "zip_code": "1028"
+    },
+    {
+        "name": "Tirana Kamez Institut",
+        "zip_code": "1029"
+    },
+    {
+        "name": "Petrele",
+        "zip_code": "1034"
+    },
+    {
+        "name": "Baldushk",
+        "zip_code": "1035"
+    },
+    {
+        "name": "Ndroq",
+        "zip_code": "1036"
+    },
+    {
+        "name": "Berzhite",
+        "zip_code": "1037"
+    },
+    {
+        "name": "Peze",
+        "zip_code": "1038"
+    },
+    {
+        "name": "Priske (Dajt)",
+        "zip_code": "1040"
+    },
+    {
+        "name": "Vaqarr",
+        "zip_code": "1041"
+    },
+    {
+        "name": "Zall-Bastar",
+        "zip_code": "1042"
+    },
+    {
+        "name": "Shengjergj",
+        "zip_code": "1043"
+    },
+    {
+        "name": "Sauk",
+        "zip_code": "1044"
+    },
+    {
+        "name": "Farke",
+        "zip_code": "1045"
+    },
+    {
+        "name": "Selite",
+        "zip_code": "1046"
+    },
+    {
+        "name": "Zall-Herr",
+        "zip_code": "1048"
+    },
+    {
+        "name": "Krrabe",
+        "zip_code": "1049"
+    },
+    {
+        "name": "Mezez",
+        "zip_code": "1050"
+    },
+    {
+        "name": "Kashar",
+        "zip_code": "1051"
+    },
+    {
+        "name": "Yzberisht",
+        "zip_code": "1052"
+    },
+    {
+        "name": "Tranzit",
+        "zip_code": "1700"
+    },
+    {
+        "name": "EMS",
+        "zip_code": "1800"
+    },
+    {
+        "name": "Vore",
+        "zip_code": "1032"
+    },
+    {
+        "name": "Tirana Marikaj",
+        "zip_code": "1033"
+    },
+    {
+        "name": "Preze",
+        "zip_code": "1039"
+    },
+    {
+        "name": "Berxull",
+        "zip_code": "1053"
+    },
+    {
+        "name": "Qender Sarande",
+        "zip_code": "9701"
+    },
+    {
+        "name": "Saranda",
+        "zip_code": "9702"
+    },
+    {
+        "name": "Saranda Gjashte",
+        "zip_code": "9703"
+    },
+    {
+        "name": "Delvine",
+        "zip_code": "9704"
+    },
+    {
+        "name": "Konispol",
+        "zip_code": "9705"
+    },
+    {
+        "name": "Ksamil",
+        "zip_code": "9706"
+    },
+    {
+        "name": "Xarre",
+        "zip_code": "9707"
+    },
+    {
+        "name": "Markat",
+        "zip_code": "9708"
+    },
+    {
+        "name": "Shales",
+        "zip_code": "9709"
+    },
+    {
+        "name": "Aliko",
+        "zip_code": "9710"
+    },
+    {
+        "name": "Memoraq",
+        "zip_code": "9711"
+    },
+    {
+        "name": "Cerkovic",
+        "zip_code": "9712"
+    },
+    {
+        "name": "Lukove",
+        "zip_code": "9713"
+    },
+    {
+        "name": "Borsh",
+        "zip_code": "9714"
+    },
+    {
+        "name": "Piqeras",
+        "zip_code": "9715"
+    },
+    {
+        "name": "Finiq",
+        "zip_code": "9716"
+    },
+    {
+        "name": "Mesapotam",
+        "zip_code": "9717"
+    },
+    {
+        "name": "Rusan",
+        "zip_code": "9718"
+    },
+    {
+        "name": "Stjar",
+        "zip_code": "9719"
+    },
+    {
+        "name": "Vergo",
+        "zip_code": "9720"
+    },
+    {
+        "name": "Livadhja",
+        "zip_code": "9721"
+    },
+    {
+        "name": "Vlora Qender",
+        "zip_code": "9401"
+    },
+    {
+        "name": "Vlora-",
+        "zip_code": "9402"
+    },
+    {
+        "name": "Vlora-",
+        "zip_code": "9403"
+    },
+    {
+        "name": "Skele-Vlore",
+        "zip_code": "9404"
+    },
+    {
+        "name": "Uji Ftohte",
+        "zip_code": "9405"
+    },
+    {
+        "name": "Shushice",
+        "zip_code": "9406"
+    },
+    {
+        "name": "Kote",
+        "zip_code": "9407"
+    },
+    {
+        "name": "Brataj",
+        "zip_code": "9408"
+    },
+    {
+        "name": "Armen",
+        "zip_code": "9409"
+    },
+    {
+        "name": "Sevaster",
+        "zip_code": "9410"
+    },
+    {
+        "name": "Novosele",
+        "zip_code": "9411"
+    },
+    {
+        "name": "Vllahine",
+        "zip_code": "9412"
+    },
+    {
+        "name": "Terbac (Vranisht)",
+        "zip_code": "9413"
+    },
+    {
+        "name": "Narte",
+        "zip_code": "9414"
+    },
+    {
+        "name": "Ramice",
+        "zip_code": "9415"
+    },
+    {
+        "name": "Qeparo",
+        "zip_code": "9416"
+    },
+    {
+        "name": "Vuno",
+        "zip_code": "9417"
+    },
+    {
+        "name": "Kuc",
+        "zip_code": "9418"
+    },
+    {
+        "name": "Bestrove",
+        "zip_code": "9419"
+    },
+    {
+        "name": "Trevllazer",
+        "zip_code": "9420"
+    },
+    {
+        "name": "Gjorm",
+        "zip_code": "9421"
+    },
+    {
+        "name": "Dhermi",
+        "zip_code": "9422"
+    },
+    {
+        "name": "Babice",
+        "zip_code": "9423"
+    },
+    {
+        "name": "Mesaplik",
+        "zip_code": "9424"
+    },
+    {
+        "name": "Himare",
+        "zip_code": "9425"
+    },
+    {
+        "name": "Orikum",
+        "zip_code": "9426"
+    },
+    {
+        "name": "Selenice",
+        "zip_code": "9427"
+    }
+]

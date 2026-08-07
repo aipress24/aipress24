@@ -1,0 +1,54 @@
+[
+    {
+        "name": "Vaduz",
+        "zip_code": "9490"
+    },
+    {
+        "name": "Triesen",
+        "zip_code": "9495"
+    },
+    {
+        "name": "Balzers",
+        "zip_code": "9496"
+    },
+    {
+        "name": "Triesenberg",
+        "zip_code": "9497"
+    },
+    {
+        "name": "Schaan",
+        "zip_code": "9494"
+    },
+    {
+        "name": "Planken",
+        "zip_code": "9498"
+    },
+    {
+        "name": "Nendeln",
+        "zip_code": "9485"
+    },
+    {
+        "name": "Eschen",
+        "zip_code": "9492"
+    },
+    {
+        "name": "Schaanwald",
+        "zip_code": "9486"
+    },
+    {
+        "name": "Mauren FL",
+        "zip_code": "9493"
+    },
+    {
+        "name": "Gamprin-Bendern",
+        "zip_code": "9487"
+    },
+    {
+        "name": "Ruggell",
+        "zip_code": "9491"
+    },
+    {
+        "name": "Schellenberg",
+        "zip_code": "9488"
+    }
+]

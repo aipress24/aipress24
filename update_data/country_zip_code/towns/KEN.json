@@ -1,0 +1,3562 @@
+[
+    {
+        "name": "Nairobi Gpo",
+        "zip_code": "00100"
+    },
+    {
+        "name": "Jamia",
+        "zip_code": "00101"
+    },
+    {
+        "name": "State Law Office-Sheria HSE",
+        "zip_code": "00102"
+    },
+    {
+        "name": "City Square",
+        "zip_code": "00200"
+    },
+    {
+        "name": "Kenyatta Hospital",
+        "zip_code": "00202"
+    },
+    {
+        "name": "Mbari Ya Njiku",
+        "zip_code": "00231"
+    },
+    {
+        "name": "Karatu",
+        "zip_code": "00233"
+    },
+    {
+        "name": "Mundoro",
+        "zip_code": "00235"
+    },
+    {
+        "name": "Kiamwangi",
+        "zip_code": "00236"
+    },
+    {
+        "name": "Ronald Ngala Street",
+        "zip_code": "00300"
+    },
+    {
+        "name": "Tom Mboya Street",
+        "zip_code": "00400"
+    },
+    {
+        "name": "Enterprise Road",
+        "zip_code": "00500"
+    },
+    {
+        "name": "Jkia",
+        "zip_code": "00501"
+    },
+    {
+        "name": "Karen",
+        "zip_code": "00502"
+    },
+    {
+        "name": "Mbagathi",
+        "zip_code": "00503"
+    },
+    {
+        "name": "Mchumbi Road",
+        "zip_code": "00504"
+    },
+    {
+        "name": "Ngong Road",
+        "zip_code": "00505"
+    },
+    {
+        "name": "Nyayo Stadium",
+        "zip_code": "00506"
+    },
+    {
+        "name": "Viwandani",
+        "zip_code": "00507"
+    },
+    {
+        "name": "Yaya Towers",
+        "zip_code": "00508"
+    },
+    {
+        "name": "Langata Hardy",
+        "zip_code": "00509"
+    },
+    {
+        "name": "Makongeni",
+        "zip_code": "00510"
+    },
+    {
+        "name": "Riruta",
+        "zip_code": "00512"
+    },
+    {
+        "name": "Sasumua Rd",
+        "zip_code": "00513"
+    },
+    {
+        "name": "Buru Buru",
+        "zip_code": "00515"
+    },
+    {
+        "name": "Dandora",
+        "zip_code": "00516"
+    },
+    {
+        "name": "Uhuru Gardens",
+        "zip_code": "00517"
+    },
+    {
+        "name": "Kayole",
+        "zip_code": "00518"
+    },
+    {
+        "name": "Ruai",
+        "zip_code": "00520"
+    },
+    {
+        "name": "Embakasi Village",
+        "zip_code": "00521"
+    },
+    {
+        "name": "Makadara",
+        "zip_code": "00522"
+    },
+    {
+        "name": "Kibera",
+        "zip_code": "00523"
+    },
+    {
+        "name": "Ngara Road",
+        "zip_code": "00600"
+    },
+    {
+        "name": "Gigiri",
+        "zip_code": "00601"
+    },
+    {
+        "name": "Lavington",
+        "zip_code": "00603"
+    },
+    {
+        "name": "Lower Kabete",
+        "zip_code": "00604"
+    },
+    {
+        "name": "Uthiru",
+        "zip_code": "00605"
+    },
+    {
+        "name": "Sarit Centre",
+        "zip_code": "00606"
+    },
+    {
+        "name": "Eastleigh",
+        "zip_code": "00610"
+    },
+    {
+        "name": "Mathare Valley",
+        "zip_code": "00611"
+    },
+    {
+        "name": "Highridge",
+        "zip_code": "00612"
+    },
+    {
+        "name": "Waithaka",
+        "zip_code": "00613"
+    },
+    {
+        "name": "Kariobangi",
+        "zip_code": "00615"
+    },
+    {
+        "name": "Ruaraka",
+        "zip_code": "00618"
+    },
+    {
+        "name": "Muthaiga",
+        "zip_code": "00619"
+    },
+    {
+        "name": "Mobil Plaza",
+        "zip_code": "00620"
+    },
+    {
+        "name": "Village Market",
+        "zip_code": "00621"
+    },
+    {
+        "name": "Juja Rd",
+        "zip_code": "00622"
+    },
+    {
+        "name": "Parklands",
+        "zip_code": "00623"
+    },
+    {
+        "name": "Kangemi",
+        "zip_code": "00625"
+    },
+    {
+        "name": "Two Rivers",
+        "zip_code": "00627"
+    },
+    {
+        "name": "Westlands",
+        "zip_code": "00800"
+    },
+    {
+        "name": "Lusingeti",
+        "zip_code": "00905"
+    },
+    {
+        "name": "Migioini",
+        "zip_code": "01029"
+    },
+    {
+        "name": "Nguyoini",
+        "zip_code": "10224"
+    },
+    {
+        "name": "Kakibora",
+        "zip_code": "30216"
+    },
+    {
+        "name": "Singore",
+        "zip_code": "30703"
+    },
+    {
+        "name": "Gembe",
+        "zip_code": "40312"
+    },
+    {
+        "name": "Agenga",
+        "zip_code": "40406"
+    },
+    {
+        "name": "Othoch Rapwong",
+        "zip_code": "40411"
+    },
+    {
+        "name": "Karota",
+        "zip_code": "40505"
+    },
+    {
+        "name": "Ndere",
+        "zip_code": "40629"
+    },
+    {
+        "name": "Mudhiero",
+        "zip_code": "40629"
+    },
+    {
+        "name": "Rangala",
+        "zip_code": "40634"
+    },
+    {
+        "name": "Koracha",
+        "zip_code": "40639"
+    },
+    {
+        "name": "Bunyore",
+        "zip_code": "50301"
+    },
+    {
+        "name": "Hakati",
+        "zip_code": "50407"
+    },
+    {
+        "name": "Budalangi",
+        "zip_code": "50415"
+    },
+    {
+        "name": "Kakemer",
+        "zip_code": "50419"
+    },
+    {
+        "name": "Kocholya",
+        "zip_code": "50420"
+    },
+    {
+        "name": "Gatimbi",
+        "zip_code": "60217"
+    },
+    {
+        "name": "Mashini",
+        "zip_code": "80312"
+    },
+    {
+        "name": "Kitivo",
+        "zip_code": "80316"
+    },
+    {
+        "name": "Lukore",
+        "zip_code": "80408"
+    },
+    {
+        "name": "Nthogoini",
+        "zip_code": "90149"
+    },
+    {
+        "name": "Mulango",
+        "zip_code": "90216"
+    },
+    {
+        "name": "Kavuti",
+        "zip_code": "90405"
+    },
+    {
+        "name": "Mathuki",
+        "zip_code": "90406"
+    },
+    {
+        "name": "Eldama Ravine",
+        "zip_code": "20103"
+    },
+    {
+        "name": "Mogotio",
+        "zip_code": "20105"
+    },
+    {
+        "name": "Kisanana",
+        "zip_code": "20144"
+    },
+    {
+        "name": "Maji Mazuri",
+        "zip_code": "20145"
+    },
+    {
+        "name": "Torongo",
+        "zip_code": "20153"
+    },
+    {
+        "name": "Kapkenda",
+        "zip_code": "30119"
+    },
+    {
+        "name": "Kabarnet",
+        "zip_code": "30400"
+    },
+    {
+        "name": "Kabartonjo",
+        "zip_code": "30401"
+    },
+    {
+        "name": "Kiptagich",
+        "zip_code": "30402"
+    },
+    {
+        "name": "Marigat",
+        "zip_code": "30403"
+    },
+    {
+        "name": "Nginyang",
+        "zip_code": "30404"
+    },
+    {
+        "name": "Tenges",
+        "zip_code": "30405"
+    },
+    {
+        "name": "Kampi-Ya-Samaki",
+        "zip_code": "30406"
+    },
+    {
+        "name": "Seretunin",
+        "zip_code": "30407"
+    },
+    {
+        "name": "Bartolimo",
+        "zip_code": "30408"
+    },
+    {
+        "name": "Kisarama",
+        "zip_code": "30411"
+    },
+    {
+        "name": "Kipsaraman",
+        "zip_code": "30411"
+    },
+    {
+        "name": "Huduma Kabarnet",
+        "zip_code": "30413"
+    },
+    {
+        "name": "Kaptebengwet",
+        "zip_code": "20221"
+    },
+    {
+        "name": "Bomet",
+        "zip_code": "20400"
+    },
+    {
+        "name": "Chebunyo",
+        "zip_code": "20401"
+    },
+    {
+        "name": "Longisa",
+        "zip_code": "20402"
+    },
+    {
+        "name": "Ndanai",
+        "zip_code": "20404"
+    },
+    {
+        "name": "Sigor",
+        "zip_code": "20405"
+    },
+    {
+        "name": "Sotik",
+        "zip_code": "20406"
+    },
+    {
+        "name": "Chemaner",
+        "zip_code": "20407"
+    },
+    {
+        "name": "Boito",
+        "zip_code": "20409"
+    },
+    {
+        "name": "Cheptalal",
+        "zip_code": "20410"
+    },
+    {
+        "name": "Gorgor",
+        "zip_code": "20411"
+    },
+    {
+        "name": "Kabason",
+        "zip_code": "20412"
+    },
+    {
+        "name": "Kapcherany",
+        "zip_code": "20413"
+    },
+    {
+        "name": "Kapkesosio",
+        "zip_code": "20414"
+    },
+    {
+        "name": "Kapkoros",
+        "zip_code": "20415"
+    },
+    {
+        "name": "Kiplelji",
+        "zip_code": "20416"
+    },
+    {
+        "name": "Koiwa",
+        "zip_code": "20417"
+    },
+    {
+        "name": "Makimeny",
+        "zip_code": "20418"
+    },
+    {
+        "name": "Merigi",
+        "zip_code": "20419"
+    },
+    {
+        "name": "Olbutyo",
+        "zip_code": "20421"
+    },
+    {
+        "name": "Silibwet",
+        "zip_code": "20422"
+    },
+    {
+        "name": "Siongiroi",
+        "zip_code": "20423"
+    },
+    {
+        "name": "Amalo (Formerly Oloomirani)",
+        "zip_code": "20424"
+    },
+    {
+        "name": "Oloomirani",
+        "zip_code": "20424"
+    },
+    {
+        "name": "Ndaraweta",
+        "zip_code": "20426"
+    },
+    {
+        "name": "Tongaren",
+        "zip_code": "30218"
+    },
+    {
+        "name": "Masinde Muliro University",
+        "zip_code": "50139"
+    },
+    {
+        "name": "Bungoma",
+        "zip_code": "50200"
+    },
+    {
+        "name": "Cheptais",
+        "zip_code": "50201"
+    },
+    {
+        "name": "Chwele",
+        "zip_code": "50202"
+    },
+    {
+        "name": "Kapsokwony",
+        "zip_code": "50203"
+    },
+    {
+        "name": "Kimilili",
+        "zip_code": "50204"
+    },
+    {
+        "name": "Webuye",
+        "zip_code": "50205"
+    },
+    {
+        "name": "Bokoli",
+        "zip_code": "50206"
+    },
+    {
+        "name": "Misikhu",
+        "zip_code": "50207"
+    },
+    {
+        "name": "Sirisia",
+        "zip_code": "50208"
+    },
+    {
+        "name": "Malakisi",
+        "zip_code": "50209"
+    },
+    {
+        "name": "Buyofu",
+        "zip_code": "50210"
+    },
+    {
+        "name": "Naitiri",
+        "zip_code": "50211"
+    },
+    {
+        "name": "Ndalu",
+        "zip_code": "50212"
+    },
+    {
+        "name": "Dorofu",
+        "zip_code": "50213"
+    },
+    {
+        "name": "Kabula",
+        "zip_code": "50214"
+    },
+    {
+        "name": "Kamukuywa",
+        "zip_code": "50216"
+    },
+    {
+        "name": "Lugulu",
+        "zip_code": "50218"
+    },
+    {
+        "name": "Lwakhakha",
+        "zip_code": "50220"
+    },
+    {
+        "name": "Mukhe",
+        "zip_code": "50225"
+    },
+    {
+        "name": "Myanga",
+        "zip_code": "50226"
+    },
+    {
+        "name": "Lukusi",
+        "zip_code": "50230"
+    },
+    {
+        "name": "Bukembe",
+        "zip_code": "50233"
+    },
+    {
+        "name": "Kaptama",
+        "zip_code": "50234"
+    },
+    {
+        "name": "Mabusi",
+        "zip_code": "50235"
+    },
+    {
+        "name": "Mbakalo",
+        "zip_code": "50236"
+    },
+    {
+        "name": "Brigadier",
+        "zip_code": "50245"
+    },
+    {
+        "name": "Elugulu",
+        "zip_code": "50429"
+    },
+    {
+        "name": "Amagoro",
+        "zip_code": "50244"
+    },
+    {
+        "name": "Busia",
+        "zip_code": "50400"
+    },
+    {
+        "name": "Sio Port",
+        "zip_code": "50401"
+    },
+    {
+        "name": "Amukura",
+        "zip_code": "50403"
+    },
+    {
+        "name": "Bumala",
+        "zip_code": "50404"
+    },
+    {
+        "name": "Butula",
+        "zip_code": "50405"
+    },
+    {
+        "name": "Funyula",
+        "zip_code": "50406"
+    },
+    {
+        "name": "Kamuriai",
+        "zip_code": "50408"
+    },
+    {
+        "name": "Nambale",
+        "zip_code": "50409"
+    },
+    {
+        "name": "Port Victoria",
+        "zip_code": "50410"
+    },
+    {
+        "name": "Bar Ober",
+        "zip_code": "50411"
+    },
+    {
+        "name": "Angurai",
+        "zip_code": "50412"
+    },
+    {
+        "name": "Adungosi",
+        "zip_code": "50413"
+    },
+    {
+        "name": "Buhuyi",
+        "zip_code": "50416"
+    },
+    {
+        "name": "Bukiri",
+        "zip_code": "50417"
+    },
+    {
+        "name": "Bumutiru",
+        "zip_code": "50418"
+    },
+    {
+        "name": "Lukolis",
+        "zip_code": "50421"
+    },
+    {
+        "name": "Matayos",
+        "zip_code": "50422"
+    },
+    {
+        "name": "Mubwayo",
+        "zip_code": "50423"
+    },
+    {
+        "name": "Mungatsi",
+        "zip_code": "50425"
+    },
+    {
+        "name": "Murumba",
+        "zip_code": "50426"
+    },
+    {
+        "name": "Sisiya",
+        "zip_code": "30705"
+    },
+    {
+        "name": "Kobuswa",
+        "zip_code": "30705"
+    },
+    {
+        "name": "Kipsaiya",
+        "zip_code": "30705"
+    },
+    {
+        "name": "Sangurur",
+        "zip_code": "30705"
+    },
+    {
+        "name": "Kapsumai",
+        "zip_code": "30705"
+    },
+    {
+        "name": "Kindaruma",
+        "zip_code": "01031"
+    },
+    {
+        "name": "Embu",
+        "zip_code": "60100"
+    },
+    {
+        "name": "Manyatta",
+        "zip_code": "60101"
+    },
+    {
+        "name": "Ishiara",
+        "zip_code": "60102"
+    },
+    {
+        "name": "Runyenjes",
+        "zip_code": "60103"
+    },
+    {
+        "name": "Siakago",
+        "zip_code": "60104"
+    },
+    {
+        "name": "Karaba",
+        "zip_code": "60105"
+    },
+    {
+        "name": "Kanyuambora",
+        "zip_code": "60106"
+    },
+    {
+        "name": "Karingari",
+        "zip_code": "60107"
+    },
+    {
+        "name": "Kevote",
+        "zip_code": "60108"
+    },
+    {
+        "name": "Kiambere",
+        "zip_code": "60109"
+    },
+    {
+        "name": "Kibugu",
+        "zip_code": "60112"
+    },
+    {
+        "name": "Kiritiri",
+        "zip_code": "60113"
+    },
+    {
+        "name": "Kithimu",
+        "zip_code": "60114"
+    },
+    {
+        "name": "Nganduri",
+        "zip_code": "60115"
+    },
+    {
+        "name": "Karurumo",
+        "zip_code": "60117"
+    },
+    {
+        "name": "Kanja",
+        "zip_code": "60118"
+    },
+    {
+        "name": "Gachoka",
+        "zip_code": "60119"
+    },
+    {
+        "name": "Wachoro",
+        "zip_code": "60121"
+    },
+    {
+        "name": "Kianjokoma",
+        "zip_code": "60122"
+    },
+    {
+        "name": "Kubu Kubu",
+        "zip_code": "60125"
+    },
+    {
+        "name": "Masinga",
+        "zip_code": "90141"
+    },
+    {
+        "name": "Kyeni",
+        "zip_code": "90209"
+    },
+    {
+        "name": "Garissa",
+        "zip_code": "70100"
+    },
+    {
+        "name": "Modo Gashe",
+        "zip_code": "70102"
+    },
+    {
+        "name": "Dadaab",
+        "zip_code": "70103"
+    },
+    {
+        "name": "Bura Tana",
+        "zip_code": "70104"
+    },
+    {
+        "name": "Masalani",
+        "zip_code": "70105"
+    },
+    {
+        "name": "Oyugis",
+        "zip_code": "40222"
+    },
+    {
+        "name": "Kadongo",
+        "zip_code": "40223"
+    },
+    {
+        "name": "Oriang",
+        "zip_code": "40227"
+    },
+    {
+        "name": "Homa Bay",
+        "zip_code": "40300"
+    },
+    {
+        "name": "Kendu Bay",
+        "zip_code": "40301"
+    },
+    {
+        "name": "Ndhiwa",
+        "zip_code": "40302"
+    },
+    {
+        "name": "Rangwe",
+        "zip_code": "40303"
+    },
+    {
+        "name": "Kandiege",
+        "zip_code": "40304"
+    },
+    {
+        "name": "Mbita",
+        "zip_code": "40305"
+    },
+    {
+        "name": "Ombonga",
+        "zip_code": "40306"
+    },
+    {
+        "name": "Magunga",
+        "zip_code": "40307"
+    },
+    {
+        "name": "Sindo",
+        "zip_code": "40308"
+    },
+    {
+        "name": "Asumbi",
+        "zip_code": "40309"
+    },
+    {
+        "name": "Mawego",
+        "zip_code": "40310"
+    },
+    {
+        "name": "Nyangweso",
+        "zip_code": "40311"
+    },
+    {
+        "name": "Kojwang",
+        "zip_code": "40317"
+    },
+    {
+        "name": "Mfangano",
+        "zip_code": "40319"
+    },
+    {
+        "name": "Mirogi",
+        "zip_code": "40320"
+    },
+    {
+        "name": "Ogongo",
+        "zip_code": "40323"
+    },
+    {
+        "name": "Rodi Kopany",
+        "zip_code": "40326"
+    },
+    {
+        "name": "Awach Tende",
+        "zip_code": "40328"
+    },
+    {
+        "name": "Rusinga",
+        "zip_code": "40329"
+    },
+    {
+        "name": "Pala",
+        "zip_code": "40329"
+    },
+    {
+        "name": "Kosele",
+        "zip_code": "40332"
+    },
+    {
+        "name": "Nyandhiwa",
+        "zip_code": "40333"
+    },
+    {
+        "name": "Oyani-Masi",
+        "zip_code": "40334"
+    },
+    {
+        "name": "Asego",
+        "zip_code": "40335"
+    },
+    {
+        "name": "Isiolo",
+        "zip_code": "60300"
+    },
+    {
+        "name": "Garba Tulla",
+        "zip_code": "60301"
+    },
+    {
+        "name": "Archers Post",
+        "zip_code": "60302"
+    },
+    {
+        "name": "Merti",
+        "zip_code": "60303"
+    },
+    {
+        "name": "Magadi",
+        "zip_code": "00205"
+    },
+    {
+        "name": "Kiserian",
+        "zip_code": "00206"
+    },
+    {
+        "name": "Namanga",
+        "zip_code": "00207"
+    },
+    {
+        "name": "Ngong Hills",
+        "zip_code": "00208"
+    },
+    {
+        "name": "Loitokitok",
+        "zip_code": "00209"
+    },
+    {
+        "name": "Thigio",
+        "zip_code": "00210"
+    },
+    {
+        "name": "Oltepesi",
+        "zip_code": "00213"
+    },
+    {
+        "name": "Ilasit",
+        "zip_code": "00214"
+    },
+    {
+        "name": "Kimana",
+        "zip_code": "00215"
+    },
+    {
+        "name": "Kitengela",
+        "zip_code": "00241"
+    },
+    {
+        "name": "Ongata Rongai",
+        "zip_code": "00511"
+    },
+    {
+        "name": "Kajiado",
+        "zip_code": "01100"
+    },
+    {
+        "name": "Bissel",
+        "zip_code": "01101"
+    },
+    {
+        "name": "Mashuru",
+        "zip_code": "01103"
+    },
+    {
+        "name": "Kajiado West",
+        "zip_code": "01105"
+    },
+    {
+        "name": "Sabatia",
+        "zip_code": "20143"
+    },
+    {
+        "name": "Dudi",
+        "zip_code": "40621"
+    },
+    {
+        "name": "Kakamega",
+        "zip_code": "50100"
+    },
+    {
+        "name": "Butere",
+        "zip_code": "50101"
+    },
+    {
+        "name": "Mumias",
+        "zip_code": "50102"
+    },
+    {
+        "name": "Malava",
+        "zip_code": "50103"
+    },
+    {
+        "name": "Khayega",
+        "zip_code": "50104"
+    },
+    {
+        "name": "Bukura",
+        "zip_code": "50105"
+    },
+    {
+        "name": "Shianda",
+        "zip_code": "50106"
+    },
+    {
+        "name": "Shinyalu",
+        "zip_code": "50107"
+    },
+    {
+        "name": "Lugari",
+        "zip_code": "50108"
+    },
+    {
+        "name": "Bulimbo",
+        "zip_code": "50109"
+    },
+    {
+        "name": "Ileho",
+        "zip_code": "50111"
+    },
+    {
+        "name": "Imanga",
+        "zip_code": "50112"
+    },
+    {
+        "name": "Isulu",
+        "zip_code": "50114"
+    },
+    {
+        "name": "Kakunga",
+        "zip_code": "50115"
+    },
+    {
+        "name": "Kambiri",
+        "zip_code": "50116"
+    },
+    {
+        "name": "Koyonzo",
+        "zip_code": "50117"
+    },
+    {
+        "name": "Lubao",
+        "zip_code": "50118"
+    },
+    {
+        "name": "Lunza",
+        "zip_code": "50119"
+    },
+    {
+        "name": "Lutasa",
+        "zip_code": "50121"
+    },
+    {
+        "name": "Malaha",
+        "zip_code": "50122"
+    },
+    {
+        "name": "Malinya",
+        "zip_code": "50123"
+    },
+    {
+        "name": "Mautuma",
+        "zip_code": "50124"
+    },
+    {
+        "name": "Musanda",
+        "zip_code": "50125"
+    },
+    {
+        "name": "Manyulia",
+        "zip_code": "50126"
+    },
+    {
+        "name": "Nambacha",
+        "zip_code": "50127"
+    },
+    {
+        "name": "Samitsi",
+        "zip_code": "50128"
+    },
+    {
+        "name": "Lukume",
+        "zip_code": "50132"
+    },
+    {
+        "name": "Makunga",
+        "zip_code": "50133"
+    },
+    {
+        "name": "Khwisero",
+        "zip_code": "50135"
+    },
+    {
+        "name": "Matete",
+        "zip_code": "50136"
+    },
+    {
+        "name": "Booker",
+        "zip_code": "50137"
+    },
+    {
+        "name": "Milimani",
+        "zip_code": "50138"
+    },
+    {
+        "name": "Nangili",
+        "zip_code": "50239"
+    },
+    {
+        "name": "Luandeti",
+        "zip_code": "50240"
+    },
+    {
+        "name": "Kipkarren River",
+        "zip_code": "50241"
+    },
+    {
+        "name": "Lumakanda",
+        "zip_code": "50242"
+    },
+    {
+        "name": "Banja",
+        "zip_code": "50316"
+    },
+    {
+        "name": "Jebrok",
+        "zip_code": "50319"
+    },
+    {
+        "name": "Lusiola",
+        "zip_code": "50320"
+    },
+    {
+        "name": "Magada",
+        "zip_code": "50321"
+    },
+    {
+        "name": "Mahanga",
+        "zip_code": "50322"
+    },
+    {
+        "name": "Masana",
+        "zip_code": "50324"
+    },
+    {
+        "name": "Mago",
+        "zip_code": "50325"
+    },
+    {
+        "name": "Kericho",
+        "zip_code": "20200"
+    },
+    {
+        "name": "Kabianga",
+        "zip_code": "20201"
+    },
+    {
+        "name": "Kipkelion",
+        "zip_code": "20202"
+    },
+    {
+        "name": "Londiani",
+        "zip_code": "20203"
+    },
+    {
+        "name": "Roret",
+        "zip_code": "20204"
+    },
+    {
+        "name": "Sosiot",
+        "zip_code": "20205"
+    },
+    {
+        "name": "Kapkugerwet",
+        "zip_code": "20206"
+    },
+    {
+        "name": "Kapsuser",
+        "zip_code": "20207"
+    },
+    {
+        "name": "Kiptugumo",
+        "zip_code": "20208"
+    },
+    {
+        "name": "Fort Ternan",
+        "zip_code": "20209"
+    },
+    {
+        "name": "Litein",
+        "zip_code": "20210"
+    },
+    {
+        "name": "Kapsoit",
+        "zip_code": "20211"
+    },
+    {
+        "name": "Sigowet",
+        "zip_code": "20212"
+    },
+    {
+        "name": "Kiptere",
+        "zip_code": "20213"
+    },
+    {
+        "name": "Kapkatet",
+        "zip_code": "20214"
+    },
+    {
+        "name": "Cheborge",
+        "zip_code": "20215"
+    },
+    {
+        "name": "Chepkemel",
+        "zip_code": "20216"
+    },
+    {
+        "name": "Chesinendet",
+        "zip_code": "20217"
+    },
+    {
+        "name": "Kamaget",
+        "zip_code": "20218"
+    },
+    {
+        "name": "Kapkelek",
+        "zip_code": "20219"
+    },
+    {
+        "name": "Kedowa",
+        "zip_code": "20220"
+    },
+    {
+        "name": "Chemamul",
+        "zip_code": "20222"
+    },
+    {
+        "name": "Sorget",
+        "zip_code": "20223"
+    },
+    {
+        "name": "Kimulot",
+        "zip_code": "20225"
+    },
+    {
+        "name": "Huduma Kericho",
+        "zip_code": "20226"
+    },
+    {
+        "name": "Mogogosiek",
+        "zip_code": "20403"
+    },
+    {
+        "name": "Githunguri",
+        "zip_code": "00216"
+    },
+    {
+        "name": "Limuru",
+        "zip_code": "00217"
+    },
+    {
+        "name": "Ngecha",
+        "zip_code": "00218"
+    },
+    {
+        "name": "Karuri",
+        "zip_code": "00219"
+    },
+    {
+        "name": "Kijabe",
+        "zip_code": "00220"
+    },
+    {
+        "name": "Matathia",
+        "zip_code": "00221"
+    },
+    {
+        "name": "Uplands",
+        "zip_code": "00222"
+    },
+    {
+        "name": "Kagwe",
+        "zip_code": "00223"
+    },
+    {
+        "name": "Kinari",
+        "zip_code": "00227"
+    },
+    {
+        "name": "Muguga",
+        "zip_code": "00228"
+    },
+    {
+        "name": "Nderu",
+        "zip_code": "00229"
+    },
+    {
+        "name": "Ndenderu",
+        "zip_code": "00230"
+    },
+    {
+        "name": "Ruiru",
+        "zip_code": "00232"
+    },
+    {
+        "name": "Gathiru-Ini",
+        "zip_code": "00239"
+    },
+    {
+        "name": "Gathugu / Gathungu",
+        "zip_code": "00240"
+    },
+    {
+        "name": "Kamiti",
+        "zip_code": "00607"
+    },
+    {
+        "name": "Kenyatta University",
+        "zip_code": "00609"
+    },
+    {
+        "name": "Wangige",
+        "zip_code": "00614"
+    },
+    {
+        "name": "Githurai",
+        "zip_code": "00626"
+    },
+    {
+        "name": "Kiambu",
+        "zip_code": "00900"
+    },
+    {
+        "name": "Ngewa",
+        "zip_code": "00901"
+    },
+    {
+        "name": "Kikuyu",
+        "zip_code": "00902"
+    },
+    {
+        "name": "Ikinu",
+        "zip_code": "00904"
+    },
+    {
+        "name": "Kerwa",
+        "zip_code": "00906"
+    },
+    {
+        "name": "Thika",
+        "zip_code": "01000"
+    },
+    {
+        "name": "Kalimoni",
+        "zip_code": "01001"
+    },
+    {
+        "name": "Madaraka",
+        "zip_code": "01002"
+    },
+    {
+        "name": "Gituamba",
+        "zip_code": "01003"
+    },
+    {
+        "name": "Kanjuku",
+        "zip_code": "01004"
+    },
+    {
+        "name": "Wamwangi",
+        "zip_code": "01010"
+    },
+    {
+        "name": "Kanyoni",
+        "zip_code": "01011"
+    },
+    {
+        "name": "Gatura",
+        "zip_code": "01013"
+    },
+    {
+        "name": "Ithanga",
+        "zip_code": "01015"
+    },
+    {
+        "name": "Ndithini",
+        "zip_code": "01016"
+    },
+    {
+        "name": "Kirwara",
+        "zip_code": "01018"
+    },
+    {
+        "name": "Gatukuyu",
+        "zip_code": "01028"
+    },
+    {
+        "name": "Gatundu",
+        "zip_code": "01030"
+    },
+    {
+        "name": "Kaloleni",
+        "zip_code": "80105"
+    },
+    {
+        "name": "Kilifi",
+        "zip_code": "80108"
+    },
+    {
+        "name": "Mtwapa",
+        "zip_code": "80109"
+    },
+    {
+        "name": "Mariakani",
+        "zip_code": "80113"
+    },
+    {
+        "name": "Mazeras",
+        "zip_code": "80114"
+    },
+    {
+        "name": "Vipingo",
+        "zip_code": "80119"
+    },
+    {
+        "name": "Malindi",
+        "zip_code": "80200"
+    },
+    {
+        "name": "Watamu",
+        "zip_code": "80202"
+    },
+    {
+        "name": "Ganze",
+        "zip_code": "80205"
+    },
+    {
+        "name": "Gongoni",
+        "zip_code": "80206"
+    },
+    {
+        "name": "Madina",
+        "zip_code": "80207"
+    },
+    {
+        "name": "Gede",
+        "zip_code": "80208"
+    },
+    {
+        "name": "Kakoneni",
+        "zip_code": "80209"
+    },
+    {
+        "name": "Bamba",
+        "zip_code": "80210"
+    },
+    {
+        "name": "Vitengeni",
+        "zip_code": "80211"
+    },
+    {
+        "name": "Ngomeni",
+        "zip_code": "80212"
+    },
+    {
+        "name": "Mambrui",
+        "zip_code": "80213"
+    },
+    {
+        "name": "Sagana",
+        "zip_code": "10230"
+    },
+    {
+        "name": "Kerugoya",
+        "zip_code": "10300"
+    },
+    {
+        "name": "Kirinyaga",
+        "zip_code": "10301"
+    },
+    {
+        "name": "Baricho",
+        "zip_code": "10302"
+    },
+    {
+        "name": "Wanguru",
+        "zip_code": "10303"
+    },
+    {
+        "name": "Kutus",
+        "zip_code": "10304"
+    },
+    {
+        "name": "Kagio",
+        "zip_code": "10306"
+    },
+    {
+        "name": "Kagumo",
+        "zip_code": "10307"
+    },
+    {
+        "name": "Kiamutugu",
+        "zip_code": "10309"
+    },
+    {
+        "name": "Kimbimbi",
+        "zip_code": "10310"
+    },
+    {
+        "name": "Huduma Kerugoya",
+        "zip_code": "10311"
+    },
+    {
+        "name": "Kimunye",
+        "zip_code": "10312"
+    },
+    {
+        "name": "Mururi",
+        "zip_code": "60120"
+    },
+    {
+        "name": "Kisii",
+        "zip_code": "40200"
+    },
+    {
+        "name": "Gesusu",
+        "zip_code": "40201"
+    },
+    {
+        "name": "Keroka",
+        "zip_code": "40202"
+    },
+    {
+        "name": "Nyamache",
+        "zip_code": "40203"
+    },
+    {
+        "name": "Ogembo",
+        "zip_code": "40204"
+    },
+    {
+        "name": "Nyambunwa",
+        "zip_code": "40205"
+    },
+    {
+        "name": "Nyamarambe",
+        "zip_code": "40206"
+    },
+    {
+        "name": "Etago",
+        "zip_code": "40208"
+    },
+    {
+        "name": "Igare",
+        "zip_code": "40209"
+    },
+    {
+        "name": "Itumbe",
+        "zip_code": "40210"
+    },
+    {
+        "name": "Kenyenya",
+        "zip_code": "40211"
+    },
+    {
+        "name": "Keumbu",
+        "zip_code": "40212"
+    },
+    {
+        "name": "Kiamokama",
+        "zip_code": "40213"
+    },
+    {
+        "name": "Marani",
+        "zip_code": "40214"
+    },
+    {
+        "name": "Masimba",
+        "zip_code": "40215"
+    },
+    {
+        "name": "Nyangusu",
+        "zip_code": "40218"
+    },
+    {
+        "name": "Riosiri",
+        "zip_code": "40220"
+    },
+    {
+        "name": "Tabaka",
+        "zip_code": "40229"
+    },
+    {
+        "name": "Nyaramba",
+        "zip_code": "40514"
+    },
+    {
+        "name": "Kegogi",
+        "zip_code": "40515"
+    },
+    {
+        "name": "Magena",
+        "zip_code": "40516"
+    },
+    {
+        "name": "Kibigoti",
+        "zip_code": "10311"
+    },
+    {
+        "name": "Kisumu",
+        "zip_code": "40100"
+    },
+    {
+        "name": "Ahero",
+        "zip_code": "40101"
+    },
+    {
+        "name": "Kombewa",
+        "zip_code": "40102"
+    },
+    {
+        "name": "Kondele",
+        "zip_code": "40103"
+    },
+    {
+        "name": "Koru",
+        "zip_code": "40104"
+    },
+    {
+        "name": "Maseno",
+        "zip_code": "40105"
+    },
+    {
+        "name": "Miwani",
+        "zip_code": "40106"
+    },
+    {
+        "name": "Muhoroni",
+        "zip_code": "40107"
+    },
+    {
+        "name": "Otonglo",
+        "zip_code": "40108"
+    },
+    {
+        "name": "Sondu",
+        "zip_code": "40109"
+    },
+    {
+        "name": "Songhor",
+        "zip_code": "40110"
+    },
+    {
+        "name": "Pap-Onditi",
+        "zip_code": "40111"
+    },
+    {
+        "name": "Dago",
+        "zip_code": "40112"
+    },
+    {
+        "name": "Pembe Tatu",
+        "zip_code": "40113"
+    },
+    {
+        "name": "Chemelil",
+        "zip_code": "40116"
+    },
+    {
+        "name": "Daraja Mbili",
+        "zip_code": "40117"
+    },
+    {
+        "name": "Katito",
+        "zip_code": "40118"
+    },
+    {
+        "name": "Kibigori",
+        "zip_code": "40119"
+    },
+    {
+        "name": "Kondik",
+        "zip_code": "40121"
+    },
+    {
+        "name": "Awasi",
+        "zip_code": "40122"
+    },
+    {
+        "name": "Mega City",
+        "zip_code": "40123"
+    },
+    {
+        "name": "Nyabondo",
+        "zip_code": "40124"
+    },
+    {
+        "name": "Nyangande",
+        "zip_code": "40126"
+    },
+    {
+        "name": "Nyangori",
+        "zip_code": "40127"
+    },
+    {
+        "name": "Oboch",
+        "zip_code": "40129"
+    },
+    {
+        "name": "Paw Akuche",
+        "zip_code": "40131"
+    },
+    {
+        "name": "Rabuor",
+        "zip_code": "40132"
+    },
+    {
+        "name": "Reru",
+        "zip_code": "40133"
+    },
+    {
+        "name": "Sigoti",
+        "zip_code": "40135"
+    },
+    {
+        "name": "Ratta",
+        "zip_code": "40137"
+    },
+    {
+        "name": "Winam (Kisumu Gpo Extn.)",
+        "zip_code": "40141"
+    },
+    {
+        "name": "Rakwaro",
+        "zip_code": "40325"
+    },
+    {
+        "name": "Kitui",
+        "zip_code": "90200"
+    },
+    {
+        "name": "Ndooa",
+        "zip_code": "90202"
+    },
+    {
+        "name": "Tulia",
+        "zip_code": "90203"
+    },
+    {
+        "name": "Kisasi",
+        "zip_code": "90204"
+    },
+    {
+        "name": "Kabati",
+        "zip_code": "90205"
+    },
+    {
+        "name": "Endau",
+        "zip_code": "90206"
+    },
+    {
+        "name": "Matinyani",
+        "zip_code": "90210"
+    },
+    {
+        "name": "Mutha",
+        "zip_code": "90211"
+    },
+    {
+        "name": "Voo",
+        "zip_code": "90212"
+    },
+    {
+        "name": "Zombe",
+        "zip_code": "90213"
+    },
+    {
+        "name": "Mbitini",
+        "zip_code": "90214"
+    },
+    {
+        "name": "Kwavonza",
+        "zip_code": "90215"
+    },
+    {
+        "name": "Katutu",
+        "zip_code": "90217"
+    },
+    {
+        "name": "Kiusyani",
+        "zip_code": "90218"
+    },
+    {
+        "name": "Chuluni",
+        "zip_code": "90219"
+    },
+    {
+        "name": "Kamuwongo",
+        "zip_code": "90403"
+    },
+    {
+        "name": "Katse",
+        "zip_code": "90404"
+    },
+    {
+        "name": "Nuu",
+        "zip_code": "90408"
+    },
+    {
+        "name": "Samburu",
+        "zip_code": "80120"
+    },
+    {
+        "name": "Ukunda",
+        "zip_code": "80400"
+    },
+    {
+        "name": "Diani Beach",
+        "zip_code": "80401"
+    },
+    {
+        "name": "Lunga Lunga",
+        "zip_code": "80402"
+    },
+    {
+        "name": "Kwale",
+        "zip_code": "80403"
+    },
+    {
+        "name": "Msambweni",
+        "zip_code": "80404"
+    },
+    {
+        "name": "Kinango",
+        "zip_code": "80405"
+    },
+    {
+        "name": "Matuga",
+        "zip_code": "80406"
+    },
+    {
+        "name": "Shimba Hills",
+        "zip_code": "80407"
+    },
+    {
+        "name": "Shimoni",
+        "zip_code": "80409"
+    },
+    {
+        "name": "Kikoneni",
+        "zip_code": "80410"
+    },
+    {
+        "name": "Naro Moru",
+        "zip_code": "10105"
+    },
+    {
+        "name": "Nanyuki",
+        "zip_code": "10400"
+    },
+    {
+        "name": "Doldol",
+        "zip_code": "10401"
+    },
+    {
+        "name": "Timau",
+        "zip_code": "10406"
+    },
+    {
+        "name": "Huduma Nanyuki",
+        "zip_code": "10407"
+    },
+    {
+        "name": "Nyahururu",
+        "zip_code": "20300"
+    },
+    {
+        "name": "Mochogoini",
+        "zip_code": "20312"
+    },
+    {
+        "name": "Mairo Inya",
+        "zip_code": "20314"
+    },
+    {
+        "name": "Kinamba",
+        "zip_code": "20320"
+    },
+    {
+        "name": "Rumuruti",
+        "zip_code": "20321"
+    },
+    {
+        "name": "Marmanet",
+        "zip_code": "20322"
+    },
+    {
+        "name": "Muhotetu",
+        "zip_code": "20323"
+    },
+    {
+        "name": "Ngelesha",
+        "zip_code": "20324"
+    },
+    {
+        "name": "Sipili",
+        "zip_code": "20326"
+    },
+    {
+        "name": "Karandi",
+        "zip_code": "20328"
+    },
+    {
+        "name": "Wiyumiririe",
+        "zip_code": "20329"
+    },
+    {
+        "name": "Laikipia Campus",
+        "zip_code": "20330"
+    },
+    {
+        "name": "Lamu",
+        "zip_code": "80500"
+    },
+    {
+        "name": "Faza",
+        "zip_code": "80501"
+    },
+    {
+        "name": "Mokowe",
+        "zip_code": "80502"
+    },
+    {
+        "name": "Mpeketoni",
+        "zip_code": "80503"
+    },
+    {
+        "name": "Witu",
+        "zip_code": "80504"
+    },
+    {
+        "name": "Athi River",
+        "zip_code": "00204"
+    },
+    {
+        "name": "Mlolongo",
+        "zip_code": "00519"
+    },
+    {
+        "name": "Machakos",
+        "zip_code": "90100"
+    },
+    {
+        "name": "Masii",
+        "zip_code": "90101"
+    },
+    {
+        "name": "Mitaboni",
+        "zip_code": "90104"
+    },
+    {
+        "name": "Kathiani",
+        "zip_code": "90105"
+    },
+    {
+        "name": "Katangi",
+        "zip_code": "90106"
+    },
+    {
+        "name": "Kaviani",
+        "zip_code": "90107"
+    },
+    {
+        "name": "Lita",
+        "zip_code": "90109"
+    },
+    {
+        "name": "Kivunga",
+        "zip_code": "90111"
+    },
+    {
+        "name": "Muumandu",
+        "zip_code": "90114"
+    },
+    {
+        "name": "Mutituni",
+        "zip_code": "90117"
+    },
+    {
+        "name": "Ndalani",
+        "zip_code": "90118"
+    },
+    {
+        "name": "Matuu",
+        "zip_code": "90119"
+    },
+    {
+        "name": "Iiani",
+        "zip_code": "90120"
+    },
+    {
+        "name": "Ekalakala",
+        "zip_code": "90139"
+    },
+    {
+        "name": "Daystar",
+        "zip_code": "90145"
+    },
+    {
+        "name": "Chumvi",
+        "zip_code": "90147"
+    },
+    {
+        "name": "Kaewa",
+        "zip_code": "90150"
+    },
+    {
+        "name": "Kola",
+        "zip_code": "90108"
+    },
+    {
+        "name": "Miu",
+        "zip_code": "90112"
+    },
+    {
+        "name": "Kalamba",
+        "zip_code": "90122"
+    },
+    {
+        "name": "Kasikeu",
+        "zip_code": "90123"
+    },
+    {
+        "name": "Kithimani",
+        "zip_code": "90124"
+    },
+    {
+        "name": "Kikima",
+        "zip_code": "90125"
+    },
+    {
+        "name": "Kalawa",
+        "zip_code": "90126"
+    },
+    {
+        "name": "Mbumbuni",
+        "zip_code": "90127"
+    },
+    {
+        "name": "Tawa",
+        "zip_code": "90133"
+    },
+    {
+        "name": "Ikalaasa",
+        "zip_code": "90135"
+    },
+    {
+        "name": "Nziu",
+        "zip_code": "90143"
+    },
+    {
+        "name": "Makueni",
+        "zip_code": "90300"
+    },
+    {
+        "name": "Okia",
+        "zip_code": "90301"
+    },
+    {
+        "name": "Kathonzweni",
+        "zip_code": "90302"
+    },
+    {
+        "name": "Kitise",
+        "zip_code": "90303"
+    },
+    {
+        "name": "Mavindini",
+        "zip_code": "90304"
+    },
+    {
+        "name": "Kilala",
+        "zip_code": "90305"
+    },
+    {
+        "name": "Mandera",
+        "zip_code": "70300"
+    },
+    {
+        "name": "Elwak",
+        "zip_code": "70301"
+    },
+    {
+        "name": "Marsabit",
+        "zip_code": "60500"
+    },
+    {
+        "name": "Loiyangalani",
+        "zip_code": "60501"
+    },
+    {
+        "name": "Laisamis",
+        "zip_code": "60502"
+    },
+    {
+        "name": "Moyale",
+        "zip_code": "60700"
+    },
+    {
+        "name": "Sololo",
+        "zip_code": "60701"
+    },
+    {
+        "name": "Githiga",
+        "zip_code": "00903"
+    },
+    {
+        "name": "Kiriua",
+        "zip_code": "01017"
+    },
+    {
+        "name": "Kibirichia",
+        "zip_code": "60201"
+    },
+    {
+        "name": "Githongo",
+        "zip_code": "60205"
+    },
+    {
+        "name": "Isinya",
+        "zip_code": "01102"
+    },
+    {
+        "name": "Othoro",
+        "zip_code": "40224"
+    },
+    {
+        "name": "Uriri",
+        "zip_code": "40228"
+    },
+    {
+        "name": "Dede",
+        "zip_code": "40331"
+    },
+    {
+        "name": "Suna",
+        "zip_code": "40400"
+    },
+    {
+        "name": "Karungu",
+        "zip_code": "40401"
+    },
+    {
+        "name": "Nyatike",
+        "zip_code": "40402"
+    },
+    {
+        "name": "Rapogi",
+        "zip_code": "40403"
+    },
+    {
+        "name": "Rongo",
+        "zip_code": "40404"
+    },
+    {
+        "name": "Sare",
+        "zip_code": "40405"
+    },
+    {
+        "name": "Giribe",
+        "zip_code": "40407"
+    },
+    {
+        "name": "Muhuru Bay",
+        "zip_code": "40409"
+    },
+    {
+        "name": "Mukuro",
+        "zip_code": "40410"
+    },
+    {
+        "name": "Ranen",
+        "zip_code": "40412"
+    },
+    {
+        "name": "Kehancha",
+        "zip_code": "40413"
+    },
+    {
+        "name": "Isibania",
+        "zip_code": "40414"
+    },
+    {
+        "name": "Ikerege",
+        "zip_code": "40415"
+    },
+    {
+        "name": "Kegonga",
+        "zip_code": "40416"
+    },
+    {
+        "name": "Ntimaru",
+        "zip_code": "40417"
+    },
+    {
+        "name": "Suba-Kuria",
+        "zip_code": "40418"
+    },
+    {
+        "name": "Migori",
+        "zip_code": "40419"
+    },
+    {
+        "name": "Mombasa",
+        "zip_code": "80100"
+    },
+    {
+        "name": "Bamburi",
+        "zip_code": "80101"
+    },
+    {
+        "name": "Changamwe",
+        "zip_code": "80102"
+    },
+    {
+        "name": "Coast Gen. Hospital",
+        "zip_code": "80103"
+    },
+    {
+        "name": "Docks",
+        "zip_code": "80104"
+    },
+    {
+        "name": "Mkomani",
+        "zip_code": "80106"
+    },
+    {
+        "name": "Kilindini",
+        "zip_code": "80107"
+    },
+    {
+        "name": "Likoni",
+        "zip_code": "80110"
+    },
+    {
+        "name": "Mtongwe",
+        "zip_code": "80111"
+    },
+    {
+        "name": "Makupa",
+        "zip_code": "80112"
+    },
+    {
+        "name": "Moi Airport",
+        "zip_code": "80115"
+    },
+    {
+        "name": "Mtopanga",
+        "zip_code": "80117"
+    },
+    {
+        "name": "Nyali",
+        "zip_code": "80118"
+    },
+    {
+        "name": "Kengeleni",
+        "zip_code": "80122"
+    },
+    {
+        "name": "Kanamai",
+        "zip_code": "80123"
+    },
+    {
+        "name": "Kakuzi",
+        "zip_code": "01014"
+    },
+    {
+        "name": "Kenol",
+        "zip_code": "01020"
+    },
+    {
+        "name": "Mukerenju",
+        "zip_code": "01023"
+    },
+    {
+        "name": "Muruka",
+        "zip_code": "01024"
+    },
+    {
+        "name": "Githumu",
+        "zip_code": "01032"
+    },
+    {
+        "name": "Kagundu-Ini",
+        "zip_code": "01033"
+    },
+    {
+        "name": "Kandara",
+        "zip_code": "01034"
+    },
+    {
+        "name": "Muranga",
+        "zip_code": "10200"
+    },
+    {
+        "name": "Kahuro",
+        "zip_code": "10201"
+    },
+    {
+        "name": "Kangema",
+        "zip_code": "10202"
+    },
+    {
+        "name": "Kigumo",
+        "zip_code": "10203"
+    },
+    {
+        "name": "Kiriaini",
+        "zip_code": "10204"
+    },
+    {
+        "name": "Maragua",
+        "zip_code": "10205"
+    },
+    {
+        "name": "Kahuhia",
+        "zip_code": "10206"
+    },
+    {
+        "name": "Kihoya",
+        "zip_code": "10207"
+    },
+    {
+        "name": "Saba-Saba",
+        "zip_code": "10208"
+    },
+    {
+        "name": "Gitugi",
+        "zip_code": "10209"
+    },
+    {
+        "name": "Gacharage-Ini",
+        "zip_code": "10210"
+    },
+    {
+        "name": "Gatara",
+        "zip_code": "10212"
+    },
+    {
+        "name": "Gikoe",
+        "zip_code": "10213"
+    },
+    {
+        "name": "Kahuti",
+        "zip_code": "10214"
+    },
+    {
+        "name": "Kairo",
+        "zip_code": "10215"
+    },
+    {
+        "name": "Kamahuha",
+        "zip_code": "10217"
+    },
+    {
+        "name": "Kangari",
+        "zip_code": "10218"
+    },
+    {
+        "name": "Kanyenyaini",
+        "zip_code": "10220"
+    },
+    {
+        "name": "Kambiti",
+        "zip_code": "10226"
+    },
+    {
+        "name": "Ichichi",
+        "zip_code": "10227"
+    },
+    {
+        "name": "Kariua",
+        "zip_code": "10231"
+    },
+    {
+        "name": "Gakungu",
+        "zip_code": "10232"
+    },
+    {
+        "name": "Mbiri",
+        "zip_code": "10233"
+    },
+    {
+        "name": "Huduma Muranga",
+        "zip_code": "10235"
+    },
+    {
+        "name": "Kora",
+        "zip_code": "10244"
+    },
+    {
+        "name": "Ewaso Kedong",
+        "zip_code": "00242"
+    },
+    {
+        "name": "Nakuru",
+        "zip_code": "20100"
+    },
+    {
+        "name": "Bondeni",
+        "zip_code": "20101"
+    },
+    {
+        "name": "Elburgon",
+        "zip_code": "20102"
+    },
+    {
+        "name": "Menengai",
+        "zip_code": "20104"
+    },
+    {
+        "name": "Molo",
+        "zip_code": "20106"
+    },
+    {
+        "name": "Njoro",
+        "zip_code": "20107"
+    },
+    {
+        "name": "Rongai",
+        "zip_code": "20108"
+    },
+    {
+        "name": "Subukia",
+        "zip_code": "20109"
+    },
+    {
+        "name": "Timber Mills",
+        "zip_code": "20110"
+    },
+    {
+        "name": "Mau Narok",
+        "zip_code": "20111"
+    },
+    {
+        "name": "Lanet",
+        "zip_code": "20112"
+    },
+    {
+        "name": "Bahati",
+        "zip_code": "20113"
+    },
+    {
+        "name": "Kabazi",
+        "zip_code": "20114"
+    },
+    {
+        "name": "Egerton",
+        "zip_code": "20115"
+    },
+    {
+        "name": "Gilgil",
+        "zip_code": "20116"
+    },
+    {
+        "name": "Naivasha",
+        "zip_code": "20117"
+    },
+    {
+        "name": "Dundori",
+        "zip_code": "20118"
+    },
+    {
+        "name": "Elementaita",
+        "zip_code": "20119"
+    },
+    {
+        "name": "Kabatini",
+        "zip_code": "20120"
+    },
+    {
+        "name": "Kampi Ya Moto",
+        "zip_code": "20121"
+    },
+    {
+        "name": "Mau Summit",
+        "zip_code": "20122"
+    },
+    {
+        "name": "Milton Siding",
+        "zip_code": "20123"
+    },
+    {
+        "name": "Mirangine",
+        "zip_code": "20124"
+    },
+    {
+        "name": "Ngorika",
+        "zip_code": "20126"
+    },
+    {
+        "name": "Ronda",
+        "zip_code": "20127"
+    },
+    {
+        "name": "Solai",
+        "zip_code": "20128"
+    },
+    {
+        "name": "Turi",
+        "zip_code": "20129"
+    },
+    {
+        "name": "Kirobon",
+        "zip_code": "20130"
+    },
+    {
+        "name": "Kirengeti",
+        "zip_code": "20131"
+    },
+    {
+        "name": "Keringet",
+        "zip_code": "20131"
+    },
+    {
+        "name": "Kamwaura",
+        "zip_code": "20132"
+    },
+    {
+        "name": "Kiptangwanyi",
+        "zip_code": "20133"
+    },
+    {
+        "name": "Kamara",
+        "zip_code": "20134"
+    },
+    {
+        "name": "Kirisoi",
+        "zip_code": "20135"
+    },
+    {
+        "name": "Koige",
+        "zip_code": "20136"
+    },
+    {
+        "name": "Naishi",
+        "zip_code": "20142"
+    },
+    {
+        "name": "Longonot",
+        "zip_code": "20146"
+    },
+    {
+        "name": "Maai Mahiu",
+        "zip_code": "20147"
+    },
+    {
+        "name": "Maiella",
+        "zip_code": "20148"
+    },
+    {
+        "name": "Makumbi",
+        "zip_code": "20149"
+    },
+    {
+        "name": "Shabaab",
+        "zip_code": "20150"
+    },
+    {
+        "name": "Olenguruone",
+        "zip_code": "20152"
+    },
+    {
+        "name": "Kuresoi",
+        "zip_code": "20154"
+    },
+    {
+        "name": "Kabarak",
+        "zip_code": "20157"
+    },
+    {
+        "name": "Victoria",
+        "zip_code": "40142"
+    },
+    {
+        "name": "Nzoia",
+        "zip_code": "50237"
+    },
+    {
+        "name": "Tabani",
+        "zip_code": "50238"
+    },
+    {
+        "name": "Kesses",
+        "zip_code": "30132"
+    },
+    {
+        "name": "Kapsabet",
+        "zip_code": "30300"
+    },
+    {
+        "name": "Nandi Hills",
+        "zip_code": "30301"
+    },
+    {
+        "name": "Lessos",
+        "zip_code": "30302"
+    },
+    {
+        "name": "Kabiyet",
+        "zip_code": "30303"
+    },
+    {
+        "name": "Kapcheno",
+        "zip_code": "30304"
+    },
+    {
+        "name": "Kobujoi",
+        "zip_code": "30305"
+    },
+    {
+        "name": "Baraton",
+        "zip_code": "30306"
+    },
+    {
+        "name": "Mosoriot",
+        "zip_code": "30307"
+    },
+    {
+        "name": "Chepsonoi",
+        "zip_code": "30309"
+    },
+    {
+        "name": "Kapchorwa",
+        "zip_code": "30311"
+    },
+    {
+        "name": "Kapsumbeiwa",
+        "zip_code": "30313"
+    },
+    {
+        "name": "Koilot",
+        "zip_code": "30314"
+    },
+    {
+        "name": "Kilibwoni",
+        "zip_code": "30315"
+    },
+    {
+        "name": "Chemase",
+        "zip_code": "40143"
+    },
+    {
+        "name": "Sogoo",
+        "zip_code": "20420"
+    },
+    {
+        "name": "Narok",
+        "zip_code": "20500"
+    },
+    {
+        "name": "Keekorok",
+        "zip_code": "20501"
+    },
+    {
+        "name": "Olkurto",
+        "zip_code": "20502"
+    },
+    {
+        "name": "Ololulunga",
+        "zip_code": "20503"
+    },
+    {
+        "name": "Nairage Enkare",
+        "zip_code": "20504"
+    },
+    {
+        "name": "Kilgoris",
+        "zip_code": "40700"
+    },
+    {
+        "name": "Lolgorian",
+        "zip_code": "40701"
+    },
+    {
+        "name": "Njipiship",
+        "zip_code": "40702"
+    },
+    {
+        "name": "Enosaen",
+        "zip_code": "40703"
+    },
+    {
+        "name": "Kivaani",
+        "zip_code": "90116"
+    },
+    {
+        "name": "Kiunduani",
+        "zip_code": "90148"
+    },
+    {
+        "name": "Omogonchoro",
+        "zip_code": "40221"
+    },
+    {
+        "name": "Nyamira",
+        "zip_code": "40500"
+    },
+    {
+        "name": "Ikonge",
+        "zip_code": "40501"
+    },
+    {
+        "name": "Nyansiongo",
+        "zip_code": "40502"
+    },
+    {
+        "name": "Gesima",
+        "zip_code": "40503"
+    },
+    {
+        "name": "Kebirigo",
+        "zip_code": "40506"
+    },
+    {
+        "name": "Magombo",
+        "zip_code": "40507"
+    },
+    {
+        "name": "Magwagwa",
+        "zip_code": "40508"
+    },
+    {
+        "name": "Mokomoni",
+        "zip_code": "40510"
+    },
+    {
+        "name": "Rigoma",
+        "zip_code": "40511"
+    },
+    {
+        "name": "Riochanda",
+        "zip_code": "40512"
+    },
+    {
+        "name": "Tombe",
+        "zip_code": "40513"
+    },
+    {
+        "name": "Miharati",
+        "zip_code": "20301"
+    },
+    {
+        "name": "Oljoro-Orok",
+        "zip_code": "20302"
+    },
+    {
+        "name": "Ol-Kalou",
+        "zip_code": "20303"
+    },
+    {
+        "name": "Kaheho",
+        "zip_code": "20304"
+    },
+    {
+        "name": "Wanjohi",
+        "zip_code": "20305"
+    },
+    {
+        "name": "Ndaragwa",
+        "zip_code": "20306"
+    },
+    {
+        "name": "Igwamiti",
+        "zip_code": "20307"
+    },
+    {
+        "name": "Ngano",
+        "zip_code": "20308"
+    },
+    {
+        "name": "Kanyaagia",
+        "zip_code": "20309"
+    },
+    {
+        "name": "Leshau",
+        "zip_code": "20310"
+    },
+    {
+        "name": "Passenga",
+        "zip_code": "20311"
+    },
+    {
+        "name": "Rurii",
+        "zip_code": "20313"
+    },
+    {
+        "name": "Mukeu",
+        "zip_code": "20315"
+    },
+    {
+        "name": "Murungaru",
+        "zip_code": "20316"
+    },
+    {
+        "name": "Ndunyu Njeru",
+        "zip_code": "20317"
+    },
+    {
+        "name": "North-Kinangop",
+        "zip_code": "20318"
+    },
+    {
+        "name": "South-Kinangop",
+        "zip_code": "20319"
+    },
+    {
+        "name": "Nyeri",
+        "zip_code": "10100"
+    },
+    {
+        "name": "Karatina",
+        "zip_code": "10101"
+    },
+    {
+        "name": "Kiganjo",
+        "zip_code": "10102"
+    },
+    {
+        "name": "Mukurweini",
+        "zip_code": "10103"
+    },
+    {
+        "name": "Mweiga",
+        "zip_code": "10104"
+    },
+    {
+        "name": "Othaya",
+        "zip_code": "10106"
+    },
+    {
+        "name": "Endarasha",
+        "zip_code": "10107"
+    },
+    {
+        "name": "Giakanja",
+        "zip_code": "10108"
+    },
+    {
+        "name": "Gakere Road",
+        "zip_code": "10109"
+    },
+    {
+        "name": "Gakindu",
+        "zip_code": "10111"
+    },
+    {
+        "name": "Gatitu",
+        "zip_code": "10114"
+    },
+    {
+        "name": "Kiamariga",
+        "zip_code": "10122"
+    },
+    {
+        "name": "Kiandu",
+        "zip_code": "10123"
+    },
+    {
+        "name": "Kimahuri",
+        "zip_code": "10125"
+    },
+    {
+        "name": "Mugunda",
+        "zip_code": "10129"
+    },
+    {
+        "name": "Munyu",
+        "zip_code": "10130"
+    },
+    {
+        "name": "Ruringu",
+        "zip_code": "10133"
+    },
+    {
+        "name": "Tumu-Tumu",
+        "zip_code": "10136"
+    },
+    {
+        "name": "Kimathi Way",
+        "zip_code": "10140"
+    },
+    {
+        "name": "Kamakwa Rd",
+        "zip_code": "10141"
+    },
+    {
+        "name": "Kamakwa Rd Huduma",
+        "zip_code": "10142"
+    },
+    {
+        "name": "Dedan Kimathi",
+        "zip_code": "10143"
+    },
+    {
+        "name": "Karatina University",
+        "zip_code": "10144"
+    },
+    {
+        "name": "Gatugura",
+        "zip_code": "10305"
+    },
+    {
+        "name": "Maralal",
+        "zip_code": "20600"
+    },
+    {
+        "name": "Baragoi",
+        "zip_code": "20601"
+    },
+    {
+        "name": "Wamba",
+        "zip_code": "20603"
+    },
+    {
+        "name": "South Horr",
+        "zip_code": "20604"
+    },
+    {
+        "name": "Akala",
+        "zip_code": "40139"
+    },
+    {
+        "name": "Aluor",
+        "zip_code": "40140"
+    },
+    {
+        "name": "Ramula",
+        "zip_code": "40142"
+    },
+    {
+        "name": "Ramba",
+        "zip_code": "40330"
+    },
+    {
+        "name": "Siaya",
+        "zip_code": "40600"
+    },
+    {
+        "name": "Bondo",
+        "zip_code": "40601"
+    },
+    {
+        "name": "Ndori",
+        "zip_code": "40602"
+    },
+    {
+        "name": "Ng’Iya",
+        "zip_code": "40603"
+    },
+    {
+        "name": "Ragengni",
+        "zip_code": "40604"
+    },
+    {
+        "name": "Sidindi",
+        "zip_code": "40605"
+    },
+    {
+        "name": "Ugunja",
+        "zip_code": "40606"
+    },
+    {
+        "name": "Ukwala",
+        "zip_code": "40607"
+    },
+    {
+        "name": "Uranga",
+        "zip_code": "40608"
+    },
+    {
+        "name": "Usenge",
+        "zip_code": "40609"
+    },
+    {
+        "name": "Yala",
+        "zip_code": "40610"
+    },
+    {
+        "name": "Nyilima",
+        "zip_code": "40611"
+    },
+    {
+        "name": "Sawagongo",
+        "zip_code": "40612"
+    },
+    {
+        "name": "Madiany",
+        "zip_code": "40613"
+    },
+    {
+        "name": "Sega",
+        "zip_code": "40614"
+    },
+    {
+        "name": "Nango",
+        "zip_code": "40615"
+    },
+    {
+        "name": "Anyiko",
+        "zip_code": "40616"
+    },
+    {
+        "name": "Boro",
+        "zip_code": "40620"
+    },
+    {
+        "name": "Lugingo",
+        "zip_code": "40623"
+    },
+    {
+        "name": "Luhano",
+        "zip_code": "40623"
+    },
+    {
+        "name": "Manyuanda",
+        "zip_code": "40625"
+    },
+    {
+        "name": "Misori",
+        "zip_code": "40626"
+    },
+    {
+        "name": "Mutumbu",
+        "zip_code": "40628"
+    },
+    {
+        "name": "Ndigwa",
+        "zip_code": "40630"
+    },
+    {
+        "name": "Nyadorera",
+        "zip_code": "40631"
+    },
+    {
+        "name": "Nyamonye",
+        "zip_code": "40632"
+    },
+    {
+        "name": "Nyawara",
+        "zip_code": "40633"
+    },
+    {
+        "name": "Sigomre",
+        "zip_code": "40635"
+    },
+    {
+        "name": "Hawinga",
+        "zip_code": "40640"
+    },
+    {
+        "name": "Tingwangi",
+        "zip_code": "40645"
+    },
+    {
+        "name": "Manga",
+        "zip_code": "40509"
+    },
+    {
+        "name": "Luandanyi",
+        "zip_code": "50219"
+    },
+    {
+        "name": "Voi",
+        "zip_code": "80300"
+    },
+    {
+        "name": "Manyani",
+        "zip_code": "80301"
+    },
+    {
+        "name": "Taveta",
+        "zip_code": "80302"
+    },
+    {
+        "name": "Werugha",
+        "zip_code": "80303"
+    },
+    {
+        "name": "Wundanyi",
+        "zip_code": "80304"
+    },
+    {
+        "name": "Mwatate",
+        "zip_code": "80305"
+    },
+    {
+        "name": "Mgange",
+        "zip_code": "80306"
+    },
+    {
+        "name": "Kasigau",
+        "zip_code": "80307"
+    },
+    {
+        "name": "Sagalla",
+        "zip_code": "80308"
+    },
+    {
+        "name": "Tausa",
+        "zip_code": "80309"
+    },
+    {
+        "name": "Ng’Ambwa",
+        "zip_code": "80311"
+    },
+    {
+        "name": "Mgambonyi",
+        "zip_code": "80313"
+    },
+    {
+        "name": "Chumvini",
+        "zip_code": "80314"
+    },
+    {
+        "name": "Maktau",
+        "zip_code": "80315"
+    },
+    {
+        "name": "Maungu",
+        "zip_code": "80317"
+    },
+    {
+        "name": "Hola",
+        "zip_code": "70101"
+    },
+    {
+        "name": "Garsen",
+        "zip_code": "80201"
+    },
+    {
+        "name": "Tarasaa",
+        "zip_code": "80203"
+    },
+    {
+        "name": "Gathunga",
+        "zip_code": "10115"
+    },
+    {
+        "name": "Tunyai",
+        "zip_code": "60213"
+    },
+    {
+        "name": "Nkondi",
+        "zip_code": "60214"
+    },
+    {
+        "name": "Marimanti",
+        "zip_code": "60215"
+    },
+    {
+        "name": "Chuka",
+        "zip_code": "60400"
+    },
+    {
+        "name": "Chogoria",
+        "zip_code": "60401"
+    },
+    {
+        "name": "Igoji",
+        "zip_code": "60402"
+    },
+    {
+        "name": "Magumoni",
+        "zip_code": "60403"
+    },
+    {
+        "name": "Gatunga",
+        "zip_code": "60404"
+    },
+    {
+        "name": "Ikuu",
+        "zip_code": "60405"
+    },
+    {
+        "name": "Kathwana",
+        "zip_code": "60406"
+    },
+    {
+        "name": "Magutuni",
+        "zip_code": "60407"
+    },
+    {
+        "name": "Marima",
+        "zip_code": "60408"
+    },
+    {
+        "name": "Chiakariga",
+        "zip_code": "60409"
+    },
+    {
+        "name": "Chiakanyinga",
+        "zip_code": "60410"
+    },
+    {
+        "name": "Huduma Chuka",
+        "zip_code": "60411"
+    },
+    {
+        "name": "Kaanwa",
+        "zip_code": "60411"
+    },
+    {
+        "name": "Kitale",
+        "zip_code": "30200"
+    },
+    {
+        "name": "Endebess",
+        "zip_code": "30201"
+    },
+    {
+        "name": "Kipsaina",
+        "zip_code": "30203"
+    },
+    {
+        "name": "Chemiron",
+        "zip_code": "30206"
+    },
+    {
+        "name": "Kapsara",
+        "zip_code": "30208"
+    },
+    {
+        "name": "Kiminini",
+        "zip_code": "30209"
+    },
+    {
+        "name": "Kwanza",
+        "zip_code": "30210"
+    },
+    {
+        "name": "Saboti",
+        "zip_code": "30211"
+    },
+    {
+        "name": "Suwerwa",
+        "zip_code": "30212"
+    },
+    {
+        "name": "Sirende",
+        "zip_code": "30213"
+    },
+    {
+        "name": "Kesogon",
+        "zip_code": "30215"
+    },
+    {
+        "name": "Asembo Bay",
+        "zip_code": "40619"
+    },
+    {
+        "name": "Kapedo",
+        "zip_code": "30410"
+    },
+    {
+        "name": "Lodwar",
+        "zip_code": "30500"
+    },
+    {
+        "name": "Kakuma",
+        "zip_code": "30501"
+    },
+    {
+        "name": "Kalokol",
+        "zip_code": "30502"
+    },
+    {
+        "name": "Lokichoggio",
+        "zip_code": "30503"
+    },
+    {
+        "name": "Lokitaung",
+        "zip_code": "30504"
+    },
+    {
+        "name": "Huduma Lodwar",
+        "zip_code": "30505"
+    },
+    {
+        "name": "Lokori",
+        "zip_code": "30506"
+    },
+    {
+        "name": "Eldoret",
+        "zip_code": "30100"
+    },
+    {
+        "name": "Ainabkoi",
+        "zip_code": "30101"
+    },
+    {
+        "name": "Burnt Forest",
+        "zip_code": "30102"
+    },
+    {
+        "name": "Kipkabus",
+        "zip_code": "30103"
+    },
+    {
+        "name": "Moiben",
+        "zip_code": "30104"
+    },
+    {
+        "name": "Soy",
+        "zip_code": "30105"
+    },
+    {
+        "name": "Turbo",
+        "zip_code": "30106"
+    },
+    {
+        "name": "Moi University",
+        "zip_code": "30107"
+    },
+    {
+        "name": "Timboroa",
+        "zip_code": "30108"
+    },
+    {
+        "name": "Huruma",
+        "zip_code": "30109"
+    },
+    {
+        "name": "Kihuga Square",
+        "zip_code": "30110"
+    },
+    {
+        "name": "Kapngetuny",
+        "zip_code": "30111"
+    },
+    {
+        "name": "Langas",
+        "zip_code": "30112"
+    },
+    {
+        "name": "Kamwosor",
+        "zip_code": "30113"
+    },
+    {
+        "name": "Kaptagat",
+        "zip_code": "30114"
+    },
+    {
+        "name": "Plateau",
+        "zip_code": "30116"
+    },
+    {
+        "name": "Kiplegetet",
+        "zip_code": "30117"
+    },
+    {
+        "name": "Kiptabach",
+        "zip_code": "30118"
+    },
+    {
+        "name": "Kimoning",
+        "zip_code": "30120"
+    },
+    {
+        "name": "Chepterwai",
+        "zip_code": "30121"
+    },
+    {
+        "name": "Ndalat",
+        "zip_code": "30123"
+    },
+    {
+        "name": "Eldoret Airport",
+        "zip_code": "30124"
+    },
+    {
+        "name": "Chebororwa",
+        "zip_code": "30125"
+    },
+    {
+        "name": "Nyaru",
+        "zip_code": "30131"
+    },
+    {
+        "name": "Chepkoilel",
+        "zip_code": "30133"
+    },
+    {
+        "name": "Zion Mall",
+        "zip_code": "30134"
+    },
+    {
+        "name": "Waunifor",
+        "zip_code": "30135"
+    },
+    {
+        "name": "Moi’S Bridge",
+        "zip_code": "30202"
+    },
+    {
+        "name": "Matunda",
+        "zip_code": "30205"
+    },
+    {
+        "name": "Ziwa",
+        "zip_code": "30214"
+    },
+    {
+        "name": "Sikinwa",
+        "zip_code": "30217"
+    },
+    {
+        "name": "Barwesa",
+        "zip_code": "30412"
+    },
+    {
+        "name": "Kapteren",
+        "zip_code": "30711"
+    },
+    {
+        "name": "Maragoli",
+        "zip_code": "50300"
+    },
+    {
+        "name": "Chamakanga",
+        "zip_code": "50302"
+    },
+    {
+        "name": "Eregi",
+        "zip_code": "50303"
+    },
+    {
+        "name": "Gisambai",
+        "zip_code": "50304"
+    },
+    {
+        "name": "Kaimosi",
+        "zip_code": "50305"
+    },
+    {
+        "name": "Khumusalaba",
+        "zip_code": "50306"
+    },
+    {
+        "name": "Luanda",
+        "zip_code": "50307"
+    },
+    {
+        "name": "Serem",
+        "zip_code": "50308"
+    },
+    {
+        "name": "Tiriki",
+        "zip_code": "50309"
+    },
+    {
+        "name": "Vihiga",
+        "zip_code": "50310"
+    },
+    {
+        "name": "Wodanga",
+        "zip_code": "50311"
+    },
+    {
+        "name": "Hamisi",
+        "zip_code": "50312"
+    },
+    {
+        "name": "Kiritu",
+        "zip_code": "50313"
+    },
+    {
+        "name": "Emuhaya",
+        "zip_code": "50314"
+    },
+    {
+        "name": "Kilingili",
+        "zip_code": "50315"
+    },
+    {
+        "name": "Chavakali",
+        "zip_code": "50317"
+    },
+    {
+        "name": "Gambogi",
+        "zip_code": "50318"
+    },
+    {
+        "name": "Muluanda",
+        "zip_code": "50428"
+    },
+    {
+        "name": "Wajir",
+        "zip_code": "70200"
+    },
+    {
+        "name": "Habaswein",
+        "zip_code": "70201"
+    },
+    {
+        "name": "Kapenguria",
+        "zip_code": "30600"
+    },
+    {
+        "name": "Kacheliba",
+        "zip_code": "30601"
+    },
+    {
+        "name": "Ortum",
+        "zip_code": "30602"
+    },
+    {
+        "name": "Wei-Wei",
+        "zip_code": "30603"
+    },
+    {
+        "name": "Kainuk",
+        "zip_code": "30604"
+    },
+    {
+        "name": "Chepareria",
+        "zip_code": "30605"
+    }
+]

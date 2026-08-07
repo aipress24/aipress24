@@ -1,0 +1,294 @@
+[
+    {
+        "name": "Attard",
+        "zip_code": "ATD"
+    },
+    {
+        "name": "Balzan",
+        "zip_code": "BZN"
+    },
+    {
+        "name": "Birgu",
+        "zip_code": "BRG"
+    },
+    {
+        "name": "Birkirkara",
+        "zip_code": "BKR"
+    },
+    {
+        "name": "Birżebbuġa",
+        "zip_code": "BBG"
+    },
+    {
+        "name": "Bormla",
+        "zip_code": "BML"
+    },
+    {
+        "name": "Dingli",
+        "zip_code": "DGL"
+    },
+    {
+        "name": "Fgura",
+        "zip_code": "FGR"
+    },
+    {
+        "name": "Floriana",
+        "zip_code": "FRN"
+    },
+    {
+        "name": "Fontana",
+        "zip_code": "FNT"
+    },
+    {
+        "name": "Għajnsielem",
+        "zip_code": "GSM"
+    },
+    {
+        "name": "Kemmuna",
+        "zip_code": "KMN"
+    },
+    {
+        "name": "Għarb",
+        "zip_code": "GRB"
+    },
+    {
+        "name": "Għargħur",
+        "zip_code": "GHR"
+    },
+    {
+        "name": "Għasri",
+        "zip_code": "GSR"
+    },
+    {
+        "name": "Għaxaq",
+        "zip_code": "GXQ"
+    },
+    {
+        "name": "Gudja",
+        "zip_code": "GDJ"
+    },
+    {
+        "name": "Gżira",
+        "zip_code": "GZR"
+    },
+    {
+        "name": "Ħamrun",
+        "zip_code": "HMR"
+    },
+    {
+        "name": "Iklin",
+        "zip_code": "IKL"
+    },
+    {
+        "name": "Mdina",
+        "zip_code": "MDN"
+    },
+    {
+        "name": "Mġarr",
+        "zip_code": "MGR"
+    },
+    {
+        "name": "Mqabba",
+        "zip_code": "MQB"
+    },
+    {
+        "name": "Msida",
+        "zip_code": "MSD"
+    },
+    {
+        "name": "Mtarfa",
+        "zip_code": "MTF"
+    },
+    {
+        "name": "Isla",
+        "zip_code": "ISL"
+    },
+    {
+        "name": "Kalkara",
+        "zip_code": "KKR"
+    },
+    {
+        "name": "Smart City",
+        "zip_code": "SCM"
+    },
+    {
+        "name": "Kerċem",
+        "zip_code": "KCM"
+    },
+    {
+        "name": "Kirkop",
+        "zip_code": "KKP"
+    },
+    {
+        "name": "Lija",
+        "zip_code": "LJA"
+    },
+    {
+        "name": "Luqa",
+        "zip_code": "LQA"
+    },
+    {
+        "name": "Marsa",
+        "zip_code": "MRS"
+    },
+    {
+        "name": "MaltaPost",
+        "zip_code": "MTP"
+    },
+    {
+        "name": "Marsaskala",
+        "zip_code": "MSK"
+    },
+    {
+        "name": "Marsaxlokk",
+        "zip_code": "MXK"
+    },
+    {
+        "name": "Mellieħa",
+        "zip_code": "MLH"
+    },
+    {
+        "name": "Mosta",
+        "zip_code": "MST"
+    },
+    {
+        "name": "Munxar",
+        "zip_code": "MXR"
+    },
+    {
+        "name": "Xlendi",
+        "zip_code": "XLN"
+    },
+    {
+        "name": "Nadur",
+        "zip_code": "NDR"
+    },
+    {
+        "name": "Naxxar",
+        "zip_code": "NXR"
+    },
+    {
+        "name": "Paola",
+        "zip_code": "PLA"
+    },
+    {
+        "name": "Pembroke",
+        "zip_code": "PBK"
+    },
+    {
+        "name": "Pietà",
+        "zip_code": "PTA"
+    },
+    {
+        "name": "Qala",
+        "zip_code": "QLA"
+    },
+    {
+        "name": "Qormi",
+        "zip_code": "QRM"
+    },
+    {
+        "name": "Qrendi",
+        "zip_code": "QRD"
+    },
+    {
+        "name": "Rabat",
+        "zip_code": "RBT"
+    },
+    {
+        "name": "Victoria",
+        "zip_code": "VCT"
+    },
+    {
+        "name": "Safi",
+        "zip_code": "SFI"
+    },
+    {
+        "name": "San Ġwann",
+        "zip_code": "SGN"
+    },
+    {
+        "name": "Saint Julians",
+        "zip_code": "STJ"
+    },
+    {
+        "name": "San Lawrenz",
+        "zip_code": "SLZ"
+    },
+    {
+        "name": "Santa Luċija",
+        "zip_code": "SLC"
+    },
+    {
+        "name": "Saint Paul's Bay",
+        "zip_code": "SPB"
+    },
+    {
+        "name": "Santa Venera",
+        "zip_code": "SVR"
+    },
+    {
+        "name": "Sannat",
+        "zip_code": "SNT"
+    },
+    {
+        "name": "Siġġiewi",
+        "zip_code": "SGW"
+    },
+    {
+        "name": "Sliema",
+        "zip_code": "SLM"
+    },
+    {
+        "name": "Swieqi",
+        "zip_code": "SWQ"
+    },
+    {
+        "name": "Tarxien",
+        "zip_code": "TXN"
+    },
+    {
+        "name": "Ta' Xbiex",
+        "zip_code": "XBX"
+    },
+    {
+        "name": "Valletta",
+        "zip_code": "VLT"
+    },
+    {
+        "name": "Xagħra",
+        "zip_code": "XRA"
+    },
+    {
+        "name": "Xewkija",
+        "zip_code": "XWK"
+    },
+    {
+        "name": "Xgħajra",
+        "zip_code": "XJR"
+    },
+    {
+        "name": "Żabbar",
+        "zip_code": "ZBR"
+    },
+    {
+        "name": "Żebbuġ",
+        "zip_code": "ZBG"
+    },
+    {
+        "name": "Marsalforn",
+        "zip_code": "MFN"
+    },
+    {
+        "name": "Żebbuġ",
+        "zip_code": "ZBB"
+    },
+    {
+        "name": "Żejtun",
+        "zip_code": "ZTN"
+    },
+    {
+        "name": "Żurrieq",
+        "zip_code": "ZRQ"
+    }
+]

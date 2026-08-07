@@ -1,0 +1,134 @@
+[
+    {
+        "name": "Basse-Terre",
+        "zip_code": "97100"
+    },
+    {
+        "name": "Pointe-à-Pitre",
+        "zip_code": "97110"
+    },
+    {
+        "name": "Morne-à-l'Eau",
+        "zip_code": "97111"
+    },
+    {
+        "name": "Grand-Bourg",
+        "zip_code": "97112"
+    },
+    {
+        "name": "Gourbeyre",
+        "zip_code": "97113"
+    },
+    {
+        "name": "Trois-Rivières",
+        "zip_code": "97114"
+    },
+    {
+        "name": "Sainte-Rose",
+        "zip_code": "97115"
+    },
+    {
+        "name": "Pointe-Noire",
+        "zip_code": "97116"
+    },
+    {
+        "name": "Port-Louis",
+        "zip_code": "97117"
+    },
+    {
+        "name": "Saint-François",
+        "zip_code": "97118"
+    },
+    {
+        "name": "Vieux-Habitants",
+        "zip_code": "97119"
+    },
+    {
+        "name": "Saint-Claude",
+        "zip_code": "97120"
+    },
+    {
+        "name": "Anse-Bertrand",
+        "zip_code": "97121"
+    },
+    {
+        "name": "Baie-Mahault",
+        "zip_code": "97122"
+    },
+    {
+        "name": "Baillif",
+        "zip_code": "97123"
+    },
+    {
+        "name": "Bouillante",
+        "zip_code": "97125"
+    },
+    {
+        "name": "Deshaies",
+        "zip_code": "97126"
+    },
+    {
+        "name": "La Désirade",
+        "zip_code": "97127"
+    },
+    {
+        "name": "Goyave",
+        "zip_code": "97128"
+    },
+    {
+        "name": "Lamentin",
+        "zip_code": "97129"
+    },
+    {
+        "name": "Capesterre-Belle-Eau",
+        "zip_code": "97130"
+    },
+    {
+        "name": "Petit-Canal",
+        "zip_code": "97131"
+    },
+    {
+        "name": "Saint-Louis",
+        "zip_code": "97134"
+    },
+    {
+        "name": "Terre-de-Bas",
+        "zip_code": "97136"
+    },
+    {
+        "name": "Terre-de-Haut",
+        "zip_code": "97137"
+    },
+    {
+        "name": "Les Abymes",
+        "zip_code": "97139"
+    },
+    {
+        "name": "Capesterre-de-Marie-Galante",
+        "zip_code": "97140"
+    },
+    {
+        "name": "Vieux-Fort",
+        "zip_code": "97141"
+    },
+    {
+        "name": "Les Abymes",
+        "zip_code": "97142"
+    },
+    {
+        "name": "Le Moule",
+        "zip_code": "97160"
+    },
+    {
+        "name": "Petit-Bourg",
+        "zip_code": "97170"
+    },
+    {
+        "name": "Sainte-Anne",
+        "zip_code": "97180"
+    },
+    {
+        "name": "Le Gosier",
+        "zip_code": "97190"
+    }
+]

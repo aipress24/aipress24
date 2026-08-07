@@ -1,0 +1,558 @@
+[
+    {
+        "name": "Knock",
+        "zip_code": "F12"
+    },
+    {
+        "name": "Castlebar",
+        "zip_code": "F23"
+    },
+    {
+        "name": "Ballina",
+        "zip_code": "F26"
+    },
+    {
+        "name": "Westport",
+        "zip_code": "F28"
+    },
+    {
+        "name": "Ballinrobe",
+        "zip_code": "F31"
+    },
+    {
+        "name": "Ballyhaunis",
+        "zip_code": "F35"
+    },
+    {
+        "name": "Roscommon",
+        "zip_code": "F42"
+    },
+    {
+        "name": "Castlerea",
+        "zip_code": "F45"
+    },
+    {
+        "name": "Boyle",
+        "zip_code": "F52"
+    },
+    {
+        "name": "Ballymote",
+        "zip_code": "F56"
+    },
+    {
+        "name": "Sligo",
+        "zip_code": "F91"
+    },
+    {
+        "name": "Ballinasloe",
+        "zip_code": "H53"
+    },
+    {
+        "name": "Tuam",
+        "zip_code": "H54"
+    },
+    {
+        "name": "Loughrea",
+        "zip_code": "H62"
+    },
+    {
+        "name": "Athenry",
+        "zip_code": "H65"
+    },
+    {
+        "name": "Clifden",
+        "zip_code": "H71"
+    },
+    {
+        "name": "Galway",
+        "zip_code": "H91"
+    },
+    {
+        "name": "Carrick On Shannon",
+        "zip_code": "N41"
+    },
+    {
+        "name": "Ballyboughal",
+        "zip_code": "A41"
+    },
+    {
+        "name": "Garristown",
+        "zip_code": "A42"
+    },
+    {
+        "name": "Oldtown",
+        "zip_code": "A45"
+    },
+    {
+        "name": "Greystones",
+        "zip_code": "A63"
+    },
+    {
+        "name": "Wicklow",
+        "zip_code": "A67"
+    },
+    {
+        "name": "Kells",
+        "zip_code": "A82"
+    },
+    {
+        "name": "Enfield",
+        "zip_code": "A83"
+    },
+    {
+        "name": "Ashbourne",
+        "zip_code": "A84"
+    },
+    {
+        "name": "Dunshaughlin",
+        "zip_code": "A85"
+    },
+    {
+        "name": "Dunboyne",
+        "zip_code": "A86"
+    },
+    {
+        "name": "Dundalk",
+        "zip_code": "A91"
+    },
+    {
+        "name": "Drogheda",
+        "zip_code": "A92"
+    },
+    {
+        "name": "Blackrock",
+        "zip_code": "A94"
+    },
+    {
+        "name": "Dun Laoghaire",
+        "zip_code": "A96"
+    },
+    {
+        "name": "Bray",
+        "zip_code": "A98"
+    },
+    {
+        "name": "Trim",
+        "zip_code": "C15"
+    },
+    {
+        "name": "Dublin",
+        "zip_code": "D01"
+    },
+    {
+        "name": "Dublin",
+        "zip_code": "D02"
+    },
+    {
+        "name": "Dublin",
+        "zip_code": "D03"
+    },
+    {
+        "name": "Dublin",
+        "zip_code": "D04"
+    },
+    {
+        "name": "Dublin",
+        "zip_code": "D05"
+    },
+    {
+        "name": "Dublin",
+        "zip_code": "D06"
+    },
+    {
+        "name": "Dublin",
+        "zip_code": "D07"
+    },
+    {
+        "name": "Dublin",
+        "zip_code": "D08"
+    },
+    {
+        "name": "Dublin",
+        "zip_code": "D09"
+    },
+    {
+        "name": "Dublin",
+        "zip_code": "D10"
+    },
+    {
+        "name": "Dublin",
+        "zip_code": "D11"
+    },
+    {
+        "name": "Dublin",
+        "zip_code": "D12"
+    },
+    {
+        "name": "Dublin",
+        "zip_code": "D13"
+    },
+    {
+        "name": "Dublin",
+        "zip_code": "D14"
+    },
+    {
+        "name": "Dublin",
+        "zip_code": "D15"
+    },
+    {
+        "name": "Dublin",
+        "zip_code": "D16"
+    },
+    {
+        "name": "Dublin",
+        "zip_code": "D17"
+    },
+    {
+        "name": "Dublin",
+        "zip_code": "D18"
+    },
+    {
+        "name": "Dublin",
+        "zip_code": "D20"
+    },
+    {
+        "name": "Dublin",
+        "zip_code": "D22"
+    },
+    {
+        "name": "Dublin",
+        "zip_code": "D24"
+    },
+    {
+        "name": "Dublin 6W",
+        "zip_code": "D6W"
+    },
+    {
+        "name": "Balbriggan",
+        "zip_code": "K32"
+    },
+    {
+        "name": "Skerries",
+        "zip_code": "K34"
+    },
+    {
+        "name": "Malahide",
+        "zip_code": "K36"
+    },
+    {
+        "name": "Lusk",
+        "zip_code": "K45"
+    },
+    {
+        "name": "Rush",
+        "zip_code": "K56"
+    },
+    {
+        "name": "Swords",
+        "zip_code": "K67"
+    },
+    {
+        "name": "Lucan",
+        "zip_code": "K78"
+    },
+    {
+        "name": "Athlone",
+        "zip_code": "N37"
+    },
+    {
+        "name": "Longford",
+        "zip_code": "N39"
+    },
+    {
+        "name": "Mullingar",
+        "zip_code": "N91"
+    },
+    {
+        "name": "Crookstown",
+        "zip_code": "P14"
+    },
+    {
+        "name": "Athy",
+        "zip_code": "R14"
+    },
+    {
+        "name": "Bagenalstown",
+        "zip_code": "R21"
+    },
+    {
+        "name": "Portlaoise",
+        "zip_code": "R32"
+    },
+    {
+        "name": "Tullamore",
+        "zip_code": "R35"
+    },
+    {
+        "name": "Birr",
+        "zip_code": "R42"
+    },
+    {
+        "name": "Edenderry",
+        "zip_code": "R45"
+    },
+    {
+        "name": "Kildare",
+        "zip_code": "R51"
+    },
+    {
+        "name": "Curragh",
+        "zip_code": "R56"
+    },
+    {
+        "name": "Carlow",
+        "zip_code": "R93"
+    },
+    {
+        "name": "Kilkenny",
+        "zip_code": "R95"
+    },
+    {
+        "name": "Newbridge",
+        "zip_code": "W12"
+    },
+    {
+        "name": "Maynooth",
+        "zip_code": "W23"
+    },
+    {
+        "name": "Monasterevin",
+        "zip_code": "W34"
+    },
+    {
+        "name": "Naas",
+        "zip_code": "W91"
+    },
+    {
+        "name": "Arklow",
+        "zip_code": "Y14"
+    },
+    {
+        "name": "Enniscorthy",
+        "zip_code": "Y21"
+    },
+    {
+        "name": "Gorey",
+        "zip_code": "Y25"
+    },
+    {
+        "name": "New Ross",
+        "zip_code": "Y34"
+    },
+    {
+        "name": "Wexford",
+        "zip_code": "Y35"
+    },
+    {
+        "name": "Cahir",
+        "zip_code": "E21"
+    },
+    {
+        "name": "Cashel",
+        "zip_code": "E25"
+    },
+    {
+        "name": "Carrick on Suir",
+        "zip_code": "E32"
+    },
+    {
+        "name": "Tipperary",
+        "zip_code": "E34"
+    },
+    {
+        "name": "Thurles",
+        "zip_code": "E41"
+    },
+    {
+        "name": "Nenagh",
+        "zip_code": "E45"
+    },
+    {
+        "name": "Roscrea",
+        "zip_code": "E53"
+    },
+    {
+        "name": "Clonmel",
+        "zip_code": "E91"
+    },
+    {
+        "name": "Macroom",
+        "zip_code": "P12"
+    },
+    {
+        "name": "Kinsale",
+        "zip_code": "P17"
+    },
+    {
+        "name": "Cobh",
+        "zip_code": "P24"
+    },
+    {
+        "name": "Midleton",
+        "zip_code": "P25"
+    },
+    {
+        "name": "Ballincollig",
+        "zip_code": "P31"
+    },
+    {
+        "name": "Rylane",
+        "zip_code": "P32"
+    },
+    {
+        "name": "Youghal",
+        "zip_code": "P36"
+    },
+    {
+        "name": "Carrigaline",
+        "zip_code": "P43"
+    },
+    {
+        "name": "Dunmanway",
+        "zip_code": "P47"
+    },
+    {
+        "name": "Mallow",
+        "zip_code": "P51"
+    },
+    {
+        "name": "Charleville",
+        "zip_code": "P56"
+    },
+    {
+        "name": "Fermoy",
+        "zip_code": "P61"
+    },
+    {
+        "name": "Mitchelstown",
+        "zip_code": "P67"
+    },
+    {
+        "name": "Bandon",
+        "zip_code": "P72"
+    },
+    {
+        "name": "Bantry",
+        "zip_code": "P75"
+    },
+    {
+        "name": "Skibbereen",
+        "zip_code": "P81"
+    },
+    {
+        "name": "Clonakilty",
+        "zip_code": "P85"
+    },
+    {
+        "name": "Cork city southside",
+        "zip_code": "T12"
+    },
+    {
+        "name": "Cork city northside",
+        "zip_code": "T23"
+    },
+    {
+        "name": "Carrignavar",
+        "zip_code": "T34"
+    },
+    {
+        "name": "Glanmire",
+        "zip_code": "T45"
+    },
+    {
+        "name": "Watergrasshill",
+        "zip_code": "T56"
+    },
+    {
+        "name": "Shannon",
+        "zip_code": "V14"
+    },
+    {
+        "name": "Kilrush",
+        "zip_code": "V15"
+    },
+    {
+        "name": "Caherciveen",
+        "zip_code": "V23"
+    },
+    {
+        "name": "Listowel",
+        "zip_code": "V31"
+    },
+    {
+        "name": "Kilmallock",
+        "zip_code": "V35"
+    },
+    {
+        "name": "Newcastle West",
+        "zip_code": "V42"
+    },
+    {
+        "name": "Tralee",
+        "zip_code": "V92"
+    },
+    {
+        "name": "Kenmare",
+        "zip_code": "V93"
+    },
+    {
+        "name": "Limerick",
+        "zip_code": "V94"
+    },
+    {
+        "name": "Miltown Malbay",
+        "zip_code": "V95"
+    },
+    {
+        "name": "Dungarvan",
+        "zip_code": "X35"
+    },
+    {
+        "name": "Kilmacthomas",
+        "zip_code": "X42"
+    },
+    {
+        "name": "Waterford",
+        "zip_code": "X91"
+    },
+    {
+        "name": "Castleblayney",
+        "zip_code": "A75"
+    },
+    {
+        "name": "Carrickmacross",
+        "zip_code": "A81"
+    },
+    {
+        "name": "Letterkenny",
+        "zip_code": "F92"
+    },
+    {
+        "name": "Lifford",
+        "zip_code": "F93"
+    },
+    {
+        "name": "Bundoran",
+        "zip_code": "F94"
+    },
+    {
+        "name": "Cavan",
+        "zip_code": "H12"
+    },
+    {
+        "name": "Belturbet",
+        "zip_code": "H14"
+    },
+    {
+        "name": "Cootehill",
+        "zip_code": "H16"
+    },
+    {
+        "name": "Monaghan",
+        "zip_code": "H18"
+    },
+    {
+        "name": "Clones",
+        "zip_code": "H23"
+    }
+]
