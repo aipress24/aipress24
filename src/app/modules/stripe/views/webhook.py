@@ -5,23 +5,21 @@
 from __future__ import annotations
 
 import sys
-from contextlib import suppress
 from dataclasses import dataclass
 from datetime import UTC, datetime
 from decimal import Decimal
-from pathlib import Path
 
 # from pprint import pformat
 from typing import Any
 from uuid import UUID
 
 import stripe
-from flask import current_app, request
+from flask import request
 from sqlalchemy import select as sa_select
 from stripe import SignatureVerificationError
 
 from app.actors.justificatif import generate_justificatif
-from app.constants import WEBHOOK_TEST_CUSTOMER_EMAIL, WEBHOOK_TEST_FILE_NAME
+from app.constants import WEBHOOK_TEST_CUSTOMER_EMAIL
 
 # from app.enums import BWTypeEnum, ProfileEnum
 from app.flask.extensions import db
@@ -533,9 +531,23 @@ def on_charge_refunded(event: stripe.Event) -> None:
     db.session.commit()
 
 
-def _webhook_flag_path() -> Path:
-    """Return path of the webhook test flag file."""
-    return Path(current_app.instance_path) / WEBHOOK_TEST_FILE_NAME
+def _set_webhook_test_flag(email: str) -> None:
+    """Persist a DB flag for the admin Stripe webhook test."""
+    from app.models.admin import WebhookTestFlag
+
+    flag = db.session.get(WebhookTestFlag, email)
+    if flag is None:
+        flag = WebhookTestFlag(customer_email=email)
+        db.session.add(flag)
+
+
+def _clear_webhook_test_flag(email: str) -> None:
+    """Remove the DB flag for the admin Stripe webhook test."""
+    from app.models.admin import WebhookTestFlag
+
+    flag = db.session.get(WebhookTestFlag, email)
+    if flag is not None:
+        db.session.delete(flag)
 
 
 def on_customer_created(event: stripe.Event) -> None:
@@ -546,8 +558,8 @@ def on_customer_created(event: stripe.Event) -> None:
     data_obj = _get_event_object(event)
     email = _obj_get(data_obj, "email")
     if email == WEBHOOK_TEST_CUSTOMER_EMAIL:
-        with suppress(OSError):
-            _webhook_flag_path().touch()
+        _set_webhook_test_flag(email)
+        db.session.commit()
 
 
 def on_customer_deleted(event: stripe.Event) -> None:
@@ -558,8 +570,8 @@ def on_customer_deleted(event: stripe.Event) -> None:
     data_obj = _get_event_object(event)
     email = _obj_get(data_obj, "email")
     if email == WEBHOOK_TEST_CUSTOMER_EMAIL:
-        with suppress(OSError):
-            _webhook_flag_path().unlink(missing_ok=True)
+        _clear_webhook_test_flag(email)
+        db.session.commit()
 
 
 def on_customer_updated(event: stripe.Event) -> None:
