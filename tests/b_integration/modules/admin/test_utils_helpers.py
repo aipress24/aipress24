@@ -37,6 +37,7 @@ from app.modules.admin.utils import (
     set_user_organisation_from_ids,
     toggle_org_active,
 )
+from app.modules.bw.bw_activation.models import BusinessWall, BWStatus
 
 if TYPE_CHECKING:
     from sqlalchemy.orm import Session
@@ -214,6 +215,47 @@ class TestRemoveUserOrganisation:
         assert error == ""
         refreshed = db_session.get(User, user.id)
         assert refreshed.organisation_id is None
+
+    def test_owner_of_active_bw_cannot_leave(self, db_session: Session):
+        user = _make_user(db_session, email="active-bw-owner@example.com")
+        org = _make_org(db_session, name="ActiveBWOrg")
+        set_user_organisation(user, org)
+        bw = BusinessWall(
+            bw_type="pro",
+            status=BWStatus.ACTIVE.value,
+            owner_id=user.id,
+            payer_id=user.id,
+            organisation_id=org.id,
+        )
+        db_session.add(bw)
+        org.bw_id = bw.id
+        db_session.flush()
+        db_session.refresh(user, ["organisation"])
+
+        error = remove_user_organisation(user)
+
+        assert "Business Wall owner" in error
+
+    def test_owner_of_suspended_bw_can_leave(self, db_session: Session):
+        user = _make_user(db_session, email="suspended-bw-owner@example.com")
+        org = _make_org(db_session, name="SuspendedBWOrg")
+        set_user_organisation(user, org)
+        bw = BusinessWall(
+            bw_type="pro",
+            status=BWStatus.SUSPENDED.value,
+            owner_id=user.id,
+            payer_id=user.id,
+            organisation_id=org.id,
+        )
+        db_session.add(bw)
+        db_session.flush()
+        db_session.refresh(user, ["organisation"])
+
+        error = remove_user_organisation(user)
+
+        assert error == ""
+        db_session.refresh(user)
+        assert user.organisation_id is None
 
 
 class TestGcOrganisation:
