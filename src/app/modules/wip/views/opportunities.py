@@ -14,6 +14,7 @@ from flask import (
     current_app,
     flash,
     g,
+    make_response,
     redirect,
     render_template,
     request,
@@ -493,6 +494,14 @@ def send_avis_enquete_acceptance_email(
     notification_mail.send()
 
 
+def _redirect_opportunity_response(target_url: str) -> Response:
+    if request.headers.get("HX-Request"):
+        resp = make_response("", 200)
+        resp.headers["HX-Redirect"] = target_url
+        return resp
+    return redirect(target_url)  # type: ignore[return-value]
+
+
 @blueprint.route("/opportunities/<int:id>", methods=["POST"])
 def media_opportunity_post(id: int) -> str | Response:
     """Handle media opportunity form submission."""
@@ -523,7 +532,7 @@ def media_opportunity_post(id: int) -> str | Response:
             "répondre à un avis d'enquête.",
             "warning",
         )
-        return redirect(url_for("wip.media_opportunity", id=id))
+        return _redirect_opportunity_response(url_for("wip.media_opportunity", id=id))
 
     reponse = request.form.get("reponse1")
     if reponse:
@@ -578,6 +587,15 @@ def media_opportunity_post(id: int) -> str | Response:
             contact.status = StatutAvis.REFUSE  # type: ignore[assignment]
             contact.rdv_notes_expert = request.form.get("refusal_reason", "")
         elif reponse == "non-mais":
+            avis_service = AvisEnqueteService()
+            eligible_colleagues = avis_service.list_eligible_colleagues(contact)
+            if not eligible_colleagues:
+                flash(
+                    "Aucun autre membre de votre organisation ne peut être suggéré.",
+                    "error",
+                )
+                return _redirect_opportunity_response(url_for("wip.opportunities"))
+
             try:
                 suggested_id = int(request.form.get("suggested_colleague_id", ""))
             except ValueError:
@@ -585,12 +603,12 @@ def media_opportunity_post(id: int) -> str | Response:
                     "Merci de sélectionner un collègue dans la liste.",
                     "error",
                 )
-                return redirect(url_for("wip.opportunities"))
+                return _redirect_opportunity_response(url_for("wip.opportunities"))
 
             colleague_user = repo.session.get(User, suggested_id)
             if colleague_user is None:
                 flash("Collègue introuvable.", "error")
-                return redirect(url_for("wip.opportunities"))
+                return _redirect_opportunity_response(url_for("wip.opportunities"))
 
             def _build_opportunity_url(contact: ContactAvisEnquete) -> str:
                 domain = str(current_app.config.get("SERVER_NAME"))
@@ -606,7 +624,7 @@ def media_opportunity_post(id: int) -> str | Response:
                 )
             except ValueError as e:
                 flash(str(e), "error")
-                return redirect(url_for("wip.opportunities"))
+                return _redirect_opportunity_response(url_for("wip.opportunities"))
 
             contact.status = StatutAvis.REFUSE_SUGGESTION  # type: ignore[assignment]
             contact.rdv_notes_expert = f"Suggéré: {colleague_user.full_name}"
@@ -615,7 +633,7 @@ def media_opportunity_post(id: int) -> str | Response:
 
         repo.session.commit()
 
-    return redirect(url_for("wip.opportunities"))
+    return _redirect_opportunity_response(url_for("wip.opportunities"))
 
 
 @blueprint.route("/opportunities/<int:id>/form", methods=["POST"])
