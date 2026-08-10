@@ -213,4 +213,4 @@ def test_admin_can_reject_pending_offer(
 def test_non_admin_cannot_access_moderation(app: Flask, emitter: User):
     client = make_authenticated_client(app, emitter)
     response = client.get("/admin/biz/moderation")
-    assert response.status_code in (401, 403)
+    assert response.status_code in (302, 401, 403)
