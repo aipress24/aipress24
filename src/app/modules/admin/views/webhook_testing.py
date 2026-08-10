@@ -7,20 +7,20 @@
 from __future__ import annotations
 
 import time
-from contextlib import suppress
 from datetime import datetime
-from pathlib import Path
 
+import sqlalchemy as sa
 import stripe
-from flask import current_app, flash, render_template, request
+from flask import flash, render_template, request
 
 from app.constants import (
     LOCAL_TZ,
     WEBHOOK_TEST_CUSTOMER_EMAIL,
-    WEBHOOK_TEST_FILE_NAME,
     WEBHOOK_TEST_WAIT_TIMEOUT,
 )
+from app.flask.extensions import db
 from app.flask.lib.nav import nav
+from app.models.admin import WebhookTestFlag
 from app.modules.admin import blueprint
 from app.services.stripe.utils import load_stripe_api_key
 
@@ -31,20 +31,19 @@ def _now_str() -> str:
     return datetime.now(tz=ZoneInfo(LOCAL_TZ)).strftime("%H:%M:%S")
 
 
-def _webhook_flag_path() -> Path:
-    """Return path of the webhook test flag file."""
-    return Path(current_app.instance_path) / WEBHOOK_TEST_FILE_NAME
+def _webhook_test_flag_exists(email: str) -> bool:
+    """Return whether the DB webhook test flag exists for email."""
+    return db.session.get(WebhookTestFlag, email) is not None
 
 
-def _wait_for_webhook_test_flag(present: bool) -> bool:
-    """Wait up to WEBHOOK_TEST_WAIT_TIMEOUT seconds for the flag file status."""
-    flag_file = _webhook_flag_path()
+def _wait_for_webhook_test_flag(email: str, present: bool) -> bool:
+    """Wait up to WEBHOOK_TEST_WAIT_TIMEOUT seconds for the DB flag status."""
     deadline = time.time() + WEBHOOK_TEST_WAIT_TIMEOUT
     while time.time() < deadline:
-        if flag_file.exists() == present:
+        if _webhook_test_flag_exists(email) == present:
             return True
         time.sleep(0.1)
-    return flag_file.exists() == present
+    return _webhook_test_flag_exists(email) == present
 
 
 @blueprint.route("/webhook_testing", methods=["GET", "POST"])
@@ -66,9 +65,13 @@ def webhook_testing():
         try:
             load_stripe_api_key()
 
-            flag_file = _webhook_flag_path()
-            with suppress(OSError):
-                flag_file.unlink(missing_ok=True)
+            # Start clean
+            db.session.execute(
+                sa.delete(WebhookTestFlag).where(
+                    WebhookTestFlag.customer_email == WEBHOOK_TEST_CUSTOMER_EMAIL
+                )
+            )
+            db.session.commit()
 
             messages.append(
                 f"Création du client {WEBHOOK_TEST_CUSTOMER_EMAIL} à {_now_str()}"
@@ -86,7 +89,9 @@ def webhook_testing():
                     f"Client Stripe créé ({customer_id}), attente du webhook "
                     "customer.created..."
                 )
-                if not _wait_for_webhook_test_flag(present=True):
+                if not _wait_for_webhook_test_flag(
+                    WEBHOOK_TEST_CUSTOMER_EMAIL, present=True
+                ):
                     created_timeout_msg = (
                         "Le webhook customer.created n'a pas été reçu"
                         f"(timeout {WEBHOOK_TEST_WAIT_TIMEOUT}s)."
@@ -100,7 +105,9 @@ def webhook_testing():
                 stripe.Customer.delete(customer_id)
 
                 messages.append("Attente du webhook customer.deleted...")
-                if not _wait_for_webhook_test_flag(present=False):
+                if not _wait_for_webhook_test_flag(
+                    WEBHOOK_TEST_CUSTOMER_EMAIL, present=False
+                ):
                     deleted_timeout_msg = (
                         "Le webhook customer.deleted n'a pas été reçu "
                         f"(timeout {WEBHOOK_TEST_WAIT_TIMEOUT}s)."
@@ -111,8 +118,12 @@ def webhook_testing():
                 result = "Test webhook Stripe OK."
                 flash(result, "success")
             finally:
-                with suppress(OSError):
-                    flag_file.unlink(missing_ok=True)
+                db.session.execute(
+                    sa.delete(WebhookTestFlag).where(
+                        WebhookTestFlag.customer_email == WEBHOOK_TEST_CUSTOMER_EMAIL
+                    )
+                )
+                db.session.commit()
 
         except Exception as e:
             error = f"Échec du test webhook : {e}"

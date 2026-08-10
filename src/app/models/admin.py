@@ -5,8 +5,11 @@
 
 from __future__ import annotations
 
+from datetime import datetime
+
 import sqlalchemy as sa
 from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.sql import func
 
 from app.enums import ProfileEnum
 from app.models.base import Base
@@ -31,4 +34,15 @@ class Promotion(Base):
     # prod.
     profile: Mapped[ProfileEnum] = mapped_column(
         sa.Enum(ProfileEnum, name="adm_profileenum"), nullable=True
+    )
+
+
+class WebhookTestFlag(Base):
+    """Persistent flag used by the Stripe webhook end-to-end test."""
+
+    __tablename__ = "adm_webhook_test_flag"
+
+    customer_email: Mapped[str] = mapped_column(primary_key=True)
+    created_at: Mapped[datetime] = mapped_column(
+        sa.DateTime(timezone=True), server_default=func.now(), nullable=False
     )
