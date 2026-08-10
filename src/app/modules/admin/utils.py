@@ -122,13 +122,14 @@ def _check_bw_owner_removal(user: User) -> str:
     """Check if the user is a BW owner and cannot be removed from their org."""
     org = user.organisation
     if org:
-        from app.modules.bw.bw_activation.models import BusinessWall
+        from app.modules.bw.bw_activation.models import BusinessWall, BWStatus
 
-        # Query for any BusinessWall associated with this organisation
+        # Query for an ACTIVE BusinessWall associated with this organisation
         # where the user is the owner
         stmt = select(BusinessWall).where(
             BusinessWall.organisation_id == org.id,
             BusinessWall.owner_id == user.id,
+            BusinessWall.status == BWStatus.ACTIVE.value,
         )
         bw = db.session.execute(stmt).scalars().first()
         if bw:
