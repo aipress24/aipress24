@@ -128,7 +128,7 @@ class TestSalesPerMediaRoute:
     def test_non_admin_blocked(self, app: Flask, non_admin_user: User):
         non_admin_client = make_authenticated_client(app, non_admin_user)
         response = non_admin_client.get("/admin/sales-per-media")
-        assert response.status_code in (401, 403)
+        assert response.status_code in (302, 401, 403)
 
 
 class TestPurchasesPerOrgRoute:
@@ -162,4 +162,4 @@ class TestPurchasesPerOrgRoute:
     def test_non_admin_blocked(self, app: Flask, non_admin_user: User):
         non_admin_client = make_authenticated_client(app, non_admin_user)
         response = non_admin_client.get("/admin/purchases-per-org")
-        assert response.status_code in (401, 403)
+        assert response.status_code in (302, 401, 403)

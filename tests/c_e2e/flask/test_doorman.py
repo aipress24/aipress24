@@ -39,8 +39,8 @@ def app_():
         return user.is_admin
 
     @app.before_request
-    def before_request_security_check() -> None:
-        doorman.check_access()
+    def before_request_security_check():
+        return doorman.check_access()
 
     return app
 
@@ -106,11 +106,11 @@ def test_anonymous_user_on_protected_route_is_unauthorized(client) -> None:
     assert response.status_code == 401
 
 
-def test_non_admin_user_on_protected_route_is_forbidden(client) -> None:
+def test_non_admin_user_on_protected_route_is_redirected(client) -> None:
     """
     GIVEN the doorman's '/admin/' rule is active
     WHEN a logged-in, non-admin user tries to access '/admin/settings'
-    THEN the request should be rejected with a 403 Forbidden status.
+    THEN the request should be redirected (302) to '/'.
     """
 
     @login_manager.request_loader
@@ -118,7 +118,8 @@ def test_non_admin_user_on_protected_route_is_forbidden(client) -> None:
         return StubAuthenticatedUser()
 
     response = client.get("/admin/settings")
-    assert response.status_code == 403
+    assert response.status_code == 302
+    assert response.headers["Location"] == "/"
 
 
 def test_admin_user_on_protected_route_is_allowed(client) -> None:
