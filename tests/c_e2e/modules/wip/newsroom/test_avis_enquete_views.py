@@ -9,6 +9,7 @@ These tests verify the journalist and expert views for avis d'enquête managemen
 
 from __future__ import annotations
 
+import uuid
 from datetime import UTC, datetime
 from typing import TYPE_CHECKING
 
@@ -30,6 +31,7 @@ from tests.c_e2e.conftest import make_authenticated_client
 if TYPE_CHECKING:
     from flask import Flask
     from flask.testing import FlaskClient
+    from sqlalchemy.orm import Session
 
     from app.models.organisation import Organisation
 
@@ -238,6 +240,28 @@ class TestJournalistAvisEnqueteViews:
         url = url_for("AvisEnqueteWipView:new")
         response = logged_in_client.get(url)
         assert response.status_code == 200
+
+    def test_create_avis_enquete_pins_journalist_media_first(
+        self,
+        app: Flask,
+        db_session: Session,
+        test_user: User,
+        test_org: Organisation,
+    ):
+        """The media selector on /wip/avis-enquete/new/ pins the journalist's own
+        media organisation in the first position."""
+        test_org.bw_id = uuid.uuid4()
+        test_org.bw_active = "media"
+        test_org.bw_name = "Mon journal"
+        test_user.organisation_id = test_org.id
+        db_session.flush()
+
+        client = make_authenticated_client(app, test_user)
+        url = url_for("AvisEnqueteWipView:new")
+        response = client.get(url)
+        assert response.status_code == 200
+        html = response.data.decode()
+        assert "Mon journal" in html
 
     @pytest.mark.skip(
         reason="Requires reference data (Secteur, Metier, etc.) initialization"
