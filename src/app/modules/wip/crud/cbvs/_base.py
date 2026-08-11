@@ -275,12 +275,21 @@ class BaseWipView(FlaskView, abc.ABC):
         # Agency / media may only publish for a recognised media, never for
         # a plain company. Pull the pinned org out of the body to avoid a
         # duplicate entry. (Supersedes #0133, which pinned it regardless.)
+        user_org_id: int | None = None
+        if getattr(g.user, "is_managing_another_bw", False):
+            bw = get_selected_business_wall_for_user(g.user)
+            if bw:
+                user_org_id = bw.organisation_id
+        if not user_org_id:
+            user_org_id = getattr(g.user, "organisation_id", None)
+
         pinned_org = None
-        if g.user.organisation_id:
+        if user_org_id:
             pinned_org = next(
-                (o for o in media_orgs if o.id == g.user.organisation_id), None
+                (org for org in media_orgs if org.id == user_org_id), None
             )
-            media_orgs = [o for o in media_orgs if o.id != g.user.organisation_id]
+            if pinned_org:
+                media_orgs = [org for org in media_orgs if org.id != user_org_id]
         return _sort_org_choices(media_orgs, pinned_org=pinned_org)
 
     @templated(UPDATE_TEMPLATE)
@@ -349,7 +358,12 @@ class BaseWipView(FlaskView, abc.ABC):
 
     def _make_media_choices(self, form) -> None:
         if hasattr(form, "media_id"):
-            form.media_id.choices = self.get_media_organisations()
+            choices = self.get_media_organisations()
+            form.media_id.choices = choices
+            if not form.media_id.data and choices:
+                # pre select the writer media, that
+                # should be now the first in list
+                form.media_id.data = choices[0][0]
 
     def _make_country_choices(self, form) -> None:
         if hasattr(form, "pays_zip_ville"):
