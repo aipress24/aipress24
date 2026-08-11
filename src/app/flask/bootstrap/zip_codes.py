@@ -12,6 +12,7 @@ import ijson
 from sqlalchemy import delete
 
 from app.flask.extensions import db
+from app.logging import warn
 from app.services.zip_codes import CountryEntry, ZipCodeEntry, ZipCodeRepository
 
 COUNTRY_SRC = Path("bootstrap_data/country_zip_code/pays.json")
@@ -20,6 +21,7 @@ ZIP_CODE_SRC = Path("bootstrap_data/country_zip_code/towns")
 DEFAULT_NO_ZIP_CODE = [
     {"name": "Aucune information sur les codes postaux", "zip_code": "000"}
 ]
+LOAD_CHUNK = 200
 
 
 def import_countries(countries_path: Path = COUNTRY_SRC) -> None:
@@ -36,13 +38,16 @@ def import_countries(countries_path: Path = COUNTRY_SRC) -> None:
         return country[0]
 
     country_list.sort(key=sorter)
-    for seq, country_tuple in enumerate(country_list):
-        country_entry = CountryEntry(
-            iso3=country_tuple[0], name=country_tuple[1], seq=seq
-        )
-        db.session.add(country_entry)
-
-    db.session.flush()
+    warn(f"loading {len(country_list)} countries")
+    try:
+        for seq, country_tuple in enumerate(country_list):
+            country_entry = CountryEntry(
+                iso3=country_tuple[0], name=country_tuple[1], seq=seq
+            )
+            db.session.add(country_entry)
+    except Exception as e:
+        db.session.rollback()
+    db.session.commit()
 
 
 def import_zip_codes(
@@ -56,12 +61,16 @@ def import_zip_codes(
     for item in data:
         iso3 = item["iso3"]
         path = zipcodes_path.joinpath(f"{iso3}.json")
-        if path.is_file():
-            print(f"importing {path}")
-            import_zip_codes_for_country(path)
-        else:
-            print(f"importing default zip code for {iso3}")
-            import_default_zip_code_for_country(iso3)
+        try:
+            if path.is_file():
+                # print(f"importing {path}")
+                import_zip_codes_for_country(path)
+            else:
+                # print(f"importing default zip code for {iso3}")
+                import_default_zip_code_for_country(iso3)
+        except Exception as e:
+            db.session.rollback()
+        db.session.commit()
 
 
 def import_default_zip_code_for_country(iso3: str) -> None:
@@ -76,6 +85,7 @@ def import_default_zip_code_for_country(iso3: str) -> None:
             iso3=iso3, zip_code=zip_code, name=name, value=value, label=label
         )
         zip_codes.append(zip_code_entry)
+    warn(f"loading {iso3} {len(zip_codes)} zipcodes")
     repo.add_many(zip_codes, auto_commit=True, auto_expunge=True)
 
 
@@ -97,11 +107,12 @@ def import_zip_codes_for_country(path: Path) -> None:
             )
             zip_codes.append(zip_code_entry)
             count += 1
-            if len(zip_codes) >= 1000:
+            if len(zip_codes) >= LOAD_CHUNK:
                 repo.add_many(zip_codes, auto_commit=True, auto_expunge=True)
+                warn(f"loaded {iso3} {len(zip_codes)} zipcodes")
                 zip_codes = []
-
         repo.add_many(zip_codes, auto_commit=True, auto_expunge=True)
+        warn(f"loaded {iso3} {len(zip_codes)} zipcodes")
 
 
 # #
