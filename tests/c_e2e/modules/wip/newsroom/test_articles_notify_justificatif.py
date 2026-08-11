@@ -426,7 +426,8 @@ class TestArticleAccessControl:
             url_for("ArticlesWipView:get", id=foreign_article.id),
             follow_redirects=False,
         )
-        assert response.status_code == 403
+        assert response.status_code == 302
+        assert response.headers.get("X-Access-Denied") == "true"
 
     def test_non_author_cannot_edit_article(
         self,
@@ -439,7 +440,8 @@ class TestArticleAccessControl:
             url_for("ArticlesWipView:edit", id=foreign_article.id),
             follow_redirects=False,
         )
-        assert response.status_code == 403
+        assert response.status_code == 302
+        assert response.headers.get("X-Access-Denied") == "true"
 
     def test_non_author_cannot_publish_article(
         self,
@@ -452,7 +454,8 @@ class TestArticleAccessControl:
             url_for("ArticlesWipView:publish", id=foreign_article.id),
             follow_redirects=False,
         )
-        assert response.status_code == 403
+        assert response.status_code == 302
+        assert response.headers.get("X-Access-Denied") == "true"
 
     def test_non_author_cannot_unpublish_article(
         self,
@@ -465,7 +468,8 @@ class TestArticleAccessControl:
             url_for("ArticlesWipView:unpublish", id=foreign_article.id),
             follow_redirects=False,
         )
-        assert response.status_code == 403
+        assert response.status_code == 302
+        assert response.headers.get("X-Access-Denied") == "true"
 
     def test_non_author_cannot_update_article(
         self,
@@ -484,4 +488,5 @@ class TestArticleAccessControl:
             },
             follow_redirects=False,
         )
-        assert response.status_code == 403
+        assert response.status_code == 302
+        assert response.headers.get("X-Access-Denied") == "true"

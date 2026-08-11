@@ -106,7 +106,8 @@ class TestDashboardAccess:
 
         response = client.get("/wip/dashboard")
 
-        assert response.status_code == 403
+        assert response.status_code == 302
+        assert response.headers.get("X-Access-Denied") == "true"
 
 
 class TestDashboardContent:

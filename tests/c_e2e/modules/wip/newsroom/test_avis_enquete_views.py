@@ -577,7 +577,8 @@ class TestExpertAvisEnqueteViews:
         )
         response = other_expert_client.get(url, follow_redirects=False)
 
-        assert response.status_code == 403
+        assert response.status_code == 302
+        assert response.headers.get("X-Access-Denied") == "true"
 
 
 class TestRdvAccessByNonExpertParticipant:
@@ -699,7 +700,8 @@ class TestRdvAccessByNonExpertParticipant:
             contact_id=confirmed_rdv_for_academic.id,
         )
         response = client.get(url, follow_redirects=False)
-        assert response.status_code == 403
+        assert response.status_code == 302
+        assert response.headers.get("X-Access-Denied") == "true"
 
 
 class TestRdvDetailsSummaryCompleteness:

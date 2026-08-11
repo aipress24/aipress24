@@ -7,8 +7,10 @@ from __future__ import annotations
 import pytest
 from flask import Flask
 from flask_login import LoginManager
+from werkzeug.exceptions import Forbidden
 
 from app.flask.doorman import Doorman
+from app.flask.hooks import handle_forbidden_error
 
 login_manager = LoginManager()
 
@@ -17,6 +19,7 @@ login_manager = LoginManager()
 def app_():
     """Create a minimal Flask app for testing the before_request hook."""
     app = Flask(__name__)
+    app.secret_key = "test_secret"
     login_manager.init_app(app)
     doorman = Doorman()
 
@@ -41,6 +44,10 @@ def app_():
     @app.before_request
     def before_request_security_check():
         return doorman.check_access()
+
+    @app.errorhandler(Forbidden)
+    def handle_forbidden(_e):
+        return handle_forbidden_error(_e)
 
     return app
 
