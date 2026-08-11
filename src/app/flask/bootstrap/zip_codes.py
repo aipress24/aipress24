@@ -45,7 +45,7 @@ def import_countries(countries_path: Path = COUNTRY_SRC) -> None:
                 iso3=country_tuple[0], name=country_tuple[1], seq=seq
             )
             db.session.add(country_entry)
-    except Exception as e:
+    except Exception:
         db.session.rollback()
     db.session.commit()
 
@@ -68,7 +68,7 @@ def import_zip_codes(
             else:
                 # print(f"importing default zip code for {iso3}")
                 import_default_zip_code_for_country(iso3)
-        except Exception as e:
+        except Exception:
             db.session.rollback()
         db.session.commit()
 
