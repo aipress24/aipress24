@@ -170,12 +170,13 @@ class TestNewsroomAccess:
 
         response = client.get("/wip/newsroom")
 
-        assert response.status_code == 403
+        assert response.status_code == 302
+        assert response.headers.get("X-Access-Denied") == "true"
 
     def test_newsroom_forbidden_for_pr_user_acting_as_manager(
         self, app: Flask, db_session: Session, pr_user: User
     ):
-        """PR manager acting for a Media BW still gets a 403 on
+        """PR manager acting for a Media BW still gets redirected on
         the Newsroom."""
         # Create a Media BW
         media_org = Organisation(name="Media Org")
@@ -200,7 +201,8 @@ class TestNewsroomAccess:
         client = make_authenticated_client(app, pr_user)
         response = client.get("/wip/newsroom")
 
-        assert response.status_code == 403
+        assert response.status_code == 302
+        assert response.headers.get("X-Access-Denied") == "true"
 
 
 class TestNewsroomContent:

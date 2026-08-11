@@ -100,7 +100,8 @@ class TestComroomAccess:
         """Test that comroom returns 403 for PRESS_MEDIA users."""
         response = logged_in_client.get("/wip/comroom")
 
-        assert response.status_code == 403
+        assert response.status_code == 302
+        assert response.headers.get("X-Access-Denied") == "true"
 
     def test_comroom_loads_for_transformer(
         self, app: Flask, db_session: Session, test_org: Organisation
@@ -231,6 +232,5 @@ class TestSujetsTileInComroom:
 
         client = make_authenticated_client(app, outsider)
         response = client.get("/wip/sujets/")
-        assert response.status_code in (302, 403), (
-            f"a role-less user must not reach /wip/sujets/, got {response.status_code}"
-        )
+        assert response.status_code == 302
+        assert response.headers.get("X-Access-Denied") == "true"

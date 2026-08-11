@@ -586,7 +586,8 @@ class TestMissionDashboard:
         response = applicant_client.get(
             f"/biz/missions/{published_mission.id}/applications"
         )
-        assert response.status_code == 403
+        assert response.status_code == 302
+        assert response.headers.get("X-Access-Denied") == "true"
 
 
 class TestOpenMissionShowsApplyForm:
