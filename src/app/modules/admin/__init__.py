@@ -7,9 +7,9 @@ from __future__ import annotations
 
 from typing import cast
 
-from flask import Blueprint, redirect
+from flask import Blueprint
 from flask_login import current_user
-from werkzeug import Response
+from werkzeug.exceptions import Forbidden
 
 from app.enums import RoleEnum
 from app.flask.lib.nav import configure_nav
@@ -31,15 +31,16 @@ route = blueprint.route
 
 
 @blueprint.before_request
-def check_admin() -> Response | None:
+def check_admin() -> None:
     """Check if current user has admin role before processing requests.
 
-    Redirects to '/' if user does not have ADMIN role.
+    Raises:
+        Forbidden: If user does not have ADMIN role.
     """
     user = cast("User", current_user)
     if not has_role(user, "ADMIN"):
-        return redirect("/")
-    return None
+        msg = "Vous ne disposez pas des droits d'administration."
+        raise Forbidden(msg)
 
 
 def register_views() -> None:
