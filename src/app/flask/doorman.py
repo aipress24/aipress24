@@ -8,10 +8,9 @@ from collections.abc import Callable
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, cast
 
-from flask import redirect, request
+from flask import request
 from flask_login import current_user
-from werkzeug import Response
-from werkzeug.exceptions import Unauthorized
+from werkzeug.exceptions import Forbidden, Unauthorized
 
 from app.services.roles import has_role
 
@@ -37,13 +36,12 @@ class Doorman:
         """Adds a new security rule to the list."""
         self.rules.append(rule)
 
-    def check_access(self) -> Response | None:
+    def check_access(self) -> None:
         """Checks the incoming request against all registered rules.
 
         Raises:
             Unauthorized (401): If the path is protected and the user is not logged in.
-        Returns:
-            Redirect response to '/' if user is logged in but lacks permission.
+            Forbidden (403): If the user is logged in but does not have the required permissions.
         """
         for rule in self.rules:
             if not request.path.startswith(rule.prefix):
@@ -58,11 +56,12 @@ class Doorman:
             user = cast("User", current_user)
 
             if not rule.is_allowed(user):
-                # The user is logged in but lacks permission. Redirect to root '/'.
-                return redirect("/")
+                # The user is logged in but lacks permission.
+                # The correct response is 403 Forbidden.
+                msg = "Autorisations insuffisantes pour cette ressource."
+                raise Forbidden(msg)
 
-            return None
-        return None
+            return
 
     def rule(self, prefix: str) -> Callable:
         """A decorator to register a function as a security rule for a URL prefix."""

@@ -6,12 +6,13 @@ from __future__ import annotations
 
 import importlib.metadata
 
-from flask import Flask, current_app, g, redirect, request, session
+from flask import Flask, current_app, flash, g, redirect, request, session
 from flask_login import current_user
 from flask_security.core import AnonymousUser
 from flask_security.signals import user_authenticated
 from svcs.flask import container
-from werkzeug.exceptions import NotFound, Unauthorized
+from werkzeug import Response
+from werkzeug.exceptions import Forbidden, NotFound, Unauthorized
 
 from app.flask.doorman import doorman
 from app.flask.lib.proxies import unproxy
@@ -44,6 +45,7 @@ def register_hooks(app: Flask) -> None:
     app.before_request(doorman.check_access)
     app.context_processor(inject_extra_context)
     app.errorhandler(Unauthorized)(handle_authentication_error)
+    app.errorhandler(Forbidden)(handle_forbidden_error)
     user_authenticated.connect(_clear_per_user_session_state, app)
 
     # app.after_request(dump_session)
@@ -75,6 +77,22 @@ def handle_authentication_error(_e):
     # dumping them on the default landing page (the « parcours du
     # combattant » : se reconnecter, rouvrir un onglet, recoller l'URL).
     return redirect(url_for("security.login", next=request.path))
+
+
+def handle_forbidden_error(e: Forbidden) -> Response:
+    """Handle 403 Forbidden redirecting to root '/' for UI pages.
+
+    Also flash a notification.
+
+    API endpoints (/api/) return the standard 403 Forbidden error response.
+    """
+    if request.path.startswith("/api/"):
+        return e.get_response()
+
+    flash("Accès non autorisé.", "warning")
+    resp = redirect("/")
+    resp.headers["X-Access-Denied"] = "true"
+    return resp
 
 
 def authenticate_user() -> None:
