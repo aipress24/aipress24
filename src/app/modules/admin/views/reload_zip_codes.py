@@ -36,14 +36,9 @@ def reload_zip_codes():
     """Reload country and zip code data."""
     countries_path, zipcodes_path = _country_update_path()
     if request.method == "POST":
-        try:
-            import_countries(countries_path)
-            import_zip_codes(countries_path, zipcodes_path)
-            db.session.commit()
-            flash("Les pays et codes postaux ont été chargés.", "success")
-        except Exception as e:
-            db.session.rollback()
-            flash(f"Erreur lors du chargement des codes postaux : {e}", "error")
+        import_countries(countries_path)
+        import_zip_codes(countries_path, zipcodes_path)
+        flash("Les pays et codes postaux ont été chargés.", "success")
         return redirect(url_for("admin.reload_zip_codes"))
 
     countries_count = db.session.scalar(select(func.count(CountryEntry.id))) or 0
