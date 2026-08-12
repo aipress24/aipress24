@@ -11,7 +11,7 @@ from pathlib import Path
 from flask import flash, redirect, render_template, request, url_for
 from sqlalchemy import func, select
 
-from app.flask.bootstrap import import_countries, import_zip_codes
+from app.actors.zip_codes import reload_all_countries_zip_codes
 from app.flask.extensions import db
 from app.flask.lib.nav import nav
 from app.modules.admin import blueprint
@@ -30,15 +30,16 @@ def _country_update_path() -> tuple[Path, Path]:
 @nav(
     parent="index",
     icon="refresh-cw",
-    label="Recharger zip codes",
+    label="Màj zip codes",
 )
 def reload_zip_codes():
     """Reload country and zip code data."""
-    countries_path, zipcodes_path = _country_update_path()
     if request.method == "POST":
-        import_countries(countries_path)
-        import_zip_codes(countries_path, zipcodes_path)
-        flash("Les pays et codes postaux ont été chargés.", "success")
+        reload_all_countries_zip_codes.send()
+        flash(
+            "Mise à jour des pays et des codes postaux lancée en arrière-plan.",
+            "info",
+        )
         return redirect(url_for("admin.reload_zip_codes"))
 
     countries_count = db.session.scalar(select(func.count(CountryEntry.id))) or 0
@@ -46,7 +47,7 @@ def reload_zip_codes():
 
     return render_template(
         "admin/pages/reload_zip_codes.j2",
-        title="recharger zip codes",
+        title="Màj zip codes",
         countries_count=countries_count,
         zip_codes_count=zip_codes_count,
     )
