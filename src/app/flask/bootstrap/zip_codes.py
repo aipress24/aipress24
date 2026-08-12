@@ -21,13 +21,21 @@ ZIP_CODE_SRC = Path("bootstrap_data/country_zip_code/towns")
 DEFAULT_NO_ZIP_CODE = [
     {"name": "Aucune information sur les codes postaux", "zip_code": "000"}
 ]
-LOAD_CHUNK = 200
+LOAD_CHUNK = 5000
 
 
 def import_countries(countries_path: Path = COUNTRY_SRC) -> None:
     db.session.execute(delete(CountryEntry))
     db.session.commit()
 
+    try:
+        import_countries_chore(countries_path)
+    except Exception:
+        db.session.rollback()
+    db.session.commit()
+
+
+def import_countries_chore(countries_path: Path = COUNTRY_SRC) -> None:
     data = json.loads(countries_path.read_text())
     country_list = [(item["iso3"], item["name"]) for item in data]
     print(f"importing {len(country_list)} country names")
@@ -39,15 +47,11 @@ def import_countries(countries_path: Path = COUNTRY_SRC) -> None:
 
     country_list.sort(key=sorter)
     warn(f"loading {len(country_list)} countries")
-    try:
-        for seq, country_tuple in enumerate(country_list):
-            country_entry = CountryEntry(
-                iso3=country_tuple[0], name=country_tuple[1], seq=seq
-            )
-            db.session.add(country_entry)
-    except Exception:
-        db.session.rollback()
-    db.session.commit()
+    for seq, country_tuple in enumerate(country_list):
+        country_entry = CountryEntry(
+            iso3=country_tuple[0], name=country_tuple[1], seq=seq
+        )
+        db.session.add(country_entry)
 
 
 def import_zip_codes(
@@ -73,7 +77,17 @@ def import_zip_codes(
         db.session.commit()
 
 
-def import_default_zip_code_for_country(iso3: str) -> None:
+def import_one_country_zip_codes(iso3_path: Path) -> None:
+    if iso3_path.is_file():
+        # print(f"importing {path}")
+        import_zip_codes_for_country(iso3_path)
+    else:
+        # print(f"importing default zip code for {iso3}")
+        import_default_zip_code_for_country(iso3_path)
+
+
+def import_default_zip_code_for_country(iso3_path: str) -> None:
+    iso3 = iso3_path.stem
     repo = ZipCodeRepository(session=db.session)  # type: ignore[arg-type]
     zip_codes = []
     for item in DEFAULT_NO_ZIP_CODE:
@@ -89,12 +103,12 @@ def import_default_zip_code_for_country(iso3: str) -> None:
     repo.add_many(zip_codes, auto_commit=True, auto_expunge=True)
 
 
-def import_zip_codes_for_country(path: Path) -> None:
-    iso3 = path.stem
+def import_zip_codes_for_country(iso3_path: Path) -> None:
+    iso3 = iso3_path.stem
     zip_codes = []
     count = 0
     repo = ZipCodeRepository(session=db.session)  # type: ignore[arg-type]
-    with path.open() as file:
+    with iso3_path.open() as file:
         parser = ijson.items(file, "item")
 
         for item in parser:

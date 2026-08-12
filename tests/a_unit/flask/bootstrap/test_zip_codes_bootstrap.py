@@ -6,6 +6,8 @@
 
 from __future__ import annotations
 
+from pathlib import Path
+
 from sqlalchemy import select
 
 from app.flask.bootstrap.zip_codes import (
@@ -15,9 +17,10 @@ from app.services.zip_codes import ZipCodeEntry
 
 
 def test_import_default_zip_code_for_country(db) -> None:
-    iso3 = "XYZ"
+    iso3_path = Path("XYZ.json")
+    iso3 = iso3_path.stem
     msg = "Aucune information sur les codes postaux"
-    import_default_zip_code_for_country(iso3)
+    import_default_zip_code_for_country(iso3_path)
     db.session.flush()
 
     entries = list(

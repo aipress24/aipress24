@@ -204,7 +204,7 @@ ADMIN_MENU = [
         "icon": "database",
     },
     {
-        "label": "Recharger zip codes",
+        "label": "Màj zip codes",
         "endpoint": "admin.reload_zip_codes",
         "icon": "refresh-cw",
     },
