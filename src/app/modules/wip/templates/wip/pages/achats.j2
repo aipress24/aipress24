@@ -1,53 +1,122 @@
 {% extends "wip/layout/_base.j2" %}
 
 {% block body_content %}
+    <!-- All-Time Aggregates Summary -->
     <div class="mb-6 grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div class="bg-gray-50 border border-gray-200 rounded p-4">
-            <div class="text-xs uppercase text-gray-500">Cumul de mes achats éditoriaux</div>
-            <div class="text-2xl font-semibold text-gray-900">{{ "%.2f"|format(user_total_eur) }} € HT</div>
+        <div class="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
+            <div class="text-xs font-medium uppercase tracking-wider text-gray-500">Cumul de mes achats éditoriaux</div>
+            <div class="text-2xl font-bold text-gray-900 mt-1">{{ "%.2f"|format(user_total_eur) }} € HT</div>
         </div>
-        <div class="bg-gray-50 border border-gray-200 rounded p-4">
-            <div class="text-xs uppercase text-gray-500">Cumul des achats de mon organisation</div>
-            <div class="text-2xl font-semibold text-gray-900">{{ "%.2f"|format(org_total_eur) }} € HT</div>
+        <div class="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
+            <div class="text-xs font-medium uppercase tracking-wider text-gray-500">Cumul des achats de mon organisation</div>
+            <div class="text-2xl font-bold text-gray-900 mt-1">{{ "%.2f"|format(org_total_eur) }} € HT</div>
         </div>
     </div>
 
-    {% if rows %}
-        <table class="min-w-full divide-y divide-gray-200">
-            <thead class="bg-gray-50">
-                <tr>
-                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
-                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Type</th>
-                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Article</th>
-                    <th class="px-4 py-2 text-right text-xs font-medium text-gray-500 uppercase">Montant (HT)</th>
-                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Statut</th>
-                </tr>
-            </thead>
-            <tbody class="bg-white divide-y divide-gray-200">
-                {% for r in rows %}
-                    <tr>
-                        <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-700">
-                            {{ r.date.strftime("%d/%m/%Y") if r.date else "" }}
-                        </td>
-                        <td class="px-4 py-2 text-sm text-gray-700">{{ r.type_label }}</td>
-                        <td class="px-4 py-2 text-sm text-gray-900">
-                            <a href="{{ r.post_url }}" class="text-pink-700 hover:underline">{{ r.post_title }}</a>
-                        </td>
-                        <td class="px-4 py-2 text-right text-sm text-gray-700">{{ "%.2f"|format(r.amount_eur) }} €</td>
-                        <td class="px-4 py-2 text-sm">
-                            {% if r.is_refunded %}
-                                <span class="text-gray-500">Remboursé</span>
-                            {% else %}
-                                <span class="text-green-700">Payé</span>
-                            {% endif %}
-                        </td>
-                    </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+    {% if months %}
+        <div class="space-y-4">
+            {% for m in months %}
+                <div x-data="{ open: {{ 'true' if loop.first else 'false' }} }" class="bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden">
+                    <!-- Month Header Card -->
+                    <div class="p-4 bg-gray-50 border-b border-gray-200 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                        <div class="flex items-center gap-2">
+                            <i data-lucide="calendar" class="w-5 h-5 text-gray-500"></i>
+                            <h2 class="text-base font-semibold text-gray-900">{{ m.label }}</h2>
+                        </div>
+
+                        <div class="flex flex-wrap items-center gap-6">
+                            <div class="text-sm">
+                                <span class="text-xs text-gray-500 uppercase block font-medium">Cumul de mes achats éditoriaux</span>
+                                <span class="font-semibold text-gray-900">{{ "%.2f"|format(m.user_total_eur) }} € HT</span>
+                            </div>
+
+                            <div class="text-sm">
+                                <span class="text-xs text-gray-500 uppercase block font-medium">Cumul des achats de mon organisation</span>
+                                <span class="font-semibold text-gray-900">{{ "%.2f"|format(m.org_total_eur) }} € HT</span>
+                            </div>
+
+                            <div class="flex flex-wrap items-center gap-2">
+                                <button
+                                    type="button"
+                                    @click="open = !open"
+                                    class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-pink-700 bg-pink-50 hover:bg-pink-100 rounded-md transition-colors"
+                                >
+                                    <span x-text="open ? 'Masquer les détails' : 'Détails'">Détails</span>
+                                    <i data-lucide="chevron-down" class="w-4 h-4 transition-transform duration-200" :class="{ 'rotate-180': open }"></i>
+                                </button>
+
+                                <a
+                                    href="{{ url_for('wip.achats_export_user_month', month=m.key) }}"
+                                    class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-gray-700 bg-white border border-gray-300 hover:bg-gray-50 rounded-md shadow-2xs transition-colors"
+                                    title="Exporter mes achats éditoriaux en document .ods"
+                                >
+                                    <i data-lucide="download" class="w-4 h-4 text-gray-500"></i>
+                                    <span>Exporter achats éditoriaux</span>
+                                </a>
+
+                                <a
+                                    href="{{ url_for('wip.achats_export_org_month', month=m.key) }}"
+                                    class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-gray-700 bg-white border border-gray-300 hover:bg-gray-50 rounded-md shadow-2xs transition-colors"
+                                    title="Exporter les achats de l'organisation en document .ods"
+                                >
+                                    <i data-lucide="download" class="w-4 h-4 text-gray-500"></i>
+                                    <span>Exporter achats organisation</span>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Month Details Panel -->
+                    <div x-show="open" x-collapse class="p-4 border-t border-gray-100 bg-white">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
+                                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Type</th>
+                                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Article</th>
+                                    {% if m.rows|selectattr("buyer_name")|list %}
+                                        <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Acheteur</th>
+                                    {% endif %}
+                                    <th class="px-4 py-2 text-right text-xs font-medium text-gray-500 uppercase">Montant (HT)</th>
+                                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Statut</th>
+                                </tr>
+                            </thead>
+                            <tbody class="bg-white divide-y divide-gray-200">
+                                {% for r in m.rows %}
+                                    <tr>
+                                        <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-700">
+                                            {{ r.date.strftime("%d/%m/%Y") if r.date else "" }}
+                                        </td>
+                                        <td class="px-4 py-2 text-sm text-gray-700">{{ r.type_label }}</td>
+                                        <td class="px-4 py-2 text-sm text-gray-900">
+                                            <a href="{{ r.post_url }}" class="text-pink-700 hover:underline">{{ r.post_title }}</a>
+                                        </td>
+                                        {% if m.rows|selectattr("buyer_name")|list %}
+                                            <td class="px-4 py-2 text-sm text-gray-600">
+                                                {{ r.buyer_name if r.buyer_name else "Moi" }}
+                                            </td>
+                                        {% endif %}
+                                        <td class="px-4 py-2 text-right text-sm text-gray-700 font-medium">{{ "%.2f"|format(r.amount_eur) }} €</td>
+                                        <td class="px-4 py-2 text-sm">
+                                            {% if r.is_refunded %}
+                                                <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-700">Remboursé</span>
+                                            {% else %}
+                                                <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800">Payé</span>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
     {% else %}
-        <p class="text-sm text-gray-600">
-            Vous n'avez pas encore acquis d'article. Vos achats apparaîtront ici dès qu'ils auront été facturés.
-        </p>
+        <div class="bg-white border border-gray-200 rounded-lg p-6 text-center text-gray-600">
+            <p class="text-sm">
+                Vous n'avez pas encore acquis d'article. Vos achats apparaîtront ici dès qu'ils auront été facturés.
+            </p>
+        </div>
     {% endif %}
 {% endblock %}

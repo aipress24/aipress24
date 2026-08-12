@@ -32,7 +32,7 @@ if TYPE_CHECKING:
 def post(db_session: Session, test_user: User) -> ArticlePost:
     p = ArticlePost(title="Mon enquête sur les pingouins", owner_id=test_user.id)
     db_session.add(p)
-    db_session.commit()
+    db_session.flush()
     return p
 
 
@@ -53,7 +53,7 @@ def _add_paid(
         paid_at=datetime.now(UTC),
     )
     db_session.add(purchase)
-    db_session.commit()
+    db_session.flush()
     return purchase
 
 
@@ -138,7 +138,7 @@ class TestAchatsView:
             amount_cents=9999,
         )
         db_session.add(refunded)
-        db_session.commit()
+        db_session.flush()
 
         response = logged_in_client.get("/wip/achats")
         body = response.data.decode()
@@ -165,7 +165,7 @@ class TestAchatsView:
             amount_cents=9999,
         )
         db_session.add(pending)
-        db_session.commit()
+        db_session.flush()
 
         response = logged_in_client.get("/wip/achats")
         body = response.data.decode()
@@ -177,3 +177,95 @@ class TestAchatsView:
         response = client.get("/wip/achats", follow_redirects=False)
         # The WIP blueprint redirects unauthenticated users to login.
         assert response.status_code in (302, 303, 401)
+
+    def test_purchases_classified_by_month(
+        self,
+        logged_in_client: FlaskClient,
+        db_session: Session,
+        test_user: User,
+        post: ArticlePost,
+    ):
+        """Purchases are grouped by month with monthly totals and a Details toggle."""
+        p1 = ArticlePurchase(
+            post_id=post.id,
+            owner_id=test_user.id,
+            product_type=PurchaseProduct.CONSULTATION,
+            status=PurchaseStatus.PAID,
+            amount_cents=3000,
+            paid_at=datetime(2026, 8, 15, 10, 0, tzinfo=UTC),
+        )
+        p2 = ArticlePurchase(
+            post_id=post.id,
+            owner_id=test_user.id,
+            product_type=PurchaseProduct.JUSTIFICATIF,
+            status=PurchaseStatus.PAID,
+            amount_cents=5000,
+            paid_at=datetime(2026, 7, 20, 14, 0, tzinfo=UTC),
+        )
+        db_session.add_all([p1, p2])
+        db_session.flush()
+
+        response = logged_in_client.get("/wip/achats")
+        body = response.data.decode()
+
+        assert "Août 2026" in body
+        assert "Juillet 2026" in body
+        assert "30.00" in body
+        assert "50.00" in body
+        assert "Détails" in body
+        assert "Exporter achats éditoriaux" in body
+        assert "Exporter achats organisation" in body
+
+    def test_export_user_month_ods(
+        self,
+        logged_in_client: FlaskClient,
+        db_session: Session,
+        test_user: User,
+        post: ArticlePost,
+    ):
+        """Exporter achats éditoriaux downloads a valid .ods file."""
+        p = ArticlePurchase(
+            post_id=post.id,
+            owner_id=test_user.id,
+            product_type=PurchaseProduct.CONSULTATION,
+            status=PurchaseStatus.PAID,
+            amount_cents=3000,
+            paid_at=datetime(2026, 8, 15, 10, 0, tzinfo=UTC),
+        )
+        db_session.add(p)
+        db_session.flush()
+
+        response = logged_in_client.get("/wip/achats/export/user/2026-08.ods")
+        assert response.status_code == 200
+        assert response.mimetype == "application/vnd.oasis.opendocument.spreadsheet"
+        assert response.headers["Content-Disposition"].startswith(
+            "attachment; filename=achats_editoriaux_2026-08.ods"
+        )
+        assert response.data.startswith(b"PK")
+
+    def test_export_org_month_ods(
+        self,
+        logged_in_client: FlaskClient,
+        db_session: Session,
+        test_user: User,
+        post: ArticlePost,
+    ):
+        """Exporter achats organisation downloads a valid .ods file."""
+        p = ArticlePurchase(
+            post_id=post.id,
+            owner_id=test_user.id,
+            product_type=PurchaseProduct.CONSULTATION,
+            status=PurchaseStatus.PAID,
+            amount_cents=3000,
+            paid_at=datetime(2026, 8, 15, 10, 0, tzinfo=UTC),
+        )
+        db_session.add(p)
+        db_session.flush()
+
+        response = logged_in_client.get("/wip/achats/export/org/2026-08.ods")
+        assert response.status_code == 200
+        assert response.mimetype == "application/vnd.oasis.opendocument.spreadsheet"
+        assert response.headers["Content-Disposition"].startswith(
+            "attachment; filename=achats_organisation_2026-08.ods"
+        )
+        assert response.data.startswith(b"PK")
