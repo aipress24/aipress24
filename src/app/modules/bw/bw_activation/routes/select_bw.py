@@ -49,7 +49,7 @@ def select_bw():
     """Show a page to select which Business Wall to manage."""
     user = cast("User", g.user)
     manageable_bws = get_manageable_business_walls_for_user(user)
-    active_bws = [bw for bw in manageable_bws if bw.status != BWStatus.CANCELLED.value]
+    active_bws = [bw for bw in manageable_bws if bw.status == BWStatus.ACTIVE.value]
 
     if len(active_bws) == 1:
         fill_session(active_bws[0])
@@ -103,7 +103,7 @@ def select_bw_post(bw_id: str):
         .one_or_none()
     )
 
-    if not bw or bw.status == BWStatus.CANCELLED.value:
+    if not bw or bw.status != BWStatus.ACTIVE.value:
         session["error"] = ERR_NOT_MANAGER
         return redirect(url_for("bw_activation.not_authorized"))
 
