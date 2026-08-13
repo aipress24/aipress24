@@ -1,55 +1,55 @@
 <footer class="bg-white text-sm">
-  <div class="container space-y-8 px-4 py-10 sm:px-6 lg:px-8">
-    <div class="grid grid-cols-1 gap-8 lg:grid-cols-3">
-      <div>
-        <div class="text-teal-600">
-          <img class="h-10 w-auto"
-               src="/static/img/aipress24-logo-small.png"
-               alt="">
+    <div class="container space-y-8 px-4 py-10 sm:px-6 lg:px-8">
+        <div class="grid grid-cols-1 gap-8 lg:grid-cols-3">
+            <div>
+                <div class="text-teal-600">
+                    <img class="h-10 w-auto"
+                         src="/static/img/aipress24-logo-small.png"
+                         alt="">
+                </div>
+
+                <p class="mt-4 max-w-xs text-gray-500">
+                    La plateforme open source A<span class="text-red-600">i</span>PRESS24 renforce l’indépendance du journalisme
+                    grâce à de nouvelles sources de revenu financier. Ayant pour devise
+                    « Créons et partageons la valeur de l’info », A<span class="text-red-600">i</span>PRESS24 retisse un lien de
+                    confiance entre les journalistes et toutes les parties prenantes à la
+                    fabrique de l’info : Journalistes, Communicants, Leaders & Experts,
+                    Transformers et Academics.
+                </p>
+
+                <ul class="mt-4 flex gap-6">
+                    {% include "fragments/footer-logos.j2" %}
+                </ul>
+            </div>
+
+            <div class="grid grid-cols-3 gap-8 lg:col-span-2 lg:grid-cols-3">
+
+                {% for section in settings.FOOTER_MENU %}
+                    <div>
+                        <h3
+                            class="mb-6 font-semibold text-gray-900 uppercase dark:text-white"
+                        >
+                            {{ section.label }}
+                        </h3>
+                        <ul class="text-gray-500 dark:text-gray-400">
+                            {% for item in section['items'] %}
+                                <li class="mb-3">
+                                    <a href="{{ item.url }}" class="hover:underline"
+                                    >{{ item.label }}</a>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                {% endfor %}
+            </div>
         </div>
 
-        <p class="mt-4 max-w-xs text-gray-500">
-          La plateforme open source A<span class="text-red-600">i</span>PRESS24 renforce l’indépendance du journalisme
-          grâce à de nouvelles sources de revenu financier. Ayant pour devise
-          « Créons et partageons la valeur de l’info », A<span class="text-red-600">i</span>PRESS24 retisse un lien de
-          confiance entre les journalistes et toutes les parties prenantes à la
-          fabrique de l’info : Journalistes, Communicants, Leaders & Experts,
-          Transformers et Academics.
-        </p>
-
-        <ul class="mt-4 flex gap-6">
-          {% include "fragments/footer-logos.j2" %}
-        </ul>
-      </div>
-
-      <div class="grid grid-cols-3 gap-8 lg:col-span-2 lg:grid-cols-3">
-
-        {% for section in settings.FOOTER_MENU %}
-          <div>
-            <h3
-                class="mb-6 font-semibold text-gray-900 uppercase dark:text-white"
-            >
-              {{ section.label }}
-            </h3>
-            <ul class="text-gray-500 dark:text-gray-400">
-              {% for item in section['items'] %}
-                <li class="mb-3">
-                  <a href="{{ item.url }}" class="hover:underline"
-                  >{{ item.label }}</a>
-                </li>
-              {% endfor %}
-            </ul>
-          </div>
-        {% endfor %}
-      </div>
+        <div class="text-gray-500 dark:text-gray-400">
+            © 2022-2026 <a class="underline" href="https://agencetca.info/">Agence TCA</a>.
+            Tous droits réservés.
+            Application réalisée par <a class="underline" href="https://abilian.com">Abilian</a>.
+            Version: {{ app_version }}.
+            Temps de génération: {{ "%.3f" | format(g.timer.elapsed()) }}s.
+        </div>
     </div>
-
-    <div class="text-gray-500 dark:text-gray-400">
-      © 2022-2025 <a class="underline" href="https://agencetca.info/">Agence TCA</a>.
-      Tous droits réservés.
-      Application réalisée par <a class="underline" href="https://abilian.com">Abilian</a>.
-      Version: {{ app_version }}.
-      Temps de génération: {{ "%.3f" | format(g.timer.elapsed()) }}s.
-    </div>
-  </div>
 </footer>
