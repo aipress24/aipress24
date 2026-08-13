@@ -16,7 +16,7 @@ from app.modules.preferences import blueprint
 
 
 class ProfileView(MethodView):
-    """Public profile visibility settings."""
+    """Visibilité du profil public."""
 
     def get(self):
         ctx = profil_groups_initial_level()

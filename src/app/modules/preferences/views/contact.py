@@ -17,7 +17,7 @@ from app.modules.preferences import blueprint
 
 
 class ContactOptionsView(MethodView):
-    """Contact options settings."""
+    """Options de contact."""
 
     def get(self):
         user = g.user
