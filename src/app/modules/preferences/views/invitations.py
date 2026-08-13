@@ -194,7 +194,7 @@ def revoked_partnership_to_dict(
 
 
 class InvitationsView(MethodView):
-    """invitations d'organisations"""
+    """Invitations d'organisations."""
 
     def get(self):
         user = cast(User, g.user)

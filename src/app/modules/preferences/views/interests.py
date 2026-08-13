@@ -17,7 +17,7 @@ from app.modules.preferences import blueprint
 
 
 class InterestsView(MethodView):
-    """Interests/hobbies settings."""
+    """Centres d'intérêts et hobbies."""
 
     def get(self):
         user = g.user

@@ -22,7 +22,7 @@ from app.settings.constants import MAX_IMAGE_SIZE
 
 
 class BannerView(MethodView):
-    """Banner/cover image settings."""
+    """Image de présentation."""
 
     def get(self):
         user = cast(User, g.user)
