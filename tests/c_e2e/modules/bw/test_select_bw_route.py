@@ -25,6 +25,7 @@ from typing import TYPE_CHECKING
 
 from app.modules.bw.bw_activation.models import (
     BWRoleType,
+    BWStatus,
     InvitationStatus,
     RoleAssignment,
 )
@@ -175,4 +176,23 @@ class TestSelectBwPostStateMutationGuard:
         # And the user must land on `/BW/not-authorized` (with an
         # explicit error stored in session), not silently back on the
         # selector — otherwise we recreate the original #0166 symptom.
+        assert "/BW/not-authorized" in response.headers.get("Location", "")
+
+    def test_non_active_bw_cannot_be_selected(self, app: Flask, fresh_db):
+        """Only BWs with status == ACTIVE can be selected or posted."""
+        data = create_bw_test_data(
+            fresh_db,
+            create_pr_user=True,
+            create_pr_bw=True,
+        )
+        data["media_bw"].status = BWStatus.DRAFT.value
+        fresh_db.session.commit()
+
+        client = make_authenticated_client(app, data["media_owner"])
+        response = client.post(
+            f"/BW/select-bw/{data['media_bw'].id}",
+            follow_redirects=False,
+        )
+
+        assert response.status_code in (302, 303)
         assert "/BW/not-authorized" in response.headers.get("Location", "")
