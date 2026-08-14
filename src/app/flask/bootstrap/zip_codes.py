@@ -24,6 +24,15 @@ DEFAULT_NO_ZIP_CODE = [
 LOAD_CHUNK = 5000
 
 
+def get_country_update_paths() -> tuple[Path, Path]:
+    """Return update paths for pays.json and towns."""
+    root_path = Path(__file__).resolve().parent.parent.parent.parent.parent
+    update_path = root_path / "update_data"
+    countries_path = update_path / "country_zip_code" / "pays.json"
+    zipcodes_path = update_path / "country_zip_code" / "towns"
+    return countries_path, zipcodes_path
+
+
 def import_countries(countries_path: Path = COUNTRY_SRC) -> None:
     db.session.execute(delete(CountryEntry))
     db.session.commit()
