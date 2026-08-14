@@ -16,6 +16,7 @@ from app.flask.extensions import db
 from app.models.lifecycle import PublicationStatus
 from app.modules.events.models import EventPost
 from app.modules.kyc.field_label import country_code_to_country_name
+from app.services.taxonomies import get_taxonomy
 
 if TYPE_CHECKING:
     from sqlalchemy.orm import InstrumentedAttribute
@@ -210,6 +211,12 @@ class FilterBar:
 
             # Get distinct values for this column
             distinct_values = _get_distinct_values(column_name)
+
+            if filter_id == "genre":
+                taxonomy_order = get_taxonomy("events")
+                if taxonomy_order:
+                    order_map = {val: i for i, val in enumerate(taxonomy_order)}
+                    distinct_values.sort(key=lambda val: order_map.get(val, 9999))
 
             # Build options list
             options = []
