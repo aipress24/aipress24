@@ -111,15 +111,15 @@ class TestGetTaxonomy:
         assert "Entry A" in result
         assert "Entry B" in result
 
-    def test_returns_sorted_by_name(self, db: SQLAlchemy) -> None:
-        """Should return entries sorted by name."""
-        create_entry("test_tax", "Zebra")
-        create_entry("test_tax", "Apple")
+    def test_returns_sorted_by_seq(self, db: SQLAlchemy) -> None:
+        """Should return entries sorted by sequence number then name."""
+        create_entry("test_tax", "Zebra", seq=10)
+        create_entry("test_tax", "Apple", seq=20)
         db.session.flush()
 
         result = get_taxonomy("test_tax")
 
-        assert result == ["Apple", "Zebra"]
+        assert result == ["Zebra", "Apple"]
 
 
 class TestGetFullTaxonomy:

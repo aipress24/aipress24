@@ -36,10 +36,10 @@ def get_all_taxonomy_names() -> list[str]:
 
 
 def get_taxonomy(name) -> list[str]:
-    """Get a taxonomy from the database."""
+    """Get a taxonomy from the database, ordered by sequence and name."""
     # TODO: ne retourner que les valeurs qui correspondent à un utilisateur existant
     T = TaxonomyEntry
-    query = select(T).where(T.taxonomy_name == name).order_by(T.name)
+    query = select(T).where(T.taxonomy_name == name).order_by(T.seq, T.name)
     result = db.session.execute(query).scalars()
     return [r.name for r in result]
 
