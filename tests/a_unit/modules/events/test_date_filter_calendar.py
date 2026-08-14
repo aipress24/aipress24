@@ -466,3 +466,32 @@ class TestBuildCellsDetails:
         )
 
         assert cells[0]["events"] == []
+
+
+class TestEventsCalendarTemplate:
+    """Check events--calendar.j2 makes valid clean href attributes."""
+
+    def test_calendar_cell_with_events_renders_clean_href(self, app) -> None:
+        start = arrow.get("2026-08-01")
+        ev = _ev(1, "Test Event", "2026-08-27 10:00", "2026-08-27 11:00")
+        cells = Calendar.build_cells(
+            events=[ev],
+            start_date=start,
+            end_date=arrow.get("2026-08-31"),
+            today=start.date(),
+        )
+        calendar_dict = {
+            "month": start,
+            "prev_month": "2026-07",
+            "next_month": "2026-09",
+            "cells": cells,
+        }
+
+        with app.test_request_context("/events/"):
+            res = app.jinja_env.get_template("pages/events--calendar.j2").render(
+                calendar=calendar_dict
+            )
+
+            assert 'href="/events/?day=2026-08-27"' in res
+            assert "'/events/" not in res
+            assert "href='href=" not in res
