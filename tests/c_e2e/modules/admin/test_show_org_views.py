@@ -556,3 +556,38 @@ class TestOrgVM:
             members = vm.get_members()
             assert isinstance(members, list)
             assert len(members) == 1
+
+
+class TestMemberCountsAreSeparate:
+    """Ticket #0286 (Erick, 2026-08-07) : the admin console now shows two
+    distinct figures — « le nombre de membres de l'organisation d'un côté,
+    et le nombre de membres du Business Wall de l'autre, afin de lever
+    toute confusion liée à la dualité de ces deux structures ».
+    """
+
+    def test_org_with_bw_shows_both_counts(
+        self,
+        admin_client: FlaskClient,
+        admin_user: User,
+        org_with_bw: Organisation,
+    ):
+        body = admin_client.get(f"/admin/show_org/{org_with_bw.id}").data.decode()
+
+        assert "Membres de l'organisation" in body
+        assert "Membres du Business Wall" in body
+
+    def test_org_without_bw_shows_only_the_org_count(
+        self,
+        admin_client: FlaskClient,
+        admin_user: User,
+        test_org_for_admin: Organisation,
+    ):
+        """An organisation with no BW has no BW membership to report — the
+        second figure must not appear at all, rather than show a
+        meaningless zero next to the first."""
+        body = admin_client.get(
+            f"/admin/show_org/{test_org_for_admin.id}"
+        ).data.decode()
+
+        assert "Membres de l'organisation" in body
+        assert "Membres du Business Wall" not in body

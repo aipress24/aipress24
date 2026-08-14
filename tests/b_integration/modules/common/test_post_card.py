@@ -300,6 +300,24 @@ class TestCardImageUrl:
             # Not the placeholder, and not the /wip route that used to 404.
             assert card_url.startswith("/media/")
 
+    def test_rendered_card_points_its_img_at_the_media_url(self, db_session, app):
+        """The wiring, not just the view-model : the rendered `<img>` is
+        what 404'd in Erick's browser."""
+        with app.test_request_context():
+            owner, article, image = self._article_image(db_session)
+
+            post = ArticlePost(owner=owner, title="Automobile")
+            post.newsroom_id = article.id
+            post.image_id = image.id
+            post.published_at = arrow.now()
+            db_session.add(post)
+            db_session.flush()
+
+            html = render_template_string('{{ component("post-card", c) }}', c=post)
+
+            assert f'src="{image.url}"' in html
+            assert "/wip/articles/" not in html
+
     def test_dangling_image_id_falls_back_to_the_placeholder(self, db_session, app):
         """The regression itself : a `Post` whose `image_id` no longer
         resolves must degrade to the placeholder rather than emit a URL

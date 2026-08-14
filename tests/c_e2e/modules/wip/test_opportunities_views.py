@@ -1266,3 +1266,129 @@ class TestJustificatifsTab:
         html = response.data.decode()
         assert "Aucune invitation" in html
         assert "Aucune invitation ni justificatif" in html
+
+
+class TestSubmitButtonRequiresAnAnswer:
+    """Bug #0292 (Erick, 2026-08-10) : « le bouton "Envoyer" n'est actif
+    que si on a checké une des 3 réponses oui/non/mais ».
+
+    The gating is server-rendered, so a POST that never picked an answer
+    cannot even be offered. « non-mais » is the awkward case : it also
+    needs a colleague, otherwise the answer has no content.
+    """
+
+    def _submit_button(self, html: str) -> str:
+        match = re.search(r"<button\b[^>]*>\s*Envoyer\s*</button>", html)
+        assert match is not None, "the « Envoyer » button is missing"
+        return match.group(0)
+
+    def test_submit_is_disabled_before_any_answer(
+        self,
+        logged_in_client: FlaskClient,
+        test_contact: ContactAvisEnquete,
+        active_bw,
+    ):
+        html = logged_in_client.get(
+            f"/wip/opportunities/{test_contact.id}"
+        ).data.decode()
+        assert "disabled" in self._submit_button(html)
+
+    def test_submit_is_enabled_once_an_answer_is_picked(
+        self,
+        logged_in_client: FlaskClient,
+        test_contact: ContactAvisEnquete,
+        active_bw,
+    ):
+        html = logged_in_client.post(
+            f"/wip/opportunities/{test_contact.id}/form",
+            data={"reponse1": "oui"},
+        ).data.decode()
+        assert "disabled" not in self._submit_button(html)
+
+    def test_submit_stays_disabled_for_non_mais_without_a_colleague(
+        self,
+        logged_in_client: FlaskClient,
+        test_contact: ContactAvisEnquete,
+        active_bw,
+    ):
+        html = logged_in_client.post(
+            f"/wip/opportunities/{test_contact.id}/form",
+            data={"reponse1": "non-mais"},
+        ).data.decode()
+        assert "disabled" in self._submit_button(html)
+
+
+class TestSuggestedColleagueReceivesTheAvis:
+    """Bug #0292 : « Le collègue ne reçoit pas l'avis d'enquête ».
+
+    Two symptoms were reported, both non-reproduced but never pinned :
+    the avis stayed in the suggester's list looking unanswered (1), and
+    the colleague saw nothing (2). The list pages are what the two users
+    actually looked at, so assert on those.
+    """
+
+    def _suggest(
+        self,
+        client: FlaskClient,
+        contact: ContactAvisEnquete,
+        colleague: User,
+    ) -> None:
+        response = client.post(
+            f"/wip/opportunities/{contact.id}",
+            data={
+                "reponse1": "non-mais",
+                "suggested_colleague_id": str(colleague.id),
+            },
+        )
+        assert response.status_code == 302
+
+    @pytest.fixture
+    def colleague(self, db_session: Session, test_user: User) -> User:
+        user = User(
+            email=f"colleague_{uuid.uuid4().hex[:6]}@example.com",
+            first_name="Mike",
+            last_name="Zhang",
+            active=True,
+        )
+        user.organisation = test_user.organisation
+        user.organisation_id = test_user.organisation_id
+        db_session.add(user)
+        db_session.commit()
+        return user
+
+    def test_suggester_keeps_the_avis_marked_as_declined(
+        self,
+        app,
+        logged_in_client: FlaskClient,
+        test_contact: ContactAvisEnquete,
+        test_user: User,
+        colleague: User,
+        active_bw,
+    ):
+        """Symptom 1 : « l'Avis d'enquête reste dans mes opportunités ».
+
+        It does — deliberately — but it must read « Opportunité déclinée »
+        rather than look like an unanswered invitation.
+        """
+        self._suggest(logged_in_client, test_contact, colleague)
+
+        html = logged_in_client.get("/wip/opportunities").data.decode()
+        assert "Test Enquête" in html
+        assert "Opportunité déclinée" in html
+
+    def test_colleague_sees_the_avis_in_their_own_opportunities(
+        self,
+        app,
+        logged_in_client: FlaskClient,
+        test_contact: ContactAvisEnquete,
+        test_user: User,
+        colleague: User,
+        active_bw,
+    ):
+        """Symptom 2 : « Mike Zhang ne reçoit pas l'alerte », « même dans
+        WORK/OPPORTUNITÉ/Avis d'enquête »."""
+        self._suggest(logged_in_client, test_contact, colleague)
+
+        colleague_client = make_authenticated_client(app, colleague)
+        html = colleague_client.get("/wip/opportunities").data.decode()
+        assert "Test Enquête" in html
