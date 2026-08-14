@@ -6,6 +6,7 @@
 
 from __future__ import annotations
 
+import re
 from typing import TYPE_CHECKING
 
 import pytest
@@ -337,3 +338,31 @@ class TestNavigationIntegration:
             crumbs = nav_tree.build_breadcrumbs("biz.purchases", {})
             assert len(crumbs) >= 2  # Home + Purchases
             assert crumbs[-1].current is True
+
+
+class TestMarketPortalTabs:
+    """Ticket #0279 (Erick, 2026-08-03) : « La page d'accueil de MARKET est
+    tristounette. On croit surtout qu'elle n'est pas en fonction. »
+
+    Two tabs were dropped — « © » (reproduction rights now go through
+    NEWS) and « Abonnement » (third-party offers, out of scope) — and the
+    landing tab became Missions so the page opens on real content.
+    """
+
+    def _tab_bar(self, html: str) -> list[str]:
+        nav = re.search(r'<nav[^>]*aria-label="Tabs"[^>]*>.*?</nav>', html, re.DOTALL)
+        assert nav is not None, "the MARKET tab bar is missing"
+        return re.findall(r"<span>([^<]*)</span>", nav.group(0))
+
+    def test_dropped_tabs_are_gone(self, authenticated_client: FlaskClient):
+        labels = self._tab_bar(authenticated_client.get("/biz/").data.decode())
+        assert labels == ["Missions", "Projets", "Job Board"]
+
+    def test_missions_is_the_landing_tab(self, authenticated_client: FlaskClient):
+        html = authenticated_client.get("/biz/").data.decode()
+        current = re.findall(
+            r'<a[^>]*aria-current="page"[^>]*>\s*<span>([^<]*)</span>', html
+        )
+        assert current == ["Missions"], (
+            "MARKET must open on Missions, not on an empty tab (#0279)"
+        )

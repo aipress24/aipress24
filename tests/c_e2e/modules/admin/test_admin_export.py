@@ -642,3 +642,41 @@ class TestMixedBWOrgExporter:
         if response.status_code == 200:
             assert response.mimetype == "application/vnd.oasis.opendocument.spreadsheet"
             assert response.data[:4] == b"PK\x03\x04"
+
+
+class TestEveryExportProducesAFile:
+    """Ticket #0286 (Erick, 2026-08-07) : « il a corrigé et modernisé les
+    scripts d'exportation au format Open Document qui étaient cassés ou
+    obsolètes, en réparant l'export mixte ».
+
+    A broken exporter only shows up when the file is actually downloaded,
+    and the mixed export in particular builds three sheets from two other
+    exporters. One download per link on the /admin exports page.
+    """
+
+    @pytest.mark.parametrize(
+        "exporter_name",
+        [
+            "inscription",
+            "modification",
+            "users",
+            "organisations",
+            "business_walls",
+            "mixed_org_bw",
+            "sales_ledger",
+        ],
+    )
+    def test_export_downloads_an_ods_file(
+        self,
+        admin_client: FlaskClient,
+        sample_users: list[User],
+        exporter_name: str,
+    ):
+        response = admin_client.get(
+            url_for("admin.export_route", exporter_name=exporter_name)
+        )
+        assert response.status_code == 200
+        assert response.mimetype == "application/vnd.oasis.opendocument.spreadsheet"
+        assert "attachment" in response.headers.get("Content-Disposition", "")
+        # ODS is a zip container: fail loudly on an empty or HTML body.
+        assert response.data[:4] == b"PK\x03\x04"

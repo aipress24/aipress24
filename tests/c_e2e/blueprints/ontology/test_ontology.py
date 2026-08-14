@@ -453,8 +453,15 @@ class TestImportRoute:
         assert entries[0].name == "Imported A"
         assert entries[1].name == "Imported B"
 
-    def test_import_ods_not_found(self, admin_client: FlaskClient, app: Flask):
-        """Importing into a non-existent taxonomy."""
+    def test_import_ods_not_found(
+        self, admin_client: FlaskClient, app: Flask, db_session: Session
+    ):
+        """Importing into a non-existent taxonomy creates nothing.
+
+        Bug #0269 : the import was fired while « No Taxonomy Selected »
+        was displayed. Refusing the upload is not enough — it must also
+        leave the database exactly as it was.
+        """
         with app.test_request_context():
             url = url_for("ontology.import_ods", taxonomy_name="nonexistent")
         ods_buffer = self._build_ods_buffer([["Name", "cat", "val", 1]])
@@ -464,3 +471,80 @@ class TestImportRoute:
             content_type="multipart/form-data",
         )
         assert response.status_code == 302
+        assert (
+            db_session.query(TaxonomyEntry)
+            .filter(TaxonomyEntry.taxonomy_name == "nonexistent")
+            .count()
+            == 0
+        )
+
+
+class TestImportIsNotDestructive:
+    """An ODS import must only ever touch the taxonomy it targets.
+
+    Bugs #0269 and #0284 both cost real data : one import wiped
+    `news_sector` while `metier` was the intended target, and a rejected
+    import left the taxonomy empty (« Et il a écrasé la taxonomie »).
+    The import deletes before it parses, so any parse failure has to roll
+    the delete back.
+    """
+
+    def _build_ods_buffer(self, rows: list[list]) -> io.BytesIO:
+        data = [["Name", "Category", "Value", "Sequence"], *rows]
+        sheet = pyexcel.Sheet(data)
+        buffer = io.BytesIO()
+        sheet.save_to_memory("ods", buffer)
+        buffer.seek(0)
+        return buffer
+
+    def test_import_leaves_other_taxonomies_untouched(
+        self,
+        admin_client: FlaskClient,
+        app: Flask,
+        taxonomy_entry: TaxonomyEntry,
+        multiple_entries: list[TaxonomyEntry],
+        db_session: Session,
+    ):
+        """Bug #0269 : importing into one taxonomy wiped another one."""
+        with app.test_request_context():
+            url = url_for("ontology.import_ods", taxonomy_name="test_taxonomy")
+        response = admin_client.post(
+            url,
+            data={"ods_file": (self._build_ods_buffer([["A", "c", "v", 1]]), "t.ods")},
+            content_type="multipart/form-data",
+        )
+        assert response.status_code == 302
+
+        survivors = (
+            db_session.query(TaxonomyEntry)
+            .filter(TaxonomyEntry.taxonomy_name == "multi_taxonomy")
+            .all()
+        )
+        assert len(survivors) == len(multiple_entries)
+
+    def test_failed_import_preserves_existing_entries(
+        self,
+        admin_client: FlaskClient,
+        app: Flask,
+        taxonomy_entry: TaxonomyEntry,
+        db_session: Session,
+    ):
+        """Bug #0284 : a refused import must not empty the taxonomy."""
+        with app.test_request_context():
+            url = url_for("ontology.import_ods", taxonomy_name="test_taxonomy")
+        garbage = io.BytesIO(b"this is not a spreadsheet")
+        response = admin_client.post(
+            url,
+            data={"ods_file": (garbage, "broken.ods")},
+            content_type="multipart/form-data",
+            follow_redirects=True,
+        )
+        assert response.status_code == 200
+        assert b"Failed to import taxonomy" in response.data
+
+        entries = (
+            db_session.query(TaxonomyEntry)
+            .filter(TaxonomyEntry.taxonomy_name == "test_taxonomy")
+            .all()
+        )
+        assert [e.name for e in entries] == ["Test Entry"]
