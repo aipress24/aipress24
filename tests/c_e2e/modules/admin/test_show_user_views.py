@@ -6,6 +6,7 @@
 
 from __future__ import annotations
 
+import re
 import uuid
 from typing import TYPE_CHECKING
 
@@ -13,7 +14,12 @@ import pytest
 
 from app.models.auth import KYCProfile, User
 from app.models.organisation import Organisation
-from app.modules.bw.bw_activation.models import BusinessWall, BWStatus
+from app.modules.bw.bw_activation.models import (
+    BusinessWall,
+    BWStatus,
+    InvitationStatus,
+    RoleAssignment,
+)
 
 if TYPE_CHECKING:
     from flask.testing import FlaskClient
@@ -222,3 +228,43 @@ class TestShowUserActions:
         )
 
         assert response.status_code in (200, 302)
+
+
+class TestRolelessAssignmentReadsAsMembre:
+    """Ticket #0286 (Erick, 2026-08-07) : « Dans la liste des utilisateurs,
+    les comptes dont le champ de rôle était auparavant vide affichent
+    désormais explicitement la mention "membre". »
+
+    The empty `role_type` is the plain-membership marker (see #0272), so
+    an empty cell used to read as « no role at all » to the admin.
+    """
+
+    def test_membership_marker_is_labelled(
+        self,
+        db_session: Session,
+        admin_client: FlaskClient,
+        user_with_bw_org: User,
+    ):
+        bw = db_session.get(BusinessWall, user_with_bw_org.organisation.bw_id)
+        assert bw is not None
+        db_session.add(
+            RoleAssignment(
+                business_wall_id=bw.id,
+                user_id=user_with_bw_org.id,
+                role_type="",
+                invitation_status=InvitationStatus.ACCEPTED.value,
+            )
+        )
+        db_session.commit()
+
+        body = admin_client.get(f"/admin/show_user/{user_with_bw_org.id}").data.decode()
+
+        # Assert on the roles table only: « Membre » also appears in
+        # unrelated labels elsewhere on the page.
+        roles_tables = [
+            table
+            for table in re.findall(r"<table\b.*?</table>", body, re.DOTALL)
+            if ">Rôle</th>" in table
+        ]
+        assert roles_tables, "the role assignments table is missing"
+        assert any("Membre" in table for table in roles_tables)
