@@ -259,12 +259,9 @@ class TestRolelessAssignmentReadsAsMembre:
 
         body = admin_client.get(f"/admin/show_user/{user_with_bw_org.id}").data.decode()
 
-        # Assert on the roles table only: « Membre » also appears in
-        # unrelated labels elsewhere on the page.
-        roles_tables = [
-            table
-            for table in re.findall(r"<table\b.*?</table>", body, re.DOTALL)
-            if ">Rôle</th>" in table
-        ]
-        assert roles_tables, "the role assignments table is missing"
-        assert any("Membre" in table for table in roles_tables)
+        # Assert on the « Rôles Business Wall » table only: « Membre »
+        # also appears elsewhere on the page, and the « Invitations à un
+        # rôle » table below carries the same headers.
+        section = re.search(r"Rôles Business Wall</h3>.*?</table>", body, re.DOTALL)
+        assert section is not None, "the role assignments table is missing"
+        assert "Membre" in section.group(0)

@@ -25,6 +25,16 @@ if TYPE_CHECKING:
     from sqlalchemy.orm import Session
 
 
+def build_ods_buffer(rows: list[list]) -> io.BytesIO:
+    """Build an in-memory ODS file from row data."""
+    data = [["Name", "Category", "Value", "Sequence"], *rows]
+    sheet = pyexcel.Sheet(data)
+    buffer = io.BytesIO()
+    sheet.save_to_memory("ods", buffer)
+    buffer.seek(0)
+    return buffer
+
+
 def make_admin_client(app: Flask, user: User) -> FlaskClient:
     """Create an authenticated Flask test client for the given admin user."""
     client = app.test_client()
@@ -411,15 +421,6 @@ class TestExportRoute:
 class TestImportRoute:
     """Test import from ODS route."""
 
-    def _build_ods_buffer(self, rows: list[list]) -> io.BytesIO:
-        """Build an in-memory ODS file from row data."""
-        data = [["Name", "Category", "Value", "Sequence"], *rows]
-        sheet = pyexcel.Sheet(data)
-        buffer = io.BytesIO()
-        sheet.save_to_memory("ods", buffer)
-        buffer.seek(0)
-        return buffer
-
     def test_import_ods_replaces_entries(
         self,
         admin_client: FlaskClient,
@@ -430,7 +431,7 @@ class TestImportRoute:
         """Uploading an ODS file replaces existing taxonomy entries."""
         with app.test_request_context():
             url = url_for("ontology.import_ods", taxonomy_name="test_taxonomy")
-        ods_buffer = self._build_ods_buffer(
+        ods_buffer = build_ods_buffer(
             [
                 ["Imported A", "cat_a", "val_a", 10],
                 ["Imported B", "cat_b", "val_b", 20],
@@ -464,7 +465,7 @@ class TestImportRoute:
         """
         with app.test_request_context():
             url = url_for("ontology.import_ods", taxonomy_name="nonexistent")
-        ods_buffer = self._build_ods_buffer([["Name", "cat", "val", 1]])
+        ods_buffer = build_ods_buffer([["Name", "cat", "val", 1]])
         response = admin_client.post(
             url,
             data={"ods_file": (ods_buffer, "test.ods")},
@@ -489,14 +490,6 @@ class TestImportIsNotDestructive:
     the delete back.
     """
 
-    def _build_ods_buffer(self, rows: list[list]) -> io.BytesIO:
-        data = [["Name", "Category", "Value", "Sequence"], *rows]
-        sheet = pyexcel.Sheet(data)
-        buffer = io.BytesIO()
-        sheet.save_to_memory("ods", buffer)
-        buffer.seek(0)
-        return buffer
-
     def test_import_leaves_other_taxonomies_untouched(
         self,
         admin_client: FlaskClient,
@@ -510,7 +503,7 @@ class TestImportIsNotDestructive:
             url = url_for("ontology.import_ods", taxonomy_name="test_taxonomy")
         response = admin_client.post(
             url,
-            data={"ods_file": (self._build_ods_buffer([["A", "c", "v", 1]]), "t.ods")},
+            data={"ods_file": (build_ods_buffer([["A", "c", "v", 1]]), "t.ods")},
             content_type="multipart/form-data",
         )
         assert response.status_code == 302
