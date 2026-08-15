@@ -44,7 +44,7 @@ class TestBwPresentation:
                 "presentation": PRESENTATION,
             },
         )
-        assert response.status_code in (200, 302)
+        assert response.status_code == 302
 
         db_session.refresh(test_business_wall)
         assert test_business_wall.presentation == PRESENTATION
