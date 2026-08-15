@@ -1392,3 +1392,21 @@ class TestSuggestedColleagueReceivesTheAvis:
         colleague_client = make_authenticated_client(app, colleague)
         html = colleague_client.get("/wip/opportunities").data.decode()
         assert "Test Enquête" in html
+
+
+class TestOpportunitiesBreadcrumbLabel:
+    """The breadcrumb read « Opportunités — Avis d'enquête (default) + 3
+    marketplace tabs » : `@nav` falls back to the first line of the view's
+    docstring when no label is given, so documentation was leaking into
+    the UI. Fixed by naming the label explicitly — pinned here so the
+    next docstring edit cannot bring it back.
+    """
+
+    def test_breadcrumb_uses_the_explicit_nav_label(self, app):
+        nav_tree = app.extensions["nav_tree"]
+
+        with app.app_context():
+            nav_tree.build(app)
+            crumbs = nav_tree.build_breadcrumbs("wip.opportunities", {})
+
+        assert crumbs[-1].label == "Opportunités"

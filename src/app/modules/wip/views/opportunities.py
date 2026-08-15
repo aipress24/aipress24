@@ -162,15 +162,21 @@ def _marketplace_labels(tab: str) -> tuple[str, str]:
 
 
 @blueprint.route("/opportunities")
-@nav(icon="cake")
+@nav(icon="cake", label="Opportunités")
 def opportunities():
-    """Opportunités."""
-    # Bug #0188 (Erick, 2026-06-04) : « les répondants ne veulent pas
-    # que tout le monde voie leurs propositions. [...] les réponses
-    # doivent alors s'afficher tant du côté annonceur que du côté
-    # répondant, dans WORK/OPPORTUNITÉS/Missions / Projects / Job
-    # Board. » Each marketplace tab shows the current user's own
-    # candidacies + the candidacies they received on their offers.
+    """Opportunités — Avis d'enquête (default) + 3 marketplace tabs.
+
+    The `label` above is not decoration: without it `@nav` uses this
+    docstring's first line as the breadcrumb, and this whole sentence
+    ended up in the UI (« ...(default) + 3 marketplace tabs »).
+
+    Bug #0188 (Erick, 2026-06-04) : « les répondants ne veulent pas
+    que tout le monde voie leurs propositions. [...] les réponses
+    doivent alors s'afficher tant du côté annonceur que du côté
+    répondant, dans WORK/OPPORTUNITÉS/Missions / Projects / Job
+    Board. » Each marketplace tab shows the current user's own
+    candidacies + the candidacies they received on their offers.
+    """
     tab = request.args.get("tab", "avis")
     if tab == "consultations":
         return _render_consultations_offertes_tab()
