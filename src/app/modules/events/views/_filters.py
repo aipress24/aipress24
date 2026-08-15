@@ -26,6 +26,8 @@ FILTER_SPECS: list[dict] = [
         "id": "genre",
         "label": "Type d'événement",
         "column": "genre",
+        # Order the options like the taxonomy, not alphabetically.
+        "taxonomy": "events",
     },
     {
         "id": "sector",
@@ -211,12 +213,9 @@ class FilterBar:
 
             # Get distinct values for this column
             distinct_values = _get_distinct_values(column_name)
-
-            if filter_id == "genre":
-                taxonomy_order = get_taxonomy("events")
-                if taxonomy_order:
-                    order_map = {val: i for i, val in enumerate(taxonomy_order)}
-                    distinct_values.sort(key=lambda val: order_map.get(val, 9999))
+            distinct_values = _sorted_like_taxonomy(
+                distinct_values, spec.get("taxonomy")
+            )
 
             # Build options list
             options = []
@@ -229,6 +228,21 @@ class FilterBar:
             result.append({"id": filter_id, "label": label, "options": options})
 
         return result
+
+
+def _sorted_like_taxonomy(values: list[str], taxonomy: str | None) -> list[str]:
+    """Order `values` like `taxonomy`, unknown values last.
+
+    A filter without a `taxonomy` in its spec keeps the order it came
+    with (the DISTINCT query sorts alphabetically).
+    """
+    if not taxonomy:
+        return values
+    order = get_taxonomy(taxonomy)
+    if not order:
+        return values
+    rank = {value: i for i, value in enumerate(order)}
+    return sorted(values, key=lambda value: rank.get(value, len(order)))
 
 
 def _get_distinct_values(column_name: str) -> list[str]:
