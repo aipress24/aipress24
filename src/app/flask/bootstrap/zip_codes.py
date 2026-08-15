@@ -15,8 +15,13 @@ from app.flask.extensions import db
 from app.logging import warn
 from app.services.zip_codes import CountryEntry, ZipCodeEntry, ZipCodeRepository
 
-COUNTRY_SRC = Path("bootstrap_data/country_zip_code/pays.json")
-ZIP_CODE_SRC = Path("bootstrap_data/country_zip_code/towns")
+# Both data directories sit at the repository root, next to `src/`.
+_REPO_ROOT = Path(__file__).resolve().parents[4]
+
+COUNTRY_SRC = _REPO_ROOT / "bootstrap_data" / "country_zip_code" / "pays.json"
+ZIP_CODE_SRC = _REPO_ROOT / "bootstrap_data" / "country_zip_code" / "towns"
+UPDATE_COUNTRY_SRC = _REPO_ROOT / "update_data" / "country_zip_code" / "pays.json"
+UPDATE_ZIP_CODE_SRC = _REPO_ROOT / "update_data" / "country_zip_code" / "towns"
 
 DEFAULT_NO_ZIP_CODE = [
     {"name": "Aucune information sur les codes postaux", "zip_code": "000"}
@@ -26,76 +31,78 @@ LOAD_CHUNK = 5000
 
 def get_country_update_paths() -> tuple[Path, Path]:
     """Return update paths for pays.json and towns."""
-    root_path = Path(__file__).resolve().parent.parent.parent.parent.parent
-    update_path = root_path / "update_data"
-    countries_path = update_path / "country_zip_code" / "pays.json"
-    zipcodes_path = update_path / "country_zip_code" / "towns"
-    return countries_path, zipcodes_path
+    return UPDATE_COUNTRY_SRC, UPDATE_ZIP_CODE_SRC
 
 
 def import_countries(countries_path: Path = COUNTRY_SRC) -> None:
+    """Replace the country table with the contents of `countries_path`.
+
+    Read first, write second. The previous version committed the DELETE
+    before parsing and caught the parse failure, so a missing or
+    unreadable file emptied the table for good — that is bugs #0287 and
+    #0288, « la table des pays est cassée ». Nothing is caught here: a
+    reload that cannot read its source must fail before it destroys the
+    data it was meant to replace.
+    """
+    countries = _parse_countries(countries_path)
+    warn(f"loading {len(countries)} countries")
+
     db.session.execute(delete(CountryEntry))
-    db.session.commit()
-
-    try:
-        import_countries_chore(countries_path)
-    except Exception:
-        db.session.rollback()
+    for seq, (iso3, name) in enumerate(countries):
+        db.session.add(CountryEntry(iso3=iso3, name=name, seq=seq))
     db.session.commit()
 
 
-def import_countries_chore(countries_path: Path = COUNTRY_SRC) -> None:
-    data = json.loads(countries_path.read_text())
-    country_list = [(item["iso3"], item["name"]) for item in data]
-    print(f"importing {len(country_list)} country names")
+def _parse_countries(countries_path: Path) -> list[tuple[str, str]]:
+    """Return the (iso3, name) pairs of `countries_path`, France first."""
 
-    def sorter(country: tuple) -> str:
+    def sorter(country: tuple[str, str]) -> str:
         if country[0] == "FRA":
             return "000"
         return country[0]
 
-    country_list.sort(key=sorter)
-    warn(f"loading {len(country_list)} countries")
-    for seq, country_tuple in enumerate(country_list):
-        country_entry = CountryEntry(
-            iso3=country_tuple[0], name=country_tuple[1], seq=seq
-        )
-        db.session.add(country_entry)
+    data = json.loads(countries_path.read_text())
+    return sorted(((item["iso3"], item["name"]) for item in data), key=sorter)
 
 
 def import_zip_codes(
     countries_path: Path = COUNTRY_SRC, zipcodes_path: Path = ZIP_CODE_SRC
 ) -> None:
+    """Replace the zip code table with the contents of `zipcodes_path`.
+
+    Unlike the countries, the town files are streamed country by country
+    (some hold hundreds of thousands of rows), so the table is emptied
+    before the load rather than after. A country whose file is broken is
+    skipped so the other 200 still load, but the failures are raised at
+    the end: a silent skip leaves a country with no zip code at all and
+    nobody the wiser.
+    """
     db.session.execute(delete(ZipCodeEntry))
     db.session.commit()
 
-    print("importing zip codes")
-    data = json.loads(countries_path.read_text())
-    for item in data:
-        iso3 = item["iso3"]
-        path = zipcodes_path.joinpath(f"{iso3}.json")
+    failures: list[str] = []
+    for iso3, _name in _parse_countries(countries_path):
         try:
-            if path.is_file():
-                # print(f"importing {path}")
-                import_zip_codes_for_country(path)
-            else:
-                # print(f"importing default zip code for {iso3}")
-                import_default_zip_code_for_country(iso3)
-        except Exception:
+            import_one_country_zip_codes(zipcodes_path / f"{iso3}.json")
+        except Exception as e:
+            # ken: not swallowed — collected and raised below.
             db.session.rollback()
-        db.session.commit()
+            failures.append(f"{iso3} ({e})")
+
+    if failures:
+        msg = f"Échec du chargement des codes postaux : {', '.join(failures)}"
+        raise RuntimeError(msg)
 
 
 def import_one_country_zip_codes(iso3_path: Path) -> None:
+    """Load one country's zip codes, or a placeholder if it has no file."""
     if iso3_path.is_file():
-        # print(f"importing {path}")
         import_zip_codes_for_country(iso3_path)
     else:
-        # print(f"importing default zip code for {iso3}")
         import_default_zip_code_for_country(iso3_path)
 
 
-def import_default_zip_code_for_country(iso3_path: str) -> None:
+def import_default_zip_code_for_country(iso3_path: Path) -> None:
     iso3 = iso3_path.stem
     repo = ZipCodeRepository(session=db.session)  # type: ignore[arg-type]
     zip_codes = []

@@ -6,20 +6,18 @@
 
 from __future__ import annotations
 
-from pathlib import Path
+from typing import TYPE_CHECKING
 
 from flask import flash, redirect, render_template, request, url_for
 from sqlalchemy import func, select
 
-from app.flask.bootstrap.zip_codes import get_country_update_paths
 from app.flask.extensions import db
 from app.flask.lib.nav import nav
 from app.modules.admin import blueprint
 from app.services.zip_codes import CountryEntry, ZipCodeEntry
 
-
-def _country_update_path() -> tuple[Path, Path]:
-    return get_country_update_paths()
+if TYPE_CHECKING:
+    from werkzeug import Response
 
 
 @blueprint.route("/reload-zip-codes", methods=["GET", "POST"])
@@ -28,7 +26,7 @@ def _country_update_path() -> tuple[Path, Path]:
     icon="refresh-cw",
     label="Màj zip codes",
 )
-def reload_zip_codes():
+def reload_zip_codes() -> str | Response:
     """Reload country and zip code data."""
     if request.method == "POST":
         from app.actors.zip_codes import reload_all_countries_zip_codes
