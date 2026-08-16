@@ -6,7 +6,7 @@ from __future__ import annotations
 
 import functools
 import random
-from typing import ClassVar, cast
+from typing import cast
 
 from arrow import now
 from flask_security import hash_password
@@ -84,8 +84,6 @@ def _use_known_organisation_name() -> str | None:
 
 
 class UserGenerator(BaseGenerator):
-    users: ClassVar[list[User]] = []
-
     def __post_init__(self) -> None:
         super().__post_init__()
         self.person_faker = Person(self.locale)
@@ -617,6 +615,4 @@ class UserGenerator(BaseGenerator):
         # user.community = survey_profile.community
         append_user_role_from_community(_role_map(), user, survey_profile.community)
 
-        # pyrefly: ignore [read-only]
-        self.users += [user]
         return user

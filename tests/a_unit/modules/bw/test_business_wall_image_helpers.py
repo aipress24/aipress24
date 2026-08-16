@@ -46,7 +46,7 @@ from __future__ import annotations
 
 import inspect as py_inspect
 from dataclasses import dataclass, field
-from typing import ClassVar
+from typing import ClassVar, cast
 from uuid import UUID, uuid4
 
 import pytest
@@ -86,11 +86,27 @@ class FakeBW:
 
     # Bind the real production methods to this fake so they operate on
     # `self.bw_images` and not on the BusinessWall class-level default.
+    # `sorted_bw_images` is bound too because `delete_bw_image` and
+    # `_update_bw_image_positions` read it internally; tests go through
+    # `sorted_bw_images()` below rather than reading it off the fake.
     sorted_bw_images = BusinessWall.sorted_bw_images
     get_bw_image = BusinessWall.get_bw_image
     add_bw_image = BusinessWall.add_bw_image
     delete_bw_image = BusinessWall.delete_bw_image
     _update_bw_image_positions = BusinessWall._update_bw_image_positions
+
+
+def sorted_bw_images(bw: FakeBW) -> list:
+    """Read the production `sorted_bw_images` property off a stand-in.
+
+    The property is typed against `BusinessWall`, so reading it on a
+    duck-typed fake is an error the type checker is right to raise. The
+    cast states what the stand-in guarantees — it carries the one
+    attribute the property touches, `bw_images` — instead of muting the
+    checker at each call site. The return stays a bare `list`: the
+    declared element type is `BWImage`, the runtime one `FakeImage`.
+    """
+    return cast("BusinessWall", bw).sorted_bw_images
 
 
 # ---------------------------------------------------------------------------
@@ -105,12 +121,12 @@ class TestSortedBwImages:
 
     def test_empty_gallery_returns_empty_list(self):
         bw = FakeBW(bw_images=[])
-        assert bw.sorted_bw_images == []
+        assert sorted_bw_images(bw) == []
 
     def test_single_image_returned_as_is(self):
         img = FakeImage(position=0)
         bw = FakeBW(bw_images=[img])
-        assert bw.sorted_bw_images == [img]
+        assert sorted_bw_images(bw) == [img]
 
     def test_orders_by_position_ascending(self):
         """Out-of-order positions are sorted ascending — that's the
@@ -120,7 +136,7 @@ class TestSortedBwImages:
         c = FakeImage(position=1)
         bw = FakeBW(bw_images=[a, b, c])
 
-        result = bw.sorted_bw_images
+        result = sorted_bw_images(bw)
 
         assert [img.position for img in result] == [0, 1, 2]
         assert result == [b, c, a]
@@ -133,7 +149,7 @@ class TestSortedBwImages:
         b = FakeImage(position=0)
         bw = FakeBW(bw_images=[a, b])
 
-        _ = bw.sorted_bw_images
+        _ = sorted_bw_images(bw)
 
         # Original list order preserved.
         assert bw.bw_images == [a, b]
@@ -147,7 +163,7 @@ class TestSortedBwImages:
         c = FakeImage(position=0)
         bw = FakeBW(bw_images=[a, b, c])
 
-        assert bw.sorted_bw_images == [a, b, c]
+        assert sorted_bw_images(bw) == [a, b, c]
 
 
 # ---------------------------------------------------------------------------
