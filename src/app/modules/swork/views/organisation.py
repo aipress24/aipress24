@@ -14,6 +14,7 @@ from attr import define
 from flask import Response, g, make_response, render_template, request
 from flask.views import MethodView
 from sqlalchemy import and_, func, or_, select
+from sqlalchemy.orm import selectinload
 
 from app.enums import MEDIA_BW_TYPES
 from app.flask.extensions import db
@@ -589,6 +590,7 @@ class OrgVM(ViewModel):
             .where(RoleAssignment.business_wall_id == bw.id)
             .where(RoleAssignment.invitation_status == InvitationStatus.ACCEPTED.value)
             .where(User.id != bw.owner_id)
+            .options(selectinload(User.profile), selectinload(User.roles))
             .order_by(RoleAssignment.accepted_at.desc())
         )
         users = db.session.scalars(stmt)
