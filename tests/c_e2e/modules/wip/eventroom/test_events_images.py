@@ -177,7 +177,7 @@ class TestEventsTable:
             actions = table.get_actions(item)
             labels = [a["label"] for a in actions]
 
-            assert "Voir" in labels
+            assert "Draft" in labels
             assert "Modifier" in labels
             assert "Images" in labels
             assert "Publier" in labels
