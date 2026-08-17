@@ -13,7 +13,7 @@ from datetime import UTC, datetime
 from typing import TYPE_CHECKING
 
 import sqlalchemy as sa
-from flask import url_for
+from flask import g, render_template, url_for
 
 from app.models.auth import User
 from app.models.lifecycle import PublicationStatus
@@ -165,6 +165,34 @@ class TestNouvellesRecrues:
         assert recruit.id in ids
         assert owner.id not in ids, "the BW owner is not a « recrue »"
         assert pending.id not in ids, "a pending invitation is not yet a recruit"
+
+    def test_renders_nouvelles_recrues_with_rich_display(
+        self, app: Flask, db_session: Session
+    ):
+        owner = _user(db_session)
+        recruit = _user(db_session)
+        recruit.first_name = "Alice"
+        recruit.last_name = "Recrue"
+        org, bw = _org_with_bw(db_session, owner)
+        db_session.add(
+            RoleAssignment(
+                business_wall_id=bw.id,
+                user_id=recruit.id,
+                role_type="BWMi",
+                invitation_status=InvitationStatus.ACCEPTED.value,
+                accepted_at=datetime.now(UTC),
+            )
+        )
+        db_session.flush()
+
+        with app.test_request_context("/swork/organisations/"):
+            g.user = owner
+            vm = OrgVM(org)
+            rendered = render_template("pages/org/org--aside.j2", org=vm)
+
+        assert "Nouvelles recrues" in rendered
+        assert "Alice Recrue" in rendered
+        assert "rounded-full" in rendered  # circle photo from profile_image
 
 
 class TestEventsParticipes:
