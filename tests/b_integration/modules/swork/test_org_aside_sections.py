@@ -9,7 +9,7 @@ recruits of its Business Wall."""
 from __future__ import annotations
 
 import uuid
-from datetime import UTC, datetime
+from datetime import UTC, datetime, timedelta
 from typing import TYPE_CHECKING
 
 import sqlalchemy as sa
@@ -193,6 +193,93 @@ class TestNouvellesRecrues:
         assert "Nouvelles recrues" in rendered
         assert "Alice Recrue" in rendered
         assert "rounded-full" in rendered  # circle photo from profile_image
+
+    def test_deduplicates_recruits_with_multiple_roles(
+        self, app: Flask, db_session: Session
+    ):
+        owner = _user(db_session)
+        recruit = _user(db_session)
+        recruit2 = _user(db_session)
+        org, bw = _org_with_bw(db_session, owner)
+        now = datetime.now(UTC)
+        db_session.add_all(
+            [
+                RoleAssignment(
+                    business_wall_id=bw.id,
+                    user_id=recruit.id,
+                    role_type="BWMi",
+                    invitation_status=InvitationStatus.ACCEPTED.value,
+                    accepted_at=now,
+                ),
+                RoleAssignment(
+                    business_wall_id=bw.id,
+                    user_id=recruit.id,
+                    role_type="",
+                    invitation_status=InvitationStatus.ACCEPTED.value,
+                    accepted_at=now - timedelta(minutes=5),
+                ),
+                RoleAssignment(
+                    business_wall_id=bw.id,
+                    user_id=recruit2.id,
+                    role_type="BWMi",
+                    invitation_status=InvitationStatus.ACCEPTED.value,
+                    accepted_at=now - timedelta(hours=1),
+                ),
+            ]
+        )
+        db_session.flush()
+
+        with app.test_request_context():
+            vm = OrgVM(org)
+            recruits = vm.get_nouvelles_recrues()
+            recruit_ids = [u.id for u in recruits]
+
+        assert recruit_ids == [recruit.id, recruit2.id]
+        assert len(recruits) == 2
+
+
+class TestOrgMembers:
+    def test_deduplicates_members_with_multiple_roles(
+        self, app: Flask, db_session: Session
+    ):
+        owner = _user(db_session)
+        member = _user(db_session)
+        org, bw = _org_with_bw(db_session, owner)
+        db_session.add_all(
+            [
+                RoleAssignment(
+                    business_wall_id=bw.id,
+                    user_id=member.id,
+                    role_type="BWMi",
+                    invitation_status=InvitationStatus.ACCEPTED.value,
+                    accepted_at=datetime.now(UTC),
+                ),
+                RoleAssignment(
+                    business_wall_id=bw.id,
+                    user_id=member.id,
+                    role_type="",
+                    invitation_status=InvitationStatus.ACCEPTED.value,
+                    accepted_at=datetime.now(UTC),
+                ),
+                # Owner also has a role assignment row
+                RoleAssignment(
+                    business_wall_id=bw.id,
+                    user_id=owner.id,
+                    role_type="BWMi",
+                    invitation_status=InvitationStatus.ACCEPTED.value,
+                    accepted_at=datetime.now(UTC),
+                ),
+            ]
+        )
+        db_session.flush()
+
+        with app.test_request_context():
+            vm = OrgVM(org)
+            members = vm.get_members()
+            member_ids = [u.id for u in members]
+
+        assert member_ids == [owner.id, member.id]
+        assert len(members) == 2
 
 
 class TestEventsParticipes:
