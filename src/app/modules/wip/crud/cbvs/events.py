@@ -75,7 +75,7 @@ class EventsTable(BaseTable):
     def get_actions(self, item):
         actions = [
             {
-                "label": "Voir",
+                "label": "Draft",
                 "url": self.url_for(item),
             },
             {
@@ -156,7 +156,7 @@ class EventsWipView(BaseWipView):
     label_list = "Liste des événements"
     label_new = "Créer un événement"
     label_edit = "Modifier l'événement"
-    label_view = "Voir l'événement"
+    label_view = "Voir de draft de l'événement"
 
     table_id = "events-table-body"
 
