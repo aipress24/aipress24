@@ -13,24 +13,25 @@ class="") %}
 {% macro offer_box(title, offers, endpoint) %}
     {% if offers %}
         {% call box(title) %}
-        <ul class="space-y-2">
-            {% for offer in offers %}
-            <li class="text-sm">
-                <a href="{{ url_for(endpoint, id=offer.id) }}" class="text-blue-700 hover:underline">{{ offer.title }}</a>
-            </li>
-            {% endfor %}
-        </ul>
+            <ul class="space-y-2">
+                {% for offer in offers %}
+                    <li class="text-sm">
+                        <a href="{{ url_for(endpoint, id=offer.id) }}"
+                           class="text-blue-700 hover:underline">{{ offer.title }}</a>
+                    </li>
+                {% endfor %}
+            </ul>
         {% endcall %}
     {% endif %}
 {% endmacro %}
 
 {% if org.bw_gallery_images %}
-<div class="bg-white shadow sm:rounded-md">
-    <h2 class="bg-gray-200 sm:rounded-t-md font-medium px-4 py-3 text-gray-900">
-        Galerie
-    </h2>
-    {{ component("slider", images=org.bw_gallery_images) }}
-</div>
+    <div class="bg-white shadow sm:rounded-md">
+        <h2 class="bg-gray-200 sm:rounded-t-md font-medium px-4 py-3 text-gray-900">
+            Galerie
+        </h2>
+        {{ component("slider", images=org.bw_gallery_images) }}
+    </div>
 {% endif %} {#{% call box("Recherches de collaborations ponctuelles") %}#} {#
 <p>...</p>
 #} {#{% endcall %}#} {##} {#{% call box("Appels à projets") %}#} {#
@@ -50,50 +51,65 @@ class="") %}
 {{ offer_box("Projets remportés", org.projets_remportes, "biz.projects_detail") }}
 
 {% if org.events_participes %}
-{% call box("Événements auxquels participent nos membres") %}
-<ul class="space-y-2">
-    {% for event in org.events_participes %}
-    <li class="text-sm">
-        <a href="{{ url_for(event) }}" class="text-blue-700 hover:underline">{{ event.title }}</a>
-    </li>
-    {% endfor %}
-</ul>
-{% endcall %}
+    {% call box("Événements auxquels participent nos membres") %}
+        <ul class="space-y-2">
+            {% for event in org.events_participes %}
+                <li class="text-sm">
+                    <a href="{{ url_for(event) }}" class="text-blue-700 hover:underline">{{ event.title }}</a>
+                </li>
+            {% endfor %}
+        </ul>
+    {% endcall %}
 {% endif %}
 
 {% if org.nouvelles_recrues %}
-{% call box("Nouvelles recrues") %}
-<ul class="space-y-2">
-    {% for user in org.nouvelles_recrues %}
-    <li class="text-sm">
-        <a href="{{ url_for(user) }}" class="text-blue-700 hover:underline">{{ user.full_name }}</a>
-    </li>
-    {% endfor %}
-</ul>
-{% endcall %}
+    {% call box("Nouvelles recrues") %}
+        <ul class="space-y-3">
+            {% for user in org.nouvelles_recrues %}
+                <li>
+                    <a
+                        href="{{ url_for(user) }}"
+                        class="flex items-center space-x-3 hover:bg-gray-50 p-1 -m-1 rounded"
+                    >
+                        <div class="flex-shrink-0">
+                            {{ profile_image(user, size=10) }}
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <p class="text-sm font-medium text-gray-900 truncate">
+                                {{ user.full_name }}
+                            </p>
+                            <p class="text-sm text-gray-500 truncate">
+                                {{ user.job_title }}
+                            </p>
+                        </div>
+                    </a>
+                </li>
+            {% endfor %}
+        </ul>
+    {% endcall %}
 {% endif %}
 
 {% if org.departs %}
-{% call box("Départs du Business Wall") %}
-<ul class="space-y-2">
-    {% for activity in org.departs %}
-    <li class="text-sm">
-        <a href="{{ activity.actor_url }}" class="text-blue-700 hover:underline">{{ activity.actor_name }}</a>
-    </li>
-    {% endfor %}
-</ul>
-{% endcall %}
+    {% call box("Départs du Business Wall") %}
+        <ul class="space-y-2">
+            {% for activity in org.departs %}
+                <li class="text-sm">
+                    <a href="{{ activity.actor_url }}" class="text-blue-700 hover:underline">{{ activity.actor_name }}</a>
+                </li>
+            {% endfor %}
+        </ul>
+    {% endcall %}
 {% endif %}
 
 {% call box("Dernières activités") %}
 <!-- Activity Feed -->
-<div class="mt-2 flow-root">
-    <ul
-        role="list"
-        class="-mb-8"
-    >
-        {% for activity, msg in org.timeline %} {{ format_activity(activity,
-        msg, loop.last) }} {% endfor %}
-    </ul>
-</div>
+    <div class="mt-2 flow-root">
+        <ul
+            role="list"
+            class="-mb-8"
+        >
+            {% for activity, msg in org.timeline %} {{ format_activity(activity,
+                msg, loop.last) }} {% endfor %}
+        </ul>
+    </div>
 {% endcall %}

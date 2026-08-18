@@ -300,6 +300,8 @@ class SujetForm(Form):
 
 
 class CommandeForm(Form):
+    publisher_label_prefix = "Commande passée par"
+
     # Group: headers
     titre = StringField("Titre")
     contenu = TextAreaField("Brief")
@@ -330,7 +332,7 @@ class CommandeForm(Form):
         validators=[validators.InputRequired()],
     )
     media_id = SimpleRichSelectField(
-        "Média",
+        "Commande adressée à",
         render_kw={"width": 6},
         validators=[validators.InputRequired()],
     )

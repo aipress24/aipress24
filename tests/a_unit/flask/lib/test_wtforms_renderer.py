@@ -151,3 +151,26 @@ class TestPublisherTextFollowsModel:
             html = str(renderer.render())
 
         assert "Own Media SAS" in html
+
+    def test_commande_form_custom_publisher_prefix(self, app: Flask):
+        """When form or model is for a Commande, prefix is "Commande passée par"."""
+        client = _StubOrg(name="Client Org")
+        user = _StubUser(organisation=_StubOrg(name="Some Agency"))
+        model = _StubModel(publisher=client)
+
+        class _CommandeTestForm(_EmptyGroupForm):
+            publisher_label_prefix = "Commande passée par"
+
+        with app.test_request_context("/wip/commandes/1/edit"):
+            g.user = user
+            renderer = FormRenderer(
+                form=_CommandeTestForm(),
+                model=model,
+                mode="edit",
+                action_url="/wip/commandes/1/edit",
+            )
+            html = str(renderer.render())
+
+        assert "Commande passée par" in html
+        assert "Client Org" in html
+        assert "Publié pour le compte de" not in html
