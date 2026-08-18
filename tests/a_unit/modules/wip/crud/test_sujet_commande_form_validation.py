@@ -469,13 +469,10 @@ class TestCommandeFormShape:
             "date_paiement",
         ]
 
-    def test_media_id_label_is_plain_media(self, app: Flask):
-        """Counterpart to SujetForm's "Média destinataire" : on a
-        commande, the media IS the author/commissioner, so the label
-        stays plain "Média". Pin both labels to catch a silent
-        copy-paste between the two forms."""
+    def test_media_id_label_is_commande_adressee_a(self, app: Flask):
+        """The label is not Média but "Commande adressée à"."""
         form = _make_commande_form(app, {})
-        assert form.media_id.label.text == "Média"
+        assert form.media_id.label.text == "Commande adressée à"
 
 
 # ---------------------------------------------------------------------
