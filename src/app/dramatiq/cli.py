@@ -6,6 +6,7 @@
 from __future__ import annotations
 
 import os
+import sys
 
 import click
 import dramatiq
@@ -85,6 +86,8 @@ def worker(verbose, processes, threads, queues) -> None:
       $ flask queue worker -Q foo,bar
     """
     args = [
+        sys.executable,
+        "-m",
         "dramatiq",
         WORKER_ENTRY,
         "--processes",
@@ -96,10 +99,17 @@ def worker(verbose, processes, threads, queues) -> None:
         args += ["--queues", *queues.split(",")]
     args += ["-v"] * verbose
     # Replace the Click process with dramatiq so signal handling works.
-    # PATH lookup is the right resolution here — the venv's bin is on
-    # PATH when this CLI is invoked, and we want the dramatiq that
-    # matches the installed version, not a hardcoded path.
-    os.execvp("dramatiq", args)  # noqa: S606, S607
+    # Go through ``sys.executable -m`` rather than looking "dramatiq" up
+    # on PATH: the console script is only on PATH when the venv has been
+    # *activated*, and process supervisors invoke ``.venv/bin/flask`` by
+    # path instead (Piku, Hop3, honcho) — there the lookup either fails
+    # outright or finds a dramatiq from an unrelated environment.
+    # ``sys.executable`` is by construction the interpreter running this
+    # CLI, so it always matches the installed dramatiq. Equivalent entry
+    # point: the console script is ``dramatiq.__main__:main``, and the
+    # argparse ``prog`` is hardcoded to "dramatiq", so usage output is
+    # identical too.
+    os.execv(sys.executable, args)  # noqa: S606
 
 
 @queue.command()

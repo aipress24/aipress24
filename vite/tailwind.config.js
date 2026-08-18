@@ -5,15 +5,7 @@ module.exports = {
         /**
          * HTML. Paths to template files that will contain Tailwind CSS classes.
          */
-        '../**/templates/**/*.html',
-        '../**/templates/*.html',
-        '../**/*.j2',
-
-        /**
-         * Python: If you use Tailwind CSS classes in Python, uncomment the following line
-         * and make sure the pattern below matches your project structure.
-         */
-        '../src/**/*.py',
+        '../src/**/*.{j2,html,py}',
         './node_modules/flowbite/**/*.js',
     ],
 
