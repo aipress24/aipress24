@@ -184,6 +184,15 @@ FIELD_CLASS_MAP = {
 DEFAULT_WIDTH = 6
 
 
+def _format_publisher_label(name: str) -> str:
+    """Pure : wrap an organisation name in the standard publisher header.
+
+    Centralising the format string keeps the « Publié pour le compte de … »
+    header consistent across the branches of `FormRenderer`.
+    """
+    return f'Publié pour le compte de "{name}"'
+
+
 @frozen
 class FormRenderer:
     form: Form
@@ -213,9 +222,8 @@ class FormRenderer:
         # branch which already follows `model.publisher` in view mode.
         model_publisher = getattr(self.model, "publisher", None) if self.model else None
         if model_publisher is not None:
-            publisher_text = (
-                "Publié pour le compte de "
-                f'"{model_publisher.bw_name or model_publisher.name}"'
+            publisher_text = _format_publisher_label(
+                model_publisher.bw_name or model_publisher.name
             )
         elif g and hasattr(g, "user") and g.user:
             from app.modules.bw.bw_activation.user_utils import (
@@ -225,12 +233,12 @@ class FormRenderer:
             if getattr(g.user, "is_managing_another_bw", False):
                 bw = get_selected_business_wall_for_user(g.user)
                 if bw:
-                    publisher_text = f'Publié pour le compte de "{bw.name}"'
+                    publisher_text = _format_publisher_label(bw.name)
             else:
                 own_org = getattr(g.user, "organisation", None)
                 if own_org:
-                    publisher_text = (
-                        f'Publié pour le compte de "{own_org.bw_name or own_org.name}"'
+                    publisher_text = _format_publisher_label(
+                        own_org.bw_name or own_org.name
                     )
 
         ctx = {
