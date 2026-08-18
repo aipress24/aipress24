@@ -300,6 +300,8 @@ class SujetForm(Form):
 
 
 class CommandeForm(Form):
+    publisher_label_prefix = "Commande passée par"
+
     # Group: headers
     titre = StringField("Titre")
     contenu = TextAreaField("Brief")

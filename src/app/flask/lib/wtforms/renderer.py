@@ -184,13 +184,13 @@ FIELD_CLASS_MAP = {
 DEFAULT_WIDTH = 6
 
 
-def _format_publisher_label(name: str) -> str:
+def _format_publisher_label(name: str, prefix: str = "Publié pour le compte de") -> str:
     """Pure : wrap an organisation name in the standard publisher header.
 
-    Centralising the format string keeps the « Publié pour le compte de … »
-    header consistent across the branches of `FormRenderer`.
+    Centralising the format string keeps the publisher header
+    consistent across the branches of `FormRenderer`.
     """
-    return f'Publié pour le compte de "{name}"'
+    return f'{prefix} "{name}"'
 
 
 @frozen
@@ -211,6 +211,11 @@ class FormRenderer:
             template = current_app.jinja_env.from_string(FORM_TEMPLATE)
 
         publisher_text = ""
+        prefix = "Publié pour le compte de"
+
+        if hasattr(self.form, "publisher_label_prefix"):
+            prefix = self.form.publisher_label_prefix
+
         from flask import g
 
         # Bug #0135 : the « Publié pour le compte de X » header must
@@ -223,7 +228,8 @@ class FormRenderer:
         model_publisher = getattr(self.model, "publisher", None) if self.model else None
         if model_publisher is not None:
             publisher_text = _format_publisher_label(
-                model_publisher.bw_name or model_publisher.name
+                model_publisher.bw_name or model_publisher.name,
+                prefix=prefix,
             )
         elif g and hasattr(g, "user") and g.user:
             from app.modules.bw.bw_activation.user_utils import (
@@ -233,12 +239,13 @@ class FormRenderer:
             if getattr(g.user, "is_managing_another_bw", False):
                 bw = get_selected_business_wall_for_user(g.user)
                 if bw:
-                    publisher_text = _format_publisher_label(bw.name)
+                    publisher_text = _format_publisher_label(bw.name, prefix=prefix)
             else:
                 own_org = getattr(g.user, "organisation", None)
                 if own_org:
                     publisher_text = _format_publisher_label(
-                        own_org.bw_name or own_org.name
+                        own_org.bw_name or own_org.name,
+                        prefix=prefix,
                     )
 
         ctx = {
