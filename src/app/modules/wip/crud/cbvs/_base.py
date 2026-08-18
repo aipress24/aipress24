@@ -70,13 +70,13 @@ def get_name(obj):
     return obj.name if obj else ""
 
 
-def _format_publisher_label(name: str) -> str:
+def _format_publisher_label(name: str, prefix: str = "Publié pour le compte de") -> str:
     """Pure : wrap an organisation name in the standard publisher header.
 
-    Centralising the format string keeps the « Publié pour le compte de … »
-    header consistent across the three branches of `_resolve_publisher_text`.
+    Centralising the format string keeps the publisher header
+    consistent across the three branches of `_resolve_publisher_text`.
     """
-    return f'Publié pour le compte de "{name}"'
+    return f'{prefix} "{name}"'
 
 
 def _resolve_publisher_text(
@@ -85,6 +85,7 @@ def _resolve_publisher_text(
     user_is_managing_another_bw: bool,
     selected_bw_name: str | None,
     user_org=None,
+    prefix: str = "Publié pour le compte de",
 ) -> str:
     """Pure core for the « Publié pour le compte de X » header.
 
@@ -104,18 +105,20 @@ def _resolve_publisher_text(
         or None if the user is not managing another BW (or no BW is
         currently selected).
       user_org: the editing user's own organisation (or None).
+      prefix: the prefix to use ("Commande passée par" or "Publié pour le
+        compte de").
     """
     model_publisher = getattr(model, "publisher", None) if model else None
     if model_publisher is not None:
         name = model_publisher.bw_name or model_publisher.name
-        return _format_publisher_label(name)
+        return _format_publisher_label(name, prefix=prefix)
     if user_is_managing_another_bw:
         if selected_bw_name:
-            return _format_publisher_label(selected_bw_name)
+            return _format_publisher_label(selected_bw_name, prefix=prefix)
         return ""
     if user_org is not None:
         name = user_org.bw_name or user_org.name
-        return _format_publisher_label(name)
+        return _format_publisher_label(name, prefix=prefix)
     return ""
 
 
@@ -399,11 +402,13 @@ class BaseWipView(FlaskView, abc.ABC):
             bw = get_selected_business_wall_for_user(g.user)
             if bw:
                 selected_bw_name = bw.name
+        prefix = getattr(form, "publisher_label_prefix", "Publié pour le compte de")
         publisher_text = _resolve_publisher_text(
             model,
             user_is_managing_another_bw=user_is_managing_another_bw,
             selected_bw_name=selected_bw_name,
             user_org=getattr(g.user, "organisation", None),
+            prefix=prefix,
         )
 
         renderer = FormRenderer(
