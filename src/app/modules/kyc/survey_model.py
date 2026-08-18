@@ -12,7 +12,7 @@ from . import kyc_models
 from .survey_dataclass import SurveyField, SurveyProfile
 from .xls_parser import XLSParser
 
-MODEL_FILENAME = "MVP-2-KYC-Commons-45.xlsx"
+MODEL_FILENAME = "MVP-2-KYC-Commons-46.xlsx"
 
 
 def load_survey_model() -> dict[str, Any]:
@@ -26,8 +26,8 @@ def load_survey_model() -> dict[str, Any]:
     }
     """
     parser = XLSParser()
-    xls_file = rso.files(kyc_models) / MODEL_FILENAME
-    parser.parse(xls_file)
+    with rso.as_file(rso.files(kyc_models).joinpath(MODEL_FILENAME)) as xls_file:
+        parser.parse(xls_file)
     return parser.model
 
 
