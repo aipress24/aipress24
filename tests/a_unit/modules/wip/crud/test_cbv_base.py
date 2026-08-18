@@ -136,6 +136,12 @@ class TestFormatPublisherLabel:
         # helper itself stays predictable rather than raising.
         assert _format_publisher_label("") == 'Publié pour le compte de ""'
 
+    def test_custom_prefix(self):
+        assert (
+            _format_publisher_label("Le Monde", prefix="Commande passée par")
+            == 'Commande passée par "Le Monde"'
+        )
+
 
 # --------------------------------------------------------------------- #
 # _resolve_publisher_text — bug #0135                                   #

@@ -685,7 +685,7 @@ class TestMakeMemberFilters:
         """Test make_filters returns list of filters."""
         filters = make_member_filters([test_user_with_profile])
         assert isinstance(filters, list)
-        assert len(filters) == 13
+        assert len(filters) == 14
 
 
 # =============================================================================

@@ -28,6 +28,7 @@ def default_info_perso() -> dict[str, str | list]:
         "metier_detail": [],
         "competences": [],
         "competences_journalisme": [],
+        "competences_pr": [],
         "langues": [],
         "formations": "",
         "experiences": "",

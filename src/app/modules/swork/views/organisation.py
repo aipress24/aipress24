@@ -14,6 +14,7 @@ from attr import define
 from flask import Response, g, make_response, render_template, request
 from flask.views import MethodView
 from sqlalchemy import and_, func, or_, select
+from sqlalchemy.orm import selectinload
 
 from app.enums import MEDIA_BW_TYPES
 from app.flask.extensions import db
@@ -412,7 +413,7 @@ class OrgVM(ViewModel):
 
         When the org has an active Business Wall, display the BW
         members (owner + accepted role assignments) rather than the
-        legacy organisation members.
+        legacy organisation members. Each user is returned at most once.
         """
         bw = self.bw
         if bw is None:
@@ -445,9 +446,16 @@ class OrgVM(ViewModel):
         # Load owner explicitly to keep deterministic ordering.
         owner = db.session.get(User, bw.owner_id) if bw.owner_id else None
         result: list[User] = []
+        seen_ids: set[int] = set()
         if owner is not None:
+            seen_ids.add(owner.id)
             result.append(owner)
-        result.extend(members)
+
+        for member in members:
+            if member.id not in seen_ids:
+                seen_ids.add(member.id)
+                result.append(member)
+
         return result
 
     def _got_cover_image(self) -> bool:
@@ -566,7 +574,8 @@ class OrgVM(ViewModel):
     def get_nouvelles_recrues(self, limit: int = 5) -> list[User]:
         """Most recent members to have joined this org's Business Wall
         (accepted role assignments, newest first). The owner is excluded
-        — they created the BW, they are not a « recrue »."""
+        — they created the BW, they are not a « recrue ». Each user is
+        returned at most once."""
         bw = self.bw
         if bw is None:
             return []
@@ -581,10 +590,19 @@ class OrgVM(ViewModel):
             .where(RoleAssignment.business_wall_id == bw.id)
             .where(RoleAssignment.invitation_status == InvitationStatus.ACCEPTED.value)
             .where(User.id != bw.owner_id)
+            .options(selectinload(User.profile), selectinload(User.roles))
             .order_by(RoleAssignment.accepted_at.desc())
-            .limit(limit)
         )
-        return list(db.session.scalars(stmt))
+        users = db.session.scalars(stmt)
+        result: list[User] = []
+        seen_ids: set[int] = set()
+        for user in users:
+            if user.id not in seen_ids:
+                seen_ids.add(user.id)
+                result.append(user)
+                if len(result) >= limit:
+                    break
+        return result
 
     def _member_ids(self) -> list[int]:
         """User ids of this org's Business Wall members (owner + accepted
