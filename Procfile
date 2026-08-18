@@ -1,4 +1,10 @@
 # Procfile used by PaaS operators like Heroku, Hop3, etc.
+#
+# `release` is a release-phase hook, not a process. honcho has no notion of
+# release phases: it starts the line like any other process, and it kills
+# every process as soon as one of them exits — so `honcho -f Procfile start`
+# tears the whole stack down the moment the migration succeeds. Locally, use
+# `make run` (Procfile-dev) or `make run-prod` (this file, release excluded).
 
 release: flask db upgrade
 web: python -m server

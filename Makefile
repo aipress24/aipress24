@@ -145,6 +145,12 @@ run:
 	honcho -f Procfile-dev start
 
 
+## Run the production stack locally (granian + worker + scheduler)
+run-prod:
+	flask db upgrade
+	honcho -f Procfile start web worker scheduler
+
+
 ## Run POC server
 run-poc:
 	flask --app poc.app --debug run --reload
