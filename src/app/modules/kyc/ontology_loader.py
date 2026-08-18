@@ -70,6 +70,8 @@ ONTOLOGY_MAP = {
     "multidual_metiers": "metier",
     # Compétences en Journalisme:
     "multi_competences_journalisme": "journalisme_competence",
+    # Compétences PR:
+    "multi_competences_pr": "press_relations_skills",
     # Compétences:
     "multi_competences": "competence_expert",
     "multi_langues": "langue",
