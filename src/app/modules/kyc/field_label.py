@@ -126,6 +126,7 @@ KEY_LABEL_MAP = {
     "civilite": (label_from_values_simple, "civilite"),
     "competences": (label_from_values_simple, "competence"),
     "competences_journalisme": (label_from_values_simple, "journalisme_competence"),
+    "competences_pr": (label_from_values_simple, "press_relations_skill"),
     "fonctions_ass_syn": (label_from_values_dual_first, "profession_fonction_asso"),
     "fonctions_ass_syn_detail": (
         label_from_values_dual_second,
