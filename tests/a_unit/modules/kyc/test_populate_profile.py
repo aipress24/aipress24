@@ -83,6 +83,7 @@ class TestDefaultInfoPerso:
             "metier_detail",
             "competences",
             "competences_journalisme",
+            "competences_pr",
             "langues",
             "formations",
             "experiences",
@@ -107,6 +108,7 @@ class TestDefaultInfoPerso:
             "metier_detail",
             "competences",
             "competences_journalisme",
+            "competences_pr",
             "langues",
         ]
 
