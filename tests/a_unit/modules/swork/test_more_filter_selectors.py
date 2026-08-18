@@ -11,6 +11,7 @@ Filters under test :
   selector picks `secteurs_activite` which is the union)
 - `FilterByCompetencesGenerales`
 - `FilterByCompetencesJournalisme`
+- `FilterByCompetencesPR`
 - `FilterByTransformationsMajeures`
 - `FilterByCountryOrm` (uses `country_code_to_country_name` to
   resolve the human label)
@@ -30,6 +31,7 @@ from app.modules.swork.components.members_list import (
     FilterByCityOrm,
     FilterByCompetencesGenerales,
     FilterByCompetencesJournalisme,
+    FilterByCompetencesPR,
     FilterByCountryOrm,
     FilterByDeptOrm,
     FilterBySecteurActivite,
@@ -69,6 +71,7 @@ def _user(profile=None, **profile_attrs) -> _User:
         FilterBySecteurActivite.selector,
         FilterByCompetencesGenerales.selector,
         FilterByCompetencesJournalisme.selector,
+        FilterByCompetencesPR.selector,
         FilterByTransformationsMajeures.selector,
     ],
 )
@@ -128,6 +131,24 @@ class TestFilterByCompetencesJournalisme:
             competences_journalisme=["journalism only"],
         )
         assert FilterByCompetencesJournalisme.selector(user) == ["journalism only"]
+
+
+class TestFilterByCompetencesPR:
+    def test_returns_competences_pr_attr(self):
+        user = _user(competences_pr=["Communication", "Rédaction"])
+        assert FilterByCompetencesPR.selector(user) == [
+            "Communication",
+            "Rédaction",
+        ]
+
+    def test_specifically_reads_pr_not_general_competences(self):
+        """Cross-check that the PR filter doesn't
+        accidentally read `competences` (the general one)."""
+        user = _user(
+            competences=["general only"],
+            competences_pr=["pr only"],
+        )
+        assert FilterByCompetencesPR.selector(user) == ["pr only"]
 
 
 class TestFilterByTransformationsMajeures:
