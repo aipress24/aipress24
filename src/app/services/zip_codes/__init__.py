@@ -12,7 +12,12 @@ from ._country_service import (
     get_full_countries,
     update_country_entry,
 )
-from ._models import CountryEntry, ZipCodeEntry, ZipCodeRepository
+from ._models import (
+    CountryEntry,
+    CountryRepository,
+    ZipCodeEntry,
+    ZipCodeRepository,
+)
 from ._zip_code_service import (
     check_zip_code_exist,
     create_zip_code_entry,
@@ -23,6 +28,7 @@ from ._zip_code_service import (
 
 __all__ = [
     "CountryEntry",
+    "CountryRepository",
     "ZipCodeEntry",
     "ZipCodeRepository",
     "check_countries_exist",

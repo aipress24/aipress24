@@ -13,7 +13,12 @@ from sqlalchemy import delete
 
 from app.flask.extensions import db
 from app.logging import warn
-from app.services.zip_codes import CountryEntry, ZipCodeEntry, ZipCodeRepository
+from app.services.zip_codes import (
+    CountryEntry,
+    CountryRepository,
+    ZipCodeEntry,
+    ZipCodeRepository,
+)
 
 # Both data directories sit at the repository root, next to `src/`.
 _REPO_ROOT = Path(__file__).resolve().parents[4]
@@ -48,9 +53,14 @@ def import_countries(countries_path: Path = COUNTRY_SRC) -> None:
     warn(f"loading {len(countries)} countries")
 
     db.session.execute(delete(CountryEntry))
-    for seq, (iso3, name) in enumerate(countries):
-        db.session.add(CountryEntry(iso3=iso3, name=name, seq=seq))
     db.session.commit()
+
+    repo = CountryRepository(session=db.session)  # type: ignore[arg-type]
+    entries = [
+        CountryEntry(iso3=iso3, name=name, seq=seq)
+        for seq, (iso3, name) in enumerate(countries)
+    ]
+    repo.add_many(entries, auto_commit=True, auto_expunge=True)
 
 
 def _parse_countries(countries_path: Path) -> list[tuple[str, str]]:

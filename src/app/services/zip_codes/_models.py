@@ -33,5 +33,9 @@ class ZipCodeEntry(IdMixin, Base):
     label: Mapped[str] = mapped_column()
 
 
+class CountryRepository(Repository[CountryEntry]):
+    model_type = CountryEntry
+
+
 class ZipCodeRepository(Repository[ZipCodeEntry]):
     model_type = ZipCodeEntry
