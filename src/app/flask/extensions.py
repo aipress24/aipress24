@@ -53,6 +53,7 @@ def import_all_models():
     import app.modules.swork.models
     import app.modules.wip.models
     import app.modules.wire.models
+    import app.services.zip_codes._models
 
     # These modules are imported for side effect
     assert app.modules.biz.models
@@ -74,6 +75,7 @@ def import_all_models():
     assert app.models.meta
     assert app.models.organisation
     assert app.models.web
+    assert app.services.zip_codes._models
 
 
 # Create all extensions as global variables
