@@ -135,7 +135,7 @@ class TestOpportunitiesListPage:
     def test_opportunities_page_loads(
         self, logged_in_client: FlaskClient, test_user: User
     ):
-        """Test that opportunities page loads successfully."""
+        """Test that opportunities blocks page loads successfully."""
         response = logged_in_client.get("/wip/opportunities")
         assert response.status_code == 200
 
@@ -145,8 +145,8 @@ class TestOpportunitiesListPage:
         test_user: User,
         test_contact: ContactAvisEnquete,
     ):
-        """Test that opportunities page shows user's contacts."""
-        response = logged_in_client.get("/wip/opportunities")
+        """Test that opportunities avis tab shows user's contacts."""
+        response = logged_in_client.get("/wip/opportunities?tab=avis")
         assert response.status_code == 200
         html = response.data.decode()
         # Should show the enquete title
@@ -155,8 +155,8 @@ class TestOpportunitiesListPage:
     def test_opportunities_page_empty_when_no_contacts(
         self, logged_in_client: FlaskClient, test_user: User
     ):
-        """Test opportunities page renders with no contacts."""
-        response = logged_in_client.get("/wip/opportunities")
+        """Test opportunities avis tab renders with no contacts."""
+        response = logged_in_client.get("/wip/opportunities?tab=avis")
         assert response.status_code == 200
 
     def test_opportunities_page_is_not_n_plus_one(
@@ -211,7 +211,7 @@ class TestOpportunitiesListPage:
 
         event.listen(db.engine, "before_cursor_execute", _capture)
         try:
-            response = logged_in_client.get("/wip/opportunities")
+            response = logged_in_client.get("/wip/opportunities?tab=avis")
         finally:
             event.remove(db.engine, "before_cursor_execute", _capture)
 
@@ -1372,7 +1372,7 @@ class TestSuggestedColleagueReceivesTheAvis:
         """
         self._suggest(logged_in_client, test_contact, colleague)
 
-        html = logged_in_client.get("/wip/opportunities").data.decode()
+        html = logged_in_client.get("/wip/opportunities?tab=avis").data.decode()
         assert "Test Enquête" in html
         assert "Opportunité déclinée" in html
 
@@ -1390,7 +1390,7 @@ class TestSuggestedColleagueReceivesTheAvis:
         self._suggest(logged_in_client, test_contact, colleague)
 
         colleague_client = make_authenticated_client(app, colleague)
-        html = colleague_client.get("/wip/opportunities").data.decode()
+        html = colleague_client.get("/wip/opportunities?tab=avis").data.decode()
         assert "Test Enquête" in html
 
 
