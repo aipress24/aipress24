@@ -318,7 +318,7 @@ def _render_consultations_offertes_tab():
     articles = list_user_received_gifts(user.id)
     return render_template(
         "wip/pages/opportunities_consultations.j2",
-        title="Mes opportunités",
+        title="Mes opportunités: consultations offertes",
         articles=articles,
         menus={"secondary": get_secondary_menu("opportunities")},
     )
@@ -438,7 +438,7 @@ def _render_justificatifs_tab():
 
     return render_template(
         "wip/pages/opportunities_justificatifs.j2",
-        title="Mes opportunités",
+        title="Mes opportunités : justificatifs de publication",
         invitations=invitations,
         purchases=purchases,
         menus={"secondary": get_secondary_menu("opportunities")},
@@ -469,7 +469,7 @@ def _render_avis_opportunites_tab():
 
     return render_template(
         "wip/pages/opportunities.j2",
-        title="Mes opportunités",
+        title="Mes opportunités : avis d'enquête",
         contacts=contacts,
         menus={"secondary": get_secondary_menu("opportunities")},
     )
@@ -491,13 +491,23 @@ def _render_marketplace_opportunites_tab(tab: str):
         ProjectOffer,
     )
 
+    title_label = {
+        "missions": "missions",
+        "projects": "projets",
+        "jobs": "emplois",
+    }.get(tab, "")
+
     offer_models = {
         "missions": MissionOffer,
         "projects": ProjectOffer,
         "jobs": JobOffer,
     }
     offer_model = offer_models[tab]
-    user = g.user
+
+    user = cast(User, g.user)
+    if not user or user.is_anonymous:
+        msg = "Access denied to opportunities"
+        raise Forbidden(msg)
 
     if getattr(user, "is_anonymous", False):
         return redirect(url_for("security.login", next=request.path))
@@ -522,7 +532,7 @@ def _render_marketplace_opportunites_tab(tab: str):
 
     return render_template(
         "wip/pages/opportunities_marketplace.j2",
-        title="Mes opportunités",
+        title=f"Mes opportunités : {title_label}",
         tab_id=tab,
         offer_label=offer_label,
         detail_endpoint=f"biz.{detail_endpoint}",
@@ -551,7 +561,7 @@ def media_opportunity(id: int):
 
     user = cast(User, g.user)
     if not user or user.is_anonymous:
-        msg = "Access denied to oppotunities"
+        msg = "Access denied to opportunities"
         raise Forbidden(msg)
 
     repo = container.get(ContactAvisEnqueteRepository)
