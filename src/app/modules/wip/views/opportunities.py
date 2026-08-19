@@ -21,21 +21,23 @@ from flask import (
     url_for,
 )
 from flask_login import current_user
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.orm import selectinload
 from svcs.flask import container
 from werkzeug import Response
-from werkzeug.exceptions import NotFound
+from werkzeug.exceptions import Forbidden, NotFound
 
 from app.flask.extensions import db
 from app.flask.lib.htmx import extract_fragment
 from app.flask.lib.nav import nav
 from app.logging import warn
 from app.models.auth import User
+from app.modules.biz.models import OfferApplication
 from app.modules.bw.bw_activation.user_utils import (
     get_selected_business_wall_for_user,
 )
 from app.modules.wip import blueprint
+from app.modules.wip.models import ContactAvisEnquete
 from app.modules.wip.services.newsroom import AvisEnqueteService
 from app.services.emails import ContactAvisEnqueteAcceptanceMail
 
@@ -76,18 +78,132 @@ _STATUS_TO_FORM_FIELD: dict[str, tuple[str, str]] = {
 }
 
 
-def _build_opportunites_tabs(current: str) -> list[dict]:
-    return [
+def _count_avis_contacts(user: User) -> int:
+    stmt = select(func.count(ContactAvisEnquete.id)).where(
+        ContactAvisEnquete.expert_id == user.id
+    )
+    return db.session.scalar(stmt) or 0
+
+
+def _count_marketplace_candidacies(offer_model, user: User) -> int:
+    sent_stmt = (
+        select(func.count(OfferApplication.id))
+        .select_from(OfferApplication)
+        .join(offer_model, OfferApplication.offer_id == offer_model.id)
+        .where(OfferApplication.owner_id == user.id)
+    )
+    sent_count = db.session.scalar(sent_stmt) or 0
+
+    received_stmt = (
+        select(func.count(OfferApplication.id))
+        .select_from(OfferApplication)
+        .join(offer_model, OfferApplication.offer_id == offer_model.id)
+        .where(offer_model.owner_id == user.id)
+    )
+    received_count = db.session.scalar(received_stmt) or 0
+
+    return sent_count + received_count
+
+
+def _count_consultations_offertes(user: User) -> int:
+    from app.modules.wire.services.purchase_aggregates import (
+        list_user_received_gifts,
+    )
+
+    articles = list_user_received_gifts(user.id)
+    return len(articles)
+
+
+def _count_justificatifs(user: User) -> int:
+    from app.modules.wip.models.newsroom.justificatif_invitation import (
+        JustificatifInvitation,
+    )
+    from app.modules.wire.models import (
+        ArticlePurchase,
+        PurchaseProduct,
+        PurchaseStatus,
+    )
+
+    paid_stmt = select(func.count(ArticlePurchase.id)).where(
+        ArticlePurchase.owner_id == user.id,
+        ArticlePurchase.product_type == PurchaseProduct.JUSTIFICATIF,
+        ArticlePurchase.status == PurchaseStatus.PAID,
+    )
+    paid_count = db.session.scalar(paid_stmt) or 0
+
+    inv_stmt = select(func.count(JustificatifInvitation.id)).where(
+        JustificatifInvitation.recipient_id == user.id
+    )
+    inv_count = db.session.scalar(inv_stmt) or 0
+
+    return paid_count + inv_count
+
+
+def _render_opportunities_hub():
+    from app.modules.biz.models import JobOffer, MissionOffer, ProjectOffer
+
+    user = cast(User, g.user)
+    if not user or user.is_anonymous:
+        msg = "Access denied to oppotunities"
+        raise Forbidden(msg)
+
+    items = [
         {
-            "id": tab_id,
-            "label": label,
-            "href": url_for("wip.opportunities", tab=tab_id)
-            if tab_id != "avis"
-            else url_for("wip.opportunities"),
-            "active": current == tab_id,
-        }
-        for tab_id, label in _OPPORTUNITES_TABS
+            "id": "avis",
+            "label": "Avis d'enquête",
+            "nickname": "AE",
+            "color": "bg-teal-600",
+            "href": url_for("wip.opportunities", tab="avis"),
+            "count": str(_count_avis_contacts(user)),
+        },
+        {
+            "id": "missions",
+            "label": "Missions",
+            "nickname": "MI",
+            "color": "bg-purple-600",
+            "href": url_for("wip.opportunities", tab="missions"),
+            "count": str(_count_marketplace_candidacies(MissionOffer, user)),
+        },
+        {
+            "id": "projects",
+            "label": "Projets",
+            "nickname": "PR",
+            "color": "bg-blue-600",
+            "href": url_for("wip.opportunities", tab="projects"),
+            "count": str(_count_marketplace_candidacies(ProjectOffer, user)),
+        },
+        {
+            "id": "jobs",
+            "label": "Emplois",
+            "nickname": "EM",
+            "color": "bg-green-600",
+            "href": url_for("wip.opportunities", tab="jobs"),
+            "count": str(_count_marketplace_candidacies(JobOffer, user)),
+        },
+        {
+            "id": "consultations",
+            "label": "Consultations offertes",
+            "nickname": "CO",
+            "color": "bg-amber-600",
+            "href": url_for("wip.opportunities", tab="consultations"),
+            "count": str(_count_consultations_offertes(user)),
+        },
+        {
+            "id": "justificatifs",
+            "label": "Justificatifs de publication",
+            "nickname": "JP",
+            "color": "bg-red-600",
+            "href": url_for("wip.opportunities", tab="justificatifs"),
+            "count": str(_count_justificatifs(user)),
+        },
     ]
+
+    return render_template(
+        "wip/pages/opportunities_hub.j2",
+        title="Opportunités",
+        items=items,
+        menus={"secondary": get_secondary_menu("opportunities")},
+    )
 
 
 def _pick_protocol(domain: str) -> str:
@@ -164,11 +280,7 @@ def _marketplace_labels(tab: str) -> tuple[str, str]:
 @blueprint.route("/opportunities")
 @nav(icon="cake", label="Opportunités")
 def opportunities():
-    """Opportunités — Avis d'enquête (default) + 3 marketplace tabs.
-
-    The `label` above is not decoration: without it `@nav` uses this
-    docstring's first line as the breadcrumb, and this whole sentence
-    ended up in the UI (« ...(default) + 3 marketplace tabs »).
+    """Opportunités (blocks)
 
     Bug #0188 (Erick, 2026-06-04) : « les répondants ne veulent pas
     que tout le monde voie leurs propositions. [...] les réponses
@@ -177,14 +289,16 @@ def opportunities():
     Board. » Each marketplace tab shows the current user's own
     candidacies + the candidacies they received on their offers.
     """
-    tab = request.args.get("tab", "avis")
+    tab = request.args.get("tab")
+    if tab == "avis":
+        return _render_avis_opportunites_tab()
     if tab == "consultations":
         return _render_consultations_offertes_tab()
     if tab == "justificatifs":
         return _render_justificatifs_tab()
     if tab in {"missions", "projects", "jobs"}:
         return _render_marketplace_opportunites_tab(tab)
-    return _render_avis_opportunites_tab()
+    return _render_opportunities_hub()
 
 
 def _render_consultations_offertes_tab():
@@ -196,15 +310,15 @@ def _render_consultations_offertes_tab():
         list_user_received_gifts,
     )
 
-    user = g.user
-    if getattr(user, "is_anonymous", False):
-        return redirect(url_for("security.login", next=request.path))
+    user = cast(User, g.user)
+    if not user or user.is_anonymous:
+        msg = "Access denied to oppotunities"
+        raise Forbidden(msg)
 
     articles = list_user_received_gifts(user.id)
     return render_template(
         "wip/pages/opportunities_consultations.j2",
         title="Mes opportunités",
-        tabs=_build_opportunites_tabs("consultations"),
         articles=articles,
         menus={"secondary": get_secondary_menu("opportunities")},
     )
@@ -224,9 +338,10 @@ def _render_justificatifs_tab():
         PurchaseStatus,
     )
 
-    user = g.user
-    if getattr(user, "is_anonymous", False):
-        return redirect(url_for("security.login", next=request.path))
+    user = cast(User, g.user)
+    if not user or user.is_anonymous:
+        msg = "Access denied to oppotunities"
+        raise Forbidden(msg)
 
     # PAID JdP purchases — the user already bought the justificatif.
     paid_purchases = list(
@@ -324,7 +439,6 @@ def _render_justificatifs_tab():
     return render_template(
         "wip/pages/opportunities_justificatifs.j2",
         title="Mes opportunités",
-        tabs=_build_opportunites_tabs("justificatifs"),
         invitations=invitations,
         purchases=purchases,
         menus={"secondary": get_secondary_menu("opportunities")},
@@ -357,7 +471,6 @@ def _render_avis_opportunites_tab():
         "wip/pages/opportunities.j2",
         title="Mes opportunités",
         contacts=contacts,
-        tabs=_build_opportunites_tabs("avis"),
         menus={"secondary": get_secondary_menu("opportunities")},
     )
 
@@ -410,7 +523,6 @@ def _render_marketplace_opportunites_tab(tab: str):
     return render_template(
         "wip/pages/opportunities_marketplace.j2",
         title="Mes opportunités",
-        tabs=_build_opportunites_tabs(tab),
         tab_id=tab,
         offer_label=offer_label,
         detail_endpoint=f"biz.{detail_endpoint}",
@@ -437,8 +549,10 @@ def media_opportunity(id: int):
     """
     from app.modules.wip.models import ContactAvisEnqueteRepository
 
-    if g.user.is_anonymous:
-        return redirect(url_for("security.login", next=request.path))
+    user = cast(User, g.user)
+    if not user or user.is_anonymous:
+        msg = "Access denied to oppotunities"
+        raise Forbidden(msg)
 
     repo = container.get(ContactAvisEnqueteRepository)
     # `repo.get(id)` raises NotFoundError on unknown ids — use the
@@ -447,7 +561,7 @@ def media_opportunity(id: int):
     contact = repo.get_one_or_none(id=id)
     if contact is None:
         raise NotFound
-    if g.user.id != contact.expert_id:
+    if user.id != contact.expert_id:
         flash(
             "Cet avis d'enquête ne vous est pas adressé. "
             "Voici vos opportunités personnelles.",
