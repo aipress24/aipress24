@@ -6,7 +6,7 @@ div.choices,
     position: relative;
     overflow: hidden;
     margin-bottom: 24px;
-    font-size: medium;
+    font-size: 16px;
 }
 .choices:focus {
     outline: none;
@@ -142,7 +142,7 @@ div.choices__inner,
     padding: 7.5px 7.5px 3.75px;
     border: 1px solid #ddd;
     border-radius: 2.5px;
-    font-size: medium;
+    font-size: 14px;
     min-height: 44px;
     overflow: hidden;
 }
@@ -191,7 +191,7 @@ div.choices__list--single,
     vertical-align: middle;
     border-radius: 20px;
     padding: 4px 10px;
-    font-size: small;
+    font-size: 12px;
     font-weight: 500;
     margin-right: 3.75px;
     margin-bottom: 3.75px;
@@ -262,7 +262,7 @@ div.choices__list--single,
 .choices__list[aria-expanded] .choices__item {
     position: relative;
     padding: 10px;
-    font-size: medium;
+    font-size: 14px;
 }
 [dir='rtl'] .choices__list--dropdown .choices__item,
 [dir='rtl'] .choices__list[aria-expanded] .choices__item {
@@ -276,7 +276,7 @@ div.choices__list--single,
     .choices__list--dropdown .choices__item--selectable::after,
     .choices__list[aria-expanded] .choices__item--selectable::after {
         content: attr(data-select-text);
-        font-size: small;
+        font-size: 12px;
         opacity: 0;
         position: absolute;
         right: 10px;
@@ -324,7 +324,7 @@ div.choices__list--single,
 div.choices__heading,
 .choices__heading {
     font-weight: 600;
-    font-size: small;
+    font-size: 12px;
     padding: 10px;
     border-bottom: 1px solid #f7f7f7;
     color: gray;
@@ -349,7 +349,7 @@ div.choices__input,
     display: inline-block;
     vertical-align: baseline;
     background-color: #f9f9f9;
-    font-size: medium;
+    font-size: 14px;
     margin-bottom: 5px;
     border: 0;
     border-radius: 0;
