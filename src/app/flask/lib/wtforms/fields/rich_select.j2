@@ -7,7 +7,9 @@
       options: {{ field.get_choices_for_js() }},
       init() {
         this.$nextTick(() => {
-          let choices = new Choices(this.$refs.select);
+          let choices = new Choices(this.$refs.select, {
+            shouldSort: false,
+          });
 
           let refreshChoices = () => {
             let selection = this.multiple ? this.value : [this.value];
