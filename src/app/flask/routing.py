@@ -9,7 +9,7 @@ from functools import singledispatch
 
 from flask import url_for as url_for_orig
 
-from app.flask.lib.view_model import ViewModel
+from app.flask.lib.view_model import ViewModel, Wrapper
 
 
 @singledispatch
@@ -22,6 +22,11 @@ def url_for(obj, _ns: str = "", **_kw):
 
 @url_for.register
 def url_for_vm(obj: ViewModel, _ns: str = "", **_kw):
+    return url_for(obj._unwrap())
+
+
+@url_for.register
+def url_for_wrapper(obj: Wrapper, _ns: str = "", **_kw):
     return url_for(obj._unwrap())
 
 
