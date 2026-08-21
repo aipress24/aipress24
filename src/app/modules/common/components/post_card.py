@@ -9,6 +9,7 @@ from typing import cast
 import sqlalchemy as sa
 from attr import field, frozen
 
+from app.enums import BWType
 from app.flask.extensions import db
 from app.flask.lib.pywire import Component, component
 from app.flask.lib.view_model import Wrapper
@@ -17,7 +18,7 @@ from app.lib.html import remove_markup
 from app.models.auth import User
 from app.models.organisation import Organisation
 from app.modules.wip.models.comroom import Communique
-from app.modules.wire.models import ArticlePost, PressReleasePost
+from app.modules.wire.models import ArticlePost, Post, PressReleasePost
 
 PLACEHOLDER_IMAGE_URL = "/static/img/gray-texture.png"
 
@@ -65,6 +66,27 @@ class PostCard(Component):
                 raise ValueError(msg)
 
 
+def is_post_from_news_agency(post: ArticlePost | Post) -> bool:
+    """Check if the post is an published by a Press Agency."""
+
+    def _is_agency(org: Organisation | None) -> bool:
+        if org is None:
+            return False
+        return org.bw_active == BWType.NEWS_AGENCY.value
+
+    # publisher
+    if _is_agency(getattr(post, "publisher", None)):
+        return True
+
+    # Check author organisation
+    author = getattr(post, "owner", None)
+    if author and _is_agency(getattr(author, "organisation", None)):
+        return True
+
+    # Check media
+    return bool(_is_agency(getattr(post, "media", None)))
+
+
 @frozen
 class ArticleVM(Wrapper):
     _model: ArticlePost
@@ -81,6 +103,7 @@ class ArticleVM(Wrapper):
     # Bug 0241: an article is NOT a communiqué, so the card must never use
     # the PR "en tant que contact presse de" phrasing (that is for CPs).
     is_communique: bool = field(init=False)
+    is_news_agency: bool = field(init=False)
 
     def extra_attrs(self):
         # Lazy import — `purchase_aggregates` pulls `ArticlePurchase`,
@@ -118,6 +141,7 @@ class ArticleVM(Wrapper):
             "views": views,
             "image_url": self.get_image_url(),
             "is_communique": False,
+            "is_news_agency": is_post_from_news_agency(post),
             "_url": url_for(post),
         }
 
@@ -144,6 +168,7 @@ class PressReleaseVM(Wrapper):
     image_caption: str = field(init=False)
     image_copyright: str = field(init=False)
     is_communique: bool = field(init=False)
+    is_news_agency: bool = field(init=False)
 
     def extra_attrs(self):
         post: PressReleasePost = self._model
@@ -162,6 +187,7 @@ class PressReleaseVM(Wrapper):
             # "image_caption": "",
             # "image_copyright": "",
             "is_communique": True,
+            "is_news_agency": False,
             "_url": url_for(post),
         }
 
@@ -186,6 +212,7 @@ class CommuniqueVM(Wrapper):
 
     image_url: str = field(init=False)
     is_communique: bool = field(init=False)
+    is_news_agency: bool = field(init=False)
 
     def extra_attrs(self):
         post: Communique = self._model
@@ -205,6 +232,7 @@ class CommuniqueVM(Wrapper):
             "views": views,
             "image_url": self.get_image_url(),
             "is_communique": True,
+            "is_news_agency": False,
             "_url": url_for(post),
         }
 
