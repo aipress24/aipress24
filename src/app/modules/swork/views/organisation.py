@@ -10,7 +10,7 @@ from abc import ABC, abstractmethod
 from time import time
 from typing import Any, ClassVar, cast
 
-from attr import define
+from attr import define, frozen
 from flask import Response, g, make_response, render_template, request
 from flask.views import MethodView
 from sqlalchemy import and_, func, or_, select
@@ -20,13 +20,18 @@ from app.enums import MEDIA_BW_TYPES
 from app.flask.extensions import db
 from app.flask.lib.nav import nav
 from app.flask.lib.toaster import toast
-from app.flask.lib.view_model import ViewModel
+from app.flask.lib.view_model import ViewModel, Wrapper
 from app.flask.sqla import get_multi, get_obj
 from app.logging import warn
 from app.models.auth import User
 from app.models.lifecycle import PublicationStatus
 from app.models.organisation import Organisation
 from app.modules.bw.bw_activation.models.business_wall import BusinessWall
+from app.modules.bw.bw_activation.models.role import (
+    BWRoleType,
+    InvitationStatus,
+    RoleAssignment,
+)
 from app.modules.bw.bw_activation.user_utils import (
     get_active_business_wall_for_organisation,
     get_organisation_cover_image_url,
@@ -39,6 +44,53 @@ from app.modules.kyc.field_label import (
 )
 from app.modules.swork import blueprint
 from app.modules.wire.models import ArticlePost, PressReleasePost
+
+BW_ROLE_DISPLAY_LABELS: dict[str, str] = {
+    BWRoleType.BWMI.value: "BW manager interne",
+    BWRoleType.BWPRI.value: "BW PR interne",
+    BWRoleType.BWPRE.value: "BW PR externe",
+}
+
+
+def format_bw_role_labels(roles: list[str] | tuple[str, ...]) -> str:
+    """Format role codes into a display label."""
+    if not roles:
+        return ""
+    displayed = [
+        BW_ROLE_DISPLAY_LABELS[r] for r in roles if r in BW_ROLE_DISPLAY_LABELS
+    ]
+    return ", ".join(displayed)
+
+
+@frozen
+class OrgMemberVM(Wrapper):
+    """Wrapper around User for organisation contacts roles."""
+
+    _model: User
+    role_type: str = ""
+    roles: tuple[str, ...] = ()
+    bw_roles: tuple[str, ...] = ()
+    role_label: str = ""
+    is_external: bool = False
+    is_owner: bool = False
+    is_bw_manager: bool = False
+
+    def extra_attrs(self) -> dict[str, Any]:
+        is_manager = bool(
+            self.is_owner
+            or any(
+                r in {BWRoleType.BWMI.value, BWRoleType.BWME.value} for r in self.roles
+            )
+        )
+        return {
+            "role_type": self.role_type,
+            "roles": list(self.roles),
+            "bw_roles": list(self.roles),
+            "role_label": self.role_label,
+            "is_external": self.is_external,
+            "is_owner": self.is_owner,
+            "is_bw_manager": is_manager,
+        }
 
 
 class OrganisationDetailView(MethodView):
@@ -143,34 +195,7 @@ class OrgContactsTab(Tab):
 
     @property
     def label(self) -> str:
-        active_bw = get_active_business_wall_for_organisation(self.org)
-        if active_bw is not None:
-            from app.modules.bw.bw_activation.models.role import (
-                InvitationStatus,
-                RoleAssignment,
-            )
-
-            count_query = (
-                select(func.count(func.distinct(User.id)))
-                .select_from(User)
-                .join(RoleAssignment, User.id == RoleAssignment.user_id)
-                .where(RoleAssignment.business_wall_id == active_bw.id)
-                .where(
-                    RoleAssignment.invitation_status == InvitationStatus.ACCEPTED.value
-                )
-            )
-            if active_bw.owner_id is not None:
-                count_query = count_query.where(User.id != active_bw.owner_id)
-            count = int(db.session.execute(count_query).scalar() or 0)
-            if active_bw.owner_id is not None:
-                count += 1
-        else:
-            stmt = (
-                select(func.count())
-                .select_from(User)
-                .where(User.organisation_id == self.org.id)
-            )
-            count = int(db.session.execute(stmt).scalar() or 0)
+        count = len(OrgVM(self.org).get_members())
         return f"Contacts ({count})"
 
     def guard(self) -> bool:
@@ -312,7 +337,7 @@ class OrgVM(ViewModel):
         return cast("Organisation", self._model)
 
     @property
-    def members(self) -> list[User]:
+    def members(self) -> list[OrgMemberVM]:
         return self.get_members()
 
     @property
@@ -380,9 +405,15 @@ class OrgVM(ViewModel):
     def extra_attrs(self):
         from app.services.social_graph import adapt
 
-        return self._get_cached_attrs() | {
-            "is_following": adapt(g.user).is_following(self.org)
-        }
+        is_following = False
+        user = getattr(g, "user", None)
+        if user is not None:
+            try:
+                is_following = adapt(user).is_following(self.org)
+            except Exception:
+                is_following = False
+
+        return self._get_cached_attrs() | {"is_following": is_following}
 
     def _get_bw_name(self) -> str:
         """Return Business Wall name or empty string."""
@@ -408,53 +439,113 @@ class OrgVM(ViewModel):
             return ""
         return self.bw.name_official or ""
 
-    def get_members(self) -> list[User]:
-        """Return members to display on the organisation page.
+    def get_members(self) -> list[OrgMemberVM]:
+        """Return contacts (members & accepted role assignments)).
 
-        When the org has an active Business Wall, display the BW
-        members (owner + accepted role assignments) rather than the
-        legacy organisation members. Each user is returned at most once.
+        When the org has an active Business Wall, displays:
+        - BW Owner,
+        - Users with accepted BW role assignments,
+        - Direct members of the organisation.
+
+        Each user is returned at most once.
         """
         bw = self.bw
         if bw is None:
-            return list(
-                db.session.scalars(
-                    select(User).where(User.organisation_id == self.org.id)
-                )
+            stmt = (
+                select(User)
+                .where(User.organisation_id == self.org.id)
+                .options(selectinload(User.profile), selectinload(User.roles))
+                .order_by(User.last_name, User.first_name)
             )
+            users = list(db.session.scalars(stmt))
+            return [
+                OrgMemberVM(
+                    user,
+                    role_type="",
+                    roles=(),
+                    role_label="",
+                    is_external=False,
+                    is_owner=False,
+                )
+                for user in users
+            ]
 
-        # Owner first, then accepted role holders, preserving role order.
-        from app.modules.bw.bw_activation.models.role import (
-            InvitationStatus,
-            RoleAssignment,
-        )
-
-        user_ids: list[int] = []
-        if bw.owner_id:
-            user_ids.append(bw.owner_id)
-
-        stmt = (
-            select(User)
+        stmt_assignments = (
+            select(User, RoleAssignment.role_type)
             .join(RoleAssignment, User.id == RoleAssignment.user_id)
             .where(RoleAssignment.business_wall_id == bw.id)
             .where(RoleAssignment.invitation_status == InvitationStatus.ACCEPTED.value)
-            .where(User.id != bw.owner_id)
-            .order_by(RoleAssignment.role_type, User.last_name, User.first_name)
+            .options(selectinload(User.profile), selectinload(User.roles))
+            .order_by(User.last_name, User.first_name, RoleAssignment.role_type)
         )
-        members = list(db.session.scalars(stmt))
+        assigned_rows = list(db.session.execute(stmt_assignments).all())
 
-        # Load owner explicitly to keep deterministic ordering.
-        owner = db.session.get(User, bw.owner_id) if bw.owner_id else None
-        result: list[User] = []
+        user_roles_map: dict[int, list[str]] = {}
+        assigned_users: dict[int, User] = {}
+        for user, role_type in assigned_rows:
+            uid = int(user.id)
+            if uid not in user_roles_map:
+                user_roles_map[uid] = []
+                assigned_users[uid] = user
+            if role_type not in user_roles_map[uid]:
+                user_roles_map[uid].append(role_type)
+
+        # BW owner explicitly if present
+        owner = None
+        if bw.owner_id:
+            owner = db.session.get(User, bw.owner_id)
+            if owner is not None:
+                owner_uid = int(owner.id)
+                if owner_uid not in user_roles_map:
+                    user_roles_map[owner_uid] = []
+                if BWRoleType.BW_OWNER.value not in user_roles_map[owner_uid]:
+                    user_roles_map[owner_uid].insert(0, BWRoleType.BW_OWNER.value)
+
+        # organisation members
+        stmt_org_members = (
+            select(User)
+            .where(User.organisation_id == self.org.id)
+            .options(selectinload(User.profile), selectinload(User.roles))
+            .order_by(User.last_name, User.first_name)
+        )
+        org_members = list(db.session.scalars(stmt_org_members))
+
+        result: list[OrgMemberVM] = []
         seen_ids: set[int] = set()
-        if owner is not None:
-            seen_ids.add(owner.id)
-            result.append(owner)
 
-        for member in members:
-            if member.id not in seen_ids:
-                seen_ids.add(member.id)
-                result.append(member)
+        def _make_vm(_user: User) -> OrgMemberVM:
+            u_id = int(_user.id)
+            u_roles = user_roles_map.get(u_id, [])
+            is_own = bool(bw.owner_id and u_id == bw.owner_id)
+            primary_role = u_roles[0] if u_roles else ""
+            r_label = format_bw_role_labels(u_roles)
+            is_ext = bool(_user.organisation_id != self.org.id)
+            return OrgMemberVM(
+                _user,
+                role_type=primary_role,
+                roles=tuple(u_roles),
+                role_label=r_label,
+                is_external=is_ext,
+                is_owner=is_own,
+            )
+
+        if owner is not None:
+            owner_id = int(owner.id)
+            if owner_id not in seen_ids:
+                seen_ids.add(owner_id)
+                result.append(_make_vm(owner))
+
+        for user in assigned_users.values():
+            u_id = int(user.id)
+            if u_id not in seen_ids:
+                seen_ids.add(u_id)
+                result.append(_make_vm(user))
+
+        for user in org_members:
+            u_id = int(user.id)
+            if u_id not in seen_ids:
+                seen_ids.add(u_id)
+                result.append(_make_vm(user))
 
         return result
 
