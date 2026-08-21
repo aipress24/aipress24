@@ -13,12 +13,13 @@ import arrow
 import pytest
 from flask import render_template_string
 
-from app.enums import RoleEnum
+from app.enums import BWType, RoleEnum
 from app.lib.file_object_utils import create_file_object
 from app.models.auth import KYCProfile, Role, User
 from app.models.organisation import Organisation
 from app.modules.common.components.post_card import (
     ArticleVM,
+    CommuniqueVM,
     PostCard,
     PressReleaseVM,
     UserVM,
@@ -509,3 +510,116 @@ class TestPostCardArticleByline:
         # Bug 0241: the footer uses the "Source :" / "Pour :" labels.
         assert "Source :" in html
         assert "Pour :" in html
+
+
+class TestPostCardNewsAgencyMacaron:
+    """Test display the press agency logo for articles from NEWS_AGENCY."""
+
+    MACARON = "MacaronSourceAgenceDePresse_32px.jpg"
+
+    def _render(self, app, post) -> str:
+        with app.test_request_context():
+            return render_template_string('{{ component("post-card", c) }}', c=post)
+
+    def test_article_published_by_news_agency_shows_macaron(self, db_session, app):
+        agency_org = Organisation(name="AFP", bw_active=BWType.NEWS_AGENCY.value)
+        db_session.add(agency_org)
+        db_session.flush()
+
+        user = User(
+            email="afp_journalist@example.com",
+            first_name="Jean",
+            last_name="Dupont",
+        )
+        user.organisation = agency_org
+        user.organisation_id = agency_org.id
+        db_session.add(user)
+        db_session.flush()
+
+        article = ArticlePost(owner=user, title="news", publisher_id=agency_org.id)
+        article.published_at = arrow.utcnow()
+        db_session.add(article)
+        db_session.flush()
+
+        vm = ArticleVM(article)
+        assert vm.is_news_agency is True
+
+        html = self._render(app, article)
+        assert self.MACARON in html
+        assert 'title="Source agence de presse"' in html
+
+    def test_article_by_author_in_news_agency_shows_macaron(self, db_session, app):
+        agency_org = Organisation(name="Reuters", bw_active=BWType.NEWS_AGENCY.value)
+        db_session.add(agency_org)
+        db_session.flush()
+
+        user = User(
+            email="reuters_journalist@example.com",
+            first_name="Alice",
+            last_name="Martin",
+        )
+        user.organisation = agency_org
+        user.organisation_id = agency_org.id
+        db_session.add(user)
+        db_session.flush()
+
+        article = ArticlePost(owner=user, title="Flash info")
+        article.published_at = arrow.utcnow()
+        db_session.add(article)
+        db_session.flush()
+
+        vm = ArticleVM(article)
+        assert vm.is_news_agency is True
+
+        html = self._render(app, article)
+        assert self.MACARON in html
+
+    def test_regular_media_article_does_not_show_macaron(self, db_session, app):
+        media_org = Organisation(name="Journal", bw_active=BWType.MEDIA.value)
+        db_session.add(media_org)
+        db_session.flush()
+
+        user = User(
+            email="journalist@example.com",
+            first_name="Paul",
+            last_name="Durand",
+        )
+        user.organisation = media_org
+        user.organisation_id = media_org.id
+        db_session.add(user)
+        db_session.flush()
+
+        article = ArticlePost(
+            owner=user, title="Article classique", publisher_id=media_org.id
+        )
+        article.published_at = arrow.utcnow()
+        db_session.add(article)
+        db_session.flush()
+
+        vm = ArticleVM(article)
+        assert vm.is_news_agency is False
+
+        html = self._render(app, article)
+        assert self.MACARON not in html
+
+    def test_communique_does_not_show_macaron(self, db_session, app):
+        agency_org = Organisation(name="Agence PR", bw_active=BWType.NEWS_AGENCY.value)
+        db_session.add(agency_org)
+        db_session.flush()
+
+        user = User(email="pr@example.com", first_name="Sophie", last_name="L")
+        user.organisation = agency_org
+        user.organisation_id = agency_org.id
+        db_session.add(user)
+        db_session.flush()
+
+        cp = Communique(owner=user, publisher=agency_org, titre="Communiqué spécial")
+        cp.published_at = arrow.utcnow()
+        db_session.add(cp)
+        db_session.flush()
+
+        vm = CommuniqueVM(cp)
+        assert vm.is_news_agency is False
+
+        html = self._render(app, cp)
+        assert self.MACARON not in html
