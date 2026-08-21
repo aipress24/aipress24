@@ -250,6 +250,18 @@ class User(LifeCycleMixin, Addressable, UserMixin, Base):
             return self.organisation.name
         return ""
 
+    @property
+    def role_label(self) -> str:
+        return ""
+
+    @property
+    def role_type(self) -> str:
+        return ""
+
+    @property
+    def is_external(self) -> bool:
+        return False
+
     def first_community(self) -> RoleEnum:
         community: RoleEnum
         for community in (  # type: ignore[invalid-assignment]

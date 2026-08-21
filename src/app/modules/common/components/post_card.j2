@@ -9,7 +9,7 @@
         <div class="flex-shrink-0">
             <h3 class="text-gray-500 flex items-center">
                 {{ post.published_at.format("DD MMM YYYY, HH:mm", locale="fr") }}
-                {% if post.is_news_agency %}
+                {% if post.is_news_agency is defined and post.is_news_agency %}
                     <img
                         class="ml-2 inline-block h-5 w-5 object-contain"
                         src="/static/img/MacaronSourceAgenceDePresse_32px.jpg"
