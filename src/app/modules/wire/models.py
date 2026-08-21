@@ -172,8 +172,9 @@ class Post(NewsMetadataMixin, BaseContent, LifeCycleMixin):
             foreign_keys=[cls.media_id],  # type: ignore[list-item]
         )
 
-    # # Taille
-    # taille_contenu: Mapped[str] = mapped_column(default="")
+    @property
+    def is_news_agency(self) -> bool:
+        return False
 
 
 class ArticlePost(Post, Taggable):
