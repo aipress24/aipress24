@@ -16,14 +16,24 @@ import stripe
 from attr import field, frozen
 from babel.numbers import format_currency
 from cachetools import TTLCache
-from flask import current_app, flash, g, redirect, render_template, request
+from flask import (
+    current_app,
+    flash,
+    g,
+    make_response,
+    redirect,
+    render_template,
+    request,
+)
 from flask.views import MethodView
 from sqlalchemy.orm import selectinload
 from stripe import StripeError
 from werkzeug import Response
+from werkzeug.exceptions import Forbidden
 
 from app.flask.extensions import db
 from app.flask.lib.nav import nav
+from app.flask.lib.toaster import toast
 from app.flask.lib.view_model import Wrapper
 from app.flask.routing import url_for
 from app.flask.sqla import get_public_obj
@@ -194,6 +204,8 @@ class ItemDetailView(MethodView):
                 return self._toggle_like(post)
             case "post-comment":
                 return self._post_comment(post)
+            # case "content-alert":
+            #     return self._post_content_alert(post)
             case _:
                 return ""
 
@@ -224,6 +236,12 @@ class ItemDetailView(MethodView):
             flash("Votre commentaire a été posté.")
 
         return redirect(url_for(post) + "#comments-title")
+
+    # def _post_content_alert(self, post: Post) -> Response:
+    #     """Send a content alert for the post."""
+    #     response = make_response("", 200)
+    #     toast(response, "Signalement envoyé.")
+    #     return response
 
     def _get_metadata_list(self, post: Post) -> list[dict]:
         """Build metadata list for display."""
@@ -485,3 +503,33 @@ class UserVM(Wrapper):
             .order_by(Organisation.name)
         )
         return db.session.scalar(stmt)
+
+
+@blueprint.route("/<post_id>/alert_modal", methods=["GET"])
+def alert_modal(post_id: str) -> str:
+    """HTMX modal for reporting content."""
+    user = cast(User, g.user)
+    if not user or user.is_anonymous:
+        msg = "Access denied"
+        raise Forbidden(msg)
+    post = get_public_obj(post_id, Post)
+    return render_template("pages/wire/alert_modal.j2", post=post)
+
+
+@blueprint.route("/<post_id>/alert", methods=["POST"])
+def alert_submit(post_id: str) -> Response:
+    """Handle content alert submission."""
+    user = cast(User, g.user)
+    if not user or user.is_anonymous:
+        msg = "Access denied"
+        raise Forbidden(msg)
+    post = get_public_obj(post_id, Post)
+    reason = request.form.get("reason", "").strip()
+    message = request.form.get("message", "").strip()
+    warn(
+        f"Content alert for post {post.id} {post.title!r} "
+        f"by uid {user.id} {user.email!r}: {reason!r} message={message!r}"
+    )
+    response = make_response("", 200)
+    toast(response, "Signalement envoyé. Merci de votre vigilance.")
+    return response

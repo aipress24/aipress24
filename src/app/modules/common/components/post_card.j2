@@ -160,10 +160,16 @@
 
         <span class="inline-flex items-center text-sm"
               title="Signaler ce contenu">
-            <span class="inline-flex space-x-2 text-gray-400">
+            <button
+                type="button"
+                class="inline-flex space-x-2 text-gray-400 hover:text-gray-500"
+                hx-get="{{ url_for('wire.alert_modal', post_id=post.id) }}"
+                hx-target="body"
+                hx-swap="beforeend"
+            >
                 {{ icon("exclamation-triangle", class="h-5 w-5") }}
-                <span class="sr-only">Alerte</span>
-            </span>
+                <span class="sr-only">Signaler ce contenu</span>
+            </button>
         </span>
     </div>
 
