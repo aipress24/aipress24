@@ -29,7 +29,7 @@ UPDATE_COUNTRY_SRC = _REPO_ROOT / "update_data" / "country_zip_code" / "pays.jso
 UPDATE_ZIP_CODE_SRC = _REPO_ROOT / "update_data" / "country_zip_code" / "towns"
 
 DEFAULT_NO_ZIP_CODE = [
-    {"name": "Aucune information sur les codes postaux", "zip_code": "000"}
+    {"name": "Aucune donnée de code postal disponible", "zip_code": "000"}
 ]
 LOAD_CHUNK = 5000
 
