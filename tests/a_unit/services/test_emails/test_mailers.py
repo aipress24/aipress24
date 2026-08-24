@@ -16,6 +16,7 @@ from app.services.emails.mailers import (
     ContactAvisEnqueteRDVCancelledJournalistMail,
     ContactAvisEnqueteRDVConfirmationMail,
     ContactAvisEnqueteRDVProposalMail,
+    ContentAlertMail,
 )
 
 
@@ -271,3 +272,32 @@ def test_contact_avis_enquete_rdv_cancel_expert_mail():
         assert "title avis enquete" in kwargs["body"]
         assert "some date" in kwargs["body"]
         assert "John Doe" in kwargs["body"]
+
+
+def test_content_alert_mail():
+    with patch("app.services.emails.base.EmailMessage") as mock_email_message:
+        alert_mail = ContentAlertMail(
+            post_id=42,
+            post_title="Article Suspect",
+            post_url="https://aipress24.com/wire/42",
+            post_type="Article",
+            post_author_name="Alice Dupont",
+            reason_label="Contenu inapproprié",
+            message="message",
+            reporter_email="bob@example.com",
+            reporter_name="Bob Martin",
+        )
+        alert_mail.send()
+
+        mock_email_message.assert_called_once()
+        _args, kwargs = mock_email_message.call_args
+        assert kwargs["to"] == ["contact@aipress24.com"]
+        assert kwargs["from_email"] == "contact@aipress24.com"
+        assert kwargs["subject"] == "[Aipress24] Signalement de contenu"
+        assert "Article Suspect" in kwargs["body"]
+        assert "https://aipress24.com/wire/42" in kwargs["body"]
+        assert "Contenu inapproprié" in kwargs["body"]
+        assert "message" in kwargs["body"]
+        assert "Bob Martin" in kwargs["body"]
+        assert "bob@example.com" in kwargs["body"]
+        assert "Alice Dupont" in kwargs["body"]
