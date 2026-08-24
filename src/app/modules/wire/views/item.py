@@ -53,6 +53,7 @@ from app.modules.wire.models import (
     PurchaseProduct,
 )
 from app.modules.wire.views.purchase import _price_id_for
+from app.services.emails.mailers import ContentAlertMail
 from app.services.social_graph import SocialUser, adapt
 from app.services.stripe.utils import load_stripe_api_key
 from app.services.tagging import get_tags
@@ -530,6 +531,34 @@ def alert_submit(post_id: str) -> Response:
         f"Content alert for post {post.id} {post.title!r} "
         f"by uid {user.id} {user.email!r}: {reason!r} message={message!r}"
     )
+
+    reason_labels = {
+        "inappropriate": "Contenu inapproprié ou illicite",
+        "copyright": "Violation de droits d'auteur",
+        "spam": "Spam ou contenu trompeur",
+        "other": "Autre motif",
+    }
+    reason_label = reason_labels.get(reason, reason)
+    post_type = "Communiqué" if isinstance(post, PressReleasePost) else "Article"
+    post_author_name = post.owner.full_name if post.owner else ""
+    post_url = url_for(post, _external=True)
+
+    try:
+        alert_mail = ContentAlertMail(
+            post_id=post.id,
+            post_title=post.title,
+            post_url=post_url,
+            post_type=post_type,
+            post_author_name=post_author_name,
+            reason_label=reason_label,
+            message=message,
+            reporter_email=user.email,
+            reporter_name=user.full_name,
+        )
+        alert_mail.send()
+    except Exception as exc:
+        warn(f"Failed to send content alert email for post {post.id}: {exc}")
+
     response = make_response("", 200)
     toast(response, "Signalement envoyé. Merci de votre vigilance.")
     return response
