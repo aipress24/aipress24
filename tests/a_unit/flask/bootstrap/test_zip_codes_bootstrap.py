@@ -19,7 +19,7 @@ from app.services.zip_codes import ZipCodeEntry
 def test_import_default_zip_code_for_country(db) -> None:
     iso3_path = Path("XYZ.json")
     iso3 = iso3_path.stem
-    msg = "Aucune information sur les codes postaux"
+    msg = "Aucune donnée de code postal disponible"
     import_default_zip_code_for_country(iso3_path)
     db.session.flush()
 
