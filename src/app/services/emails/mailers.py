@@ -699,3 +699,39 @@ class CessionPurchaseAcknowledgmentMail(EmailTemplate):
     author_full_name: str
     media_name: str
     amount_ht_eur: str
+
+
+@dataclass(kw_only=True)
+class ContentAlertMail(EmailTemplate):
+    """
+    Email notification sent to contact@aipress24.com when a user reports a post.
+
+    Args:
+        - sender: "contact@aipress24.com".
+        - recipient: "contact@aipress24.com".
+        - sender_mail: "contact@aipress24.com".
+        - post_id: ID of the reported post.
+        - post_title: title of the reported post.
+        - post_url: URL of the reported post.
+        - post_type: "Article" or "Communiqué".
+        - post_author_name: author of the post.
+        - reason_label: human-readable label of the reason.
+        - message: optional details.
+        - reporter_email: email of the reporter.
+        - reporter_name: full name of the reporter.
+    """
+
+    sender: str = "contact@aipress24.com"
+    recipient: str = "contact@aipress24.com"
+    sender_mail: str = "contact@aipress24.com"
+    subject: str = "[Aipress24] Signalement de contenu"
+    template_html: str = "content_alert_notification.j2"
+    post_id: str | int
+    post_title: str
+    post_url: str
+    post_type: str = "Article"
+    post_author_name: str = ""
+    reason_label: str = ""
+    message: str = ""
+    reporter_email: str = ""
+    reporter_name: str = ""
