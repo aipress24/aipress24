@@ -164,6 +164,11 @@ ADMIN_MENU = [
         "icon": "gift",
     },
     {
+        "label": "Signalements",
+        "endpoint": "admin.content_alerts",
+        "icon": "alert-triangle",
+    },
+    {
         "label": "Système",
         "endpoint": "admin.system",
         "icon": "settings",

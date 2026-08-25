@@ -1,0 +1,115 @@
+{% extends "admin/layout/_base.j2" %}
+
+{% block main %}
+    <div class="space-y-6">
+
+        <div>
+            <p class="mt-1 text-sm text-gray-500">
+                Liste des articles et communiqués signalés par les utilisateurs.
+            </p>
+        </div>
+
+        {% if not items %}
+            <div class="bg-white p-8 rounded-lg shadow-sm border border-gray-200 text-center text-gray-500">
+                <p class="text-base font-medium text-gray-700">
+                    Aucun signalement en cours
+                </p>
+            </div>
+        {% else %}
+            <div class="bg-white shadow rounded-lg border border-gray-200 overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200 text-left text-sm">
+                        <thead class="bg-gray-50 text-xs font-semibold uppercase text-gray-500">
+                            <tr>
+                                <th scope="col" class="px-4 py-3">Date</th>
+                                <th scope="col" class="px-4 py-3">Type</th>
+                                <th scope="col" class="px-4 py-3">Titre & Lien</th>
+                                <th scope="col" class="px-4 py-3">Motif & Commentaire</th>
+                                <th scope="col" class="px-4 py-3">Signalé par</th>
+                                <th scope="col" class="px-4 py-3">Statut</th>
+                                <th scope="col" class="px-4 py-3 text-right">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-200 bg-white">
+                            {% for item in items %}
+                                {% set alert = item.alert %}
+                                <tr class="hover:bg-gray-50 transition-colors">
+                                    <td class="px-4 py-3 whitespace-nowrap text-xs text-gray-500 align-top">
+                                        {{ item.created_at_str }}
+                                    </td>
+
+                                    <td class="px-4 py-3 whitespace-nowrap align-top">
+                                        {{ alert.post_type }}
+                                    </td>
+
+                                    <td class="px-4 py-3 align-top max-w-xs">
+                                        <div class="font-medium text-gray-900">
+                                            {% if item.post_url and not item.post_is_deleted %}
+                                                <a href="{{ item.post_url }}"
+                                                   target="_blank"
+                                                   rel="noopener noreferrer"
+                                                   class="text-blue-600 hover:text-blue-800 hover:underline inline-flex items-center gap-1">
+                                                    {{ alert.post_title or "(Sans titre)" }}
+                                                </a>
+                                            {% else %}
+                                                {{ alert.post_title or "(Sans titre)" }}
+                                            {% endif %}
+                                        </div>
+                                        <div class="text-xs text-gray-500 mt-0.5">
+                                            Auteur : {{ alert.post_author_name }}
+                                        </div>
+                                        <div class="text-xs text-gray-400 mt-0.5">
+                                            Post ID: {{ alert.post_id }}
+                                        </div>
+                                    </td>
+
+                                    <td class="px-4 py-3 align-top max-w-sm">
+                                        {{ alert.reason_label }}
+                                        {% if alert.message %}
+                                            <p class="text-xs text-gray-600 italic bg-gray-50 p-2 rounded border border-gray-100 mt-1">
+                                                {{ alert.message }}
+                                            </p>
+                                        {% endif %}
+                                    </td>
+
+                                    <td class="px-4 py-3 whitespace-nowrap text-xs text-gray-600 align-top">
+                                        <div class="font-medium text-gray-800">
+                                            {{ alert.reporter_name }}
+                                        </div>
+                                        <div class="font-medium text-gray-800">
+                                            {{ alert.reporter_email }}
+                                        </div>
+                                    </td>
+
+                                    <td class="px-4 py-3 whitespace-nowrap align-top">
+                                        {% if item.post_is_deleted %}
+                                            Supprimé
+                                        {% else %}
+                                            Actif
+                                        {% endif %}
+                                    </td>
+
+                                    <td class="px-4 py-3 whitespace-nowrap text-right align-top">
+                                        {% if not item.post_is_deleted %}
+                                            <form method="POST" action="{{ url_for('.delete_reported_post', alert_id=alert.id) }}" class="inline">
+                                                <button
+                                                    type="submit"
+                                                    onclick="return confirm('Êtes-vous sûr de vouloir supprimer définitivement cet article ? Cette action est irréversible.');"
+                                                    class="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded shadow-sm text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors"
+                                                >
+                                                    {{ icon("trash-2", type="lucide", class="h-3.5 w-3.5 mr-1") }}
+                                                    Supprimer
+                                                </button>
+                                            </form>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        {% endif %}
+
+    </div>
+{% endblock %}
