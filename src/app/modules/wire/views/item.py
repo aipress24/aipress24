@@ -39,6 +39,7 @@ from app.flask.routing import url_for
 from app.flask.sqla import get_public_obj
 from app.logging import warn
 from app.models.auth import User
+from app.models.content_alert import ContentAlert
 from app.models.organisation import Organisation
 from app.modules.kyc.field_label import (
     country_code_to_label,
@@ -542,6 +543,25 @@ def alert_submit(post_id: str) -> Response:
     post_type = "Communiqué" if isinstance(post, PressReleasePost) else "Article"
     post_author_name = post.owner.full_name if post.owner else ""
     post_url = url_for(post, _external=True)
+    try:
+        content_alert = ContentAlert(
+            post_id=post.id,
+            post_title=post.title,
+            post_type=post_type,
+            post_url=post_url,
+            post_author_name=post_author_name,
+            reason=reason,
+            reason_label=reason_label,
+            message=message,
+            reporter_id=user.id,
+            reporter_email=user.email,
+            reporter_name=user.full_name,
+        )
+        db.session.add(content_alert)
+        db.session.commit()
+    except Exception as exc:
+        db.session.rollback()
+        warn(f"Failed to record content alert in db for post {post_id}: {exc}")
 
     try:
         alert_mail = ContentAlertMail(
