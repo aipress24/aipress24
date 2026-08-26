@@ -29,7 +29,7 @@
                         Signaler ce contenu
                     </h3>
                     <div class="mt-1">
-                        <p class="text-sm text-gray-700 truncate"
+                        <p class="text-sm text-gray-700"
                            title="{{ post.title }}">
                             {{ post.title }}
                         </p>
@@ -42,23 +42,43 @@
                 hx-post="{{ url_for('wire.alert_submit', post_id=post.id) }}"
                 hx-target="#content-alert-modal"
                 hx-swap="delete"
+                x-data="{
+                        selectedReasons: [],
+                        message: '',
+                        get onlyAutre() {
+                        return this.selectedReasons.length === 1 && this.selectedReasons[0] === 'autre';
+                        },
+                        get isValid() {
+                        if (this.selectedReasons.length === 0) return false;
+                        if (this.onlyAutre && !this.message.trim()) return false;
+                        return true;
+                        }
+                        }"
             >
                 <div>
-                    <label for="alert-reason"
-                           class="block text-sm font-medium text-gray-700">
-                        Raison (*)
-                    </label>
-                    <select
-                        id="alert-reason"
-                        name="reason"
-                        required
-                        class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md"
-                    >
-                        <option value="" disabled selected>Sélectionnez un motif...</option>
+                    <div class="flex items-center justify-between mb-1.5">
+                        <label class="block text-sm font-medium text-gray-700">
+                            Motifs du signalement
+                        </label>
+                    </div>
+                    <div class="space-y-1.5 max-h-52 overflow-y-auto border border-gray-300 rounded-md p-2.5 bg-gray-50/50 divide-y divide-gray-100">
                         {% for code, label in alert_reasons.items() %}
-                            <option value="{{ code }}">{{ label }}</option>
+                            <label for="alert-reason-{{ code }}"
+                                   class="flex items-center pt-1.2 first:pt-0 cursor-pointer hover:bg-gray-100/70 p-1 rounded transition-colors">
+                                <input
+                                    id="alert-reason-{{ code }}"
+                                    name="reasons"
+                                    type="checkbox"
+                                    value="{{ code }}"
+                                    x-model="selectedReasons"
+                                    class="h-4 w-4 border-gray-600 rounded cursor-pointer"
+                                >
+                                <span class="ml-2.5 text-sm text-gray-900 select-none">
+                                    {{ label }}
+                                </span>
+                            </label>
                         {% endfor %}
-                    </select>
+                    </div>
                 </div>
 
                 <div>
@@ -70,7 +90,9 @@
                         id="alert-message"
                         name="message"
                         rows="3"
-                        placeholder="Vous pouvez donner plus de détails sur le problème..."
+                        x-model="message"
+                        :required="onlyAutre"
+                        :placeholder="onlyAutre ? 'Veuillez préciser la raison de votre signalement (obligatoire)' : 'Vous pouvez donner plus de détails sur le signalement'"
                         class="mt-1 block w-full shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm border border-gray-300 rounded-md p-2"
                     ></textarea>
                 </div>
@@ -78,7 +100,9 @@
                 <div class="mt-5 sm:mt-4 sm:flex sm:flex-row-reverse sm:space-x-reverse sm:space-x-3">
                     <button
                         type="submit"
-                        class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-red-600 text-base font-medium text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 sm:ml-3 sm:w-auto sm:text-sm"
+                        :disabled="!isValid"
+                        :class="isValid ? 'bg-red-600 hover:bg-red-700 cursor-pointer' : 'bg-red-300 cursor-not-allowed opacity-60'"
+                        class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 text-base font-medium text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 sm:ml-3 sm:w-auto sm:text-sm transition-opacity"
                     >
                         Signaler
                     </button>
