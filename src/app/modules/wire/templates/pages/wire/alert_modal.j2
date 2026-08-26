@@ -55,10 +55,9 @@
                         class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md"
                     >
                         <option value="" disabled selected>Sélectionnez un motif...</option>
-                        <option value="inappropriate">Contenu inapproprié ou illicite</option>
-                        <option value="copyright">Violation de droits d'auteur</option>
-                        <option value="spam">Spam ou contenu trompeur</option>
-                        <option value="other">Autre motif</option>
+                        {% for code, label in alert_reasons.items() %}
+                            <option value="{{ code }}">{{ label }}</option>
+                        {% endfor %}
                     </select>
                 </div>
 
