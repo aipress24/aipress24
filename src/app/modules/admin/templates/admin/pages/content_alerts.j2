@@ -16,104 +16,106 @@
                 </p>
             </div>
         {% else %}
-            <div class="bg-white shadow rounded-lg border border-gray-200 overflow-hidden">
-                <div class="overflow-x-auto">
-                    <table class="min-w-full divide-y divide-gray-200 text-left text-sm">
-                        <thead class="bg-gray-50 text-xs font-semibold uppercase text-gray-500">
-                            <tr>
-                                <th scope="col" class="px-4 py-3">Date</th>
-                                <th scope="col" class="px-4 py-3">Type</th>
-                                <th scope="col" class="px-4 py-3">Titre & Lien</th>
-                                <th scope="col" class="px-4 py-3">Motif & Commentaire</th>
-                                <th scope="col" class="px-4 py-3">Signalé par</th>
-                                <th scope="col" class="px-4 py-3">Statut</th>
-                                <th scope="col" class="px-4 py-3 text-right">Action</th>
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y divide-gray-200 bg-white">
-                            {% for item in items %}
-                                {% set alert = item.alert %}
-                                <tr class="hover:bg-gray-50 transition-colors">
-                                    <td class="px-4 py-3 whitespace-nowrap text-xs text-gray-500 align-top">
-                                        {{ item.created_at_str }}
-                                    </td>
+            <div class="space-y-4">
+                {% for item in items %}
+                    {% set alert = item.alert %}
+                    <div class="bg-white shadow rounded-lg border border-gray-200 overflow-hidden">
+                        <dl class="divide-y divide-gray-100 text-sm">
+                            <div class="px-4 py-2 sm:px-5 sm:grid sm:grid-cols-4 sm:gap-3 items-center">
+                                <dt class="font-semibold text-gray-600">Date</dt>
+                                <dd class="mt-0.5 text-gray-900 sm:mt-0 sm:col-span-3">
+                                    {{ item.created_at_str }}
+                                </dd>
+                            </div>
 
-                                    <td class="px-4 py-3 whitespace-nowrap align-top">
-                                        {{ alert.post_type }}
-                                    </td>
+                            <div class="px-4 py-2 sm:px-5 sm:grid sm:grid-cols-4 sm:gap-3 items-center">
+                                <dt class="font-semibold text-gray-600">Type</dt>
+                                <dd class="mt-0.5 text-gray-900 sm:mt-0 sm:col-span-3">
+                                    {{ alert.post_type }}
+                                </dd>
+                            </div>
 
-                                    <td class="px-4 py-3 align-top max-w-xs">
-                                        <div class="font-medium text-gray-900">
-                                            {% if item.post_url and not item.post_is_deleted %}
-                                                <a href="{{ item.post_url }}"
-                                                   target="_blank"
-                                                   rel="noopener noreferrer"
-                                                   class="text-blue-600 hover:text-blue-800 hover:underline inline-flex items-center gap-1">
-                                                    {{ alert.post_title or "(Sans titre)" }}
-                                                </a>
-                                            {% else %}
-                                                {{ alert.post_title or "(Sans titre)" }}
-                                            {% endif %}
-                                        </div>
-                                        <div class="text-xs text-gray-500 mt-0.5">
-                                            Auteur : {{ alert.post_author_name }}
-                                        </div>
-                                        <div class="text-xs text-gray-400 mt-0.5">
-                                            Post ID: {{ alert.post_id }}
-                                        </div>
-                                    </td>
-
-                                    <td class="px-4 py-3 align-top max-w-sm">
-                                        {% if alert.reasons %}
-                                            {% for r in alert.reasons %}
-                                                <span class="inline-block font-semibold text-xs text-gray-700 bg-gray-100 px-2 py-0.5 rounded mr-1 mb-1">
-                                                    {{ r }}
-                                                </span>
-                                            {% endfor %}
-                                        {% endif %}
-                                        {% if alert.message %}
-                                            <p class="text-xs text-gray-600 italic bg-gray-50 p-2 rounded border border-gray-100 mt-1">
-                                                {{ alert.message }}
-                                            </p>
-                                        {% endif %}
-                                    </td>
-
-                                    <td class="px-4 py-3 whitespace-nowrap text-xs text-gray-600 align-top">
-                                        <div class="font-medium text-gray-800">
-                                            {{ alert.reporter_name }}
-                                        </div>
-                                        <div class="font-medium text-gray-800">
-                                            {{ alert.reporter_email }}
-                                        </div>
-                                    </td>
-
-                                    <td class="px-4 py-3 whitespace-nowrap align-top">
-                                        {% if item.post_is_deleted %}
-                                            Supprimé
+                            <div class="px-4 py-2 sm:px-5 sm:grid sm:grid-cols-4 sm:gap-3 items-start">
+                                <dt class="font-semibold text-gray-600 pt-0.5">Titre & Lien</dt>
+                                <dd class="mt-0.5 text-gray-900 sm:mt-0 sm:col-span-3 space-y-0.5">
+                                    <div class="font-medium">
+                                        {% if item.post_url and not item.post_is_deleted %}
+                                            <a href="{{ item.post_url }}"
+                                               target="_blank"
+                                               rel="noopener noreferrer"
+                                               class="text-blue-600 hover:text-blue-800 hover:underline inline-flex items-center gap-1">
+                                                <span>{{ alert.post_title or "(Sans titre)" }}</span>
+                                                {{ icon("external-link", type="lucide", class="h-3.5 w-3.5") }}
+                                            </a>
                                         {% else %}
-                                            Actif
+                                            <span class="text-gray-800">{{ alert.post_title or "(Sans titre)" }}</span>
                                         {% endif %}
-                                    </td>
+                                    </div>
+                                    <div class="text-xs text-gray-500">
+                                        Auteur : {{ alert.post_author_name or "(Inconnu)" }} <span class="mx-1 text-gray-300">·</span> Post ID : <span class="font-mono">{{ alert.post_id }}</span>
+                                    </div>
+                                </dd>
+                            </div>
 
-                                    <td class="px-4 py-3 whitespace-nowrap text-right align-top">
-                                        {% if not item.post_is_deleted %}
-                                            <form method="POST" action="{{ url_for('.delete_reported_post', alert_id=alert.id) }}" class="inline">
-                                                <button
-                                                    type="submit"
-                                                    onclick="return confirm('Êtes-vous sûr de vouloir supprimer définitivement cet article ? Cette action est irréversible.');"
-                                                    class="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded shadow-sm text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors"
-                                                >
-                                                    {{ icon("trash-2", type="lucide", class="h-3.5 w-3.5 mr-1") }}
-                                                    Supprimer
-                                                </button>
-                                            </form>
-                                        {% endif %}
-                                    </td>
-                                </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
+                            <div class="px-4 py-2 sm:px-5 sm:grid sm:grid-cols-4 sm:gap-3 items-start">
+                                <dt class="font-semibold text-gray-600 pt-0.5">Motif & Commentaire</dt>
+                                <dd class="mt-0.5 text-gray-900 sm:mt-0 sm:col-span-3 space-y-1">
+                                    {% if alert.reasons %}
+                                        <div>
+                                            {{ alert.reasons | join(', ') }}
+                                        </div>
+                                    {% endif %}
+                                    {% if alert.message %}
+                                        <div class="text-xs text-gray-600 italic whitespace-pre-wrap">
+                                            {{ alert.message }}
+                                        </div>
+                                    {% endif %}
+                                </dd>
+                            </div>
+
+                            <div class="px-4 py-2 sm:px-5 sm:grid sm:grid-cols-4 sm:gap-3 items-center">
+                                <dt class="font-semibold text-gray-600">Signalé par</dt>
+                                <dd class="mt-0.5 text-gray-900 sm:mt-0 sm:col-span-3">
+                                    <span class="font-medium text-gray-800">{{ alert.reporter_name }}</span>
+                                    <span class="text-xs text-gray-500 font-mono ml-1.5">&lt;{{ alert.reporter_email }}&gt;</span>
+                                </dd>
+                            </div>
+
+                            <div class="px-4 py-2 sm:px-5 sm:grid sm:grid-cols-4 sm:gap-3 items-center">
+                                <dt class="font-semibold text-gray-600">Statut</dt>
+                                <dd class="mt-0.5 text-gray-900 sm:mt-0 sm:col-span-3">
+                                    {% if item.post_is_deleted %}
+                                        Supprimé
+                                    {% else %}
+                                        Actif
+                                    {% endif %}
+                                </dd>
+                            </div>
+
+                            <div class="px-4 py-2 sm:px-5 sm:grid sm:grid-cols-4 sm:gap-3 items-center bg-gray-50/50">
+                                <dt class="font-semibold text-gray-600">Action</dt>
+                                <dd class="mt-0.5 sm:mt-0 sm:col-span-3 flex items-center">
+                                    {% if not item.post_is_deleted %}
+                                        <form method="POST" action="{{ url_for('.delete_reported_post', alert_id=alert.id) }}" class="inline">
+                                            <button
+                                                type="submit"
+                                                onclick="return confirm('Êtes-vous sûr de vouloir supprimer définitivement cet article ? Cette action est irréversible.');"
+                                                class="inline-flex items-center px-3 py-1 border border-transparent text-xs font-medium rounded shadow-sm text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors"
+                                            >
+                                                {{ icon("trash-2", type="lucide", class="h-3.5 w-3.5 mr-1") }}
+                                                Supprimer
+                                            </button>
+                                        </form>
+                                    {% else %}
+                                        <span class="text-xs text-gray-400 italic">
+                                            Aucune action disponible (contenu supprimé)
+                                        </span>
+                                    {% endif %}
+                                </dd>
+                            </div>
+                        </dl>
+                    </div>
+                {% endfor %}
             </div>
         {% endif %}
 
