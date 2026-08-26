@@ -31,6 +31,7 @@ from stripe import StripeError
 from werkzeug import Response
 from werkzeug.exceptions import Forbidden
 
+from app.constants import CONTENT_ALERT_REASONS
 from app.flask.extensions import db
 from app.flask.lib.nav import nav
 from app.flask.lib.toaster import toast
@@ -515,7 +516,11 @@ def alert_modal(post_id: str) -> str:
         msg = "Access denied"
         raise Forbidden(msg)
     post = get_public_obj(post_id, Post)
-    return render_template("pages/wire/alert_modal.j2", post=post)
+    return render_template(
+        "pages/wire/alert_modal.j2",
+        post=post,
+        alert_reasons=CONTENT_ALERT_REASONS,
+    )
 
 
 @blueprint.route("/<post_id>/alert", methods=["POST"])
@@ -533,13 +538,10 @@ def alert_submit(post_id: str) -> Response:
         f"by uid {user.id} {user.email!r}: {reason!r} message={message!r}"
     )
 
-    reason_labels = {
-        "inappropriate": "Contenu inapproprié ou illicite",
-        "copyright": "Violation de droits d'auteur",
-        "spam": "Spam ou contenu trompeur",
-        "other": "Autre motif",
-    }
-    reason_label = reason_labels.get(reason, reason)
+    raw_reasons = request.form.getlist("reasons")
+    reasons: list[str] = [CONTENT_ALERT_REASONS.get(r) for r in raw_reasons if r]
+    reason_label = ", ".join(reasons) if reasons else ""
+
     post_type = "Communiqué" if isinstance(post, PressReleasePost) else "Article"
     post_author_name = post.owner.full_name if post.owner else ""
     post_url = url_for(post, _external=True)
@@ -550,8 +552,7 @@ def alert_submit(post_id: str) -> Response:
             post_type=post_type,
             post_url=post_url,
             post_author_name=post_author_name,
-            reason=reason,
-            reason_label=reason_label,
+            reasons=reasons,
             message=message,
             reporter_id=user.id,
             reporter_email=user.email,
