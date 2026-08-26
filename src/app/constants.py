@@ -97,6 +97,7 @@ EMAILS_LOG_STORAGE_CUTOFF = 90
 WEBHOOK_TEST_CUSTOMER_EMAIL = "admin-webhook-test@example.com"
 WEBHOOK_TEST_WAIT_TIMEOUT = 60
 
+CONTENT_ALERTS_RETENTION_DAYS = 90
 CONTENT_ALERT_REASONS = {
     "alert01": "Propos sexistes",
     "alert02": "Propos racistes ou xénophobes",

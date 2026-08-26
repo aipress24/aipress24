@@ -14,7 +14,7 @@ from arrow import now
 from flask import flash, redirect, render_template, url_for
 from werkzeug.exceptions import NotFound
 
-from app.constants import LOCAL_TZ
+from app.constants import CONTENT_ALERTS_RETENTION_DAYS, LOCAL_TZ
 from app.flask.extensions import db
 from app.flask.lib.nav import nav
 from app.models.content_alert import ContentAlert
@@ -42,8 +42,13 @@ class AlertViewModel:
     label="Signalements",
 )
 def content_alerts():
-    """List all reported content alerts."""
-    stmt = sa.select(ContentAlert).order_by(ContentAlert.created_at.desc())
+    """List reported content alerts from the last 90 days."""
+    cutoff = now(LOCAL_TZ).shift(days=-CONTENT_ALERTS_RETENTION_DAYS)
+    stmt = (
+        sa.select(ContentAlert)
+        .where(ContentAlert.created_at >= cutoff)
+        .order_by(ContentAlert.created_at.desc())
+    )
     alerts = list(db.session.scalars(stmt))
 
     post_ids = {a.post_id for a in alerts if a.post_id}
