@@ -12,6 +12,15 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+import arrow
+
+from app.models.auth import User
+from app.models.content_alert import ContentAlert
+from app.models.organisation import Organisation
+from app.modules.wip.models.comroom.communique import Communique
+from app.modules.wip.models.newsroom.article import Article
+from app.modules.wire.models import ArticlePost, PressReleasePost
+
 if TYPE_CHECKING:
     from flask.testing import FlaskClient
 
@@ -177,3 +186,197 @@ class TestAdminDramatiqDashboard:
         # Either the schema is present (live PG) or the notice is shown.
         # Both states are OK; we only fail on a 500 / a missing template.
         assert "Dramatiq" in html
+
+
+class TestAdminContentAlerts:
+    """Integration tests for admin content alerts page."""
+
+    def test_content_alerts_page_loads_empty(self, admin_client: FlaskClient) -> None:
+        """Test GET /admin/content-alerts renders successfully when empty and in menu."""
+        response = admin_client.get("/admin/content-alerts")
+        assert response.status_code == 200
+        html = response.data.decode()
+        assert "Signalements de contenu" in html
+        assert "Aucun signalement en cours" in html
+
+    def test_content_alerts_list_and_delete_article(
+        self, admin_client: FlaskClient, db_session
+    ) -> None:
+        """Test listing an alert on an article and deleting the article from the alert row."""
+        user = User(email="reporter@example.com", active=True)
+        user.first_name = "Alice"
+        user.last_name = "Signaleur"
+        author = User(email="author_bad@example.com", active=True)
+        author.first_name = "Bob"
+        author.last_name = "Auteur"
+        org = Organisation(name="Media Alert Test")
+        db_session.add_all([user, author, org])
+        db_session.flush()
+
+        article = Article(
+            titre="Article Inapproprié",
+            chapo="Chapo.",
+            contenu="Texte illicite",
+            owner=author,
+            commanditaire_id=author.id,
+            media_id=org.id,
+            date_parution_prevue=arrow.now("Europe/Paris").datetime,
+        )
+        db_session.add(article)
+        db_session.flush()
+
+        post = ArticlePost(
+            title=article.titre,
+            summary=article.chapo,
+            content=article.contenu,
+            newsroom_id=article.id,
+            owner=author,
+        )
+        db_session.add(post)
+        db_session.flush()
+
+        alert = ContentAlert(
+            post_id=post.id,
+            post_title=post.title,
+            post_type="Article",
+            post_url=f"/wire/{post.id}",
+            post_author_name=author.full_name,
+            reasons=["Contenu inapproprié ou illicite"],
+            message="Ne respecte pas les règles du site.",
+            reporter_id=user.id,
+            reporter_email=user.email,
+            reporter_name=user.full_name,
+        )
+        db_session.add(alert)
+        db_session.commit()
+
+        resp = admin_client.get("/admin/content-alerts")
+        assert resp.status_code == 200
+        html = resp.data.decode()
+        assert "Article Inapproprié" in html
+        assert "Contenu inapproprié ou illicite" in html
+        assert "Ne respecte pas les règles du site." in html
+        assert "Alice Signaleur" in html
+        assert "reporter@example.com" in html
+        assert "Actif" in html
+
+        delete_resp = admin_client.post(
+            f"/admin/content-alerts/{alert.id}/delete-post",
+            follow_redirects=True,
+        )
+        assert delete_resp.status_code == 200
+        delete_html = delete_resp.data.decode()
+        assert "supprim" in delete_html
+
+        db_session.refresh(article)
+        db_session.refresh(post)
+        db_session.refresh(alert)
+        assert article.deleted_at is not None
+        assert post.deleted_at is not None
+        assert alert.is_resolved is True
+
+    def test_content_alerts_delete_communique(
+        self, admin_client: FlaskClient, db_session
+    ) -> None:
+        """Test deleting a reported communique from the alert row."""
+        user = User(email="pr_reporter@example.com", active=True)
+        user.first_name = "Marc"
+        user.last_name = "Alerteur"
+        pr_owner = User(email="pr_spammer@example.com", active=True)
+        pr_owner.first_name = "Spam"
+        pr_owner.last_name = "Agency"
+        org = Organisation(name="Spam PR Org")
+        db_session.add_all([user, pr_owner, org])
+        db_session.flush()
+
+        communique = Communique(
+            titre="Communiqué Spam",
+            chapo="Chapo spam.",
+            contenu="SPAM",
+            owner=pr_owner,
+            publisher_id=org.id,
+        )
+        db_session.add(communique)
+        db_session.flush()
+
+        post = PressReleasePost(
+            title=communique.titre,
+            summary=communique.chapo,
+            content=communique.contenu,
+            newsroom_id=communique.id,
+            owner=pr_owner,
+        )
+        db_session.add(post)
+        db_session.flush()
+
+        alert = ContentAlert(
+            post_id=post.id,
+            post_title=post.title,
+            post_type="Communiqué",
+            post_url=f"/wire/{post.id}",
+            post_author_name=pr_owner.full_name,
+            reasons=["Spam ou contenu trompeur"],
+            message="Non sollicité",
+            reporter_id=user.id,
+            reporter_email=user.email,
+            reporter_name=user.full_name,
+        )
+        db_session.add(alert)
+        db_session.commit()
+
+        # Delete post via alert row
+        delete_resp = admin_client.post(
+            f"/admin/content-alerts/{alert.id}/delete-post",
+            follow_redirects=True,
+        )
+        assert delete_resp.status_code == 200
+        delete_html = delete_resp.data.decode()
+        assert "supprim" in delete_html
+
+        db_session.refresh(communique)
+        db_session.refresh(post)
+        db_session.refresh(alert)
+        assert communique.deleted_at is not None
+        assert post.deleted_at is not None
+        assert alert.is_resolved is True
+
+    def test_content_alerts_filters_out_older_than_90_days(
+        self, admin_client: FlaskClient, db_session
+    ) -> None:
+        """Alerts older than 90 days should not be displayed."""
+        user = User(email="retention_test@example.com", active=True)
+        db_session.add(user)
+        db_session.flush()
+
+        # Alert within 90 days (e.g. 10 days ago)
+        recent_alert = ContentAlert(
+            post_id=101,
+            post_title="Article Récent",
+            post_type="Article",
+            reasons=["Autre motif"],
+            message="Récent",
+            reporter_id=user.id,
+            reporter_email=user.email,
+            reporter_name=user.full_name,
+            created_at=arrow.now().shift(days=-10),
+        )
+        # Alert older than 90 days (e.g. 95 days ago)
+        old_alert = ContentAlert(
+            post_id=102,
+            post_title="Article Ancien",
+            post_type="Article",
+            reasons=["Autre motif"],
+            message="Trop ancien",
+            reporter_id=user.id,
+            reporter_email=user.email,
+            reporter_name=user.full_name,
+            created_at=arrow.now().shift(days=-95),
+        )
+        db_session.add_all([recent_alert, old_alert])
+        db_session.commit()
+
+        resp = admin_client.get("/admin/content-alerts")
+        assert resp.status_code == 200
+        html = resp.data.decode()
+        assert "Article Récent" in html
+        assert "Article Ancien" not in html
