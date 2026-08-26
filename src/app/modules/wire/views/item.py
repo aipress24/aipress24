@@ -29,7 +29,7 @@ from flask.views import MethodView
 from sqlalchemy.orm import selectinload
 from stripe import StripeError
 from werkzeug import Response
-from werkzeug.exceptions import Forbidden
+from werkzeug.exceptions import BadRequest, Forbidden
 
 from app.constants import CONTENT_ALERT_REASONS
 from app.flask.extensions import db
@@ -531,16 +531,34 @@ def alert_submit(post_id: str) -> Response:
         msg = "Access denied"
         raise Forbidden(msg)
     post = get_public_obj(post_id, Post)
-    reason = request.form.get("reason", "").strip()
     message = request.form.get("message", "").strip()
+    raw_reasons = request.form.getlist("reasons")
+    if not raw_reasons and request.form.get("reasons"):
+        raw_reasons = [request.form.get("reasons", "").strip()]
+    raw_reasons = [r for r in raw_reasons if r]
+
+    reasons: list[str] = []
+    for r in raw_reasons:
+        label = CONTENT_ALERT_REASONS.get(r, r)
+        if label and label not in reasons:
+            reasons.append(label)
+
+    if not reasons:
+        msg = "Veuillez sélectionner au moins un motif de signalement."
+        raise BadRequest(msg)
+
+    if len(reasons) == 1:
+        autre_label = CONTENT_ALERT_REASONS.get("autre")
+        if reasons == [autre_label] and not message:
+            msg = "Veuillez préciser le champ détails."
+            raise BadRequest(msg)
+
+    reason_label = ", ".join(reasons)
+
     warn(
         f"Content alert for post {post.id} {post.title!r} "
-        f"by uid {user.id} {user.email!r}: {reason!r} message={message!r}"
+        f"by uid {user.id} {user.email!r}: reasons={reasons!r}"
     )
-
-    raw_reasons = request.form.getlist("reasons")
-    reasons: list[str] = [CONTENT_ALERT_REASONS.get(r) for r in raw_reasons if r]
-    reason_label = ", ".join(reasons) if reasons else ""
 
     post_type = "Communiqué" if isinstance(post, PressReleasePost) else "Article"
     post_author_name = post.owner.full_name if post.owner else ""

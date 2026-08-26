@@ -112,5 +112,5 @@ CONTENT_ALERT_REASONS = {
     "alert12": "Diffamation ou accusation abusive",
     "alert13": "Désinformation ou manipulation",
     "alert14": "Atteinte aux principes démocratiques",
-    "alert15": "Autre motif",
+    "autre": "Autre motif",
 }
