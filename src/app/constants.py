@@ -96,3 +96,21 @@ EMAILS_LOG_STORAGE_CUTOFF = 90
 
 WEBHOOK_TEST_CUSTOMER_EMAIL = "admin-webhook-test@example.com"
 WEBHOOK_TEST_WAIT_TIMEOUT = 60
+
+CONTENT_ALERT_REASONS = {
+    "alert01": "Propos sexistes",
+    "alert02": "Propos racistes ou xénophobes",
+    "alert03": "Propos antisémites",
+    "alert04": "Propos homophobes ou transphobes",
+    "alert05": "Propos haineux ou discriminatoires",
+    "alert06": "Harcèlement ou attaque personnelle",
+    "alert07": "Menace ou incitation à la violence",
+    "alert08": "Contenu violent ou choquant",
+    "alert09": "Apologie du terrorisme ou de la violence",
+    "alert10": "Contenu sexuel inapproprié",
+    "alert11": "Atteinte à la dignité ou à la vie privée",
+    "alert12": "Diffamation ou accusation abusive",
+    "alert13": "Désinformation ou manipulation",
+    "alert14": "Atteinte aux principes démocratiques",
+    "alert15": "Autre motif",
+}
