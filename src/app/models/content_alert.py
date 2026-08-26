@@ -5,7 +5,7 @@
 from __future__ import annotations
 
 import arrow
-from sqlalchemy import BigInteger, Boolean, String, Text
+from sqlalchemy import JSON, BigInteger, Boolean, String, Text
 from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy_utils import ArrowType
 
@@ -24,8 +24,7 @@ class ContentAlert(IdMixin, Base):
     post_url: Mapped[str] = mapped_column(String, default="", nullable=False)
     post_author_name: Mapped[str] = mapped_column(String, default="", nullable=False)
 
-    reason: Mapped[str] = mapped_column(String, default="", nullable=False)
-    reason_label: Mapped[str] = mapped_column(String, default="", nullable=False)
+    reasons: Mapped[list[str]] = mapped_column(JSON, default=list, nullable=False)
     message: Mapped[str] = mapped_column(Text, default="", nullable=False)
 
     reporter_id: Mapped[int | None] = mapped_column(BigInteger, nullable=True)
@@ -40,3 +39,6 @@ class ContentAlert(IdMixin, Base):
     resolved_at: Mapped[arrow.Arrow | None] = mapped_column(
         ArrowType(timezone=True), nullable=True
     )
+
+    def __repr__(self) -> str:
+        return f"<ContentAlert(id={self.id}, post_id={self.post_id}, reasons={self.reasons!r})>"
