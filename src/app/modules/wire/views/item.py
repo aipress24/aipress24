@@ -344,9 +344,11 @@ class PostMixin:
             "likes": post.like_count,
             "replies": post.comment_count,
             "views": post.view_count,
+            "shares": getattr(post, "share_count", 0),
             "num_likes": post.like_count,
             "num_replies": post.comment_count,
             "num_views": post.view_count,
+            "num_shares": getattr(post, "share_count", 0),
             "num_comments": post.comment_count,
             "comments": [],
             "tags": get_tags(post),
@@ -506,6 +508,18 @@ class UserVM(Wrapper):
             .order_by(Organisation.name)
         )
         return db.session.scalar(stmt)
+
+
+@blueprint.route("/<post_id>/share_modal", methods=["GET"])
+def share_modal(post_id: str) -> str:
+    """Modal for sharing content (wip)."""
+    post = get_public_obj(post_id, Post)
+    post_url = url_for(post, _external=True)
+    return render_template(
+        "pages/wire/share_modal.j2",
+        post=post,
+        post_url=post_url,
+    )
 
 
 @blueprint.route("/<post_id>/alert_modal", methods=["GET"])

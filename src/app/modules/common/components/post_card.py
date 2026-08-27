@@ -98,6 +98,7 @@ class ArticleVM(Wrapper):
     likes: int = field(init=False)
     replies: int = field(init=False)
     views: int = field(init=False)
+    shares: int = field(init=False)
 
     image_url: str = field(init=False)
     # Bug 0241: an article is NOT a communiqué, so the card must never use
@@ -139,6 +140,7 @@ class ArticleVM(Wrapper):
             # tally. `Post.view_count` is kept on the model for
             # back-compat but no longer surfaces here.
             "views": views,
+            "shares": getattr(post, "share_count", 0),
             "image_url": self.get_image_url(),
             "is_communique": False,
             "is_news_agency": is_post_from_news_agency(post),
@@ -160,6 +162,7 @@ class PressReleaseVM(Wrapper):
     likes: int = field(init=False)
     replies: int = field(init=False)
     views: int = field(init=False)
+    shares: int = field(init=False)
 
     summary: str = field(init=False)
     # published_at: Arrow = field(init=False)
@@ -183,6 +186,7 @@ class PressReleaseVM(Wrapper):
             "likes": post.like_count,
             "replies": post.comment_count,
             "views": post.view_count,
+            "shares": getattr(post, "share_count", 0),
             "image_url": self.get_image_url(),
             # "image_caption": "",
             # "image_copyright": "",
@@ -207,6 +211,7 @@ class CommuniqueVM(Wrapper):
     likes: int = field(init=False)
     replies: int = field(init=False)
     views: int = field(init=False)
+    shares: int = field(init=False)
 
     summary: str = field(init=False)
 
@@ -220,7 +225,7 @@ class CommuniqueVM(Wrapper):
         if len(summary) > 200:
             summary = summary[0:197] + "..."
 
-        likes, replies, views = self._get_stats_from_post()
+        likes, replies, views, shares = self._get_stats_from_post()
 
         return {
             "author": UserVM(post.owner),
@@ -230,14 +235,15 @@ class CommuniqueVM(Wrapper):
             "likes": likes,
             "replies": replies,
             "views": views,
+            "shares": shares,
             "image_url": self.get_image_url(),
             "is_communique": True,
             "is_news_agency": False,
             "_url": url_for(post),
         }
 
-    def _get_stats_from_post(self) -> tuple[int, int, int]:
-        """Fetch likes/replies/views from associated PressReleasePost."""
+    def _get_stats_from_post(self) -> tuple[int, int, int, int]:
+        """Fetch likes/replies/views/shares from associated PressReleasePost."""
 
         stmt = sa.select(PressReleasePost).where(
             PressReleasePost.newsroom_id == self._model.id
@@ -248,8 +254,9 @@ class CommuniqueVM(Wrapper):
                 press_release.like_count,
                 press_release.comment_count,
                 press_release.view_count,
+                getattr(press_release, "share_count", 0),
             )
-        return 0, 0, 0
+        return 0, 0, 0, 0
 
     def get_image_url(self):
         # This VM wraps a live Communique, so the image list is always
