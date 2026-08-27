@@ -339,3 +339,37 @@ class TestWireContentShare:
         assert "content-share-modal" in html
         assert "Partager cette publication" in html
         assert post.title in html
+
+    def test_post_share_count_column(
+        self,
+        authenticated_client: FlaskClient,
+        db_session: Session,
+        test_articles: list[ArticlePost],
+    ):
+        post = test_articles[0]
+        assert post.share_count == 0
+        post.share_count = 5
+        db_session.commit()
+
+        # Check refreshed from DB
+        db_session.expire_all()
+        refreshed = db_session.get(ArticlePost, post.id)
+        assert refreshed is not None
+        assert refreshed.share_count == 5
+
+    def test_wall_sort_by_shares(
+        self,
+        authenticated_client: FlaskClient,
+        db_session: Session,
+        test_articles: list[ArticlePost],
+    ):
+        test_articles[0].share_count = 10
+        test_articles[1].share_count = 50
+        db_session.commit()
+
+        response = authenticated_client.post(
+            "/wire/tab/wall",
+            data={"action": "sort-by", "value": "shares"},
+        )
+        assert response.status_code == 200
+
