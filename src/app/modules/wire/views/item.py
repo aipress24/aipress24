@@ -55,7 +55,7 @@ from app.modules.wire.models import (
     PurchaseProduct,
 )
 from app.modules.wire.views.purchase import _price_id_for
-from app.services.emails.mailers import ContentAlertMail
+from app.services.emails.mailers import ContentAlertMail, ShareContentMail
 from app.services.social_graph import SocialUser, adapt
 from app.services.stripe.utils import load_stripe_api_key
 from app.services.tagging import get_tags
@@ -510,9 +510,33 @@ class UserVM(Wrapper):
         return db.session.scalar(stmt)
 
 
+def _parse_recipient_emails(raw_emails: str) -> list[str]:
+    """Parse comma/newline/whitespace separated email list into unique emails."""
+    if not raw_emails:
+        return []
+    cleaned = raw_emails.replace(",", " ")
+    seen = set()
+    for raw_address in cleaned.split():
+        address = raw_address.strip().lower()
+        if "@" in address and "." in address.split("@")[-1]:
+            seen.add(address)
+    return list(seen)
+
+
+def _get_form_emails() -> list[str]:
+    raw_emails_blob = "\n".join(
+        request.form.getlist("recipient_emails")
+    ) or request.form.get("recipient_emails", "")
+    return _parse_recipient_emails(raw_emails_blob)
+
+
 @blueprint.route("/<post_id>/share_modal", methods=["GET"])
 def share_modal(post_id: str) -> str:
-    """Modal for sharing content (wip)."""
+    """Modal for sharing content."""
+    user = cast(User, g.user)
+    if not user or user.is_anonymous:
+        msg = "Access denied"
+        raise Forbidden(msg)
     post = get_public_obj(post_id, Post)
     post_url = url_for(post, _external=True)
     return render_template(
@@ -520,6 +544,65 @@ def share_modal(post_id: str) -> str:
         post=post,
         post_url=post_url,
     )
+
+
+def _send_shared_content_mail(
+    post: Post,
+    user: User,
+    emails: list[str],
+) -> None:
+    # For registered users retrieve their full_name
+    stmt = sa.select(User).where(sa.func.lower(User.email).in_(emails))
+    known_users = db.session.scalars(stmt).all()
+    users_by_email = {u.email.lower(): u for u in known_users if u.email}
+
+    for email in emails:
+        known_user = users_by_email.get(email)
+        recipient_full_name = ""
+        if known_user:
+            recipient_full_name = known_user.full_name or ""
+        try:
+            share_mail = ShareContentMail(
+                sender="contact@aipress24.com",
+                recipient=email,
+                sender_mail=user.email,
+                recipient_full_name=recipient_full_name,
+                giver_full_name=user.full_name or user.email,
+                article_title=post.title,
+                article_url=url_for(post, _external=True),
+            )
+            share_mail.send()
+        except Exception as e:
+            warn(f"Failed to send ShareContentMail to {email} for post {post.id}: {e}")
+
+
+@blueprint.route("/<post_id>/share", methods=["POST"])
+def share_submit(post_id: str) -> Response:
+    """Sending emails to share recipients and increment post.share_count."""
+    user = cast(User, g.user)
+    if not user or user.is_anonymous:
+        msg = "Access denied"
+        raise Forbidden(msg)
+
+    emails = _get_form_emails()
+    if not emails:
+        msg = "Veuillez saisir au moins une adresse mail valide."
+        raise BadRequest(msg)
+
+    post = get_public_obj(post_id, Post)
+
+    _send_shared_content_mail(post, user, emails)
+
+    post.share_count += len(emails)
+    db.session.commit()
+
+    inner_html = (
+        f'<span id="shares-{post.id}" class="font-medium text-gray-900" '
+        f'hx-swap-oob="innerHTML">{post.share_count}</span>'
+    )
+    response = make_response(inner_html, 200)
+    toast(response, f"Publication partagée avec {len(emails)} destinataire(s).")
+    return response
 
 
 @blueprint.route("/<post_id>/alert_modal", methods=["GET"])
