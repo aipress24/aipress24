@@ -176,6 +176,11 @@ class Post(NewsMetadataMixin, BaseContent, LifeCycleMixin):
     def is_news_agency(self) -> bool:
         return False
 
+    @property
+    def share_count(self) -> int:
+        """Count of shares (wip)."""
+        return 0
+
 
 class ArticlePost(Post, Taggable):
     __mapper_args__: ClassVar[dict] = {
