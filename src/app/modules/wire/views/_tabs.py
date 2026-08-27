@@ -132,6 +132,8 @@ class Tab(abc.ABC):
                 order = Post.like_count.desc()
             case "comments":
                 order = Post.comment_count.desc()
+            case "shares":
+                order = Post.share_count.desc()
             case _:
                 order = Post.published_at.desc()
 
