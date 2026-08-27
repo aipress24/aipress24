@@ -1,5 +1,5 @@
 <p>
-    Bonjour {{ recipient_full_name }},
+    {% if recipient_full_name %}Bonjour {{ recipient_full_name }},{% else %}Bonjour,{% endif %}
 </p>
 
 <p>

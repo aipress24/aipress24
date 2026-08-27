@@ -1,12 +1,26 @@
-{# Modal for content share #}
+{# Modal for content share, inspired of buy_modal_gist.j2 #}
 <div
     id="content-share-modal"
     class="fixed inset-0 z-50 overflow-y-auto"
     role="dialog"
     aria-modal="true"
     aria-labelledby="share-modal-title"
+    x-data="{
+            emailsText: '',
+            get emailsList() {
+            return this.emailsText
+            .replace(/,/g, '\n')
+            .split('\n')
+            .map(e => e.trim())
+            .filter(e => e.length > 0);
+            },
+            get recipientCount() {
+            return this.emailsList.length;
+            }
+            }"
 >
     <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+        {# Backdrop — closes the modal on click #}
         <div
             class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity"
             onclick="document.getElementById('content-share-modal')?.remove()"
@@ -17,50 +31,83 @@
               aria-hidden="true">&#8203;
         </span>
 
+        {# Modal panel. #}
         <div class="inline-block align-bottom bg-white rounded-lg px-4 pt-5 pb-4 text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full sm:p-6">
-            <div class="sm:flex sm:items-start">
-                <div class="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 sm:mx-0 sm:h-10 sm:w-10">
-                    {{ icon("share", class="h-8 w-8 text-gray-700") }}
-                </div>
-                <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left w-full">
-                    <h3 class="text-lg leading-6 font-medium text-black"
-                        id="share-modal-title">
-                        Partager cette publication
-                    </h3>
-                    <div class="mt-1">
-                        <p class="text-sm text-gray-700 truncate"
-                           title="{{ post.title }}">
-                            {{ post.title }}
-                        </p>
+            <form
+                hx-post="{{ url_for('wire.share_submit', post_id=post.id) }}"
+                hx-target="#content-share-modal"
+                hx-swap="delete"
+            >
+                <div class="sm:flex sm:items-start">
+                    <div class="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 sm:mx-0 sm:h-10 sm:w-10">
+                        {{ icon("share", class="h-8 w-8 text-gray-700") }}
+                    </div>
+                    <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left w-full">
+                        <h3 class="text-lg leading-6 font-medium text-black"
+                            id="share-modal-title">
+                            Partager cette publication
+                        </h3>
+                        <div class="mt-1">
+                            <p class="text-sm text-gray-700 font-medium"
+                               title="{{ post.title }}">
+                                {{ post.title }}
+                            </p>
+                        </div>
                     </div>
                 </div>
-            </div>
 
-            <div class="mt-4 space-y-4">
-                <div>
-                    <label for="share-url"
-                           class="block text-sm font-medium text-gray-700 mb-1">
-                        Lien de la publication
-                    </label>
-                    <input
-                        id="share-url"
-                        type="text"
-                        readonly
-                        value="{{ post_url }}"
-                        class="block w-full px-3 py-2 rounded-md border border-gray-300 bg-gray-50 text-gray-700 text-sm focus:outline-none"
-                    />
+                <div class="mt-4 space-y-4">
+                    <div>
+                        <label for="share_recipient_emails"
+                               class="block text-sm font-medium text-gray-700 mb-3">
+                            Saisissez les e-mails des destinataires (un par ligne)
+                        </label>
+                        <textarea
+                            id="share_recipient_emails"
+                            name="recipient_emails"
+                            rows="4"
+                            x-model="emailsText"
+                            placeholder="alice@example.com&#10;bob@example.com"
+                            required
+                            class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2 border"
+                        ></textarea>
+                        <p class="text-xs text-gray-500 mt-1">
+                            Destinataire(s) : <span class="font-semibold text-gray-700" x-text="recipientCount">0</span>
+                        </p>
+                    </div>
+
+                    <div>
+                        <label for="share-url"
+                               class="block text-xs font-medium text-gray-500 mb-1">
+                            Lien direct
+                        </label>
+                        <input
+                            id="share-url"
+                            type="text"
+                            readonly
+                            value="{{ post_url }}"
+                            class="block w-full px-2.5 py-1.5 rounded border border-gray-200 bg-gray-50 text-gray-600 text-xs focus:outline-none"
+                        />
+                    </div>
                 </div>
-            </div>
 
-            <div class="mt-5 sm:mt-4 sm:flex sm:flex-row-reverse">
-                <button
-                    type="button"
-                    class="w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:w-auto sm:text-sm"
-                    onclick="document.getElementById('content-share-modal')?.remove()"
-                >
-                    Fermer
-                </button>
-            </div>
+                <div class="mt-5 sm:mt-4 sm:flex sm:flex-row-reverse sm:space-x-reverse sm:space-x-3">
+                    <button
+                        type="submit"
+                        x-bind:disabled="recipientCount === 0"
+                        class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-gray-900 text-base font-medium text-white hover:bg-black focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-900 sm:ml-3 sm:w-auto sm:text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                        Envoyer
+                    </button>
+                    <button
+                        type="button"
+                        class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:mt-0 sm:w-auto sm:text-sm"
+                        onclick="document.getElementById('content-share-modal')?.remove()"
+                    >
+                        Annuler
+                    </button>
+                </div>
+            </form>
         </div>
     </div>
 </div>
