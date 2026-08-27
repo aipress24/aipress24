@@ -678,6 +678,26 @@ class ConsultationGiftMail(EmailTemplate):
 
 
 @dataclass(kw_only=True)
+class ShareContentMail(EmailTemplate):
+    """Notify someone that a user has shared a content with them.
+
+    Args:
+        - sender / recipient / sender_mail: standard EmailTemplate fields.
+        - recipient_full_name: how to address the recipient.
+        - giver_full_name: the AiPRESS24 member who shared the content.
+        - article_title: title of the shared content.
+        - article_url: link to read/view the content.
+    """
+
+    subject: str = "[Aipress24] Un contenu vous est recommandé"
+    template_html: str = "share_content.j2"
+    recipient_full_name: str
+    giver_full_name: str
+    article_title: str
+    article_url: str
+
+
+@dataclass(kw_only=True)
 class CessionPurchaseAcknowledgmentMail(EmailTemplate):
     """Ticket #0196 — confirms to the buyer that a cession-de-droits
     (reproduction-rights licence) purchase has been recorded.
