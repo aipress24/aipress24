@@ -17,6 +17,7 @@ from app.services.emails.mailers import (
     ContactAvisEnqueteRDVConfirmationMail,
     ContactAvisEnqueteRDVProposalMail,
     ContentAlertMail,
+    ShareContentMail,
 )
 
 
@@ -301,3 +302,28 @@ def test_content_alert_mail():
         assert "Bob Martin" in kwargs["body"]
         assert "bob@example.com" in kwargs["body"]
         assert "Alice Dupont" in kwargs["body"]
+
+
+def test_share_content_mail():
+    with patch("app.services.emails.base.EmailMessage") as mock_email_message:
+        share_mail = ShareContentMail(
+            sender="contact@aipress24.com",
+            recipient="recipient@example.com",
+            sender_mail="sharer@example.com",
+            recipient_full_name="Jean Dupont",
+            giver_full_name="Marie Martin",
+            article_title="Some news",
+            article_url="https://aipress24.com/wire/123",
+        )
+        share_mail.send()
+
+        mock_email_message.assert_called_once()
+        _args, kwargs = mock_email_message.call_args
+        assert kwargs["to"] == ["recipient@example.com"]
+        assert kwargs["from_email"] == "contact@aipress24.com"
+        assert kwargs["subject"] == "[Aipress24] Un contenu vous est recommandé"
+        assert "Jean Dupont" in kwargs["body"]
+        assert "Marie Martin" in kwargs["body"]
+        assert "Some news" in kwargs["body"]
+        assert "https://aipress24.com/wire/123" in kwargs["body"]
+        assert "sharer@example.com" in kwargs["body"]
