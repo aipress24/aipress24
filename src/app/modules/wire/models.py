@@ -10,7 +10,7 @@ from typing import ClassVar
 
 import sqlalchemy as sa
 from advanced_alchemy.types.file_object import FileObject, StoredObject
-from sqlalchemy import JSON, BigInteger, Enum, ForeignKey, orm
+from sqlalchemy import JSON, BigInteger, Enum, ForeignKey, Integer, orm
 from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy.sql import func
 from sqlalchemy_utils import ArrowType
@@ -158,6 +158,10 @@ class Post(NewsMetadataMixin, BaseContent, LifeCycleMixin):
         JSON, nullable=True, default=None
     )
 
+    share_count: Mapped[int] = mapped_column(
+        Integer, default=0, server_default="0", nullable=False
+    )
+
     @orm.declared_attr
     def publisher(cls):
         return orm.relationship(
@@ -175,11 +179,6 @@ class Post(NewsMetadataMixin, BaseContent, LifeCycleMixin):
     @property
     def is_news_agency(self) -> bool:
         return False
-
-    @property
-    def share_count(self) -> int:
-        """Count of shares (wip)."""
-        return 0
 
 
 class ArticlePost(Post, Taggable):
