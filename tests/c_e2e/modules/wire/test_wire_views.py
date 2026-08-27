@@ -372,4 +372,3 @@ class TestWireContentShare:
             data={"action": "sort-by", "value": "shares"},
         )
         assert response.status_code == 200
-
