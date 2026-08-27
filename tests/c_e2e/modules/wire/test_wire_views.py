@@ -311,3 +311,31 @@ class TestWireTabPost:
         )
 
         assert response.status_code == 400
+
+
+class TestWireContentShare:
+    """Test content share button and modal views."""
+
+    def test_post_card_renders_share_icon_and_counter(
+        self,
+        authenticated_client: FlaskClient,
+        test_articles: list[ArticlePost],
+    ):
+        response = authenticated_client.get("/wire/tab/wall")
+        assert response.status_code == 200
+        html = response.data.decode()
+        assert "share_modal" in html
+        assert "Partager ce contenu" in html
+
+    def test_share_modal_endpoint(
+        self,
+        authenticated_client: FlaskClient,
+        test_articles: list[ArticlePost],
+    ):
+        post = test_articles[0]
+        response = authenticated_client.get(f"/wire/{post.id}/share_modal")
+        assert response.status_code == 200
+        html = response.data.decode()
+        assert "content-share-modal" in html
+        assert "Partager cette publication" in html
+        assert post.title in html
