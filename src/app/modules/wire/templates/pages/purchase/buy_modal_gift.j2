@@ -23,7 +23,7 @@
             return this.recipientCount * {{ amount_ht_eur or 0 }};
             },
             get totalTtc() {
-            return this.totalHt * 1.20;
+            return this.totalHt * (1 + {{ vat_rate }});
             }
             }"
 >
@@ -85,9 +85,9 @@
                                 </span>
                             </div>
                             <div class="flex justify-between">
-                                <span class="text-gray-600">TVA (20% estimée)</span>
+                                <span class="text-gray-600">TVA ({{ (vat_rate * 100)|round|int }}% estimée)</span>
                                 <span class="text-gray-900">
-                                    <span x-text="(totalHt * 0.20).toFixed(2)"></span> €
+                                    <span x-text="(totalHt * {{ vat_rate }}).toFixed(2)"></span> €
                                 </span>
                             </div>
                             <div class="flex justify-between">

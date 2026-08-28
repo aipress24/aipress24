@@ -122,6 +122,14 @@ _FRENCH_TO_TAXO_GENRE: dict[PurchaseProduct, dict[str, str]] = {
     },
 }
 
+# TVA rates for modal preview
+VAT_RATES_BY_PRODUCT: dict[PurchaseProduct, float] = {
+    PurchaseProduct.JUSTIFICATIF: 0.20,
+    PurchaseProduct.CONSULTATION: 0.10,
+    PurchaseProduct.CONSULTATION_GIFT: 0.10,
+    PurchaseProduct.CESSION: 0.10,
+}
+
 _TAXO_GENRE_VALUES = {
     "news",
     "feature",
@@ -204,11 +212,8 @@ def buy_modal(post_id: str, product: str):
             except StripeError as exc:
                 warn(f"buy_modal: failed to retrieve price {price_id}: {exc}")
 
-    vat_eur: float | None = None
-    ttc_eur: float | None = None
-    if amount_ht_eur is not None:
-        vat_eur = amount_ht_eur * 0.20
-        ttc_eur = amount_ht_eur + vat_eur
+    vat_rate = VAT_RATES_BY_PRODUCT.get(product_type, 0.20)
+    vat_eur, ttc_eur = _compute_vat_ttc(amount_ht_eur, vat_rate)
 
     return render_template(
         "pages/purchase/buy_modal.j2",
@@ -217,6 +222,7 @@ def buy_modal(post_id: str, product: str):
         amount_ht_eur=amount_ht_eur,
         vat_eur=vat_eur,
         ttc_eur=ttc_eur,
+        vat_rate=vat_rate,
         user_cumul_eur=get_user_purchase_total(user.id) / 100,
         org_cumul_eur=get_org_purchase_total(getattr(user, "organisation_id", None))
         / 100,
@@ -365,11 +371,8 @@ def buy_modal_gift(post_id: str):
             except StripeError as exc:
                 warn(f"buy_modal_gift: failed to retrieve price: {exc}")
 
-    vat_eur: float | None = None
-    ttc_eur: float | None = None
-    if amount_ht_eur is not None:
-        vat_eur = amount_ht_eur * 0.20
-        ttc_eur = amount_ht_eur + vat_eur
+    vat_rate = VAT_RATES_BY_PRODUCT.get(PurchaseProduct.CONSULTATION_GIFT, 0.10)
+    vat_eur, ttc_eur = _compute_vat_ttc(amount_ht_eur, vat_rate)
 
     return render_template(
         "pages/purchase/buy_modal_gift.j2",
@@ -377,6 +380,7 @@ def buy_modal_gift(post_id: str):
         amount_ht_eur=amount_ht_eur,
         vat_eur=vat_eur,
         ttc_eur=ttc_eur,
+        vat_rate=vat_rate,
         user_cumul_eur=get_user_purchase_total(user.id) / 100,
         org_cumul_eur=get_org_purchase_total(getattr(user, "organisation_id", None))
         / 100,
@@ -740,15 +744,12 @@ def _cents_to_eur(amount_cents: int | None) -> float | None:
 
 def _compute_vat_ttc(
     amount_ht_eur: float | None,
-    *,
     rate: float = _FRENCH_VAT_RATE,
 ) -> tuple[float | None, float | None]:
     """Return `(vat_eur, ttc_eur)` for a given HT amount.
 
     `None` HT round-trips as `(None, None)` so the modal can render
-    « prix indisponible » when Stripe is offline. The rate is exposed
-    as a keyword-only arg so a future I18n / B2B-export path can
-    override it without touching the view code.
+    « prix indisponible » when Stripe is offline.
     """
     if amount_ht_eur is None:
         return None, None
