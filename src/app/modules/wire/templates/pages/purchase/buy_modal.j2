@@ -62,7 +62,7 @@
                             <span class="font-medium text-gray-900">{{ "%.2f"|format(amount_ht_eur) }} €</span>
                         </div>
                         <div class="flex justify-between">
-                            <span class="text-gray-600">TVA (20% estimée)</span>
+                            <span class="text-gray-600">TVA ({{ (vat_rate * 100)|round|int }}% estimée)</span>
                             <span class="text-gray-900">{{ "%.2f"|format(vat_eur) }} €</span>
                         </div>
                         <div class="flex justify-between border-t border-gray-300 pt-1 mt-1">
