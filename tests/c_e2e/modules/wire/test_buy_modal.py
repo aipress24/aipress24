@@ -199,11 +199,51 @@ class TestBuyModal:
             app.config["STRIPE_LIVE_ENABLED"] = False
 
         body = response.data.decode()
-        # HT 10.00 → TVA 2.00 → TTC 12.00
+        # HT 10.00 → TVA (10%) 1.00 → TTC 11.00
         assert "10.00" in body
-        assert "2.00" in body
-        assert "12.00" in body
-        assert "TVA" in body
+        assert "1.00" in body
+        assert "11.00" in body
+        assert "TVA (10% estimée)" in body
+
+    def test_modal_apply_custom_modified_vat_rate(
+        self,
+        app: Flask,
+        reader: User,
+        article: ArticlePost,
+    ):
+        """Change tva to 42%"""
+        client = make_authenticated_client(app, reader)
+        fake_price = MagicMock(unit_amount=1000)  # 10.00 € HT
+        app.config["STRIPE_LIVE_ENABLED"] = True
+        try:
+            with (
+                patch(
+                    "app.modules.wire.views.purchase._price_id_for",
+                    return_value="price_x",
+                ),
+                patch(
+                    "app.modules.wire.views.purchase.load_stripe_api_key",
+                    return_value=True,
+                ),
+                patch(
+                    "stripe.Price.retrieve",
+                    return_value=fake_price,
+                ),
+                patch.dict(
+                    "app.modules.wire.views.purchase.VAT_RATES_BY_PRODUCT",
+                    {PurchaseProduct.CONSULTATION: 0.42},
+                ),
+            ):
+                response = client.get(f"/wire/{article.id}/buy_modal/consultation")
+        finally:
+            app.config["STRIPE_LIVE_ENABLED"] = False
+
+        body = response.data.decode()
+        # HT 10.00 → TVA (5%) 0.50 → TTC 10.50
+        assert "10.00" in body
+        assert "4.20" in body
+        assert "14.20" in body
+        assert "TVA (42% estimée)" in body
 
     def test_modal_close_returns_empty(self, app: Flask, reader: User):
         client = make_authenticated_client(app, reader)
