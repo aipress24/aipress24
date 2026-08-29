@@ -54,6 +54,8 @@ def match_experts_to_avis(
     Rules (see Phase 0 spec §5.2):
 
     - Expert must have logged in in the last `lookback_days` days.
+    - If *nobody* passes that activity filter, it is dropped entirely
+      rather than returning an empty pool (bug #0320, see below).
     - Expert's `secteurs_activite` must intersect the Avis's sector(s).
     - If fewer than `min_candidates` experts match on sector, fall back
       to the active-only pool (no sector filter).
@@ -64,6 +66,18 @@ def match_experts_to_avis(
     cutoff = now - timedelta(days=lookback_days)
 
     active = [e for e in experts if _is_active_recently(e, cutoff)]
+    if not active:
+        # Bug #0320 — « les taxonomies ne s'affichent pas dans les
+        # filtres ». The sector filter below has a floor
+        # (`min_candidates`) ; this one had none, so it could return
+        # an empty pool on its own — and it does, on any base whose
+        # members have never logged in (`last_login_at IS NULL` makes
+        # `_is_active_recently` False). An empty pool blanks the whole
+        # ciblage form, because `BaseSelector._make_options` hides
+        # every option no candidate holds. Recency is a ranking
+        # preference, not a hard requirement: never let it alone
+        # notify nobody.
+        active = experts
     avis_sectors = _avis_sectors(avis)
     if not avis_sectors:
         return active

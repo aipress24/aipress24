@@ -33,12 +33,16 @@
     {# Bug #0150 / phase 2: sections thématiques pour ne plus noyer
        la rédactrice dans 17 dropdowns plats. Chaque section reste
        un sous-bloc du même <form> — l'état de tous les sélecteurs
-       est soumis ensemble par HTMX. #}
+       est soumis ensemble par HTMX.
+
+       Ticket #0321: les blocs sont numérotés. Le numéro vient de
+       `loop.index`, pas du titre, pour qu'il suive automatiquement
+       l'ordre défini par `build_sections_from_selectors`. #}
     <form id="search-form" hx-target="#main">
       {% for section in form.sections %}
         <section class="mb-6">
           <h3 class="text-lg font-semibold text-gray-800 border-b border-gray-200 pb-1 mb-3">
-            {{ section.title }}
+            <span class="text-pink-600">{{ loop.index }}</span> — {{ section.title }}
           </h3>
           <div class="grid lg:grid-cols-2 gap-4">
             {% for selector in section.selectors %}

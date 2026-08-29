@@ -223,24 +223,24 @@ class TestSelectorSections:
                 "A selector appears in two sections — fix the grouping"
             )
 
-    def test_sections_match_anne_spec_titles_and_order(self, experts, app):
-        """The 4 section titles and their order follow Annie's spec
-        (1- Secteurs, 2- Géo, 3- Fonctions, 4- Métiers)."""
+    def test_sections_match_spec_titles_and_order(self, experts, app):
+        """The 4 section titles and their order follow ticket #0321
+        (1- Secteurs, 2- Presse, 3- Géographie, 4- Fonctions…)."""
         with app.test_request_context():
             service = ExpertFilterService()
             service._all_experts = experts
             titles = [section.title for section in service.sections]
             assert titles == [
                 "Secteurs d'activité et types d'organisation",
-                "Géolocalisation",
-                "Fonctions",
-                "Métiers, compétences & langues",
+                "Presse et médias",
+                "Géographie",
+                "Fonctions, métiers, compétences et langues",
             ]
 
     def test_secteurs_section_groups_organisation_dimensions(self, experts, app):
-        """Section 1 holds the 5 « secteurs & types d'organisation »
-        dimensions: secteur, type_organisation, type_entreprise_presse,
-        type_presse, taille_organisation."""
+        """Section 1 holds the 3 « secteurs & types d'organisation »
+        dimensions. #0321 moved the two press dimensions out of this
+        block — it used to carry five heterogeneous dropdowns."""
         with app.test_request_context():
             service = ExpertFilterService()
             service._all_experts = experts
@@ -249,19 +249,27 @@ class TestSelectorSections:
             assert ids == [
                 "secteur",
                 "type_organisation",
-                "type_entreprise_presse_medias",
-                "type_presse_et_media",
                 "taille_organisation",
             ]
 
+    def test_press_section_isolates_the_media_dimensions(self, experts, app):
+        """Ticket #0321 — the two press dimensions get their own
+        block, so a journalist not covering the media industry can
+        skip it wholesale."""
+        with app.test_request_context():
+            service = ExpertFilterService()
+            service._all_experts = experts
+            ids = [s.id for s in service.sections[1].selectors]
+            assert ids == ["type_entreprise_presse_medias", "type_presse_et_media"]
+
     def test_geo_section_orders_pays_dept_ville(self, experts, app):
-        """Section 2 keeps the geographic cascade in order: pays →
+        """Section 3 keeps the geographic cascade in order: pays →
         département → ville. The DepartementSelector / VilleSelector
         filter their options based on selections in earlier dropdowns,
         so the visual order must match the data flow."""
         with app.test_request_context():
             service = ExpertFilterService()
             service._all_experts = experts
-            section_2 = service.sections[1]
-            ids = [s.id for s in section_2.selectors]
+            section_3 = service.sections[2]
+            ids = [s.id for s in section_3.selectors]
             assert ids == ["pays", "departement", "ville"]

@@ -321,6 +321,60 @@ class TestMatchExpertsToAvis:
         assert {e.id for e in matched} == {1, 2}
 
 
+class TestActivityFilterNeverEmptiesThePool:
+    """Ticket #0320 — « les taxonomies ne s'affichent pas dans les
+    filtres » (ciblage d'un avis d'enquête).
+
+    The dropdowns were empty because the *candidate pool* was, not
+    because the taxonomies were missing : the ciblage only offers
+    values held by at least one candidate
+    (`BaseSelector._make_options` drops every option whose count is
+    0). And the pool went empty because the recency filter had no
+    floor — `_is_active_recently` is False for anyone whose
+    `last_login_at` is NULL, which is every member of a freshly
+    seeded base.
+
+    The sector filter's `min_candidates` fallback never helped: both
+    of its branches return `active`, which was already empty.
+    """
+
+    def test_pool_survives_when_nobody_ever_logged_in(self) -> None:
+        # `_expert()` defaults `last_login` to RECENT, so build the
+        # never-connected case explicitly — it IS the case that broke.
+        experts = [
+            FakeUser(id=i, last_login_at=None, profile=FakeProfile(["Tech"]))
+            for i in (1, 2)
+        ]
+
+        matched = match_experts_to_avis(experts, FakeAvis(sector="Tech"))
+
+        assert {e.id for e in matched} == {1, 2}
+
+    def test_pool_survives_when_everyone_is_stale(self) -> None:
+        """Same escape hatch for a base whose members all logged in
+        long ago — 180 days of silence must not blank the form."""
+        e1 = _expert(uid=1, sectors=["Tech"], last_login=OLD)
+        e2 = _expert(uid=2, sectors=["Health"], last_login=OLD)
+
+        matched = match_experts_to_avis([e1, e2], FakeAvis(sector="Tech"))
+
+        assert {e.id for e in matched} == {1, 2}
+
+    def test_recency_still_wins_when_someone_is_active(self) -> None:
+        """The escape hatch is a floor, not a repeal : as soon as one
+        expert passes the recency gate, the stale ones stay out."""
+        active = _expert(uid=1, sectors=["Tech"], last_login=RECENT)
+        stale = _expert(uid=2, sectors=["Tech"], last_login=OLD)
+
+        matched = match_experts_to_avis([active, stale], FakeAvis(sector="Tech"))
+
+        assert [e.id for e in matched] == [1]
+
+    def test_empty_input_still_returns_empty(self) -> None:
+        """No experts at all is not the bug — don't invent candidates."""
+        assert match_experts_to_avis([], FakeAvis(sector="Tech")) == []
+
+
 # ---------------------------------------------------------------------------
 # _mail_debug_active — Pattern B: pass a plain dict as config
 # ---------------------------------------------------------------------------

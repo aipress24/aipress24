@@ -135,14 +135,27 @@ class TestFilterAllowedRecipients:
         result = filter_allowed_recipients([5, 1, 3, 2, 4], {1, 2, 3, 4, 5})
         assert result == [5, 1, 3, 2, 4]
 
-    def test_preserves_duplicates_in_input(self) -> None:
-        """Duplicates in `recipient_user_ids` (a buggy client could
-        send the same id twice) are preserved. The orchestrator's
-        `db.session.get(User, id)` is idempotent so the worst case
-        is one extra notification — but we DON'T silently dedup
-        here, that's a caller responsibility."""
+    def test_drops_duplicates_in_input(self) -> None:
+        """Ticket #0316 — this used to assert the opposite.
+
+        The old contract kept duplicates and called de-duplication
+        « a caller responsibility », on the grounds that the worst
+        case was « one extra notification ». No caller ever took that
+        responsibility, and the worst case was understated: each
+        duplicate id costs one email to a real participant *and* one
+        increment of the enquête's JdP counter, which drives the
+        journalist's rémunération. De-duplicating here is the single
+        place that covers every caller.
+        """
         result = filter_allowed_recipients([1, 1, 2], {1, 2})
-        assert result == [1, 1, 2]
+        assert result == [1, 2]
+
+    def test_keeps_the_first_occurrence_when_deduplicating(self) -> None:
+        """De-duplication must not reshuffle : the surviving id keeps
+        the position of its first occurrence, so the order pinned by
+        `test_preserves_input_order` still holds for dirty input."""
+        result = filter_allowed_recipients([3, 1, 3, 2, 1], {1, 2, 3})
+        assert result == [3, 1, 2]
 
     def test_empty_input_returns_empty_list(self) -> None:
         assert filter_allowed_recipients([], {1, 2, 3}) == []
