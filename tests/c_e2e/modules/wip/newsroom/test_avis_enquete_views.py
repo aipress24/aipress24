@@ -9,6 +9,7 @@ These tests verify the journalist and expert views for avis d'enquête managemen
 
 from __future__ import annotations
 
+import re
 import uuid
 from datetime import UTC, datetime
 from typing import TYPE_CHECKING
@@ -281,20 +282,38 @@ class TestJournalistAvisEnqueteViews:
     def test_ciblage_renders_four_sections(
         self, logged_in_client: FlaskClient, test_avis_enquete: AvisEnquete
     ):
-        """Bug #0150 phase 2: the page renders the 4 thematic section
-        headings Annie asked for. If a refactor drops one, this fails
-        before reaching the browser."""
+        """Bug #0150 phase 2, re-cut by ticket #0321: the page renders
+        the 4 thematic section headings. If a refactor drops one, this
+        fails before reaching the browser."""
         url = url_for("AvisEnqueteWipView:ciblage", id=test_avis_enquete.id)
         body = logged_in_client.get(url).data.decode()
         for heading in (
             "Secteurs d&#39;activité et types d&#39;organisation",
-            "Géolocalisation",
-            "Fonctions",
-            "Métiers, compétences &amp; langues",
+            "Presse et médias",
+            "Géographie",
+            "Fonctions, métiers, compétences et langues",
         ):
             assert heading in body, (
                 f"Section heading {heading!r} missing from ciblage page"
             )
+
+    def test_ciblage_numbers_the_sections(
+        self, logged_in_client: FlaskClient, test_avis_enquete: AvisEnquete
+    ):
+        """Ticket #0321 (Erick, 2026-08-29) : « nos interlocuteurs sont
+        un peu perdus. Le formulaire est plutôt bien mais pas clair.
+        Suggestion: faire 4 blocs visuels numérotés ».
+
+        The number comes from the template's `loop.index`, not from the
+        title, so reordering the blocks can't leave stale numbering.
+        """
+        url = url_for("AvisEnqueteWipView:ciblage", id=test_avis_enquete.id)
+        body = logged_in_client.get(url).data.decode()
+        numbered = re.findall(
+            r'<span class="text-pink-600">(\d+)</span> — ([^<\n]+)', body
+        )
+        assert [n for n, _ in numbered] == ["1", "2", "3", "4"]
+        assert numbered[1][1].strip() == "Presse et médias"
 
     def test_ciblage_emits_dual_cascade_containers(
         self, logged_in_client: FlaskClient, test_avis_enquete: AvisEnquete

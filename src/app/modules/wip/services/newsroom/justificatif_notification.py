@@ -52,14 +52,20 @@ def filter_allowed_recipients(
     recipient_user_ids: list[int], allowed_ids: set[int]
 ) -> list[int]:
     """Keep only the recipient ids that match the avis's actual
-    contacts.
+    contacts, at most once each.
 
     Pure : the SQL that materialises `allowed_ids` lives in the
     orchestration shell. Here we just compute the intersection while
     preserving the caller's order — the order is product-visible
     because the counter increments per accepted recipient.
+
+    Ticket #0316 — the de-duplication is not cosmetic. Every id kept
+    here costs one email *and* one increment of the enquête's JdP
+    counter, which feeds the journalist's rémunération. A repeated id
+    in the POST used to buy both twice.
     """
-    return [uid for uid in recipient_user_ids if uid in allowed_ids]
+    # `dict.fromkeys` de-duplicates in first-seen order.
+    return [uid for uid in dict.fromkeys(recipient_user_ids) if uid in allowed_ids]
 
 
 def resolve_media_name(org: Any | None) -> str:
@@ -148,8 +154,10 @@ def notify_avis_participants_of_justificatif(
     article_url: str,
 ) -> int:
     """Send mail + in-app cloche to each recipient. Returns the number
-    of recipients actually notified (filtering out users without an
-    email or who couldn't be loaded).
+    of recipients actually notified — the caller's list minus the
+    duplicates, the ids that aren't contacts of this avis, the users
+    that couldn't be loaded, and (ticket #0316) anyone already
+    invited for this (article, avis).
 
     Failures of either side-effect are reported to Sentry via
     `report_failure` but never abort the whole batch — a flaky SMTP
@@ -163,7 +171,17 @@ def notify_avis_participants_of_justificatif(
     # so without this check a journalist could pass any User.id and
     # spam-email arbitrary users — and inflate
     # `justificatif_notifications_count` on top of it.
-    allowed_ids = _avis_contact_ids(avis_enquete.id)
+    #
+    # Ticket #0316 — participants already invited for this (article,
+    # avis) are subtracted too, which makes the whole endpoint
+    # idempotent: re-submitting the form (double click, browser back,
+    # a retry after an error) now sends nothing instead of a second
+    # round of emails. Same guarantee as the sibling flow
+    # `AvisEnqueteWipView:notify_publication`, which already refused
+    # to re-notify.
+    allowed_ids = _avis_contact_ids(avis_enquete.id) - _already_invited_ids(
+        article.id, avis_enquete.id
+    )
     filtered_ids = filter_allowed_recipients(recipient_user_ids, allowed_ids)
     if not filtered_ids:
         return 0
@@ -304,6 +322,30 @@ def _avis_contact_ids(avis_enquete_id: int) -> set[int]:
         .all()
     )
     return {r[0] for r in rows if r[0] is not None}
+
+
+def _already_invited_ids(article_id: int, avis_enquete_id: int) -> set[int]:
+    """Return the `User.id` already invited for this (article, avis).
+
+    Ticket #0316 — the idempotency key. `JustificatifInvitation` is
+    deliberately not unique on (article, recipient) : the same article
+    can result from two different enquêtes, and each gets its own
+    invitation. So the pair alone is not enough — the avis is part of
+    the key.
+
+    Deliberately an application-level guard rather than a unique
+    index: production already holds the duplicate rows this ticket is
+    about, and a unique constraint would fail to apply over them.
+    """
+    rows = (
+        db.session.query(JustificatifInvitation.recipient_id)
+        .filter(
+            JustificatifInvitation.article_id == article_id,
+            JustificatifInvitation.avis_enquete_id == avis_enquete_id,
+        )
+        .all()
+    )
+    return {r[0] for r in rows}
 
 
 def list_avis_contacts(avis_enquete_id: int) -> list[dict]:

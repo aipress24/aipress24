@@ -72,10 +72,10 @@ class TestConstruction:
 
     def test_basic_construction_sets_title_and_selectors(self) -> None:
         section = SelectorSection(
-            title="Géolocalisation",
+            title="Géographie",
             selectors=[_stub("pays"), _stub("departement")],
         )
-        assert section.title == "Géolocalisation"
+        assert section.title == "Géographie"
         assert len(section.selectors) == 2
         assert section.selectors[0].id == "pays"
         assert section.selectors[1].id == "departement"
@@ -235,17 +235,17 @@ class TestHashing:
 
 class TestSpecCompliance:
     """``SelectorSection`` instances are produced with hard-coded
-    French titles drawn from Annie's spec (bug #0150). Pin them so a
-    rogue translation pass or copy-edit doesn't silently rewrite the
-    UI labels."""
+    French titles drawn from the ciblage spec (bug #0150, re-cut by
+    ticket #0321). Pin them so a rogue translation pass or copy-edit
+    doesn't silently rewrite the UI labels."""
 
     @pytest.mark.parametrize(
         "title",
         [
             "Secteurs d'activité et types d'organisation",
-            "Géolocalisation",
-            "Fonctions",
-            "Métiers, compétences & langues",
+            "Presse et médias",
+            "Géographie",
+            "Fonctions, métiers, compétences et langues",
         ],
     )
     def test_canonical_titles_are_valid_section_titles(self, title: str) -> None:

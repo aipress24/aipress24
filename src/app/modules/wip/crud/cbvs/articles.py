@@ -465,6 +465,17 @@ class ArticlesWipView(BaseWipView):
                 f"{notified} participant(s) notifié(s) du justificatif.",
                 "success",
             )
+            # Ticket #0316 : the service now silently skips anyone
+            # already invited for this (article, avis). Say so, or a
+            # re-submission reads as « 0 notifié » with no
+            # explanation.
+            skipped = len(set(recipient_ids)) - notified
+            if skipped > 0:
+                flash(
+                    f"{skipped} destinataire(s) ignoré(s) : déjà notifié(s) "
+                    "pour cet article, ou absent(s) de l'enquête.",
+                    "warning",
+                )
             return redirect(self._url_for("index"))
 
         # GET — render the picker.

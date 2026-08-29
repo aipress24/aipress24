@@ -26,8 +26,12 @@ from app.services.taxonomies import (
 # format for HTML selects
 VALUE_LABEL_MODE = False
 
-# required: use a.ods document
-ONTOLOGY_SRC = Path("bootstrap_data/Ontologies.ods")
+# required: use a.ods document. The workbook sits at the repository
+# root, next to `src/` — an absolute path, not a CWD-relative one, so
+# the loader works from a worker or a service unit started elsewhere
+# (same fix as bugs #0287/#0288 on the zip codes).
+_REPO_ROOT = Path(__file__).resolve().parents[4]
+ONTOLOGY_SRC = _REPO_ROOT / "bootstrap_data" / "Ontologies.ods"
 
 # Secteurs → `sectors`
 # Rubriques → `sections`
@@ -98,12 +102,22 @@ CIVILITE_ONTOLOGY = [
 
 
 # Main function
-def import_taxonomies() -> None:
+def import_taxonomies(ontology_path: Path = ONTOLOGY_SRC) -> None:
+    """Replace every taxonomy with the contents of the .ods workbook.
+
+    Read first, write second. The previous version committed the
+    DELETE before parsing the source, so a missing or unreadable
+    workbook emptied `tax_taxonomy` for good — the exact defect fixed
+    on the countries in bugs #0287/#0288. An empty taxonomy table is
+    not a cosmetic loss: it blanks every KYC dropdown and every
+    ciblage filter (see #0320).
+    """
+    raw_ontologies = _parse_source_ontologies(ontology_path)
+    _check_tables_found(raw_ontologies)
+
     db.session.execute(delete(TaxonomyEntry))
     db.session.commit()
 
-    raw_ontologies = _parse_source_ontologies()
-    _check_tables_found(raw_ontologies)
     for taxonomy_name, slug in TAXO_NAME_ONTOLOGIE_SLUG:
         try:
             print(f"{taxonomy_name=}  {slug=}")
@@ -152,13 +166,13 @@ def print_ontologies() -> None:
 #
 # Internal functions
 #
-def _parse_source_ontologies() -> dict[str, Any]:
+def _parse_source_ontologies(ontology_path: Path = ONTOLOGY_SRC) -> dict[str, Any]:
     """step1 : convert the ods source -> python dictionary."""
-    if not ONTOLOGY_SRC.is_file():
-        msg = f"Please add the missing {ONTOLOGY_SRC} file."
+    if not ontology_path.is_file():
+        msg = f"Please add the missing {ontology_path} file."
         raise FileNotFoundError(msg)
     content = dict(
-        odsparsator.ods_to_python(input_path=ONTOLOGY_SRC, export_minimal=True)
+        odsparsator.ods_to_python(input_path=ontology_path, export_minimal=True)
     )
     result: dict[str, Any] = {}
     for sheet in content["body"]:

@@ -340,23 +340,26 @@ class TestParseExpertIdsFromForm:
 # ---------------------------------------------------------------------------
 
 
+# Ticket #0321 re-cut these blocks (press dimensions split out,
+# « Géolocalisation » renamed, the two people-oriented blocks merged).
+# The selector ids themselves are unchanged — only their grouping.
 _SECTION_IDS = {
     "Secteurs d'activité et types d'organisation": {
         "secteur",
         "type_organisation",
-        "type_entreprise_presse_medias",
-        "type_presse_et_media",
         "taille_organisation",
     },
-    "Géolocalisation": {"pays", "departement", "ville"},
-    "Fonctions": {
+    "Presse et médias": {
+        "type_entreprise_presse_medias",
+        "type_presse_et_media",
+    },
+    "Géographie": {"pays", "departement", "ville"},
+    "Fonctions, métiers, compétences et langues": {
         "fonction_pol_adm",
         "fonction_org_priv",
         "fonction_ass_syn",
         "fonction",
         "fonction_journalisme",
-    },
-    "Métiers, compétences & langues": {
         "metier",
         "competences",
         "competences_journalisme",
@@ -386,9 +389,9 @@ class TestBuildSectionsFromSelectors:
         titles = [s.title for s in sections]
         assert titles == [
             "Secteurs d'activité et types d'organisation",
-            "Géolocalisation",
-            "Fonctions",
-            "Métiers, compétences & langues",
+            "Presse et médias",
+            "Géographie",
+            "Fonctions, métiers, compétences et langues",
         ]
 
     def test_each_section_groups_correct_selector_ids(self) -> None:
@@ -402,12 +405,14 @@ class TestBuildSectionsFromSelectors:
         renders with what's available rather than crashing.
         Defensive : the UI must keep working through partial
         refactors."""
-        # Only secteur + pays + fonction + metier — one per section.
+        # One selector per section — the last block gets `fonction`
+        # and `metier`, which #0321 merged into it.
         selectors = [
-            _StubSelector(i) for i in ("secteur", "pays", "fonction", "metier")
+            _StubSelector(i)
+            for i in ("secteur", "type_presse_et_media", "pays", "fonction", "metier")
         ]
         sections = build_sections_from_selectors(selectors)
-        assert [len(s.selectors) for s in sections] == [1, 1, 1, 1]
+        assert [len(s.selectors) for s in sections] == [1, 1, 1, 2]
 
     def test_returns_selectorsection_dataclasses(self) -> None:
         sections = build_sections_from_selectors(_all_selector_stubs())

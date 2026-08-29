@@ -512,3 +512,183 @@ class TestRenderJustificatifsTab:
             )
             rows = list(db_session.execute(stmt).scalars())
         assert len(rows) == 0
+
+
+class TestNotifyIsIdempotent:
+    """Ticket #0316 (Ramona Dietrisch, 2026-08-25) : « il a envoyé 10
+    mails à chacun d'entre eux pour les prévenir de la publication de
+    l'enquête ».
+
+    The endpoint had no replay protection at all : it sent one mail
+    per id in the POST list, inserted a `JustificatifInvitation` row
+    unconditionally, and added the batch size to
+    `justificatif_notifications_count` — the counter Erick uses to
+    compute the journalist's rémunération. A double click, a browser
+    back, or a retry after an error therefore both re-mailed the
+    participants and inflated the pay-out.
+
+    Two guards, tested here : the ids of one submission are
+    de-duplicated, and participants already invited for this (article,
+    avis) are skipped.
+    """
+
+    def _capture_mails(self, captured: list[dict]):
+        """Stand-in for `EmailMessage` that records what would be sent.
+
+        Same shape as the capture used by
+        `test_sends_email_with_enquete_journalist_and_article_info`
+        above — kept local so the two tests can't drift into sharing
+        mutable state.
+        """
+
+        class _Stub:
+            content_subtype = ""
+
+            def send(self):
+                return None
+
+        def _factory(*_args, **kwargs):
+            captured.append(dict(kwargs))
+            return _Stub()
+
+        return _factory
+
+    def test_second_submission_sends_nothing(
+        self,
+        app,
+        db_session: Session,
+        avis: AvisEnquete,
+        article: ArticlePost,
+        journalist: User,
+        expert_a: User,
+        expert_b: User,
+    ):
+        captured: list[dict] = []
+        with (
+            app.test_request_context("/"),
+            patch(
+                "app.services.emails.base.EmailMessage",
+                side_effect=self._capture_mails(captured),
+            ),
+        ):
+            first = notify_avis_participants_of_justificatif(
+                article=article,
+                avis_enquete=avis,
+                recipient_user_ids=[expert_a.id, expert_b.id],
+                journalist=journalist,
+                article_url="https://example.com/x",
+            )
+            second = notify_avis_participants_of_justificatif(
+                article=article,
+                avis_enquete=avis,
+                recipient_user_ids=[expert_a.id, expert_b.id],
+                journalist=journalist,
+                article_url="https://example.com/x",
+            )
+
+        assert first == 2
+        assert second == 0, "re-submitting must notify nobody a second time"
+        assert len(captured) == 2, "one mail per participant, not two"
+
+        rows = (
+            db_session.query(JustificatifInvitation)
+            .filter(JustificatifInvitation.article_id == article.id)
+            .all()
+        )
+        assert len(rows) == 2
+
+        db_session.refresh(avis)
+        assert avis.justificatif_notifications_count == 2
+
+    def test_repeated_id_in_one_submission_counts_once(
+        self,
+        app,
+        db_session: Session,
+        avis: AvisEnquete,
+        article: ArticlePost,
+        journalist: User,
+        expert_a: User,
+    ):
+        """The checkbox list is client-side ; a duplicated value used
+        to buy one extra mail *and* one extra counter increment."""
+        captured: list[dict] = []
+        with (
+            app.test_request_context("/"),
+            patch(
+                "app.services.emails.base.EmailMessage",
+                side_effect=self._capture_mails(captured),
+            ),
+        ):
+            notified = notify_avis_participants_of_justificatif(
+                article=article,
+                avis_enquete=avis,
+                recipient_user_ids=[expert_a.id] * 10,
+                journalist=journalist,
+                article_url="https://example.com/x",
+            )
+
+        assert notified == 1
+        assert len(captured) == 1
+
+        db_session.refresh(avis)
+        assert avis.justificatif_notifications_count == 1
+
+    def test_another_avis_on_the_same_article_still_notifies(
+        self,
+        app,
+        db_session: Session,
+        avis: AvisEnquete,
+        article: ArticlePost,
+        journalist: User,
+        media_org: Organisation,
+        expert_a: User,
+    ):
+        """The idempotency key includes the avis, as the model
+        docstring requires: one article can result from two enquêtes,
+        and each owes its participants their own invitation."""
+        now = datetime.now(UTC)
+        other_avis = AvisEnquete(
+            titre="Deuxième enquête, même article",
+            contenu="...",
+            owner_id=journalist.id,
+            media_id=media_org.id,
+            commanditaire_id=journalist.id,
+            date_debut_enquete=now - timedelta(days=7),
+            date_fin_enquete=now,
+            date_bouclage=now + timedelta(days=7),
+            date_parution_prevue=now + timedelta(days=14),
+        )
+        db_session.add(other_avis)
+        db_session.flush()
+        db_session.add(
+            ContactAvisEnquete(
+                avis_enquete_id=other_avis.id,
+                journaliste_id=journalist.id,
+                expert_id=expert_a.id,
+            )
+        )
+        db_session.flush()
+
+        with app.test_request_context("/"):
+            notify_avis_participants_of_justificatif(
+                article=article,
+                avis_enquete=avis,
+                recipient_user_ids=[expert_a.id],
+                journalist=journalist,
+                article_url="https://example.com/x",
+            )
+            second = notify_avis_participants_of_justificatif(
+                article=article,
+                avis_enquete=other_avis,
+                recipient_user_ids=[expert_a.id],
+                journalist=journalist,
+                article_url="https://example.com/x",
+            )
+
+        assert second == 1, "a different enquête is a different invitation"
+        rows = (
+            db_session.query(JustificatifInvitation)
+            .filter(JustificatifInvitation.article_id == article.id)
+            .all()
+        )
+        assert {r.avis_enquete_id for r in rows} == {avis.id, other_avis.id}

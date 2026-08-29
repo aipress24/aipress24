@@ -202,8 +202,36 @@ def parse_expert_ids_from_form(form_keys: Iterable[str]) -> list[int]:
 def build_sections_from_selectors(
     selectors: list[BaseSelector],
 ) -> list[SelectorSection]:
-    """Group the 17 selectors into Annie's 4 thematic headings
-    (bug #0150 phase 2). Pure — operates only on the selector list."""
+    """Group the 17 selectors into 4 thematic headings. Pure —
+    operates only on the selector list.
+
+    Annie's original grouping (bug #0150 phase 2) is kept, re-cut
+    along the lines Erick asked for in ticket #0321 : « nos
+    interlocuteurs sont un peu perdus ». Three changes, no selector
+    added or removed :
+
+    - the two press dimensions leave the « secteurs » block, which
+      was carrying five heterogeneous dropdowns, for a block of their
+      own — the one a journalist not covering the media industry can
+      skip outright ;
+    - « Géolocalisation » becomes « Géographie », the word the form
+      uses everywhere else ;
+    - « Fonctions » and « Métiers, compétences & langues » merge :
+      the split was invisible to users, who read all nine as one
+      question about the person.
+
+    The section *number* the ticket asks for is not baked into the
+    titles — `ciblage.j2` numbers them from the iteration order, so
+    inserting or reordering a block here can't leave stale numbering
+    behind.
+
+    Not implemented, deliberately : « le bloc PRESSE ET MÉDIAS
+    pourrait n'apparaître que lorsque le journaliste cible la presse
+    ou les médias ». Which selected values count as « targeting the
+    press » is a business call (a list of `type_organisation` and/or
+    `secteur` values), not a technical one, and guessing it would
+    hide a block from journalists who need it.
+    """
     by_id = {s.id: s for s in selectors}
 
     def pick(*ids: str) -> list[BaseSelector]:
@@ -215,28 +243,28 @@ def build_sections_from_selectors(
             selectors=pick(
                 "secteur",
                 "type_organisation",
-                "type_entreprise_presse_medias",
-                "type_presse_et_media",
                 "taille_organisation",
             ),
         ),
         SelectorSection(
-            title="Géolocalisation",
+            title="Presse et médias",
+            selectors=pick(
+                "type_entreprise_presse_medias",
+                "type_presse_et_media",
+            ),
+        ),
+        SelectorSection(
+            title="Géographie",
             selectors=pick("pays", "departement", "ville"),
         ),
         SelectorSection(
-            title="Fonctions",
+            title="Fonctions, métiers, compétences et langues",
             selectors=pick(
                 "fonction_pol_adm",
                 "fonction_org_priv",
                 "fonction_ass_syn",
                 "fonction",
                 "fonction_journalisme",
-            ),
-        ),
-        SelectorSection(
-            title="Métiers, compétences & langues",
-            selectors=pick(
                 "metier",
                 "competences",
                 "competences_journalisme",
