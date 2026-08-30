@@ -11,7 +11,7 @@ from typing import TYPE_CHECKING
 import pytest
 from typeguard import TypeCheckError
 
-from app.enums import RoleEnum
+from app.enums import CommunityEnum, RoleEnum
 from app.models.auth import User
 from app.modules.events.models import (
     Accreditation,
@@ -256,7 +256,20 @@ class TestCanUserAccredit:
 
         assert can_user_accredit(user, event_post) is True
 
-    def test_non_journalist_cannot_accredit(self, event_post: EventPost) -> None:
+    def test_a_non_journalist_may_accredit_when_untargeted(
+        self, event_post: EventPost
+    ) -> None:
+        """RG-05 — cette assertion était l'inverse : elle épinglait
+        l'écart E1, qui réservait tout événement aux journalistes."""
         user = _UserStub(roles=set())
 
-        assert can_user_accredit(user, event_post) is False
+        assert can_user_accredit(user, event_post) is True
+
+    def test_targeting_is_what_restricts(self, event_post: EventPost) -> None:
+        event_post.audience = [CommunityEnum.PRESS_MEDIA.value]
+
+        assert can_user_accredit(_UserStub(roles=set()), event_post) is False
+        assert (
+            can_user_accredit(_UserStub(roles={RoleEnum.PRESS_MEDIA}), event_post)
+            is True
+        )

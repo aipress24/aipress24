@@ -24,8 +24,16 @@ from app.enums import RoleEnum
 from app.flask.extensions import db
 from app.models.auth import User
 from app.models.lifecycle import PublicationStatus
+from app.modules.kyc.community_role import COMMUNITY_TO_ROLE
 
 from .models import Accreditation, AccreditationStatus, EventPost
+
+# Une audience porte des valeurs de `CommunityEnum` ; l'appartenance
+# d'un membre se lit sur ses rôles. Table de correspondance dressée une
+# fois, indexée par la valeur telle qu'elle est stockée en JSON.
+_ROLE_BY_COMMUNITY_VALUE = {
+    community.value: role for community, role in COMMUNITY_TO_ROLE.items()
+}
 
 # Statuts qui bloquent une nouvelle demande (RG-03). `WITHDRAWN` n'y
 # est pas : un membre qui s'est désinscrit peut revenir.
@@ -125,6 +133,44 @@ def accredited_event_ids(user_ids: list[int]) -> sa.Select:
 
 
 #
+# Ciblage
+#
+def in_audience(user: User, audience: list[str]) -> bool:
+    """Le membre appartient-il à l'audience visée ? (RG-03a)
+
+    `audience` porte des valeurs de `CommunityEnum` ; l'appartenance
+    d'un membre à une communauté est portée par ses **rôles**. La
+    correspondance existe déjà : `COMMUNITY_TO_ROLE`.
+
+    Une audience vide est ouverte à tous — c'est le défaut, et il
+    préserve le comportement des événements déjà publiés.
+
+    N'utilise délibérément pas `User.first_community()` : elle renvoie
+    un `RoleEnum` et non un `CommunityEnum`, et surtout elle lève
+    `RuntimeError` pour tout utilisateur sans rôle de communauté — un
+    administrateur, un compte de service. `has_role` ne lève jamais.
+    """
+    if not audience:
+        return True
+    roles = (_ROLE_BY_COMMUNITY_VALUE.get(value) for value in audience)
+    return any(user.has_role(role) for role in roles if role is not None)
+
+
+def sees_full_content(user: User, event: EventPost) -> bool:
+    """Le membre voit-il le contenu de l'annonce ? (RG-02, RG-03b)
+
+    Deux exceptions à l'appartenance, **sur la visibilité seulement** :
+    l'organisateur et un administrateur voient toujours le contenu
+    intégral, sans quoi le support ne peut plus instruire un
+    signalement. Elles n'ouvrent pas le droit de demander une
+    accréditation, qui reste conditionné à l'audience.
+    """
+    if user.id == event.owner_id or user.has_role(RoleEnum.ADMIN):
+        return True
+    return in_audience(user, event.audience or [])
+
+
+#
 # Demande et retrait, côté membre
 #
 def request_accreditation(event: EventPost, user: User) -> Accreditation:
@@ -137,8 +183,12 @@ def request_accreditation(event: EventPost, user: User) -> Accreditation:
 
     Raises:
         AccreditationClosedError: événement non publié, ou déjà commencé.
+        PermissionError: le membre n'appartient pas à l'audience visée.
     """
     _require_open(event)
+    if not in_audience(user, event.audience or []):
+        msg = "Cet événement est réservé à d'autres communautés."
+        raise PermissionError(msg)
 
     accreditation = get_accreditation(event, user)
     if accreditation is not None:
@@ -292,16 +342,14 @@ def remove_participant(event: EventPost, user: User) -> bool:
 
 
 def can_user_accredit(user: User, event: EventPost) -> bool:
-    """Whether `user` is allowed to self-accredit to `event`.
+    """Le membre peut-il demander une accréditation à cet événement ?
 
-    Bug 0127: accreditation reserved to journalists (`RoleEnum.PRESS_MEDIA`).
-
-    RG-05 demande de lever cette restriction et de ne filtrer que sur
-    `event.audience`. Elle ne peut pas l'être ici : sans le ciblage
-    (lot L3) ni la modération (lot L4), lever le filtre ouvrirait
-    l'inscription à tout le monde, immédiate et sans recours pour
-    l'organisateur — pire que l'état actuel. Elle est reportée au lot
-    L3, où le ciblage la remplace.
+    RG-05 — la restriction au rôle `PRESS_MEDIA` sur **tous** les
+    événements est levée. C'était l'écart E1 : le livré interdisait à
+    un universitaire de s'inscrire à un webinaire académique, et aucune
+    spécification ne le demandait. Le seul filtre est désormais le
+    ciblage choisi par l'organisateur ; un événement de presse se
+    restreint aux journalistes en cochant leur communauté, pas par une
+    règle codée en dur.
     """
-    del event  # le ciblage arrive au lot L3
-    return user.has_role(RoleEnum.PRESS_MEDIA)
+    return in_audience(user, event.audience or [])

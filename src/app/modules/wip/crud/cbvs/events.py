@@ -7,6 +7,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, cast
 
 import arrow
+import sqlalchemy as sa
 from flask import (
     Flask,
     flash,
@@ -21,6 +22,7 @@ from sqlalchemy.orm import Session
 from werkzeug.exceptions import Forbidden, NotFound
 from werkzeug.wrappers import Response
 
+from app.enums import CommunityEnum
 from app.flask.extensions import db
 from app.flask.lib.templates import templated
 from app.flask.routing import url_for
@@ -86,6 +88,10 @@ class EventsTable(BaseTable):
                 "label": "Images",
                 "url": self.url_for(item, "images"),
             },
+            {
+                "label": "Cibler",
+                "url": self.url_for(item, "audience"),
+            },
         ]
         if item.status == PublicationStatus.DRAFT:
             actions.append(
@@ -135,6 +141,26 @@ _EVENT_MODIFIER_TEMPLATE = """
   {{ step_nav_simple(event, "EventsWipView", "modifier", "événements") }}
 {% endblock %}
 """
+
+
+def _accredited_count(event) -> int:
+    """Combien de membres sont déjà accrédités à cet événement.
+
+    L'écran « Cibler » l'affiche pour rappeler qu'un changement de
+    ciblage ne les déaccrédite pas.
+    """
+    from app.modules.events.models import Accreditation, AccreditationStatus, EventPost
+
+    post_ids = db.session.scalars(
+        sa.select(EventPost.id).where(EventPost.eventroom_id == event.id)
+    ).all()
+    if not post_ids:
+        return 0
+    stmt = sa.select(sa.func.count()).where(
+        Accreditation.event_id.in_(post_ids),
+        Accreditation.status == AccreditationStatus.ACCEPTED,
+    )
+    return db.session.execute(stmt).scalar() or 0
 
 
 class EventsWipView(BaseWipView):
@@ -282,6 +308,35 @@ class EventsWipView(BaseWipView):
         # re-emit the unpublish signal so the mirror flips to DRAFT and is
         # de-indexed. The receiver no-ops if the source was never published.
         event_unpublished.send(model)
+
+    @route("/<int:id>/audience/", methods=["GET", "POST"])
+    def audience(self, id: int):
+        """Restreindre l'audience d'un événement (RG-03a, écran §7.4).
+
+        Aucune communauté cochée = ouvert à tous, ce qui est le défaut
+        et le comportement des événements déjà publiés.
+
+        Modifier le ciblage n'invalide **aucune** accréditation déjà
+        accordée : on ne dépossède pas quelqu'un à qui l'on a dit oui.
+        """
+        event = cast("Event", self._get_model(id))
+
+        if request.method == "POST":
+            event.audience = request.form.getlist("audience")
+            db.session.commit()
+            flash("Ciblage enregistré.", "success")
+            return redirect(self._url_for("index"))
+
+        self.update_phase_breadcrumbs(event, "Cibler")
+        accredited = _accredited_count(event)
+        return render_template(
+            "wip/event/audience.j2",
+            title=f"Cibler l'événement - {event.title}",
+            event=event,
+            communities=list(CommunityEnum),
+            selected=set(event.audience or []),
+            accredited_count=accredited,
+        )
 
     @route("/<int:id>/images/", methods=["GET", "POST"])
     def images(self, id: int):

@@ -101,6 +101,9 @@ class Event(IdMixin, LifeCycleMixin, Owned, Base):
     section: Mapped[str] = mapped_column(default="")
     topic: Mapped[str] = mapped_column(default="")
 
+    # Ciblage par communauté — vide = ouvert à toutes (RG-03a).
+    audience: Mapped[list[str]] = mapped_column(sa.JSON, default=list)
+
     # Localisation
     address: Mapped[str] = mapped_column(default="")
     pays_zip_ville: Mapped[str] = mapped_column(default="")

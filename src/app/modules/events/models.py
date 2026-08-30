@@ -52,6 +52,15 @@ class EventPostBase(
     # Classifications partagées avec WIRE (FIL-01), facultatives.
     section: Mapped[str] = mapped_column(default="", info={"group": "metadata"})
     topic: Mapped[str] = mapped_column(default="", info={"group": "metadata"})
+
+    # Ciblage par communauté (RG-03a). Liste de valeurs de
+    # `CommunityEnum` ; **vide = ouvert à toutes**, ce qui préserve le
+    # comportement des événements déjà publiés. Porté aussi par le
+    # modèle public pour que le filtrage d'affichage se fasse sans
+    # jointure.
+    audience: Mapped[list[str]] = mapped_column(
+        sa.JSON, default=list, info={"group": "metadata"}
+    )
     # First part of the enven_type
     # ie:   event_type = "Business / Forum
     #       category = "business"

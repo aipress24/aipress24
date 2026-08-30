@@ -11,7 +11,7 @@ from typing import TYPE_CHECKING
 import pytest
 from flask import g
 
-from app.enums import RoleEnum
+from app.enums import CommunityEnum, RoleEnum
 from app.models.auth import Role, User
 from app.modules.events.models import EventPost
 from app.modules.events.services import is_participant
@@ -293,7 +293,15 @@ class TestToggleParticipate:
         event_post: EventPost,
         viewer_user: User,
     ):
-        """A user without PRESS_MEDIA role gets a 403 and no row inserted."""
+        """RG-05 — un membre hors audience reçoit un 403.
+
+        Cette assertion portait sur le **rôle** : tout non-journaliste
+        était refusé, sur tous les événements (écart E1). Le refus se
+        lit désormais sur le ciblage choisi par l'organisateur.
+        """
+        event_post.audience = [CommunityEnum.PRESS_MEDIA.value]
+        db_session.flush()
+
         view = EventDetailView()
         with app.test_request_context():
             g.user = viewer_user

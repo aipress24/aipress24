@@ -97,6 +97,7 @@ def update_post(
     post.sector = info.sector
     post.section = info.section
     post.topic = info.topic
+    post.audience = list(info.audience or [])
     post.category = event_type_to_category(info.event_type)
 
     post.url = info.url
