@@ -61,7 +61,10 @@ def _make_user(db_session: Session) -> User:
 def _make_event_with_publisher(
     db_session: Session, owner_id: int, publisher: Organisation
 ) -> EventPost:
-    today = arrow.now()
+    # Un événement à venir : `arrow.now()` en date de début le rendrait
+    # instantanément clos aux demandes (RG-04), ce qu'aucun de ces
+    # tests ne cherche à vérifier.
+    today = arrow.now().shift(days=2)
     event = EventPost(
         title="Fête du Pain 2026",
         owner_id=owner_id,
@@ -148,7 +151,6 @@ def test_event_shows_published_by_relation_when_cross_org(
     db_session.flush()
 
     event = _make_event_with_publisher(db_session, user.id, client_org)
-
     client = make_authenticated_client(app, user)
     response = client.get(f"/events/{event.id}", follow_redirects=True)
     assert response.status_code == 200
@@ -197,11 +199,14 @@ def test_event_detail_shows_accreditation_button_for_journalist(
     db_session: Session,
 ):
     """Ticket #0138b (Erick, 2026-05-17): on the event detail page,
-    a journalist must see the « S'accréditer » button. Erick reported
-    that for a delegated event (PR agency publishing for a client) the
-    button was missing entirely. The button is guarded by the
-    ``can_accredit`` flag, which is true for users with the
-    ``PRESS_MEDIA`` role.
+    a journalist must see the accreditation button. Erick reported that
+    for a delegated event (PR agency publishing for a client) the button
+    was missing entirely.
+
+    The label is « Demande d'accréditation » since lot L2 (EVT-42): the
+    member asks and the organiser decides, where the button used to
+    grant accreditation outright. The regression this pins is unchanged
+    — a journalist must be offered a way to ask.
     """
     user = _make_user(db_session)
     agency = Organisation(name="Fake-Les Propulseurs PR")
@@ -216,8 +221,8 @@ def test_event_detail_shows_accreditation_button_for_journalist(
     response = client.get(f"/events/{event.id}", follow_redirects=True)
     assert response.status_code == 200
     html = response.data.decode()
-    assert "S'accréditer" in html or "accrediter" in html.lower(), (
-        "the « S'accréditer » button must be visible to journalists on "
+    assert "Demande d&#39;accréditation" in html or "accréditation" in html, (
+        "the accreditation button must be visible to journalists on "
         "the event detail (#0138b)"
     )
 

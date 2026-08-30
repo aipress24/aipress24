@@ -24,7 +24,7 @@ from app.flask.sqla import get_multi
 from app.models.lifecycle import PublicationStatus
 from app.modules.events import blueprint
 from app.modules.events.models import EventPost
-from app.modules.events.services import accredited_event_ids
+from app.modules.events.services import accredited_event_ids, accredited_ids_among
 
 from ._common import Calendar, DateFilter, EventListVM
 from ._filters import FilterBar
@@ -89,9 +89,14 @@ class EventsListView(MethodView):
 
         events_list = self._get_events(date_filter, filter_bar, search)
 
+        # §7.2 — une seule requête pour toute la page, pas une par
+        # carte : la pastille « Accrédité.e » ne vaut pas N requêtes.
+        accredited = accredited_ids_among(g.user, [e.id for e in events_list])
+
         # Group events by day
         grouper = defaultdict(list)
         for event in events_list:
+            event._is_accredited = event.id in accredited
             vm = EventListVM(event)
             grouper[vm.date].append(vm)
 

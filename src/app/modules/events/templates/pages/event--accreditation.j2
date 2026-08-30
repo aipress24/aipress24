@@ -1,0 +1,51 @@
+{# Bloc de statut d'accréditation du membre — §7.1.
+
+   Rendu à deux endroits : dans le bandeau de l'annonce développée, et
+   seul en réponse à une action HTMX. D'où le fichier séparé : la
+   pastille et le bouton doivent dire la même chose des deux côtés. #}
+<div id="accreditation-block-{{ event.id }}" class="flex items-center gap-3">
+  {% if not sees_content %}
+    {# Hors audience : ni pastille ni bouton (RG-02). #}
+  {% elif not is_open %}
+    {% if accreditation == "accepted" %}
+      <span class="inline-flex items-center rounded-full bg-green-100 px-3 py-1 text-sm font-medium text-green-800">
+        Accrédité.e
+      </span>
+    {% endif %}
+  {% elif accreditation == "accepted" %}
+    <span class="inline-flex items-center rounded-full bg-green-100 px-3 py-1 text-sm font-medium text-green-800">
+      Accrédité.e
+    </span>
+    <button type="button"
+            class="text-sm font-medium text-gray-600 underline hover:text-gray-900"
+            hx-post="{{ url_for('events.event', id=event.id) }}"
+            hx-vals='{"action": "withdraw-accreditation"}'
+            hx-target="#accreditation-block-{{ event.id }}"
+            hx-swap="outerHTML">
+      Se désinscrire
+    </button>
+  {% elif accreditation == "requested" %}
+    <span class="inline-flex items-center rounded-full bg-gray-100 px-3 py-1 text-sm font-medium text-gray-700">
+      Demande en cours
+    </span>
+    <button type="button"
+            class="text-sm font-medium text-gray-600 underline hover:text-gray-900"
+            hx-post="{{ url_for('events.event', id=event.id) }}"
+            hx-vals='{"action": "withdraw-accreditation"}'
+            hx-target="#accreditation-block-{{ event.id }}"
+            hx-swap="outerHTML">
+      Annuler ma demande
+    </button>
+  {% elif accreditation == "rejected" %}
+    <span class="text-sm text-gray-500">Demande refusée</span>
+  {% else %}
+    <button type="button"
+            class="inline-flex items-center rounded-md border border-transparent bg-white px-4 py-2 text-sm font-medium text-gray-900 shadow-sm hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-900 focus:ring-offset-2"
+            hx-post="{{ url_for('events.event', id=event.id) }}"
+            hx-vals='{"action": "request-accreditation"}'
+            hx-target="#accreditation-block-{{ event.id }}"
+            hx-swap="outerHTML">
+      Demande d'accréditation
+    </button>
+  {% endif %}
+</div>

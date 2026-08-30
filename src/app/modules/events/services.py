@@ -170,6 +170,22 @@ def sees_full_content(user: User, event: EventPost) -> bool:
     return in_audience(user, event.audience or [])
 
 
+def accredited_ids_among(user, event_ids: list[int]) -> set[int]:
+    """Parmi ces événements, lesquels le membre est-il accrédité ? (§7.2)
+
+    Une seule requête pour toute une page de liste. Un appel par carte
+    en ferait autant qu'il y a d'événements affichés, pour une pastille.
+    """
+    if user is None or getattr(user, "is_anonymous", True) or not event_ids:
+        return set()
+    stmt = sa.select(Accreditation.event_id).where(
+        Accreditation.user_id == user.id,
+        Accreditation.event_id.in_(event_ids),
+        Accreditation.status == AccreditationStatus.ACCEPTED,
+    )
+    return set(db.session.scalars(stmt))
+
+
 #
 # Demande et retrait, côté membre
 #

@@ -9,6 +9,7 @@ from __future__ import annotations
 import json
 from typing import ClassVar
 
+import arrow
 from flask import flash, g, make_response, redirect, render_template, request
 from flask.views import MethodView
 from werkzeug import Response
@@ -19,17 +20,39 @@ from app.flask.routing import url_for
 from app.flask.sqla import get_public_obj
 from app.models.auth import User
 from app.modules.events import blueprint
-from app.modules.events.models import EventPost
+from app.modules.events.models import AccreditationStatus, EventPost
 from app.modules.events.services import (
-    add_participant,
-    can_user_accredit,
-    is_participant,
-    remove_participant,
+    AccreditationClosedError,
+    get_accreditation,
+    request_accreditation,
+    sees_full_content,
+    withdraw_accreditation,
 )
 from app.modules.events.views._common import EventDetailVM
 from app.modules.kyc.field_label import country_code_to_label, country_zip_code_to_city
 from app.modules.swork.models import Comment
 from app.services.tracking import record_view
+
+
+def _accreditation_status(event: EventPost, user: User) -> str:
+    """L'état de la demande du membre, sous forme de chaîne pour le
+    gabarit : `""`, `requested`, `accepted`, `rejected` ou `withdrawn`.
+
+    Une chaîne vide vaut « aucune demande » — le membre voit le bouton.
+    `withdrawn` s'affiche comme une absence de demande : s'être
+    désinscrit n'interdit pas de revenir (RG-03).
+    """
+    accreditation = get_accreditation(event, user)
+    if accreditation is None:
+        return ""
+    if accreditation.status == AccreditationStatus.WITHDRAWN:
+        return ""
+    return str(accreditation.status.value)
+
+
+def _is_open(event: EventPost) -> bool:
+    """L'événement accepte-t-il encore des demandes ? (RG-04)"""
+    return event.start_datetime is None or event.start_datetime > arrow.utcnow()
 
 
 class EventDetailView(MethodView):
@@ -53,8 +76,10 @@ class EventDetailView(MethodView):
             "metadata_list": self._get_metadata_list(view_model),
             "title": event_obj.title,
             "related_events": [],
-            "is_participating": is_participant(event_obj, g.user),
-            "can_accredit": can_user_accredit(g.user, event_obj),
+            "accreditation": _accreditation_status(event_obj, g.user),
+            "sees_content": sees_full_content(g.user, event_obj),
+            "audience": event_obj.audience or [],
+            "is_open": _is_open(event_obj),
         }
         return render_template("pages/event.j2", **ctx)
 
@@ -72,8 +97,12 @@ class EventDetailView(MethodView):
                 response = self._post_comment(event_obj)
                 db.session.commit()
                 return response
-            case "toggle-participate":
-                response = self._toggle_participate(user, event_obj)
+            case "request-accreditation":
+                response = self._request_accreditation(user, event_obj)
+                db.session.commit()
+                return response
+            case "withdraw-accreditation":
+                response = self._withdraw_accreditation(user, event_obj)
                 db.session.commit()
                 return response
             case _:
@@ -105,30 +134,55 @@ class EventDetailView(MethodView):
         response.headers["HX-Trigger"] = json.dumps({"showToast": message})
         return response
 
-    def _toggle_participate(self, user: User, event_obj: EventPost) -> Response:
-        """Toggle the user's accreditation to an event.
+    def _request_accreditation(self, user: User, event_obj: EventPost) -> Response:
+        """Demander une accréditation (RG-03).
 
-        Bug 0127. Refuses with HTTP 403 when the user lacks the required role
-        (journalists only). Otherwise toggles the accreditation and
-        returns the new button label so HTMX can swap it in place.
+        Remplace l'ancienne bascule, qui accréditait d'un clic. Le
+        membre demande désormais, et l'organisateur décide depuis son
+        écran « Accréditer ».
+
+        `403` hors audience, `409` sur un événement clos — avec un
+        message en clair, comme le faisait le refus par rôle.
 
         Note: does NOT commit — caller is responsible.
         """
-        if not can_user_accredit(user, event_obj):
-            response = make_response("Accréditation réservée aux journalistes.", 403)
-            return response
+        try:
+            request_accreditation(event_obj, user)
+        except PermissionError as e:
+            return make_response(str(e), 403)
+        except AccreditationClosedError as e:
+            return make_response(str(e), 409)
 
-        if is_participant(event_obj, user):
-            remove_participant(event_obj, user)
-            new_label = "S'accréditer"
-            toast_msg = f"Vous n'êtes plus accrédité à l'événement {event_obj.title!r}"
-        else:
-            add_participant(event_obj, user)
-            new_label = "Annuler mon accréditation"
-            toast_msg = f"Vous êtes accrédité à l'événement {event_obj.title!r}"
+        return self._accreditation_fragment(
+            event_obj, user, f"Votre demande pour {event_obj.title!r} a été envoyée"
+        )
 
-        response = make_response(new_label)
-        response.headers["HX-Trigger"] = json.dumps({"showToast": toast_msg})
+    def _withdraw_accreditation(self, user: User, event_obj: EventPost) -> Response:
+        """Annuler sa demande, ou se désinscrire (RG-08).
+
+        Les deux gestes sont le même côté membre.
+
+        Note: does NOT commit — caller is responsible.
+        """
+        withdraw_accreditation(event_obj, user)
+        return self._accreditation_fragment(
+            event_obj, user, f"Vous êtes retiré de l'événement {event_obj.title!r}"
+        )
+
+    def _accreditation_fragment(
+        self, event_obj: EventPost, user: User, toast: str
+    ) -> Response:
+        """Le bloc de statut, re-rendu pour HTMX, plus le toast."""
+        db.session.flush()
+        html = render_template(
+            "pages/event--accreditation.j2",
+            event=event_obj,
+            accreditation=_accreditation_status(event_obj, user),
+            is_open=_is_open(event_obj),
+            sees_content=True,
+        )
+        response = make_response(html)
+        response.headers["HX-Trigger"] = json.dumps({"showToast": toast})
         return response
 
     def _post_comment(self, event_obj: EventPost) -> Response:

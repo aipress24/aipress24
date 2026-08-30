@@ -55,6 +55,10 @@ class EventListVM(ViewModel):
             "likes": event.like_count,
             "replies": event.comment_count,
             "views": event.view_count,
+            # Renseigné par la vue liste, qui charge l'ensemble des
+            # accréditations de la page en une requête (§7.2) : un
+            # appel par carte ferait N requêtes pour un badge.
+            "is_accredited": getattr(event, "_is_accredited", False),
         }
 
 

@@ -8,13 +8,15 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+import arrow
 import pytest
 from flask import g
 
 from app.enums import CommunityEnum, RoleEnum
 from app.models.auth import Role, User
-from app.modules.events.models import EventPost
-from app.modules.events.services import is_participant
+from app.models.lifecycle import PublicationStatus
+from app.modules.events.models import AccreditationStatus, EventPost
+from app.modules.events.services import get_accreditation, is_participant
 from app.modules.events.views._common import EventDetailVM
 from app.modules.events.views.event_detail import EventDetailView
 from app.services.social_graph import adapt
@@ -245,10 +247,26 @@ def journalist_user(db_session: Session) -> User:
     return user
 
 
-class TestToggleParticipate:
-    """Bug 0127: simplest accreditation toggle, journalists only."""
+class TestAccreditationRequest:
+    """Le parcours membre — lot L2, §7.1 et §8.
 
-    def test_journalist_can_self_accredit(
+    Cette classe s'appelait `TestToggleParticipate` et vérifiait qu'un
+    clic accréditait sur-le-champ (bug 0127). Le bouton demande
+    désormais, et l'organisateur décide : c'est le basculement du
+    modèle ouvert et immédiat vers le modèle ciblé et modéré.
+    """
+
+    @pytest.fixture(autouse=True)
+    def _open_for_requests(self, db_session: Session, event_post: EventPost):
+        """La fixture partagée crée un brouillon sans dates. On ne
+        demande une accréditation qu'à un événement publié et à venir
+        (RG-03), d'où cette ouverture locale plutôt qu'un changement de
+        la fixture, dont d'autres tests dépendent."""
+        event_post.status = PublicationStatus.PUBLIC
+        event_post.start_datetime = arrow.utcnow().shift(days=3)
+        db_session.flush()
+
+    def test_a_member_requests_rather_than_granting_themselves(
         self,
         app: Flask,
         db_session: Session,
@@ -258,17 +276,20 @@ class TestToggleParticipate:
         view = EventDetailView()
         with app.test_request_context():
             g.user = journalist_user
+            assert get_accreditation(event_post, journalist_user) is None
 
-            assert is_participant(event_post, journalist_user) is False
-
-            response = view._toggle_participate(journalist_user, event_post)
+            response = view._request_accreditation(journalist_user, event_post)
 
             assert response.status_code == 200
-            assert is_participant(event_post, journalist_user) is True
-            assert b"Annuler" in response.data
+            row = get_accreditation(event_post, journalist_user)
+            assert row is not None
+            # Une demande, pas une accréditation : c'est tout l'objet
+            # du lot.
+            assert row.status == AccreditationStatus.REQUESTED
+            assert is_participant(event_post, journalist_user) is False
             assert "HX-Trigger" in response.headers
 
-    def test_second_toggle_removes_accreditation(
+    def test_a_member_may_cancel_their_request(
         self,
         app: Flask,
         db_session: Session,
@@ -278,26 +299,26 @@ class TestToggleParticipate:
         view = EventDetailView()
         with app.test_request_context():
             g.user = journalist_user
-            view._toggle_participate(journalist_user, event_post)
+            view._request_accreditation(journalist_user, event_post)
 
-            response = view._toggle_participate(journalist_user, event_post)
+            response = view._withdraw_accreditation(journalist_user, event_post)
 
             assert response.status_code == 200
-            assert is_participant(event_post, journalist_user) is False
-            assert b"S'accr" in response.data  # "S'accréditer"
+            row = get_accreditation(event_post, journalist_user)
+            assert row.status == AccreditationStatus.WITHDRAWN
+            assert b"Demande d" in response.data  # « Demande d'accréditation »
 
-    def test_non_journalist_is_refused(
+    def test_a_member_outside_the_audience_is_refused(
         self,
         app: Flask,
         db_session: Session,
         event_post: EventPost,
         viewer_user: User,
     ):
-        """RG-05 — un membre hors audience reçoit un 403.
+        """RG-05 — le refus se lit sur le ciblage, plus sur le rôle.
 
-        Cette assertion portait sur le **rôle** : tout non-journaliste
-        était refusé, sur tous les événements (écart E1). Le refus se
-        lit désormais sur le ciblage choisi par l'organisateur.
+        Cette assertion portait sur le rôle : tout non-journaliste était
+        refusé, sur tous les événements (écart E1).
         """
         event_post.audience = [CommunityEnum.PRESS_MEDIA.value]
         db_session.flush()
@@ -306,7 +327,7 @@ class TestToggleParticipate:
         with app.test_request_context():
             g.user = viewer_user
 
-            response = view._toggle_participate(viewer_user, event_post)
+            response = view._request_accreditation(viewer_user, event_post)
 
             assert response.status_code == 403
-            assert is_participant(event_post, viewer_user) is False
+            assert get_accreditation(event_post, viewer_user) is None
