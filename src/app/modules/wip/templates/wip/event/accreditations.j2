@@ -1,0 +1,108 @@
+{% extends "wip/layout/_base.j2" %}
+
+{% macro requester_table(rows, action, button_label, intro) %}
+  {% if rows %}
+    <form method="POST" class="space-y-4">
+      {% if intro %}<p class="text-sm text-gray-700">{{ intro }}</p>{% endif %}
+      <table class="min-w-full divide-y divide-gray-200">
+        <thead>
+          <tr class="text-left text-xs font-medium uppercase text-gray-500">
+            <th class="px-3 py-2">
+              <input type="checkbox"
+                     onclick="this.closest('form').querySelectorAll('input[name=user_ids]').forEach(c => c.checked = this.checked)"
+                     class="rounded border-gray-300">
+            </th>
+            <th class="px-3 py-2">Profil</th>
+            <th class="px-3 py-2">Organisation</th>
+            <th class="px-3 py-2">Demande</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-gray-100">
+          {% for row in rows %}
+            <tr>
+              <td class="px-3 py-2">
+                <input type="checkbox" name="user_ids" value="{{ row.user.id }}"
+                       class="rounded border-gray-300 text-pink-600 focus:ring-pink-500">
+              </td>
+              <td class="px-3 py-2">
+                <div class="flex items-center space-x-3">
+                  {{ profile_image(row.user, size=12) }}
+                  <div>
+                    <div class="text-sm font-medium text-gray-900">{{ row.user.full_name }}</div>
+                    <div class="text-xs text-gray-500">{{ row.user.job_title or "" }}</div>
+                  </div>
+                </div>
+              </td>
+              <td class="px-3 py-2 text-sm text-gray-700">
+                {{ row.user.organisation_name or "—" }}
+              </td>
+              <td class="px-3 py-2 text-sm text-gray-500">
+                {{ row.requested_at.format("DD/MM/YYYY") }}
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      <div class="flex justify-end">
+        <button type="submit" name="_action" value="{{ action }}"
+                class="rounded-md border border-transparent bg-pink-600 px-4 py-2 text-sm font-medium text-white hover:bg-pink-700">
+          {{ button_label }}
+        </button>
+      </div>
+    </form>
+  {% else %}
+    <p class="text-sm text-gray-600 italic">
+      Aucune demande d'accréditation pour le moment.
+    </p>
+  {% endif %}
+{% endmacro %}
+
+{% block body_content %}
+  <h1 class="text-2xl font-semibold text-gray-900 mb-2">Accréditer</h1>
+  <p class="text-sm text-gray-600 mb-6">{{ event.title }}</p>
+
+  {% if not published %}
+    <p class="text-sm text-amber-700 bg-amber-50 border border-amber-200 rounded p-3 mb-6">
+      Cet événement n'est pas publié : personne ne peut encore demander à y
+      assister.
+    </p>
+  {% endif %}
+
+  <div x-data="{ tab: 'requested' }" class="space-y-6">
+    <nav class="flex space-x-4 border-b border-gray-200" aria-label="Tabs">
+      {% for id, label, count in [
+        ("requested", "Demandes en cours", requested|length),
+        ("accepted", "Demandes acceptées", accepted|length),
+        ("rejected", "Demandes rejetées", rejected|length),
+      ] %}
+        <button type="button" x-on:click="tab = '{{ id }}'"
+                :class="tab === '{{ id }}' ? 'border-pink-600 text-pink-600' : 'border-transparent text-gray-500'"
+                class="border-b-2 px-1 pb-3 text-sm font-medium">
+          {{ label }} ({{ count }})
+        </button>
+      {% endfor %}
+    </nav>
+
+    <div x-show="tab === 'requested'">
+      {{ requester_table(
+        requested, "accept", "Accréditer la sélection",
+        "Cochez les cases devant les profils ci-dessous pour sélectionner les personnes que vous souhaitez accréditer à votre événement ?"
+      ) }}
+      {% if requested %}
+        <form method="POST" class="flex justify-end mt-2">
+          {% for row in requested %}
+            <input type="hidden" name="user_ids" value="{{ row.user.id }}">
+          {% endfor %}
+        </form>
+      {% endif %}
+    </div>
+
+    <div x-show="tab === 'accepted'" x-cloak>
+      {{ requester_table(accepted, "reject", "Retirer l'accréditation", "") }}
+    </div>
+
+    <div x-show="tab === 'rejected'" x-cloak>
+      {{ requester_table(rejected, "accept", "Accréditer finalement", "") }}
+    </div>
+  </div>
+{% endblock %}

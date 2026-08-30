@@ -92,6 +92,10 @@ class EventsTable(BaseTable):
                 "label": "Cibler",
                 "url": self.url_for(item, "audience"),
             },
+            {
+                "label": _accrediter_label(item),
+                "url": self.url_for(item, "accreditations"),
+            },
         ]
         if item.status == PublicationStatus.DRAFT:
             actions.append(
@@ -143,24 +147,78 @@ _EVENT_MODIFIER_TEMPLATE = """
 """
 
 
-def _accredited_count(event) -> int:
-    """Combien de membres sont déjà accrédités à cet événement.
+def _accrediter_label(event) -> str:
+    """« Accréditer (3) » — le compteur porte les demandes en attente.
 
-    L'écran « Cibler » l'affiche pour rappeler qu'un changement de
-    ciblage ne les déaccrédite pas.
+    Sans lui, rien ne signale à l'organisateur qu'on attend une
+    décision de sa part : la cloche n'arrive qu'au lot C1.
     """
-    from app.modules.events.models import Accreditation, AccreditationStatus, EventPost
+    pending = _pending_count(event)
+    return f"Accréditer ({pending})" if pending else "Accréditer"
 
-    post_ids = db.session.scalars(
-        sa.select(EventPost.id).where(EventPost.eventroom_id == event.id)
-    ).all()
-    if not post_ids:
+
+def _require_organiser(event) -> None:
+    """Refuser l'accès à qui n'organise pas cet événement (§6).
+
+    `before_request` garde l'accès à Event'Room dans son ensemble, mais
+    pas événement par événement : n'importe quel membre y ayant accès
+    atteignait les écrans de n'importe quel autre. C'est sans grande
+    conséquence sur un formulaire de saisie ; ça n'en a plus dès que
+    l'écran liste des profils nominatifs — nom, photo, fonction,
+    organisation — ou permet de changer qui est invité.
+
+    Sont autorisés le propriétaire de l'événement, et les rôles
+    habilités de l'organisation éditrice, mêmes règles que la
+    publication.
+    """
+    user = g.user
+    if event.owner_id == user.id:
+        return
+    if event.publisher_id and can_user_publish_for(user, event.publisher_id):
+        return
+    raise Forbidden
+
+
+def _event_post_of(event):
+    """Le `EventPost` public correspondant, s'il est publié.
+
+    Les accréditations pendent du post public, pas de l'événement de
+    saisie : tant qu'il n'est pas publié, il n'y a personne à
+    accréditer.
+    """
+    from app.modules.events.models import EventPost
+
+    return db.session.scalars(
+        sa.select(EventPost).where(EventPost.eventroom_id == event.id)
+    ).one_or_none()
+
+
+def _pending_count(event) -> int:
+    """Nombre de demandes en attente de décision."""
+    return _count_accreditations(event, "REQUESTED")
+
+
+def _count_accreditations(event, status_name: str) -> int:
+    """Compter les accréditations d'un événement dans un statut donné.
+
+    Deux appelants : le compteur du menu (demandes en attente) et
+    l'écran de ciblage (déjà accrédités), qui rappelle qu'un changement
+    d'audience ne déaccrédite personne.
+    """
+    from app.modules.events.models import Accreditation, AccreditationStatus
+
+    post = _event_post_of(event)
+    if post is None:
         return 0
     stmt = sa.select(sa.func.count()).where(
-        Accreditation.event_id.in_(post_ids),
-        Accreditation.status == AccreditationStatus.ACCEPTED,
+        Accreditation.event_id == post.id,
+        Accreditation.status == AccreditationStatus[status_name],
     )
     return db.session.execute(stmt).scalar() or 0
+
+
+def _accredited_count(event) -> int:
+    return _count_accreditations(event, "ACCEPTED")
 
 
 class EventsWipView(BaseWipView):
@@ -320,6 +378,7 @@ class EventsWipView(BaseWipView):
         accordée : on ne dépossède pas quelqu'un à qui l'on a dit oui.
         """
         event = cast("Event", self._get_model(id))
+        _require_organiser(event)
 
         if request.method == "POST":
             event.audience = request.form.getlist("audience")
@@ -336,6 +395,60 @@ class EventsWipView(BaseWipView):
             communities=list(CommunityEnum),
             selected=set(event.audience or []),
             accredited_count=accredited,
+        )
+
+    @route("/<int:id>/accreditations/", methods=["GET", "POST"])
+    def accreditations(self, id: int):
+        """Décider des demandes d'accréditation (écran §7.5).
+
+        Trois onglets — en cours, acceptées, rejetées — et des actions
+        par lot. L'onglet des refus permet de revenir sur une décision
+        (RG-13) ; c'est la seule sortie de `REJECTED`, et elle
+        n'appartient qu'à l'organisateur.
+        """
+        from app.modules.events.models import AccreditationStatus
+        from app.modules.events.services import (
+            accept_accreditations,
+            get_accreditations_by_status,
+            reject_accreditations,
+        )
+
+        event = cast("Event", self._get_model(id))
+        _require_organiser(event)
+        post = _event_post_of(event)
+
+        if request.method == "POST":
+            if post is None:
+                raise NotFound
+            user_ids = [int(i) for i in request.form.getlist("user_ids")]
+            decide = {
+                "accept": accept_accreditations,
+                "reject": reject_accreditations,
+            }.get(request.form.get("_action", ""))
+            if decide is None:
+                raise NotFound
+            count = decide(post, user_ids, decided_by=g.user)
+            db.session.commit()
+            flash(f"{count} demande(s) traitée(s).", "success")
+            return redirect(self._url_for("accreditations", id=event.id))
+
+        self.update_phase_breadcrumbs(event, "Accréditer")
+        by_status = {
+            status: get_accreditations_by_status(post, status) if post else []
+            for status in (
+                AccreditationStatus.REQUESTED,
+                AccreditationStatus.ACCEPTED,
+                AccreditationStatus.REJECTED,
+            )
+        }
+        return render_template(
+            "wip/event/accreditations.j2",
+            title=f"Accréditer — {event.title}",
+            event=event,
+            published=post is not None,
+            requested=by_status[AccreditationStatus.REQUESTED],
+            accepted=by_status[AccreditationStatus.ACCEPTED],
+            rejected=by_status[AccreditationStatus.REJECTED],
         )
 
     @route("/<int:id>/images/", methods=["GET", "POST"])
