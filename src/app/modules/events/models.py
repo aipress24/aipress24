@@ -209,22 +209,3 @@ class Accreditation(IdMixin, Base):
         # Bloc « Votre agenda » : WHERE user_id = ? AND status = 'accepted'
         sa.Index("ix_evt_accreditation_user_status", "user_id", "status"),
     )
-
-
-# Remplacée par `Accreditation` ; encore lue par `events/services.py`
-# jusqu'au second bloc du lot L1, qui la retirera.
-participation_table = sa.Table(
-    "evt_participation",
-    Base.metadata,
-    sa.Column(
-        "user_id",
-        sa.Integer,
-        sa.ForeignKey(User.id, onupdate="CASCADE", ondelete="CASCADE"),
-    ),
-    sa.Column(
-        "event_id",
-        sa.BigInteger,
-        sa.ForeignKey(EventPost.id, onupdate="CASCADE", ondelete="CASCADE"),
-    ),
-    sa.UniqueConstraint("user_id", "event_id"),
-)

@@ -39,8 +39,9 @@ import sqlalchemy as sa
 
 from app.models.auth import User
 from app.modules.events.models import (
+    Accreditation,
+    AccreditationStatus,
     EventPost,
-    participation_table,
 )
 from app.modules.events.services import (
     add_participant,
@@ -82,9 +83,10 @@ def event(db_session: Session, users: list[User]) -> EventPost:
 
 
 def _participation_row_count(db_session: Session, event_id: int) -> int:
-    """Count rows in the association table for a given event (state probe)."""
+    """Count accredited members for a given event (state probe)."""
     stmt = sa.select(sa.func.count()).where(
-        participation_table.c.event_id == event_id,
+        Accreditation.event_id == event_id,
+        Accreditation.status == AccreditationStatus.ACCEPTED,
     )
     return db_session.execute(stmt).scalar() or 0
 
@@ -133,7 +135,7 @@ class TestAddParticipantRoundTrip:
     # Its premise was wrong: the five event subtypes were siblings of
     # `EventPost`, not subclasses — they wrote to their own tables and
     # never landed in `evt_event_post`, which is what
-    # `participation_table.event_id` FKs to. SQLite skipped the FK check ;
+    # `Accreditation.event_id` FKs to. SQLite skipped the FK check ;
     # Postgres surfaced the violation. Those classes are gone since lot
     # C0b ; only `EventPost` remains.
 

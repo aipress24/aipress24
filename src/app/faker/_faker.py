@@ -17,7 +17,7 @@ from sqlalchemy.orm import scoped_session
 
 from app.models.base import Base
 from app.modules.admin.invitations import invite_users
-from app.modules.events.models import participation_table
+from app.modules.events.models import Accreditation, AccreditationStatus
 from app.modules.swork.models import Comment, group_members_table
 from app.services.roles import add_role
 from app.services.social_graph import adapt
@@ -221,10 +221,13 @@ class FakerService:
             count = random.randint(0, max_count)
             participants = random.sample(users, count)
             for m in participants:
-                stmt = sa.insert(participation_table).values(
-                    user_id=m.id, event_id=event.id
+                self.session.add(
+                    Accreditation(
+                        user_id=m.id,
+                        event_id=event.id,
+                        status=AccreditationStatus.ACCEPTED,
+                    )
                 )
-                self.session.execute(stmt)
 
         self.session.flush()
 

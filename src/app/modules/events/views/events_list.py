@@ -23,7 +23,8 @@ from app.flask.extensions import db, htmx
 from app.flask.sqla import get_multi
 from app.models.lifecycle import PublicationStatus
 from app.modules.events import blueprint
-from app.modules.events.models import EventPost, participation_table
+from app.modules.events.models import EventPost
+from app.modules.events.services import accredited_event_ids
 
 from ._common import Calendar, DateFilter, EventListVM
 from ._filters import FilterBar
@@ -126,14 +127,8 @@ class EventsListView(MethodView):
             return []
         stmt = (
             select(EventPost)
-            .join(
-                participation_table,
-                participation_table.c.event_id == EventPost.id,
-            )
-            .where(
-                participation_table.c.user_id == user.id,
-                EventPost.status == PublicationStatus.PUBLIC,
-            )
+            .where(EventPost.id.in_(accredited_event_ids([user.id])))
+            .where(EventPost.status == PublicationStatus.PUBLIC)
         )
         events = list(db.session.scalars(stmt))
 

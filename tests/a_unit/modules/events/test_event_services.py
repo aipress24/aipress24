@@ -13,7 +13,11 @@ from typeguard import TypeCheckError
 
 from app.enums import RoleEnum
 from app.models.auth import User
-from app.modules.events.models import EventPost, participation_table
+from app.modules.events.models import (
+    Accreditation,
+    AccreditationStatus,
+    EventPost,
+)
 from app.modules.events.services import (
     add_participant,
     can_user_accredit,
@@ -61,8 +65,10 @@ def event_post(db: SQLAlchemy, owner: User) -> EventPost:
 
 def _add_participant(db: SQLAlchemy, event: EventPost, user: User) -> None:
     """Add a participant to an event."""
-    db.session.execute(
-        participation_table.insert().values(user_id=user.id, event_id=event.id)
+    db.session.add(
+        Accreditation(
+            user_id=user.id, event_id=event.id, status=AccreditationStatus.ACCEPTED
+        )
     )
     db.session.flush()
 

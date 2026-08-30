@@ -109,7 +109,7 @@ class EventDetailView(MethodView):
         """Toggle the user's accreditation to an event.
 
         Bug 0127. Refuses with HTTP 403 when the user lacks the required role
-        (journalists only). Otherwise toggles `participation_table` and
+        (journalists only). Otherwise toggles the accreditation and
         returns the new button label so HTMX can swap it in place.
 
         Note: does NOT commit — caller is responsible.

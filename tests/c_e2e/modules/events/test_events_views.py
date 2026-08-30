@@ -10,7 +10,6 @@ from typing import TYPE_CHECKING
 
 import arrow
 import pytest
-import sqlalchemy as sa
 from flask import Flask, g
 from svcs.flask import container
 
@@ -19,7 +18,11 @@ from app.flask.lib.nav.registration import _inject_breadcrumbs_to_context
 from app.flask.lib.nav.request import NavRequest
 from app.models.auth import Role, User
 from app.models.lifecycle import PublicationStatus
-from app.modules.events.models import EventPost, participation_table
+from app.modules.events.models import (
+    Accreditation,
+    AccreditationStatus,
+    EventPost,
+)
 from app.modules.events.views.events_list import EventsListView
 from app.services.context import Context
 from tests.c_e2e.conftest import make_authenticated_client
@@ -407,9 +410,11 @@ class TestUserAgendaWidget:
         sample_event: EventPost,
     ):
         self._setup_user_with_role(db_session, test_user)
-        db_session.execute(
-            sa.insert(participation_table).values(
-                event_id=sample_event.id, user_id=test_user.id
+        db_session.add(
+            Accreditation(
+                event_id=sample_event.id,
+                user_id=test_user.id,
+                status=AccreditationStatus.ACCEPTED,
             )
         )
         db_session.commit()
@@ -454,9 +459,11 @@ class TestUserAgendaWidget:
         )
         db_session.add(event)
         db_session.flush()
-        db_session.execute(
-            sa.insert(participation_table).values(
-                event_id=event.id, user_id=test_user.id
+        db_session.add(
+            Accreditation(
+                event_id=event.id,
+                user_id=test_user.id,
+                status=AccreditationStatus.ACCEPTED,
             )
         )
         db_session.commit()
@@ -478,9 +485,11 @@ class TestUserAgendaWidget:
         """Sidebar order: calendar, then « Votre agenda », then the
         two promo boxes (Stéfane, 2026-05-20)."""
         self._setup_user_with_role(db_session, test_user)
-        db_session.execute(
-            sa.insert(participation_table).values(
-                event_id=sample_event.id, user_id=test_user.id
+        db_session.add(
+            Accreditation(
+                event_id=sample_event.id,
+                user_id=test_user.id,
+                status=AccreditationStatus.ACCEPTED,
             )
         )
         db_session.commit()
@@ -545,9 +554,11 @@ class TestUserAgendaWidget:
         db_session.add_all([next_day, three_days_ago, in_ten_days, thirty_days_ago])
         db_session.flush()
         for event in (next_day, three_days_ago, in_ten_days, thirty_days_ago):
-            db_session.execute(
-                sa.insert(participation_table).values(
-                    event_id=event.id, user_id=test_user.id
+            db_session.add(
+                Accreditation(
+                    event_id=event.id,
+                    user_id=test_user.id,
+                    status=AccreditationStatus.ACCEPTED,
                 )
             )
         db_session.commit()

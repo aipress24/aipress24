@@ -707,14 +707,13 @@ class OrgVM(ViewModel):
         member_ids = self._member_ids()
         if not member_ids:
             return []
-        from app.modules.events.models import EventPost, participation_table
+        from app.modules.events.models import EventPost
+        from app.modules.events.services import accredited_event_ids
 
         # `id IN (subquery)` rather than a join + DISTINCT: DISTINCT over the
         # full row breaks on PostgreSQL (EventPost has `json` columns, which
         # have no equality operator), and the semi-join dedupes anyway.
-        event_ids = select(participation_table.c.event_id).where(
-            participation_table.c.user_id.in_(member_ids)
-        )
+        event_ids = accredited_event_ids(member_ids)
         stmt = (
             select(EventPost)
             .where(EventPost.id.in_(event_ids))
