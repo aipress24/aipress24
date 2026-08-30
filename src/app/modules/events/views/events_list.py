@@ -6,14 +6,13 @@
 
 from __future__ import annotations
 
-import json
 import re
 from collections import defaultdict
 
 import arrow
 import webargs
 from attrs import asdict
-from flask import g, render_template, request, session
+from flask import g, render_template, request
 from flask.views import MethodView
 from sqlalchemy import select
 from sqlalchemy.orm import selectinload
@@ -26,14 +25,13 @@ from app.models.lifecycle import PublicationStatus
 from app.modules.events import blueprint
 from app.modules.events.models import EventPost, participation_table
 
-from ._common import TABS, Calendar, DateFilter, EventListVM
+from ._common import Calendar, DateFilter, EventListVM
 from ._filters import FilterBar
 
 LIST_ARGS = {
     "month": webargs.fields.Str(load_default=""),
     "day": webargs.fields.Str(load_default=""),
     "search": webargs.fields.Str(load_default=""),
-    "tab": webargs.fields.Str(load_default=""),
     "loc": webargs.fields.Str(load_default=""),
 }
 
@@ -97,13 +95,11 @@ class EventsListView(MethodView):
             grouper[vm.date].append(vm)
 
         month = date_filter.month
-        active_tab_ids = self._get_active_tab_ids()
 
         return {
             "grouped_events": sorted(grouper.items()),
             "search": search,
-            "tabs": self._get_tabs(),
-            "calendar": asdict(Calendar(month, active_tab_ids)),
+            "calendar": asdict(Calendar(month)),
             "title": "Evénements",
             "filter_bar": filter_bar,
             "user_agenda_events": self._get_user_agenda_events(),
@@ -225,22 +221,6 @@ class EventsListView(MethodView):
             return stmt.where(or_(title_filter, postal_filter))
 
         return stmt.where(title_filter)
-
-    def _get_active_tab_ids(self) -> list[str]:
-        """Get active tab IDs from session."""
-        return json.loads(session.get("events:tabs") or "[]")
-
-    def _get_tabs(self) -> list[dict]:
-        """Get tabs with active state."""
-        active_tab_ids = self._get_active_tab_ids()
-        return [
-            {
-                "id": tab["id"],
-                "label": tab["label"],
-                "active": tab["id"] in active_tab_ids,
-            }
-            for tab in TABS
-        ]
 
 
 # Register the view
