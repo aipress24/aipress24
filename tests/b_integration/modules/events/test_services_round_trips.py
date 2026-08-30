@@ -26,10 +26,8 @@ mock, not the SQL. So we drive the real engine via the autouse
 ``db_session`` fixture (savepoint rollback after every test) and assert on
 tangible row state.
 
-Only true ``EventPost`` rows can participate — the association table
-FKs ``event_id`` to ``evt_event_post.id``, and the sibling classes
-``PublicEvent`` / ``PressEvent`` write to their own tables and never
-land in ``evt_event_post``.
+Only ``EventPost`` rows can participate — the association table FKs
+``event_id`` to ``evt_event_post.id``.
 """
 
 from __future__ import annotations
@@ -131,13 +129,13 @@ class TestAddParticipantRoundTrip:
 
         assert _participation_row_count(db_session, event.id) == len(users)
 
-    # NOTE: an earlier `test_works_for_concrete_subclasses[PublicEvent | PressEvent]`
-    # was deleted. Its premise was wrong: `PublicEvent` and `PressEvent` are
-    # siblings of `EventPost`, not subclasses — they write to their own tables
-    # (`evt_public_event` / `evt_press_event`) and never land in `evt_event_post`.
-    # `participation_table.event_id` FKs to `EventPost.id`, so the SUT only
-    # supports true `EventPost` instances. SQLite skipped the FK check ; Postgres
-    # surfaced the violation. The behaviour is correct ; the test was buggy.
+    # NOTE: an earlier `test_works_for_concrete_subclasses` was deleted.
+    # Its premise was wrong: the five event subtypes were siblings of
+    # `EventPost`, not subclasses — they wrote to their own tables and
+    # never landed in `evt_event_post`, which is what
+    # `participation_table.event_id` FKs to. SQLite skipped the FK check ;
+    # Postgres surfaced the violation. Those classes are gone since lot
+    # C0b ; only `EventPost` remains.
 
 
 # ----------------------------------------------------------------

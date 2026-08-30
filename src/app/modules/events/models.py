@@ -21,22 +21,6 @@ from app.models.content.base import BaseContent
 from app.models.content.mixins import Publishable, Searchable
 from app.models.mixins import Addressable, UserFeedbackMixin
 
-"""
-'-----------------------------------------------------------------
-'Event package
-'-----------------------------------------------------------------
-
-abstract class Event {
-    +name: string
-    +note: string
-    +start_datetime: DateTime
-    +end_datetime: DateTime
-    +location: Location
-}
-Event -up-|> BaseContent
-
-"""
-
 
 class EventPostBase(
     BaseContent, UserFeedbackMixin, Publishable, Searchable, Addressable
@@ -151,86 +135,6 @@ class EventPost(EventPostBase):
         """SQL expression for the ville property."""
         part = func.split_part(cls.pays_zip_ville_detail, " ", 4)
         return func.coalesce(func.rtrim(part, '"}'), "")
-
-
-class PublicEvent(EventPostBase):
-    __tablename__ = "evt_public_event"
-
-    id: Mapped[int] = mapped_column(
-        sa.BigInteger, sa.ForeignKey(BaseContent.id), primary_key=True
-    )
-
-    # +subtype: <Webinar, TradeShow, Symposium, Demonstration, FlashMob, Meetup...>
-
-    # +sector: [choices TBD]
-    # +audience: [choices TBD]
-    # +is_paying: bool
-    # +is_online: bool
-    # +is_irl: bool
-
-    class Meta:
-        type_id = "public"
-        type_label = "Salon/Colloque"
-
-
-class PressEvent(EventPostBase):
-    __tablename__ = "evt_press_event"
-
-    id: Mapped[int] = mapped_column(
-        sa.BigInteger, sa.ForeignKey(BaseContent.id), primary_key=True
-    )
-
-    # id = sa.Column(sa.Integer, sa.ForeignKey(BaseContent.id), primary_key=True)
-    # +subtype: <PressConference, PressBriefing, PressMeal>
-
-    class Meta:
-        type_id = "press"
-        type_label = "Presse"
-
-
-class TrainingEvent(EventPostBase):
-    __tablename__ = "evt_training_event"
-
-    id: Mapped[int] = mapped_column(
-        sa.BigInteger, sa.ForeignKey(BaseContent.id), primary_key=True
-    )
-
-    class Meta:
-        type_id = "webinar"
-        type_label = "Webinar"
-
-
-class CultureEvent(EventPostBase):
-    __tablename__ = "evt_culture_event"
-
-    id: Mapped[int] = mapped_column(
-        sa.BigInteger, sa.ForeignKey(BaseContent.id), primary_key=True
-    )
-
-    class Meta:
-        type_id = "culture"
-        type_label = "Événement culturel"
-
-
-class ContestEvent(EventPostBase):
-    __tablename__ = "evt_contest_event"
-
-    id: Mapped[int] = mapped_column(
-        sa.BigInteger, sa.ForeignKey(BaseContent.id), primary_key=True
-    )
-
-    class Meta:
-        type_id = "contest"
-        type_label = "Concours"
-
-
-EVENT_CLASSES = [
-    PublicEvent,
-    PressEvent,
-    TrainingEvent,
-    CultureEvent,
-    ContestEvent,
-]
 
 
 participation_table = sa.Table(
