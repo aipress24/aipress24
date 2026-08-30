@@ -46,6 +46,9 @@ class EventPostBase(
     # "genre" is "event_type"
     genre: Mapped[str] = mapped_column(default="", info={"group": "metadata"})
     sector: Mapped[str] = mapped_column(default="", info={"group": "metadata"})
+    # Classifications partagées avec WIRE (FIL-01), facultatives.
+    section: Mapped[str] = mapped_column(default="", info={"group": "metadata"})
+    topic: Mapped[str] = mapped_column(default="", info={"group": "metadata"})
     # First part of the enven_type
     # ie:   event_type = "Business / Forum
     #       category = "business"

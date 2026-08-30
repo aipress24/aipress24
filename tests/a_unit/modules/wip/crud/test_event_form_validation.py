@@ -292,6 +292,8 @@ class TestFormShape:
             "contenu",
             "sector",
             "event_type",
+            "section",
+            "topic",
             "address",
             "pays_zip_ville",
             "url",

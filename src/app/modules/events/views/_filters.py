@@ -35,6 +35,16 @@ FILTER_SPECS: list[dict] = [
         "column": "sector",
     },
     {
+        "id": "section",
+        "label": "Rubrique",
+        "column": "section",
+    },
+    {
+        "id": "topic",
+        "label": "Type d'info",
+        "column": "topic",
+    },
+    {
         "id": "pays_zip_ville",
         "label": "Pays",
         "column": "pays_zip_ville",

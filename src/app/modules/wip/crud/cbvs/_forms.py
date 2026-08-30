@@ -525,6 +525,25 @@ class EventForm(Form):
         validators=[validators.InputRequired()],
     )
 
+    # FIL-01/FIL-02 : mêmes noms et mêmes vocabulaires que WIRE, mais
+    # facultatifs — les rendre obligatoires invaliderait les événements
+    # déjà saisis. Les libellés suivent l'ontologie : `sections` est
+    # peuplé depuis la feuille « Rubriques », `topics` depuis « Type
+    # d'info ». La barre de filtres de WIRE intervertit les deux ; on
+    # ne propage pas l'erreur ici.
+    section = RichSelectField(
+        "Rubrique",
+        key="section",
+        render_kw={"width": 3},
+        validators=[validators.Optional()],
+    )
+    topic = RichSelectField(
+        "Type d'info",
+        key="topic",
+        render_kw={"width": 3},
+        validators=[validators.Optional()],
+    )
+
     address = TextAreaField(
         "Adresse de l'événement (pour les événements en présentiel ou hybrides)",
         render_kw={"width": 6},
@@ -580,6 +599,8 @@ class EventForm(Form):
                 "fields": [
                     "event_type",
                     "sector",
+                    "section",
+                    "topic",
                     "address",
                     "pays_zip_ville",
                     "url",

@@ -94,6 +94,13 @@ class Event(IdMixin, LifeCycleMixin, Owned, Base):
     # NEWS-Secteurs
     sector: Mapped[str] = mapped_column(default="")
 
+    # Mêmes noms et mêmes vocabulaires que WIRE (FIL-01) : `section`
+    # vient de la feuille d'ontologie « Rubriques », `topic` de
+    # « Type d'info ». Facultatifs (FIL-02) — les rendre obligatoires
+    # invaliderait les événements déjà saisis.
+    section: Mapped[str] = mapped_column(default="")
+    topic: Mapped[str] = mapped_column(default="")
+
     # Localisation
     address: Mapped[str] = mapped_column(default="")
     pays_zip_ville: Mapped[str] = mapped_column(default="")
