@@ -755,3 +755,26 @@ class ContentAlertMail(EmailTemplate):
     message: str = ""
     reporter_email: str = ""
     reporter_name: str = ""
+
+
+@dataclass(kw_only=True)
+class AccreditationAcceptedMail(EmailTemplate):
+    """NOT-02 — l'organisateur a accrédité le membre à son événement.
+
+    Doublée d'une cloche, mais l'email est le canal qui compte : c'est
+    l'information sur laquelle quelqu'un décide de se déplacer.
+
+    Args:
+        - sender / recipient / sender_mail: standard EmailTemplate fields.
+        - recipient_full_name: how to address the member.
+        - event_title: the event they are now accredited to.
+        - event_date: its start date, already formatted, or empty.
+        - event_url: link to the event on the EVENTS portal.
+    """
+
+    subject: str = "[Aipress24] Votre accréditation est confirmée"
+    template_html: str = "accreditation_accepted.j2"
+    recipient_full_name: str
+    event_title: str
+    event_date: str
+    event_url: str

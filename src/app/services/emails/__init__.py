@@ -15,6 +15,7 @@ from jinja2 import Environment
 from loguru import logger
 
 from .mailers import (
+    AccreditationAcceptedMail,
     ApplicationRejectedMail,
     ApplicationSelectedMail,
     AvisEnqueteNotificationMail,
@@ -45,6 +46,7 @@ from .mailers import (
 
 __all__ = [
     "ALERTS_RECIPIENTS",
+    "AccreditationAcceptedMail",
     "ApplicationRejectedMail",
     "ApplicationSelectedMail",
     "AvisEnqueteNotificationMail",

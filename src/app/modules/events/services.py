@@ -27,6 +27,12 @@ from app.models.lifecycle import PublicationStatus
 from app.modules.kyc.community_role import COMMUNITY_TO_ROLE
 
 from .models import Accreditation, AccreditationStatus, EventPost
+from .notifications import (
+    notify_accepted,
+    notify_rejected,
+    notify_request_received,
+    notify_withdrawn,
+)
 
 # Une audience porte des valeurs de `CommunityEnum` ; l'appartenance
 # d'un membre se lit sur ses rôles. Table de correspondance dressée une
@@ -215,6 +221,7 @@ def request_accreditation(event: EventPost, user: User) -> Accreditation:
         accreditation.requested_at = arrow.utcnow()
         accreditation.decided_at = None
         accreditation.decided_by_id = None
+        notify_request_received(event, user)
         return accreditation
 
     accreditation = Accreditation(
@@ -223,6 +230,7 @@ def request_accreditation(event: EventPost, user: User) -> Accreditation:
         status=AccreditationStatus.REQUESTED,
     )
     db.session.add(accreditation)
+    notify_request_received(event, user)
     return accreditation
 
 
@@ -238,6 +246,7 @@ def withdraw_accreditation(event: EventPost, user: User) -> Accreditation | None
         return None
 
     accreditation.status = AccreditationStatus.WITHDRAWN
+    notify_withdrawn(event, user)
     return accreditation
 
 
@@ -291,6 +300,17 @@ def _decide(
     )
     result = db.session.execute(stmt, execution_options={"synchronize_session": False})
     db.session.expire_all()
+
+    # NOT-02 / NOT-03 — une notification par destinataire réellement
+    # touché. La décision est un fait pour chacun d'eux séparément ;
+    # l'UPDATE groupé est une optimisation de stockage, pas un message
+    # collectif.
+    notify = (
+        notify_accepted if status == AccreditationStatus.ACCEPTED else notify_rejected
+    )
+    for member in db.session.scalars(sa.select(User).where(User.id.in_(user_ids))):
+        notify(event, member)
+
     return result.rowcount
 
 
