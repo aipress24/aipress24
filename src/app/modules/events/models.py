@@ -4,11 +4,14 @@
 
 from __future__ import annotations
 
+from enum import StrEnum, auto
 from typing import ClassVar
 
+import arrow
 import sqlalchemy as sa
 from sqlalchemy import (
     BigInteger,
+    orm,
 )
 from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy.sql import func
@@ -19,7 +22,7 @@ from app.models.auth import User
 from app.models.base import Base
 from app.models.content.base import BaseContent
 from app.models.content.mixins import Publishable, Searchable
-from app.models.mixins import Addressable, UserFeedbackMixin
+from app.models.mixins import Addressable, IdMixin, UserFeedbackMixin
 
 
 class EventPostBase(
@@ -140,6 +143,76 @@ class EventPost(EventPostBase):
         return func.coalesce(func.rtrim(part, '"}'), "")
 
 
+class AccreditationStatus(StrEnum):
+    """État d'une demande d'accréditation à un événement.
+
+    `WITHDRAWN` est un retrait par le membre — annulation de sa demande
+    ou désinscription ; `REJECTED` est une décision de l'organisateur.
+    Les deux sont distincts parce qu'ils ne se re-demandent pas de la
+    même façon (RG-03, RG-13).
+    """
+
+    REQUESTED = auto()
+    ACCEPTED = auto()
+    REJECTED = auto()
+    WITHDRAWN = auto()
+
+
+class Accreditation(IdMixin, Base):
+    """Une ligne par couple (événement, membre), dont le statut évolue.
+
+    Remplace `evt_participation`, table de jointure sans état. Pas
+    d'historique des décisions : seul le statut courant est conservé
+    (décision D4 de la spécification). Une table d'audit sera ajoutée
+    si un besoin de preuve apparaît.
+
+    Le modèle ne connaît aucune règle de transition : elles vivent dans
+    `events/services.py`, qui est le seul à écrire ici.
+    """
+
+    __tablename__ = "evt_accreditation"
+
+    event_id: Mapped[int] = mapped_column(
+        sa.BigInteger,
+        sa.ForeignKey(EventPost.id, onupdate="CASCADE", ondelete="CASCADE"),
+        nullable=False,
+    )
+    user_id: Mapped[int] = mapped_column(
+        sa.Integer,
+        sa.ForeignKey(User.id, onupdate="CASCADE", ondelete="CASCADE"),
+        nullable=False,
+    )
+    status: Mapped[AccreditationStatus] = mapped_column(
+        sa.Enum(AccreditationStatus), default=AccreditationStatus.REQUESTED
+    )
+
+    # `requested_at` tient lieu d'horodatage de création : le mixin
+    # `Timestamped` ajouterait un second champ de même sens, et c'est
+    # sur celui-ci que l'écran organisateur trie.
+    requested_at: Mapped[arrow.Arrow] = mapped_column(
+        ArrowType(timezone=True), default=arrow.utcnow
+    )
+    decided_at: Mapped[arrow.Arrow | None] = mapped_column(
+        ArrowType(timezone=True), nullable=True
+    )
+    decided_by_id: Mapped[int | None] = mapped_column(
+        sa.Integer, sa.ForeignKey(User.id, ondelete="SET NULL"), nullable=True
+    )
+
+    event: Mapped[EventPost] = orm.relationship(EventPost, backref="accreditations")
+    user: Mapped[User] = orm.relationship(User, foreign_keys=[user_id])
+
+    __table_args__ = (
+        sa.UniqueConstraint("event_id", "user_id", name="uq_evt_accreditation"),
+        # Écran organisateur : WHERE event_id = ? AND status = ? ORDER BY requested_at
+        sa.Index("ix_evt_accreditation_event_status", "event_id", "status"),
+        # Bloc « Votre agenda » : WHERE user_id = ? AND status = 'accepted'
+        sa.Index("ix_evt_accreditation_user_status", "user_id", "status"),
+    )
+
+
+# Remplacée par `Accreditation` ; encore lue par `events/services.py`
+# jusqu'au second bloc du lot L1, qui la retirera.
 participation_table = sa.Table(
     "evt_participation",
     Base.metadata,
