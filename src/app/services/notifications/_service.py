@@ -4,13 +4,18 @@
 
 from __future__ import annotations
 
+import arrow
 from flask_super.decorators import service
 from sqlalchemy.orm import scoped_session
 from svcs.flask import container
 
 from app.models.auth import User
 
-from ._models import Notification, NotificationRepository
+from ._models import (
+    Notification,
+    NotificationRepository,
+    PendingNotification,
+)
 
 
 @service
@@ -30,6 +35,56 @@ class NotificationService:
         repo.add(notification)
 
         return notification
+
+    def post_grouped(
+        self,
+        receiver: User,
+        group_key: str,
+        message: str,
+        url: str = "",
+        *,
+        mail_template: str = "",
+        mail_kwargs: dict | None = None,
+    ) -> PendingNotification:
+        """Poster une notification **groupée**, livrée en différé.
+
+        Plusieurs appels sous la même clé, pour le même destinataire,
+        dans la fenêtre, n'en produisent qu'une seule — portant le
+        dernier message. C'est le regroupement de `NOT-12`, à l'étage
+        de la livraison : tout module qui notifie a le même besoin.
+
+        Le report est inhérent, pas un choix de confort : livrer à
+        chaud enverrait un état intermédiaire, et la règle demande
+        l'état final. La livraison revient à
+        `deliver_due_notifications`, appelée par une tâche périodique.
+
+        `mail_template` nomme une classe de `app.services.emails` ; le
+        service décrit l'email sans le construire, pour ne pas avoir à
+        connaître les mailers de chaque module.
+        """
+        session = container.get(scoped_session)
+        pending = (
+            session.query(PendingNotification)
+            .filter(
+                PendingNotification.receiver_id == receiver.id,
+                PendingNotification.group_key == group_key,
+            )
+            .one_or_none()
+        )
+
+        if pending is None:
+            pending = PendingNotification(receiver_id=receiver.id, group_key=group_key)
+            session.add(pending)
+        else:
+            # La fenêtre reste ancrée sur `first_seen_at` : une session
+            # d'édition continue ne repousse pas la livraison.
+            pending.last_seen_at = arrow.utcnow()
+
+        pending.message = message
+        pending.url = url
+        pending.mail_template = mail_template
+        pending.mail_kwargs = mail_kwargs or {}
+        return pending
 
     def get_notifications(self, user: User, max: int = 10) -> list[Notification]:
         """Return the user's most recent notifications (unread first)."""
