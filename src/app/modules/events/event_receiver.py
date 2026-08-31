@@ -11,7 +11,9 @@ from sqlalchemy import select
 from app.constants import LOCAL_TZ
 from app.flask.extensions import db
 from app.models.lifecycle import PublicationStatus
+from app.modules.events.change_detection import describe_changes, snapshot
 from app.modules.events.models import EventPost
+from app.modules.events.notifications import notify_event_changed
 from app.modules.wip.models.eventroom import Event
 from app.signals import (
     event_published,
@@ -59,11 +61,22 @@ def on_update_event(event: Event) -> None:
         return
 
     logger.debug("Updating post: {}", post)
+
+    # NOT-11 — le miroir porte encore l'ancien état tant que
+    # `update_post` ne l'a pas écrasé : la photographier avant et après
+    # suffit, sans rien savoir du modèle de saisie.
+    # (`modified_at` est déjà horodaté par `lifecycle_before_update` ;
+    # l'ancienne ligne `post.last_updated_at = ...` écrivait un
+    # attribut qui n'est pas une colonne d'`EventPost`.)
+    before = snapshot(post)
     update_post(post, event)
-    post.last_updated_at = now(LOCAL_TZ)
+    changes = describe_changes(before, snapshot(post))
 
     db.session.add(post)
     db.session.flush()
+
+    if changes:
+        notify_event_changed(post, changes)
 
 
 def event_type_to_category(event_type: str) -> str:

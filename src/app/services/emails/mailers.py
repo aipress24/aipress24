@@ -778,3 +778,28 @@ class AccreditationAcceptedMail(EmailTemplate):
     event_title: str
     event_date: str
     event_url: str
+
+
+@dataclass(kw_only=True)
+class EventChangedMail(EmailTemplate):
+    """NOT-08 — un événement auquel le membre est accrédité a changé.
+
+    Doublée d'une cloche, mais l'email est le canal qui compte : une
+    date ou un lieu qui bouge décide d'un déplacement, et l'information
+    ne peut pas attendre un retour sur le site.
+
+    Args:
+        - sender / recipient / sender_mail: standard EmailTemplate fields.
+        - recipient_full_name: how to address the member.
+        - event_title / event_date: the event, and its start date.
+        - changes: the already-worded description of what moved.
+        - event_url: link to the event on the EVENTS portal.
+    """
+
+    subject: str = "[Aipress24] Un événement de votre agenda a changé"
+    template_html: str = "event_changed.j2"
+    recipient_full_name: str
+    event_title: str
+    event_date: str
+    changes: str
+    event_url: str

@@ -21,7 +21,9 @@ from typing import TYPE_CHECKING
 
 from svcs.flask import container
 
+from app.constants import LOCAL_TZ
 from app.logging import report_failure
+from app.models.lifecycle import PublicationStatus
 from app.services.notifications import NotificationService
 
 if TYPE_CHECKING:
@@ -122,3 +124,54 @@ def _mail_accepted(event: EventPost, member: User, when: str) -> None:
         ).send()
     except Exception as exc:
         report_failure(f"events: accreditation email failed (event {event.id})", exc)
+
+
+def notify_event_changed(event: EventPost, changes: list[str]) -> None:
+    """NOT-08 — l'événement a changé de date, de lieu ou d'adresse.
+
+    Vers tous les accrédités, et vers eux seuls : une demande en cours
+    n'est pas une place réservée.
+
+    Posté en **groupé** : plusieurs modifications dans la fenêtre n'en
+    produiront qu'une, portant l'état final (NOT-12). Le regroupement
+    appartient au service de notifications ; ici on se contente de
+    poster sous une clé stable.
+    """
+    from app.modules.events.services import get_participants
+
+    if event.status != PublicationStatus.PUBLIC:
+        return
+
+    detail = " ".join(changes)
+    message = f"L'événement « {event.title} » a été modifié. {detail}"
+    url = _event_url(event)
+    when = (
+        event.start_datetime.to(LOCAL_TZ).format("DD/MM/YYYY")
+        if event.start_datetime
+        else ""
+    )
+
+    service = container.get(NotificationService)
+    for member in get_participants(event):
+        try:
+            service.post_grouped(
+                member,
+                f"event-changed:{event.id}",
+                message,
+                url,
+                mail_template="EventChangedMail",
+                mail_kwargs={
+                    "sender": "contact@aipress24.com",
+                    "recipient": member.email or "",
+                    "sender_mail": "contact@aipress24.com",
+                    "recipient_full_name": member.full_name,
+                    "event_title": event.title,
+                    "event_date": when,
+                    "changes": detail,
+                    "event_url": url,
+                },
+            )
+        except Exception as exc:
+            report_failure(
+                f"events: change notification failed (event {event.id})", exc
+            )
