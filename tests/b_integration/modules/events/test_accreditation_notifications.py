@@ -216,3 +216,32 @@ class TestWithdrawalNotifiesTheOrganiser:
             messages = _messages(organiser)
 
         assert any("désinscrit" in m for m in messages)
+
+
+class TestOnlyTheTouchedAreNotified:
+    """La boucle de notification suivait `user_ids` — les identifiants
+    bruts du formulaire — au lieu des lignes réellement mises à jour.
+    Le test d'origine ne pouvait pas le voir : il inscrivait tout le
+    monde comme demandeur avant d'accepter, donc les deux
+    comportements étaient indiscernables.
+    """
+
+    def test_someone_who_never_requested_is_not_told(
+        self,
+        app: Flask,
+        db_session: Session,
+        event: EventPost,
+        member: User,
+        organiser: User,
+    ) -> None:
+        stranger = _user(db_session, "stranger")
+        with app.test_request_context("/"):
+            request_accreditation(event, member)
+            db_session.flush()
+
+            # Le formulaire porte un identifiant de trop.
+            accept_accreditations(event, [member.id, stranger.id], decided_by=organiser)
+            db_session.flush()
+
+            assert _messages(member) != []
+            assert _messages(stranger) == []

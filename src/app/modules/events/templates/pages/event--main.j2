@@ -1,18 +1,32 @@
-<section class="p-4 bg-white shadow sm:rounded">
-  <h2 class="aui-title mb-4">Présentation</h2>
+{% if sees_content %}
+  <section class="p-4 bg-white shadow sm:rounded">
+    <h2 class="aui-title mb-4">Présentation</h2>
 
-  <div class="my-4">
-    {{ carousel(event, img_class="min-h-96") }}
-  </div>
+    <div class="my-4">
+      {{ carousel(event, img_class="min-h-96") }}
+    </div>
 
-  <div class="prose xl:prose-lg max-w-full">
-    {# event.content is Trix-rendered HTML — sanitize on render. #}
-    {{ event.content|sanitize }}
-  </div>
-</section>
+    <div class="prose xl:prose-lg max-w-full">
+      {# event.content is Trix-rendered HTML — sanitize on render. #}
+      {{ event.content|sanitize }}
+    </div>
+  </section>
 
-{#{% include "pages/event--metadata.j2" %}#}
+  {#{% include "pages/event--metadata.j2" %}#}
 
-{% include "pages/event--participants.j2" %}
+  {% include "pages/event--participants.j2" %}
 
-{% include "pages/event--activity.j2" %}
+  {% include "pages/event--activity.j2" %}
+{% else %}
+  {# RG-02 — le ciblage restreint le **contenu**, pas l'existence de
+     l'annonce : le bandeau, les dates et le lieu restent visibles de
+     tous (RG-01), mais ni la présentation, ni la liste nominative des
+     participants, ni le fil de commentaires. #}
+  <section class="p-4 bg-white shadow sm:rounded">
+    <h2 class="aui-title mb-4">Présentation</h2>
+    <p class="text-sm text-gray-700">
+      Cet événement est réservé aux communautés suivantes&nbsp;:
+      {{ audience | join(", ") }}.
+    </p>
+  </section>
+{% endif %}

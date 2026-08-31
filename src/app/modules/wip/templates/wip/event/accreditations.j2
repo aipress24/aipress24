@@ -1,6 +1,6 @@
 {% extends "wip/layout/_base.j2" %}
 
-{% macro requester_table(rows, action, button_label, intro) %}
+{% macro requester_table(rows, actions, intro) %}
   {% if rows %}
     <form method="POST" class="space-y-4">
       {% if intro %}<p class="text-sm text-gray-700">{{ intro }}</p>{% endif %}
@@ -43,11 +43,18 @@
           {% endfor %}
         </tbody>
       </table>
-      <div class="flex justify-end">
-        <button type="submit" name="_action" value="{{ action }}"
-                class="rounded-md border border-transparent bg-pink-600 px-4 py-2 text-sm font-medium text-white hover:bg-pink-700">
-          {{ button_label }}
-        </button>
+      <div class="flex justify-end space-x-3">
+        {# §7.5 — l'onglet des demandes en cours porte les deux
+           décisions. Avec le seul « Accréditer », RG-07 — refuser une
+           demande — n'avait aucun chemin dans l'interface. #}
+        {% for act, label, primary in actions %}
+          <button type="submit" name="_action" value="{{ act }}"
+                  class="rounded-md border px-4 py-2 text-sm font-medium
+                         {% if primary %}border-transparent bg-pink-600 text-white hover:bg-pink-700
+                         {% else %}border-gray-300 bg-white text-gray-700 hover:bg-gray-50{% endif %}">
+            {{ label }}
+          </button>
+        {% endfor %}
       </div>
     </form>
   {% else %}
@@ -85,24 +92,19 @@
 
     <div x-show="tab === 'requested'">
       {{ requester_table(
-        requested, "accept", "Accréditer la sélection",
+        requested,
+        [("accept", "Accréditer la sélection", true),
+         ("reject", "Refuser la sélection", false)],
         "Cochez les cases devant les profils ci-dessous pour sélectionner les personnes que vous souhaitez accréditer à votre événement ?"
       ) }}
-      {% if requested %}
-        <form method="POST" class="flex justify-end mt-2">
-          {% for row in requested %}
-            <input type="hidden" name="user_ids" value="{{ row.user.id }}">
-          {% endfor %}
-        </form>
-      {% endif %}
     </div>
 
     <div x-show="tab === 'accepted'" x-cloak>
-      {{ requester_table(accepted, "reject", "Retirer l'accréditation", "") }}
+      {{ requester_table(accepted, [("reject", "Retirer l'accréditation", false)], "") }}
     </div>
 
     <div x-show="tab === 'rejected'" x-cloak>
-      {{ requester_table(rejected, "accept", "Accréditer finalement", "") }}
+      {{ requester_table(rejected, [("accept", "Accréditer finalement", true)], "") }}
     </div>
   </div>
 {% endblock %}

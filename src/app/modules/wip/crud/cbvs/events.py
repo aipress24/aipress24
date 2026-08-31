@@ -382,6 +382,11 @@ class EventsWipView(BaseWipView):
 
         if request.method == "POST":
             event.audience = request.form.getlist("audience")
+            # Le ciblage n'a d'effet qu'une fois recopié dans le miroir
+            # public : c'est `EventPost.audience` que lisent toutes les
+            # gardes. Sans ce signal, cibler un événement **déjà
+            # publié** ne changerait rien pour personne.
+            event_updated.send(event)
             db.session.commit()
             flash("Ciblage enregistré.", "success")
             return redirect(self._url_for("index"))

@@ -198,3 +198,26 @@ class TestConfidentiality:
             url_for("EventsWipView:audience", id=stranger_event.id)
         )
         assert self._is_denied(response)
+
+
+class TestBothDecisionsAreReachable:
+    """§7.5 — l'onglet des demandes en cours porte les deux décisions.
+
+    L'écran n'offrait que « Accréditer la sélection » : RG-07 — refuser
+    une demande — n'avait aucun chemin dans l'interface, alors que la
+    route l'acceptait. Les tests de décision passaient par la route,
+    donc aucun ne voyait le manque.
+    """
+
+    def test_the_pending_tab_offers_accept_and_reject(
+        self, db_session: Session, logged_in_client: FlaskClient, event: Event, post
+    ) -> None:
+        _requester(db_session, post, "dave")
+
+        body = logged_in_client.get(
+            url_for("EventsWipView:accreditations", id=event.id)
+        ).data.decode()
+
+        assert 'value="accept"' in body
+        assert 'value="reject"' in body
+        assert "Refuser la sélection" in body

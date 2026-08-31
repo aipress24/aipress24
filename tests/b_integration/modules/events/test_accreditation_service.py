@@ -300,3 +300,58 @@ class TestParticipants:
 
         ids = {u.id for u in get_participants(event)}
         assert ids == {accepted.id}
+
+
+class TestDecisionsAreScoped:
+    """Une décision ne touche et ne prévient que des lignes légitimes.
+
+    Trois défauts trouvés en revue tenaient tous à l'absence de garde
+    sur `_decide` : n'importe quel identifiant posté dans le formulaire
+    recevait cloche et email, et un `WITHDRAWN` pouvait être ressuscité
+    en `ACCEPTED` — une arête que la machine à états n'a pas.
+    """
+
+    def test_an_id_that_never_requested_is_ignored(
+        self, db_session: Session, event: EventPost, organiser: User
+    ) -> None:
+        """POST forgé : l'identifiant d'un membre sans demande."""
+        stranger = _member(db_session, 90)
+
+        touched = accept_accreditations(event, [stranger.id], decided_by=organiser)
+        db_session.flush()
+
+        assert touched == 0
+        assert get_accreditation(event, stranger) is None
+
+    def test_a_withdrawn_member_is_not_revived(
+        self, db_session: Session, event: EventPost, member: User, organiser: User
+    ) -> None:
+        """Seul le membre sort de WITHDRAWN, en re-demandant."""
+        request_accreditation(event, member)
+        withdraw_accreditation(event, member)
+        db_session.flush()
+
+        assert accept_accreditations(event, [member.id], decided_by=organiser) == 0
+        db_session.flush()
+
+        assert get_accreditation(event, member).status == (
+            AccreditationStatus.WITHDRAWN
+        )
+
+    def test_a_refusal_cannot_be_laundered_through_withdrawal(
+        self, db_session: Session, event: EventPost, member: User, organiser: User
+    ) -> None:
+        """Sans garde, « se retirer » d'un refus le transformait en
+        WITHDRAWN, que RG-03 laisse re-demander — et le harcèlement par
+        re-demandes que D5 interdit redevenait possible."""
+        request_accreditation(event, member)
+        reject_accreditations(event, [member.id], decided_by=organiser)
+        db_session.flush()
+
+        withdraw_accreditation(event, member)
+        db_session.flush()
+        assert get_accreditation(event, member).status == (AccreditationStatus.REJECTED)
+
+        request_accreditation(event, member)
+        db_session.flush()
+        assert get_accreditation(event, member).status == (AccreditationStatus.REJECTED)

@@ -20,6 +20,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 import pytest
+import sqlalchemy as sa
 from arrow import now
 from sqlalchemy import select
 
@@ -28,7 +29,12 @@ from app.models.auth import User
 from app.models.organisation import Organisation
 from app.modules.events.event_receiver import on_publish_event, on_update_event
 from app.modules.events.models import EventPost
-from app.modules.events.views._filters import FILTER_SPECS, _get_distinct_values
+from app.modules.events.views._filters import (
+    FILTER_SPECS,
+    FilterBar,
+    _get_distinct_values,
+)
+from app.modules.events.views.events_list import EventsListView
 from app.modules.wip.models.eventroom.event import Event
 
 if TYPE_CHECKING:
@@ -154,3 +160,36 @@ class TestFiltering:
         assert by_id["topic"]["label"] == "Type d'info"
         assert by_id["section"]["column"] == "section"
         assert by_id["topic"]["column"] == "topic"
+
+
+class TestTheFiltersActuallyRestrict:
+    """FIL-03 — la classe voisine ne vérifiait que la *déclaration* des
+    filtres, jamais leur effet : elle relisait `FILTER_SPECS`. Ces deux
+    axes auraient pu ne rien filtrer du tout, la suite serait restée
+    verte.
+    """
+
+    def _published(
+        self, db_session: Session, owner: User, *, topic: str, section: str
+    ) -> EventPost:
+        event = _make_event(db_session, owner, topic=topic, section=section)
+        on_publish_event(event)
+        db_session.flush()
+        return _post_of(db_session, event)
+
+    def test_filtering_on_a_section_excludes_the_others(
+        self, app, db_session: Session, owner: User
+    ) -> None:
+        kept = self._published(db_session, owner, topic="Enquête", section="Économie")
+        dropped = self._published(
+            db_session, owner, topic="Reportage", section="Culture"
+        )
+
+        with app.test_request_context("/"):
+            bar = FilterBar()
+            bar.add_filter("section", "Économie")
+            stmt = EventsListView()._apply_filter_bar(sa.select(EventPost), bar)
+            found = {e.id for e in db_session.scalars(stmt)}
+
+        assert kept.id in found
+        assert dropped.id not in found

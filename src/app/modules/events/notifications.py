@@ -102,9 +102,20 @@ def _post(receiver: User | None, message: str, url: str) -> None:
 
 
 def _event_url(event: EventPost) -> str:
+    """L'adresse publique de l'événement, absolue quand c'est possible.
+
+    Un lien relatif est parfaitement lisible dans la cloche, et
+    parfaitement mort dans un client mail — or le même helper alimente
+    les deux. `_external=True` échoue si `SERVER_NAME` n'est pas
+    configuré : on retombe alors sur le chemin, qui reste juste pour la
+    cloche.
+    """
     from app.flask.routing import url_for
 
-    return url_for("events.event", id=event.id)
+    try:
+        return url_for("events.event", id=event.id, _external=True)
+    except Exception:
+        return url_for("events.event", id=event.id)
 
 
 def _mail_accepted(event: EventPost, member: User, when: str) -> None:

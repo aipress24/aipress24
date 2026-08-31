@@ -19,6 +19,7 @@ from typing import TYPE_CHECKING
 
 import arrow
 import pytest
+from flask import g, render_template
 
 from app.enums import CommunityEnum, RoleEnum
 from app.models.auth import Role, User
@@ -29,7 +30,9 @@ from app.modules.events.services import (
     can_user_accredit,
     in_audience,
     request_accreditation,
+    sees_full_content,
 )
+from app.modules.events.views._common import EventDetailVM
 
 if TYPE_CHECKING:
     from sqlalchemy.orm import Session
@@ -170,3 +173,52 @@ class TestRoleRestrictionIsLifted:
 
         assert can_user_accredit(journalist, event) is True
         assert can_user_accredit(academic, event) is False
+
+
+class TestTheGuardsActuallyBite:
+    """Les tests d'origine vérifiaient chaque moitié séparément — le
+    prédicat d'un côté, l'écran de l'autre — et aucun ne traversait le
+    pont. Deux défauts s'y cachaient : le contenu restait servi à tous,
+    et cibler un événement publié ne changeait rien.
+    """
+
+    def test_the_page_hides_its_content_from_outsiders(
+        self, app, db_session: Session, event: EventPost, organiser: User
+    ) -> None:
+        """RG-02 — le prédicat ne suffit pas, encore faut-il que le
+        gabarit le consomme."""
+        event.content = "Le secret de la conférence"
+        event.audience = [CommunityEnum.PRESS_MEDIA.value]
+        db_session.flush()
+        outsider = _member(db_session, "outsider", RoleEnum.ACADEMIC)
+
+        with app.test_request_context("/"):
+            g.user = outsider
+            html = render_template(
+                "pages/event--main.j2",
+                event=EventDetailVM(event),
+                sees_content=sees_full_content(outsider, event),
+                audience=event.audience,
+            )
+
+        assert "Le secret de la conférence" not in html
+        assert "réservé aux communautés" in html
+
+    def test_the_page_shows_its_content_to_the_audience(
+        self, app, db_session: Session, event: EventPost
+    ) -> None:
+        event.content = "Le secret de la conférence"
+        event.audience = [CommunityEnum.PRESS_MEDIA.value]
+        db_session.flush()
+        journalist = _member(db_session, "insider", RoleEnum.PRESS_MEDIA)
+
+        with app.test_request_context("/"):
+            g.user = journalist
+            html = render_template(
+                "pages/event--main.j2",
+                event=EventDetailVM(event),
+                sees_content=sees_full_content(journalist, event),
+                audience=event.audience,
+            )
+
+        assert "Le secret de la conférence" in html

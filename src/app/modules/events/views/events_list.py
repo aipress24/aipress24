@@ -27,7 +27,7 @@ from app.modules.events.models import EventPost
 from app.modules.events.services import accredited_event_ids, accredited_ids_among
 
 from ._common import Calendar, DateFilter, EventListVM
-from ._filters import FilterBar
+from ._filters import FILTER_SPECS, FilterBar
 
 LIST_ARGS = {
     "month": webargs.fields.Str(load_default=""),
@@ -172,30 +172,25 @@ class EventsListView(MethodView):
         return list(get_multi(EventPost, stmt))
 
     def _apply_filter_bar(self, stmt: Select, filter_bar: FilterBar) -> Select:
-        """Apply filter bar filters to query."""
-        filters_by_id: dict[str, list[str]] = {
-            "genre": [],
-            "sector": [],
-            "pays_zip_ville": [],
-            "departement": [],
-            "ville": [],
-        }
-        for f in filter_bar.active_filters:
-            if f["id"] in filters_by_id:
-                filters_by_id[f["id"]].append(f["value"])
+        """Restreindre la requête selon les filtres actifs.
 
-        if filters_by_id["genre"]:
-            stmt = stmt.where(EventPost.genre.in_(filters_by_id["genre"]))
-        if filters_by_id["sector"]:
-            stmt = stmt.where(EventPost.sector.in_(filters_by_id["sector"]))
-        if filters_by_id["pays_zip_ville"]:
-            stmt = stmt.where(
-                EventPost.pays_zip_ville.in_(filters_by_id["pays_zip_ville"])
-            )
-        if filters_by_id["departement"]:
-            stmt = stmt.where(EventPost.departement.in_(filters_by_id["departement"]))
-        if filters_by_id["ville"]:
-            stmt = stmt.where(EventPost.ville.in_(filters_by_id["ville"]))
+        Piloté par `FILTER_SPECS`, et non par une liste tenue à part :
+        cette fonction énumérait autrefois cinq identifiants en dur et
+        ignorait silencieusement les autres. Les deux axes ajoutés au
+        lot C5 — rubrique et type d'info — s'affichaient donc, leurs
+        options se calculaient, et sélectionner une valeur ne changeait
+        rien. Déclarer un filtre suffit désormais à le rendre agissant.
+        """
+        selected: dict[str, list[str]] = {}
+        for f in filter_bar.active_filters:
+            selected.setdefault(f["id"], []).append(f["value"])
+
+        for spec in FILTER_SPECS:
+            values = selected.get(spec["id"])
+            if not values:
+                continue
+            column = getattr(EventPost, spec["column"])
+            stmt = stmt.where(column.in_(values))
 
         return stmt
 

@@ -41,6 +41,22 @@ _ROLE_BY_COMMUNITY_VALUE = {
     community.value: role for community, role in COMMUNITY_TO_ROLE.items()
 }
 
+# D'où une décision d'organisateur peut partir, par statut visé.
+# Accepter part d'une demande en cours (RG-06) ou d'un refus qu'on
+# rouvre (RG-13) ; refuser part d'une demande en cours (RG-07) ou d'une
+# accréditation qu'on retire (RG-09). Ni l'une ni l'autre ne sort de
+# WITHDRAWN : ce statut n'appartient qu'au membre.
+_DECIDABLE_FROM = {
+    AccreditationStatus.ACCEPTED: (
+        AccreditationStatus.REQUESTED,
+        AccreditationStatus.REJECTED,
+    ),
+    AccreditationStatus.REJECTED: (
+        AccreditationStatus.REQUESTED,
+        AccreditationStatus.ACCEPTED,
+    ),
+}
+
 # Statuts qui bloquent une nouvelle demande (RG-03). `WITHDRAWN` n'y
 # est pas : un membre qui s'est désinscrit peut revenir.
 _BLOCKS_A_NEW_REQUEST = (
@@ -245,6 +261,13 @@ def withdraw_accreditation(event: EventPost, user: User) -> Accreditation | None
     if accreditation is None:
         return None
 
+    if accreditation.status == AccreditationStatus.REJECTED:
+        # Un refus est définitif côté membre (D5). Sans cette garde, il
+        # suffirait de « se retirer » d'un refus pour repasser en
+        # WITHDRAWN — que RG-03 laisse re-demander — et le harcèlement
+        # par re-demandes que la règle interdit redeviendrait possible.
+        return accreditation
+
     accreditation.status = AccreditationStatus.WITHDRAWN
     notify_withdrawn(event, user)
     return accreditation
@@ -286,11 +309,32 @@ def _decide(
     if not user_ids:
         return 0
 
+    # Les seuls états d'où une décision peut partir. Sans ce filtre, un
+    # POST forgé ferait passer un WITHDRAWN en ACCEPTED — une arête que
+    # la machine à états n'a pas : seul le membre sort de WITHDRAWN.
+    sources = _DECIDABLE_FROM[status]
+
+    # Relevé **avant** l'UPDATE : on ne notifie que les lignes
+    # réellement touchées. Notifier `user_ids` tel quel enverrait cloche
+    # et email à n'importe quel identifiant posté dans le formulaire, y
+    # compris à des membres qui n'ont jamais rien demandé.
+    touched = list(
+        db.session.scalars(
+            sa.select(Accreditation.user_id).where(
+                Accreditation.event_id == event.id,
+                Accreditation.user_id.in_(user_ids),
+                Accreditation.status.in_(sources),
+            )
+        )
+    )
+    if not touched:
+        return 0
+
     stmt = (
         sa.update(Accreditation)
         .where(
             Accreditation.event_id == event.id,
-            Accreditation.user_id.in_(user_ids),
+            Accreditation.user_id.in_(touched),
         )
         .values(
             status=status,
@@ -308,7 +352,7 @@ def _decide(
     notify = (
         notify_accepted if status == AccreditationStatus.ACCEPTED else notify_rejected
     )
-    for member in db.session.scalars(sa.select(User).where(User.id.in_(user_ids))):
+    for member in db.session.scalars(sa.select(User).where(User.id.in_(touched))):
         notify(event, member)
 
     return result.rowcount
