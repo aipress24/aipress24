@@ -32,11 +32,11 @@ WATCHED = (
 )
 
 _LABELS = {
-    "start_datetime": "La date de début",
-    "end_datetime": "La date de fin",
-    "address": "L'adresse",
-    "pays_zip_ville": "Le pays",
-    "pays_zip_ville_detail": "Le lieu",
+    "start_datetime": "Début",
+    "end_datetime": "Fin",
+    "address": "Adresse",
+    "pays_zip_ville": "Pays",
+    "pays_zip_ville_detail": "Lieu",
 }
 
 
@@ -45,22 +45,34 @@ def snapshot(post) -> dict:
     return {field: getattr(post, field, None) for field in WATCHED}
 
 
-def describe_changes(before: dict, after: dict) -> list[str]:
-    """Décrire en clair ce qui a bougé entre deux photographies.
+def has_changed(before: dict, after: dict) -> bool:
+    """Un des champs surveillés a-t-il bougé ?
 
-    Une ligne par champ modifié, nommant l'ancienne et la nouvelle
-    valeur — « La date de début passe du 12/03/2026 au 19/03/2026 ».
-    Liste vide si rien n'a bougé, ce qui est le cas courant : la
-    plupart des enregistrements ne touchent ni aux dates ni au lieu.
+    Vrai rarement : la plupart des enregistrements ne touchent ni aux
+    dates ni au lieu.
+    """
+    return any(not _same(before.get(f), after.get(f)) for f in WATCHED)
+
+
+def describe_state(after: dict) -> list[str]:
+    """Décrire l'état **courant** des informations pratiques.
+
+    Un état, et non un delta — « la date passe du 12 au 19 mars » se
+    lit mieux, mais ne survit pas au regroupement : plusieurs
+    modifications dans la fenêtre ne produisent qu'une notification,
+    qui remplace la précédente. Un delta effacé emporterait le
+    changement qu'il portait, et un membre prévenu d'une adresse ne
+    saurait jamais que la date avait bougé aussi.
+
+    Un état final est vrai quel que soit le nombre de fusions, et c'est
+    de toute façon ce dont on a besoin pour décider d'un déplacement.
     """
     lines = []
     for field in WATCHED:
-        old, new = before.get(field), after.get(field)
-        if _same(old, new):
+        value = after.get(field)
+        if value is None or not str(value).strip():
             continue
-        lines.append(
-            f"{_LABELS[field]} passe de « {_render(old)} » à « {_render(new)} »."
-        )
+        lines.append(f"{_LABELS[field]} : {_render(value)}.")
     return lines
 
 

@@ -221,3 +221,38 @@ class TestBothDecisionsAreReachable:
         assert 'value="accept"' in body
         assert 'value="reject"' in body
         assert "Refuser la sélection" in body
+
+
+class TestOrganisationMembershipIsNotEnough:
+    """§6 — « les rôles habilités », pas la simple appartenance.
+
+    La garde passait par `can_user_publish_for`, dont la première
+    condition est l'appartenance à l'organisation éditrice. Dans un
+    média de deux cents journalistes, les deux cents accédaient donc à
+    la liste nominative des demandeurs de n'importe quel événement de
+    la maison.
+    """
+
+    def test_a_colleague_without_the_events_mission_is_refused(
+        self, db_session: Session, logged_in_client: FlaskClient, test_org, test_user
+    ) -> None:
+        colleague = User(email="colleague-l4@example.com")
+        colleague.photo = b""
+        colleague.active = True
+        colleague.organisation = test_org
+        db_session.add(colleague)
+        db_session.flush()
+
+        ev = Event(owner=colleague, publisher=test_org)
+        ev.titre = "Événement d'un collègue"
+        ev.contenu = "Contenu"
+        ev.status = PublicationStatus.DRAFT
+        db_session.add(ev)
+        db_session.flush()
+
+        # `test_user` appartient à la même organisation que `colleague`,
+        # sans porter la mission « événements » sur son Business Wall.
+        response = logged_in_client.get(
+            url_for("EventsWipView:accreditations", id=ev.id)
+        )
+        assert TestConfidentiality._is_denied(response)

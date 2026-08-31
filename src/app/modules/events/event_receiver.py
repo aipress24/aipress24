@@ -11,7 +11,7 @@ from sqlalchemy import select
 from app.constants import LOCAL_TZ
 from app.flask.extensions import db
 from app.models.lifecycle import PublicationStatus
-from app.modules.events.change_detection import describe_changes, snapshot
+from app.modules.events.change_detection import describe_state, has_changed, snapshot
 from app.modules.events.models import EventPost
 from app.modules.events.notifications import notify_event_changed
 from app.modules.wip.models.eventroom import Event
@@ -70,13 +70,13 @@ def on_update_event(event: Event) -> None:
     # attribut qui n'est pas une colonne d'`EventPost`.)
     before = snapshot(post)
     update_post(post, event)
-    changes = describe_changes(before, snapshot(post))
+    after = snapshot(post)
 
     db.session.add(post)
     db.session.flush()
 
-    if changes:
-        notify_event_changed(post, changes)
+    if has_changed(before, after):
+        notify_event_changed(post, describe_state(after))
 
 
 def event_type_to_category(event_type: str) -> str:

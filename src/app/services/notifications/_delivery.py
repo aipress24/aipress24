@@ -4,15 +4,19 @@
 
 """Livraison des notifications groupées.
 
-Draine la file d'attente alimentée par
-`NotificationService.post_grouped` : une notification dont la fenêtre
-est écoulée devient une cloche, et un email si l'appelant en a décrit
-un.
+Draine la file alimentée par `NotificationService.post_grouped` : une
+notification dont la fenêtre est écoulée devient une cloche, et un
+email si l'appelant en a décrit un.
 
-La fenêtre est **fixe**, ancrée sur `first_seen_at`. Une session
-d'édition continue ne repousse donc pas la livraison indéfiniment, et
-deux modifications espacées de plus d'une fenêtre produisent bien deux
-notifications — les deux cas que la règle NOT-12 nomme.
+**L'envoi ne précède jamais l'écriture qui dit qu'il a eu lieu.** D'où
+le découpage en deux temps : le service s'approprie les lignes et pose
+les cloches, l'appelant valide, puis envoie. Tant que la validation
+venait après l'envoi, un tour interrompu annulait les réservations en
+laissant les mails partis — et le tour suivant les renvoyait tous, ce
+que Dramatiq répète jusqu'à vingt fois.
+
+Le service ne valide pas lui-même : les frontières de transaction
+appartiennent à qui orchestre, pas à qui écrit.
 """
 
 from __future__ import annotations
@@ -31,18 +35,19 @@ if TYPE_CHECKING:
 WINDOW_MINUTES = 30
 
 
-def deliver_due_notifications(
+def claim_due_notifications(
     session: Session,
     now: arrow.Arrow | None = None,
     *,
     window_minutes: int = WINDOW_MINUTES,
     limit: int = 200,
-) -> int:
-    """Livrer les notifications dont la fenêtre est écoulée.
+) -> list[dict]:
+    """S'approprier les notifications dues et poser leurs cloches.
 
-    Renvoie le nombre livré. `now` est un paramètre et non une lecture
-    d'horloge : c'est la seule façon de tester une fenêtre dans un
-    dépôt qui ne sait pas geler le temps.
+    Renvoie les descriptions d'email à envoyer **après validation**.
+    `now` est un paramètre et non une lecture d'horloge : c'est la
+    seule façon de tester une fenêtre dans un dépôt qui ne sait pas
+    geler le temps.
 
     `limit` borne un rattrapage après une panne du planificateur : un
     drainage qui ne finit pas est pire qu'un drainage partiel, et le
@@ -59,27 +64,56 @@ def deliver_due_notifications(
         .all()
     )
 
-    delivered = 0
+    mails = []
     for pending in due:
+        payload = _payload(pending)
         if not _claim(session, pending):
             # Un autre drainage l'a prise. Deux tours peuvent se
             # chevaucher : le planificateur enfile sans savoir si le
             # précédent a fini.
             continue
-        _deliver(session, pending)
-        delivered += 1
+        session.add(
+            Notification(
+                receiver_id=payload["receiver_id"],
+                message=payload["message"],
+                url=payload["url"],
+            )
+        )
+        if payload["mail_template"]:
+            mails.append(payload)
 
-    return delivered
+    return mails
+
+
+def send_claimed_mails(mails: list[dict]) -> int:
+    """Envoyer les emails d'un lot déjà validé. Renvoie le nombre parti.
+
+    À n'appeler qu'après le `commit` : c'est ce qui rend la perte
+    possible mais le doublon impossible. Pour un changement de date
+    annoncé à tous les accrédités, l'inondation est le pire des deux.
+    """
+    sent = 0
+    for payload in mails:
+        if _send_mail(payload):
+            sent += 1
+    return sent
+
+
+def _payload(pending: PendingNotification) -> dict:
+    """Détacher ce dont l'envoi a besoin avant de supprimer la ligne."""
+    return {
+        "receiver_id": pending.receiver_id,
+        "message": pending.message,
+        "url": pending.url,
+        "mail_template": pending.mail_template,
+        "mail_kwargs": dict(pending.mail_kwargs or {}),
+    }
 
 
 def _claim(session: Session, pending: PendingNotification) -> bool:
     """S'approprier une ligne, ou constater qu'un autre l'a prise.
 
-    Le retrait fait office de verrou : `rowcount` dit qui a gagné. On
-    retire **avant** de livrer, donc un arrêt brutal entre les deux
-    perd une notification plutôt que d'en dupliquer une — pour un
-    changement de date annoncé à tous les accrédités, l'inondation est
-    le pire des deux.
+    Le retrait fait office de verrou : `rowcount` dit qui a gagné.
     """
     count = (
         session.query(PendingNotification)
@@ -89,30 +123,33 @@ def _claim(session: Session, pending: PendingNotification) -> bool:
     return bool(count)
 
 
-def _deliver(session: Session, pending: PendingNotification) -> None:
-    session.add(
-        Notification(
-            receiver_id=pending.receiver_id,
-            message=pending.message,
-            url=pending.url,
-        )
-    )
-    if pending.mail_template:
-        _send_mail(pending)
-
-
-def _send_mail(pending: PendingNotification) -> None:
+def _send_mail(payload: dict) -> bool:
     """Construire et envoyer l'email décrit par l'appelant.
 
-    L'échec est remonté, pas propagé : la cloche est déjà posée, et
-    perdre la livraison entière parce que SMTP a hoqueté serait pire.
+    L'échec est remonté, pas propagé : la cloche est déjà posée et
+    validée, et perdre le reste du lot parce que SMTP a hoqueté serait
+    pire.
+
+    Un nom de gabarit inconnu est en revanche une **erreur de
+    programmation** — un renommage de classe non répercuté aux lignes
+    en attente — et non un aléa d'exploitation. Il est signalé comme
+    tel, pour ne pas se perdre parmi les hoquets SMTP.
     """
+    name = payload["mail_template"]
     from app.services import emails
 
-    try:
-        mailer = getattr(emails, pending.mail_template)
-        mailer(**pending.mail_kwargs).send()
-    except Exception as exc:
+    mailer = getattr(emails, name, None)
+    if mailer is None:
         report_failure(
-            f"notifications: grouped mail {pending.mail_template!r} failed", exc
+            f"notifications: no mailer named {name!r} — a rename was not "
+            "propagated to the queued rows",
+            LookupError(name),
         )
+        return False
+
+    try:
+        mailer(**payload["mail_kwargs"]).send()
+    except Exception as exc:
+        report_failure(f"notifications: grouped mail {name!r} failed", exc)
+        return False
+    return True

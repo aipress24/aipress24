@@ -13,12 +13,11 @@ from __future__ import annotations
 
 import arrow
 import sqlalchemy as sa
-from svcs.flask import container
 
 from app.constants import LOCAL_TZ
 from app.logging import report_failure
 from app.models.lifecycle import PublicationStatus
-from app.services.notifications import NotificationService
+from app.services.notifications import Notification
 
 from .models import (
     Accreditation,
@@ -52,8 +51,21 @@ def reminder_date(now: arrow.Arrow):
     return local.shift(days=1).date()
 
 
-def send_due_reminders(session, now: arrow.Arrow | None = None) -> int:
-    """Envoyer les rappels dus. Renvoie le nombre parti.
+#: Plafond d'un tour. Un rattrapage qui ne finit pas est pire qu'un
+#: rattrapage partiel : Dramatiq coupe l'acteur à dix minutes et le
+#: rejoue, et le tour suivant reprend la suite de toute façon.
+BATCH_LIMIT = 200
+
+
+def claim_due_reminders(
+    session, now: arrow.Arrow | None = None, *, limit: int = BATCH_LIMIT
+) -> list[dict]:
+    """S'approprier les rappels dus et poser leurs cloches.
+
+    Renvoie les descriptions d'email à envoyer **après validation** :
+    un envoi est irréversible et ne doit jamais précéder l'écriture qui
+    dit qu'il a eu lieu. Le service ne valide pas lui-même — les
+    frontières de transaction appartiennent à qui orchestre.
 
     `now` est un paramètre et non une lecture d'horloge : c'est la
     seule façon de tester une règle horaire dans un dépôt qui ne sait
@@ -62,7 +74,7 @@ def send_due_reminders(session, now: arrow.Arrow | None = None) -> int:
     now = now or arrow.utcnow()
     target = reminder_date(now)
     if target is None:
-        return 0
+        return []
 
     day_start = arrow.get(target, tzinfo=LOCAL_TZ)
     stmt = (
@@ -74,13 +86,17 @@ def send_due_reminders(session, now: arrow.Arrow | None = None) -> int:
 
     # Matérialisé : la réservation ouvre une sous-transaction, ce qui
     # ne se fait pas au milieu d'un curseur encore ouvert.
-    sent = 0
+    mails: list[dict] = []
     for event in session.scalars(stmt).all():
-        sent += _remind_one(session, event, target)
-    return sent
+        if len(mails) >= limit:
+            break
+        _remind_one(session, event, target, mails, limit)
+    return mails
 
 
-def _remind_one(session, event: EventPost, target) -> int:
+def _remind_one(
+    session, event: EventPost, target, mails: list[dict], limit: int
+) -> None:
     key = target.isoformat()
     members = session.scalars(
         sa.select(Accreditation).where(
@@ -89,13 +105,12 @@ def _remind_one(session, event: EventPost, target) -> int:
         )
     ).all()
 
-    sent = 0
     for accreditation in members:
+        if len(mails) >= limit:
+            return
         if not _claim(session, event.id, accreditation.user_id, key):
             continue
-        _deliver(event, accreditation.user)
-        sent += 1
-    return sent
+        mails.append(_bell_and_payload(session, event, accreditation.user))
 
 
 def _claim(session, event_id: int, user_id: int, key: str) -> bool:
@@ -140,31 +155,56 @@ def _claim(session, event_id: int, user_id: int, key: str) -> bool:
     return True
 
 
-def _deliver(event: EventPost, member) -> None:
-    from .notifications import _event_url
+def _bell_and_payload(session, event: EventPost, member) -> dict:
+    """Poser la cloche, et décrire l'email à envoyer après validation.
 
+    Aucune exception n'est attrapée ici. Une écriture qui échoue laisse
+    la session inutilisable : continuer la boucle ferait échouer tout
+    ce qui suit, en donnant l'illusion d'un incident isolé. Mieux vaut
+    que le tour s'arrête et soit rejoué.
+    """
     when = event.start_datetime.to(LOCAL_TZ).format("DD/MM/YYYY à HH:mm")
-    url = _event_url(event)
-    try:
-        container.get(NotificationService).post(
-            member,
-            f"Rappel : l'événement « {event.title} » a lieu demain, {when}.",
+    url = _reminder_url(event)
+
+    session.add(
+        Notification(
+            receiver_id=member.id,
+            message=f"Rappel : l'événement « {event.title} » a lieu demain, {when}.",
             url=url,
         )
-    except Exception as exc:
-        report_failure(f"events: reminder bell failed (event {event.id})", exc)
+    )
+    return {
+        "sender": "contact@aipress24.com",
+        "recipient": member.email or "",
+        "sender_mail": "contact@aipress24.com",
+        "recipient_full_name": member.full_name,
+        "event_title": event.title,
+        "event_date": when,
+        "event_url": url,
+    }
 
+
+def _reminder_url(event: EventPost) -> str:
+    from .notifications import _event_url
+
+    return _event_url(event)
+
+
+def send_claimed_reminders(mails: list[dict]) -> int:
+    """Envoyer les rappels d'un lot déjà validé.
+
+    À n'appeler qu'après le `commit` : c'est ce qui rend la perte
+    possible mais le doublon impossible.
+    """
     from app.services.emails import EventReminderMail
 
-    try:
-        EventReminderMail(
-            sender="contact@aipress24.com",
-            recipient=member.email or "",
-            sender_mail="contact@aipress24.com",
-            recipient_full_name=member.full_name,
-            event_title=event.title,
-            event_date=when,
-            event_url=url,
-        ).send()
-    except Exception as exc:
-        report_failure(f"events: reminder mail failed (event {event.id})", exc)
+    sent = 0
+    for payload in mails:
+        try:
+            EventReminderMail(**payload).send()
+            sent += 1
+        except Exception as exc:
+            report_failure(
+                f"events: reminder mail failed for {payload['recipient']}", exc
+            )
+    return sent

@@ -31,7 +31,7 @@ from app.services.notifications import (
     Notification,
     NotificationService,
     PendingNotification,
-    deliver_due_notifications,
+    claim_due_notifications,
 )
 
 if TYPE_CHECKING:
@@ -59,6 +59,19 @@ def _pending(db_session: Session, user: User) -> list[PendingNotification]:
         .filter(PendingNotification.receiver_id == user.id)
         .all()
     )
+
+
+def _drain(db_session: Session, now) -> int:
+    """Drainer et compter les cloches réellement posées.
+
+    Le service renvoie les emails à envoyer *après validation*, pas le
+    nombre livré : les frontières de transaction appartiennent à
+    l'appelant. Ce qu'on veut vérifier ici, c'est la cloche.
+    """
+    before = db_session.query(Notification).count()
+    claim_due_notifications(db_session, now=now)
+    db_session.flush()
+    return db_session.query(Notification).count() - before
 
 
 def _bells(db_session: Session, user: User) -> list[Notification]:
@@ -100,9 +113,7 @@ class TestGrouping:
 
             assert len(_pending(db_session, member)) == 1
 
-            delivered = deliver_due_notifications(
-                db_session, now=anchor.shift(minutes=31)
-            )
+            delivered = _drain(db_session, anchor.shift(minutes=31))
 
         assert delivered == 1
         bells = _bells(db_session, member)
@@ -124,10 +135,10 @@ class TestGrouping:
             row.last_seen_at = anchor
             db_session.flush()
 
-            first = deliver_due_notifications(db_session, now=anchor.shift(minutes=31))
+            first = _drain(db_session, anchor.shift(minutes=31))
             service.post_grouped(member, "event-changed:1", "Second changement.")
             db_session.flush()
-            second = deliver_due_notifications(db_session, now=anchor.shift(minutes=90))
+            second = _drain(db_session, anchor.shift(minutes=90))
 
         assert (first, second) == (1, 1)
         assert len(_bells(db_session, member)) == 2
@@ -149,9 +160,7 @@ class TestGrouping:
             service.post_grouped(member, "k", "b")
             db_session.flush()
 
-            assert (
-                deliver_due_notifications(db_session, now=anchor.shift(minutes=31)) == 1
-            )
+            assert _drain(db_session, anchor.shift(minutes=31)) == 1
 
     def test_different_keys_do_not_merge(
         self, app: Flask, db_session: Session, member: User
@@ -190,9 +199,7 @@ class TestDelivery:
             row.first_seen_at = anchor
             db_session.flush()
 
-            assert (
-                deliver_due_notifications(db_session, now=anchor.shift(minutes=29)) == 0
-            )
+            assert _drain(db_session, anchor.shift(minutes=29)) == 0
             assert _bells(db_session, member) == []
 
     def test_delivery_consumes_the_pending_row(
@@ -208,8 +215,8 @@ class TestDelivery:
             row.first_seen_at = anchor
             db_session.flush()
 
-            first = deliver_due_notifications(db_session, now=anchor.shift(minutes=31))
-            second = deliver_due_notifications(db_session, now=anchor.shift(minutes=31))
+            first = _drain(db_session, anchor.shift(minutes=31))
+            second = _drain(db_session, anchor.shift(minutes=31))
 
         assert (first, second) == (1, 0)
         assert _pending(db_session, member) == []

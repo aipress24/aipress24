@@ -137,7 +137,7 @@ def _mail_accepted(event: EventPost, member: User, when: str) -> None:
         report_failure(f"events: accreditation email failed (event {event.id})", exc)
 
 
-def notify_event_changed(event: EventPost, changes: list[str]) -> None:
+def notify_event_changed(event: EventPost, details: list[str]) -> None:
     """NOT-08 — l'événement a changé de date, de lieu ou d'adresse.
 
     Vers tous les accrédités, et vers eux seuls : une demande en cours
@@ -147,13 +147,21 @@ def notify_event_changed(event: EventPost, changes: list[str]) -> None:
     produiront qu'une, portant l'état final (NOT-12). Le regroupement
     appartient au service de notifications ; ici on se contente de
     poster sous une clé stable.
+
+    Le message décrit l'**état courant** et non ce qui a bougé. Un
+    delta ne survit pas à la fusion : le message qui remplace emporte
+    celui qu'il remplace, et un membre prévenu d'un changement
+    d'adresse ne saurait jamais que la date avait bougé aussi. C'est un
+    écart assumé au libellé de la spécification, qui donne « la date
+    passe du 12 au 19 mars » en exemple — plus agréable à lire, et
+    incompatible avec le regroupement qu'elle demande par ailleurs.
     """
     from app.modules.events.services import get_participants
 
     if event.status != PublicationStatus.PUBLIC:
         return
 
-    detail = " ".join(changes)
+    detail = " ".join(details)
     message = f"L'événement « {event.title} » a été modifié. {detail}"
     url = _event_url(event)
     when = (

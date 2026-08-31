@@ -20,7 +20,11 @@ from __future__ import annotations
 import arrow
 import pytest
 
-from app.modules.events.change_detection import WATCHED, describe_changes
+from app.modules.events.change_detection import (
+    WATCHED,
+    describe_state,
+    has_changed,
+)
 
 
 def _snap(**kw):
@@ -39,42 +43,39 @@ class TestWatchedFields:
             assert field in WATCHED
 
 
-class TestDescribeChanges:
+class TestHasChanged:
+    """La détection dit **qu'**il y a eu un changement ; la description
+    dit ce qu'il en est **maintenant**. Un delta ne survivrait pas au
+    regroupement, qui remplace la notification précédente.
+    """
+
     def test_no_change_says_nothing(self) -> None:
         snap = _snap(address="1 rue Test")
-        assert describe_changes(snap, dict(snap)) == []
+        assert has_changed(snap, dict(snap)) is False
 
     def test_a_city_change_is_announced(self) -> None:
         """Le cas paradigmatique, que l'ancienne liste ratait."""
         before = _snap(pays_zip_ville_detail="FRA / 75001 Paris")
         after = _snap(pays_zip_ville_detail="FRA / 69001 Lyon")
 
-        lines = describe_changes(before, after)
-
-        assert len(lines) == 1
-        assert "Paris" in lines[0]
-        assert "Lyon" in lines[0]
+        assert has_changed(before, after) is True
+        assert any("Lyon" in line for line in describe_state(after))
 
     def test_a_date_change_names_both_dates(self) -> None:
         before = _snap(start_datetime=arrow.get("2026-03-12T18:00:00+01:00"))
         after = _snap(start_datetime=arrow.get("2026-03-19T18:00:00+01:00"))
 
-        lines = describe_changes(before, after)
-
-        assert len(lines) == 1
-        assert "12/03/2026" in lines[0]
-        assert "19/03/2026" in lines[0]
+        assert has_changed(before, after) is True
+        assert any("19/03/2026" in line for line in describe_state(after))
 
     def test_dates_are_described_in_paris_time(self) -> None:
         """Un membre lit une heure locale, pas de l'UTC."""
         before = _snap(start_datetime=arrow.get("2026-03-12T23:30:00+00:00"))
         after = _snap(start_datetime=arrow.get("2026-03-13T23:30:00+00:00"))
 
-        lines = describe_changes(before, after)
-
         # 23:30 UTC, c'est 00:30 le lendemain à Paris.
-        assert "13/03/2026" in lines[0]
-        assert "14/03/2026" in lines[0]
+        assert has_changed(before, after) is True
+        assert any("14/03/2026" in line for line in describe_state(after))
 
     def test_the_same_instant_written_differently_is_not_a_change(self) -> None:
         """Sans cela, chaque ré-enregistrement du formulaire posterait
@@ -82,13 +83,13 @@ class TestDescribeChanges:
         before = _snap(start_datetime=arrow.get("2026-03-12T18:00:00+01:00"))
         after = _snap(start_datetime=arrow.get("2026-03-12T17:00:00+00:00"))
 
-        assert describe_changes(before, after) == []
+        assert has_changed(before, after) is False
 
     def test_several_fields_produce_several_lines(self) -> None:
         before = _snap(address="1 rue A", pays_zip_ville_detail="FRA / 75001 Paris")
         after = _snap(address="2 rue B", pays_zip_ville_detail="FRA / 69001 Lyon")
 
-        assert len(describe_changes(before, after)) == 2
+        assert has_changed(before, after) is True
 
     @pytest.mark.parametrize(
         ("before_val", "after_val"),
@@ -100,14 +101,56 @@ class TestDescribeChanges:
         before = _snap(address=before_val)
         after = _snap(address=after_val)
 
-        assert len(describe_changes(before, after)) == 1
+        assert has_changed(before, after) is True
 
     def test_blank_variations_are_not_a_change(self) -> None:
-        assert describe_changes(_snap(address=""), _snap(address="   ")) == []
+        assert has_changed(_snap(address=""), _snap(address="   ")) is False
 
     def test_an_unwatched_field_is_invisible_here(self) -> None:
         """Corriger une faute dans le contenu ne doit alerter personne."""
-        before = _snap(address="1 rue A")
-        after = _snap(address="1 rue A")
+        before = _snap(address="1 rue A", start_datetime=None)
+        after = _snap(address="1 rue A", start_datetime=None)
 
-        assert describe_changes(before, after) == []
+        # `contenu` n'est pas dans WATCHED : même si les deux
+        # photographies en portaient un différent, rien ne bougerait.
+        before["contenu"] = "avant"
+        after["contenu"] = "après"
+
+        assert has_changed(before, after) is False
+
+
+class TestTheMessageSurvivesMerging:
+    """Un delta ne survit pas au regroupement.
+
+    Le service remplace la notification précédente quand une seconde
+    arrive dans la fenêtre. Un message qui dit « la date passe de X à
+    Y » serait donc effacé par un message qui dit « l'adresse passe de
+    A à B », et le membre n'entendrait jamais parler de la date. Un
+    état final est vrai quel que soit le nombre de fusions.
+    """
+
+    def test_the_description_does_not_depend_on_what_changed(self) -> None:
+        final = _snap(
+            start_datetime=arrow.get("2026-03-19T18:00:00+01:00"),
+            address="2 rue B",
+            pays_zip_ville_detail="FRA / 69001 Lyon",
+        )
+
+        # Deux chemins différents vers le même état final.
+        after_a_date_change = describe_state(final)
+        after_an_address_change = describe_state(final)
+
+        assert after_a_date_change == after_an_address_change
+        joined = " ".join(after_a_date_change)
+        assert "19/03/2026" in joined
+        assert "2 rue B" in joined
+        assert "Lyon" in joined
+
+    def test_empty_fields_are_left_out(self) -> None:
+        """Un « Adresse : — » n'apprend rien à personne."""
+        lines = describe_state(
+            _snap(address="", pays_zip_ville_detail="FRA / 75001 Paris")
+        )
+
+        assert len(lines) == 1
+        assert "Paris" in lines[0]

@@ -10,7 +10,7 @@ from loguru import logger
 
 from app.dramatiq.scheduler import crontab
 from app.flask.extensions import db
-from app.services.notifications import deliver_due_notifications
+from app.services.notifications import claim_due_notifications, send_claimed_mails
 
 
 @crontab("7-57/10 * * * *")
@@ -24,10 +24,14 @@ def deliver_grouped_notifications() -> None:
     reconstruction de l'index de recherche : trois tâches lourdes à la
     même minute se gênent pour rien.
     """
-    delivered = deliver_due_notifications(db.session)
+    # Valider **avant** d'envoyer : un envoi est irréversible, et il ne
+    # doit jamais précéder l'écriture qui dit qu'il a eu lieu. Sinon un
+    # tour interrompu renvoie tout ce qu'il avait déjà expédié.
+    mails = claim_due_notifications(db.session)
     db.session.commit()
-    if delivered:
-        logger.info(f"cron: delivered {delivered} grouped notification(s)")
+    if mails:
+        send_claimed_mails(mails)
+        logger.info(f"cron: delivered {len(mails)} grouped notification(s)")
 
 
 @crontab("2 * * * *")
@@ -42,9 +46,14 @@ def send_event_reminders() -> None:
     À la minute 2, pour ne pas se disputer l'heure juste avec la
     réputation.
     """
-    from app.modules.events.reminders import send_due_reminders
+    from app.modules.events.reminders import (
+        claim_due_reminders,
+        send_claimed_reminders,
+    )
 
-    sent = send_due_reminders(db.session)
+    # Même ordre qu'au drainage : réserver, valider, puis envoyer.
+    mails = claim_due_reminders(db.session)
     db.session.commit()
-    if sent:
-        logger.info(f"cron: sent {sent} event reminder(s)")
+    if mails:
+        send_claimed_reminders(mails)
+        logger.info(f"cron: sent {len(mails)} event reminder(s)")

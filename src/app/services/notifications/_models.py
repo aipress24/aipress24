@@ -107,3 +107,26 @@ class PendingNotification(IdMixin, Base):
 @service
 class PendingNotificationRepository(Repository[PendingNotification]):
     model_type = PendingNotification
+
+
+def _upsert(session):
+    """`INSERT ... ON CONFLICT` du dialecte courant.
+
+    PostgreSQL et SQLite l'exposent tous deux, sous deux modules
+    distincts ; le dépôt teste sur les deux.
+    """
+    from sqlalchemy.dialects import postgresql, sqlite
+
+    dialect = session.get_bind().dialect.name
+    insert = postgresql.insert if dialect == "postgresql" else sqlite.insert
+    return insert(PendingNotification)
+
+
+def _with_id(values: dict) -> dict:
+    """Ajouter la clé primaire, qu'`IdMixin` génère côté client.
+
+    Un `INSERT` en Core court-circuite `__init__`, donc le générateur.
+    """
+    from app.models.mixins import id_generator
+
+    return {"id": id_generator.generate_as_int(), **values}

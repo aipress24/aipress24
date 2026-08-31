@@ -167,16 +167,39 @@ def _require_organiser(event) -> None:
     l'écran liste des profils nominatifs — nom, photo, fonction,
     organisation — ou permet de changer qui est invité.
 
-    Sont autorisés le propriétaire de l'événement, et les rôles
-    habilités de l'organisation éditrice, mêmes règles que la
-    publication.
+    Sont autorisés le propriétaire, et **les rôles habilités** du
+    Business Wall de l'organisation éditrice. Pas la simple
+    appartenance à cette organisation : dans un média de deux cents
+    journalistes, elle ouvrirait la liste nominative des demandeurs de
+    n'importe quel événement de la maison à tout le monde — ce que
+    `can_user_publish_for` faisait, sa première condition étant
+    l'appartenance.
     """
     user = g.user
     if event.owner_id == user.id:
         return
-    if event.publisher_id and can_user_publish_for(user, event.publisher_id):
+    if event.publisher and _has_events_mission_on(user, event.publisher):
         return
     raise Forbidden
+
+
+def _has_events_mission_on(user, organisation) -> bool:
+    """L'utilisateur porte-t-il la mission « événements » sur le BW de
+    cette organisation ?
+
+    Vrai pour le propriétaire du Business Wall, et pour toute
+    attribution de rôle acceptée qui accorde explicitement cette
+    permission.
+    """
+    from app.modules.bw.bw_activation.user_utils import (
+        get_active_business_wall_for_organisation,
+    )
+    from app.modules.wip.pr_access import _bw_grants_mission
+
+    bw = get_active_business_wall_for_organisation(organisation)
+    if bw is None:
+        return False
+    return _bw_grants_mission(bw, user.id, PermissionType.EVENTS)
 
 
 def _event_post_of(event):

@@ -25,7 +25,7 @@ from app.modules.events.models import (
     EventPost,
     NotificationSent,
 )
-from app.modules.events.reminders import send_due_reminders
+from app.modules.events.reminders import claim_due_reminders
 from app.services.notifications import Notification
 
 if TYPE_CHECKING:
@@ -81,7 +81,7 @@ class TestWhoIsReminded:
         _accredit(db_session, event, member, AccreditationStatus.ACCEPTED)
 
         with app.test_request_context("/"):
-            assert send_due_reminders(db_session, NOW) == 1
+            assert len(claim_due_reminders(db_session, NOW)) == 1
             db_session.flush()
 
         assert _bells(db_session, member) == 1
@@ -96,7 +96,7 @@ class TestWhoIsReminded:
         _accredit(db_session, event, _user(db_session, f"x{status.value}"), status)
 
         with app.test_request_context("/"):
-            assert send_due_reminders(db_session, NOW) == 0
+            assert len(claim_due_reminders(db_session, NOW)) == 0
 
 
 class TestExactlyOnce:
@@ -109,10 +109,10 @@ class TestExactlyOnce:
         _accredit(db_session, event, member, AccreditationStatus.ACCEPTED)
 
         with app.test_request_context("/"):
-            first = send_due_reminders(db_session, NOW)
+            first = len(claim_due_reminders(db_session, NOW))
             db_session.flush()
-            second = send_due_reminders(db_session, NOW.shift(hours=1))
-            third = send_due_reminders(db_session, NOW.shift(hours=6))
+            second = len(claim_due_reminders(db_session, NOW.shift(hours=1)))
+            third = len(claim_due_reminders(db_session, NOW.shift(hours=6)))
             db_session.flush()
 
         assert (first, second, third) == (1, 0, 0)
@@ -128,14 +128,14 @@ class TestExactlyOnce:
         _accredit(db_session, event, member, AccreditationStatus.ACCEPTED)
 
         with app.test_request_context("/"):
-            send_due_reminders(db_session, NOW)
+            len(claim_due_reminders(db_session, NOW))
             db_session.flush()
-            send_due_reminders(db_session, NOW)
+            len(claim_due_reminders(db_session, NOW))
             db_session.flush()
 
             other = _user(db_session, "member4")
             _accredit(db_session, event, other, AccreditationStatus.ACCEPTED)
-            assert send_due_reminders(db_session, NOW) == 1
+            assert len(claim_due_reminders(db_session, NOW)) == 1
 
 
 class TestWhichEvents:
@@ -149,7 +149,7 @@ class TestWhichEvents:
         db_session.flush()
 
         with app.test_request_context("/"):
-            assert send_due_reminders(db_session, NOW) == 0
+            assert len(claim_due_reminders(db_session, NOW)) == 0
 
     def test_a_draft_is_never_reminded(
         self, app, db_session: Session, event: EventPost
@@ -161,7 +161,7 @@ class TestWhichEvents:
         db_session.flush()
 
         with app.test_request_context("/"):
-            assert send_due_reminders(db_session, NOW) == 0
+            assert len(claim_due_reminders(db_session, NOW)) == 0
 
     def test_nothing_before_nine_in_paris(
         self, app, db_session: Session, event: EventPost
@@ -171,7 +171,7 @@ class TestWhichEvents:
         )
 
         with app.test_request_context("/"):
-            assert send_due_reminders(db_session, NOW.shift(hours=-2)) == 0
+            assert len(claim_due_reminders(db_session, NOW.shift(hours=-2))) == 0
 
 
 class TestRescheduling:
@@ -187,7 +187,7 @@ class TestRescheduling:
         _accredit(db_session, event, member, AccreditationStatus.ACCEPTED)
 
         with app.test_request_context("/"):
-            assert send_due_reminders(db_session, NOW) == 1
+            assert len(claim_due_reminders(db_session, NOW)) == 1
             db_session.flush()
 
             # L'organisateur repousse l'événement de quatre jours.
@@ -195,7 +195,7 @@ class TestRescheduling:
             db_session.flush()
 
             later = NOW.shift(days=4)
-            assert send_due_reminders(db_session, later) == 1
+            assert len(claim_due_reminders(db_session, later)) == 1
             db_session.flush()
 
         assert _bells(db_session, member) == 2
