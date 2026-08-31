@@ -61,6 +61,12 @@ MENU = [
         endpoint=".contact_options",
     ),
     MenuEntry(
+        name="notification",
+        label="Notifications",
+        icon="bell",
+        endpoint=".notification",
+    ),
+    MenuEntry(
         name="banner",
         label="Image de présentation",
         icon="sparkles",

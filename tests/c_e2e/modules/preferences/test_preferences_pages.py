@@ -9,10 +9,13 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 import pytest
+from flask import g
 
+from app.enums import OPTIONAL_NOTIFICATION_CATEGORIES
 from app.models.auth import KYCProfile, User
 from app.modules.preferences.constants import MENU
 from app.modules.preferences.menu import make_menu
+from app.modules.preferences.views.notification import NotificationView
 
 if TYPE_CHECKING:
     from flask import Flask
@@ -88,18 +91,87 @@ class TestPreferencesEndpoints:
         assert response.status_code in (200, 302)
 
 
+class TestNotificationPreferences:
+    """L'écran des préférences de notification — `PRF-06`.
+
+    Éprouvé sur la vue plutôt qu'à travers le client : dans cette
+    recette, le client authentifié est redirigé — les tests voisins
+    l'admettent en acceptant `(200, 302)` —, et ce qu'on veut vérifier
+    ici est l'écran, pas la plomberie d'authentification.
+    """
+
+    def test_it_requires_auth(self, app: Flask):
+        client = app.test_client()
+        response = client.get("/preferences/notification")
+        assert response.status_code in (401, 302)
+
+    def test_it_offers_the_four_switches(
+        self, app: Flask, db_session: Session, test_user_with_profile: User
+    ):
+        with app.test_request_context("/preferences/notification"):
+            g.user = test_user_with_profile
+            body = NotificationView().get()
+
+        for category in OPTIONAL_NOTIFICATION_CATEGORIES:
+            assert f'name="{category.value}"' in body, category.value
+
+    def test_and_says_what_is_never_cut(
+        self, app: Flask, db_session: Session, test_user_with_profile: User
+    ):
+        """Sans cette phrase, un membre qui décoche tout croit avoir tout
+        coupé, et s'étonne de recevoir encore une facture."""
+        with app.test_request_context("/preferences/notification"):
+            g.user = test_user_with_profile
+            body = NotificationView().get()
+
+        assert "toujours envoyés" in body
+
+    def test_posting_stores_the_choice(
+        self, app: Flask, db_session: Session, test_user_with_profile: User
+    ):
+        """Une case décochée n'est pas envoyée par le navigateur : c'est
+        l'absence de la clé dans le formulaire qui vaut refus."""
+        with app.test_request_context(
+            "/preferences/notification",
+            method="POST",
+            data={"submit": "save", "alerts": "on"},
+        ):
+            g.user = test_user_with_profile
+            NotificationView().post()
+
+        preferences = test_user_with_profile.profile.notification_preferences
+        assert preferences["alerts"] is True
+        assert preferences["reminders"] is False
+
+    def test_cancelling_changes_nothing(
+        self, app: Flask, db_session: Session, test_user_with_profile: User
+    ):
+        with app.test_request_context(
+            "/preferences/notification", method="POST", data={"submit": "cancel"}
+        ):
+            g.user = test_user_with_profile
+            NotificationView().post()
+
+        assert test_user_with_profile.profile.notification_preferences == {}
+
+
 class TestPreferencesMenu:
     """Test preferences menu configuration."""
 
     def test_menu_has_expected_pages(self):
-        """Test MENU contains expected menu entries."""
-        assert len(MENU) == 8
+        """Test MENU contains expected menu entries.
+
+        Neuf depuis que les préférences de notification ont remplacé la
+        page vide qui portait déjà leur adresse (`PRF-06`).
+        """
+        assert len(MENU) == 9
 
         page_names = [p.name for p in MENU]
         assert "profile" in page_names
         assert "password" in page_names
         assert "email" in page_names
         assert "contact_options" in page_names
+        assert "notification" in page_names
 
     def test_make_menu_returns_list(self, app: Flask, db_session: Session):
         """Test make_menu returns list of menu entries."""
@@ -107,7 +179,7 @@ class TestPreferencesMenu:
             menu = make_menu("profile")
 
             assert isinstance(menu, list)
-            assert len(menu) == 8
+            assert len(menu) == 9
 
     def test_make_menu_entry_structure(self, app: Flask, db_session: Session):
         """Test menu entries have correct structure."""
