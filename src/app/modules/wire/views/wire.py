@@ -148,6 +148,7 @@ class WireTabView(MethodView):
         posts = active_tab.get_posts(filter_bar)
         posts = self._filter_posts_by_tag(posts, filter_bar, get_tags)
         _annotate_paid_consultations(posts)
+        _annotate_kind(posts)
         return posts
 
     def _filter_posts_by_tag(
@@ -163,6 +164,24 @@ class WireTabView(MethodView):
             if tag in tags:
                 filtered_posts.append(post)
         return filtered_posts
+
+
+def _annotate_kind(posts: list) -> None:
+    """Dire au gabarit quelle carte rendre (WIR-04).
+
+    Le Wall mêle des articles et des événements depuis le lot C8, et
+    `post_card` lève sur un type qu'il ne connaît pas. Le gabarit doit
+    donc brancher — pas par une comparaison de nom de classe, mais sur
+    une clé que la vue pose.
+
+    Sur **tous** les éléments et de **tous** les onglets : le même
+    gabarit les rend tous, et les pages sont rendues en
+    `StrictUndefined`, où une clé absente n'est pas fausse mais fatale.
+    """
+    from app.modules.events.models import EventPost
+
+    for post in posts:
+        post.is_event = isinstance(post, EventPost)
 
 
 def _annotate_paid_consultations(posts: list) -> None:
