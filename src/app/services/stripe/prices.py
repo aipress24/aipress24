@@ -16,16 +16,15 @@ Spec: local-notes/specs/finances.md §4.
 from __future__ import annotations
 
 from dataclasses import dataclass
-from decimal import Decimal
 from typing import Any
 
-from babel.numbers import format_currency
 from loguru import logger
 
 from app.flask.extensions import db
 from app.services.stripe._client import StripeClient, default_client
 from app.services.stripe._price_model import StripePrice
 from app.services.stripe.utils import load_stripe_api_key
+from app.ui.money import format_cents
 
 __all__ = [
     "PriceDrift",
@@ -52,12 +51,7 @@ def stripe_price_display(price_id: str | None) -> str:
     price = db.session.get(StripePrice, price_id)
     if price is None or not price.active:
         return _DISPLAY_FALLBACK
-    amount = Decimal(price.unit_amount_cents) / Decimal(100)
-    # babel emits a NBSP between number and symbol; collapse to a regular
-    # space so tests and HTML rendering get a predictable separator.
-    return format_currency(amount, price.currency.upper(), locale="fr_FR").replace(
-        " ", " "
-    )
+    return format_cents(price.unit_amount_cents, price.currency)
 
 
 def upsert_price_from_event(price_obj: Any) -> StripePrice:

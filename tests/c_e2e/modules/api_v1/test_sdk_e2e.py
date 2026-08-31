@@ -633,6 +633,9 @@ def test_event_publish_with_dates_creates_mirror(make_sdk, authoring_seed) -> No
             "contenu": "<p>b</p>",
             "start_time": arrow.now().shift(days=1).isoformat(),
             "end_time": arrow.now().shift(days=1, hours=2).isoformat(),
+            # MOD-01 : le mode par défaut est « en présentiel », qui
+            # exige une adresse pour être publié.
+            "address": "1 rue de la Paix, Paris",
         },
     )
     assert api.publish("me/events", created["id"])["status"] == PUBLIC

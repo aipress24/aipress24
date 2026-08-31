@@ -40,6 +40,7 @@ from flask import session
 from werkzeug.exceptions import BadRequest
 
 from app.modules.wire.views._filters import (
+    CONTENT_KIND_SPEC,
     FILTER_SPECS,
     FILTER_SPECS_BY_ID,
     FILTER_TAG_LABEL,
@@ -80,7 +81,14 @@ class TestFilterSpecsById:
     invariants the rest of the module relies on."""
 
     def test_keys_match_filter_specs_ids(self) -> None:
-        assert set(FILTER_SPECS_BY_ID.keys()) == {s["id"] for s in FILTER_SPECS}
+        """WIR-05 — l'index porte un identifiant de plus que
+        `FILTER_SPECS` : le type de contenu n'est proposé que sur le
+        Wall, seul onglet à en mêler plusieurs, mais il doit être
+        reconnu partout où un filtre actif est relu depuis la session.
+        """
+        expected = {s["id"] for s in FILTER_SPECS} | {CONTENT_KIND_SPEC["id"]}
+
+        assert set(FILTER_SPECS_BY_ID.keys()) == expected
 
     def test_values_preserve_spec_identity(self) -> None:
         # Each looked-up spec is the SAME object that lives in FILTER_SPECS,

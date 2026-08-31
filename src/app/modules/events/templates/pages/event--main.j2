@@ -1,18 +1,49 @@
-<section class="p-4 bg-white shadow sm:rounded">
-  <h2 class="aui-title mb-4">Présentation</h2>
+{# MOD-02 — les modalités d'accès, aux accrédités seuls.
 
-  <div class="my-4">
-    {{ carousel(event, img_class="min-h-96") }}
-  </div>
+   Hors de la garde `sees_content` volontairement : celle-ci dit
+   l'appartenance à l'audience, et une accréditation survit à un
+   changement de ciblage (§7.4). Un membre accrédité puis exclu de
+   l'audience garde sa place — il doit garder le moyen d'y accéder. #}
+{% if sees_access_details and event.access_details %}
+  <section class="p-4 bg-amber-50 border border-amber-200 shadow sm:rounded">
+    <h2 class="aui-title mb-2">Modalités d'accès</h2>
+    <p class="text-xs text-amber-800 mb-3">
+      Ces informations vous sont réservées en tant que personne
+      accréditée. Merci de ne pas les diffuser.
+    </p>
+    <div class="text-sm text-gray-900 whitespace-pre-line">{{ event.access_details }}</div>
+  </section>
+{% endif %}
 
-  <div class="prose xl:prose-lg max-w-full">
-    {# event.content is Trix-rendered HTML — sanitize on render. #}
-    {{ event.content|sanitize }}
-  </div>
-</section>
+{% if sees_content %}
+  <section class="p-4 bg-white shadow sm:rounded">
+    <h2 class="aui-title mb-4">Présentation</h2>
 
-{#{% include "pages/event--metadata.j2" %}#}
+    <div class="my-4">
+      {{ carousel(event, img_class="min-h-96") }}
+    </div>
 
-{% include "pages/event--participants.j2" %}
+    <div class="prose xl:prose-lg max-w-full">
+      {# event.content is Trix-rendered HTML — sanitize on render. #}
+      {{ event.content|sanitize }}
+    </div>
+  </section>
 
-{% include "pages/event--activity.j2" %}
+  {#{% include "pages/event--metadata.j2" %}#}
+
+  {% include "pages/event--participants.j2" %}
+
+  {% include "pages/event--activity.j2" %}
+{% else %}
+  {# RG-02 — le ciblage restreint le **contenu**, pas l'existence de
+     l'annonce : le bandeau, les dates et le lieu restent visibles de
+     tous (RG-01), mais ni la présentation, ni la liste nominative des
+     participants, ni le fil de commentaires. #}
+  <section class="p-4 bg-white shadow sm:rounded">
+    <h2 class="aui-title mb-4">Présentation</h2>
+    <p class="text-sm text-gray-700">
+      Cet événement est réservé aux communautés suivantes&nbsp;:
+      {{ audience | join(", ") }}.
+    </p>
+  </section>
+{% endif %}

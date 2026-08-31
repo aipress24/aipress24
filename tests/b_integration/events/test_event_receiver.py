@@ -399,7 +399,7 @@ class TestOnUpdateEvent:
         updated_post = get_post(test_event)
         assert updated_post.title == test_event.title
         assert updated_post.content == test_event.contenu
-        assert updated_post.last_updated_at is not None
+        assert updated_post.modified_at is not None
 
     def test_update_nonexistent_post(self, db_session: Session, test_event: Event):
         """Test updating when no post exists does nothing."""
@@ -412,21 +412,33 @@ class TestOnUpdateEvent:
         # Still no post should exist
         assert get_post(test_event) is None
 
-    def test_update_sets_last_updated_at(
+    def test_update_stamps_modified_at(
         self, db_session: Session, test_event: Event, test_user: User
     ):
-        """Test that update sets last_updated_at timestamp."""
+        """La mise à jour horodate le miroir.
+
+        Ce test s'appelait `test_update_sets_last_updated_at` et
+        vérifiait un attribut qui n'est pas une colonne d'`EventPost` :
+        le récepteur l'écrivait, rien ne le persistait, et le test le
+        posait lui-même à `None` avant de constater qu'il ne l'était
+        plus. Il ne pouvait que passer. La vraie colonne est
+        `modified_at`, qu'un écouteur `before_update` du mixin de cycle
+        de vie horodate déjà.
+        """
         post = EventPost(
             title="Title",
             content="Content",
             eventroom_id=test_event.id,
             owner=test_user,
         )
-        post.last_updated_at = None
         db_session.add(post)
         db_session.flush()
+        before = post.modified_at
 
+        test_event.titre = "Titre modifié"
         on_update_event(test_event)
+        db_session.flush()
 
         updated_post = get_post(test_event)
-        assert updated_post.last_updated_at is not None
+        assert updated_post.modified_at is not None
+        assert updated_post.modified_at >= before

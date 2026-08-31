@@ -271,7 +271,7 @@ class TestOnUpdateEvent:
             db.session.query(EventPost).filter_by(eventroom_id=event.id).first()
         )
         assert updated_post.title == "Modified"
-        assert updated_post.last_updated_at is not None
+        assert updated_post.modified_at is not None
 
     def test_on_update_no_post_exists(self, event: Event) -> None:
         """Test on_update_event does nothing when post doesn't exist."""

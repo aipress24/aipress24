@@ -1,10 +1,23 @@
-# Copyright (c) 2021-2024, Abilian SAS & TCA
+# Copyright (c) 2021-2026, Abilian SAS & TCA
 #
 # SPDX-License-Identifier: AGPL-3.0-only
 
 from __future__ import annotations
 
-from ._models import Notification
+from ._delivery import (
+    WINDOW_MINUTES,
+    claim_due_notifications,
+    send_claimed_mails,
+)
+from ._models import Notification, NotificationRepository, PendingNotification
 from ._service import NotificationService
 
-__all__ = ["Notification", "NotificationService"]
+__all__ = [
+    "WINDOW_MINUTES",
+    "Notification",
+    "NotificationRepository",
+    "NotificationService",
+    "PendingNotification",
+    "claim_due_notifications",
+    "send_claimed_mails",
+]

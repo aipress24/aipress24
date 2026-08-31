@@ -12,6 +12,7 @@ import sqlalchemy as sa
 from flask import request, session
 from werkzeug.exceptions import BadRequest
 
+from app.enums import MODE_LABELS, PRICING_LABELS
 from app.flask.extensions import db
 from app.models.lifecycle import PublicationStatus
 from app.modules.events.models import EventPost
@@ -20,6 +21,29 @@ from app.services.taxonomies import get_taxonomy
 
 if TYPE_CHECKING:
     from sqlalchemy.orm import InstrumentedAttribute
+
+
+def mode_label(value) -> str:
+    """Le libellé français d'un mode de participation (MOD-04).
+
+    Appelée avec **deux types** : un membre d'`EventMode` quand elle
+    vient de la requête qui calcule les options, une `str` quand elle
+    vient du filtre actif, restauré depuis la session en JSON. Un
+    `StrEnum` s'indexe par sa valeur dans les deux cas — c'est ce qui
+    permet à une seule table de servir les deux chemins, là où
+    `EventMode(value)` ou `value.name` casserait sur l'un des deux.
+    """
+    return MODE_LABELS.get(value, str(value))
+
+
+def pricing_label(value) -> str:
+    """Le libellé français d'une modalité tarifaire (PRX-06).
+
+    Comme `mode_label` : appelée tantôt avec un membre d'`EventPricing`,
+    tantôt avec la chaîne restaurée depuis la session.
+    """
+    return PRICING_LABELS.get(value, str(value))
+
 
 FILTER_SPECS: list[dict] = [
     {
@@ -33,6 +57,28 @@ FILTER_SPECS: list[dict] = [
         "id": "sector",
         "label": "Secteur",
         "column": "sector",
+    },
+    {
+        "id": "section",
+        "label": "Rubrique",
+        "column": "section",
+    },
+    {
+        "id": "topic",
+        "label": "Type d'info",
+        "column": "topic",
+    },
+    {
+        "id": "mode",
+        "label": "Format",
+        "column": "mode",
+        "label_function": mode_label,
+    },
+    {
+        "id": "pricing",
+        "label": "Tarif",
+        "column": "pricing",
+        "label_function": pricing_label,
     },
     {
         "id": "pays_zip_ville",
@@ -60,6 +106,8 @@ SORTER_OPTIONS = [
 ]
 
 FILTER_TAG_LABEL = {
+    "mode": "format",
+    "pricing": "tarif",
     "sector": "secteur",
     "genre": "type",
     "pays_zip_ville": "pays",
@@ -266,7 +314,6 @@ def _get_distinct_values(column_name: str) -> list[str]:
     stmt = (
         sa.select(column)
         .where(EventPost.status == PublicationStatus.PUBLIC)
-        .where(column != "")
         .where(column.is_not(None))
         # Only include events that haven't ended yet
         .where(
@@ -278,6 +325,18 @@ def _get_distinct_values(column_name: str) -> list[str]:
         .distinct()
         .order_by(column)
     )
+
+    # `!= ""` seulement sur les colonnes de texte. Sur une colonne
+    # d'énumération, PostgreSQL transtype `''` vers le type natif et
+    # lève `InvalidTextRepresentation` : la page /events/ entière
+    # renvoie 500. SQLite, qui stocke l'énumération en `VARCHAR`,
+    # accepte la comparaison — le défaut serait donc invisible à la
+    # suite SQLite. Et le filet `except OperationalError` ci-dessous ne
+    # le rattraperait pas non plus, l'erreur étant une `DataError`,
+    # laquelle laisse en outre la transaction PostgreSQL avortée : le
+    # filtre *suivant* de la boucle échouerait à son tour.
+    if not isinstance(column.type, sa.Enum):
+        stmt = stmt.where(column != "")
 
     try:
         return list(db.session.scalars(stmt))

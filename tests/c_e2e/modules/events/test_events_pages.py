@@ -471,7 +471,7 @@ class TestCalendar:
         """Test Calendar initializes with proper attributes."""
         with app.test_request_context():
             month = arrow.get("2024-06-01")
-            cal = Calendar(month, [])
+            cal = Calendar(month)
 
             assert cal.month == month
             assert isinstance(cal.cells, list)
@@ -485,7 +485,7 @@ class TestCalendar:
         """Test Calendar cells have expected structure."""
         with app.test_request_context():
             month = arrow.get("2024-06-01")
-            cal = Calendar(month, [])
+            cal = Calendar(month)
 
             if cal.cells:
                 cell = cal.cells[0]
