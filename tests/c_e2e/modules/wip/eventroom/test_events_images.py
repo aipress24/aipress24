@@ -9,7 +9,6 @@ from __future__ import annotations
 from datetime import UTC, datetime, timedelta
 from io import BytesIO
 from typing import TYPE_CHECKING
-from unittest.mock import MagicMock
 
 import pytest
 
@@ -159,6 +158,27 @@ class TestEventsCRUD:
         assert response.status_code == 200
 
 
+class _TableItem:
+    """Le minimum que `get_actions` lit.
+
+    Un double explicite et non un `MagicMock` : celui-ci rend un objet
+    vrai pour n'importe quel attribut, si bien que
+    `item.publisher.event_review_required` valait « oui » et que le menu
+    proposait « Soumettre à relecture » à une organisation qui ne relit
+    rien. Un double qui répond oui à tout ne teste rien.
+    """
+
+    def __init__(self, status: PublicationStatus) -> None:
+        self.id = 1
+        self.status = status
+        self.cancelled_at = None
+        self.publisher = None
+
+    can_cancel = Event.can_cancel
+    can_restore = Event.can_restore
+    RESTORE_WINDOW_HOURS = Event.RESTORE_WINDOW_HOURS
+
+
 class TestEventsTable:
     """Tests for the EventsTable class."""
 
@@ -172,9 +192,7 @@ class TestEventsTable:
         with app.test_request_context():
             table = EventsTable()
 
-            item = MagicMock()
-            item.id = 1
-            item.status = PublicationStatus.DRAFT
+            item = _TableItem(PublicationStatus.DRAFT)
 
             actions = table.get_actions(item)
             labels = [a["label"] for a in actions]
@@ -191,9 +209,7 @@ class TestEventsTable:
         with app.test_request_context():
             table = EventsTable()
 
-            item = MagicMock()
-            item.id = 1
-            item.status = PublicationStatus.PUBLIC
+            item = _TableItem(PublicationStatus.PUBLIC)
 
             actions = table.get_actions(item)
             labels = [a["label"] for a in actions]

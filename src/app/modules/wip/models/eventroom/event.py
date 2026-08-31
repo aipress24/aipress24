@@ -188,27 +188,68 @@ class Event(IdMixin, LifeCycleMixin, Owned, Base):
         self.end_time = end
 
     def can_publish(self) -> bool:
-        """Check if event can be published."""
-        return bool(self.status == PublicationStatus.DRAFT)
+        """Check if event can be published.
+
+        Depuis REL-01, un événement peut être publié depuis un brouillon
+        **ou** depuis la relecture : le cycle est
+        `DRAFT → PENDING → PUBLIC`, et `DRAFT → PUBLIC` reste ouvert à un
+        rôle habilité qui se passe de relecture.
+        """
+        return self.status in (PublicationStatus.DRAFT, PublicationStatus.PENDING)
 
     def check_publishable(self) -> None:
         """Les règles qu'un événement **publié** ne doit jamais violer.
 
-        Extraites de `publish()` pour être rejouables à l'édition : sans
-        cela, un organisateur pouvait publier un événement valide, puis
-        le modifier vers un état que la publication aurait refusé — un
-        présentiel sans adresse (MOD-01), un tarif payant sans prix
-        (PRX-02) — et cet état partait sur la carte. Les règles
-        gouvernent l'**état publié**, pas l'instant de la publication.
+        Extraites de `publish()` pour être rejouables ailleurs : à
+        l'édition d'un événement publié — sans quoi un organisateur
+        pouvait publier un événement valide puis le modifier vers un
+        état que la publication aurait refusé, et cet état partait sur
+        la carte — et à la **soumission** en relecture (REL-04), pour
+        qu'un relecteur n'hérite jamais d'un brouillon impubliable.
 
-        Un brouillon reste librement incomplet : c'est ce qu'est un
-        brouillon.
+        Les règles gouvernent l'état publié, pas l'instant de la
+        publication. Un brouillon reste librement incomplet : c'est ce
+        qu'est un brouillon.
 
         Raises:
             ValueError: un champ requis manque.
         """
+        if not self.titre or not self.titre.strip():
+            msg = "Cannot publish event: titre is required"
+            raise ValueError(msg)
+
+        if not self.contenu or not self.contenu.strip():
+            msg = "Cannot publish event: contenu is required"
+            raise ValueError(msg)
+
+        # Bug #0172 — un événement sans dates serait silencieusement
+        # écarté de la liste publique (le filtre par défaut compare
+        # `start_datetime`/`end_datetime` à aujourd'hui, et `NULL >=
+        # today` vaut `NULL`, donc faux). Refuser à la publication avec
+        # un message clair, plutôt que de le rendre invisible.
+        if not self.start_time or not self.end_time:
+            msg = (
+                "Cannot publish event: la date de début et la date de "
+                "fin sont obligatoires pour publier un événement."
+            )
+            raise ValueError(msg)
+
+        self._require_dates_in_order()
         self._require_fields_for_mode()
         self._settle_price()
+
+    def _require_dates_in_order(self) -> None:
+        """La fin ne précède pas le début."""
+        start, end = self.start_time, self.end_time
+        if start is None or end is None:
+            return
+        if start.tzinfo is None:
+            start = start.replace(tzinfo=UTC)
+        if end.tzinfo is None:
+            end = end.replace(tzinfo=UTC)
+        if end < start:
+            msg = "Cannot publish event: end_time must be after start_time"
+            raise ValueError(msg)
 
     def publish(self, publisher_id: int | None = None) -> None:
         """
@@ -224,43 +265,7 @@ class Event(IdMixin, LifeCycleMixin, Owned, Base):
             msg = "Cannot publish event: event is not in DRAFT status"
             raise ValueError(msg)
 
-        # Validate required fields
-        if not self.titre or not self.titre.strip():
-            msg = "Cannot publish event: titre is required"
-            raise ValueError(msg)
-
-        if not self.contenu or not self.contenu.strip():
-            msg = "Cannot publish event: contenu is required"
-            raise ValueError(msg)
-
         self.check_publishable()
-
-        # Bug #0172 — BUSINESS RULE: an event without dates would be
-        # silently filtered out of the public /events/ list (the
-        # default DateFilter compares `start_datetime`/`end_datetime`
-        # against today, and NULL >= today evaluates to NULL = false).
-        # Block at publish time with a clear error so the user knows
-        # *why* their event would otherwise be invisible.
-        if not self.start_time or not self.end_time:
-            msg = (
-                "Cannot publish event: la date de début et la date de "
-                "fin sont obligatoires pour publier un événement."
-            )
-            raise ValueError(msg)
-
-        # BUSINESS RULE: Validate temporal consistency
-        if self.start_time and self.end_time:
-            # Handle timezone-naive datetimes
-            start = self.start_time
-            end = self.end_time
-            if start.tzinfo is None:
-                start = start.replace(tzinfo=UTC)
-            if end.tzinfo is None:
-                end = end.replace(tzinfo=UTC)
-
-            if end < start:
-                msg = "Cannot publish event: end_time must be after start_time"
-                raise ValueError(msg)
 
         # Update state
         self.status = PublicationStatus.PUBLIC  # type: ignore[assignment]
@@ -344,6 +349,61 @@ class Event(IdMixin, LifeCycleMixin, Owned, Base):
                 f"« {PRICING_LABELS[self.pricing].lower()} » demande un prix."
             )
             raise ValueError(msg)
+
+    # ------------------------------------------------------------
+    # Business Logic - Relecture éditoriale (REL-01, REL-02, REL-04)
+    # ------------------------------------------------------------
+
+    def can_submit_for_review(self) -> bool:
+        """REL-01 — seul un brouillon part en relecture."""
+        return self.status == PublicationStatus.DRAFT
+
+    def submit_for_review(self) -> None:
+        """Soumettre le brouillon à la relecture de l'organisation.
+
+        REL-04 : les mêmes contrôles qu'à la publication s'appliquent
+        ici. Un relecteur ne doit jamais hériter d'un brouillon
+        impubliable — il n'aurait alors le choix qu'entre le renvoyer
+        pour un défaut que l'auteur ne voyait pas, ou le valider vers un
+        échec.
+
+        Raises:
+            ValueError: événement pas en brouillon, ou incomplet.
+        """
+        if not self.can_submit_for_review():
+            msg = "Impossible de soumettre à relecture : seul un brouillon peut l'être."
+            raise ValueError(msg)
+
+        self.check_publishable()
+        self.status = PublicationStatus.PENDING  # type: ignore[assignment]
+
+    def can_send_back(self) -> bool:
+        """REL-02 — seul un événement en relecture se renvoie."""
+        return self.status == PublicationStatus.PENDING
+
+    def send_back(self, comment: str) -> None:
+        """Renvoyer l'événement à son auteur, avec un motif (REL-02).
+
+        Le commentaire est **obligatoire** : un renvoi sans motif ne
+        dit pas à l'auteur ce qu'il doit corriger, et le fait
+        recommencer à l'aveugle.
+
+        Il voyage dans la notification (NOT-07) et n'est pas conservé
+        sur l'événement — la spécification ne le demande pas, et un
+        renvoi est un échange, pas un état.
+
+        Raises:
+            ValueError: événement pas en relecture, ou motif vide.
+        """
+        if not self.can_send_back():
+            msg = "Impossible de renvoyer cet événement : il n'est pas en relecture."
+            raise ValueError(msg)
+
+        if not comment.strip():
+            msg = "Le motif du renvoi est obligatoire."
+            raise ValueError(msg)
+
+        self.status = PublicationStatus.DRAFT  # type: ignore[assignment]
 
     def can_unpublish(self) -> bool:
         """Check if event can be unpublished."""

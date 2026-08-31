@@ -308,3 +308,49 @@ def _mail_status_change(
         ).send()
     except Exception as exc:
         report_failure(f"events: NOT-05 mail failed (event {event.id})", exc)
+
+
+def notify_submitted_for_review(event, reviewers) -> int:
+    """NOT-06 — un événement attend une relecture (REL-07).
+
+    Vers les rôles habilités de l'organisation éditrice. Cloche
+    seulement : la relecture est un travail d'atelier, pas une
+    information dont dépend un déplacement.
+
+    `event` est l'événement de **saisie** et non le miroir public : à ce
+    stade il n'y en a pas, l'événement n'a jamais été publié. D'où
+    l'adresse vers l'atelier plutôt que vers la page publique, et la
+    liste de destinataires passée par l'appelant, qui seul sait
+    interroger le Business Wall.
+
+    Renvoie le nombre de relecteurs prévenus.
+    """
+    from app.flask.routing import url_for
+
+    url = url_for("EventsWipView:get", id=event.id)
+    author = event.owner
+    message = (
+        f"{author.full_name if author else 'Un membre'} soumet l'événement "
+        f"« {event.title} » à votre relecture."
+    )
+    for reviewer in reviewers:
+        _post(reviewer, message, url)
+    return len(reviewers)
+
+
+def notify_sent_back(event, comment: str) -> None:
+    """NOT-07 — l'événement revient à son auteur, avec le motif (REL-07).
+
+    Le motif est le contenu utile du message : sans lui, l'auteur sait
+    que son événement est revenu mais pas ce qu'il doit corriger. Il
+    n'est conservé nulle part ailleurs — la spécification ne le demande
+    pas, et un renvoi est un échange, pas un état.
+    """
+    from app.flask.routing import url_for
+
+    _post(
+        event.owner,
+        f"Votre événement « {event.title} » vous est renvoyé pour "
+        f"correction : {comment.strip()}",
+        url_for("EventsWipView:edit", id=event.id),
+    )

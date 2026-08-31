@@ -1,0 +1,50 @@
+{% extends "wip/layout/_base.j2" %}
+
+{% block body_content %}
+  <h1 class="text-2xl font-semibold text-gray-900 mb-2">Événements à relire</h1>
+  <p class="text-sm text-gray-600 mb-6">
+    Les événements que vos collègues soumettent à la relecture de votre
+    organisation.
+  </p>
+
+  {% if events %}
+    <ul class="bg-white border border-gray-200 rounded shadow-sm divide-y divide-gray-200">
+      {% for event in events %}
+        <li class="p-4 flex items-start justify-between gap-4">
+          <div>
+            <a href="{{ url_for('EventsWipView:get', id=event.id) }}"
+               class="text-sm font-medium text-gray-900 hover:underline">
+              {{ event.title }}
+            </a>
+            <p class="text-xs text-gray-500 mt-1">
+              Proposé par
+              {{ event.owner.full_name if event.owner else "un membre" }}{% if event.start_time %},
+              pour le {{ event.start_time|localdt }}{% endif %}.
+            </p>
+          </div>
+
+          <div class="shrink-0 flex items-center gap-2">
+            <a href="{{ url_for('EventsWipView:get', id=event.id) }}"
+               class="rounded-md border border-gray-300 bg-white px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50">
+              Lire
+            </a>
+            <a href="{{ url_for('EventsWipView:publish', id=event.id) }}"
+               class="rounded-md border border-transparent bg-pink-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-pink-700">
+              Valider et publier
+            </a>
+            <a href="{{ url_for('EventsWipView:review', id=event.id) }}"
+               class="rounded-md border border-transparent bg-amber-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-amber-700">
+              Renvoyer
+            </a>
+          </div>
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <div class="bg-white border border-gray-200 rounded shadow-sm p-6">
+      <p class="text-sm text-gray-700">
+        Rien à relire pour le moment.
+      </p>
+    </div>
+  {% endif %}
+{% endblock %}

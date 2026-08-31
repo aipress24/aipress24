@@ -39,6 +39,7 @@ from app.modules.events.notifications import (
     EventStatusChange,
     notify_status_change,
 )
+from app.modules.events.review import is_reviewer
 from app.modules.wip.models.eventroom import (
     Event,
     EventImage,
@@ -101,20 +102,7 @@ class EventsTable(BaseTable):
                 "url": self.url_for(item, "accreditations"),
             },
         ]
-        if item.status == PublicationStatus.DRAFT:
-            actions.append(
-                {
-                    "label": "Publier",
-                    "url": self.url_for(item, "publish"),
-                }
-            )
-        else:
-            actions.append(
-                {
-                    "label": "Dépublier",
-                    "url": self.url_for(item, "unpublish"),
-                }
-            )
+        actions += _publication_actions(item, self.url_for)
         # ANN-01 — annuler et rétablir mènent au même écran : c'est la
         # même décision, prise dans un sens ou dans l'autre. Ni l'une ni
         # l'autre n'est proposée sur un brouillon, qui n'a été annoncé
@@ -167,6 +155,48 @@ _EVENT_MODIFIER_TEMPLATE = """
   {{ step_nav_simple(event, "EventsWipView", "modifier", "événements") }}
 {% endblock %}
 """
+
+
+def _publication_actions(item, url_for) -> list[dict]:
+    """Ce que l'utilisateur peut faire avancer sur cet événement (REL-02).
+
+    Quatre transitions et deux acteurs, d'où une fonction plutôt qu'une
+    cascade dans `get_actions` : la règle est un tableau dans la
+    spécification.
+
+    À `event_review_required == False` — le défaut, et l'état de toutes
+    les organisations existantes — ce bloc rend exactement ce qu'il
+    rendait avant le lot : « Publier » sur un brouillon, « Dépublier »
+    sinon. C'est ce que REL-03 exige.
+    """
+    from app.modules.events.review import is_reviewer, review_required
+
+    # `getattr` : ce tableau est aussi construit hors d'une requête
+    # authentifiée — dans les tests unitaires du menu, notamment. Sans
+    # lecteur, il n'y a pas de relecteur, et le parcours par défaut
+    # s'applique.
+    user = getattr(g, "user", None)
+    if item.status == PublicationStatus.PUBLIC:
+        return [{"label": "Dépublier", "url": url_for(item, "unpublish")}]
+
+    reviews = review_required(item.publisher)
+    reviewer = is_reviewer(user, item.publisher) if reviews else False
+
+    if item.status == PublicationStatus.PENDING:
+        # Seul un relecteur décide d'un événement en relecture. L'auteur
+        # qui l'a soumis n'a plus la main : c'est tout l'objet du
+        # circuit.
+        if not reviewer:
+            return []
+        return [
+            {"label": "Valider et publier", "url": url_for(item, "publish")},
+            {"label": "Renvoyer à l'auteur", "url": url_for(item, "review")},
+        ]
+
+    # DRAFT
+    if reviews and not reviewer:
+        return [{"label": "Soumettre à relecture", "url": url_for(item, "review")}]
+    return [{"label": "Publier", "url": url_for(item, "publish")}]
 
 
 def _accrediter_label(event) -> str:
@@ -347,16 +377,21 @@ class EventsWipView(BaseWipView):
             model.status = PublicationStatus.DRAFT  # type: ignore[assignment]
             model.published_at = arrow.now("Europe/Paris")
 
-        # MOD-01, PRX-02 — les règles gouvernent l'**état publié**, pas
-        # l'instant de la publication. Sans cette relecture, un
-        # organisateur publiait un événement valide puis le modifiait
-        # vers un état que la publication aurait refusé — un présentiel
-        # sans adresse, un tarif payant sans prix — et cet état partait
-        # sur la carte, où il s'affichait en tiret nu.
+        # MOD-01, PRX-02, REL-04 — les règles gouvernent l'**état
+        # publié**, pas l'instant de la publication. Sans cette
+        # relecture, un organisateur publiait un événement valide puis
+        # le modifiait vers un état que la publication aurait refusé —
+        # un présentiel sans adresse, un tarif payant sans prix — et cet
+        # état partait sur la carte, où il s'affichait en tiret nu.
+        #
+        # `PENDING` en fait partie : un auteur peut encore éditer son
+        # événement pendant qu'il attend une relecture, et REL-04 dit
+        # qu'un relecteur ne doit jamais hériter d'un brouillon
+        # impubliable — pas seulement au moment de la soumission.
         #
         # Un brouillon reste librement incomplet : c'est ce qu'est un
         # brouillon.
-        if model.status == PublicationStatus.PUBLIC:
+        if model.status in (PublicationStatus.PUBLIC, PublicationStatus.PENDING):
             model.check_publishable()
 
         event_updated.send(model)
@@ -372,6 +407,20 @@ class EventsWipView(BaseWipView):
                 "error",
             )
             return redirect(self._url_for("edit", id=id))
+
+        # REL-02 — « Valider et publier » n'appartient qu'à un relecteur.
+        # `can_user_publish_for` ne suffit pas : sa première condition
+        # est l'appartenance à l'organisation, si bien que n'importe quel
+        # collègue de l'auteur pourrait valider sa propre soumission —
+        # et le circuit de relecture ne vaudrait plus rien.
+        if event.status == PublicationStatus.PENDING and not is_reviewer(
+            g.user, event.publisher
+        ):
+            flash(
+                "Seul un relecteur de l'organisation peut valider cet événement.",
+                "error",
+            )
+            return redirect(self._url_for("index"))
 
         try:
             event.publish(publisher_id=publisher_id)
@@ -434,6 +483,112 @@ class EventsWipView(BaseWipView):
         # ne les aide pas. L'organisateur qui veut les prévenir annule,
         # ce qui est justement le geste que ce lot lui donne.
         event_unpublished.send(model)
+
+    @route("/to-review/", methods=["GET"])
+    def to_review(self):
+        """L'écran « À relire » (REL-06).
+
+        Sa propre requête, parce que la liste ordinaire de l'atelier est
+        filtrée par propriétaire : un relecteur n'y verrait jamais
+        l'événement d'un collègue, et c'est précisément ce qu'il doit
+        voir.
+
+        Le chemin est déclaré explicitement : `flask-classful` expose
+        toute méthode publique comme une route, et une méthode nommée
+        `to_review` donnerait `/wip/events/to_review/` — souligné
+        compris.
+        """
+        from app.modules.events.review import events_to_review
+        from app.modules.wip.views._common import get_secondary_menu
+
+        events = events_to_review(g.user)
+        return render_template(
+            "wip/event/to_review.j2",
+            title="Événements à relire",
+            events=events,
+            menus={"secondary": get_secondary_menu("eventroom")},
+        )
+
+    @route("/<int:id>/review/", methods=["GET", "POST"])
+    def review(self, id: int):
+        """Soumettre à relecture, ou renvoyer à l'auteur (REL-02).
+
+        Une seule route pour les deux gestes : ce sont les deux sens du
+        même passage, et l'écran diffère par une phrase et un champ.
+
+        L'habilitation n'est **pas** `_require_organiser` : soumettre
+        est le geste de l'auteur, qui par construction n'est pas
+        habilité — sinon il publierait directement. Chaque geste porte
+        donc sa propre garde.
+        """
+        from app.modules.events.review import is_reviewer, review_required
+
+        event = cast("Event", self._get_model(id))
+        reviewer = is_reviewer(g.user, event.publisher)
+        author = event.owner_id == g.user.id
+
+        if not (reviewer or author):
+            raise Forbidden
+
+        if request.method == "POST":
+            return self._apply_review(event, reviewer=reviewer, author=author)
+
+        self.update_phase_breadcrumbs(event, "Relecture")
+        return render_template(
+            "wip/event/review.j2",
+            title=f"Relecture — {event.title}",
+            event=event,
+            can_submit=author and event.can_submit_for_review(),
+            can_send_back=reviewer and event.can_send_back(),
+            reviews=review_required(event.publisher),
+        )
+
+    def _apply_review(self, event: Event, *, reviewer: bool, author: bool):
+        """Appliquer la décision, puis prévenir qui de droit.
+
+        Les notifications partent **après** le commit : un message est
+        irréversible et ne doit jamais précéder l'écriture qui le
+        justifie.
+        """
+        from app.modules.events.notifications import (
+            notify_sent_back,
+            notify_submitted_for_review,
+        )
+        from app.modules.events.review import reviewers_of
+
+        action = request.form.get("_action", "")
+        if action not in ("submit-for-review", "send-back"):
+            raise NotFound
+        if action == "submit-for-review" and not author:
+            raise Forbidden
+        if action == "send-back" and not reviewer:
+            raise Forbidden
+
+        comment = request.form.get("comment", "")
+        try:
+            if action == "submit-for-review":
+                event.submit_for_review()
+            else:
+                event.send_back(comment)
+        except ValueError as exc:
+            flash(str(exc), "error")
+            return redirect(self._url_for("review", id=event.id))
+
+        db.session.commit()
+
+        if action == "submit-for-review":
+            count = notify_submitted_for_review(event, reviewers_of(event.publisher))
+            db.session.commit()
+            flash(
+                f"Événement soumis à relecture. {count} relecteur(s) prévenu(s).",
+                "success",
+            )
+        else:
+            notify_sent_back(event, comment)
+            db.session.commit()
+            flash("Événement renvoyé à son auteur.", "success")
+
+        return redirect(self._url_for("index"))
 
     @route("/<int:id>/cancel/", methods=["GET", "POST"])
     def cancel(self, id: int):

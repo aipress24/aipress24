@@ -33,10 +33,14 @@ class _Item:
         id: int,
         status: PublicationStatus,
         cancelled_at: arrow.Arrow | None = None,
+        publisher=None,
     ) -> None:
         self.id = id
         self.status = status
         self.cancelled_at = cancelled_at
+        # REL-02/REL-03 : sans organisation éditrice, il n'y a personne
+        # pour relire, et le parcours par défaut s'applique.
+        self.publisher = publisher
 
 
 class TestEventsTableActions:

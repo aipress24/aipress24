@@ -229,6 +229,7 @@ class _EventStub:
     _require_fields_for_mode = Event._require_fields_for_mode
     _settle_price = Event._settle_price
     check_publishable = Event.check_publishable
+    _require_dates_in_order = Event._require_dates_in_order
 
     def __init__(self, **kwargs):
         # Sensible defaults for a happy-path draft event
