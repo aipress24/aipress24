@@ -69,6 +69,32 @@ MODE_LABELS: dict[EventMode, str] = {
 }
 
 
+class EventPricing(StrEnum):
+    """Modalité tarifaire d'un événement — `PRX-01`.
+
+    Les trois valeurs sont exclusives. Le prix reste une **information
+    éditoriale** (`PRX-05`) : aucun encaissement n'est déclenché depuis
+    EVENTS, le paiement se fait auprès de l'organisateur.
+
+    Même domicile qu'`EventMode`, et pour la même raison : les deux
+    modèles d'événement la portent, et `events` importe déjà `wip`.
+    """
+
+    FREE_FOR_ALL = auto()
+    FREE_FOR_JOURNALISTS = auto()
+    PAID = auto()
+
+
+#: Libellés français des modalités tarifaires, pour le filtre et le
+#: formulaire. L'affichage sur la carte dépend du lecteur (`PRX-04`) et
+#: ne se lit donc pas ici.
+PRICING_LABELS: dict[EventPricing, str] = {
+    EventPricing.FREE_FOR_ALL: "Gratuit",
+    EventPricing.FREE_FOR_JOURNALISTS: "Gratuit pour les journalistes",
+    EventPricing.PAID: "Payant",
+}
+
+
 class ContactTypeEnum(StrEnum):
     """Contact type enumeration."""
 

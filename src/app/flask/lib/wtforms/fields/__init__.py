@@ -6,6 +6,7 @@ from __future__ import annotations
 
 from .datetime import DateTimeField
 from .image import ImageField
+from .price import PriceField
 from .rich_select import RichSelectField
 from .rich_text import RichTextField
 from .simple_rich_select import SimpleRichSelectField
@@ -13,6 +14,7 @@ from .simple_rich_select import SimpleRichSelectField
 __all__ = [
     "DateTimeField",
     "ImageField",
+    "PriceField",
     "RichSelectField",
     "RichTextField",
     "SimpleRichSelectField",

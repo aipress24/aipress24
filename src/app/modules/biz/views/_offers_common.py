@@ -32,6 +32,7 @@ from app.modules.biz.services.offer_notifications import (
     notify_applicant_selected,
     notify_emitter_of_application,
 )
+from app.ui.money import euros_to_cents as _euros_to_cents
 
 
 class _OfferModel(Protocol):
@@ -193,7 +194,14 @@ def mark_filled(offer, redirect_endpoint: str):
 
 
 def euros_to_cents(value: int | None) -> int | None:
-    return None if value is None else value * 100
+    """Ré-export du convertisseur partagé (`app.ui.money`).
+
+    Il vivait ici, en deux lignes, quand ce module était son seul
+    appelant. EVENTS en a besoin aussi — avec des centimes, que la
+    version d'origine ne savait pas porter. Le nom est conservé pour
+    les six appels de ce module.
+    """
+    return _euros_to_cents(value)
 
 
 def date_to_datetime(value: Any) -> datetime | None:

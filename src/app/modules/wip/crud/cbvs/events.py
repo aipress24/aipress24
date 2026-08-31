@@ -346,6 +346,19 @@ class EventsWipView(BaseWipView):
         if not model.status:
             model.status = PublicationStatus.DRAFT  # type: ignore[assignment]
             model.published_at = arrow.now("Europe/Paris")
+
+        # MOD-01, PRX-02 — les règles gouvernent l'**état publié**, pas
+        # l'instant de la publication. Sans cette relecture, un
+        # organisateur publiait un événement valide puis le modifiait
+        # vers un état que la publication aurait refusé — un présentiel
+        # sans adresse, un tarif payant sans prix — et cet état partait
+        # sur la carte, où il s'affichait en tiret nu.
+        #
+        # Un brouillon reste librement incomplet : c'est ce qu'est un
+        # brouillon.
+        if model.status == PublicationStatus.PUBLIC:
+            model.check_publishable()
+
         event_updated.send(model)
 
     def publish(self, id):

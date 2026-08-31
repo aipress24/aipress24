@@ -21,6 +21,7 @@ from app.flask.sqla import get_public_obj
 from app.models.auth import User
 from app.modules.events import blueprint
 from app.modules.events.models import AccreditationStatus, EventPost
+from app.modules.events.pricing import price_label
 from app.modules.events.services import (
     AccreditationClosedError,
     get_accreditation,
@@ -229,6 +230,12 @@ class EventDetailView(MethodView):
             # pas et n'a rien à faire ici — cette liste est rendue par
             # `event--aside.j2`, que rien ne garde.
             {"label": "Format", "value": MODE_LABELS[item.mode], "href": "events"},
+            # PRX-04 — public, et fonction du lecteur : c'est
+            # l'information qu'on cherche avant de se déplacer.
+            # `getattr` et non `g.user` : un visiteur anonyme est un
+            # lecteur que la règle prévoit — il lit la colonne « autre
+            # membre », c'est-à-dire ce qu'il paierait.
+            {"label": "Tarif", "value": price_label(item, getattr(g, "user", None))},
         ]
         if item.platform:
             data.append({"label": "Plateforme", "value": item.platform})

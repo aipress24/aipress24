@@ -8,9 +8,10 @@ from wtforms import Form, validators
 from wtforms.fields.choices import SelectField
 from wtforms.fields.simple import StringField, TextAreaField
 
-from app.enums import MODE_LABELS, EventMode
+from app.enums import MODE_LABELS, PRICING_LABELS, EventMode, EventPricing
 from app.flask.lib.wtforms.fields import (
     DateTimeField,
+    PriceField,
     RichSelectField,
     RichTextField,
     SimpleRichSelectField,
@@ -602,6 +603,31 @@ class EventForm(Form):
         validators=[validators.Optional()],
     )
 
+    # PRX-01 — comme `mode`, un `SelectField` aux choix déclarés en dur,
+    # portant le **nom** du membre : c'est ce que `sa.Enum` stocke.
+    pricing = SelectField(
+        "Tarif",
+        choices=[(p.name, PRICING_LABELS[p]) for p in EventPricing],
+        default=EventPricing.FREE_FOR_ALL.name,
+        render_kw={"width": 3},
+        validators=[validators.InputRequired()],
+    )
+
+    # PRX-02 — saisi en **euros**, stocké en centimes. La conversion se
+    # fait dans le formulaire (`process_formdata`), jamais dans le
+    # modèle : la base ne connaît que des entiers.
+    #
+    # Le champ n'est pas masqué en Alpine comme la spécification le
+    # suggère : le moteur de rendu ne thread aucun attribut arbitraire
+    # jusqu'au gabarit, seulement `class`. La condition est donc dans
+    # le libellé, comme pour l'adresse et l'URL — et la vraie garde est
+    # côté serveur, dans `publish()`.
+    price = PriceField(
+        "Prix en euros (obligatoire si le tarif n'est pas « gratuit »)",
+        render_kw={"width": 3},
+        validators=[validators.Optional(), validators.NumberRange(min=0.01)],
+    )
+
     # --- Groupe: Dates ---
     start_time = DateTimeField(
         "Date/heure de début de l'événement",
@@ -639,6 +665,8 @@ class EventForm(Form):
                     "pays_zip_ville",
                     "url",
                     "access_details",
+                    "pricing",
+                    "price",
                 ],
             },
             "dates": {

@@ -24,6 +24,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.constants import LOCAL_TZ
+from app.enums import EventPricing
 from app.models.auth import User
 from app.models.lifecycle import PublicationStatus
 from app.models.organisation import Organisation
@@ -369,3 +370,46 @@ class TestCancellationReachesTheMirror:
         ).one()
         assert post.status == PublicationStatus.PUBLIC
         assert post.cancelled_at is None
+
+
+class TestPricingReachesTheMirror:
+    """PRX-01 — la carte et la liste publiques lisent le miroir : sans
+    recopie, un événement payant s'y afficherait gratuit."""
+
+    def test_the_three_columns_travel(
+        self, app, db_session: Session, owner: User
+    ) -> None:
+        event = _make_event(db_session, owner, titre="Salon payant")
+        event.pricing = EventPricing.PAID
+        event.price = 4500
+        db_session.flush()
+
+        with app.test_request_context("/"):
+            event.publish()
+            on_publish_event(event)
+
+        post = db_session.scalars(
+            select(EventPost).where(EventPost.eventroom_id == event.id)
+        ).one()
+        assert post.pricing == EventPricing.PAID
+        assert post.price == 4500
+        assert post.currency == "EUR"
+
+    def test_and_a_price_cleared_at_publication_travels_too(
+        self, app, db_session: Session, owner: User
+    ) -> None:
+        """PRX-03 nettoie le prix résiduel dans `publish()` ; le miroir
+        doit voir la valeur **après** nettoyage, pas avant."""
+        event = _make_event(db_session, owner, titre="Salon redevenu gratuit")
+        event.pricing = EventPricing.FREE_FOR_ALL
+        event.price = 4500
+        db_session.flush()
+
+        with app.test_request_context("/"):
+            event.publish()
+            on_publish_event(event)
+
+        post = db_session.scalars(
+            select(EventPost).where(EventPost.eventroom_id == event.id)
+        ).one()
+        assert post.price is None

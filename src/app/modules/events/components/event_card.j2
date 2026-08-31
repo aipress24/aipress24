@@ -25,11 +25,17 @@
           {% endif %}
           {{event.opening}}
         </div>
-        {% if event.is_accredited %}
-          <span class="shrink-0 inline-flex items-center rounded-full bg-green-100 px-2 py-0.5 text-xs font-medium text-green-800">
-            Accrédité.e
+        <div class="shrink-0 flex items-center gap-2">
+          {# PRX-04 — le tarif, tel que ce lecteur doit le lire. #}
+          <span class="inline-flex items-center rounded bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-700">
+            {{ event.price_label }}
           </span>
-        {% endif %}
+          {% if event.is_accredited %}
+            <span class="inline-flex items-center rounded-full bg-green-100 px-2 py-0.5 text-xs font-medium text-green-800">
+              Accrédité.e
+            </span>
+          {% endif %}
+        </div>
       </div>
 
       {% if event.cancelled_at %}

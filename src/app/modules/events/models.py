@@ -18,7 +18,7 @@ from sqlalchemy.sql import func
 from sqlalchemy_utils import ArrowType
 from sqlalchemy_utils.functions.orm import hybrid_property
 
-from app.enums import EventMode
+from app.enums import EventMode, EventPricing
 from app.models.auth import User
 from app.models.base import Base
 from app.models.content.base import BaseContent
@@ -70,6 +70,17 @@ class EventPostBase(
         info={"group": "metadata"},
     )
     platform: Mapped[str] = mapped_column(default="", info={"group": "metadata"})
+
+    # Tarif (PRX-01 à PRX-06). Prix en **centimes** ; `NULL` = pas de
+    # prix. Public, contrairement à `access_details` : c'est même
+    # l'information qu'un lecteur cherche avant de se déplacer.
+    pricing: Mapped[EventPricing] = mapped_column(
+        sa.Enum(EventPricing),
+        default=EventPricing.FREE_FOR_ALL,
+        info={"group": "metadata"},
+    )
+    price: Mapped[int | None] = mapped_column(default=None)  # centimes
+    currency: Mapped[str] = mapped_column(default="EUR")
     # MOD-02 — la seule donnée d'un événement réservée aux accrédités.
     # Elle est portée par le miroir parce que le rappel de la veille en
     # a besoin (NOT-13), mais **aucun gabarit public ne doit la lire** :

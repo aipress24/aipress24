@@ -120,6 +120,12 @@ def update_post(
     post.platform = info.platform
     post.access_details = info.access_details
 
+    # Tarif. Recopié tel quel, centimes compris : la conversion en
+    # euros appartient à l'affichage, pas au stockage.
+    post.pricing = info.pricing
+    post.price = info.price
+    post.currency = info.currency
+
     # Annulation (ANN-04) : le miroir barre l'annonce, il lui faut donc
     # la date et le motif. Aucun des deux n'est surveillé par NOT-11 —
     # une annulation n'est pas un changement d'horaire, elle a sa

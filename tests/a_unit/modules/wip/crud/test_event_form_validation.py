@@ -40,7 +40,7 @@ from typing import TYPE_CHECKING
 import pytest
 from werkzeug.datastructures import ImmutableMultiDict
 
-from app.enums import EventMode
+from app.enums import EventMode, EventPricing
 from app.modules.wip.crud.cbvs._forms import EventForm
 
 if TYPE_CHECKING:
@@ -85,6 +85,7 @@ def _make_form(app: Flask, data: dict | None = None) -> EventForm:
     # `RichSelectField`.
     payload = dict(data or {})
     payload.setdefault("mode", EventMode.ON_SITE.name)
+    payload.setdefault("pricing", EventPricing.FREE_FOR_ALL.name)
     payload = ImmutableMultiDict(payload)
     with app.test_request_context():
         form = EventForm(payload)
@@ -304,6 +305,8 @@ class TestFormShape:
             "topic",
             "mode",
             "platform",
+            "pricing",
+            "price",
             "address",
             "pays_zip_ville",
             "url",

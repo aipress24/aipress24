@@ -40,7 +40,7 @@ import arrow
 import pytest
 import sqlalchemy as sa
 
-from app.enums import EventMode
+from app.enums import EventMode, EventPricing
 from app.models.lifecycle import PublicationStatus
 from app.modules.wip.models.eventroom.event import DRAFT, Event, EventImage
 
@@ -227,6 +227,8 @@ class _EventStub:
     # test ne prouverait que la copie.
     REQUIRED_BY_MODE = Event.REQUIRED_BY_MODE
     _require_fields_for_mode = Event._require_fields_for_mode
+    _settle_price = Event._settle_price
+    check_publishable = Event.check_publishable
 
     def __init__(self, **kwargs):
         # Sensible defaults for a happy-path draft event
@@ -242,6 +244,9 @@ class _EventStub:
         # MOD-01 : le mode par défaut exige une adresse pour publier.
         self.mode = EventMode.ON_SITE
         self.address = "1 rue de la Paix, Paris"
+        # PRX-01 : gratuit pour tout le monde, donc sans prix.
+        self.pricing = EventPricing.FREE_FOR_ALL
+        self.price = None
         self.url = ""
         self.platform = ""
         self.access_details = ""

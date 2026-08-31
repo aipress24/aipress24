@@ -2,7 +2,8 @@
 #
 # SPDX-License-Identifier: AGPL-3.0-only
 
-"""Le filtre « Format » — `MOD-04`.
+"""Les filtres adossés à une énumération — « Format » (`MOD-04`) et
+« Tarif » (`PRX-06`).
 
 Le filtre porte une colonne d'**énumération**, ce qu'aucun autre filtre
 ne fait. Deux conséquences, et deux tests :
@@ -21,7 +22,7 @@ from typing import TYPE_CHECKING
 import arrow
 import pytest
 
-from app.enums import EventMode
+from app.enums import EventMode, EventPricing
 from app.models.auth import User
 from app.models.lifecycle import PublicationStatus
 from app.modules.events.models import EventPost
@@ -31,6 +32,7 @@ from app.modules.events.views._filters import (
     FilterBar,
     _get_distinct_values,
     mode_label,
+    pricing_label,
 )
 
 if TYPE_CHECKING:
@@ -120,3 +122,41 @@ class TestTheOptionsAreReadable:
         """Sans entrée, l'étiquette s'affiche « : en présentiel », avec
         un deux-points orphelin en tête."""
         assert FILTER_TAG_LABEL["mode"] == "format"
+
+
+class TestThePricingFilter:
+    """PRX-06 — même forme que « Format », et le même piège : une
+    colonne d'énumération."""
+
+    def test_its_options_can_be_computed(
+        self, app: Flask, db_session: Session, owner: User
+    ) -> None:
+        free = _event(db_session, owner, "Gratuit", EventMode.ON_SITE)
+        paid = _event(db_session, owner, "Payant", EventMode.ON_SITE)
+        paid.pricing = EventPricing.PAID
+        paid.price = 4500
+        db_session.flush()
+
+        with app.test_request_context("/events/"):
+            values = _get_distinct_values("pricing")
+
+        assert set(values) == {EventPricing.FREE_FOR_ALL, EventPricing.PAID}
+        assert free.pricing == EventPricing.FREE_FOR_ALL
+
+    def test_the_dropdown_shows_french_labels(
+        self, app: Flask, db_session: Session, owner: User
+    ) -> None:
+        _event(db_session, owner, "Gratuit", EventMode.ON_SITE)
+
+        with app.test_request_context("/events/"):
+            filters = FilterBar().get_filters()
+
+        options = next(f for f in filters if f["id"] == "pricing")["options"]
+        assert [o["label"] for o in options] == ["Gratuit"]
+
+    def test_the_label_serves_both_types(self) -> None:
+        assert pricing_label(EventPricing.PAID) == "Payant"
+        assert pricing_label("paid") == "Payant"
+
+    def test_the_active_filter_has_a_tag_label(self) -> None:
+        assert FILTER_TAG_LABEL["pricing"] == "tarif"

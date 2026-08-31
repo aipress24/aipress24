@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import arrow
 
+from app.enums import EventPricing
 from app.modules.events.components.event_card import (
     DEFAULT_LOGO_URL,
     EventCard,
@@ -93,7 +94,14 @@ class StubEvent:
         like_count=0,
         comment_count=0,
         view_count=0,
+        pricing=EventPricing.FREE_FOR_ALL,
+        price=None,
     ):
+        # PRX-04 : le tarif est calculé par `EventCardVM` pour tous les
+        # chemins de rendu, il fait donc partie du contrat de la carte.
+        self.pricing = pricing
+        self.price = price
+        self.currency = "EUR"
         self.start_datetime = start_datetime or arrow.get("2024-01-15 10:00:00")
         self.end_datetime = end_datetime or arrow.get("2024-01-15 12:00:00")
         self.owner = owner or StubOwner()
@@ -207,6 +215,9 @@ class TestEventCardVM:
                 self.like_count = 0
                 self.comment_count = 0
                 self.view_count = 0
+                self.pricing = EventPricing.FREE_FOR_ALL
+                self.price = None
+                self.currency = "EUR"
 
         event = StubEventNoMeta()
 

@@ -14,7 +14,7 @@ from sqlalchemy import event as sa_event, orm
 from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy_utils import ArrowType
 
-from app.enums import MODE_LABELS, EventMode
+from app.enums import MODE_LABELS, PRICING_LABELS, EventMode, EventPricing
 from app.lib.file_object_utils import media_url
 from app.models.base import Base
 from app.models.lifecycle import PublicationStatus
@@ -131,6 +131,16 @@ class Event(IdMixin, LifeCycleMixin, Owned, Base):
     # non accrédité, ni l'index de recherche ne doivent la voir.
     access_details: Mapped[str] = mapped_column(default="")
 
+    # Tarif (PRX-01). `price` est en **centimes**, comme les budgets de
+    # `biz/models/_offers.py` : aucun montant ne transite en flottant.
+    # `NULL` veut dire « pas de prix », ce qui est le cas de tout
+    # événement gratuit pour tout le monde (PRX-03).
+    pricing: Mapped[EventPricing] = mapped_column(
+        sa.Enum(EventPricing), default=EventPricing.FREE_FOR_ALL
+    )
+    price: Mapped[int | None] = mapped_column(default=None)  # centimes
+    currency: Mapped[str] = mapped_column(default="EUR")
+
     # Localisation
     address: Mapped[str] = mapped_column(default="")
     pays_zip_ville: Mapped[str] = mapped_column(default="")
@@ -181,6 +191,25 @@ class Event(IdMixin, LifeCycleMixin, Owned, Base):
         """Check if event can be published."""
         return bool(self.status == PublicationStatus.DRAFT)
 
+    def check_publishable(self) -> None:
+        """Les règles qu'un événement **publié** ne doit jamais violer.
+
+        Extraites de `publish()` pour être rejouables à l'édition : sans
+        cela, un organisateur pouvait publier un événement valide, puis
+        le modifier vers un état que la publication aurait refusé — un
+        présentiel sans adresse (MOD-01), un tarif payant sans prix
+        (PRX-02) — et cet état partait sur la carte. Les règles
+        gouvernent l'**état publié**, pas l'instant de la publication.
+
+        Un brouillon reste librement incomplet : c'est ce qu'est un
+        brouillon.
+
+        Raises:
+            ValueError: un champ requis manque.
+        """
+        self._require_fields_for_mode()
+        self._settle_price()
+
     def publish(self, publisher_id: int | None = None) -> None:
         """
         Publish the event.
@@ -204,7 +233,7 @@ class Event(IdMixin, LifeCycleMixin, Owned, Base):
             msg = "Cannot publish event: contenu is required"
             raise ValueError(msg)
 
-        self._require_fields_for_mode()
+        self.check_publishable()
 
         # Bug #0172 — BUSINESS RULE: an event without dates would be
         # silently filtered out of the public /events/ list (the
@@ -289,6 +318,32 @@ class Event(IdMixin, LifeCycleMixin, Owned, Base):
             f"{MODE_LABELS[self.mode]}, il manque {', '.join(missing)}."
         )
         raise ValueError(msg)
+
+    #: Tarifs qui exigent un prix pour être publiés (PRX-02).
+    PRICED = (EventPricing.FREE_FOR_JOURNALISTS, EventPricing.PAID)
+
+    def _settle_price(self) -> None:
+        """Arrêter le prix à la publication (PRX-02, PRX-03).
+
+        Deux règles inséparables, d'où une seule méthode : un tarif
+        payant exige un prix strictement positif, et un tarif gratuit
+        pour tout le monde n'en garde aucun — même si le formulaire en
+        portait un, ce qui arrive dès qu'on saisit un montant puis
+        qu'on repasse le tarif à « gratuit ».
+
+        Raises:
+            ValueError: tarif payant sans prix, ou prix négatif ou nul.
+        """
+        if self.pricing == EventPricing.FREE_FOR_ALL:
+            self.price = None
+            return
+
+        if not self.price or self.price <= 0:
+            msg = (
+                "Impossible de publier : un événement "
+                f"« {PRICING_LABELS[self.pricing].lower()} » demande un prix."
+            )
+            raise ValueError(msg)
 
     def can_unpublish(self) -> bool:
         """Check if event can be unpublished."""
@@ -445,14 +500,14 @@ class Event(IdMixin, LifeCycleMixin, Owned, Base):
 
 
 @sa_event.listens_for(Event, "init")
-def _default_mode(target, _args, kwargs) -> None:
-    """Donner son mode à un événement dès sa construction.
+def _default_enums(target, _args, kwargs) -> None:
+    """Donner ses valeurs par défaut à un événement dès sa construction.
 
     Le `default=` de `mapped_column` n'est posé qu'à l'insertion : avant
-    le premier flush, `Event().mode` vaut `None`, et la validation de
-    MOD-01 n'a alors aucune ligne à consulter. Ce n'est pas un détail de
-    test — l'API construit un événement et le publie dans la même
-    transaction, sans flush intermédiaire.
+    le premier flush, `Event().mode` vaut `None`, et les validations de
+    MOD-01 et PRX-02 n'ont alors aucune ligne à consulter. Ce n'est pas
+    un détail de test — l'API construit un événement et le publie dans
+    la même transaction, sans flush intermédiaire.
 
     Le statut souffre du même défaut et s'en tire par accident :
     `can_publish()` compare `None` à `DRAFT`, ce qui est faux, et refuse
@@ -460,6 +515,11 @@ def _default_mode(target, _args, kwargs) -> None:
     table indexée par la valeur.
     """
     kwargs.setdefault("mode", EventMode.ON_SITE)
+    kwargs.setdefault("pricing", EventPricing.FREE_FOR_ALL)
+    # `currency` aussi : le récepteur recopie `info.currency` tel quel
+    # vers une colonne `NOT NULL` du miroir, et l'API construit puis
+    # publie sans flush intermédiaire.
+    kwargs.setdefault("currency", "EUR")
 
 
 class EventImage(IdMixin, LifeCycleMixin, Owned, Base):

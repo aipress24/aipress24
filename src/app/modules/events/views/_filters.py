@@ -12,7 +12,7 @@ import sqlalchemy as sa
 from flask import request, session
 from werkzeug.exceptions import BadRequest
 
-from app.enums import MODE_LABELS
+from app.enums import MODE_LABELS, PRICING_LABELS
 from app.flask.extensions import db
 from app.models.lifecycle import PublicationStatus
 from app.modules.events.models import EventPost
@@ -34,6 +34,15 @@ def mode_label(value) -> str:
     `EventMode(value)` ou `value.name` casserait sur l'un des deux.
     """
     return MODE_LABELS.get(value, str(value))
+
+
+def pricing_label(value) -> str:
+    """Le libellé français d'une modalité tarifaire (PRX-06).
+
+    Comme `mode_label` : appelée tantôt avec un membre d'`EventPricing`,
+    tantôt avec la chaîne restaurée depuis la session.
+    """
+    return PRICING_LABELS.get(value, str(value))
 
 
 FILTER_SPECS: list[dict] = [
@@ -66,6 +75,12 @@ FILTER_SPECS: list[dict] = [
         "label_function": mode_label,
     },
     {
+        "id": "pricing",
+        "label": "Tarif",
+        "column": "pricing",
+        "label_function": pricing_label,
+    },
+    {
         "id": "pays_zip_ville",
         "label": "Pays",
         "column": "pays_zip_ville",
@@ -92,6 +107,7 @@ SORTER_OPTIONS = [
 
 FILTER_TAG_LABEL = {
     "mode": "format",
+    "pricing": "tarif",
     "sector": "secteur",
     "genre": "type",
     "pays_zip_ville": "pays",
