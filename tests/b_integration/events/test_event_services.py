@@ -9,11 +9,14 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 import pytest
-import sqlalchemy as sa
 
 from app.models.auth import KYCProfile, User
 from app.models.organisation import Organisation
-from app.modules.events.models import EventPost, participation_table
+from app.modules.events.models import (
+    Accreditation,
+    AccreditationStatus,
+    EventPost,
+)
 from app.modules.events.services import get_participants
 from app.services.social_graph import adapt
 
@@ -84,10 +87,12 @@ class TestGetParticipants:
     ):
         """Test getting a single participant."""
         # Add one participant
-        stmt = sa.insert(participation_table).values(
-            user_id=test_users[0].id, event_id=test_event.id
+        stmt = Accreditation(
+            user_id=test_users[0].id,
+            event_id=test_event.id,
+            status=AccreditationStatus.ACCEPTED,
         )
-        db_session.execute(stmt)
+        db_session.add(stmt)
         db_session.flush()
 
         participants = get_participants(test_event)
@@ -102,10 +107,12 @@ class TestGetParticipants:
         """Test getting multiple participants."""
         # Add three participants
         for i in range(3):
-            stmt = sa.insert(participation_table).values(
-                user_id=test_users[i].id, event_id=test_event.id
+            stmt = Accreditation(
+                user_id=test_users[i].id,
+                event_id=test_event.id,
+                status=AccreditationStatus.ACCEPTED,
             )
-            db_session.execute(stmt)
+            db_session.add(stmt)
         db_session.flush()
 
         participants = get_participants(test_event)
@@ -120,10 +127,12 @@ class TestGetParticipants:
         """Test limiting number of participants returned."""
         # Add five participants
         for i in range(5):
-            stmt = sa.insert(participation_table).values(
-                user_id=test_users[i].id, event_id=test_event.id
+            stmt = Accreditation(
+                user_id=test_users[i].id,
+                event_id=test_event.id,
+                status=AccreditationStatus.ACCEPTED,
             )
-            db_session.execute(stmt)
+            db_session.add(stmt)
         db_session.flush()
 
         participants = get_participants(test_event, limit=3)
@@ -136,10 +145,12 @@ class TestGetParticipants:
         """Test ordering participants."""
         # Add participants in random order
         for i in [2, 0, 1]:
-            stmt = sa.insert(participation_table).values(
-                user_id=test_users[i].id, event_id=test_event.id
+            stmt = Accreditation(
+                user_id=test_users[i].id,
+                event_id=test_event.id,
+                status=AccreditationStatus.ACCEPTED,
             )
-            db_session.execute(stmt)
+            db_session.add(stmt)
         db_session.flush()
 
         # Order by email ascending
@@ -156,10 +167,12 @@ class TestGetParticipants:
         """Test ordering participants in descending order."""
         # Add participants
         for i in range(3):
-            stmt = sa.insert(participation_table).values(
-                user_id=test_users[i].id, event_id=test_event.id
+            stmt = Accreditation(
+                user_id=test_users[i].id,
+                event_id=test_event.id,
+                status=AccreditationStatus.ACCEPTED,
             )
-            db_session.execute(stmt)
+            db_session.add(stmt)
         db_session.flush()
 
         # Order by email descending
@@ -176,10 +189,12 @@ class TestGetParticipants:
         """Test combining limit and order_by."""
         # Add five participants
         for i in range(5):
-            stmt = sa.insert(participation_table).values(
-                user_id=test_users[i].id, event_id=test_event.id
+            stmt = Accreditation(
+                user_id=test_users[i].id,
+                event_id=test_event.id,
+                status=AccreditationStatus.ACCEPTED,
             )
-            db_session.execute(stmt)
+            db_session.add(stmt)
         db_session.flush()
 
         # Get first 2 participants ordered by email
@@ -200,14 +215,18 @@ class TestGetParticipants:
         db_session.flush()
 
         # Add different participants to each event
-        stmt1 = sa.insert(participation_table).values(
-            user_id=test_users[0].id, event_id=event1.id
+        stmt1 = Accreditation(
+            user_id=test_users[0].id,
+            event_id=event1.id,
+            status=AccreditationStatus.ACCEPTED,
         )
-        stmt2 = sa.insert(participation_table).values(
-            user_id=test_users[1].id, event_id=event2.id
+        stmt2 = Accreditation(
+            user_id=test_users[1].id,
+            event_id=event2.id,
+            status=AccreditationStatus.ACCEPTED,
         )
-        db_session.execute(stmt1)
-        db_session.execute(stmt2)
+        db_session.add(stmt1)
+        db_session.add(stmt2)
         db_session.flush()
 
         # Verify isolation
@@ -225,10 +244,12 @@ class TestGetParticipants:
     ):
         """Test that return type is a list."""
         # Add one participant
-        stmt = sa.insert(participation_table).values(
-            user_id=test_users[0].id, event_id=test_event.id
+        stmt = Accreditation(
+            user_id=test_users[0].id,
+            event_id=test_event.id,
+            status=AccreditationStatus.ACCEPTED,
         )
-        db_session.execute(stmt)
+        db_session.add(stmt)
         db_session.flush()
 
         participants = get_participants(test_event)

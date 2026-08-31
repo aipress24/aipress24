@@ -260,11 +260,24 @@ def _press_releases_for_org_clause(org_id: int):
 
 
 def _events_for_org_clause(org_id: int):
-    """Same dual-case clause for events: direct publisher OR delegated
-    publication by a user member of the org (PR agency on behalf of a
-    client). See #0135."""
+    """Les événements d'une organisation, à trois titres.
+
+    Éditrice (`publisher`), organisatrice (`organiser`, ORG-05), ou
+    éditrice déléguée — une agence RP dont un membre a saisi
+    l'événement pour un client (#0135).
+
+    Le deuxième cas est celui qu'ajoute le lot C7 : quand une agence
+    publie pour son client, l'événement doit apparaître sur les **deux**
+    Business Walls, et `or_` s'en charge sans doublon puisque la clause
+    filtre des lignes, pas des jointures.
+
+    Attention : cette clause ne filtre **pas** sur le statut. Les trois
+    appelants la combinent avec `status == PUBLIC` ; c'est la moitié
+    réutilisable, donc celle qu'un futur appelant oubliera de compléter.
+    """
     return or_(
         EventPost.publisher_id == org_id,
+        EventPost.organiser_id == org_id,
         and_(
             EventPost.publisher_id != org_id,
             EventPost.owner.has(User.organisation_id == org_id),
@@ -707,14 +720,13 @@ class OrgVM(ViewModel):
         member_ids = self._member_ids()
         if not member_ids:
             return []
-        from app.modules.events.models import EventPost, participation_table
+        from app.modules.events.models import EventPost
+        from app.modules.events.services import accredited_event_ids
 
         # `id IN (subquery)` rather than a join + DISTINCT: DISTINCT over the
         # full row breaks on PostgreSQL (EventPost has `json` columns, which
         # have no equality operator), and the semi-join dedupes anyway.
-        event_ids = select(participation_table.c.event_id).where(
-            participation_table.c.user_id.in_(member_ids)
-        )
+        event_ids = accredited_event_ids(member_ids)
         stmt = (
             select(EventPost)
             .where(EventPost.id.in_(event_ids))

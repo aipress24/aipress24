@@ -7,14 +7,12 @@
 from __future__ import annotations
 
 from collections.abc import Callable
-from decimal import Decimal
 from typing import TYPE_CHECKING, ClassVar, cast
 
 import arrow
 import sqlalchemy as sa
 import stripe
 from attr import field, frozen
-from babel.numbers import format_currency
 from cachetools import TTLCache
 from flask import (
     current_app,
@@ -60,6 +58,7 @@ from app.services.social_graph import SocialUser, adapt
 from app.services.stripe.utils import load_stripe_api_key
 from app.services.tagging import get_tags
 from app.services.tracking import record_view
+from app.ui.money import format_cents
 
 # Cache formatted Stripe price strings for the paywall button.
 _CONSULTATION_PRICE_CACHE: TTLCache[str, str] = TTLCache(maxsize=256, ttl=3600)
@@ -78,12 +77,7 @@ def _fetch_consultation_price(price_id: str) -> str:
         live_price = stripe.Price.retrieve(price_id)
         if live_price.unit_amount is None:
             return ""
-        amount = Decimal(live_price.unit_amount) / Decimal(100)
-        display = format_currency(
-            amount,
-            live_price.currency.upper(),
-            locale="fr_FR",
-        ).replace(" ", " ")
+        display = format_cents(live_price.unit_amount, live_price.currency)
     except StripeError as exc:
         warn(f"item: failed to retrieve price {price_id}: {exc}")
         return ""

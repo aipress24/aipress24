@@ -26,10 +26,8 @@ mock, not the SQL. So we drive the real engine via the autouse
 ``db_session`` fixture (savepoint rollback after every test) and assert on
 tangible row state.
 
-Only true ``EventPost`` rows can participate — the association table
-FKs ``event_id`` to ``evt_event_post.id``, and the sibling classes
-``PublicEvent`` / ``PressEvent`` write to their own tables and never
-land in ``evt_event_post``.
+Only ``EventPost`` rows can participate — the association table FKs
+``event_id`` to ``evt_event_post.id``.
 """
 
 from __future__ import annotations
@@ -41,8 +39,9 @@ import sqlalchemy as sa
 
 from app.models.auth import User
 from app.modules.events.models import (
+    Accreditation,
+    AccreditationStatus,
     EventPost,
-    participation_table,
 )
 from app.modules.events.services import (
     add_participant,
@@ -84,9 +83,10 @@ def event(db_session: Session, users: list[User]) -> EventPost:
 
 
 def _participation_row_count(db_session: Session, event_id: int) -> int:
-    """Count rows in the association table for a given event (state probe)."""
+    """Count accredited members for a given event (state probe)."""
     stmt = sa.select(sa.func.count()).where(
-        participation_table.c.event_id == event_id,
+        Accreditation.event_id == event_id,
+        Accreditation.status == AccreditationStatus.ACCEPTED,
     )
     return db_session.execute(stmt).scalar() or 0
 
@@ -131,13 +131,13 @@ class TestAddParticipantRoundTrip:
 
         assert _participation_row_count(db_session, event.id) == len(users)
 
-    # NOTE: an earlier `test_works_for_concrete_subclasses[PublicEvent | PressEvent]`
-    # was deleted. Its premise was wrong: `PublicEvent` and `PressEvent` are
-    # siblings of `EventPost`, not subclasses — they write to their own tables
-    # (`evt_public_event` / `evt_press_event`) and never land in `evt_event_post`.
-    # `participation_table.event_id` FKs to `EventPost.id`, so the SUT only
-    # supports true `EventPost` instances. SQLite skipped the FK check ; Postgres
-    # surfaced the violation. The behaviour is correct ; the test was buggy.
+    # NOTE: an earlier `test_works_for_concrete_subclasses` was deleted.
+    # Its premise was wrong: the five event subtypes were siblings of
+    # `EventPost`, not subclasses — they wrote to their own tables and
+    # never landed in `evt_event_post`, which is what
+    # `Accreditation.event_id` FKs to. SQLite skipped the FK check ;
+    # Postgres surfaced the violation. Those classes are gone since lot
+    # C0b ; only `EventPost` remains.
 
 
 # ----------------------------------------------------------------

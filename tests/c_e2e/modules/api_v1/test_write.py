@@ -474,6 +474,9 @@ def test_event_publish_with_dates_creates_mirror(
         contenu="<p>Body</p>",
         start_time=start,
         end_time=end,
+        # MOD-01 : le mode par défaut est « en présentiel », qui exige
+        # une adresse pour être publié.
+        address="1 rue de la Paix, Paris",
     )
     resp = client.post(
         f"/api/v1/me/events/{created['id']}/publish",

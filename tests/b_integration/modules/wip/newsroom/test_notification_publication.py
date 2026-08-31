@@ -138,12 +138,24 @@ class TestNotificationCreation:
         )
         db_session.add(notification)
         db_session.flush()
+        after = datetime.now(UTC)
 
         assert notification.notified_at is not None
-        # notified_at should be around the time of creation
-        notified_utc = notification.notified_at.replace(tzinfo=UTC)
-        # Allow some tolerance for timezone differences
-        assert notified_utc.date() == before.date()
+        # Le modèle horodate en heure de Paris — délibérément, l'écran
+        # `publication_notifications_index.j2` affiche la valeur telle
+        # quelle à un lecteur français. On compare donc des *instants*,
+        # pas des heures murales.
+        #
+        # L'assertion précédente faisait `.replace(tzinfo=UTC)`, qui
+        # ré-étiquette au lieu de convertir, puis comparait des dates :
+        # elle échouait chaque nuit entre 22 h et minuit UTC, quand
+        # Paris a changé de jour et pas UTC. Son commentaire — « Allow
+        # some tolerance for timezone differences » — le laissait déjà
+        # entendre.
+        notified = notification.notified_at
+        if notified.tzinfo is None:
+            notified = notified.astimezone()
+        assert before <= notified.astimezone(UTC) <= after
 
     def test_notification_has_owner(self, db_session: scoped_session) -> None:
         """The notification is linked to the journalist (owner)."""

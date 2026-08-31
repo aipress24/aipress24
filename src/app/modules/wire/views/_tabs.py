@@ -9,6 +9,7 @@ from collections.abc import Iterable
 from operator import itemgetter
 from typing import ClassVar
 
+import arrow
 import sqlalchemy as sa
 from flask import g, session
 from pipe import groupby
@@ -32,7 +33,11 @@ from app.modules.wire.models import (
 )
 from app.services.social_graph import adapt
 
-from ._filters import FilterBar
+from ._filters import (
+    CONTENT_KIND_ARTICLES,
+    CONTENT_KIND_EVENTS,
+    FilterBar,
+)
 
 # Allowed filter fields for ORM queries - prevents arbitrary attribute access
 ALLOWED_FILTER_FIELDS = {
@@ -184,6 +189,15 @@ class Tab(abc.ABC):
 
 
 class WallTab(Tab):
+    """Le fil personnalisé — le seul onglet qui mêle plusieurs natures
+    de contenu (WIR-01).
+
+    Les quatre autres onglets qualifient des **sources de presse** :
+    agences, médias, journalistes, communicants. Un événement
+    n'appartient à aucune, et c'est pourquoi il n'entre que dans
+    celui-ci.
+    """
+
     id = "wall"
     label = "All"
     tip = "Fil d'actus"
@@ -191,6 +205,100 @@ class WallTab(Tab):
 
     def get_authors(self):
         return []
+
+    def get_posts(self, filter_bar: FilterBar) -> list:
+        """Les publications du fil, événements compris (WIR-01, W1).
+
+        Une seconde requête fusionnée, et non un héritage de `Post` :
+        `EventPost` descend de `BaseContent` par une autre branche, et
+        l'aligner ferait porter à une table peuplée le coût d'un simple
+        affichage (arbitrage `M2`, option W1).
+
+        **Uniquement dans l'ordre chronologique.** Les autres tris
+        classent des articles — ventes, consultations payantes — et
+        n'ont pas d'équivalent sur un événement ; les y mêler
+        ordonnerait deux listes selon deux critères différents. Sous ces
+        tris, le fil reste ce qu'il était.
+        """
+        kinds = _selected_content_kinds(filter_bar)
+
+        # Chaque nature écartée est une requête qu'on n'émet pas, plutôt
+        # qu'un résultat qu'on jette.
+        posts = super().get_posts(filter_bar) if CONTENT_KIND_ARTICLES in kinds else []
+        if CONTENT_KIND_EVENTS not in kinds or filter_bar.sort_order != "date":
+            return posts
+
+        events = _wall_events(filter_bar)
+        merged = [*posts, *events]
+        merged.sort(key=_published_at_key, reverse=True)
+        return merged[:DEFAULT_POSTS_LIMIT]
+
+
+def _selected_content_kinds(filter_bar: FilterBar) -> set[str]:
+    """Les natures de contenu retenues par le filtre (WIR-05).
+
+    Aucune sélection vaut « toutes » : c'est le comportement de tous les
+    autres filtres de cette barre, et un fil vide par défaut serait une
+    surprise désagréable.
+    """
+    chosen = {
+        f["value"] for f in filter_bar.active_filters if f["id"] == "content_kind"
+    }
+    return chosen or {CONTENT_KIND_ARTICLES, CONTENT_KIND_EVENTS}
+
+
+def _published_at_key(item):
+    """La date de publication, comparable entre natures de contenu.
+
+    `None` retombe sur l'origine des temps plutôt que d'interrompre le
+    tri : un contenu public sans date de publication est une anomalie de
+    données, pas une raison de vider le fil de tout le monde.
+    """
+    return item.published_at or arrow.get(0)
+
+
+def _wall_events(filter_bar: FilterBar) -> list:
+    """Les événements éligibles au fil (WIR-03).
+
+    Publics, non annulés, à venir. Les deux autres critères que la règle
+    énonce — « son organisateur ou son éditeur fait partie des
+    organisations suivies », « son secteur figure parmi les secteurs
+    suivis » — décrivent une personnalisation que **le Wall n'a pour
+    aucun contenu** : il liste toutes les publications publiques,
+    `get_authors()` y rend une liste vide, et rien dans le dépôt ne
+    permet de suivre un secteur. Les appliquer aux seuls événements les
+    rendrait moins visibles que les articles, ce qui est l'inverse de
+    l'intention.
+    """
+    from app.modules.events.models import EventPost
+
+    now = arrow.utcnow()
+    stmt = (
+        sa.select(EventPost)
+        .where(EventPost.status == PublicationStatus.PUBLIC)
+        .where(EventPost.cancelled_at.is_(None))
+        .where(EventPost.start_datetime >= now)
+        .order_by(EventPost.published_at.desc())
+        .options(
+            selectinload(EventPost.owner).options(
+                selectinload(User.organisation),
+                selectinload(User.profile),
+                selectinload(User.roles),
+            ),
+            selectinload(EventPost.publisher),
+        )
+        .limit(DEFAULT_POSTS_LIMIT)
+    )
+
+    for filter_id, filter_values in filter_bar.active_filters | groupby(
+        itemgetter("id")
+    ):
+        if filter_id not in ALLOWED_FILTER_FIELDS:
+            continue
+        values = {f["value"] for f in filter_values}
+        stmt = stmt.where(getattr(EventPost, filter_id).in_(values))
+
+    return list(db.session.scalars(stmt))
 
 
 class AgenciesTab(Tab):

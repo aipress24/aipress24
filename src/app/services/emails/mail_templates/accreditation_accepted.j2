@@ -1,0 +1,23 @@
+<p>
+Bonjour {{ recipient_full_name }},
+</p>
+
+<p>
+Votre demande d'accréditation à l'événement
+<strong>« {{ event_title }} »</strong>{% if event_date %} du
+{{ event_date }}{% endif %} a été acceptée par son organisateur.
+</p>
+
+<p>
+Le détail de l'événement — lieu, horaires, modalités d'accès — est sur
+sa page&nbsp;: <a href="{{ event_url }}">{{ event_url }}</a>.
+</p>
+
+<p>
+Si vous ne pouvez finalement pas y assister, merci de vous désinscrire
+depuis cette même page&nbsp;: cela libère votre place.
+</p>
+
+<p>
+L'équipe AiPRESS24
+</p>

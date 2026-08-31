@@ -7,7 +7,23 @@
 
 
       <div class="text-gray-50">
-        <h1 class="text-2xl font-bold my-2">
+        {# ANN-04 — le bandeau vit ici et non dans le corps de la page :
+           `event--main.j2` est masqué aux membres hors audience (RG-02),
+           qui doivent pourtant apprendre que l'événement est annulé,
+           l'annonce elle-même leur restant visible (RG-01). #}
+        {% if event.cancelled_at %}
+          <div class="my-2 rounded bg-red-50 border border-red-200 p-3 text-red-800">
+            <p class="font-semibold">Événement annulé</p>
+            {% if event.cancellation_reason %}
+              <p class="text-sm mt-1">{{ event.cancellation_reason }}</p>
+            {% endif %}
+            <p class="text-xs mt-1 text-red-700">
+              Annulation annoncée le {{ event.cancelled_at|localdt }}.
+            </p>
+          </div>
+        {% endif %}
+
+        <h1 class="text-2xl font-bold my-2{% if event.cancelled_at %} line-through{% endif %}">
           {{ event.title }}
         </h1>
 
@@ -23,26 +39,7 @@
         </div>
       </div>
 
-      {# Bug #127: self-accreditation, journalists only. #}
-      {% if can_accredit %}
-        <div>
-          <button
-              id="accredit-button-{{ event.id }}"
-              type="button"
-              class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-gray-900 bg-white hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-900"
-              hx-post="{{ request.path }}"
-              hx-vals='{"action": "toggle-participate"}'
-              hx-target="this"
-              hx-swap="innerHTML"
-          >
-            {% if is_participating %}
-              Annuler mon accréditation
-            {% else %}
-              S'accréditer
-            {% endif %}
-          </button>
-        </div>
-      {% endif %}
+      {% include "pages/event--accreditation.j2" %}
     </div>
   </div>
 </section>
