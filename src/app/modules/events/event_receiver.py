@@ -113,6 +113,13 @@ def update_post(
     post.audience = list(info.audience or [])
     post.category = event_type_to_category(info.event_type)
 
+    # Annulation (ANN-04) : le miroir barre l'annonce, il lui faut donc
+    # la date et le motif. Aucun des deux n'est surveillé par NOT-11 —
+    # une annulation n'est pas un changement d'horaire, elle a sa
+    # propre notification (NOT-05), émise par la route qui l'a décidée.
+    post.cancelled_at = info.cancelled_at
+    post.cancellation_reason = info.cancellation_reason
+
     post.url = info.url
     post.language = info.language
 

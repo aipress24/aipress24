@@ -82,6 +82,10 @@ def claim_due_reminders(
         .where(EventPost.status == PublicationStatus.PUBLIC)
         .where(EventPost.start_datetime >= day_start)
         .where(EventPost.start_datetime < day_start.shift(days=1))
+        # NOT-15 — un événement annulé reste `PUBLIC` (ANN-03) : sans
+        # cette clause, ses accrédités recevraient « a lieu demain » le
+        # lendemain de l'annonce de l'annulation.
+        .where(EventPost.cancelled_at.is_(None))
     )
 
     # Matérialisé : la réservation ouvre une sous-transaction, ce qui

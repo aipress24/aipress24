@@ -61,6 +61,15 @@ class EventPostBase(
     audience: Mapped[list[str]] = mapped_column(
         sa.JSON, default=list, info={"group": "metadata"}
     )
+
+    # Annulation (ANN-03, ANN-04). Recopiée du modèle de saisie parce
+    # que la liste, le calendrier et le Business Wall lisent le miroir :
+    # ils doivent pouvoir barrer l'annonce sans jointure. Le statut
+    # reste `PUBLIC` — l'annonce ne disparaît pas, elle se barre.
+    cancelled_at: Mapped[arrow.Arrow | None] = mapped_column(
+        ArrowType(timezone=True), nullable=True
+    )
+    cancellation_reason: Mapped[str] = mapped_column(default="")
     # First part of the enven_type
     # ie:   event_type = "Business / Forum
     #       category = "business"

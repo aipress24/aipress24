@@ -302,3 +302,70 @@ class TestCategoryDerivationOnPublish:
         ).scalar_one()
         assert post.category == expected_category
         assert post.genre == event_type
+
+
+class TestCancellationReachesTheMirror:
+    """ANN-04 — la décision se prend sur le modèle de saisie, mais tout
+    ce qui affiche l'annonce lit le miroir. Sans cette recopie, annuler
+    un événement publié ne changerait rien pour personne."""
+
+    def test_cancelling_a_published_event_marks_the_post(
+        self, app, db_session: Session, owner: User
+    ) -> None:
+        event = _make_event(db_session, owner, titre="Conf annulée")
+        with app.test_request_context("/"):
+            event.publish()
+            on_publish_event(event)
+            post = db_session.scalars(
+                select(EventPost).where(EventPost.eventroom_id == event.id)
+            ).one()
+            assert post.cancelled_at is None
+
+            event.cancel("Grève des transports")
+            on_update_event(event)
+
+        assert post.cancelled_at is not None
+        assert post.cancellation_reason == "Grève des transports"
+        assert post.status == PublicationStatus.PUBLIC, "ANN-03"
+
+    def test_restoring_clears_the_mirror_too(
+        self, app, db_session: Session, owner: User
+    ) -> None:
+        event = _make_event(db_session, owner, titre="Conf rétablie")
+        with app.test_request_context("/"):
+            event.publish()
+            on_publish_event(event)
+            event.cancel("Erreur de date")
+            on_update_event(event)
+            event.restore()
+            on_update_event(event)
+
+        post = db_session.scalars(
+            select(EventPost).where(EventPost.eventroom_id == event.id)
+        ).one()
+        assert post.cancelled_at is None
+        assert post.cancellation_reason == ""
+
+    def test_republishing_heals_a_stale_mirror(
+        self, app, db_session: Session, owner: User
+    ) -> None:
+        """`unpublish()` efface l'annulation sur la source sans toucher
+        au miroir — celui-ci est invisible tant qu'il est en `DRAFT`.
+        C'est la republication qui le remet d'aplomb."""
+        event = _make_event(db_session, owner, titre="Conf republiée")
+        with app.test_request_context("/"):
+            event.publish()
+            on_publish_event(event)
+            event.cancel("Reporté")
+            on_update_event(event)
+
+            event.unpublish()
+            on_unpublish_event(event)
+            event.publish()
+            on_publish_event(event)
+
+        post = db_session.scalars(
+            select(EventPost).where(EventPost.eventroom_id == event.id)
+        ).one()
+        assert post.status == PublicationStatus.PUBLIC
+        assert post.cancelled_at is None

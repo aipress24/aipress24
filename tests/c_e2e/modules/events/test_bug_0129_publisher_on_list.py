@@ -253,3 +253,33 @@ def test_event_card_type_badge_is_a_real_link_not_dead_chip(
     assert "force-tab" not in body
     assert f'href="/events/{event.id}"' in body
     assert "chip ~positive @low" in body  # the (now-linked) type badge
+
+
+def test_a_cancelled_event_is_listed_with_its_banner(
+    app: Flask,
+    db_session: Session,
+):
+    """ANN-04 — sur la liste publique, l'annonce reste, barrée.
+
+    Le bandeau se lit sur `EventPost.cancelled_at` et non sur une clé
+    calculée par `EventListVM` : la même carte est rendue sur le
+    Business Wall d'une organisation à partir de la ligne brute, où les
+    clés du view model sont absentes. C'est ce qui a fait que la
+    pastille « Accrédité.e » n'y apparaît toujours pas.
+    """
+    user = _make_user(db_session)
+    publisher = Organisation(name="Fake-Salon annulé", bw_name="SA")
+    db_session.add(publisher)
+    db_session.flush()
+    event = _make_event_with_publisher(db_session, user.id, publisher)
+    event.cancelled_at = arrow.utcnow()
+    event.cancellation_reason = "Grève des transports"
+    db_session.flush()
+
+    client = make_authenticated_client(app, user)
+    body = client.get("/events/", follow_redirects=True).data.decode()
+
+    assert f'href="/events/{event.id}"' in body, "ANN-04 — toujours listé"
+    assert "Événement annulé" in body
+    assert "Grève des transports" in body
+    assert "line-through" in body

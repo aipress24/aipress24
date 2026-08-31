@@ -8,11 +8,9 @@ Seul écrivain de `evt_accreditation` : le modèle ne connaît aucune
 règle de transition, elles vivent toutes ici. Les règles portent les
 numéros de `specs/events-accreditations.md` §5.
 
-État du chantier (lot L1) : la table de stockage est basculée et l'API
-du workflow est en place, mais les vues appellent encore l'ancien
-couple `add_participant` / `remove_participant`, qui accrédite
-directement. Le parcours « demande puis décision » est câblé au lot L2,
-le ciblage au L3, l'écran organisateur au L4.
+Le parcours complet est en place : demande (L2), ciblage (L3),
+décision de l'organisateur (L4). L'annulation d'un événement ferme tous
+ces gestes sans détruire une seule ligne (ANN-05, RG-12).
 """
 
 from __future__ import annotations
@@ -256,7 +254,18 @@ def withdraw_accreditation(event: EventPost, user: User) -> Accreditation | None
     Les deux gestes sont le même côté membre. Renvoie `None` si le
     membre n'avait rien demandé — un retrait sans demande est un no-op,
     pas une erreur (RG-10).
+
+    Raises:
+        AccreditationClosedError: l'événement a été annulé (ANN-05).
     """
+    if event.cancelled_at is not None:
+        # ANN-05 — sur un événement annulé, plus aucun geste
+        # d'engagement. Les lignes existantes sont conservées (RG-12) :
+        # ce sont elles qui disent à qui l'on doit un message si
+        # l'événement est rétabli.
+        msg = "Cet événement a été annulé."
+        raise AccreditationClosedError(msg)
+
     accreditation = get_accreditation(event, user)
     if accreditation is None:
         return None
@@ -358,13 +367,37 @@ def _decide(
     return result.rowcount
 
 
-def _require_open(event: EventPost) -> None:
+def is_open(event: EventPost) -> bool:
+    """L'événement accepte-t-il encore un geste d'engagement ?
+
+    Le **même** prédicat masque les boutons et refuse le POST. Les deux
+    expressions séparées d'hier — une garde dans le service, une copie
+    dans la vue — ne pouvaient que diverger : masquer sans refuser
+    laisse passer un POST forgé, refuser sans masquer affiche un bouton
+    mort.
+    """
+    return not _closed_reason(event)
+
+
+def _closed_reason(event: EventPost) -> str:
+    """Ce qui ferme l'événement, en clair, ou une chaîne vide.
+
+    Trois motifs, dans l'ordre où ils comptent : pas publié, annulé
+    (ANN-05), commencé (RG-04).
+    """
     if event.status != PublicationStatus.PUBLIC:
-        msg = "Cet événement n'est pas publié."
-        raise AccreditationClosedError(msg)
+        return "Cet événement n'est pas publié."
+    if event.cancelled_at is not None:
+        return "Cet événement a été annulé."
     if event.start_datetime is not None and event.start_datetime <= arrow.utcnow():
-        msg = "Cet événement a commencé ; les demandes sont closes."
-        raise AccreditationClosedError(msg)
+        return "Cet événement a commencé ; les demandes sont closes."
+    return ""
+
+
+def _require_open(event: EventPost) -> None:
+    reason = _closed_reason(event)
+    if reason:
+        raise AccreditationClosedError(reason)
 
 
 #

@@ -35,6 +35,10 @@ from app.modules.bw.bw_activation.user_utils import (
     can_user_publish_for,
     get_selected_business_wall_for_user,
 )
+from app.modules.events.notifications import (
+    EventStatusChange,
+    notify_status_change,
+)
 from app.modules.wip.models.eventroom import (
     Event,
     EventImage,
@@ -109,6 +113,24 @@ class EventsTable(BaseTable):
                 {
                     "label": "Dépublier",
                     "url": self.url_for(item, "unpublish"),
+                }
+            )
+        # ANN-01 — annuler et rétablir mènent au même écran : c'est la
+        # même décision, prise dans un sens ou dans l'autre. Ni l'une ni
+        # l'autre n'est proposée sur un brouillon, qui n'a été annoncé
+        # à personne.
+        if item.can_cancel():
+            actions.append(
+                {
+                    "label": "Annuler l'événement",
+                    "url": self.url_for(item, "cancel"),
+                }
+            )
+        elif item.can_restore():
+            actions.append(
+                {
+                    "label": "Rétablir l'événement",
+                    "url": self.url_for(item, "cancel"),
                 }
             )
         actions += [
@@ -381,6 +403,10 @@ class EventsWipView(BaseWipView):
         repo.update(event, auto_commit=False)
         event_unpublished.send(event)
         db.session.commit()
+        # NOT-05, troisième déclencheur : retirer l'annonce prive les
+        # accrédités de la page qui les renseignait. Après le commit,
+        # jamais avant.
+        self._notify_accredited(event, EventStatusChange.UNPUBLISHED)
         flash("L'événement a été dépublié")
         return redirect(self._url_for("index"))
 
@@ -388,7 +414,98 @@ class EventsWipView(BaseWipView):
         # Deleting a published source must take its public event mirror down too:
         # re-emit the unpublish signal so the mirror flips to DRAFT and is
         # de-indexed. The receiver no-ops if the source was never published.
+        #
+        # Pas de NOT-05 ici, délibérément : la suppression passe par ce
+        # signal et non par la route `unpublish`, et prévenir des gens
+        # d'un retrait en les renvoyant vers une page qui n'existe plus
+        # ne les aide pas. L'organisateur qui veut les prévenir annule,
+        # ce qui est justement le geste que ce lot lui donne.
         event_unpublished.send(model)
+
+    @route("/<int:id>/cancel/", methods=["GET", "POST"])
+    def cancel(self, id: int):
+        """Annuler ou rétablir un événement (ANN-01, ANN-02, ANN-07).
+
+        Une seule route pour les deux gestes, parce que c'est la même
+        décision prise dans un sens ou dans l'autre, et que l'écran de
+        confirmation est le même — il porte le nombre de personnes
+        accréditées, qui est ce qui donne son poids au geste.
+        """
+        event = cast("Event", self._get_model(id))
+        _require_organiser(event)
+
+        if request.method == "POST":
+            return self._apply_cancellation(event)
+
+        self.update_phase_breadcrumbs(event, "Annuler")
+        return render_template(
+            "wip/event/cancel.j2",
+            title=f"Annuler l'événement - {event.title}",
+            event=event,
+            accredited_count=_accredited_count(event),
+            can_cancel=event.can_cancel(),
+            can_restore=event.can_restore(),
+            max_reason=Event.MAX_CANCELLATION_REASON,
+        )
+
+    def _apply_cancellation(self, event: Event):
+        """Appliquer la décision, puis prévenir les accrédités.
+
+        L'ordre compte : le miroir public porte le bandeau (ANN-04), et
+        l'email de NOT-05 ne part qu'une fois le changement validé —
+        un envoi est irréversible et ne doit jamais précéder l'écriture
+        qui le justifie.
+        """
+        # « cancel-event » et non « cancel » : dans le vocabulaire de
+        # formulaire de ce module, `_action="cancel"` veut déjà dire
+        # « abandonner la saisie » (`_base.py`, et l'écran des images).
+        # Le même mot pour deux gestes opposés se paie tôt ou tard.
+        action = request.form.get("_action", "")
+        if action not in ("cancel-event", "restore-event"):
+            raise NotFound
+
+        try:
+            if action == "cancel-event":
+                event.cancel(request.form.get("reason", ""))
+            else:
+                event.restore()
+        except ValueError as exc:
+            flash(str(exc), "error")
+            return redirect(self._url_for("cancel", id=event.id))
+
+        # Sans ce signal, annuler un événement **déjà publié** ne
+        # changerait rien pour personne : c'est le miroir que lisent la
+        # liste, le calendrier et le Business Wall.
+        event_updated.send(event)
+        db.session.commit()
+
+        cancelling = action == "cancel-event"
+        change = (
+            EventStatusChange.CANCELLED if cancelling else EventStatusChange.RESTORED
+        )
+        notified = self._notify_accredited(event, change)
+        done = "annulé" if cancelling else "rétabli"
+        flash(
+            f"L'événement a été {done}. {notified} personne(s) accréditée(s) "
+            "ont été prévenues.",
+            "success",
+        )
+        return redirect(self._url_for("index"))
+
+    def _notify_accredited(self, event: Event, change: EventStatusChange) -> int:
+        """NOT-05 vers les accrédités du miroir public, s'il existe.
+
+        Les cloches sont des écritures : elles ont leur propre commit,
+        après celui de la décision. S'il échouait, les cloches seraient
+        perdues et les emails partis — le bon sens de la perte, la
+        décision étant déjà acquise.
+        """
+        post = _event_post_of(event)
+        if post is None:
+            return 0
+        notified = notify_status_change(post, change)
+        db.session.commit()
+        return notified
 
     @route("/<int:id>/audience/", methods=["GET", "POST"])
     def audience(self, id: int):

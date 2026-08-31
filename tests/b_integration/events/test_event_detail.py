@@ -10,7 +10,7 @@ from typing import TYPE_CHECKING
 
 import arrow
 import pytest
-from flask import g
+from flask import g, render_template
 
 from app.enums import CommunityEnum, RoleEnum
 from app.models.auth import Role, User
@@ -331,3 +331,96 @@ class TestAccreditationRequest:
 
             assert response.status_code == 403
             assert get_accreditation(event_post, viewer_user) is None
+
+
+class TestACancelledEventOnTheDetailPage:
+    """ANN-04 et ANN-05 — le bandeau se voit, les gestes s'en vont.
+
+    Les gabarits sont la livraison d'ANN-04 : les éprouver au rendu,
+    et pas seulement au modèle, est le seul moyen de savoir que le
+    bandeau existe vraiment.
+    """
+
+    def _cancelled(self, db_session: Session, event_post: EventPost) -> EventPost:
+        event_post.status = PublicationStatus.PUBLIC
+        event_post.start_datetime = arrow.utcnow().shift(days=3)
+        event_post.end_datetime = arrow.utcnow().shift(days=3, hours=2)
+        event_post.cancelled_at = arrow.utcnow()
+        event_post.cancellation_reason = "Grève des transports"
+        db_session.flush()
+        return event_post
+
+    def test_the_banner_and_the_reason_are_rendered(
+        self, app: Flask, db_session: Session, event_post: EventPost, viewer_user: User
+    ):
+        self._cancelled(db_session, event_post)
+
+        with app.test_request_context("/"):
+            g.user = viewer_user
+            html = render_template(
+                "pages/event--header.j2",
+                event=EventDetailVM(event_post),
+                accreditation="",
+                is_open=False,
+                sees_content=True,
+            )
+
+        assert "Événement annulé" in html
+        assert "Grève des transports" in html
+        assert "line-through" in html, "ANN-04 — le titre est barré"
+
+    def test_the_banner_shows_even_outside_the_audience(
+        self, app: Flask, db_session: Session, event_post: EventPost, viewer_user: User
+    ):
+        """RG-01 et RG-02 — l'annonce reste visible de tous, seul son
+        contenu est réservé. Le bandeau vit donc dans le bandeau de
+        tête et non dans le corps, que `sees_content` masque."""
+        self._cancelled(db_session, event_post)
+        event_post.audience = [CommunityEnum.PRESS_MEDIA.value]
+        db_session.flush()
+
+        with app.test_request_context("/"):
+            g.user = viewer_user
+            html = render_template(
+                "pages/event--header.j2",
+                event=EventDetailVM(event_post),
+                accreditation="",
+                is_open=False,
+                sees_content=False,
+            )
+
+        assert "Événement annulé" in html
+
+    def test_no_engagement_button_survives(
+        self, app: Flask, db_session: Session, event_post: EventPost, viewer_user: User
+    ):
+        """ANN-05 — l'événement a lieu dans trois jours : il est encore
+        `is_open`, et c'est la seule branche d'annulation qui empêche le
+        bouton « Se désinscrire » de s'afficher."""
+        self._cancelled(db_session, event_post)
+
+        with app.test_request_context("/"):
+            g.user = viewer_user
+            html = render_template(
+                "pages/event--accreditation.j2",
+                event=event_post,
+                accreditation="accepted",
+                is_open=True,
+                sees_content=True,
+            )
+
+        assert "hx-post" not in html
+        assert "Se désinscrire" not in html
+        assert "Vous étiez accrédité.e" in html
+
+    def test_commenting_is_refused(
+        self, app: Flask, db_session: Session, event_post: EventPost, viewer_user: User
+    ):
+        self._cancelled(db_session, event_post)
+
+        view = EventDetailView()
+        with app.test_request_context("/", data={"comment": "Dommage"}):
+            g.user = viewer_user
+            response = view._post_comment(event_post)
+
+        assert response.status_code == 409

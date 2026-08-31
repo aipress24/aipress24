@@ -6,6 +6,20 @@
 <div id="accreditation-block-{{ event.id }}" class="flex items-center gap-3">
   {% if not sees_content %}
     {# Hors audience : ni pastille ni bouton (RG-02). #}
+  {% elif event.cancelled_at %}
+    {# ANN-05 — plus aucun geste d'engagement. Placée avant toutes les
+       branches qui rendent un bouton : un événement annulé dont la date
+       est encore à venir reste `is_open`, et sans cette branche il
+       afficherait « Se désinscrire ».
+
+       L'accréditation acquise reste affichée — elle n'a pas été retirée
+       (RG-12), et c'est elle qui vaut message si l'événement est
+       rétabli. #}
+    {% if accreditation == "accepted" %}
+      <span class="inline-flex items-center rounded-full bg-gray-100 px-3 py-1 text-sm font-medium text-gray-700">
+        Vous étiez accrédité.e
+      </span>
+    {% endif %}
   {% elif not is_open %}
     {% if accreditation == "accepted" %}
       <span class="inline-flex items-center rounded-full bg-green-100 px-3 py-1 text-sm font-medium text-green-800">

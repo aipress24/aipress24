@@ -14,11 +14,21 @@
         {% endif %}
       </div>
 
+      {% if event.cancelled_at %}
+        <p class="mt-1 inline-flex items-center rounded bg-red-100 px-2 py-0.5 text-xs font-medium text-red-700">
+          Événement annulé
+        </p>
+      {% endif %}
+
       <a href="{{ url_for(event) }}">
-        <h2 class="text-lg font-medium">
+        <h2 class="text-lg font-medium{% if event.cancelled_at %} line-through{% endif %}">
           {{ event.title }}
         </h2>
       </a>
+
+      {% if event.cancelled_at and event.cancellation_reason %}
+        <p class="text-sm text-red-700">{{ event.cancellation_reason }}</p>
+      {% endif %}
 
       <!--<div class="mt-4 flex text-gray-600">
         {# icon("map-pin", class="h-5 w-5 mt-0.5 mr-1") #}

@@ -9,7 +9,6 @@ from __future__ import annotations
 import json
 from typing import ClassVar
 
-import arrow
 from flask import flash, g, make_response, redirect, render_template, request
 from flask.views import MethodView
 from werkzeug import Response
@@ -24,6 +23,7 @@ from app.modules.events.models import AccreditationStatus, EventPost
 from app.modules.events.services import (
     AccreditationClosedError,
     get_accreditation,
+    is_open,
     request_accreditation,
     sees_full_content,
     withdraw_accreditation,
@@ -50,11 +50,6 @@ def _accreditation_status(event: EventPost, user: User) -> str:
     return str(accreditation.status.value)
 
 
-def _is_open(event: EventPost) -> bool:
-    """L'événement accepte-t-il encore des demandes ? (RG-04)"""
-    return event.start_datetime is None or event.start_datetime > arrow.utcnow()
-
-
 class EventDetailView(MethodView):
     """Event detail page with like/unlike action."""
 
@@ -79,7 +74,7 @@ class EventDetailView(MethodView):
             "accreditation": _accreditation_status(event_obj, g.user),
             "sees_content": sees_full_content(g.user, event_obj),
             "audience": event_obj.audience or [],
-            "is_open": _is_open(event_obj),
+            "is_open": is_open(event_obj),
         }
         return render_template("pages/event.j2", **ctx)
 
@@ -162,9 +157,17 @@ class EventDetailView(MethodView):
 
         Les deux gestes sont le même côté membre.
 
+        `409` sur un événement annulé (ANN-05) : le geste n'a plus de
+        sens, et la ligne existante est conservée — c'est elle qui dit
+        à qui l'on doit un message si l'événement est rétabli.
+
         Note: does NOT commit — caller is responsible.
         """
-        withdraw_accreditation(event_obj, user)
+        try:
+            withdraw_accreditation(event_obj, user)
+        except AccreditationClosedError as e:
+            return make_response(str(e), 409)
+
         return self._accreditation_fragment(
             event_obj, user, f"Vous êtes retiré de l'événement {event_obj.title!r}"
         )
@@ -178,7 +181,7 @@ class EventDetailView(MethodView):
             "pages/event--accreditation.j2",
             event=event_obj,
             accreditation=_accreditation_status(event_obj, user),
-            is_open=_is_open(event_obj),
+            is_open=is_open(event_obj),
             sees_content=True,
         )
         response = make_response(html)
@@ -190,6 +193,12 @@ class EventDetailView(MethodView):
 
         Note: Does NOT commit - caller is responsible for committing.
         """
+        if event_obj.cancelled_at is not None:
+            # ANN-05 — un événement annulé ne se commente plus. Les
+            # commentaires déjà postés restent, eux : ils font partie de
+            # l'histoire publique de l'annonce.
+            return make_response("Cet événement a été annulé.", 409)
+
         user = g.user
         comment_text = request.form.get("comment", "").strip()
         if comment_text:

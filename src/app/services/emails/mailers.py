@@ -798,10 +798,48 @@ class EventChangedMail(EmailTemplate):
 
     subject: str = "[Aipress24] Un événement de votre agenda a changé"
     template_html: str = "event_changed.j2"
+    # NOT-17, même motif que pour l'annulation : une date ou un lieu
+    # qui bouge décide d'un déplacement.
+    bypass_quota: bool = True
     recipient_full_name: str
     event_title: str
     event_date: str
     changes: str
+    event_url: str
+
+
+@dataclass(kw_only=True)
+class EventCancelledMail(EmailTemplate):
+    """NOT-05 — un événement de l'agenda du membre n'aura pas lieu
+    comme annoncé : annulé, rétabli, ou dépublié.
+
+    **Un seul gabarit pour les trois déclencheurs**, dont le corps
+    varie (NOT-05, §9.2) : ils disent la même chose à la même personne,
+    et trois classes n'auraient produit que trois copies du même pied
+    de page. Le `subject` est un champ de dataclass : l'appelant le
+    remplace selon le déclencheur.
+
+    Args:
+        - sender / recipient / sender_mail: standard EmailTemplate fields.
+        - recipient_full_name: how to address the member.
+        - event_title / event_date: the event, and its start date.
+        - change: "cancelled", "restored" or "unpublished" — selects the body.
+        - reason: the organiser's optional wording, empty if none.
+        - event_url: link to the event on the EVENTS portal.
+    """
+
+    subject: str = "[Aipress24] Un événement de votre agenda est annulé"
+    template_html: str = "event_cancelled.j2"
+    # NOT-17 — ce message part quelles que soient les préférences du
+    # membre. Le quota de vingt emails par semaine est une préférence
+    # de fait : sans cette dérogation, un membre très sollicité
+    # n'apprendrait pas que son événement est annulé.
+    bypass_quota: bool = True
+    recipient_full_name: str
+    event_title: str
+    event_date: str
+    change: str
+    reason: str
     event_url: str
 
 

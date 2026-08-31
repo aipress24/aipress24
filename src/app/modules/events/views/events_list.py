@@ -134,6 +134,10 @@ class EventsListView(MethodView):
             select(EventPost)
             .where(EventPost.id.in_(accredited_event_ids([user.id])))
             .where(EventPost.status == PublicationStatus.PUBLIC)
+            # ANN-08 — un événement annulé sort de l'agenda. Il reste
+            # listé et visible (ANN-04) ; c'est le bloc « ce à quoi vous
+            # vous rendez » qu'il quitte.
+            .where(EventPost.cancelled_at.is_(None))
         )
         events = list(db.session.scalars(stmt))
 
@@ -158,7 +162,14 @@ class EventsListView(MethodView):
         stmt = (
             select(EventPost)
             .where(EventPost.status == PublicationStatus.PUBLIC)
-            .order_by(EventPost.start_datetime)
+            # ANN-08 — l'annulation est la clé de tri **de tête**, et
+            # non un critère ajouté après la date. La règle parle de
+            # « date égale », pas d'horaire égal : la liste est ensuite
+            # regroupée par jour en Python (`grouper`) et les paquets
+            # d'un même jour ne sont plus retriés. Placée en second,
+            # cette clause laisserait un événement annulé de 9 h devant
+            # un événement maintenu de 18 h le même jour.
+            .order_by(EventPost.cancelled_at.is_(None).desc(), EventPost.start_datetime)
             .options(
                 selectinload(EventPost.owner),
                 selectinload(EventPost.publisher),

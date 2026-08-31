@@ -104,6 +104,19 @@ class Event(IdMixin, LifeCycleMixin, Owned, Base):
     # Ciblage par communauté — vide = ouvert à toutes (RG-03a).
     audience: Mapped[list[str]] = mapped_column(sa.JSON, default=list)
 
+    # Annulation (ANN-03). Deux colonnes plutôt qu'une valeur de plus
+    # dans `PublicationStatus` : un événement annulé **reste `PUBLIC`**,
+    # c'est ce qui permet de continuer à l'afficher barré au lieu de le
+    # faire disparaître, sans toucher à une énumération que partagent
+    # tous les contenus.
+    # Annoté `arrow.Arrow` et non `datetime` — contrairement à ses
+    # voisines, qui mentent sur ce qu'`ArrowType` rend et paient ce
+    # mensonge d'un `type: ignore` à chaque affectation.
+    cancelled_at: Mapped[arrow.Arrow | None] = mapped_column(
+        ArrowType(timezone=True), nullable=True
+    )
+    cancellation_reason: Mapped[str] = mapped_column(default="")
+
     # Localisation
     address: Mapped[str] = mapped_column(default="")
     pays_zip_ville: Mapped[str] = mapped_column(default="")
@@ -227,6 +240,93 @@ class Event(IdMixin, LifeCycleMixin, Owned, Base):
             raise ValueError(msg)
 
         self.status = PublicationStatus.DRAFT  # type: ignore[assignment]
+        # Dépublier retire l'annonce entièrement : l'annulation n'a plus
+        # d'objet, et le brouillon repart propre. Sans cet effacement,
+        # une republication ressusciterait un événement affiché barré,
+        # avec un `cancelled_at` trop vieux pour être rétabli (ANN-07) —
+        # un état dont plus rien ne permet de sortir. Le miroir, lui, se
+        # remet à jour tout seul : `on_publish_event` recopie tous les
+        # champs.
+        self.cancelled_at = None
+        self.cancellation_reason = ""
+
+    # ------------------------------------------------------------
+    # Business Logic - Annulation (ANN-01, ANN-03, ANN-07)
+    # ------------------------------------------------------------
+
+    #: ANN-07 — le rétablissement reste possible pendant ce délai.
+    #: Au-delà, l'annulation est un fait public déjà notifié, et on
+    #: n'efface pas silencieusement un message déjà reçu :
+    #: l'organisateur crée un nouvel événement.
+    RESTORE_WINDOW_HOURS: ClassVar[int] = 24
+
+    #: ANN-02 — le motif est facultatif et court : il tient dans un
+    #: bandeau, pas dans un communiqué.
+    MAX_CANCELLATION_REASON: ClassVar[int] = 280
+
+    def can_cancel(self) -> bool:
+        """ANN-01 — seul un événement publié et non déjà annulé."""
+        return self.status == PublicationStatus.PUBLIC and self.cancelled_at is None
+
+    def cancel(self, reason: str = "", now: arrow.Arrow | None = None) -> None:
+        """Annuler l'événement (ANN-03).
+
+        Ne touche ni au statut, ni aux accréditations (RG-12) :
+        l'annonce reste publique, barrée, et les accrédités gardent
+        leur ligne — c'est ce qui permet de les prévenir, et de
+        rétablir l'événement sans avoir à les réinviter.
+
+        `now` est un paramètre parce que ANN-07 rend le rétablissement
+        dépendant de l'heure, et que ce dépôt ne sait pas geler le
+        temps.
+
+        Raises:
+            ValueError: événement non publié, déjà annulé, ou motif trop long.
+        """
+        if not self.can_cancel():
+            msg = (
+                "Impossible d'annuler cet événement : il n'est pas publié, "
+                "ou il est déjà annulé."
+            )
+            raise ValueError(msg)
+
+        reason = reason.strip()
+        if len(reason) > self.MAX_CANCELLATION_REASON:
+            msg = (
+                "Le motif d'annulation ne peut pas dépasser "
+                f"{self.MAX_CANCELLATION_REASON} signes."
+            )
+            raise ValueError(msg)
+
+        self.cancelled_at = now or arrow.utcnow()
+        self.cancellation_reason = reason
+
+    def can_restore(self, now: arrow.Arrow | None = None) -> bool:
+        """ANN-07 — le rétablissement est-il encore dans la fenêtre ?"""
+        if self.cancelled_at is None:
+            return False
+        deadline = self.cancelled_at.shift(hours=self.RESTORE_WINDOW_HOURS)
+        return (now or arrow.utcnow()) <= deadline
+
+    def restore(self, now: arrow.Arrow | None = None) -> None:
+        """Rétablir un événement annulé, dans les 24 heures (ANN-07).
+
+        Raises:
+            ValueError: événement non annulé, ou fenêtre expirée.
+        """
+        if self.cancelled_at is None:
+            msg = "Impossible de rétablir cet événement : il n'est pas annulé."
+            raise ValueError(msg)
+        if not self.can_restore(now):
+            msg = (
+                "Impossible de rétablir cet événement : l'annulation date de "
+                f"plus de {self.RESTORE_WINDOW_HOURS} heures et a déjà été "
+                "annoncée. Créez un nouvel événement."
+            )
+            raise ValueError(msg)
+
+        self.cancelled_at = None
+        self.cancellation_reason = ""
 
     # ------------------------------------------------------------
     # Query Methods (for templates/views)

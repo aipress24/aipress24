@@ -17,6 +17,7 @@ déplacement.
 
 from __future__ import annotations
 
+from enum import StrEnum
 from typing import TYPE_CHECKING
 
 from svcs.flask import container
@@ -160,6 +161,12 @@ def notify_event_changed(event: EventPost, details: list[str]) -> None:
 
     if event.status != PublicationStatus.PUBLIC:
         return
+    if event.cancelled_at is not None:
+        # Un événement annulé reste `PUBLIC` (ANN-03) : sans cette
+        # garde, corriger l'adresse d'un événement qu'on vient
+        # d'annuler enverrait « l'événement a été modifié » à des gens
+        # qui savent déjà qu'il n'aura pas lieu.
+        return
 
     detail = " ".join(details)
     message = f"L'événement « {event.title} » a été modifié. {detail}"
@@ -194,3 +201,110 @@ def notify_event_changed(event: EventPost, details: list[str]) -> None:
             report_failure(
                 f"events: change notification failed (event {event.id})", exc
             )
+
+
+class EventStatusChange(StrEnum):
+    """Les trois déclencheurs de NOT-05 (§9.2).
+
+    Annulation, rétablissement et dépublication disent la même chose à
+    la même personne — « l'événement auquel vous êtes accrédité n'aura
+    pas lieu comme annoncé » — et n'appellent qu'un gabarit, dont le
+    corps varie.
+    """
+
+    CANCELLED = "cancelled"
+    RESTORED = "restored"
+    UNPUBLISHED = "unpublished"
+
+
+#: Texte de cloche et objet d'email, par déclencheur. Le **corps** de
+#: l'email vit dans son gabarit (NOT-18) ; la cloche n'en a pas, et
+#: c'est le seul texte que ce module compose.
+_STATUS_CHANGE_TEXT: dict[EventStatusChange, tuple[str, str]] = {
+    EventStatusChange.CANCELLED: (
+        "L'événement « {title} »{when} a été annulé par son organisateur.",
+        "[Aipress24] Un événement de votre agenda est annulé",
+    ),
+    EventStatusChange.RESTORED: (
+        (
+            "L'événement « {title} »{when} est finalement maintenu : "
+            "son organisateur a levé l'annulation."
+        ),
+        "[Aipress24] Un événement de votre agenda est rétabli",
+    ),
+    EventStatusChange.UNPUBLISHED: (
+        (
+            "L'annonce de l'événement « {title} »{when} a été retirée "
+            "par son organisateur."
+        ),
+        "[Aipress24] Une annonce de votre agenda a été retirée",
+    ),
+}
+
+
+def notify_status_change(event: EventPost, change: EventStatusChange) -> int:
+    """NOT-05 — l'événement n'aura pas lieu comme annoncé (RG-12).
+
+    Vers tous les accrédités, et vers eux seuls : une demande en cours
+    n'est pas une place réservée. Cloche **et** email, quelles que
+    soient les préférences (NOT-17) — c'est une information dont dépend
+    un déplacement.
+
+    **Aucune garde sur le statut**, contrairement à NOT-08 : la
+    dépublication fait passer le miroir en `DRAFT` avant l'envoi, et
+    une garde « seulement si PUBLIC » avalerait silencieusement toutes
+    les notifications de ce déclencheur-là.
+
+    Pas de regroupement non plus. Il est destructif — le message qui
+    remplace emporte celui qu'il remplace — et une annulation suivie
+    d'un rétablissement dans la fenêtre ne livrerait que le second : le
+    membre n'apprendrait jamais que son événement avait été annulé,
+    quand ANN-07 dit précisément qu'une annulation annoncée est un fait
+    public qu'on n'efface pas.
+
+    Renvoie le nombre de membres prévenus. **À appeler après le
+    `commit`** qui enregistre le changement : un email est irréversible
+    et ne doit jamais précéder l'écriture qui le justifie.
+    """
+    from app.modules.events.services import get_participants
+
+    bell_text, subject = _STATUS_CHANGE_TEXT[change]
+    when = (
+        event.start_datetime.to(LOCAL_TZ).format("DD/MM/YYYY")
+        if event.start_datetime
+        else ""
+    )
+    message = bell_text.format(title=event.title, when=f" du {when}" if when else "")
+    url = _event_url(event)
+
+    members = get_participants(event)
+    for member in members:
+        _post(member, message, url)
+        _mail_status_change(event, member, change, subject, when)
+    return len(members)
+
+
+def _mail_status_change(
+    event: EventPost,
+    member: User,
+    change: EventStatusChange,
+    subject: str,
+    when: str,
+) -> None:
+    from app.services.emails import EventCancelledMail
+
+    try:
+        EventCancelledMail(
+            sender="contact@aipress24.com",
+            recipient=member.email or "",
+            sender_mail="contact@aipress24.com",
+            subject=subject,
+            recipient_full_name=member.full_name,
+            event_title=event.title,
+            event_date=when,
+            change=str(change.value),
+            reason=event.cancellation_reason or "",
+            event_url=_event_url(event),
+        ).send()
+    except Exception as exc:
+        report_failure(f"events: NOT-05 mail failed (event {event.id})", exc)
