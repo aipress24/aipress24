@@ -28,3 +28,23 @@ def deliver_grouped_notifications() -> None:
     db.session.commit()
     if delivered:
         logger.info(f"cron: delivered {delivered} grouped notification(s)")
+
+
+@crontab("2 * * * *")
+def send_event_reminders() -> None:
+    """Rappeler la veille les événements du lendemain.
+
+    Toutes les heures, et non une fois par jour à 09:00 : c'est le
+    registre d'envoi qui garantit l'unicité, pas la rareté du
+    déclenchement. Un tour manqué se rattrape ainsi au suivant, alors
+    qu'un crontab quotidien perdrait la journée.
+
+    À la minute 2, pour ne pas se disputer l'heure juste avec la
+    réputation.
+    """
+    from app.modules.events.reminders import send_due_reminders
+
+    sent = send_due_reminders(db.session)
+    db.session.commit()
+    if sent:
+        logger.info(f"cron: sent {sent} event reminder(s)")

@@ -167,6 +167,50 @@ class AccreditationStatus(StrEnum):
     WITHDRAWN = auto()
 
 
+class NotificationKind(StrEnum):
+    """Ce dont un membre a déjà été prévenu, pour un événement donné."""
+
+    REMINDER = auto()
+
+
+class NotificationSent(IdMixin, Base):
+    """Registre des envois — l'idempotence de `NOT-14`.
+
+    Un rappel ne part jamais deux fois, même si la tâche périodique est
+    rejouée. C'est la contrainte d'unicité qui le garantit, pas une
+    lecture préalable : `IdMixin` génère la clé côté client, donc un
+    SELECT-puis-INSERT laisserait deux tours concurrents passer tous
+    les deux.
+
+    `dedup_key` porte la **date parisienne de l'événement**, et non
+    seulement son identifiant. Sans elle, déplacer la date tuerait
+    définitivement le rappel de l'événement — alors que déplacer la
+    date est précisément l'autre moitié de ce chantier.
+    """
+
+    __tablename__ = "evt_notification_sent"
+
+    event_id: Mapped[int] = mapped_column(
+        sa.BigInteger,
+        sa.ForeignKey(EventPost.id, ondelete="CASCADE"),
+        nullable=False,
+    )
+    user_id: Mapped[int] = mapped_column(
+        sa.Integer, sa.ForeignKey(User.id, ondelete="CASCADE"), nullable=False
+    )
+    kind: Mapped[NotificationKind] = mapped_column(sa.Enum(NotificationKind))
+    dedup_key: Mapped[str] = mapped_column(default="")
+    sent_at: Mapped[arrow.Arrow] = mapped_column(
+        ArrowType(timezone=True), default=arrow.utcnow
+    )
+
+    __table_args__ = (
+        sa.UniqueConstraint(
+            "event_id", "user_id", "kind", "dedup_key", name="uq_evt_notification_sent"
+        ),
+    )
+
+
 class Accreditation(IdMixin, Base):
     """Une ligne par couple (événement, membre), dont le statut évolue.
 

@@ -803,3 +803,22 @@ class EventChangedMail(EmailTemplate):
     event_date: str
     changes: str
     event_url: str
+
+
+@dataclass(kw_only=True)
+class EventReminderMail(EmailTemplate):
+    """NOT-09 — rappel de la veille, pour un membre accrédité.
+
+    Args:
+        - sender / recipient / sender_mail: standard EmailTemplate fields.
+        - recipient_full_name: how to address the member.
+        - event_title / event_date: the event, and when it starts.
+        - event_url: link to the event on the EVENTS portal.
+    """
+
+    subject: str = "[Aipress24] Rappel : votre événement a lieu demain"
+    template_html: str = "event_reminder.j2"
+    recipient_full_name: str
+    event_title: str
+    event_date: str
+    event_url: str
