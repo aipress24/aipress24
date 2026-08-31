@@ -303,6 +303,10 @@ class TestFormShape:
             "event_type",
             "section",
             "topic",
+            # Décision `M1` : à qui l'événement s'adresse. Multivalués,
+            # contrairement à tous leurs voisins.
+            "competences",
+            "fonctions",
             "mode",
             "platform",
             "pricing",
@@ -399,7 +403,10 @@ class TestTheModeField:
         choices = form.mode.choices
         assert choices is not None
 
-        values = [value for value, _label in choices]
+        # Indexé et non dépaqueté : WTForms type `choices` comme
+        # « une chaîne, ou un couple, ou un triplet ». Nos options sont
+        # des couples, mais le dépaquetage l'affirmerait sans preuve.
+        values = [choice[0] for choice in choices]
         assert values == [m.name for m in EventMode]
         assert "ON_SITE" in values
         assert "on_site" not in values
@@ -409,7 +416,7 @@ class TestTheModeField:
         choices = form.mode.choices
         assert choices is not None
 
-        labels = [label for _value, label in choices]
+        labels = [choice[1] for choice in choices]
         assert "En présentiel" in labels
         assert "Par téléphone" in labels
 
@@ -429,3 +436,38 @@ class TestTheModeField:
         rendered = set(EventForm.Meta.groups["metadata"]["fields"])
 
         assert {"mode", "platform", "access_details"} <= rendered
+
+
+class TestLesDeuxAxesDeCiblage:
+    """Décision `M1` — compétences et fonctions visées.
+
+    Le seul endroit du formulaire où un champ porte **plusieurs**
+    valeurs. Ce sont aussi les seuls dont les options sont calculées et
+    non lues dans une taxonomie : les fonctions sont les familles de
+    quatre ontologies.
+    """
+
+    def test_ils_apparaissent_dans_les_metadonnees_rendues(self, app: Flask):
+        """La couche de rendu itère `Meta.groups` : un champ déclaré mais
+        absent de la carte est **silencieusement omis** du formulaire."""
+        form = _make_form(app, {})
+        rendus = form.Meta.groups["metadata"]["fields"]
+
+        assert "competences" in rendus
+        assert "fonctions" in rendus
+
+    def test_ils_acceptent_plusieurs_valeurs(self, app: Flask):
+        form = _make_form(app, {})
+
+        assert form.competences.type == "SelectMultipleField"
+        assert form.fonctions.type == "SelectMultipleField"
+
+    def test_un_evenement_sans_ciblage_reste_valide(self, app: Flask):
+        """Facultatifs : les rendre obligatoires invaliderait tous les
+        événements déjà saisis."""
+        form = _make_form(app, {})
+
+        form.validate()
+
+        assert "competences" not in form.errors
+        assert "fonctions" not in form.errors

@@ -67,6 +67,12 @@ def review_required(organisation: Organisation | None) -> bool:
 def reviewers_of(organisation: Organisation | None) -> list[User]:
     """Les membres habilités à relire les événements de l'organisation.
 
+    ⚠️ **Doit s'accorder à `_has_events_mission_on`**, qui est le
+    prédicat de référence. Deux écritures d'une même règle, parce que
+    l'une répond « oui ou non » sur un membre et l'autre doit rendre la
+    liste — ce que la première ne sait pas faire sans parcourir tous les
+    comptes. Un test compare les deux plutôt que d'espérer.
+
     Le propriétaire du Business Wall en fait partie de droit — il porte
     toutes les missions — ainsi que toute attribution de rôle acceptée
     qui accorde explicitement la mission « événements ».
@@ -100,12 +106,20 @@ def reviewers_of(organisation: Organisation | None) -> list[User]:
 def is_reviewer(user: User | None, organisation: Organisation | None) -> bool:
     """Ce membre relit-il les événements de cette organisation ?
 
+    **Délègue au prédicat unique** `_has_events_mission_on`, qui garde
+    déjà « Cibler », « Accréditer » et « Annuler ». Répondre ici par une
+    requête à soi aurait donné deux écritures d'une même règle
+    d'autorisation, et une règle ajoutée à l'une n'aurait pas suivi dans
+    l'autre. `reviewers_of` garde sa requête parce qu'elle seule doit
+    rendre une **liste**, et son test vérifie qu'elles s'accordent.
+
     Mémoïsé pour la durée de la requête : la liste des actions d'un
     tableau appelle ce prédicat **deux fois par ligne** (le gabarit
     reconstruit le menu une seconde fois dans sa macro), et la réponse
-    ne change pas d'une ligne à l'autre. Sans cela, un écran de vingt
-    événements coûtait quarante requêtes pour un bouton.
+    ne change pas d'une ligne à l'autre.
     """
+    from app.modules.wip.crud.cbvs.events import _has_events_mission_on
+
     if user is None or getattr(user, "is_anonymous", True) or organisation is None:
         return False
 
@@ -114,7 +128,7 @@ def is_reviewer(user: User | None, organisation: Organisation | None) -> bool:
     cache = g._event_reviewers
     key = (user.id, organisation.id)
     if key not in cache:
-        cache[key] = any(r.id == user.id for r in reviewers_of(organisation))
+        cache[key] = _has_events_mission_on(user, organisation)
     return cache[key]
 
 

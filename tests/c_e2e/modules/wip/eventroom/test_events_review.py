@@ -31,6 +31,7 @@ from app.models.organisation import Organisation
 from app.modules.bw.bw_activation.models.business_wall import BusinessWall, BWStatus
 from app.modules.wip.crud.cbvs.events import EventsWipView
 from app.modules.wip.models.eventroom import Event
+from tests.c_e2e.conftest import make_authenticated_client
 
 if TYPE_CHECKING:
     from flask import Flask
@@ -183,3 +184,74 @@ class TestSubmitting:
             g.user = reviewer
             with pytest.raises(NotFound):
                 EventsWipView().review(pending_event.id)
+
+
+class TestTheAuthorFindsTheReasonAgain:
+    """Décision `C9-b` — le motif attend l'auteur là où il resoumet.
+
+    Le circuit complet : un relecteur renvoie, puis l'auteur rouvre
+    l'écran de soumission et doit y lire ce qu'on lui a demandé de
+    corriger. Vérifié sur le HTML rendu, pas sur la seule colonne : le
+    but de la décision est que l'auteur le **voie**.
+    """
+
+    def test_the_reason_reaches_the_resubmission_screen(
+        self,
+        app: Flask,
+        fresh_db,
+        pending_event: Event,
+        reviewer: User,
+        test_user: User,
+    ) -> None:
+        with app.test_request_context(
+            "/",
+            method="POST",
+            data={"_action": "send-back", "comment": "Il manque le tarif étudiant."},
+        ):
+            g.user = reviewer
+            EventsWipView().review(pending_event.id)
+
+        # Vraie requête HTTP : la page complète a besoin du pipeline —
+        # un contexte nu n'a pas de menu de navigation, et le rendu
+        # échouerait sur le gabarit d'entête, pas sur ce qu'on teste.
+        client = make_authenticated_client(app, test_user)
+        response = client.get(f"/wip/events/{pending_event.id}/review/")
+
+        assert response.status_code == 200
+        html = response.get_data(as_text=True)
+
+        # Le motif apparaît **aussi** dans la cloche du bandeau d'entête,
+        # qui est précisément le seul endroit où il vivait avant cette
+        # décision. Chercher la chaîne dans la page entière passerait
+        # sans le bandeau : on l'ancre donc à son propre titre.
+        banner = html.find("Cet événement vous avait été renvoyé")
+        assert banner != -1, "le bandeau de renvoi manque sur l'écran de soumission"
+        assert "Il manque le tarif étudiant." in html[banner : banner + 500]
+
+    def test_and_disappears_once_he_has_resubmitted(
+        self,
+        app: Flask,
+        fresh_db,
+        pending_event: Event,
+        reviewer: User,
+        test_user: User,
+    ) -> None:
+        """Un reproche déjà traité n'a pas à rester sous les yeux du
+        relecteur suivant."""
+        with app.test_request_context(
+            "/",
+            method="POST",
+            data={"_action": "send-back", "comment": "Il manque le tarif étudiant."},
+        ):
+            g.user = reviewer
+            EventsWipView().review(pending_event.id)
+
+        with app.test_request_context(
+            "/", method="POST", data={"_action": "submit-for-review"}
+        ):
+            g.user = test_user
+            EventsWipView().review(pending_event.id)
+
+        fresh_db.session.refresh(pending_event)
+        assert pending_event.status == PublicationStatus.PENDING
+        assert pending_event.send_back_reason == ""

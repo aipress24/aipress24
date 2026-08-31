@@ -23,6 +23,7 @@ from sqlalchemy.sql import func
 from sqlalchemy_utils import ArrowType
 
 from app.enums import ContactTypeEnum, OrganisationTypeEnum, RoleEnum
+from app.lib.utils import strip_taxonomy_prefix
 from app.modules.kyc.survey_model import get_survey_profile
 
 from .base import Base
@@ -219,6 +220,25 @@ class User(LifeCycleMixin, Addressable, UserMixin, Base):
         if self.profile is None:
             return ""
         return self.profile.profile_label
+
+    @hybrid_property
+    def fonction(self) -> str:
+        """Ce qu'on affiche sous le nom d'un membre — ticket #0325.
+
+        Sa fonction déclarée, et à défaut le libellé KYC, c'est-à-dire
+        exactement ce qui est affiché aujourd'hui (règle `FCT-02` : 48 des
+        186 profils mesurés n'ont aucune fonction, et un quart des cartes
+        perdrait son sous-titre).
+
+        Distinct de `job_title`, qui garde son sens : il alimente l'API
+        publique, l'export admin, l'index de recherche et le filtre de
+        l'annuaire — lequel construit ses options en Python depuis
+        `job_title` et interroge `profile_label` en SQL. Les faire diverger
+        casserait ce filtre sans le dire.
+        """
+        if self.profile is None:
+            return ""
+        return self.profile.fonction or self.profile.profile_label
 
     @hybrid_property
     def metiers(self) -> list[str]:
@@ -613,6 +633,24 @@ class KYCProfile(Base):
         )
 
     @property
+    def fonction(self) -> str:
+        """La fonction à afficher, ou `""` si le membre n'en a déclaré aucune.
+
+        Ticket #0325, règle `FCT-01` : la **première** de `toutes_fonctions`,
+        préfixe de famille retiré (`"DIRECTION GÉNÉRALE / Président.e"` ->
+        `"Président.e"`). Le KYC n'a pas de champ « fonction principale », et
+        l'ordre de `toutes_fonctions` place le journalisme en tête, ce qui est
+        celui qui situe un membre sur AIpress24.
+
+        Le repli sur `profile_label` appartient à `User.fonction` : ici, une
+        chaîne vide dit la vérité, à savoir qu'aucune fonction n'est déclarée.
+        """
+        fonctions = self.toutes_fonctions
+        if not fonctions:
+            return ""
+        return strip_taxonomy_prefix(fonctions[0])
+
+    @property
     def fonctions_journalisme(self) -> list[str]:
         return self.match_making.get("fonctions_journalisme", [])
 
@@ -824,17 +862,19 @@ class KYCProfile(Base):
     def parse_form_notification_preferences(self, data: dict[str, str]) -> None:
         """Relire le formulaire : une case cochée vaut « je veux ».
 
-        Écrit les quatre clés, y compris celles restées à `True`. Le
+        Reconstruit les quatre clés au lieu de recopier l'existant : ce
+        sont les seules qui aient un sens, et repartir de zéro efface au
+        passage la clé d'une famille qu'on aurait retirée. Le
         dictionnaire cesse d'être vide dès la première visite, ce qui
         n'a pas d'importance — la lecture traite l'absence et la
         présence de la même façon.
         """
         from app.enums import OPTIONAL_NOTIFICATION_CATEGORIES
 
-        preferences = dict(self.notification_preferences)
-        for category in OPTIONAL_NOTIFICATION_CATEGORIES:
-            preferences[category.value] = bool(data.get(category.value))
-        self.notification_preferences = preferences
+        self.notification_preferences = {
+            category.value: bool(data.get(category.value))
+            for category in OPTIONAL_NOTIFICATION_CATEGORIES
+        }
 
     def parse_form_contact_details(self, data: dict[str, str]) -> None:
         contact_details = deepcopy(self.show_contact_details)

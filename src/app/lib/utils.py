@@ -22,3 +22,14 @@ def merge_dicts(target: dict, other: dict) -> dict:
             target[k] = v
 
     return target
+
+
+def strip_taxonomy_prefix(value: str) -> str:
+    """Return the part of the taxonomy string after the last '/'.
+
+    Example:
+        "STATUT / Etudiant.e" -> "Etudiant.e"
+    """
+    if not value:
+        return ""
+    return value.rsplit("/", 1)[-1].strip()

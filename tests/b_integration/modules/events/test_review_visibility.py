@@ -17,6 +17,7 @@ Ces tests figent cette gratuité. Sans eux, rien ne dirait qu'un futur
 
 from __future__ import annotations
 
+from datetime import datetime
 from typing import TYPE_CHECKING
 
 import arrow
@@ -206,7 +207,9 @@ class TestTheCalendarNeverShowsIt:
         """Le total d'événements que le calendrier de la barre latérale
         compte sur le mois **de cet événement** — celui de la date du
         jour ne le contiendrait pas nécessairement."""
-        start = event.start_time
+        # Annoté : `pyrefly` ne comprend pas SQLAlchemy et voit un
+        # `InstrumentedAttribute` là où le descripteur rend une date.
+        start: datetime | None = event.start_time
         assert start is not None, "la fixture en pose toujours une"
 
         with app.test_request_context("/events/"):

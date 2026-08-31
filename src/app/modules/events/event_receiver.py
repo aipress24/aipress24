@@ -76,7 +76,7 @@ def on_update_event(event: Event) -> None:
     db.session.flush()
 
     if has_changed(before, after):
-        notify_event_changed(post, describe_state(after))
+        notify_event_changed(post, describe_state(before, after))
 
 
 def event_type_to_category(event_type: str) -> str:
@@ -111,6 +111,10 @@ def update_post(
     post.section = info.section
     post.topic = info.topic
     post.audience = list(info.audience or [])
+    # Décision `M1` — ces deux axes ne servent qu'au miroir public :
+    # c'est lui que la barre de filtres interroge.
+    post.competences = list(info.competences or [])
+    post.fonctions = list(info.fonctions or [])
     post.category = event_type_to_category(info.event_type)
 
     # Mode de participation. `access_details` est recopié parce que le

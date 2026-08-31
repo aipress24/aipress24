@@ -22,6 +22,7 @@ from webargs.flaskparser import parser
 from app.flask.extensions import db, htmx
 from app.flask.sqla import get_multi
 from app.models.lifecycle import PublicationStatus
+from app.models.tag_list import contains_tag
 from app.modules.events import blueprint
 from app.modules.events.models import EventPost
 from app.modules.events.services import accredited_event_ids, accredited_ids_among
@@ -96,7 +97,7 @@ class EventsListView(MethodView):
         # Group events by day
         grouper = defaultdict(list)
         for event in events_list:
-            event._is_accredited = event.id in accredited
+            event.is_accredited = event.id in accredited
             vm = EventListVM(event)
             grouper[vm.date].append(vm)
 
@@ -201,7 +202,13 @@ class EventsListView(MethodView):
             if not values:
                 continue
             column = getattr(EventPost, spec["column"])
-            stmt = stmt.where(column.in_(values))
+            if spec.get("multi"):
+                # Colonne multivaluée (décision `M1`) : `in_` comparerait
+                # la valeur cochée au **texte entier** de la colonne, et
+                # ne trouverait que les événements qui ne visent qu'elle.
+                stmt = stmt.where(contains_tag(column, values))
+            else:
+                stmt = stmt.where(column.in_(values))
 
         return stmt
 

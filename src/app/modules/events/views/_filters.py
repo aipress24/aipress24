@@ -23,26 +23,26 @@ if TYPE_CHECKING:
     from sqlalchemy.orm import InstrumentedAttribute
 
 
-def mode_label(value) -> str:
-    """Le libellé français d'un mode de participation (MOD-04).
+def enum_label(labels: dict):
+    """Fabriquer la fonction de libellé d'un filtre adossé à une
+    énumération.
 
-    Appelée avec **deux types** : un membre d'`EventMode` quand elle
+    Appelée avec **deux types** : un membre de l'énumération quand elle
     vient de la requête qui calcule les options, une `str` quand elle
     vient du filtre actif, restauré depuis la session en JSON. Un
     `StrEnum` s'indexe par sa valeur dans les deux cas — c'est ce qui
     permet à une seule table de servir les deux chemins, là où
     `EventMode(value)` ou `value.name` casserait sur l'un des deux.
+
+    Une fabrique et non deux fonctions jumelles : « Format » et
+    « Tarif » ne différaient que par leur dictionnaire, et un troisième
+    filtre énuméré en aurait fait une troisième copie.
     """
-    return MODE_LABELS.get(value, str(value))
+    return lambda value: labels.get(value, str(value))
 
 
-def pricing_label(value) -> str:
-    """Le libellé français d'une modalité tarifaire (PRX-06).
-
-    Comme `mode_label` : appelée tantôt avec un membre d'`EventPricing`,
-    tantôt avec la chaîne restaurée depuis la session.
-    """
-    return PRICING_LABELS.get(value, str(value))
+mode_label = enum_label(MODE_LABELS)
+pricing_label = enum_label(PRICING_LABELS)
 
 
 FILTER_SPECS: list[dict] = [
@@ -67,6 +67,22 @@ FILTER_SPECS: list[dict] = [
         "id": "topic",
         "label": "Type d'info",
         "column": "topic",
+    },
+    # Décision `M1` — deux axes **multivalués** : un événement s'adresse à
+    # plusieurs fonctions à la fois. `"multi"` change deux choses, et
+    # seulement deux : les options se dépouillent des listes rendues par
+    # `TagList`, et la clause SQL devient `contains_tag` au lieu d'`in_`.
+    {
+        "id": "competences",
+        "label": "Compétences visées",
+        "column": "competences",
+        "multi": True,
+    },
+    {
+        "id": "fonctions",
+        "label": "Fonctions visées",
+        "column": "fonctions",
+        "multi": True,
     },
     {
         "id": "mode",
@@ -261,6 +277,8 @@ class FilterBar:
 
             # Get distinct values for this column
             distinct_values = _get_distinct_values(column_name)
+            if spec.get("multi"):
+                distinct_values = _flatten(distinct_values)
             distinct_values = _sorted_like_taxonomy(
                 distinct_values, spec.get("taxonomy")
             )
@@ -276,6 +294,16 @@ class FilterBar:
             result.append({"id": filter_id, "label": label, "options": options})
 
         return result
+
+
+def _flatten(rows: list) -> list[str]:
+    """Réduire les listes d'une colonne `TagList` aux valeurs présentes.
+
+    `DISTINCT` a porté sur le texte entier de la colonne : deux
+    événements aux fonctions `|A|B|` et `|A|C|` en sortent tous les
+    deux, et `A` est là deux fois. Le dédoublonnage se fait donc ici.
+    """
+    return sorted({value for row in rows or [] for value in (row or [])})
 
 
 def _sorted_like_taxonomy(values: list[str], taxonomy: str | None) -> list[str]:

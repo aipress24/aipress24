@@ -95,7 +95,7 @@ class WireTabView(MethodView):
         posts = self._get_posts(tabs, filter_bar)
         return render_template(
             "pages/wire/main.j2",
-            posts=posts,
+            posts=as_cards(posts),
             tabs=self._build_tabs(tabs),
             tab=tab,
             filter_bar=filter_bar,
@@ -110,7 +110,7 @@ class WireTabView(MethodView):
             "pages/wire.j2",
             title="News",
             page=page,
-            posts=posts,
+            posts=as_cards(posts),
             tabs=self._build_tabs(tabs),
             tab=tab,
             filter_bar=filter_bar,
@@ -148,7 +148,6 @@ class WireTabView(MethodView):
         posts = active_tab.get_posts(filter_bar)
         posts = self._filter_posts_by_tag(posts, filter_bar, get_tags)
         _annotate_paid_consultations(posts)
-        _annotate_kind(posts)
         return posts
 
     def _filter_posts_by_tag(
@@ -166,22 +165,22 @@ class WireTabView(MethodView):
         return filtered_posts
 
 
-def _annotate_kind(posts: list) -> None:
-    """Dire au gabarit quelle carte rendre (WIR-04).
+def as_cards(posts: list) -> list[tuple[bool, object]]:
+    """Apparier chaque publication à la carte qui la rend (WIR-04).
 
     Le Wall mêle des articles et des événements depuis le lot C8, et
-    `post_card` lève sur un type qu'il ne connaît pas. Le gabarit doit
-    donc brancher — pas par une comparaison de nom de classe, mais sur
-    une clé que la vue pose.
+    `post_card` lève sur un type qu'il ne connaît pas : le gabarit doit
+    brancher.
 
-    Sur **tous** les éléments et de **tous** les onglets : le même
-    gabarit les rend tous, et les pages sont rendues en
-    `StrictUndefined`, où une clé absente n'est pas fausse mais fatale.
+    Un couple, et **non un attribut posé sur le modèle**. Taguer les
+    instances marcherait, mais c'est du monkey-patching : invisible au
+    vérificateur de types, sans propriétaire, et le premier principe de
+    `notes/lessons-learned.md` l'interdit. La nature d'une publication
+    appartient au rendu, pas à la ligne de base.
     """
     from app.modules.events.models import EventPost
 
-    for post in posts:
-        post.is_event = isinstance(post, EventPost)
+    return [(isinstance(post, EventPost), post) for post in posts]
 
 
 def _annotate_paid_consultations(posts: list) -> None:

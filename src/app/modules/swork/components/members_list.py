@@ -115,8 +115,22 @@ class MembersList(BaseList):
 
 
 class FilterByJobTitle(Filter):
+    """Filtre sur la **catégorie d'inscription KYC**, pas sur la fonction.
+
+    Il s'intitulait « Fonction » alors qu'il a toujours filtré
+    `profile_label`. Depuis le ticket #0325 les cartes affichent la vraie
+    fonction, et l'ancien intitulé promettait ouvertement autre chose que
+    ce qu'il fait.
+
+    `selector` et `apply` doivent désigner la **même** valeur : les options
+    sont construites en Python depuis l'attribut nommé ici, et cherchées en
+    SQL dans la colonne ci-dessous. Les faire diverger — en passant
+    `selector` à `fonction`, par exemple — ne lèverait rien et ne
+    renverrait jamais aucun résultat.
+    """
+
     id = "job_title"
-    label = "Fonction"
+    label = "Profil KYC"
     selector = "job_title"
     options: ClassVar[list[str]] = []  # ty:ignore[invalid-attribute-override]
 

@@ -19,12 +19,12 @@ from app.modules.wip.services.newsroom.expert_selectors import (
     FonctionAssociationsSyndicatsSelector,
     FonctionOrganisationsPriveesSelector,
     FonctionPolitiquesAdministrativesSelector,
-    FonctionSelector,
     LanguesSelector,
     MetierSelector,
     PaysSelector,
     SecteurSelector,
     TailleOrganisationSelector,
+    TransformationMajeureSelector,
     TypeOrganisationSelector,
     VilleSelector,
 )
@@ -205,21 +205,32 @@ class TestMetierSelector:
         assert selector.label == "Métier"
 
 
-class TestFonctionSelector:
-    """Tests for FonctionSelector."""
+class TestTransformationMajeureSelector:
+    """Ticket #0323 — il remplace « Toutes fonctions », retiré par le
+    ticket #0322 : celui-ci n'était adossé à aucune taxonomie et
+    doublonnait quatre filtres déjà proposés."""
 
     def test_selector_has_correct_id(self, experts_with_profiles):
-        """Test selector has correct id and label."""
-        state = {}
-        selector = FonctionSelector(state, experts_with_profiles)
+        selector = TransformationMajeureSelector({}, experts_with_profiles)
 
-        assert selector.id == "fonction"
-        assert selector.label == "Toutes fonctions"
+        assert selector.id == "transformation_majeure"
+        assert selector.label == "Transformations majeures"
+
+    def test_it_is_backed_by_a_real_taxonomy(self, experts_with_profiles):
+        """Le défaut de son prédécesseur : « Toutes fonctions » n'était
+        adossé à aucune taxonomie, ce que son `taxonomy_name is None`
+        signalait. Celui-ci en a une.
+
+        On ne vérifie pas ici qu'elle rend des valeurs : les ontologies
+        ne sont pas chargées à ce niveau de test. Elle en rend 293 dans
+        un contexte applicatif réel.
+        """
+        selector = TransformationMajeureSelector({}, experts_with_profiles)
+
+        assert selector.taxonomy_name == "transformation_majeure"
 
     def test_filter_with_no_criteria_returns_all(self, experts_with_profiles):
-        """Test filtering with empty criteria returns all experts."""
-        state = {}
-        selector = FonctionSelector(state, experts_with_profiles)
+        selector = TransformationMajeureSelector({}, experts_with_profiles)
         result = selector.filter_experts(set(), experts_with_profiles)
 
         assert len(result) == len(experts_with_profiles)

@@ -54,8 +54,14 @@ _LABELS = {
 
 
 def snapshot(post) -> dict:
-    """Photographier les champs surveillés d'un `EventPost`."""
-    return {field: getattr(post, field, None) for field in WATCHED}
+    """Photographier les champs surveillés d'un `EventPost`.
+
+    Sans défaut sur `getattr` : un nom mal orthographié dans `WATCHED`
+    photographierait `None` à chaque fois, donc « ne changerait
+    jamais », et NOT-08 cesserait de partir **en silence**. Mieux vaut
+    que la publication échoue bruyamment.
+    """
+    return {field: getattr(post, field) for field in WATCHED}
 
 
 def has_changed(before: dict, after: dict) -> bool:
@@ -67,7 +73,7 @@ def has_changed(before: dict, after: dict) -> bool:
     return any(not _same(before.get(f), after.get(f)) for f in WATCHED)
 
 
-def describe_state(after: dict) -> list[str]:
+def describe_state(before: dict, after: dict) -> list[str]:
     """Décrire l'état **courant** des informations pratiques.
 
     Un état, et non un delta — « la date passe du 12 au 19 mars » se
@@ -79,14 +85,35 @@ def describe_state(after: dict) -> list[str]:
 
     Un état final est vrai quel que soit le nombre de fusions, et c'est
     de toute façon ce dont on a besoin pour décider d'un déplacement.
+
+    Un champ **vidé** est décrit lui aussi, par un tiret : l'omettre
+    contredirait la promesse d'un état final, et un membre qui avait
+    noté l'adresse ne saurait pas qu'elle a disparu.
+
+    Un champ **jamais renseigné**, lui, reste tu — « Adresse : — »
+    n'apprend rien de ce qui n'a jamais existé. C'est pour distinguer
+    les deux que l'état d'avant est nécessaire : l'état d'après seul ne
+    dit pas si le vide est nouveau.
     """
-    lines = []
-    for field in WATCHED:
-        value = after.get(field)
-        if value is None or not str(value).strip():
-            continue
-        lines.append(f"{_LABELS[field]} : {_render(value)}.")
-    return lines
+    return [
+        f"{_LABELS[field]} : {_render(after.get(field))}."
+        for field in WATCHED
+        if _worth_saying(before.get(field), after.get(field))
+    ]
+
+
+def _worth_saying(old, new) -> bool:
+    """Ce champ mérite-t-il une ligne ?
+
+    Oui s'il porte une valeur, ou s'il en portait une : le vide qui
+    succède à quelque chose est une information, celui qui n'a jamais
+    rien remplacé n'en est pas une.
+    """
+    return bool(_filled(new) or _filled(old))
+
+
+def _filled(value) -> bool:
+    return value is not None and bool(str(value).strip())
 
 
 def _same(old, new) -> bool:
@@ -104,9 +131,19 @@ def _same(old, new) -> bool:
     return str(old).strip() == str(new).strip()
 
 
+#: Ce qu'on affiche pour un champ vide ou absent.
+NOTHING = "—"
+
+
 def _render(value) -> str:
-    if value is None:
-        return "—"
+    """Rendre une valeur surveillée, le vide compris.
+
+    `None` et la chaîne vide donnent le même tiret : du point de vue du
+    lecteur, une adresse effacée et une adresse jamais saisie disent la
+    même chose — il n'y en a pas.
+    """
+    if value is None or not str(value).strip():
+        return NOTHING
     if isinstance(value, arrow.Arrow):
         return value.to(LOCAL_TZ).format("DD/MM/YYYY HH:mm")
     if isinstance(value, EventMode):

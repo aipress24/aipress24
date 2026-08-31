@@ -27,6 +27,7 @@ from app.modules.events.change_detection import (
     describe_state,
     has_changed,
 )
+from app.modules.events.models import EventPost
 
 
 def _snap(**kw):
@@ -43,6 +44,15 @@ class TestWatchedFields:
     def test_dates_and_address_are_watched(self) -> None:
         for field in ("start_datetime", "end_datetime", "address"):
             assert field in WATCHED
+
+    def test_every_watched_field_exists_on_the_model(self) -> None:
+        """Un nom mal orthographié photographierait la même chose à
+        chaque fois, donc « ne changerait jamais », et NOT-08 cesserait
+        de partir **sans que rien ne le dise**. `snapshot` lève
+        désormais ; ce test attrape la faute avant la production.
+        """
+        for field in WATCHED:
+            assert hasattr(EventPost, field), field
 
 
 class TestHasChanged:
@@ -61,14 +71,14 @@ class TestHasChanged:
         after = _snap(pays_zip_ville_detail="FRA / 69001 Lyon")
 
         assert has_changed(before, after) is True
-        assert any("Lyon" in line for line in describe_state(after))
+        assert any("Lyon" in line for line in describe_state(before, after))
 
     def test_a_date_change_names_both_dates(self) -> None:
         before = _snap(start_datetime=arrow.get("2026-03-12T18:00:00+01:00"))
         after = _snap(start_datetime=arrow.get("2026-03-19T18:00:00+01:00"))
 
         assert has_changed(before, after) is True
-        assert any("19/03/2026" in line for line in describe_state(after))
+        assert any("19/03/2026" in line for line in describe_state(before, after))
 
     def test_dates_are_described_in_paris_time(self) -> None:
         """Un membre lit une heure locale, pas de l'UTC."""
@@ -77,7 +87,7 @@ class TestHasChanged:
 
         # 23:30 UTC, c'est 00:30 le lendemain à Paris.
         assert has_changed(before, after) is True
-        assert any("14/03/2026" in line for line in describe_state(after))
+        assert any("14/03/2026" in line for line in describe_state(before, after))
 
     def test_the_same_instant_written_differently_is_not_a_change(self) -> None:
         """Sans cela, chaque ré-enregistrement du formulaire posterait
@@ -145,9 +155,18 @@ class TestTheMessageSurvivesMerging:
             pays_zip_ville_detail="FRA / 69001 Lyon",
         )
 
-        # Deux chemins différents vers le même état final.
-        after_a_date_change = describe_state(final)
-        after_an_address_change = describe_state(final)
+        # Deux chemins différents vers le même état final : la date a
+        # bougé dans un cas, l'adresse dans l'autre.
+        after_a_date_change = describe_state(
+            _snap(address="2 rue B", pays_zip_ville_detail="FRA / 69001 Lyon"), final
+        )
+        after_an_address_change = describe_state(
+            _snap(
+                start_datetime=arrow.get("2026-03-19T18:00:00+01:00"),
+                pays_zip_ville_detail="FRA / 69001 Lyon",
+            ),
+            final,
+        )
 
         assert after_a_date_change == after_an_address_change
         joined = " ".join(after_a_date_change)
@@ -155,14 +174,24 @@ class TestTheMessageSurvivesMerging:
         assert "2 rue B" in joined
         assert "Lyon" in joined
 
-    def test_empty_fields_are_left_out(self) -> None:
-        """Un « Adresse : — » n'apprend rien à personne."""
-        lines = describe_state(
-            _snap(address="", pays_zip_ville_detail="FRA / 75001 Paris")
-        )
+    def test_a_field_never_filled_is_left_out(self) -> None:
+        """Un « Adresse : — » n'apprend rien de ce qui n'a jamais
+        existé."""
+        state = _snap(address="", pays_zip_ville_detail="FRA / 75001 Paris")
+
+        lines = describe_state(state, state)
 
         assert len(lines) == 1
         assert "Paris" in lines[0]
+
+    def test_but_a_field_emptied_is_named(self) -> None:
+        """L'omettre contredirait la promesse d'un état final : un
+        membre qui avait noté l'adresse ne saurait pas qu'elle a
+        disparu."""
+        before = _snap(address="1 rue de la Paix")
+        after = _snap(address="")
+
+        assert describe_state(before, after) == ["Adresse : —."]
 
 
 class TestTheModeIsWatched:
@@ -189,7 +218,7 @@ class TestTheModeIsWatched:
         state = dict.fromkeys(WATCHED, "")
         state["mode"] = EventMode.ONLINE
 
-        lines = describe_state(state)
+        lines = describe_state(dict.fromkeys(WATCHED, ""), state)
 
         assert "Format : en distanciel." in lines
         assert not any("EventMode" in line for line in lines)

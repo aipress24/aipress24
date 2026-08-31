@@ -25,8 +25,8 @@
                             {% endif %}
                         </div>
                         <p class="text-sm text-gray-600 truncate">
-                            {% if member.job_title %}
-                                {{ member.job_title }}
+                            {% if member.fonction %}
+                                {{ member.fonction }}
                                 {% if member.is_external and member.organisation %}
                                     <span class="text-gray-500">({{ member.organisation.name }})</span>
                                 {% endif %}

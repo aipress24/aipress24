@@ -24,6 +24,7 @@ from app.models.base import Base
 from app.models.content.base import BaseContent
 from app.models.content.mixins import Publishable, Searchable
 from app.models.mixins import Addressable, IdMixin, UserFeedbackMixin
+from app.models.tag_list import TagList
 
 
 class EventPostBase(
@@ -53,6 +54,21 @@ class EventPostBase(
     # Classifications partagées avec WIRE (FIL-01), facultatives.
     section: Mapped[str] = mapped_column(default="", info={"group": "metadata"})
     topic: Mapped[str] = mapped_column(default="", info={"group": "metadata"})
+
+    # À qui l'événement s'adresse — décision `M1` du 2026-08-31. Ce sont
+    # des **métadonnées**, comme le secteur ou la rubrique : elles ne
+    # restreignent la visibilité de personne. Un membre qui n'a déclaré
+    # ni compétence ni fonction voit exactement ce que voient les autres.
+    # Les fonctions sont au niveau des **familles** (voir
+    # `events/taxonomies.py`). `TagList` et non `sa.JSON` : la barre de
+    # filtres les interroge en SQL, et SQLite échappe les accents dans
+    # une colonne JSON, PostgreSQL non.
+    competences: Mapped[list[str]] = mapped_column(
+        TagList, default=list, info={"group": "metadata"}
+    )
+    fonctions: Mapped[list[str]] = mapped_column(
+        TagList, default=list, info={"group": "metadata"}
+    )
 
     # Ciblage par communauté (RG-03a). Liste de valeurs de
     # `CommunityEnum` ; **vide = ouvert à toutes**, ce qui préserve le
@@ -172,6 +188,24 @@ class EventPostBase(
 
 class EventPost(EventPostBase):
     __tablename__ = "evt_event_post"
+
+    #: §7.2 — la pastille « Accrédité.e », renseignée par la vue liste
+    #: qui charge toutes les accréditations de la page en une requête.
+    #:
+    #: **Déclaré** et non posé au vol : un attribut non annoncé est
+    #: invisible au vérificateur de types et n'a pas de propriétaire —
+    #: c'est le monkey-patching que le premier principe de
+    #: `notes/lessons-learned.md` interdit.
+    #:
+    #: Le défaut `False` est ce que lisent tous les autres chemins de
+    #: rendu — le Business Wall d'une organisation, notamment, qui ne
+    #: connaît pas les accréditations du lecteur.
+    #:
+    #: Sans annotation : SQLAlchemy 2.0 ne mappe que ce qui est enveloppé
+    #: dans `Mapped[...]`, donc rien n'est stocké ; et un `ClassVar` se
+    #: lirait mais ne s'affecterait pas depuis une instance, ce que la
+    #: vue liste doit précisément faire.
+    is_accredited = False
 
     id: Mapped[int] = mapped_column(
         sa.BigInteger, sa.ForeignKey(BaseContent.id), primary_key=True

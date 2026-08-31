@@ -656,8 +656,11 @@ class TestFilterByJobTitle:
         assert FilterByJobTitle.id == "job_title"
 
     def test_filter_label(self):
-        """Test FilterByJobTitle has correct label."""
-        assert FilterByJobTitle.label == "Fonction"
+        """Ticket #0325 — le filtre s'intitulait « Fonction » alors qu'il
+        a toujours filtré la catégorie d'inscription KYC. Les cartes
+        affichant désormais la vraie fonction, l'intitulé promettait
+        ouvertement autre chose que ce qu'il fait."""
+        assert FilterByJobTitle.label == "Profil KYC"
 
 
 class TestMemberFilterByDeptOrm:

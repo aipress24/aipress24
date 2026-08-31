@@ -41,6 +41,10 @@ from app.modules.events.notifications import (
     notify_status_change,
 )
 from app.modules.events.review import is_reviewer
+from app.modules.events.taxonomies import (
+    competence_options,
+    fonction_options,
+)
 from app.modules.wip.models.eventroom import (
     Event,
     EventImage,
@@ -392,6 +396,12 @@ class EventsWipView(BaseWipView):
             ("", "— l'organisation éditrice —"),
             *_organisations(),
         ]
+
+        # Décision `M1`. Mêmes contraintes que ci-dessus : un champ à
+        # choix dont les options arrivent après `validate()` refuse tout
+        # ce que l'utilisateur a coché.
+        form.competences.choices = [(v, v) for v in competence_options()]
+        form.fonctions.choices = [(v, v) for v in fonction_options()]
 
     def _post_update_model(self, model: Event) -> None:
         # Validate publisher_id: if the user selected a client org they are

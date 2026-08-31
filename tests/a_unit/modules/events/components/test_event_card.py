@@ -97,8 +97,10 @@ class StubEvent:
         pricing=EventPricing.FREE_FOR_ALL,
         price=None,
     ):
-        # PRX-04 : le tarif est calculé par `EventCardVM` pour tous les
-        # chemins de rendu, il fait donc partie du contrat de la carte.
+        # PRX-04 et §7.2 : le tarif et la pastille sont calculés par
+        # `EventCardVM` pour tous les chemins de rendu, ils font donc
+        # partie du contrat de la carte.
+        self.is_accredited = False
         self.pricing = pricing
         self.price = price
         self.currency = "EUR"
@@ -215,6 +217,7 @@ class TestEventCardVM:
                 self.like_count = 0
                 self.comment_count = 0
                 self.view_count = 0
+                self.is_accredited = False
                 self.pricing = EventPricing.FREE_FOR_ALL
                 self.price = None
                 self.currency = "EUR"
@@ -305,6 +308,6 @@ class TestTheCardSurvivesBothWrappingDepths:
         """Le chemin de la liste : la vue pose `_is_accredited` sur la
         ligne, et la carte doit le lire."""
         event = StubEvent()
-        event._is_accredited = True
+        event.is_accredited = True
 
         assert EventCardVM(event)["is_accredited"] is True

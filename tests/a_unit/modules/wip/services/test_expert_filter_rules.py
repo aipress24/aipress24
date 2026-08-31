@@ -343,27 +343,40 @@ class TestParseExpertIdsFromForm:
 # Ticket #0321 re-cut these blocks (press dimensions split out,
 # « Géolocalisation » renamed, the two people-oriented blocks merged).
 # The selector ids themselves are unchanged — only their grouping.
+#: Le découpage final du ticket #0321 — six blocs numérotés, dont le
+#: dernier isole le journalisme, la presse et les médias.
 _SECTION_IDS = {
-    "Secteurs d'activité et types d'organisation": {
+    "Dans quels secteurs d'activité et sur quels types d'organisation se "
+    "déroule votre enquête ? (hors journalisme)": {
         "secteur",
         "type_organisation",
         "taille_organisation",
     },
-    "Presse et médias": {
-        "type_entreprise_presse_medias",
-        "type_presse_et_media",
+    "Quelles zones géographiques votre enquête couvre-t-elle ?": {
+        "pays",
+        "departement",
+        "ville",
     },
-    "Géographie": {"pays", "departement", "ville"},
-    "Fonctions, métiers, compétences et langues": {
+    "Quelles fonctions exercent les contacts que vous recherchez ? "
+    "(hors journalisme)": {
         "fonction_pol_adm",
         "fonction_org_priv",
         "fonction_ass_syn",
-        "fonction",
-        "fonction_journalisme",
+    },
+    "Métiers, compétences et langues des contacts que vous recherchez "
+    "(hors journalisme)": {
         "metier",
         "competences",
-        "competences_journalisme",
         "langues",
+    },
+    "À quelles transformations majeures votre enquête s'intéresse-t-elle ?": {
+        "transformation_majeure",
+    },
+    "Pour les enquêtes qui portent sur le journalisme, la presse et les médias": {
+        "type_entreprise_presse_medias",
+        "type_presse_et_media",
+        "fonction_journalisme",
+        "competences_journalisme",
     },
 }
 
@@ -378,21 +391,30 @@ def _all_selector_stubs() -> list[_StubSelector]:
 
 
 class TestBuildSectionsFromSelectors:
-    def test_returns_exactly_four_sections(self) -> None:
-        """Annie's spec is a 4-thematic layout. Pin so a refactor
-        that adds a fifth section is conscious."""
+    def test_returns_the_six_blocks_of_the_ticket(self) -> None:
+        """Version finale du ticket #0321. Erick en numérote sept ;
+        ses blocs 1 et 2 listent les mêmes filtres, et les répéter
+        afficherait deux fois les mêmes listes déroulantes, qui
+        partagent leur état — ils sont réunis."""
         sections = build_sections_from_selectors(_all_selector_stubs())
-        assert len(sections) == 4
+        assert len(sections) == 6
 
     def test_section_titles_match_spec(self) -> None:
         sections = build_sections_from_selectors(_all_selector_stubs())
-        titles = [s.title for s in sections]
-        assert titles == [
-            "Secteurs d'activité et types d'organisation",
-            "Presse et médias",
-            "Géographie",
-            "Fonctions, métiers, compétences et langues",
-        ]
+        assert [s.title for s in sections] == list(_SECTION_IDS)
+
+    def test_the_press_block_comes_last(self) -> None:
+        """Le principe qui gouverne le découpage : « les recherches sur
+        le journalisme, la presse et les médias sont traitées à part ».
+        Un journaliste qui enquête sur l'agroalimentaire doit pouvoir
+        sauter le dernier bloc d'un coup d'œil."""
+        sections = build_sections_from_selectors(_all_selector_stubs())
+
+        assert "journalisme" in sections[-1].title
+        for section in sections[:-1]:
+            assert not any("journalisme" in s.id for s in section.selectors), (
+                section.title
+            )
 
     def test_each_section_groups_correct_selector_ids(self) -> None:
         sections = build_sections_from_selectors(_all_selector_stubs())
@@ -405,14 +427,12 @@ class TestBuildSectionsFromSelectors:
         renders with what's available rather than crashing.
         Defensive : the UI must keep working through partial
         refactors."""
-        # One selector per section — the last block gets `fonction`
-        # and `metier`, which #0321 merged into it.
         selectors = [
             _StubSelector(i)
-            for i in ("secteur", "type_presse_et_media", "pays", "fonction", "metier")
+            for i in ("secteur", "pays", "fonction_pol_adm", "metier", "langues")
         ]
         sections = build_sections_from_selectors(selectors)
-        assert [len(s.selectors) for s in sections] == [1, 1, 1, 2]
+        assert [len(s.selectors) for s in sections] == [1, 1, 1, 2, 0, 0]
 
     def test_returns_selectorsection_dataclasses(self) -> None:
         sections = build_sections_from_selectors(_all_selector_stubs())
