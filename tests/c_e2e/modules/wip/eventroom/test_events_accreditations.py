@@ -42,6 +42,7 @@ def event(db_session: Session, test_org: Organisation, test_user: User) -> Event
     ev = Event(owner=test_user, publisher=test_org)
     ev.titre = "Salon à accréditer"
     ev.contenu = "Contenu"
+    ev.address = "1 rue de la Paix, Paris"
     ev.status = PublicationStatus.DRAFT
     now = arrow.utcnow()
     ev.start_time = now.shift(days=3).datetime
@@ -178,6 +179,7 @@ class TestConfidentiality:
         ev = Event(owner=stranger, publisher=None)
         ev.titre = "Événement d'un autre"
         ev.contenu = "Contenu"
+        ev.address = "1 rue de la Paix, Paris"
         ev.status = PublicationStatus.DRAFT
         db_session.add(ev)
         db_session.flush()
@@ -246,6 +248,7 @@ class TestOrganisationMembershipIsNotEnough:
         ev = Event(owner=colleague, publisher=test_org)
         ev.titre = "Événement d'un collègue"
         ev.contenu = "Contenu"
+        ev.address = "1 rue de la Paix, Paris"
         ev.status = PublicationStatus.DRAFT
         db_session.add(ev)
         db_session.flush()

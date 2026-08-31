@@ -15,6 +15,7 @@ from __future__ import annotations
 import arrow
 
 from app.constants import LOCAL_TZ
+from app.enums import MODE_LABELS, EventMode
 
 # Les champs dont un changement justifie de prévenir les accrédités.
 #
@@ -23,17 +24,29 @@ from app.constants import LOCAL_TZ
 # `code_postal`, `departement` et `ville`. Surveiller le premier seul
 # resterait muet sur « Paris → Lyon », qui est le cas même pour lequel
 # cette règle existe.
+#
+# `mode` et `platform` sont surveillés depuis le lot C4 : passer un
+# événement du présentiel au distanciel change tout pour qui comptait
+# s'y rendre. `access_details` ne l'est **pas** — il est réservé aux
+# accrédités (MOD-02), et le mettre ici le ferait voyager dans le
+# message de changement, dont le corps est repris tel quel.
 WATCHED = (
     "start_datetime",
     "end_datetime",
+    "mode",
+    "platform",
     "address",
     "pays_zip_ville",
     "pays_zip_ville_detail",
 )
 
+#: Un champ surveillé sans libellé lèverait `KeyError` au milieu de la
+#: publication, là où l'on attend une notification.
 _LABELS = {
     "start_datetime": "Début",
     "end_datetime": "Fin",
+    "mode": "Format",
+    "platform": "Plateforme",
     "address": "Adresse",
     "pays_zip_ville": "Pays",
     "pays_zip_ville_detail": "Lieu",
@@ -96,4 +109,7 @@ def _render(value) -> str:
         return "—"
     if isinstance(value, arrow.Arrow):
         return value.to(LOCAL_TZ).format("DD/MM/YYYY HH:mm")
+    if isinstance(value, EventMode):
+        # Sans quoi le message annoncerait « Format : EventMode.ONLINE ».
+        return MODE_LABELS[value]
     return str(value).strip()

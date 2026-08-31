@@ -43,6 +43,20 @@ class EventCardVM(ViewModel):
             "likes": event.like_count,
             "replies": event.comment_count,
             "views": event.view_count,
+            # §7.2 — la pastille « Accrédité.e ». Renseignée par la vue
+            # liste, qui charge toutes les accréditations de la page en
+            # une requête ; **absente partout ailleurs**.
+            #
+            # C'est cette clé qu'il faut poser ici, et non se reposer
+            # sur `EventListVM` : la carte est rendue à deux
+            # profondeurs d'enveloppe —
+            # `EventCardVM(EventListVM(EventPost))` sur la liste, et
+            # `EventCardVM(EventPost)` sur le Business Wall d'une
+            # organisation, qui passe la ligne brute. Sur le second
+            # chemin la clé n'existait pas, et comme les gabarits sont
+            # rendus en `StrictUndefined`, la rubrique Événements du
+            # Business Wall **plantait** depuis le lot L2.
+            "is_accredited": getattr(event, "_is_accredited", False),
         }
 
     def _get_organisation_logo_url(self) -> str:

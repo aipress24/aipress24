@@ -34,6 +34,7 @@ def event_with_title(
     event = Event(owner=test_user, publisher=test_org)
     event.titre = "Test Event With Images"
     event.contenu = "Content for image tests"
+    event.address = "1 rue de la Paix, Paris"
     event.status = PublicationStatus.DRAFT
     db_session.add(event)
     db_session.flush()
@@ -48,6 +49,7 @@ def published_event(
     event = Event(owner=test_user, publisher=test_org)
     event.titre = "Published Event"
     event.contenu = "Published content"
+    event.address = "1 rue de la Paix, Paris"
     event.status = PublicationStatus.DRAFT
     # #0172: publish requires both dates.
     now = datetime.now(UTC)

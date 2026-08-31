@@ -190,6 +190,25 @@ def sees_full_content(user: User, event: EventPost) -> bool:
     return in_audience(user, event.audience or [])
 
 
+def sees_access_details(user: User, event: EventPost) -> bool:
+    """Le membre voit-il les modalités d'accès ? (MOD-02)
+
+    **Ce n'est pas `sees_full_content`.** Celui-ci dit l'appartenance à
+    l'audience, et une audience vide — le cas ordinaire — laisse passer
+    tout le site. Y adosser `access_details` publierait le code d'accès
+    d'une visioconférence à tout le monde.
+
+    Le seul droit qui compte ici est l'accréditation accordée : c'est
+    ce que MOD-02 demande, et ce dont un code d'entrée a besoin.
+    L'organisateur voit les siens, évidemment — il les a saisis.
+    """
+    if user is None or getattr(user, "is_anonymous", True):
+        return False
+    if user.id == event.owner_id:
+        return True
+    return is_participant(event, user)
+
+
 def accredited_ids_among(user, event_ids: list[int]) -> set[int]:
     """Parmi ces événements, lesquels le membre est-il accrédité ? (§7.2)
 

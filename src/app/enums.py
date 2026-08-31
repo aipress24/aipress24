@@ -5,7 +5,7 @@
 
 from __future__ import annotations
 
-from enum import Enum, StrEnum
+from enum import Enum, StrEnum, auto
 
 
 class RoleEnum(StrEnum):
@@ -37,6 +37,36 @@ class CommunityEnum(StrEnum):
     LEADERS_EXPERTS = "Leaders & Experts"
     TRANSFORMERS = "Transformers"
     ACADEMICS = "Academics"
+
+
+class EventMode(StrEnum):
+    """Mode de participation à un événement — `MOD-01` à `MOD-06`.
+
+    Ici et non dans l'un des deux modèles d'événement : le modèle de
+    saisie (`wip.models.eventroom.Event`) et le miroir public
+    (`events.models.EventPostBase`) le portent tous les deux, et
+    `events` importe déjà `wip`. Le loger dans l'un des deux créerait
+    une arête en retour.
+
+    Les libellés d'affichage suivent juste en dessous : trois
+    consommateurs en ont besoin — le message de refus à la publication,
+    le filtre « Format » et le formulaire de saisie — et une seule
+    table les tient tous.
+    """
+
+    ON_SITE = auto()
+    ONLINE = auto()
+    HYBRID = auto()
+    PHONE = auto()
+
+
+#: Libellés français des modes de participation.
+MODE_LABELS: dict[EventMode, str] = {
+    EventMode.ON_SITE: "en présentiel",
+    EventMode.ONLINE: "en distanciel",
+    EventMode.HYBRID: "hybride",
+    EventMode.PHONE: "par téléphone",
+}
 
 
 class ContactTypeEnum(StrEnum):

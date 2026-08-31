@@ -13,6 +13,7 @@ from flask import flash, g, make_response, redirect, render_template, request
 from flask.views import MethodView
 from werkzeug import Response
 
+from app.enums import MODE_LABELS
 from app.flask.extensions import db
 from app.flask.lib.nav import nav
 from app.flask.routing import url_for
@@ -25,6 +26,7 @@ from app.modules.events.services import (
     get_accreditation,
     is_open,
     request_accreditation,
+    sees_access_details,
     sees_full_content,
     withdraw_accreditation,
 )
@@ -75,6 +77,7 @@ class EventDetailView(MethodView):
             "sees_content": sees_full_content(g.user, event_obj),
             "audience": event_obj.audience or [],
             "is_open": is_open(event_obj),
+            "sees_access_details": sees_access_details(g.user, event_obj),
         }
         return render_template("pages/event.j2", **ctx)
 
@@ -222,7 +225,13 @@ class EventDetailView(MethodView):
                 "href": "events",
             },
             {"label": "Secteur", "value": item.sector or "N/A", "href": "events"},
+            # MOD-01 : le format est public. `access_details` ne l'est
+            # pas et n'a rien à faire ici — cette liste est rendue par
+            # `event--aside.j2`, que rien ne garde.
+            {"label": "Format", "value": MODE_LABELS[item.mode], "href": "events"},
         ]
+        if item.platform:
+            data.append({"label": "Plateforme", "value": item.platform})
 
         if item.address:
             data.append({"label": "Adresse", "value": item.address, "href": "events"})

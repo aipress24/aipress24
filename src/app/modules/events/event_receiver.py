@@ -113,6 +113,13 @@ def update_post(
     post.audience = list(info.audience or [])
     post.category = event_type_to_category(info.event_type)
 
+    # Mode de participation. `access_details` est recopié parce que le
+    # rappel de la veille en a besoin (NOT-13) ; c'est le seul endroit
+    # où un accrédité le voit.
+    post.mode = info.mode
+    post.platform = info.platform
+    post.access_details = info.access_details
+
     # Annulation (ANN-04) : le miroir barre l'annonce, il lui faut donc
     # la date et le motif. Aucun des deux n'est surveillé par NOT-11 —
     # une annulation n'est pas un changement d'horaire, elle a sa

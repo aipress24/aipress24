@@ -40,6 +40,7 @@ from typing import TYPE_CHECKING
 import pytest
 from werkzeug.datastructures import ImmutableMultiDict
 
+from app.enums import EventMode
 from app.modules.wip.crud.cbvs._forms import EventForm
 
 if TYPE_CHECKING:
@@ -77,7 +78,14 @@ def _make_form(app: Flask, data: dict | None = None) -> EventForm:
     production code populates them from the taxonomy cache ; we
     override with a single-entry list so SelectField pre-validation
     can pass without a seeded DB)."""
-    payload = ImmutableMultiDict(data or {})
+    # MOD-01 : `mode` est un select toujours rendu avec une option
+    # présélectionnée, donc toujours présent dans un POST réel. Les
+    # charges utiles de ces tests sont partielles par construction : on
+    # le pose ici, comme on pose déjà les choix des deux
+    # `RichSelectField`.
+    payload = dict(data or {})
+    payload.setdefault("mode", EventMode.ON_SITE.name)
+    payload = ImmutableMultiDict(payload)
     with app.test_request_context():
         form = EventForm(payload)
         form.sector.choices = [(_STUB_SECTOR, _STUB_SECTOR)]
@@ -294,9 +302,12 @@ class TestFormShape:
             "event_type",
             "section",
             "topic",
+            "mode",
+            "platform",
             "address",
             "pays_zip_ville",
             "url",
+            "access_details",
             "start_time",
             "end_time",
         }
@@ -364,3 +375,52 @@ class TestFormShape:
         assert form.url.render_kw == {"width": 6}
         assert form.start_time.render_kw == {"width": 3}
         assert form.end_time.render_kw == {"width": 3}
+
+
+class TestTheModeField:
+    """MOD-01, MOD-04, MOD-06 — le format de participation au formulaire."""
+
+    def test_the_choices_carry_the_enum_names(self, app: Flask):
+        """`sa.Enum` stocke le **nom** du membre, pas sa valeur. Un
+        formulaire qui posterait « on_site » ferait lever `LookupError`
+        à l'ORM en relecture."""
+        form = _make_form(app, {})
+
+        # Déclarés en dur dans le corps de la classe (MOD-06) : ils
+        # n'ont pas à être injectés après coup comme ceux des
+        # `RichSelectField`, et `_base.py` valide **avant** de les
+        # injecter — un champ dont les choix arrivent plus tard échoue
+        # à la pré-validation d'un POST.
+        choices = form.mode.choices
+        assert choices is not None
+
+        values = [value for value, _label in choices]
+        assert values == [m.name for m in EventMode]
+        assert "ON_SITE" in values
+        assert "on_site" not in values
+
+    def test_the_labels_are_readable(self, app: Flask):
+        form = _make_form(app, {})
+        choices = form.mode.choices
+        assert choices is not None
+
+        labels = [label for _value, label in choices]
+        assert "En présentiel" in labels
+        assert "Par téléphone" in labels
+
+    def test_an_unknown_mode_is_refused(self, app: Flask):
+        """`SelectField` pré-valide contre ses choix : une valeur
+        forgée n'atteint jamais le modèle."""
+        form = _make_form(app, {"titre": "T", "contenu": "C", "mode": "TELEPATHY"})
+
+        assert not form.validate()
+        assert form.mode.errors
+
+    def test_the_new_fields_are_rendered(self, app: Flask):
+        """`FormRenderer` n'affiche que les noms listés dans
+        `Meta.groups`, alors que `validate()` parcourt tous les champs
+        déclarés. Un champ absent du groupe produirait une erreur que
+        l'organisateur ne peut pas corriger, faute de le voir."""
+        rendered = set(EventForm.Meta.groups["metadata"]["fields"])
+
+        assert {"mode", "platform", "access_details"} <= rendered

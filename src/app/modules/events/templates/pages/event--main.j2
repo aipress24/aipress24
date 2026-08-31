@@ -1,3 +1,20 @@
+{# MOD-02 — les modalités d'accès, aux accrédités seuls.
+
+   Hors de la garde `sees_content` volontairement : celle-ci dit
+   l'appartenance à l'audience, et une accréditation survit à un
+   changement de ciblage (§7.4). Un membre accrédité puis exclu de
+   l'audience garde sa place — il doit garder le moyen d'y accéder. #}
+{% if sees_access_details and event.access_details %}
+  <section class="p-4 bg-amber-50 border border-amber-200 shadow sm:rounded">
+    <h2 class="aui-title mb-2">Modalités d'accès</h2>
+    <p class="text-xs text-amber-800 mb-3">
+      Ces informations vous sont réservées en tant que personne
+      accréditée. Merci de ne pas les diffuser.
+    </p>
+    <div class="text-sm text-gray-900 whitespace-pre-line">{{ event.access_details }}</div>
+  </section>
+{% endif %}
+
 {% if sees_content %}
   <section class="p-4 bg-white shadow sm:rounded">
     <h2 class="aui-title mb-4">Présentation</h2>

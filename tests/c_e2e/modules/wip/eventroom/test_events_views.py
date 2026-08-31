@@ -29,6 +29,7 @@ def test_event(db_session: Session, test_org: Organisation, test_user: User) -> 
     event = Event(owner=test_user, publisher=test_org)
     event.titre = "Test Conference"
     event.contenu = "Conference description"
+    event.address = "1 rue de la Paix, Paris"
     event.set_schedule(
         start=arrow.get("2025-12-01 10:00:00").datetime,
         end=arrow.get("2025-12-01 18:00:00").datetime,
@@ -47,6 +48,7 @@ def invalid_time_event(
     event = Event(owner=test_user, publisher=test_org)
     event.titre = "Invalid Event"
     event.contenu = "Event with wrong times"
+    event.address = "1 rue de la Paix, Paris"
     # NOTE: Intentionally set invalid times directly (bypassing set_schedule validation)
     # to create test data for validation testing
     event.start_time = arrow.get("2025-12-01 18:00:00").datetime
@@ -65,6 +67,7 @@ def published_event(
     event = Event(owner=test_user, publisher=test_org)
     event.titre = "Published Conference"
     event.contenu = "Public event"
+    event.address = "1 rue de la Paix, Paris"
     event.set_schedule(
         start=arrow.get("2025-12-01 10:00:00").datetime,
         end=arrow.get("2025-12-01 18:00:00").datetime,
@@ -131,6 +134,7 @@ class TestEventsPublish:
         event = Event(owner=test_user, publisher=test_org)
         event.titre = ""  # Empty titre
         event.contenu = "Some content"
+        event.address = "1 rue de la Paix, Paris"
         event.status = PublicationStatus.DRAFT
         db_session.add(event)
         db_session.flush()
@@ -150,6 +154,7 @@ class TestEventsPublish:
         event = Event(owner=test_user, publisher=test_org)
         event.titre = "Test Title"
         event.contenu = ""  # Empty contenu
+        event.address = "1 rue de la Paix, Paris"
         event.status = PublicationStatus.DRAFT
         db_session.add(event)
         db_session.flush()
@@ -174,6 +179,7 @@ class TestEventsPublish:
         event = Event(owner=test_user, publisher=test_org)
         event.titre = "Event without dates"
         event.contenu = "Some content"
+        event.address = "1 rue de la Paix, Paris"
         event.status = PublicationStatus.DRAFT
         # No start_time / end_time set.
         db_session.add(event)

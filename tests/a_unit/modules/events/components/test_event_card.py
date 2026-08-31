@@ -267,3 +267,33 @@ class TestDefaultLogoUrl:
     def test_default_logo_url_is_defined(self):
         """Test that DEFAULT_LOGO_URL constant is defined."""
         assert DEFAULT_LOGO_URL == "/static/img/transparent-square.png"
+
+
+class TestTheCardSurvivesBothWrappingDepths:
+    """La carte est rendue de deux façons, et l'une d'elles plantait.
+
+    Sur `/events/`, la vue enveloppe chaque ligne dans un `EventListVM`
+    avant de la donner à la carte : `EventCardVM(EventListVM(EventPost))`.
+    Sur le Business Wall d'une organisation, `org--tab-events.html` passe
+    la **ligne brute** : `EventCardVM(EventPost)`.
+
+    Le lot L2 avait posé la pastille « Accrédité.e » sur une clé
+    calculée par `EventListVM`, absente du second chemin. Les gabarits
+    étant rendus en `StrictUndefined`, la rubrique Événements du
+    Business Wall levait `UndefinedError` — un 500, pas une pastille
+    manquante.
+    """
+
+    def test_the_key_exists_on_a_raw_model(self):
+        """Le chemin du Business Wall."""
+        event = StubEvent()
+
+        assert EventCardVM(event)["is_accredited"] is False
+
+    def test_and_carries_through_a_list_view_model(self):
+        """Le chemin de la liste : la vue pose `_is_accredited` sur la
+        ligne, et la carte doit le lire."""
+        event = StubEvent()
+        event._is_accredited = True
+
+        assert EventCardVM(event)["is_accredited"] is True

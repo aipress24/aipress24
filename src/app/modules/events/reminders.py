@@ -185,6 +185,10 @@ def _bell_and_payload(session, event: EventPost, member) -> dict:
         "event_title": event.title,
         "event_date": when,
         "event_url": url,
+        # NOT-13. Dans l'**email** et non dans la cloche : celle-ci est
+        # stockée en clair dans une table de notifications rendue par
+        # une liste générique, sans garde propre à l'événement.
+        "access_details": event.access_details or "",
     }
 
 

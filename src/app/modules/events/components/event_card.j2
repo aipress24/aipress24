@@ -5,6 +5,24 @@
          sur la ligne date/heure. #}
       <div class="text-sm text-gray-700 flex items-start justify-between gap-2">
         <div data-start-date="2022/02/17" data-end-date="2022/02/18" data-status="active">
+          {# MOD-03 — le pictogramme du mode, lu **directement sur le
+             modèle**. La carte est rendue à deux profondeurs
+             d'enveloppe : `EventCardVM(EventListVM(EventPost))` sur la
+             liste, `EventCardVM(EventPost)` sur le Business Wall d'une
+             organisation. Tout ce qu'`EventListVM` calcule est
+             `Undefined` — donc faux, sans erreur — sur le second
+             chemin. C'est ce qui fait que la pastille « Accrédité.e »
+             n'y apparaît toujours pas. #}
+          {% if event.mode == "hybrid" %}
+            {{ icon("building-office", class="inline h-4 w-4 text-gray-500", title="Hybride") }}
+            {{ icon("video-camera", class="inline h-4 w-4 text-gray-500", title="Hybride") }}
+          {% elif event.mode == "online" %}
+            {{ icon("video-camera", class="inline h-4 w-4 text-gray-500", title="En distanciel") }}
+          {% elif event.mode == "phone" %}
+            {{ icon("phone", class="inline h-4 w-4 text-gray-500", title="Par téléphone") }}
+          {% else %}
+            {{ icon("building-office", class="inline h-4 w-4 text-gray-500", title="En présentiel") }}
+          {% endif %}
           {{event.opening}}
         </div>
         {% if event.is_accredited %}

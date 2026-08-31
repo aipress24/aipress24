@@ -5,10 +5,10 @@
 from __future__ import annotations
 
 from wtforms import Form, validators
-
-# from wtforms.fields.choices import SelectField
+from wtforms.fields.choices import SelectField
 from wtforms.fields.simple import StringField, TextAreaField
 
+from app.enums import MODE_LABELS, EventMode
 from app.flask.lib.wtforms.fields import (
     DateTimeField,
     RichSelectField,
@@ -544,6 +544,28 @@ class EventForm(Form):
         validators=[validators.Optional()],
     )
 
+    # MOD-01 — le mode décide de ce qui est obligatoire pour publier.
+    # Un `SelectField` aux choix déclarés en dur, et non un
+    # `RichSelectField` : celui-ci résout ses options dans la table des
+    # taxonomies, ce que MOD-06 écarte explicitement pour ce champ.
+    #
+    # Les choix portent le **nom** du membre et non sa valeur : c'est ce
+    # que `sa.Enum` stocke en base, et écrire la forme minuscule ferait
+    # lever `LookupError` à l'ORM en relecture.
+    mode = SelectField(
+        "Format de l'événement",
+        choices=[(m.name, MODE_LABELS[m].capitalize()) for m in EventMode],
+        default=EventMode.ON_SITE.name,
+        render_kw={"width": 3},
+        validators=[validators.InputRequired()],
+    )
+
+    platform = StringField(
+        "Plateforme (pour les événements en distanciel ou hybrides)",
+        render_kw={"width": 3},
+        validators=[validators.Optional()],
+    )
+
     address = TextAreaField(
         "Adresse de l'événement (pour les événements en présentiel ou hybrides)",
         render_kw={"width": 6},
@@ -566,6 +588,16 @@ class EventForm(Form):
 
     url = StringField(
         "URL de l'événement (pour les événements en ligne ou hybrides)",
+        render_kw={"width": 6},
+        validators=[validators.Optional()],
+    )
+
+    # MOD-02 — réservé aux personnes accréditées : il n'apparaît ni sur
+    # la liste, ni pour un visiteur, ni dans l'index de recherche. Le
+    # rappel de la veille est le seul endroit où un accrédité le
+    # reçoit sans revenir sur le site (NOT-13).
+    access_details = TextAreaField(
+        "Modalités d'accès (obligatoires pour une conférence téléphonique)",
         render_kw={"width": 6},
         validators=[validators.Optional()],
     )
@@ -601,9 +633,12 @@ class EventForm(Form):
                     "sector",
                     "section",
                     "topic",
+                    "mode",
+                    "platform",
                     "address",
                     "pays_zip_ville",
                     "url",
+                    "access_details",
                 ],
             },
             "dates": {

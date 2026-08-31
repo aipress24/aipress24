@@ -30,6 +30,7 @@ from app.modules.events.services import (
     can_user_accredit,
     in_audience,
     request_accreditation,
+    sees_access_details,
     sees_full_content,
 )
 from app.modules.events.views._common import EventDetailVM
@@ -198,6 +199,7 @@ class TestTheGuardsActuallyBite:
                 "pages/event--main.j2",
                 event=EventDetailVM(event),
                 sees_content=sees_full_content(outsider, event),
+                sees_access_details=sees_access_details(outsider, event),
                 audience=event.audience,
             )
 
@@ -218,6 +220,7 @@ class TestTheGuardsActuallyBite:
                 "pages/event--main.j2",
                 event=EventDetailVM(event),
                 sees_content=sees_full_content(journalist, event),
+                sees_access_details=sees_access_details(journalist, event),
                 audience=event.audience,
             )
 

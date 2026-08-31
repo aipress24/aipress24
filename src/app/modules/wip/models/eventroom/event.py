@@ -10,10 +10,11 @@ from typing import ClassVar
 import arrow
 import sqlalchemy as sa
 from advanced_alchemy.types.file_object import FileObject, StoredObject
-from sqlalchemy import orm
+from sqlalchemy import event as sa_event, orm
 from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy_utils import ArrowType
 
+from app.enums import MODE_LABELS, EventMode
 from app.lib.file_object_utils import media_url
 from app.models.base import Base
 from app.models.lifecycle import PublicationStatus
@@ -117,6 +118,19 @@ class Event(IdMixin, LifeCycleMixin, Owned, Base):
     )
     cancellation_reason: Mapped[str] = mapped_column(default="")
 
+    # Mode de participation (MOD-01). `platform` est un champ libre et
+    # non une ontologie (MOD-06) : la liste des outils de
+    # visioconférence change trop vite pour valoir une taxonomie, et
+    # aucun besoin de filtrage dessus n'est exprimé.
+    mode: Mapped[EventMode] = mapped_column(
+        sa.Enum(EventMode), default=EventMode.ON_SITE
+    )
+    platform: Mapped[str] = mapped_column(default="")
+    # MOD-02 — réservé aux personnes accréditées. C'est la seule donnée
+    # d'un événement soumise à ce régime : ni la liste, ni un visiteur
+    # non accrédité, ni l'index de recherche ne doivent la voir.
+    access_details: Mapped[str] = mapped_column(default="")
+
     # Localisation
     address: Mapped[str] = mapped_column(default="")
     pays_zip_ville: Mapped[str] = mapped_column(default="")
@@ -190,6 +204,8 @@ class Event(IdMixin, LifeCycleMixin, Owned, Base):
             msg = "Cannot publish event: contenu is required"
             raise ValueError(msg)
 
+        self._require_fields_for_mode()
+
         # Bug #0172 — BUSINESS RULE: an event without dates would be
         # silently filtered out of the public /events/ list (the
         # default DateFilter compares `start_datetime`/`end_datetime`
@@ -223,6 +239,56 @@ class Event(IdMixin, LifeCycleMixin, Owned, Base):
             self.published_at = arrow.now("Europe/Paris")  # type: ignore[assignment]
         if publisher_id:
             self.publisher_id = publisher_id
+
+    #: MOD-01 — ce que chaque mode exige pour être publiable, et le
+    #: nom du champ tel que le formulaire le montre. Une table plutôt
+    #: qu'une cascade de `if` : la règle est un tableau dans la
+    #: spécification, elle se relit mieux comme un tableau ici.
+    REQUIRED_BY_MODE: ClassVar[dict[EventMode, tuple[tuple[str, str], ...]]] = {
+        EventMode.ON_SITE: (("address", "l'adresse de l'événement"),),
+        EventMode.ONLINE: (
+            ("url", "l'URL de l'événement"),
+            ("platform", "la plateforme"),
+        ),
+        EventMode.HYBRID: (
+            ("address", "l'adresse de l'événement"),
+            ("url", "l'URL de l'événement"),
+            ("platform", "la plateforme"),
+        ),
+        EventMode.PHONE: (
+            ("access_details", "les modalités d'accès (numéro et code)"),
+        ),
+    }
+
+    def _require_fields_for_mode(self) -> None:
+        """MOD-01 — refuser la publication s'il manque un champ du mode.
+
+        Même garde-fou que les dates du bug #0172, et pour la même
+        raison : un événement en présentiel sans adresse, ou en
+        distanciel sans lien, est publié mais inutilisable. Mieux vaut
+        un refus explicite qu'une annonce à laquelle personne ne peut
+        se rendre.
+
+        Raises:
+            ValueError: un champ requis par le mode est vide.
+        """
+        missing = [
+            label
+            for field, label in self.REQUIRED_BY_MODE[self.mode]
+            if not (getattr(self, field) or "").strip()
+        ]
+        if not missing:
+            return
+
+        # Formulé sans accord : le nombre du verbe dépendrait du
+        # nombre de champs manquants, celui de l'article du libellé de
+        # chacun, et les deux se contredisent — « les modalités d'accès
+        # est obligatoire ». Une liste n'a pas ce problème.
+        msg = (
+            f"Impossible de publier : pour un événement "
+            f"{MODE_LABELS[self.mode]}, il manque {', '.join(missing)}."
+        )
+        raise ValueError(msg)
 
     def can_unpublish(self) -> bool:
         """Check if event can be unpublished."""
@@ -376,6 +442,24 @@ class Event(IdMixin, LifeCycleMixin, Owned, Base):
     def update_image_positions(self) -> None:
         for i, image in enumerate(self.sorted_images):
             image.position = i
+
+
+@sa_event.listens_for(Event, "init")
+def _default_mode(target, _args, kwargs) -> None:
+    """Donner son mode à un événement dès sa construction.
+
+    Le `default=` de `mapped_column` n'est posé qu'à l'insertion : avant
+    le premier flush, `Event().mode` vaut `None`, et la validation de
+    MOD-01 n'a alors aucune ligne à consulter. Ce n'est pas un détail de
+    test — l'API construit un événement et le publie dans la même
+    transaction, sans flush intermédiaire.
+
+    Le statut souffre du même défaut et s'en tire par accident :
+    `can_publish()` compare `None` à `DRAFT`, ce qui est faux, et refuse
+    avec un message clair. On ne peut pas compter là-dessus pour une
+    table indexée par la valeur.
+    """
+    kwargs.setdefault("mode", EventMode.ON_SITE)
 
 
 class EventImage(IdMixin, LifeCycleMixin, Owned, Base):

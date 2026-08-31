@@ -860,3 +860,10 @@ class EventReminderMail(EmailTemplate):
     event_title: str
     event_date: str
     event_url: str
+    # NOT-13 — les modalités d'accès voyagent avec le rappel : c'est le
+    # seul moment où un accrédité les reçoit sans revenir sur le site.
+    # Valeur par défaut, parce qu'un rappel n'en a pas toujours et
+    # qu'une clé de charge utile sans champ correspondant lèverait
+    # `TypeError` à l'envoi — perdant tout le lot après que le registre
+    # l'a déjà marqué envoyé.
+    access_details: str = ""

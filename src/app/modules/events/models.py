@@ -18,6 +18,7 @@ from sqlalchemy.sql import func
 from sqlalchemy_utils import ArrowType
 from sqlalchemy_utils.functions.orm import hybrid_property
 
+from app.enums import EventMode
 from app.models.auth import User
 from app.models.base import Base
 from app.models.content.base import BaseContent
@@ -61,6 +62,22 @@ class EventPostBase(
     audience: Mapped[list[str]] = mapped_column(
         sa.JSON, default=list, info={"group": "metadata"}
     )
+
+    # Mode de participation (MOD-01 à MOD-06).
+    mode: Mapped[EventMode] = mapped_column(
+        sa.Enum(EventMode),
+        default=EventMode.ON_SITE,
+        info={"group": "metadata"},
+    )
+    platform: Mapped[str] = mapped_column(default="", info={"group": "metadata"})
+    # MOD-02 — la seule donnée d'un événement réservée aux accrédités.
+    # Elle est portée par le miroir parce que le rappel de la veille en
+    # a besoin (NOT-13), mais **aucun gabarit public ne doit la lire** :
+    # `ViewModel.__getattr__` délègue au modèle sans liste blanche,
+    # donc `{{ event.access_details }}` s'afficherait partout sans
+    # erreur. Rien dans le cadre ne l'empêche ; seule la relecture le
+    # fait, et le test qui l'épingle.
+    access_details: Mapped[str] = mapped_column(default="")
 
     # Annulation (ANN-03, ANN-04). Recopiée du modèle de saisie parce
     # que la liste, le calendrier et le Business Wall lisent le miroir :

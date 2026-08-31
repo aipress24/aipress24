@@ -20,7 +20,9 @@ from __future__ import annotations
 import arrow
 import pytest
 
+from app.enums import EventMode
 from app.modules.events.change_detection import (
+    _LABELS,
     WATCHED,
     describe_state,
     has_changed,
@@ -161,3 +163,43 @@ class TestTheMessageSurvivesMerging:
 
         assert len(lines) == 1
         assert "Paris" in lines[0]
+
+
+class TestTheModeIsWatched:
+    """NOT-11 étendu par C4 — passer du présentiel au distanciel change
+    tout pour qui comptait s'y rendre."""
+
+    def test_a_mode_change_triggers(self) -> None:
+        before = dict.fromkeys(WATCHED, "")
+        before["mode"] = EventMode.ON_SITE
+        after = dict(before, mode=EventMode.ONLINE)
+
+        assert has_changed(before, after)
+
+    def test_a_platform_change_triggers(self) -> None:
+        before = dict.fromkeys(WATCHED, "")
+        before["platform"] = "Zoom"
+        after = dict(before, platform="Teams")
+
+        assert has_changed(before, after)
+
+    def test_the_message_names_the_mode_in_french(self) -> None:
+        """Sans conversion, le message annoncerait
+        « Format : EventMode.ONLINE »."""
+        state = dict.fromkeys(WATCHED, "")
+        state["mode"] = EventMode.ONLINE
+
+        lines = describe_state(state)
+
+        assert "Format : en distanciel." in lines
+        assert not any("EventMode" in line for line in lines)
+
+    def test_access_details_is_not_watched(self) -> None:
+        """MOD-02 — il est réservé aux accrédités, et le corps du
+        message de changement est repris tel quel dans l'email."""
+        assert "access_details" not in WATCHED
+
+    def test_every_watched_field_has_a_label(self) -> None:
+        """Un champ sans libellé lèverait `KeyError` au milieu de la
+        publication, là où l'on attend une notification."""
+        assert set(WATCHED) <= set(_LABELS)

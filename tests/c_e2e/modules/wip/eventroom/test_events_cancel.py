@@ -40,6 +40,7 @@ def event(db_session: Session, test_org: Organisation, test_user: User) -> Event
     ev = Event(owner=test_user, publisher=test_org)
     ev.titre = "Salon de la presse"
     ev.contenu = "Programme"
+    ev.address = "1 rue de la Paix, Paris"
     ev.status = PublicationStatus.DRAFT
     ev.start_time = arrow_now(LOCAL_TZ).shift(days=10)
     ev.end_time = arrow_now(LOCAL_TZ).shift(days=10, hours=3)
@@ -243,6 +244,7 @@ class TestOnlyTheOrganiser:
         ev = Event(owner=stranger, publisher=None)
         ev.titre = "Événement d'un autre"
         ev.contenu = "Contenu"
+        ev.address = "1 rue de la Paix, Paris"
         ev.status = PublicationStatus.PUBLIC
         db_session.add(ev)
         db_session.flush()

@@ -146,6 +146,8 @@ class TestUnpublishingClearsTheCancellation:
         event.contenu = "<p>Programme</p>"
         event.start_time = arrow.utcnow().shift(days=5).datetime
         event.end_time = arrow.utcnow().shift(days=6).datetime
+        # MOD-01 : le mode par défaut exige une adresse pour publier.
+        event.address = "1 rue de la Paix, Paris"
         event.cancel("Reporté")
         event.unpublish()
 
