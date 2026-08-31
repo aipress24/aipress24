@@ -190,6 +190,13 @@ class EventSchema(Schema):
     genre = fields.Str()
     category = fields.Str()
     sector = fields.Str()
+    # MOD-01 : le format et la plateforme sont publics. `access_details`
+    # ne l'est **pas** et n'a pas sa place ici (MOD-02) : cette lecture
+    # est ouverte à tout jeton portant `READ_CONTENT`, sans contrôle
+    # d'accréditation. Il n'apparaît que dans `MyEventSchema`, qui est
+    # la vue de l'organisateur sur son propre événement.
+    mode = fields.Str()
+    platform = fields.Str()
     language = fields.Str()
     location = fields.Str()
     logo_url = fields.Str()
@@ -512,6 +519,11 @@ class MyEventSchema(Schema):
     address = fields.Str()
     pays_zip_ville = fields.Str()
     url = fields.Str()
+    mode = fields.Str()
+    platform = fields.Str()
+    # L'organisateur relit ce qu'il a saisi : c'est le seul schéma où
+    # `access_details` a sa place (MOD-02).
+    access_details = fields.Str()
     language = fields.Str()
     start_time = IsoDateTime()
     end_time = IsoDateTime()
@@ -739,6 +751,22 @@ class EventWriteSchema(Schema):
     address = fields.Str()
     pays_zip_ville = fields.Str()
     url = fields.Str()
+    mode = fields.Str(
+        metadata={
+            "description": "on_site | online | hybrid | phone. "
+            "Determines which of address / url / platform / access_details "
+            "are required to publish."
+        }
+    )
+    platform = fields.Str(
+        metadata={"description": "Conferencing tool; required for online/hybrid."}
+    )
+    access_details = fields.Str(
+        metadata={
+            "description": "Joining instructions; required for phone. "
+            "Only ever returned on your own events, never on the public read."
+        }
+    )
     language = fields.Str()
     start_time = fields.AwareDateTime(
         allow_none=True, metadata={"description": "Start; required to publish."}

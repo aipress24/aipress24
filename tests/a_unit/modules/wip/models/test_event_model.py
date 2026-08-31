@@ -40,6 +40,7 @@ import arrow
 import pytest
 import sqlalchemy as sa
 
+from app.enums import EventMode, EventPricing
 from app.models.lifecycle import PublicationStatus
 from app.modules.wip.models.eventroom.event import DRAFT, Event, EventImage
 
@@ -221,6 +222,14 @@ class _EventStub:
     can_unpublish = Event.can_unpublish
     update_image_positions = Event.update_image_positions
     sorted_images = Event.sorted_images
+    # MOD-01 : le contrôle des champs requis par le mode est emprunté à
+    # `Event`, pas réécrit — une copie de la règle dans un double de
+    # test ne prouverait que la copie.
+    REQUIRED_BY_MODE = Event.REQUIRED_BY_MODE
+    _require_fields_for_mode = Event._require_fields_for_mode
+    _settle_price = Event._settle_price
+    check_publishable = Event.check_publishable
+    _require_dates_in_order = Event._require_dates_in_order
 
     def __init__(self, **kwargs):
         # Sensible defaults for a happy-path draft event
@@ -233,6 +242,15 @@ class _EventStub:
         self.publisher_id = None
         self.expired_at = None
         self.images = []
+        # MOD-01 : le mode par défaut exige une adresse pour publier.
+        self.mode = EventMode.ON_SITE
+        self.address = "1 rue de la Paix, Paris"
+        # PRX-01 : gratuit pour tout le monde, donc sans prix.
+        self.pricing = EventPricing.FREE_FOR_ALL
+        self.price = None
+        self.url = ""
+        self.platform = ""
+        self.access_details = ""
         for key, val in kwargs.items():
             setattr(self, key, val)
 
@@ -583,3 +601,63 @@ class TestImageHelpers:
         stub = _EventStub(images=images)
         Event.update_image_positions(stub)
         assert sorted(img.position for img in images) == [0, 1, 2]
+
+
+class TestRequiredFieldsPerMode:
+    """MOD-01 — chaque mode a ses champs obligatoires à la publication.
+
+    Même garde-fou que les dates du bug #0172, et pour la même raison :
+    un événement en présentiel sans adresse, ou en distanciel sans lien,
+    est publié mais inutilisable.
+    """
+
+    @pytest.mark.parametrize(
+        ("mode", "given", "missing"),
+        [
+            (EventMode.ON_SITE, {"address": ""}, "l'adresse"),
+            (EventMode.ONLINE, {"address": "", "url": ""}, "l'URL"),
+            (EventMode.ONLINE, {"address": "", "url": "https://x"}, "la plateforme"),
+            (EventMode.HYBRID, {"url": "", "platform": "Zoom"}, "l'URL"),
+            (EventMode.HYBRID, {"url": "https://x"}, "la plateforme"),
+            (EventMode.PHONE, {"address": ""}, "modalités d'accès"),
+        ],
+    )
+    def test_publishing_without_a_required_field_is_refused(self, mode, given, missing):
+        stub = _EventStub(mode=mode, **given)
+
+        with pytest.raises(ValueError, match=missing):
+            Event.publish(stub)
+
+        assert stub.status == PublicationStatus.DRAFT, "un refus ne publie rien"
+
+    @pytest.mark.parametrize(
+        ("mode", "given"),
+        [
+            (EventMode.ON_SITE, {"address": "1 rue de la Paix"}),
+            (EventMode.ONLINE, {"url": "https://x", "platform": "Zoom"}),
+            (
+                EventMode.HYBRID,
+                {"address": "1 rue", "url": "https://x", "platform": "Zoom"},
+            ),
+            (EventMode.PHONE, {"access_details": "01 23 45 67 89, code 4242"}),
+        ],
+    )
+    def test_publishing_with_them_succeeds(self, mode, given):
+        stub = _EventStub(mode=mode, **given)
+
+        Event.publish(stub)
+
+        assert stub.status == PublicationStatus.PUBLIC
+
+    def test_a_whitespace_only_value_does_not_count(self):
+        """Comme le titre (#0172) : une chaîne d'espaces n'est pas une
+        adresse."""
+        stub = _EventStub(mode=EventMode.ON_SITE, address="   ")
+
+        with pytest.raises(ValueError, match="l'adresse"):
+            Event.publish(stub)
+
+    def test_every_mode_has_a_rule(self):
+        """Une entrée manquante ferait lever `KeyError` au milieu de la
+        publication, là où l'on attend un message en clair."""
+        assert set(Event.REQUIRED_BY_MODE) == set(EventMode)

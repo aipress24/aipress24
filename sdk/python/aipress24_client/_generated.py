@@ -73,6 +73,8 @@ class Event(TypedDict, total=False):
     language: str
     location: str
     logo_url: str
+    mode: str
+    platform: str
     region: str
     sector: str
     start_datetime: Any

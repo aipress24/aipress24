@@ -32,7 +32,7 @@ from dataclasses import dataclass, field
 
 import pytest
 
-from app.enums import RoleEnum
+from app.enums import CommunityEnum, RoleEnum
 from app.modules.events.services import _is_user_in, can_user_accredit
 
 # ----------------------------------------------------------------
@@ -63,14 +63,14 @@ class UserStub:
 class EventStub:
     """Duck-typed stand-in for ``EventPost``.
 
-    ``can_user_accredit`` currently ignores the event argument (Bug 0127 —
-    "reserved for future per-event-type rules"), so the stand-in is
-    intentionally empty. We still pass *some* object to lock in the
-    function's tolerance of opaque event types.
+    ``can_user_accredit`` reads the event's ``audience`` since lot L3 —
+    the argument it used to throw away with a ``del``.
     """
 
     id: int = 0
     type: str = "press"
+    owner_id: int = -1
+    audience: list[str] = field(default_factory=list)
 
 
 # ----------------------------------------------------------------
@@ -158,96 +158,70 @@ class TestIsUserIn:
 
 
 class TestCanUserAccredit:
-    """Bug 0127 — accreditation reserved to ``RoleEnum.PRESS_MEDIA``.
+    """RG-05 — le droit de demander se lit sur le **ciblage**, plus sur
+    le rôle.
 
-    The function is currently a one-liner role check that ignores the event,
-    but the contract — "journalist may, others may not" — is exactly the
-    invariant the UI accreditation toggle depends on. We pin it down with
-    stand-ins so a future refactor (per-event-type rules, see docstring)
-    can't quietly regress the default path.
+    Cette classe épinglait l'inverse : « journaliste oui, les autres
+    non », sur tous les événements. C'était l'écart E1 de
+    `specs/events-ecarts.md` — le livré interdisait à un universitaire
+    de s'inscrire à un webinaire académique, et aucune spécification ne
+    le demandait. Son propre commentaire l'anticipait : « When
+    per-event rules land, this test will need to be split — that's the
+    intent. » C'est fait.
     """
 
-    def test_journalist_can_accredit(self) -> None:
-        user = UserStub(roles={RoleEnum.PRESS_MEDIA})
-        event = EventStub()
+    def test_an_untargeted_event_is_open_to_everyone(self) -> None:
+        event = EventStub(audience=[])
 
-        assert can_user_accredit(user, event) is True
+        for roles in ({RoleEnum.PRESS_MEDIA}, {RoleEnum.ACADEMIC}, set()):
+            assert can_user_accredit(UserStub(roles=roles), event) is True
 
-    def test_user_with_no_roles_cannot_accredit(self) -> None:
-        user = UserStub(roles=set())
-        event = EventStub()
+    def test_a_targeted_event_admits_its_communities(self) -> None:
+        event = EventStub(audience=[CommunityEnum.PRESS_MEDIA.value])
 
-        assert can_user_accredit(user, event) is False
+        assert can_user_accredit(UserStub(roles={RoleEnum.PRESS_MEDIA}), event) is True
 
-    @pytest.mark.parametrize(
-        "role",
-        [
-            RoleEnum.ADMIN,
-            RoleEnum.LEADER,
-            RoleEnum.MANAGER,
-            RoleEnum.PRESS_RELATIONS,
-            RoleEnum.EXPERT,
-            RoleEnum.ACADEMIC,
-            RoleEnum.TRANSFORMER,
-            RoleEnum.SELF,
-        ],
-    )
-    def test_other_single_roles_cannot_accredit(self, role: RoleEnum) -> None:
-        # Every non-PRESS_MEDIA role, on its own, must be refused. This is
-        # the regression net for Bug 0127.
-        user = UserStub(roles={role})
-        event = EventStub()
+    def test_a_targeted_event_refuses_the_others(self) -> None:
+        event = EventStub(audience=[CommunityEnum.PRESS_MEDIA.value])
 
-        assert can_user_accredit(user, event) is False
+        for role in (RoleEnum.ACADEMIC, RoleEnum.EXPERT, RoleEnum.TRANSFORMER):
+            assert can_user_accredit(UserStub(roles={role}), event) is False
 
-    def test_user_with_press_media_among_others_can_accredit(self) -> None:
-        # Realistic case: a journalist who is also an expert or admin must
-        # still be allowed.
+    def test_several_targeted_communities_are_a_disjunction(self) -> None:
+        event = EventStub(
+            audience=[
+                CommunityEnum.PRESS_MEDIA.value,
+                CommunityEnum.ACADEMICS.value,
+            ]
+        )
+
+        assert can_user_accredit(UserStub(roles={RoleEnum.ACADEMIC}), event) is True
+        assert can_user_accredit(UserStub(roles={RoleEnum.EXPERT}), event) is False
+
+    def test_a_member_of_several_communities_needs_only_one_match(self) -> None:
+        event = EventStub(audience=[CommunityEnum.PRESS_MEDIA.value])
         user = UserStub(roles={RoleEnum.PRESS_MEDIA, RoleEnum.EXPERT, RoleEnum.ADMIN})
-        event = EventStub()
 
         assert can_user_accredit(user, event) is True
 
-    def test_event_argument_is_currently_ignored(self) -> None:
-        # Documents (and locks in) the *current* contract: the event type is
-        # not consulted. When per-event rules land, this test will need to
-        # be split — that's the intent.
-        user = UserStub(roles={RoleEnum.PRESS_MEDIA})
+    def test_a_user_without_any_community_role_is_refused_when_targeted(self) -> None:
+        """Un administrateur n'a pas de rôle de communauté. Il ne doit
+        pas être accrédité d'office — mais il ne doit pas non plus
+        faire lever quoi que ce soit : c'est le piège
+        `User.first_community()`, qui lèverait `RuntimeError`."""
+        event = EventStub(audience=[CommunityEnum.PRESS_MEDIA.value])
 
-        press_event = EventStub(type="press")
-        public_event = EventStub(type="public")
-        weird_event = EventStub(type="anything-at-all")
+        assert can_user_accredit(UserStub(roles={RoleEnum.ADMIN}), event) is False
+        assert can_user_accredit(UserStub(roles=set()), event) is False
 
-        assert can_user_accredit(user, press_event) is True
-        assert can_user_accredit(user, public_event) is True
-        assert can_user_accredit(user, weird_event) is True
+    def test_an_unknown_community_value_matches_nobody(self) -> None:
+        """Une valeur périmée en base — après un renommage de
+        `CommunityEnum` — ne doit ni ouvrir l'événement ni le faire
+        planter."""
+        event = EventStub(audience=["Une communauté qui n'existe plus"])
 
-    def test_event_can_even_be_none_like(self) -> None:
-        # ``del event`` in the implementation means *any* object is accepted.
-        # Use a bare ``object()`` to exercise that tolerance.
-        user = UserStub(roles={RoleEnum.PRESS_MEDIA})
-
-        assert can_user_accredit(user, object()) is True
+        assert can_user_accredit(UserStub(roles={RoleEnum.PRESS_MEDIA}), event) is False
 
     def test_returns_bool(self) -> None:
-        # Same hygiene check as for ``_is_user_in``.
-        user = UserStub(roles={RoleEnum.PRESS_MEDIA})
-        event = EventStub()
-
-        result = can_user_accredit(user, event)
-
-        assert result is True
+        result = can_user_accredit(UserStub(roles=set()), EventStub(audience=[]))
         assert isinstance(result, bool)
-
-    def test_accepts_role_by_string_value(self) -> None:
-        # ``RoleEnum`` is a ``StrEnum``: ``PRESS_MEDIA.value == "journalist"``.
-        # The stub's ``has_role`` handles the str path; this asserts the
-        # production function passes the enum (not the str), which is the
-        # canonical call form.
-        user = UserStub(roles={RoleEnum.PRESS_MEDIA})
-        event = EventStub()
-
-        # If services.py ever switched to passing the string literal
-        # ``"journalist"`` instead of the enum, this still has to work —
-        # ``UserStub.has_role`` covers both paths.
-        assert can_user_accredit(user, event) is True

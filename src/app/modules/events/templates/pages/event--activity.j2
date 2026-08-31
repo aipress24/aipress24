@@ -57,6 +57,10 @@
           </ul>
         </div>
 
+        {# ANN-05 — un événement annulé ne se commente plus. Le fil
+           déjà écrit reste : il fait partie de l'histoire publique de
+           l'annonce. #}
+        {% if not event.cancelled_at %}
         <div class="mt-6">
           <div class="flex space-x-3">
             <div class="flex-shrink-0">
@@ -103,6 +107,7 @@
             </div>
           </div>
         </div>
+        {% endif %}
       </div>
     </div>
   </div>

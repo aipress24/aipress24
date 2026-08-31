@@ -60,6 +60,13 @@ class Organisation(IdMixin, LifeCycleMixin, Addressable, Base):
     status: Mapped[str] = mapped_column(default="")
     karma: Mapped[int] = mapped_column(default=0)
 
+    # REL-03 — la relecture éditoriale des événements, activable par
+    # organisation. À `False` — le défaut, et l'état de toutes les
+    # organisations existantes — le parcours actuel est intégralement
+    # préservé : l'auteur publie lui-même et le bouton « Soumettre à
+    # relecture » n'apparaît pas.
+    event_review_required: Mapped[bool] = mapped_column(default=False)
+
     # Spec: local-notes/specs/finances.md §3 (Customer = Organisation).
     stripe_customer_id: Mapped[str | None] = mapped_column(default=None)
 

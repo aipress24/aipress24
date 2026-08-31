@@ -6,14 +6,13 @@
 
 from __future__ import annotations
 
-import json
 import re
 from collections import defaultdict
 
 import arrow
 import webargs
 from attrs import asdict
-from flask import g, render_template, request, session
+from flask import g, render_template, request
 from flask.views import MethodView
 from sqlalchemy import select
 from sqlalchemy.orm import selectinload
@@ -24,16 +23,16 @@ from app.flask.extensions import db, htmx
 from app.flask.sqla import get_multi
 from app.models.lifecycle import PublicationStatus
 from app.modules.events import blueprint
-from app.modules.events.models import EventPost, participation_table
+from app.modules.events.models import EventPost
+from app.modules.events.services import accredited_event_ids, accredited_ids_among
 
-from ._common import TABS, Calendar, DateFilter, EventListVM
-from ._filters import FilterBar
+from ._common import Calendar, DateFilter, EventListVM
+from ._filters import FILTER_SPECS, FilterBar
 
 LIST_ARGS = {
     "month": webargs.fields.Str(load_default=""),
     "day": webargs.fields.Str(load_default=""),
     "search": webargs.fields.Str(load_default=""),
-    "tab": webargs.fields.Str(load_default=""),
     "loc": webargs.fields.Str(load_default=""),
 }
 
@@ -90,20 +89,23 @@ class EventsListView(MethodView):
 
         events_list = self._get_events(date_filter, filter_bar, search)
 
+        # §7.2 — une seule requête pour toute la page, pas une par
+        # carte : la pastille « Accrédité.e » ne vaut pas N requêtes.
+        accredited = accredited_ids_among(g.user, [e.id for e in events_list])
+
         # Group events by day
         grouper = defaultdict(list)
         for event in events_list:
+            event._is_accredited = event.id in accredited
             vm = EventListVM(event)
             grouper[vm.date].append(vm)
 
         month = date_filter.month
-        active_tab_ids = self._get_active_tab_ids()
 
         return {
             "grouped_events": sorted(grouper.items()),
             "search": search,
-            "tabs": self._get_tabs(),
-            "calendar": asdict(Calendar(month, active_tab_ids)),
+            "calendar": asdict(Calendar(month)),
             "title": "Evénements",
             "filter_bar": filter_bar,
             "user_agenda_events": self._get_user_agenda_events(),
@@ -130,14 +132,12 @@ class EventsListView(MethodView):
             return []
         stmt = (
             select(EventPost)
-            .join(
-                participation_table,
-                participation_table.c.event_id == EventPost.id,
-            )
-            .where(
-                participation_table.c.user_id == user.id,
-                EventPost.status == PublicationStatus.PUBLIC,
-            )
+            .where(EventPost.id.in_(accredited_event_ids([user.id])))
+            .where(EventPost.status == PublicationStatus.PUBLIC)
+            # ANN-08 — un événement annulé sort de l'agenda. Il reste
+            # listé et visible (ANN-04) ; c'est le bloc « ce à quoi vous
+            # vous rendez » qu'il quitte.
+            .where(EventPost.cancelled_at.is_(None))
         )
         events = list(db.session.scalars(stmt))
 
@@ -162,7 +162,14 @@ class EventsListView(MethodView):
         stmt = (
             select(EventPost)
             .where(EventPost.status == PublicationStatus.PUBLIC)
-            .order_by(EventPost.start_datetime)
+            # ANN-08 — l'annulation est la clé de tri **de tête**, et
+            # non un critère ajouté après la date. La règle parle de
+            # « date égale », pas d'horaire égal : la liste est ensuite
+            # regroupée par jour en Python (`grouper`) et les paquets
+            # d'un même jour ne sont plus retriés. Placée en second,
+            # cette clause laisserait un événement annulé de 9 h devant
+            # un événement maintenu de 18 h le même jour.
+            .order_by(EventPost.cancelled_at.is_(None).desc(), EventPost.start_datetime)
             .options(
                 selectinload(EventPost.owner),
                 selectinload(EventPost.publisher),
@@ -176,30 +183,25 @@ class EventsListView(MethodView):
         return list(get_multi(EventPost, stmt))
 
     def _apply_filter_bar(self, stmt: Select, filter_bar: FilterBar) -> Select:
-        """Apply filter bar filters to query."""
-        filters_by_id: dict[str, list[str]] = {
-            "genre": [],
-            "sector": [],
-            "pays_zip_ville": [],
-            "departement": [],
-            "ville": [],
-        }
-        for f in filter_bar.active_filters:
-            if f["id"] in filters_by_id:
-                filters_by_id[f["id"]].append(f["value"])
+        """Restreindre la requête selon les filtres actifs.
 
-        if filters_by_id["genre"]:
-            stmt = stmt.where(EventPost.genre.in_(filters_by_id["genre"]))
-        if filters_by_id["sector"]:
-            stmt = stmt.where(EventPost.sector.in_(filters_by_id["sector"]))
-        if filters_by_id["pays_zip_ville"]:
-            stmt = stmt.where(
-                EventPost.pays_zip_ville.in_(filters_by_id["pays_zip_ville"])
-            )
-        if filters_by_id["departement"]:
-            stmt = stmt.where(EventPost.departement.in_(filters_by_id["departement"]))
-        if filters_by_id["ville"]:
-            stmt = stmt.where(EventPost.ville.in_(filters_by_id["ville"]))
+        Piloté par `FILTER_SPECS`, et non par une liste tenue à part :
+        cette fonction énumérait autrefois cinq identifiants en dur et
+        ignorait silencieusement les autres. Les deux axes ajoutés au
+        lot C5 — rubrique et type d'info — s'affichaient donc, leurs
+        options se calculaient, et sélectionner une valeur ne changeait
+        rien. Déclarer un filtre suffit désormais à le rendre agissant.
+        """
+        selected: dict[str, list[str]] = {}
+        for f in filter_bar.active_filters:
+            selected.setdefault(f["id"], []).append(f["value"])
+
+        for spec in FILTER_SPECS:
+            values = selected.get(spec["id"])
+            if not values:
+                continue
+            column = getattr(EventPost, spec["column"])
+            stmt = stmt.where(column.in_(values))
 
         return stmt
 
@@ -225,22 +227,6 @@ class EventsListView(MethodView):
             return stmt.where(or_(title_filter, postal_filter))
 
         return stmt.where(title_filter)
-
-    def _get_active_tab_ids(self) -> list[str]:
-        """Get active tab IDs from session."""
-        return json.loads(session.get("events:tabs") or "[]")
-
-    def _get_tabs(self) -> list[dict]:
-        """Get tabs with active state."""
-        active_tab_ids = self._get_active_tab_ids()
-        return [
-            {
-                "id": tab["id"],
-                "label": tab["label"],
-                "active": tab["id"] in active_tab_ids,
-            }
-            for tab in TABS
-        ]
 
 
 # Register the view

@@ -47,6 +47,8 @@ def eventroom():
         msg = "Access denied to eventroom"
         raise Forbidden(msg)
 
+    from app.modules.events.review import events_to_review
+
     main_items = [
         {
             "id": "events",
@@ -59,6 +61,24 @@ def eventroom():
         },
     ]
 
+    # REL-06 — la file de relecture, et seulement pour qui relit. La
+    # liste des événements de l'atelier est filtrée par propriétaire :
+    # sans cette tuile, un relecteur ne verrait jamais l'événement d'un
+    # collègue.
+    to_review = events_to_review(user)
+    if to_review:
+        main_items.append(
+            {
+                "id": "events_review",
+                "model_class": Event,
+                "endpoint": "EventsWipView:to_review",
+                "label": "À relire",
+                "nickname": "AR",
+                "color": "bg-amber-600",
+                "mission": PermissionType.EVENTS,
+            }
+        )
+
     items = []
     is_acting_pr = user_is_acting_as_pr_manager(user)
 
@@ -70,8 +90,15 @@ def eventroom():
         items.append(item)
 
     for item in items:
-        model_class: type[Owned] = item["model_class"]  # type: ignore[assignment]
-        item["count"] = str(count_owned_non_deleted(model_class))
+        if item["id"] == "events_review":
+            # Le compteur et la liste sortent de la **même** requête.
+            # `count_owned_non_deleted` compterait les événements du
+            # relecteur, pas ceux qu'il doit relire : c'est le bug #0132
+            # que ce détour évite.
+            item["count"] = str(len(to_review))
+        else:
+            model_class: type[Owned] = item["model_class"]  # type: ignore[assignment]
+            item["count"] = str(count_owned_non_deleted(model_class))
         item["href"] = url_for(item["endpoint"])
 
     return render_template(

@@ -15,6 +15,7 @@ from jinja2 import Environment
 from loguru import logger
 
 from .mailers import (
+    AccreditationAcceptedMail,
     ApplicationRejectedMail,
     ApplicationSelectedMail,
     AvisEnqueteNotificationMail,
@@ -33,6 +34,9 @@ from .mailers import (
     ContactAvisEnqueteRDVProposalMail,
     ContactAvisEnqueteRDVRefusedMail,
     ContentAlertMail,
+    EventCancelledMail,
+    EventChangedMail,
+    EventReminderMail,
     JustificatifInvitationMail,
     JustificatifReadyMail,
     MissionApplicationMail,
@@ -45,6 +49,7 @@ from .mailers import (
 
 __all__ = [
     "ALERTS_RECIPIENTS",
+    "AccreditationAcceptedMail",
     "ApplicationRejectedMail",
     "ApplicationSelectedMail",
     "AvisEnqueteNotificationMail",
@@ -64,6 +69,9 @@ __all__ = [
     "ContactAvisEnqueteRDVRefusedMail",
     "ContentAlertMail",
     "EmailService",
+    "EventCancelledMail",
+    "EventChangedMail",
+    "EventReminderMail",
     "JustificatifInvitationMail",
     "JustificatifReadyMail",
     "MissionApplicationMail",

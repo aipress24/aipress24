@@ -1,0 +1,53 @@
+{% extends "wip/layout/_base.j2" %}
+
+{% block body_content %}
+  <h1 class="text-2xl font-semibold text-gray-900 mb-2">Cibler l'événement</h1>
+  <p class="text-sm text-gray-600 mb-6">{{ event.title }}</p>
+
+  <form method="POST"
+        class="bg-white border border-gray-200 rounded shadow-sm p-6 space-y-6">
+
+    <fieldset>
+      <legend class="text-sm font-medium text-gray-900 mb-2">
+        Quelles communautés peuvent consulter cette annonce ?
+      </legend>
+      <p class="text-xs text-gray-500 mb-4">
+        Si vous ne cochez aucune communauté, votre événement est ouvert à tous
+        les membres d'AiPRESS24. Si vous en cochez une ou plusieurs, seuls
+        leurs membres pourront consulter le contenu de l'annonce et demander
+        leur accréditation.
+      </p>
+
+      <div class="space-y-2">
+        {% for community in communities %}
+          <label class="flex items-center space-x-2">
+            <input type="checkbox"
+                   name="audience"
+                   value="{{ community.value }}"
+                   {% if community.value in selected %}checked{% endif %}
+                   class="rounded border-gray-300 text-pink-600 focus:ring-pink-500">
+            <span class="text-sm text-gray-900">{{ community.value }}</span>
+          </label>
+        {% endfor %}
+      </div>
+    </fieldset>
+
+    {% if accredited_count %}
+      <p class="text-sm text-amber-700 bg-amber-50 border border-amber-200 rounded p-3">
+        {{ accredited_count }} personne(s) sont déjà accréditées à cet
+        événement. Modifier le ciblage ne retire l'accréditation à personne.
+      </p>
+    {% endif %}
+
+    <div class="flex justify-end space-x-3">
+      <a href="{{ url_for('EventsWipView:index') }}"
+         class="rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">
+        Annuler
+      </a>
+      <button type="submit"
+              class="rounded-md border border-transparent bg-pink-600 px-4 py-2 text-sm font-medium text-white hover:bg-pink-700">
+        Enregistrer le ciblage
+      </button>
+    </div>
+  </form>
+{% endblock %}
