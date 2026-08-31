@@ -110,6 +110,20 @@
         Publié par {{ event.author.organisation.name }} en tant que contact presse de {{ event.publisher.name }}.
       </div>
     {% endif %}
+    {# ORG-03/ORG-04 — l'organisateur, **uniquement s'il a été désigné**.
+       À vide la cascade retombe sur l'éditeur, et l'affichage doit
+       rester exactement celui d'avant le lot (ORG-02) : sans cette
+       garde, chaque carte du site changerait de libellé. #}
+    {% if event.has_explicit_organiser %}
+      <div class="text-xs text-gray-600 mt-1">
+        Organisé par
+        {% if event.organiser %}
+          <a href="{{ url_for(event.organiser) }}" class="hover:underline">{{ event.organiser_label }}</a>
+        {% else %}
+          {{ event.organiser_label }}
+        {% endif %}
+      </div>
+    {% endif %}
   </div>
 
   <div>

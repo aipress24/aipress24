@@ -11,6 +11,7 @@ from wtforms.fields.simple import StringField, TextAreaField
 from app.enums import MODE_LABELS, PRICING_LABELS, EventMode, EventPricing
 from app.flask.lib.wtforms.fields import (
     DateTimeField,
+    OptionalIdField,
     PriceField,
     RichSelectField,
     RichTextField,
@@ -622,6 +623,27 @@ class EventForm(Form):
     # jusqu'au gabarit, seulement `class`. La condition est donc dans
     # le libellé, comme pour l'adresse et l'URL — et la vraie garde est
     # côté serveur, dans `publish()`.
+    # ORG-01 — l'organisateur, quand ce n'est pas l'éditeur. Un
+    # sélecteur d'organisations, et un texte libre pour un organisateur
+    # absent d'AiPRESS24.
+    #
+    # `validate_choice=False` : les options sont injectées par la vue
+    # (`_make_media_choices`), et une pré-validation contre une liste
+    # encore vide refuserait toute saisie. C'est la clé étrangère qui
+    # tient la cohérence, comme pour le pays.
+    organiser_id = OptionalIdField(
+        "Organisateur (s'il est inscrit sur AiPRESS24)",
+        choices=[],
+        validate_choice=False,
+        render_kw={"width": 3},
+        validators=[validators.Optional()],
+    )
+    organiser_name = StringField(
+        "Organisateur (s'il est absent d'AiPRESS24)",
+        render_kw={"width": 3},
+        validators=[validators.Optional()],
+    )
+
     price = PriceField(
         "Prix en euros (obligatoire si le tarif n'est pas « gratuit »)",
         render_kw={"width": 3},
@@ -667,6 +689,8 @@ class EventForm(Form):
                     "access_details",
                     "pricing",
                     "price",
+                    "organiser_id",
+                    "organiser_name",
                 ],
             },
             "dates": {

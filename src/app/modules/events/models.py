@@ -13,7 +13,7 @@ from sqlalchemy import (
     BigInteger,
     orm,
 )
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, declared_attr, mapped_column
 from sqlalchemy.sql import func
 from sqlalchemy_utils import ArrowType
 from sqlalchemy_utils.functions.orm import hybrid_property
@@ -81,6 +81,55 @@ class EventPostBase(
     )
     price: Mapped[int | None] = mapped_column(default=None)  # centimes
     currency: Mapped[str] = mapped_column(default="EUR")
+
+    # ORG-01 — l'organisateur, distinct de l'éditeur (ORG-02 : les deux
+    # facultatifs). `foreign_keys` est obligatoire : `publisher_id`
+    # pointe déjà sur la même table, et SQLAlchemy ne saurait pas quelle
+    # colonne joindre.
+    organiser_id: Mapped[int | None] = mapped_column(
+        sa.BigInteger, sa.ForeignKey("crp_organisation.id"), nullable=True
+    )
+    organiser_name: Mapped[str] = mapped_column(default="")
+
+    @declared_attr
+    def organiser(cls):
+        from app.models.organisation import Organisation
+
+        return orm.relationship(Organisation, foreign_keys=[cls.organiser_id])
+
+    @property
+    def has_explicit_organiser(self) -> bool:
+        """Un organisateur a-t-il été **désigné** ? (ORG-02)
+
+        À distinguer d'`organiser_label`, qui répond toujours quelque
+        chose : à vide, la cascade retombe sur l'éditeur, et l'affichage
+        doit alors rester **exactement** celui d'avant le lot. Sans ce
+        prédicat, chaque carte du site changerait de libellé.
+        """
+        return bool(self.organiser_id or self.organiser_name)
+
+    @property
+    def organiser_label(self) -> str:
+        """Le nom à afficher pour l'organisateur — la cascade ORG-03.
+
+        `organiser.name` → `organiser_name` → `publisher.name` →
+        `owner.full_name`. Un seul endroit : la carte, la page de
+        détail et le Business Wall doivent dire la même chose, et une
+        cascade recopiée trois fois finit par diverger sur son dernier
+        cran.
+
+        Le dernier cran n'est jamais vide en pratique — un contenu a
+        toujours un auteur — mais il est là parce que les trois
+        premiers peuvent l'être tous les trois.
+        """
+        if self.organiser is not None and self.organiser.name:
+            return self.organiser.name
+        if self.organiser_name:
+            return self.organiser_name
+        if self.publisher is not None and self.publisher.name:
+            return self.publisher.name
+        return self.owner.full_name if self.owner else ""
+
     # MOD-02 — la seule donnée d'un événement réservée aux accrédités.
     # Elle est portée par le miroir parce que le rappel de la veille en
     # a besoin (NOT-13), mais **aucun gabarit public ne doit la lire** :

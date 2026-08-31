@@ -237,6 +237,11 @@ class EventDetailView(MethodView):
             # membre », c'est-à-dire ce qu'il paierait.
             {"label": "Tarif", "value": price_label(item, getattr(g, "user", None))},
         ]
+        # ORG-03 — seulement quand un organisateur a été désigné : à
+        # vide, la cascade retombe sur l'éditeur, et une ligne
+        # « Organisateur : <l'éditeur> » n'apprendrait rien.
+        if item.has_explicit_organiser:
+            data.append({"label": "Organisateur", "value": item.organiser_label})
         if item.platform:
             data.append({"label": "Plateforme", "value": item.platform})
 

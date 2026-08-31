@@ -80,6 +80,22 @@ class Event(IdMixin, LifeCycleMixin, Owned, Base):
         Organisation, foreign_keys=[publisher_id]
     )
 
+    # ORG-01 — l'organisateur, distinct de l'éditeur. Une agence RP
+    # publie pour son client : l'éditeur est l'agence, l'organisateur
+    # est le client. Les deux champs sont facultatifs (ORG-02) ; à
+    # vide, l'organisateur affiché reste l'éditeur, ce qui reproduit le
+    # comportement actuel.
+    #
+    # `organiser_id` quand l'organisateur est inscrit sur AiPRESS24,
+    # `organiser_name` en texte libre sinon.
+    organiser_id: Mapped[int | None] = mapped_column(
+        sa.ForeignKey(Organisation.id), nullable=True
+    )
+    organiser: Mapped[Organisation | None] = orm.relationship(
+        Organisation, foreign_keys=[organiser_id]
+    )
+    organiser_name: Mapped[str] = mapped_column(default="")
+
     #
     # Content
     #

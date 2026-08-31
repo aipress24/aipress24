@@ -126,6 +126,11 @@ def update_post(
     post.price = info.price
     post.currency = info.currency
 
+    # Organisateur (ORG-01). Recopié même quand il est vide : c'est le
+    # cas ordinaire, et la cascade ORG-03 retombe alors sur l'éditeur.
+    post.organiser_id = info.organiser_id
+    post.organiser_name = info.organiser_name
+
     # Annulation (ANN-04) : le miroir barre l'annonce, il lui faut donc
     # la date et le motif. Aucun des deux n'est surveillé par NOT-11 —
     # une annulation n'est pas un changement d'horaire, elle a sa

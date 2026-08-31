@@ -307,6 +307,8 @@ class TestFormShape:
             "platform",
             "pricing",
             "price",
+            "organiser_id",
+            "organiser_name",
             "address",
             "pays_zip_ville",
             "url",

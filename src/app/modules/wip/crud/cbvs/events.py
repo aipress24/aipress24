@@ -30,6 +30,7 @@ from app.lib.file_object_utils import create_file_object
 from app.lib.image_utils import extract_image_from_request
 from app.logging import report_failure, warn
 from app.models.lifecycle import PublicationStatus
+from app.models.organisation import Organisation
 from app.modules.bw.bw_activation.models import PermissionType
 from app.modules.bw.bw_activation.user_utils import (
     can_user_publish_for,
@@ -155,6 +156,22 @@ _EVENT_MODIFIER_TEMPLATE = """
   {{ step_nav_simple(event, "EventsWipView", "modifier", "événements") }}
 {% endblock %}
 """
+
+
+def _organisations() -> list[tuple[str, str]]:
+    """Les organisations qu'on peut désigner comme organisatrices.
+
+    Toutes celles qui ont un Business Wall — c'est-à-dire celles qui
+    ont une page vers laquelle ORG-04 pointe. Une organisation sans
+    vitrine ne gagnerait rien à être liée, et le texte libre
+    d'`organiser_name` existe pour elle.
+    """
+    stmt = (
+        sa.select(Organisation)
+        .where(Organisation.bw_id.is_not(None))
+        .order_by(Organisation.name)
+    )
+    return [(str(o.id), o.name) for o in db.session.scalars(stmt)]
 
 
 def _publication_actions(item, url_for) -> list[dict]:
@@ -354,6 +371,27 @@ class EventsWipView(BaseWipView):
         ctx = self._view_ctx(model, title=title)
         ctx["event"] = model
         return ctx
+
+    def _make_media_choices(self, form) -> None:
+        """Peupler aussi le sélecteur d'organisateur (ORG-01).
+
+        Ce point d'accroche plutôt qu'un autre parce que le socle
+        l'appelle aux **deux** moments qui comptent : avant
+        `form.validate()` dans le POST, et au rendu du formulaire. Un
+        `SelectField` dont les options arrivent plus tard échoue à la
+        pré-validation d'un POST — c'est ce qui fait que le pays est
+        déclaré `validate_choice=False`.
+
+        La liste vide en tête vaut « pas d'organisateur désigné », qui
+        est le cas ordinaire (ORG-02).
+        """
+        super()._make_media_choices(form)
+        if not hasattr(form, "organiser_id"):
+            return
+        form.organiser_id.choices = [
+            ("", "— l'organisation éditrice —"),
+            *_organisations(),
+        ]
 
     def _post_update_model(self, model: Event) -> None:
         # Validate publisher_id: if the user selected a client org they are
