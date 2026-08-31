@@ -22,7 +22,6 @@ from app.modules.wip.services.newsroom.expert_selectors import (
     FonctionJournalismeSelector,
     FonctionOrganisationsPriveesSelector,
     FonctionPolitiquesAdministrativesSelector,
-    FonctionSelector,
     LanguesSelector,
     MetierSelector,
     PaysSelector,
@@ -1067,31 +1066,6 @@ class TestMetierSelector:
 
         assert "Journaliste" in values
         assert "Rédacteur" in values
-
-
-# ----------------------------------------------------------------
-# FonctionSelector Tests
-# ----------------------------------------------------------------
-
-
-class TestFonctionSelector:
-    """Tests for job function filtering."""
-
-    def test_filter_by_fonction(self, db_session) -> None:
-        """Filter by job function."""
-        expert1 = _create_expert_with_profile(
-            db_session, "e1@test.com", fonctions_org_priv_detail=["Directeur"]
-        )
-        expert2 = _create_expert_with_profile(
-            db_session, "e2@test.com", fonctions_journalisme=["Rédacteur en chef"]
-        )
-        experts = [expert1, expert2]
-
-        selector = FonctionSelector({"fonction": ["Directeur"]}, experts)
-        result = selector.filter_experts({"Directeur"}, experts)
-
-        assert len(result) == 1
-        assert result[0].id == expert1.id
 
 
 # ----------------------------------------------------------------

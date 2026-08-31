@@ -47,7 +47,8 @@ class EventCardVM(ViewModel):
             "views": event.view_count,
             # §7.2 — la pastille « Accrédité.e ». Renseignée par la vue
             # liste, qui charge toutes les accréditations de la page en
-            # une requête ; **absente partout ailleurs**.
+            # une requête ; **fausse partout ailleurs**, par le défaut
+            # déclaré sur le modèle.
             #
             # C'est cette clé qu'il faut poser ici, et non se reposer
             # sur `EventListVM` : la carte est rendue à deux
@@ -58,7 +59,7 @@ class EventCardVM(ViewModel):
             # chemin la clé n'existait pas, et comme les gabarits sont
             # rendus en `StrictUndefined`, la rubrique Événements du
             # Business Wall **plantait** depuis le lot L2.
-            "is_accredited": getattr(event, "_is_accredited", False),
+            "is_accredited": event.is_accredited,
             # PRX-04 — le tarif dépend du lecteur. Posé ici pour la
             # même raison que la pastille ci-dessus : c'est le seul
             # view model qui enveloppe sur les deux chemins de rendu.

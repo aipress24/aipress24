@@ -450,32 +450,14 @@ class MetierSelector(DualSelector):
         return expert.tous_metiers
 
 
-class FonctionSelector(BaseSelector):
-    """Aggregate « toutes fonctions » selector across the three families."""
-
-    id = "fonction"
-    label = "Toutes fonctions"
-    # No single taxonomy backs "toutes fonctions" — it's the union of
-    # pol/adm, org-priv, ass/syn. We union the three taxonomies so
-    # the dropdown shows every possible function across the platform.
-    taxonomy_name = None  # populated below
-
-    def _expert_values(self, expert: User) -> Iterable[str]:
-        return expert.profile.toutes_fonctions
-
-    def get_values(self) -> set[str]:
-        # Union of the three function taxonomies + values held by
-        # current experts. Keeps « toutes fonctions » truly inclusive.
-        result: set[str] = set()
-        for tx in (
-            "profession_fonction_public",
-            "profession_fonction_prive",
-            "profession_fonction_asso",
-        ):
-            result.update(self._taxonomy_loader(tx))
-        for expert in self._experts:
-            result.update(self._expert_values(expert))
-        return result
+# `FonctionSelector` (« Toutes fonctions ») retiré — ticket #0322.
+#
+# Aucune taxonomie ne le portait : c'était l'union de quatre filtres
+# déjà proposés séparément — journalisme, politique et administratif,
+# organisations privées, associations et syndicats. Erick l'avait
+# repéré sans voir le code (« je crains qu'il ne fasse doublon »), et le
+# commentaire qui l'accompagnait le disait déjà. Le bloc 4 de #0321 ne
+# le liste pas non plus.
 
 
 class FonctionJournalismeSelector(BaseSelector):
@@ -518,6 +500,25 @@ class FonctionAssociationsSyndicatsSelector(DualSelector):
 
     def _expert_values(self, expert: User) -> Iterable[str]:
         return expert.profile.fonctions_ass_syn_detail
+
+
+class TransformationMajeureSelector(DualSelector):
+    """Ticket #0323, et bloc 6 de #0321.
+
+    Rien à inventer : la taxonomie `transformation_majeure` existe
+    (293 entrées, au format « FAMILLE / Détail » comme ses voisines) et
+    les profils portent déjà la clé — `KYCProfile.transformations_majeures`
+    la lit depuis le KYC. Il ne manquait que le sélecteur.
+    """
+
+    id = "transformation_majeure"
+    label = "Transformations majeures"
+    parent_id = "transformation_majeure_parent"
+    parent_label = "Famille de transformation"
+    taxonomy_name = "transformation_majeure"
+
+    def _expert_values(self, expert: User) -> Iterable[str]:
+        return expert.profile.transformations_majeures
 
 
 class CompetencesGeneralesSelector(DualSelector):

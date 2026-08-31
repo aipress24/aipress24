@@ -9,17 +9,6 @@ import functools
 from .ontology_loader import get_ontology_content, zip_code_city_list
 
 
-def strip_taxonomy_prefix(value: str) -> str:
-    """Return the part of the taxonomy string after the last '/'.
-
-    Example:
-        "STATUT / Etudiant.e" -> "Etudiant.e"
-    """
-    if not value:
-        return ""
-    return value.rsplit("/", 1)[-1].strip()
-
-
 def find_label(content: list, val: str) -> str:
     for item in content:
         if item[0] == val:

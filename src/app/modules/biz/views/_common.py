@@ -53,7 +53,7 @@ GENERIC_FILTER_SPECS: list[FilterSpec] = [
     },
     {
         "id": "topic",
-        "label": "Thématique",
+        "label": "Type d'info",
         "selector": "topic",
     },
     {

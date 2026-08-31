@@ -22,6 +22,7 @@ from wtforms import (
 )
 
 from app.flask.extensions import db
+from app.lib.utils import strip_taxonomy_prefix
 from app.models.auth import User
 from app.models.lifecycle import PublicationStatus
 from app.modules.biz import blueprint
@@ -46,7 +47,6 @@ from app.modules.biz.views._offers_common import (
 from app.modules.bw.bw_activation.models import PermissionType
 from app.modules.bw.bw_activation.user_utils import get_selected_business_wall_for_user
 from app.modules.kyc.dynform import CountrySelectField
-from app.modules.kyc.field_label import strip_taxonomy_prefix
 from app.modules.kyc.ontology_loader import get_choices as get_ontology_choices
 from app.modules.wip.pr_access import check_mission
 from app.signals import marketplace_published

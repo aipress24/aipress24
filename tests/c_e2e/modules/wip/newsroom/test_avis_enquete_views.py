@@ -279,41 +279,55 @@ class TestJournalistAvisEnqueteViews:
         response = logged_in_client.get(url)
         assert response.status_code == 200
 
-    def test_ciblage_renders_four_sections(
+    def test_ciblage_renders_the_six_blocks(
         self, logged_in_client: FlaskClient, test_avis_enquete: AvisEnquete
     ):
-        """Bug #0150 phase 2, re-cut by ticket #0321: the page renders
-        the 4 thematic section headings. If a refactor drops one, this
-        fails before reaching the browser."""
+        """Version finale du ticket #0321 : six blocs, dont le dernier
+        isole le journalisme. Si un remaniement en perd un, le test
+        échoue avant que la page n'atteigne le navigateur."""
         url = url_for("AvisEnqueteWipView:ciblage", id=test_avis_enquete.id)
         body = logged_in_client.get(url).data.decode()
         for heading in (
-            "Secteurs d&#39;activité et types d&#39;organisation",
-            "Presse et médias",
-            "Géographie",
-            "Fonctions, métiers, compétences et langues",
+            "Dans quels secteurs d&#39;activité",
+            "Quelles zones géographiques",
+            "Quelles fonctions exercent",
+            "Métiers, compétences et langues",
+            "transformations majeures",
+            "Pour les enquêtes qui portent sur le journalisme",
         ):
             assert heading in body, (
                 f"Section heading {heading!r} missing from ciblage page"
             )
 
+    def test_ciblage_carries_the_intro_sentence(
+        self, logged_in_client: FlaskClient, test_avis_enquete: AvisEnquete
+    ):
+        """La phrase qu'Erick demande au mot près : elle dit qu'on peut
+        combiner les filtres, qu'on a le droit de tâtonner, et que le
+        journalisme est traité à part."""
+        url = url_for("AvisEnqueteWipView:ciblage", id=test_avis_enquete.id)
+        body = logged_in_client.get(url).data.decode()
+
+        assert "Faites des essais pour obtenir la liste la plus pertinente" in body
+        assert "sont traitées" in body
+
     def test_ciblage_numbers_the_sections(
         self, logged_in_client: FlaskClient, test_avis_enquete: AvisEnquete
     ):
-        """Ticket #0321 (Erick, 2026-08-29) : « nos interlocuteurs sont
-        un peu perdus. Le formulaire est plutôt bien mais pas clair.
-        Suggestion: faire 4 blocs visuels numérotés ».
+        """Ticket #0321 (Erick) : « nos interlocuteurs sont un peu
+        perdus. Le formulaire est plutôt bien mais pas clair.
+        Suggestion: faire des blocs visuels numérotés ».
 
-        The number comes from the template's `loop.index`, not from the
-        title, so reordering the blocks can't leave stale numbering.
+        Le numéro vient du `loop.index` du gabarit et non du titre, si
+        bien que déplacer un bloc ne laisse pas de numérotation périmée.
         """
         url = url_for("AvisEnqueteWipView:ciblage", id=test_avis_enquete.id)
         body = logged_in_client.get(url).data.decode()
         numbered = re.findall(
             r'<span class="text-pink-600">(\d+)</span> — ([^<\n]+)', body
         )
-        assert [n for n, _ in numbered] == ["1", "2", "3", "4"]
-        assert numbered[1][1].strip() == "Presse et médias"
+        assert [n for n, _ in numbered] == ["1", "2", "3", "4", "5", "6"]
+        assert "journalisme" in numbered[-1][1]
 
     def test_ciblage_emits_dual_cascade_containers(
         self, logged_in_client: FlaskClient, test_avis_enquete: AvisEnquete
@@ -333,11 +347,11 @@ class TestJournalistAvisEnqueteViews:
             body.count(
                 'class="aui-field-group mb-4 col-span-1 lg:col-span-2 dual-select-cascade"'
             )
-            == 7
+            == 8
         ), (
-            "Expected 7 dual-cascade containers (one per 2-level field "
-            "Annie listed): secteur, type_organisation, fonction_pol_adm, "
-            "fonction_org_priv, fonction_ass_syn, metier, competences."
+            "Expected 8 dual-cascade containers: secteur, type_organisation, "
+            "fonction_pol_adm, fonction_org_priv, fonction_ass_syn, metier, "
+            "competences, and transformation_majeure (ticket #0323)."
         )
         # Each container carries its 4 data-* feeds.
         for attr in (
@@ -367,14 +381,17 @@ class TestJournalistAvisEnqueteViews:
         also degrade to raw `<select>`."""
         url = url_for("AvisEnqueteWipView:ciblage", id=test_avis_enquete.id)
         body = logged_in_client.get(url).data.decode()
-        # 10 selectors are flat: pays, departement, ville,
+        # 9 flat selectors : pays, departement, ville,
         # type_entreprise_presse_medias, type_presse_et_media,
-        # taille_organisation, fonction, fonction_journalisme,
+        # taille_organisation, fonction_journalisme,
         # competences_journalisme, langues.
+        #
+        # Dix auparavant : « Toutes fonctions » a été retiré (#0322),
+        # il n'était adossé à aucune taxonomie et doublonnait quatre
+        # filtres déjà proposés.
         flat_count = body.count('class="tom-select-it"')
-        assert flat_count == 10, (
-            f"Expected 10 flat selectors with the .tom-select-it class, "
-            f"got {flat_count}"
+        assert flat_count == 9, (
+            f"Expected 9 flat selectors with the .tom-select-it class, got {flat_count}"
         )
 
     def test_view_responses(

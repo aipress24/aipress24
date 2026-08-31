@@ -52,6 +52,21 @@ ALLOWED_FILTER_FIELDS = {
 
 DEFAULT_POSTS_LIMIT = 30
 
+#: Combien d'événements le fil accepte, **en plus** des publications.
+#:
+#: Ticket #0324 : sans plafond, la fusion gardait les trente contenus
+#: les plus récents de l'union — et si les événements étaient plus
+#: récents, ils prenaient les trente places. Le portail NEWS n'affichait
+#: plus un seul article. `WIR-05` l'avait prévu — « l'événement pouvant
+#: sinon noyer l'actualité chaude » — mais le filtre de type de contenu
+#: montre tout par défaut, donc la noyade précédait le remède.
+#:
+#: Un budget **supplémentaire** et non une part du budget : aucune
+#: publication qui figurait dans le fil n'en disparaît parce qu'un
+#: événement est arrivé. Le Wall reste un fil d'actualité que des
+#: événements accompagnent.
+WALL_EVENTS_LIMIT = 5
+
 
 def _members_of_orgs(org_ids: set[int]) -> set[User]:
     """All members of the given orgs in one query — batches what was a
@@ -228,10 +243,7 @@ class WallTab(Tab):
         if CONTENT_KIND_EVENTS not in kinds or filter_bar.sort_order != "date":
             return posts
 
-        events = _wall_events(filter_bar)
-        merged = [*posts, *events]
-        merged.sort(key=_published_at_key, reverse=True)
-        return merged[:DEFAULT_POSTS_LIMIT]
+        return _merge_by_date([*posts, *_wall_events(filter_bar)])
 
 
 def _selected_content_kinds(filter_bar: FilterBar) -> set[str]:
@@ -247,14 +259,24 @@ def _selected_content_kinds(filter_bar: FilterBar) -> set[str]:
     return chosen or {CONTENT_KIND_ARTICLES, CONTENT_KIND_EVENTS}
 
 
-def _published_at_key(item):
-    """La date de publication, comparable entre natures de contenu.
+def _merge_by_date(items: list) -> list:
+    """Fusionner deux natures de contenu, du plus récent au plus ancien.
 
-    `None` retombe sur l'origine des temps plutôt que d'interrompre le
-    tri : un contenu public sans date de publication est une anomalie de
-    données, pas une raison de vider le fil de tout le monde.
+    **Sans troncature** : chaque source arrive déjà plafonnée, et
+    rogner ici reviendrait à laisser la nature la plus récente évincer
+    l'autre — c'est ce qui a vidé le portail NEWS de ses articles
+    (#0324).
+
+    Les publications **sans date** sont mises de côté et remises en
+    queue, plutôt que ramenées à une date d'origine qui les trierait
+    par accident. Un contenu public sans date de publication est une
+    anomalie de données ; elle ne doit ni vider le fil de tout le monde,
+    ni se déguiser en 1970.
     """
-    return item.published_at or arrow.get(0)
+    dated = [item for item in items if item.published_at]
+    undated = [item for item in items if not item.published_at]
+    dated.sort(key=lambda item: item.published_at, reverse=True)
+    return [*dated, *undated]
 
 
 def _wall_events(filter_bar: FilterBar) -> list:
@@ -287,7 +309,7 @@ def _wall_events(filter_bar: FilterBar) -> list:
             ),
             selectinload(EventPost.publisher),
         )
-        .limit(DEFAULT_POSTS_LIMIT)
+        .limit(WALL_EVENTS_LIMIT)
     )
 
     for filter_id, filter_values in filter_bar.active_filters | groupby(

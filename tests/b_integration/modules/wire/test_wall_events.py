@@ -17,7 +17,7 @@ from typing import TYPE_CHECKING
 
 import arrow
 import pytest
-from flask import g
+from flask import g, render_template
 
 from app.models.auth import User
 from app.models.lifecycle import PublicationStatus
@@ -28,7 +28,14 @@ from app.modules.wire.views._filters import (
     CONTENT_KIND_EVENTS,
     FilterBar,
 )
-from app.modules.wire.views._tabs import AgenciesTab, ComTab, WallTab
+from app.modules.wire.views._tabs import (
+    DEFAULT_POSTS_LIMIT,
+    WALL_EVENTS_LIMIT,
+    AgenciesTab,
+    ComTab,
+    WallTab,
+)
+from app.modules.wire.views.wire import as_cards
 
 if TYPE_CHECKING:
     from flask import Flask
@@ -219,3 +226,118 @@ class TestTheArticleSorts:
 
         assert "Un article" in titles
         assert "Un événement" not in titles
+
+
+class TestEventsDoNotDrownTheNews:
+    """Ticket #0324 — « le contenu de NEWS a été remplacé par celui
+    d'EVENTS ».
+
+    La fusion gardait les trente contenus les plus récents de l'union.
+    Les événements étant plus récents, ils prenaient les trente places
+    et le portail n'affichait plus un seul article. `WIR-05` l'avait
+    prévu — « l'événement pouvant sinon noyer l'actualité chaude » —
+    mais le filtre de type de contenu montre tout par défaut, donc la
+    noyade précédait le remède.
+    """
+
+    def test_recent_events_do_not_evict_articles(
+        self, app: Flask, db_session: Session, author: User
+    ) -> None:
+        """Le cas exact du ticket : beaucoup d'événements, tous publiés
+        après les articles."""
+        for i in range(DEFAULT_POSTS_LIMIT + 10):
+            post = ArticlePost(title=f"Article {i}", owner=author)
+            post.status = PublicationStatus.PUBLIC
+            post.published_at = arrow.utcnow().shift(days=-10, minutes=-i)
+            db_session.add(post)
+        for i in range(DEFAULT_POSTS_LIMIT + 10):
+            _event(db_session, author, f"Événement {i}", published_hours_ago=1)
+        db_session.flush()
+
+        titles = _wall_titles(app, author)
+
+        assert any(t.startswith("Article") for t in titles), (
+            "aucun article : c'est précisément le ticket #0324"
+        )
+
+    def test_articles_keep_their_full_budget(
+        self, app: Flask, db_session: Session, author: User
+    ) -> None:
+        """Un budget **supplémentaire** et non une part du budget :
+        aucune publication qui figurait dans le fil n'en disparaît
+        parce qu'un événement est arrivé."""
+        for i in range(DEFAULT_POSTS_LIMIT + 10):
+            post = ArticlePost(title=f"Article {i}", owner=author)
+            post.status = PublicationStatus.PUBLIC
+            post.published_at = arrow.utcnow().shift(days=-10, minutes=-i)
+            db_session.add(post)
+        for i in range(10):
+            _event(db_session, author, f"Événement {i}", published_hours_ago=1)
+        db_session.flush()
+
+        titles = _wall_titles(app, author)
+        articles = [t for t in titles if t.startswith("Article")]
+
+        assert len(articles) == DEFAULT_POSTS_LIMIT
+
+    def test_and_the_events_are_capped(
+        self, app: Flask, db_session: Session, author: User
+    ) -> None:
+        for i in range(WALL_EVENTS_LIMIT + 10):
+            _event(db_session, author, f"Événement {i}")
+        db_session.flush()
+
+        events = [t for t in _wall_titles(app, author) if t.startswith("Événement")]
+
+        assert len(events) == WALL_EVENTS_LIMIT
+
+
+class TestTheGridDoesNotCollapse:
+    """L'autre moitié du ticket #0324 — « une colonne gauche blanche ».
+
+    Le composant `event-card` **ouvre son propre `<li>`**. L'envelopper
+    dans un second imbrique deux éléments de liste, ce qui effondre la
+    grille sur une colonne. Le dépôt le disait déjà par écrit, dans
+    `org--tab-events.html`, depuis le bug #0179 — et le lot C8 l'a
+    recréé.
+    """
+
+    def _rendered(self, app: Flask, author: User) -> str:
+        with app.test_request_context("/wire/"):
+            g.user = author
+            posts = WallTab().get_posts(FilterBar("wall"))
+            return render_template(
+                "pages/wire/search-results.j2", posts=as_cards(posts), tab="wall"
+            )
+
+    def test_an_event_card_is_not_wrapped_in_a_second_list_item(
+        self, app: Flask, db_session: Session, author: User
+    ) -> None:
+        _event(db_session, author)
+
+        html = self._rendered(app, author)
+
+        # Entre la première ouverture et la première fermeture, il ne
+        # doit y avoir qu'une seule ouverture : deux voudraient dire
+        # qu'un élément de liste en contient un autre.
+        first = html.index("<li")
+        closing = html.index("</li>", first)
+        assert html.count("<li", first, closing) == 1, html[first : closing + 5][:300]
+
+    def test_the_distinctive_border_survives(
+        self, app: Flask, db_session: Session, author: User
+    ) -> None:
+        """WIR-04 demande un liseré. Il passe désormais par `class_`,
+        que le gabarit du composant ne lisait pas — le `bg-gray-100` du
+        Business Wall n'a donc jamais rien fait non plus."""
+        _event(db_session, author)
+
+        assert "border-pink-500" in self._rendered(app, author)
+
+    def test_an_article_card_still_has_its_own(
+        self, app: Flask, db_session: Session, author: User, article: ArticlePost
+    ) -> None:
+        """`post_card`, lui, n'en fournit pas : son enveloppe reste."""
+        html = self._rendered(app, author)
+
+        assert '<li class="bg-white rounded shadow">' in html

@@ -30,12 +30,12 @@ from .expert_selectors import (
     FonctionJournalismeSelector,
     FonctionOrganisationsPriveesSelector,
     FonctionPolitiquesAdministrativesSelector,
-    FonctionSelector,
     LanguesSelector,
     MetierSelector,
     PaysSelector,
     SecteurSelector,
     TailleOrganisationSelector,
+    TransformationMajeureSelector,
     TypeEntreprisePresseMediasSelector,
     TypeOrganisationSelector,
     TypePresseMediasSelector,
@@ -202,35 +202,39 @@ def parse_expert_ids_from_form(form_keys: Iterable[str]) -> list[int]:
 def build_sections_from_selectors(
     selectors: list[BaseSelector],
 ) -> list[SelectorSection]:
-    """Group the 17 selectors into 4 thematic headings. Pure —
-    operates only on the selector list.
+    """Grouper les sélecteurs en blocs numérotés — ticket #0321.
 
-    Annie's original grouping (bug #0150 phase 2) is kept, re-cut
-    along the lines Erick asked for in ticket #0321 : « nos
-    interlocuteurs sont un peu perdus ». Three changes, no selector
-    added or removed :
+    **Version finale du ticket.** Une première réorganisation avait été
+    livrée le 2026-08-30 sur un état intermédiaire ; Erick a signalé que
+    son message n'était pas terminé quand nous avons commencé, et a
+    donné le découpage définitif. C'est celui-ci.
 
-    - the two press dimensions leave the « secteurs » block, which
-      was carrying five heterogeneous dropdowns, for a block of their
-      own — the one a journalist not covering the media industry can
-      skip outright ;
-    - « Géolocalisation » becomes « Géographie », the word the form
-      uses everywhere else ;
-    - « Fonctions » and « Métiers, compétences & langues » merge :
-      the split was invisible to users, who read all nine as one
-      question about the person.
+    Le principe qui le gouverne, et qu'il énonce : **le journalisme, la
+    presse et les médias sont traités à part**, dans le dernier bloc.
+    Tous les autres portent la mention « hors journalisme » — un
+    journaliste qui enquête sur l'agroalimentaire n'a rien à faire des
+    filtres de sa propre profession, et c'est ce mélange qui perdait
+    les utilisateurs.
 
-    The section *number* the ticket asks for is not baked into the
-    titles — `ciblage.j2` numbers them from the iteration order, so
-    inserting or reordering a block here can't leave stale numbering
-    behind.
+    Le **numéro** n'est pas écrit dans les titres : `ciblage.j2` les
+    numérote depuis l'ordre d'itération, si bien qu'insérer ou déplacer
+    un bloc ne laisse pas de numérotation périmée derrière lui.
 
-    Not implemented, deliberately : « le bloc PRESSE ET MÉDIAS
-    pourrait n'apparaître que lorsque le journaliste cible la presse
-    ou les médias ». Which selected values count as « targeting the
-    press » is a business call (a list of `type_organisation` and/or
-    `secteur` values), not a technical one, and guessing it would
-    hide a block from journalists who need it.
+    Deux écarts au ticket, tous deux signalés :
+
+    - ses blocs 1 et 2 listent **les mêmes filtres** (« Types
+      d'organisation » et « Taille de l'organisation ») ; les répéter
+      afficherait deux fois les mêmes listes déroulantes, qui
+      partagent leur état. Ils sont réunis en un seul bloc, dont le
+      titre pose les deux questions.
+    - son bloc 7 demande « Métiers du journalisme ». **Aucune taxonomie
+      de ce nom n'existe**, et aucun profil ne porte la clé : le filtre
+      est absent, pas oublié.
+
+    Non fait, délibérément : « le bloc PRESSE ET MÉDIAS pourrait
+    n'apparaître que lorsque le journaliste cible la presse ». Quelles
+    valeurs comptent comme « cibler la presse » est un arbitrage
+    métier, et le deviner masquerait un bloc à ceux qui en ont besoin.
     """
     by_id = {s.id: s for s in selectors}
 
@@ -239,36 +243,46 @@ def build_sections_from_selectors(
 
     return [
         SelectorSection(
-            title="Secteurs d'activité et types d'organisation",
-            selectors=pick(
-                "secteur",
-                "type_organisation",
-                "taille_organisation",
+            title=(
+                "Dans quels secteurs d'activité et sur quels types "
+                "d'organisation se déroule votre enquête ? (hors journalisme)"
             ),
+            selectors=pick("secteur", "type_organisation", "taille_organisation"),
         ),
         SelectorSection(
-            title="Presse et médias",
-            selectors=pick(
-                "type_entreprise_presse_medias",
-                "type_presse_et_media",
-            ),
-        ),
-        SelectorSection(
-            title="Géographie",
+            title="Quelles zones géographiques votre enquête couvre-t-elle ?",
             selectors=pick("pays", "departement", "ville"),
         ),
         SelectorSection(
-            title="Fonctions, métiers, compétences et langues",
+            title=(
+                "Quelles fonctions exercent les contacts que vous "
+                "recherchez ? (hors journalisme)"
+            ),
+            selectors=pick("fonction_pol_adm", "fonction_org_priv", "fonction_ass_syn"),
+        ),
+        SelectorSection(
+            title=(
+                "Métiers, compétences et langues des contacts que vous "
+                "recherchez (hors journalisme)"
+            ),
+            selectors=pick("metier", "competences", "langues"),
+        ),
+        SelectorSection(
+            title=(
+                "À quelles transformations majeures votre enquête s'intéresse-t-elle ?"
+            ),
+            selectors=pick("transformation_majeure"),
+        ),
+        SelectorSection(
+            title=(
+                "Pour les enquêtes qui portent sur le journalisme, "
+                "la presse et les médias"
+            ),
             selectors=pick(
-                "fonction_pol_adm",
-                "fonction_org_priv",
-                "fonction_ass_syn",
-                "fonction",
+                "type_entreprise_presse_medias",
+                "type_presse_et_media",
                 "fonction_journalisme",
-                "metier",
-                "competences",
                 "competences_journalisme",
-                "langues",
             ),
         ),
     ]
@@ -488,7 +502,6 @@ class ExpertFilterService:
             self._selectors = [
                 SecteurSelector(self._state, experts),
                 MetierSelector(self._state, experts),
-                FonctionSelector(self._state, experts),
                 FonctionPolitiquesAdministrativesSelector(self._state, experts),
                 FonctionOrganisationsPriveesSelector(self._state, experts),
                 FonctionAssociationsSyndicatsSelector(self._state, experts),
@@ -499,6 +512,7 @@ class ExpertFilterService:
                 TypePresseMediasSelector(self._state, experts),
                 TypeOrganisationSelector(self._state, experts),
                 TailleOrganisationSelector(self._state, experts),
+                TransformationMajeureSelector(self._state, experts),
                 LanguesSelector(self._state, experts),
                 PaysSelector(self._state, experts),
                 DepartementSelector(self._state, experts),

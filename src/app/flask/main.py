@@ -319,7 +319,7 @@ def register_filters(app: Flask) -> None:
     Args:
         app: Flask application instance.
     """
-    from app.modules.kyc.field_label import strip_taxonomy_prefix
+    from app.lib.utils import strip_taxonomy_prefix
     from app.services.html_sanitize import sanitize_html
     from app.services.stripe.prices import stripe_price_display
     from app.ui.geoloc import offer_geoloc_label

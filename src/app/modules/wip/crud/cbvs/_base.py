@@ -26,6 +26,7 @@ from app.flask.lib.breadcrumbs import BreadCrumb
 from app.flask.lib.htmx import extract_fragment
 from app.flask.lib.templates import templated
 from app.flask.lib.wtforms.renderer import FormRenderer
+from app.models.errors import BusinessRuleError
 from app.models.organisation import Organisation
 from app.modules.bw.bw_activation.user_utils import (
     get_selected_business_wall_for_user,
@@ -334,12 +335,16 @@ class BaseWipView(FlaskView, abc.ABC):
         self._normalize_model_datetimes(model)
         try:
             self._post_update_model(model)
-        except ValueError as exc:
+        except BusinessRuleError as exc:
             # Une règle métier que le formulaire seul ne peut pas
             # vérifier — elle porte sur plusieurs champs à la fois, ou
             # sur l'état publié du contenu. Sans cette prise, elle
             # remonterait en 500 au lieu de dire à l'auteur ce qui
             # manque. Le formulaire est re-rendu tel qu'il a été saisi.
+            #
+            # **Pas `ValueError`** : une valeur inattendue reçue par le
+            # programme n'est pas une règle qui refuse, et l'afficher
+            # comme telle transformerait un défaut en message rassurant.
             flash(str(exc), "error")
             return self._view_ctx(form=form)
         repo.add(model, auto_commit=True)

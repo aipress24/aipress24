@@ -95,7 +95,7 @@ class FollowerCardVM(ViewModel):
 
     Its `extra_attrs` is empty on purpose : the card templates (`m_user_list`,
     `member--aside.j2`) read only plain `User` fields/methods — `full_name`,
-    `job_title`, `organisation_name`, `organisation`, `photo_image_signed_url`,
+    `fonction`, `organisation_name`, `organisation`, `photo_image_signed_url`,
     `first_community` — which resolve via `__getattr__` on the wrapped User,
     and `url_for(vm)` unwraps to the User. No social-graph fan-out per card.
     """
@@ -129,7 +129,7 @@ class UserVM(ViewModel):
 
         return {
             "name": user.full_name,
-            "job_title": user.job_title,
+            "fonction": user.fonction,
             "organisation_name": (
                 active_bw.name
                 if active_bw and active_bw.name

@@ -13,6 +13,17 @@
           class="bg-white border border-gray-200 rounded shadow-sm p-6 space-y-6">
       <input type="hidden" name="_action" value="submit-for-review">
 
+      {# Décision `C9-b` : le motif du dernier renvoi attend l'auteur là
+         où il resoumet, au lieu de vivre dans sa seule cloche. #}
+      {% if event.send_back_reason %}
+        <div class="rounded-md border border-amber-300 bg-amber-50 p-4">
+          <p class="text-sm font-medium text-amber-900">
+            Cet événement vous avait été renvoyé
+          </p>
+          <p class="mt-1 text-sm text-amber-800 whitespace-pre-line">{{ event.send_back_reason }}</p>
+        </div>
+      {% endif %}
+
       <p class="text-sm text-gray-800">
         Votre organisation relit les événements avant publication. Une fois
         soumis, cet événement passe la main&nbsp;: vous ne pourrez plus le

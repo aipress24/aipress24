@@ -25,7 +25,7 @@ metadata = {
         "topic": {
             "group": "metadata",
             "key": "topic",
-            "label": "Thématique",
+            "label": "Type d'info",
             "type": "rich-select",
             "width": 6,
             "required": True,

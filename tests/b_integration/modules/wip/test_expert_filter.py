@@ -197,10 +197,13 @@ class TestFilterState:
 class TestSelectorSections:
     """Phase 2 of bug #0150 (Annie's ciblage request).
 
-    Selectors are grouped into 4 thematic sections instead of one
-    undifferentiated 2-column grid of 17 items. Sections are pure UI
-    metadata — every selector still belongs to the same form and
-    the filter pipeline is unchanged.
+    Selectors are grouped into thematic sections instead of one
+    undifferentiated 2-column grid. Sections are pure UI metadata —
+    every selector still belongs to the same form and the filter
+    pipeline is unchanged.
+
+    Le découpage suit la **version finale** du ticket #0321 : six blocs,
+    le dernier isolant le journalisme, la presse et les médias.
     """
 
     def test_sections_cover_every_selector(self, experts, app):
@@ -224,23 +227,26 @@ class TestSelectorSections:
             )
 
     def test_sections_match_spec_titles_and_order(self, experts, app):
-        """The 4 section titles and their order follow ticket #0321
-        (1- Secteurs, 2- Presse, 3- Géographie, 4- Fonctions…)."""
+        """Les six blocs de la version finale du ticket #0321, dans
+        l'ordre : secteurs, géographie, fonctions, métiers,
+        transformations, puis le journalisme à part."""
         with app.test_request_context():
             service = ExpertFilterService()
             service._all_experts = experts
             titles = [section.title for section in service.sections]
-            assert titles == [
-                "Secteurs d'activité et types d'organisation",
-                "Presse et médias",
-                "Géographie",
-                "Fonctions, métiers, compétences et langues",
-            ]
+
+            assert len(titles) == 6
+            assert titles[0].startswith("Dans quels secteurs d'activité")
+            assert titles[1].startswith("Quelles zones géographiques")
+            assert titles[2].startswith("Quelles fonctions")
+            assert titles[3].startswith("Métiers, compétences et langues")
+            assert titles[4].startswith("À quelles transformations majeures")
+            assert titles[5].startswith("Pour les enquêtes qui portent sur le")
 
     def test_secteurs_section_groups_organisation_dimensions(self, experts, app):
-        """Section 1 holds the 3 « secteurs & types d'organisation »
-        dimensions. #0321 moved the two press dimensions out of this
-        block — it used to carry five heterogeneous dropdowns."""
+        """Le bloc 1 porte les trois dimensions d'organisation. La
+        version finale de #0321 en sort les deux dimensions de presse,
+        qui rejoignent le dernier bloc avec le reste du journalisme."""
         with app.test_request_context():
             service = ExpertFilterService()
             service._all_experts = experts
@@ -253,23 +259,29 @@ class TestSelectorSections:
             ]
 
     def test_press_section_isolates_the_media_dimensions(self, experts, app):
-        """Ticket #0321 — the two press dimensions get their own
-        block, so a journalist not covering the media industry can
-        skip it wholesale."""
+        """Ticket #0321, version finale — « les recherches sur le
+        journalisme, la presse et les médias sont traitées à part ».
+        Elles occupent le **dernier** bloc, que le journaliste qui
+        n'enquête pas sur les médias saute d'un coup d'œil."""
         with app.test_request_context():
             service = ExpertFilterService()
             service._all_experts = experts
-            ids = [s.id for s in service.sections[1].selectors]
-            assert ids == ["type_entreprise_presse_medias", "type_presse_et_media"]
+            ids = [s.id for s in service.sections[-1].selectors]
+            assert ids == [
+                "type_entreprise_presse_medias",
+                "type_presse_et_media",
+                "fonction_journalisme",
+                "competences_journalisme",
+            ]
 
     def test_geo_section_orders_pays_dept_ville(self, experts, app):
-        """Section 3 keeps the geographic cascade in order: pays →
-        département → ville. The DepartementSelector / VilleSelector
-        filter their options based on selections in earlier dropdowns,
-        so the visual order must match the data flow."""
+        """Le bloc géographique garde sa cascade dans l'ordre : pays →
+        département → ville. Les deux derniers sélecteurs filtrent
+        leurs options d'après les choix précédents, donc l'ordre visuel
+        doit suivre celui des données."""
         with app.test_request_context():
             service = ExpertFilterService()
             service._all_experts = experts
-            section_3 = service.sections[2]
-            ids = [s.id for s in section_3.selectors]
+            geo = service.sections[1]
+            ids = [s.id for s in geo.selectors]
             assert ids == ["pays", "departement", "ville"]

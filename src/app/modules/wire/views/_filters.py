@@ -42,7 +42,7 @@ FILTER_SPECS = [
     },
     {
         "id": "topic",
-        "label": "Rubrique",
+        "label": "Type d'info",
         "selector": "topic",
     },
     {
@@ -52,7 +52,7 @@ FILTER_SPECS = [
     },
     {
         "id": "section",
-        "label": "Thématique",
+        "label": "Rubrique",
         "selector": "section",
     },
     {

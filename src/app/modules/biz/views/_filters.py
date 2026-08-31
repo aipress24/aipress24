@@ -17,6 +17,7 @@ from sqlalchemy.dialects.postgresql import JSONB
 from werkzeug.exceptions import BadRequest
 
 from app.flask.extensions import db
+from app.lib.utils import strip_taxonomy_prefix
 from app.models.lifecycle import PublicationStatus
 from app.modules.biz.models import JobOffer, MissionOffer, ProjectOffer
 from app.modules.biz.views._common import (
@@ -26,10 +27,7 @@ from app.modules.biz.views._common import (
     _format_days_deadline_label,
     _format_days_ending_date_label,
 )
-from app.modules.kyc.field_label import (
-    country_code_to_country_name,
-    strip_taxonomy_prefix,
-)
+from app.modules.kyc.field_label import country_code_to_country_name
 from app.modules.kyc.ontology_loader import get_choices as get_ontology_choices
 
 if TYPE_CHECKING:

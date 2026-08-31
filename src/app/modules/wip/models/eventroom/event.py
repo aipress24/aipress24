@@ -17,9 +17,11 @@ from sqlalchemy_utils import ArrowType
 from app.enums import MODE_LABELS, PRICING_LABELS, EventMode, EventPricing
 from app.lib.file_object_utils import media_url
 from app.models.base import Base
+from app.models.errors import BusinessRuleError
 from app.models.lifecycle import PublicationStatus
 from app.models.mixins import IdMixin, LifeCycleMixin, Owned
 from app.models.organisation import Organisation
+from app.models.tag_list import TagList
 from app.services.html_sanitize import SanitizedHTML
 
 DRAFT = PublicationStatus.DRAFT
@@ -118,6 +120,17 @@ class Event(IdMixin, LifeCycleMixin, Owned, Base):
     section: Mapped[str] = mapped_column(default="")
     topic: Mapped[str] = mapped_column(default="")
 
+    # À qui l'événement s'adresse — décision `M1` du 2026-08-31. Ce sont
+    # des **métadonnées**, comme le secteur ou la rubrique : elles ne
+    # restreignent la visibilité de personne. Un membre qui n'a déclaré
+    # ni compétence ni fonction voit exactement ce que voient les autres.
+    # Les fonctions sont au niveau des **familles** (voir
+    # `events/taxonomies.py`). `TagList` et non `sa.JSON` : la barre de
+    # filtres les interroge en SQL, et SQLite échappe les accents dans
+    # une colonne JSON, PostgreSQL non.
+    competences: Mapped[list[str]] = mapped_column(TagList, default=list)
+    fonctions: Mapped[list[str]] = mapped_column(TagList, default=list)
+
     # Ciblage par communauté — vide = ouvert à toutes (RG-03a).
     audience: Mapped[list[str]] = mapped_column(sa.JSON, default=list)
 
@@ -133,6 +146,11 @@ class Event(IdMixin, LifeCycleMixin, Owned, Base):
         ArrowType(timezone=True), nullable=True
     )
     cancellation_reason: Mapped[str] = mapped_column(default="")
+
+    # Motif du dernier renvoi de relecture (décision `C9-b`). Porté par
+    # `evr_event` seul : un événement renvoyé est un brouillon, et le
+    # miroir public n'a jamais à en connaître.
+    send_back_reason: Mapped[str] = mapped_column(default="")
 
     # Mode de participation (MOD-01). `platform` est un champ libre et
     # non une ontologie (MOD-06) : la liste des outils de
@@ -198,7 +216,7 @@ class Event(IdMixin, LifeCycleMixin, Owned, Base):
 
         if end < start:
             msg = "end_time must be after start_time"
-            raise ValueError(msg)
+            raise BusinessRuleError(msg)
 
         self.start_time = start
         self.end_time = end
@@ -232,11 +250,11 @@ class Event(IdMixin, LifeCycleMixin, Owned, Base):
         """
         if not self.titre or not self.titre.strip():
             msg = "Cannot publish event: titre is required"
-            raise ValueError(msg)
+            raise BusinessRuleError(msg)
 
         if not self.contenu or not self.contenu.strip():
             msg = "Cannot publish event: contenu is required"
-            raise ValueError(msg)
+            raise BusinessRuleError(msg)
 
         # Bug #0172 — un événement sans dates serait silencieusement
         # écarté de la liste publique (le filtre par défaut compare
@@ -248,7 +266,7 @@ class Event(IdMixin, LifeCycleMixin, Owned, Base):
                 "Cannot publish event: la date de début et la date de "
                 "fin sont obligatoires pour publier un événement."
             )
-            raise ValueError(msg)
+            raise BusinessRuleError(msg)
 
         self._require_dates_in_order()
         self._require_fields_for_mode()
@@ -265,7 +283,7 @@ class Event(IdMixin, LifeCycleMixin, Owned, Base):
             end = end.replace(tzinfo=UTC)
         if end < start:
             msg = "Cannot publish event: end_time must be after start_time"
-            raise ValueError(msg)
+            raise BusinessRuleError(msg)
 
     def publish(self, publisher_id: int | None = None) -> None:
         """
@@ -279,7 +297,7 @@ class Event(IdMixin, LifeCycleMixin, Owned, Base):
         """
         if not self.can_publish():
             msg = "Cannot publish event: event is not in DRAFT status"
-            raise ValueError(msg)
+            raise BusinessRuleError(msg)
 
         self.check_publishable()
 
@@ -322,9 +340,15 @@ class Event(IdMixin, LifeCycleMixin, Owned, Base):
         Raises:
             ValueError: un champ requis par le mode est vide.
         """
+        # Lié localement et **annoté** : `pyrefly` ne comprend pas
+        # SQLAlchemy et voit un `InstrumentedAttribute[EventMode]` là où
+        # le descripteur rend un `EventMode`. L'annotation dit ce qui
+        # est vrai, plutôt que de museler un code d'erreur entier.
+        mode: EventMode = self.mode
+
         missing = [
             label
-            for field, label in self.REQUIRED_BY_MODE[self.mode]
+            for field, label in self.REQUIRED_BY_MODE[mode]
             if not (getattr(self, field) or "").strip()
         ]
         if not missing:
@@ -336,9 +360,9 @@ class Event(IdMixin, LifeCycleMixin, Owned, Base):
         # est obligatoire ». Une liste n'a pas ce problème.
         msg = (
             f"Impossible de publier : pour un événement "
-            f"{MODE_LABELS[self.mode]}, il manque {', '.join(missing)}."
+            f"{MODE_LABELS[mode]}, il manque {', '.join(missing)}."
         )
-        raise ValueError(msg)
+        raise BusinessRuleError(msg)
 
     #: Tarifs qui exigent un prix pour être publiés (PRX-02).
     PRICED = (EventPricing.FREE_FOR_JOURNALISTS, EventPricing.PAID)
@@ -355,16 +379,17 @@ class Event(IdMixin, LifeCycleMixin, Owned, Base):
         Raises:
             ValueError: tarif payant sans prix, ou prix négatif ou nul.
         """
-        if self.pricing == EventPricing.FREE_FOR_ALL:
+        pricing: EventPricing = self.pricing
+        if pricing == EventPricing.FREE_FOR_ALL:
             self.price = None
             return
 
         if not self.price or self.price <= 0:
             msg = (
                 "Impossible de publier : un événement "
-                f"« {PRICING_LABELS[self.pricing].lower()} » demande un prix."
+                f"« {PRICING_LABELS[pricing].lower()} » demande un prix."
             )
-            raise ValueError(msg)
+            raise BusinessRuleError(msg)
 
     # ------------------------------------------------------------
     # Business Logic - Relecture éditoriale (REL-01, REL-02, REL-04)
@@ -388,10 +413,13 @@ class Event(IdMixin, LifeCycleMixin, Owned, Base):
         """
         if not self.can_submit_for_review():
             msg = "Impossible de soumettre à relecture : seul un brouillon peut l'être."
-            raise ValueError(msg)
+            raise BusinessRuleError(msg)
 
         self.check_publishable()
         self.status = PublicationStatus.PENDING  # type: ignore[assignment]
+        # Le motif appartient au tour de relecture qui vient de s'achever :
+        # le laisser montrerait au relecteur suivant un reproche déjà traité.
+        self.send_back_reason = ""
 
     def can_send_back(self) -> bool:
         """REL-02 — seul un événement en relecture se renvoie."""
@@ -404,21 +432,24 @@ class Event(IdMixin, LifeCycleMixin, Owned, Base):
         dit pas à l'auteur ce qu'il doit corriger, et le fait
         recommencer à l'aveugle.
 
-        Il voyage dans la notification (NOT-07) et n'est pas conservé
-        sur l'événement — la spécification ne le demande pas, et un
-        renvoi est un échange, pas un état.
+        Il part dans la notification (NOT-07) **et** reste sur le
+        brouillon, décision `C9-b` du 2026-08-31 : un auteur qui rouvrait
+        son brouillon le lendemain ne le retrouvait que dans sa cloche,
+        et corrigeait de mémoire. `submit_for_review` l'efface au tour
+        suivant.
 
         Raises:
             ValueError: événement pas en relecture, ou motif vide.
         """
         if not self.can_send_back():
             msg = "Impossible de renvoyer cet événement : il n'est pas en relecture."
-            raise ValueError(msg)
+            raise BusinessRuleError(msg)
 
         if not comment.strip():
             msg = "Le motif du renvoi est obligatoire."
-            raise ValueError(msg)
+            raise BusinessRuleError(msg)
 
+        self.send_back_reason = comment.strip()
         self.status = PublicationStatus.DRAFT  # type: ignore[assignment]
 
     def can_unpublish(self) -> bool:
@@ -434,7 +465,7 @@ class Event(IdMixin, LifeCycleMixin, Owned, Base):
         """
         if not self.can_unpublish():
             msg = "Cannot unpublish event: event is not PUBLIC"
-            raise ValueError(msg)
+            raise BusinessRuleError(msg)
 
         self.status = PublicationStatus.DRAFT  # type: ignore[assignment]
         # Dépublier retire l'annonce entièrement : l'annulation n'a plus
@@ -485,7 +516,7 @@ class Event(IdMixin, LifeCycleMixin, Owned, Base):
                 "Impossible d'annuler cet événement : il n'est pas publié, "
                 "ou il est déjà annulé."
             )
-            raise ValueError(msg)
+            raise BusinessRuleError(msg)
 
         reason = reason.strip()
         if len(reason) > self.MAX_CANCELLATION_REASON:
@@ -493,7 +524,7 @@ class Event(IdMixin, LifeCycleMixin, Owned, Base):
                 "Le motif d'annulation ne peut pas dépasser "
                 f"{self.MAX_CANCELLATION_REASON} signes."
             )
-            raise ValueError(msg)
+            raise BusinessRuleError(msg)
 
         self.cancelled_at = now or arrow.utcnow()
         self.cancellation_reason = reason
@@ -513,14 +544,14 @@ class Event(IdMixin, LifeCycleMixin, Owned, Base):
         """
         if self.cancelled_at is None:
             msg = "Impossible de rétablir cet événement : il n'est pas annulé."
-            raise ValueError(msg)
+            raise BusinessRuleError(msg)
         if not self.can_restore(now):
             msg = (
                 "Impossible de rétablir cet événement : l'annulation date de "
                 f"plus de {self.RESTORE_WINDOW_HOURS} heures et a déjà été "
                 "annoncée. Créez un nouvel événement."
             )
-            raise ValueError(msg)
+            raise BusinessRuleError(msg)
 
         self.cancelled_at = None
         self.cancellation_reason = ""
@@ -596,6 +627,15 @@ def _default_enums(target, _args, kwargs) -> None:
     # vers une colonne `NOT NULL` du miroir, et l'API construit puis
     # publie sans flush intermédiaire.
     kwargs.setdefault("currency", "EUR")
+    # Les deux motifs sont annotés `str`, pas `str | None` : sans cela
+    # un brouillon non flushé les rend `None`, et l'affichage comme les
+    # tests voient un type que le modèle ne déclare pas.
+    kwargs.setdefault("cancellation_reason", "")
+    kwargs.setdefault("send_back_reason", "")
+    # Annotées `list[str]` : sans amorce, un brouillon non flushé les
+    # rend `None`, et le formulaire itère alors sur rien du tout.
+    kwargs.setdefault("competences", [])
+    kwargs.setdefault("fonctions", [])
 
 
 class EventImage(IdMixin, LifeCycleMixin, Owned, Base):

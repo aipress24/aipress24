@@ -282,7 +282,9 @@ class TestUserVM:
 
             assert isinstance(attrs, dict)
             assert "name" in attrs
-            assert "job_title" in attrs
+            # Ticket #0325 : la carte porte la fonction du membre, plus la
+            # catégorie d'inscription KYC que servait `job_title`.
+            assert "fonction" in attrs
             assert "organisation_name" in attrs
             assert "image_url" in attrs
             assert "is_following" in attrs

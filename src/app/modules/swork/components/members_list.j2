@@ -169,9 +169,7 @@
                                             </span>
                                         </p>
                                         <p class="text-sm text-gray-500 truncate">
-                                            {{ member.job_title }}
-                                            @
-                                            {{ member.organisation_name }}
+                                            {{ member.fonction }}{% if member.organisation_name %} / {{ member.organisation_name }}{% endif %}
                                         </p>
                                     </div>
                                 </a>

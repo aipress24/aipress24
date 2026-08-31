@@ -99,7 +99,7 @@ class ClassificationMixin:
             ),
         )
 
-    #: "Thématique" in French
+    #: Feuille d'ontologie « NEWS-Types d'info » — libellé « Type d'info ».
     @declared_attr
     def topic(cls):
         return cls.__table__.c.get(

@@ -47,11 +47,11 @@
                     <a href="{{ url_for(follower) }}">{{ follower.full_name }}</a>
                   </p>
                   <p class="text-sm text-gray-500 truncate">
-                    {{ follower.job_title }}
+                    {{ follower.fonction }}
                     {% if follower.organisation %}
-                      <a href="{{ url_for(follower.organisation) }}">@{{ follower.organisation.name }}</a>
-                    {% else %}
-                      @{{ follower.organisation_name }}
+                      / <a href="{{ url_for(follower.organisation) }}">{{ follower.organisation.name }}</a>
+                    {% elif follower.organisation_name %}
+                      / {{ follower.organisation_name }}
                     {% endif %}
                   </p>
                 </div>

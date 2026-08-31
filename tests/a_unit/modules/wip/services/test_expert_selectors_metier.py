@@ -9,7 +9,6 @@ Pins the contract of each concrete selector in
 « métier » and « fonction » filter dimensions:
 
   - `MetierSelector` (cascade)
-  - `FonctionSelector` (flat, aggregate)
   - `FonctionJournalismeSelector` (flat)
   - `FonctionPolitiquesAdministrativesSelector` (cascade)
   - `FonctionOrganisationsPriveesSelector` (cascade)
@@ -47,7 +46,6 @@ from app.modules.wip.services.newsroom.expert_selectors import (
     FonctionJournalismeSelector,
     FonctionOrganisationsPriveesSelector,
     FonctionPolitiquesAdministrativesSelector,
-    FonctionSelector,
     MetierSelector,
 )
 
@@ -104,7 +102,6 @@ SELECTOR_CONTRACTS: list[
 ] = [
     # (selector_cls, expected_id, attribute_carrier, attribute_name, base)
     (MetierSelector, "metier", "user", "tous_metiers", DualSelector),
-    (FonctionSelector, "fonction", "profile", "toutes_fonctions", BaseSelector),
     (
         FonctionJournalismeSelector,
         "fonction_journalisme",
@@ -228,12 +225,6 @@ class TestSelectorIdentity:
         the same taxonomy would silently merge the cascades."""
         assert selector_cls.taxonomy_name == expected_taxonomy
 
-    def test_fonction_selector_taxonomy_is_aggregated(self) -> None:
-        """The aggregate « toutes fonctions » selector has NO single
-        backing taxonomy — it unions three of them in `get_values()`.
-        Marker: `taxonomy_name is None`."""
-        assert FonctionSelector.taxonomy_name is None
-
 
 class TestExpertValueExtraction:
     """Verify each selector reads the RIGHT attribute on the expert.
@@ -274,11 +265,6 @@ class TestExpertValueExtraction:
         [
             (cls, carrier, attr)
             for cls, _sid, carrier, attr, _base in SELECTOR_CONTRACTS
-            # Skip FonctionSelector: its attribute (`toutes_fonctions`)
-            # is itself an aggregate over the three detail attrs in
-            # production — a stand-in property can't capture that
-            # cross-coupling cleanly, so we test it separately.
-            if cls is not FonctionSelector
         ],
     )
     def test_expert_values_does_not_leak_neighbour_attribute(
@@ -313,18 +299,6 @@ class TestExpertValueExtraction:
             f"{selector_cls.__name__} leaked a neighbour attribute "
             f"into its expert_values output (expected only {attr})."
         )
-
-    def test_fonction_selector_aggregates_three_fonction_families(self) -> None:
-        """FonctionSelector reads `profile.toutes_fonctions` — the
-        production property unions journalisme + pol_adm + org_priv +
-        ass_syn. We pin the read-attribute name; aggregation correctness
-        is the model's responsibility.
-        """
-        expert = _StandInUser()
-        expert.profile.toutes_fonctions = ["JOUR-1", "PUB-1", "PRIV-1", "ASS-1"]
-        selector = FonctionSelector({}, [expert])
-        values = list(selector._expert_values(expert))
-        assert set(values) == {"JOUR-1", "PUB-1", "PRIV-1", "ASS-1"}
 
 
 class TestDefensiveBranches:
@@ -411,7 +385,6 @@ class TestFilterOutput:
         [
             (cls, carrier, attr)
             for cls, _sid, carrier, attr, _base in SELECTOR_CONTRACTS
-            if cls is not FonctionSelector  # see aggregator test above
         ],
     )
     def test_fonction_filter_keeps_matching_experts(
@@ -454,7 +427,6 @@ class TestCoverageCrossCheck:
         drifting."""
         expected = {
             MetierSelector,
-            FonctionSelector,
             FonctionJournalismeSelector,
             FonctionPolitiquesAdministrativesSelector,
             FonctionOrganisationsPriveesSelector,

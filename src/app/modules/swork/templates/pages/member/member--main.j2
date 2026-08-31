@@ -72,9 +72,9 @@
                                 {% endif %}
                             </div>
                             {# Job title - displayed below name #}
-                            {% if profile.job_title %}
+                            {% if profile.fonction %}
                                 <div class="text-base font-medium text-gray-600 truncate">
-                                    {{ profile.job_title }}
+                                    {{ profile.fonction }}
                                 </div>
                             {% endif %}
                             {# Organization - displayed below job title #}
@@ -127,10 +127,10 @@
                             🥉
                         {% endif %}
                     </div>
-                    {# Job title - displayed below name #}
-                    {% if profile.job_title %}
+                    {# Fonction du membre, sous le nom — ticket #0325 #}
+                    {% if profile.fonction %}
                         <div class="text-base font-medium text-gray-600 truncate">
-                            {{ profile.job_title }}
+                            {{ profile.fonction }}
                         </div>
                     {% endif %}
                     {# Organization - displayed below job title #}

@@ -12,7 +12,6 @@ fonction selectors that share their stand-in scaffolding):
   - `CompetencesGeneralesSelector` (cascade)
   - `CompetencesJournalismeSelector` (flat)
   - `MetierSelector` (cascade)
-  - `FonctionSelector` (flat, aggregate)
   - `FonctionJournalismeSelector` (flat)
   - `FonctionPolitiquesAdministrativesSelector` (cascade)
   - `FonctionOrganisationsPriveesSelector` (cascade)
@@ -52,7 +51,6 @@ from app.modules.wip.services.newsroom.expert_selectors import (
     FonctionJournalismeSelector,
     FonctionOrganisationsPriveesSelector,
     FonctionPolitiquesAdministrativesSelector,
-    FonctionSelector,
     MetierSelector,
 )
 
@@ -125,13 +123,6 @@ SELECTOR_CONTRACTS: list[
         BaseSelector,
     ),
     (MetierSelector, "metier", "user", "tous_metiers", DualSelector),
-    (
-        FonctionSelector,
-        "fonction",
-        "profile",
-        "toutes_fonctions",
-        BaseSelector,
-    ),
     (
         FonctionJournalismeSelector,
         "fonction_journalisme",
@@ -477,7 +468,6 @@ class TestCoverageCrossCheck:
             CompetencesGeneralesSelector,
             CompetencesJournalismeSelector,
             MetierSelector,
-            FonctionSelector,
             FonctionJournalismeSelector,
             FonctionPolitiquesAdministrativesSelector,
             FonctionOrganisationsPriveesSelector,

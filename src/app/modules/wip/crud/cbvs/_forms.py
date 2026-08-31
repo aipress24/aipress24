@@ -5,7 +5,7 @@
 from __future__ import annotations
 
 from wtforms import Form, validators
-from wtforms.fields.choices import SelectField
+from wtforms.fields.choices import SelectField, SelectMultipleField
 from wtforms.fields.simple import StringField, TextAreaField
 
 from app.enums import MODE_LABELS, PRICING_LABELS, EventMode, EventPricing
@@ -42,7 +42,7 @@ class ArticleForm(Form):
         validators=[validators.InputRequired()],
     )
     topic = RichSelectField(
-        "Thématique",
+        "Type d'info",
         key="topic",
         render_kw={"width": 6},
         validators=[validators.InputRequired()],
@@ -134,7 +134,7 @@ class AvisEnqueteForm(Form):
         validators=[validators.InputRequired()],
     )
     topic = RichSelectField(
-        "Thématique",
+        "Type d'info",
         key="topic",
         render_kw={"width": 6},
         validators=[validators.InputRequired()],
@@ -234,7 +234,7 @@ class SujetForm(Form):
         validators=[validators.InputRequired()],
     )
     topic = RichSelectField(
-        "Thématique",
+        "Type d'info",
         key="topic",
         render_kw={"width": 6},
         validators=[validators.InputRequired()],
@@ -322,7 +322,7 @@ class CommandeForm(Form):
         validators=[validators.InputRequired()],
     )
     topic = RichSelectField(
-        "Thématique",
+        "Type d'info",
         key="topic",
         render_kw={"width": 6},
         validators=[validators.InputRequired()],
@@ -546,6 +546,24 @@ class EventForm(Form):
         validators=[validators.Optional()],
     )
 
+    # Décision `M1` — à qui l'événement s'adresse. Des métadonnées, au
+    # même titre que la rubrique : elles ne restreignent la visibilité de
+    # personne. `SelectMultipleField` natif et non `RichSelectField` :
+    # celui-ci ne rend qu'une valeur, et résout ses options dans la table
+    # des taxonomies, alors que les fonctions sont **calculées** — les
+    # familles de quatre ontologies (voir `events/taxonomies.py`). Les
+    # options sont posées par `_make_media_choices`.
+    competences = SelectMultipleField(
+        "Compétences visées",
+        render_kw={"width": 6},
+        validators=[validators.Optional()],
+    )
+    fonctions = SelectMultipleField(
+        "Fonctions visées",
+        render_kw={"width": 6},
+        validators=[validators.Optional()],
+    )
+
     # MOD-01 — le mode décide de ce qui est obligatoire pour publier.
     # Un `SelectField` aux choix déclarés en dur, et non un
     # `RichSelectField` : celui-ci résout ses options dans la table des
@@ -681,6 +699,8 @@ class EventForm(Form):
                     "sector",
                     "section",
                     "topic",
+                    "competences",
+                    "fonctions",
                     "mode",
                     "platform",
                     "address",
