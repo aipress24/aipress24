@@ -10,10 +10,11 @@ from typing import ClassVar
 import arrow
 import sqlalchemy as sa
 from advanced_alchemy.types.file_object import FileObject, StoredObject
-from sqlalchemy import orm
+from sqlalchemy import event as sa_event, orm
 from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy_utils import ArrowType
 
+from app.enums import MODE_LABELS, PRICING_LABELS, EventMode, EventPricing
 from app.lib.file_object_utils import media_url
 from app.models.base import Base
 from app.models.lifecycle import PublicationStatus
@@ -79,6 +80,22 @@ class Event(IdMixin, LifeCycleMixin, Owned, Base):
         Organisation, foreign_keys=[publisher_id]
     )
 
+    # ORG-01 — l'organisateur, distinct de l'éditeur. Une agence RP
+    # publie pour son client : l'éditeur est l'agence, l'organisateur
+    # est le client. Les deux champs sont facultatifs (ORG-02) ; à
+    # vide, l'organisateur affiché reste l'éditeur, ce qui reproduit le
+    # comportement actuel.
+    #
+    # `organiser_id` quand l'organisateur est inscrit sur AiPRESS24,
+    # `organiser_name` en texte libre sinon.
+    organiser_id: Mapped[int | None] = mapped_column(
+        sa.ForeignKey(Organisation.id), nullable=True
+    )
+    organiser: Mapped[Organisation | None] = orm.relationship(
+        Organisation, foreign_keys=[organiser_id]
+    )
+    organiser_name: Mapped[str] = mapped_column(default="")
+
     #
     # Content
     #
@@ -93,6 +110,52 @@ class Event(IdMixin, LifeCycleMixin, Owned, Base):
 
     # NEWS-Secteurs
     sector: Mapped[str] = mapped_column(default="")
+
+    # Mêmes noms et mêmes vocabulaires que WIRE (FIL-01) : `section`
+    # vient de la feuille d'ontologie « Rubriques », `topic` de
+    # « Type d'info ». Facultatifs (FIL-02) — les rendre obligatoires
+    # invaliderait les événements déjà saisis.
+    section: Mapped[str] = mapped_column(default="")
+    topic: Mapped[str] = mapped_column(default="")
+
+    # Ciblage par communauté — vide = ouvert à toutes (RG-03a).
+    audience: Mapped[list[str]] = mapped_column(sa.JSON, default=list)
+
+    # Annulation (ANN-03). Deux colonnes plutôt qu'une valeur de plus
+    # dans `PublicationStatus` : un événement annulé **reste `PUBLIC`**,
+    # c'est ce qui permet de continuer à l'afficher barré au lieu de le
+    # faire disparaître, sans toucher à une énumération que partagent
+    # tous les contenus.
+    # Annoté `arrow.Arrow` et non `datetime` — contrairement à ses
+    # voisines, qui mentent sur ce qu'`ArrowType` rend et paient ce
+    # mensonge d'un `type: ignore` à chaque affectation.
+    cancelled_at: Mapped[arrow.Arrow | None] = mapped_column(
+        ArrowType(timezone=True), nullable=True
+    )
+    cancellation_reason: Mapped[str] = mapped_column(default="")
+
+    # Mode de participation (MOD-01). `platform` est un champ libre et
+    # non une ontologie (MOD-06) : la liste des outils de
+    # visioconférence change trop vite pour valoir une taxonomie, et
+    # aucun besoin de filtrage dessus n'est exprimé.
+    mode: Mapped[EventMode] = mapped_column(
+        sa.Enum(EventMode), default=EventMode.ON_SITE
+    )
+    platform: Mapped[str] = mapped_column(default="")
+    # MOD-02 — réservé aux personnes accréditées. C'est la seule donnée
+    # d'un événement soumise à ce régime : ni la liste, ni un visiteur
+    # non accrédité, ni l'index de recherche ne doivent la voir.
+    access_details: Mapped[str] = mapped_column(default="")
+
+    # Tarif (PRX-01). `price` est en **centimes**, comme les budgets de
+    # `biz/models/_offers.py` : aucun montant ne transite en flottant.
+    # `NULL` veut dire « pas de prix », ce qui est le cas de tout
+    # événement gratuit pour tout le monde (PRX-03).
+    pricing: Mapped[EventPricing] = mapped_column(
+        sa.Enum(EventPricing), default=EventPricing.FREE_FOR_ALL
+    )
+    price: Mapped[int | None] = mapped_column(default=None)  # centimes
+    currency: Mapped[str] = mapped_column(default="EUR")
 
     # Localisation
     address: Mapped[str] = mapped_column(default="")
@@ -141,8 +204,68 @@ class Event(IdMixin, LifeCycleMixin, Owned, Base):
         self.end_time = end
 
     def can_publish(self) -> bool:
-        """Check if event can be published."""
-        return bool(self.status == PublicationStatus.DRAFT)
+        """Check if event can be published.
+
+        Depuis REL-01, un événement peut être publié depuis un brouillon
+        **ou** depuis la relecture : le cycle est
+        `DRAFT → PENDING → PUBLIC`, et `DRAFT → PUBLIC` reste ouvert à un
+        rôle habilité qui se passe de relecture.
+        """
+        return self.status in (PublicationStatus.DRAFT, PublicationStatus.PENDING)
+
+    def check_publishable(self) -> None:
+        """Les règles qu'un événement **publié** ne doit jamais violer.
+
+        Extraites de `publish()` pour être rejouables ailleurs : à
+        l'édition d'un événement publié — sans quoi un organisateur
+        pouvait publier un événement valide puis le modifier vers un
+        état que la publication aurait refusé, et cet état partait sur
+        la carte — et à la **soumission** en relecture (REL-04), pour
+        qu'un relecteur n'hérite jamais d'un brouillon impubliable.
+
+        Les règles gouvernent l'état publié, pas l'instant de la
+        publication. Un brouillon reste librement incomplet : c'est ce
+        qu'est un brouillon.
+
+        Raises:
+            ValueError: un champ requis manque.
+        """
+        if not self.titre or not self.titre.strip():
+            msg = "Cannot publish event: titre is required"
+            raise ValueError(msg)
+
+        if not self.contenu or not self.contenu.strip():
+            msg = "Cannot publish event: contenu is required"
+            raise ValueError(msg)
+
+        # Bug #0172 — un événement sans dates serait silencieusement
+        # écarté de la liste publique (le filtre par défaut compare
+        # `start_datetime`/`end_datetime` à aujourd'hui, et `NULL >=
+        # today` vaut `NULL`, donc faux). Refuser à la publication avec
+        # un message clair, plutôt que de le rendre invisible.
+        if not self.start_time or not self.end_time:
+            msg = (
+                "Cannot publish event: la date de début et la date de "
+                "fin sont obligatoires pour publier un événement."
+            )
+            raise ValueError(msg)
+
+        self._require_dates_in_order()
+        self._require_fields_for_mode()
+        self._settle_price()
+
+    def _require_dates_in_order(self) -> None:
+        """La fin ne précède pas le début."""
+        start, end = self.start_time, self.end_time
+        if start is None or end is None:
+            return
+        if start.tzinfo is None:
+            start = start.replace(tzinfo=UTC)
+        if end.tzinfo is None:
+            end = end.replace(tzinfo=UTC)
+        if end < start:
+            msg = "Cannot publish event: end_time must be after start_time"
+            raise ValueError(msg)
 
     def publish(self, publisher_id: int | None = None) -> None:
         """
@@ -158,41 +281,7 @@ class Event(IdMixin, LifeCycleMixin, Owned, Base):
             msg = "Cannot publish event: event is not in DRAFT status"
             raise ValueError(msg)
 
-        # Validate required fields
-        if not self.titre or not self.titre.strip():
-            msg = "Cannot publish event: titre is required"
-            raise ValueError(msg)
-
-        if not self.contenu or not self.contenu.strip():
-            msg = "Cannot publish event: contenu is required"
-            raise ValueError(msg)
-
-        # Bug #0172 — BUSINESS RULE: an event without dates would be
-        # silently filtered out of the public /events/ list (the
-        # default DateFilter compares `start_datetime`/`end_datetime`
-        # against today, and NULL >= today evaluates to NULL = false).
-        # Block at publish time with a clear error so the user knows
-        # *why* their event would otherwise be invisible.
-        if not self.start_time or not self.end_time:
-            msg = (
-                "Cannot publish event: la date de début et la date de "
-                "fin sont obligatoires pour publier un événement."
-            )
-            raise ValueError(msg)
-
-        # BUSINESS RULE: Validate temporal consistency
-        if self.start_time and self.end_time:
-            # Handle timezone-naive datetimes
-            start = self.start_time
-            end = self.end_time
-            if start.tzinfo is None:
-                start = start.replace(tzinfo=UTC)
-            if end.tzinfo is None:
-                end = end.replace(tzinfo=UTC)
-
-            if end < start:
-                msg = "Cannot publish event: end_time must be after start_time"
-                raise ValueError(msg)
+        self.check_publishable()
 
         # Update state
         self.status = PublicationStatus.PUBLIC  # type: ignore[assignment]
@@ -200,6 +289,137 @@ class Event(IdMixin, LifeCycleMixin, Owned, Base):
             self.published_at = arrow.now("Europe/Paris")  # type: ignore[assignment]
         if publisher_id:
             self.publisher_id = publisher_id
+
+    #: MOD-01 — ce que chaque mode exige pour être publiable, et le
+    #: nom du champ tel que le formulaire le montre. Une table plutôt
+    #: qu'une cascade de `if` : la règle est un tableau dans la
+    #: spécification, elle se relit mieux comme un tableau ici.
+    REQUIRED_BY_MODE: ClassVar[dict[EventMode, tuple[tuple[str, str], ...]]] = {
+        EventMode.ON_SITE: (("address", "l'adresse de l'événement"),),
+        EventMode.ONLINE: (
+            ("url", "l'URL de l'événement"),
+            ("platform", "la plateforme"),
+        ),
+        EventMode.HYBRID: (
+            ("address", "l'adresse de l'événement"),
+            ("url", "l'URL de l'événement"),
+            ("platform", "la plateforme"),
+        ),
+        EventMode.PHONE: (
+            ("access_details", "les modalités d'accès (numéro et code)"),
+        ),
+    }
+
+    def _require_fields_for_mode(self) -> None:
+        """MOD-01 — refuser la publication s'il manque un champ du mode.
+
+        Même garde-fou que les dates du bug #0172, et pour la même
+        raison : un événement en présentiel sans adresse, ou en
+        distanciel sans lien, est publié mais inutilisable. Mieux vaut
+        un refus explicite qu'une annonce à laquelle personne ne peut
+        se rendre.
+
+        Raises:
+            ValueError: un champ requis par le mode est vide.
+        """
+        missing = [
+            label
+            for field, label in self.REQUIRED_BY_MODE[self.mode]
+            if not (getattr(self, field) or "").strip()
+        ]
+        if not missing:
+            return
+
+        # Formulé sans accord : le nombre du verbe dépendrait du
+        # nombre de champs manquants, celui de l'article du libellé de
+        # chacun, et les deux se contredisent — « les modalités d'accès
+        # est obligatoire ». Une liste n'a pas ce problème.
+        msg = (
+            f"Impossible de publier : pour un événement "
+            f"{MODE_LABELS[self.mode]}, il manque {', '.join(missing)}."
+        )
+        raise ValueError(msg)
+
+    #: Tarifs qui exigent un prix pour être publiés (PRX-02).
+    PRICED = (EventPricing.FREE_FOR_JOURNALISTS, EventPricing.PAID)
+
+    def _settle_price(self) -> None:
+        """Arrêter le prix à la publication (PRX-02, PRX-03).
+
+        Deux règles inséparables, d'où une seule méthode : un tarif
+        payant exige un prix strictement positif, et un tarif gratuit
+        pour tout le monde n'en garde aucun — même si le formulaire en
+        portait un, ce qui arrive dès qu'on saisit un montant puis
+        qu'on repasse le tarif à « gratuit ».
+
+        Raises:
+            ValueError: tarif payant sans prix, ou prix négatif ou nul.
+        """
+        if self.pricing == EventPricing.FREE_FOR_ALL:
+            self.price = None
+            return
+
+        if not self.price or self.price <= 0:
+            msg = (
+                "Impossible de publier : un événement "
+                f"« {PRICING_LABELS[self.pricing].lower()} » demande un prix."
+            )
+            raise ValueError(msg)
+
+    # ------------------------------------------------------------
+    # Business Logic - Relecture éditoriale (REL-01, REL-02, REL-04)
+    # ------------------------------------------------------------
+
+    def can_submit_for_review(self) -> bool:
+        """REL-01 — seul un brouillon part en relecture."""
+        return self.status == PublicationStatus.DRAFT
+
+    def submit_for_review(self) -> None:
+        """Soumettre le brouillon à la relecture de l'organisation.
+
+        REL-04 : les mêmes contrôles qu'à la publication s'appliquent
+        ici. Un relecteur ne doit jamais hériter d'un brouillon
+        impubliable — il n'aurait alors le choix qu'entre le renvoyer
+        pour un défaut que l'auteur ne voyait pas, ou le valider vers un
+        échec.
+
+        Raises:
+            ValueError: événement pas en brouillon, ou incomplet.
+        """
+        if not self.can_submit_for_review():
+            msg = "Impossible de soumettre à relecture : seul un brouillon peut l'être."
+            raise ValueError(msg)
+
+        self.check_publishable()
+        self.status = PublicationStatus.PENDING  # type: ignore[assignment]
+
+    def can_send_back(self) -> bool:
+        """REL-02 — seul un événement en relecture se renvoie."""
+        return self.status == PublicationStatus.PENDING
+
+    def send_back(self, comment: str) -> None:
+        """Renvoyer l'événement à son auteur, avec un motif (REL-02).
+
+        Le commentaire est **obligatoire** : un renvoi sans motif ne
+        dit pas à l'auteur ce qu'il doit corriger, et le fait
+        recommencer à l'aveugle.
+
+        Il voyage dans la notification (NOT-07) et n'est pas conservé
+        sur l'événement — la spécification ne le demande pas, et un
+        renvoi est un échange, pas un état.
+
+        Raises:
+            ValueError: événement pas en relecture, ou motif vide.
+        """
+        if not self.can_send_back():
+            msg = "Impossible de renvoyer cet événement : il n'est pas en relecture."
+            raise ValueError(msg)
+
+        if not comment.strip():
+            msg = "Le motif du renvoi est obligatoire."
+            raise ValueError(msg)
+
+        self.status = PublicationStatus.DRAFT  # type: ignore[assignment]
 
     def can_unpublish(self) -> bool:
         """Check if event can be unpublished."""
@@ -217,6 +437,93 @@ class Event(IdMixin, LifeCycleMixin, Owned, Base):
             raise ValueError(msg)
 
         self.status = PublicationStatus.DRAFT  # type: ignore[assignment]
+        # Dépublier retire l'annonce entièrement : l'annulation n'a plus
+        # d'objet, et le brouillon repart propre. Sans cet effacement,
+        # une republication ressusciterait un événement affiché barré,
+        # avec un `cancelled_at` trop vieux pour être rétabli (ANN-07) —
+        # un état dont plus rien ne permet de sortir. Le miroir, lui, se
+        # remet à jour tout seul : `on_publish_event` recopie tous les
+        # champs.
+        self.cancelled_at = None
+        self.cancellation_reason = ""
+
+    # ------------------------------------------------------------
+    # Business Logic - Annulation (ANN-01, ANN-03, ANN-07)
+    # ------------------------------------------------------------
+
+    #: ANN-07 — le rétablissement reste possible pendant ce délai.
+    #: Au-delà, l'annulation est un fait public déjà notifié, et on
+    #: n'efface pas silencieusement un message déjà reçu :
+    #: l'organisateur crée un nouvel événement.
+    RESTORE_WINDOW_HOURS: ClassVar[int] = 24
+
+    #: ANN-02 — le motif est facultatif et court : il tient dans un
+    #: bandeau, pas dans un communiqué.
+    MAX_CANCELLATION_REASON: ClassVar[int] = 280
+
+    def can_cancel(self) -> bool:
+        """ANN-01 — seul un événement publié et non déjà annulé."""
+        return self.status == PublicationStatus.PUBLIC and self.cancelled_at is None
+
+    def cancel(self, reason: str = "", now: arrow.Arrow | None = None) -> None:
+        """Annuler l'événement (ANN-03).
+
+        Ne touche ni au statut, ni aux accréditations (RG-12) :
+        l'annonce reste publique, barrée, et les accrédités gardent
+        leur ligne — c'est ce qui permet de les prévenir, et de
+        rétablir l'événement sans avoir à les réinviter.
+
+        `now` est un paramètre parce que ANN-07 rend le rétablissement
+        dépendant de l'heure, et que ce dépôt ne sait pas geler le
+        temps.
+
+        Raises:
+            ValueError: événement non publié, déjà annulé, ou motif trop long.
+        """
+        if not self.can_cancel():
+            msg = (
+                "Impossible d'annuler cet événement : il n'est pas publié, "
+                "ou il est déjà annulé."
+            )
+            raise ValueError(msg)
+
+        reason = reason.strip()
+        if len(reason) > self.MAX_CANCELLATION_REASON:
+            msg = (
+                "Le motif d'annulation ne peut pas dépasser "
+                f"{self.MAX_CANCELLATION_REASON} signes."
+            )
+            raise ValueError(msg)
+
+        self.cancelled_at = now or arrow.utcnow()
+        self.cancellation_reason = reason
+
+    def can_restore(self, now: arrow.Arrow | None = None) -> bool:
+        """ANN-07 — le rétablissement est-il encore dans la fenêtre ?"""
+        if self.cancelled_at is None:
+            return False
+        deadline = self.cancelled_at.shift(hours=self.RESTORE_WINDOW_HOURS)
+        return (now or arrow.utcnow()) <= deadline
+
+    def restore(self, now: arrow.Arrow | None = None) -> None:
+        """Rétablir un événement annulé, dans les 24 heures (ANN-07).
+
+        Raises:
+            ValueError: événement non annulé, ou fenêtre expirée.
+        """
+        if self.cancelled_at is None:
+            msg = "Impossible de rétablir cet événement : il n'est pas annulé."
+            raise ValueError(msg)
+        if not self.can_restore(now):
+            msg = (
+                "Impossible de rétablir cet événement : l'annulation date de "
+                f"plus de {self.RESTORE_WINDOW_HOURS} heures et a déjà été "
+                "annoncée. Créez un nouvel événement."
+            )
+            raise ValueError(msg)
+
+        self.cancelled_at = None
+        self.cancellation_reason = ""
 
     # ------------------------------------------------------------
     # Query Methods (for templates/views)
@@ -266,6 +573,29 @@ class Event(IdMixin, LifeCycleMixin, Owned, Base):
     def update_image_positions(self) -> None:
         for i, image in enumerate(self.sorted_images):
             image.position = i
+
+
+@sa_event.listens_for(Event, "init")
+def _default_enums(target, _args, kwargs) -> None:
+    """Donner ses valeurs par défaut à un événement dès sa construction.
+
+    Le `default=` de `mapped_column` n'est posé qu'à l'insertion : avant
+    le premier flush, `Event().mode` vaut `None`, et les validations de
+    MOD-01 et PRX-02 n'ont alors aucune ligne à consulter. Ce n'est pas
+    un détail de test — l'API construit un événement et le publie dans
+    la même transaction, sans flush intermédiaire.
+
+    Le statut souffre du même défaut et s'en tire par accident :
+    `can_publish()` compare `None` à `DRAFT`, ce qui est faux, et refuse
+    avec un message clair. On ne peut pas compter là-dessus pour une
+    table indexée par la valeur.
+    """
+    kwargs.setdefault("mode", EventMode.ON_SITE)
+    kwargs.setdefault("pricing", EventPricing.FREE_FOR_ALL)
+    # `currency` aussi : le récepteur recopie `info.currency` tel quel
+    # vers une colonne `NOT NULL` du miroir, et l'API construit puis
+    # publie sans flush intermédiaire.
+    kwargs.setdefault("currency", "EUR")
 
 
 class EventImage(IdMixin, LifeCycleMixin, Owned, Base):

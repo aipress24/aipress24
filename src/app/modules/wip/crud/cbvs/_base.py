@@ -332,7 +332,16 @@ class BaseWipView(FlaskView, abc.ABC):
             model.media_id = int(model.media_id)
 
         self._normalize_model_datetimes(model)
-        self._post_update_model(model)
+        try:
+            self._post_update_model(model)
+        except ValueError as exc:
+            # Une règle métier que le formulaire seul ne peut pas
+            # vérifier — elle porte sur plusieurs champs à la fois, ou
+            # sur l'état publié du contenu. Sans cette prise, elle
+            # remonterait en 500 au lieu de dire à l'auteur ce qui
+            # manque. Le formulaire est re-rendu tel qu'il a été saisi.
+            flash(str(exc), "error")
+            return self._view_ctx(form=form)
         repo.add(model, auto_commit=True)
 
         flash("Enregistré")

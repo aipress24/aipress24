@@ -10,12 +10,16 @@ from typing import TYPE_CHECKING
 
 import arrow
 import pytest
+from flask import g
 
+from app.enums import EventPricing
 from app.flask.routing import url_for
 from app.models.lifecycle import PublicationStatus
+from app.modules.wip.crud.cbvs.events import EventsWipView
 from app.modules.wip.models.eventroom.event import Event
 
 if TYPE_CHECKING:
+    from flask import Flask
     from flask.testing import FlaskClient
     from sqlalchemy.orm import Session
 
@@ -29,6 +33,7 @@ def test_event(db_session: Session, test_org: Organisation, test_user: User) -> 
     event = Event(owner=test_user, publisher=test_org)
     event.titre = "Test Conference"
     event.contenu = "Conference description"
+    event.address = "1 rue de la Paix, Paris"
     event.set_schedule(
         start=arrow.get("2025-12-01 10:00:00").datetime,
         end=arrow.get("2025-12-01 18:00:00").datetime,
@@ -47,6 +52,7 @@ def invalid_time_event(
     event = Event(owner=test_user, publisher=test_org)
     event.titre = "Invalid Event"
     event.contenu = "Event with wrong times"
+    event.address = "1 rue de la Paix, Paris"
     # NOTE: Intentionally set invalid times directly (bypassing set_schedule validation)
     # to create test data for validation testing
     event.start_time = arrow.get("2025-12-01 18:00:00").datetime
@@ -65,6 +71,7 @@ def published_event(
     event = Event(owner=test_user, publisher=test_org)
     event.titre = "Published Conference"
     event.contenu = "Public event"
+    event.address = "1 rue de la Paix, Paris"
     event.set_schedule(
         start=arrow.get("2025-12-01 10:00:00").datetime,
         end=arrow.get("2025-12-01 18:00:00").datetime,
@@ -131,6 +138,7 @@ class TestEventsPublish:
         event = Event(owner=test_user, publisher=test_org)
         event.titre = ""  # Empty titre
         event.contenu = "Some content"
+        event.address = "1 rue de la Paix, Paris"
         event.status = PublicationStatus.DRAFT
         db_session.add(event)
         db_session.flush()
@@ -150,6 +158,7 @@ class TestEventsPublish:
         event = Event(owner=test_user, publisher=test_org)
         event.titre = "Test Title"
         event.contenu = ""  # Empty contenu
+        event.address = "1 rue de la Paix, Paris"
         event.status = PublicationStatus.DRAFT
         db_session.add(event)
         db_session.flush()
@@ -174,6 +183,7 @@ class TestEventsPublish:
         event = Event(owner=test_user, publisher=test_org)
         event.titre = "Event without dates"
         event.contenu = "Some content"
+        event.address = "1 rue de la Paix, Paris"
         event.status = PublicationStatus.DRAFT
         # No start_time / end_time set.
         db_session.add(event)
@@ -352,3 +362,60 @@ class TestEventsValidation:
         # Published event can be unpublished
         test_event.publish()
         assert test_event.can_unpublish() is True
+
+
+class TestAPublishedEventStaysPublishable:
+    """MOD-01 et PRX-02 gouvernent l'**état publié**, pas l'instant de
+    la publication.
+
+    Sans cette relecture à l'enregistrement, un organisateur publiait un
+    événement valide puis le modifiait vers un état que la publication
+    aurait refusé — un présentiel sans adresse, un tarif payant sans
+    prix — et cet état partait sur la carte publique.
+
+    Éprouvé sur `_post_update_model`, qui est l'endroit où la règle est
+    rejouée. Passer par le formulaire complet demanderait une taxonomie
+    peuplée, que la recette n'a pas : le test porterait alors sur la
+    pré-validation des listes déroulantes, pas sur la règle.
+    """
+
+    @pytest.fixture
+    def published(self, db_session: Session, test_event: Event) -> Event:
+        test_event.publish()
+        db_session.flush()
+        return test_event
+
+    def test_removing_the_address_of_a_published_event_is_refused(
+        self, app: Flask, published: Event, test_user: User
+    ) -> None:
+        published.address = ""
+
+        with app.test_request_context("/"):
+            g.user = test_user
+            with pytest.raises(ValueError, match="adresse"):
+                EventsWipView()._post_update_model(published)
+
+    def test_making_it_paid_without_a_price_is_refused(
+        self, app: Flask, published: Event, test_user: User
+    ) -> None:
+        published.pricing = EventPricing.PAID
+        published.price = None
+
+        with app.test_request_context("/"):
+            g.user = test_user
+            with pytest.raises(ValueError, match="prix"):
+                EventsWipView()._post_update_model(published)
+
+    def test_but_a_draft_may_stay_incomplete(
+        self, app: Flask, test_event: Event, test_user: User
+    ) -> None:
+        """C'est ce qu'est un brouillon."""
+        test_event.address = ""
+        test_event.pricing = EventPricing.PAID
+        test_event.price = None
+
+        with app.test_request_context("/"):
+            g.user = test_user
+            EventsWipView()._post_update_model(test_event)
+
+        assert test_event.status == PublicationStatus.DRAFT

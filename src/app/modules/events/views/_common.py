@@ -21,9 +21,8 @@ from app.flask.lib.view_model import ViewModel
 from app.flask.sqla import get_multi
 from app.models.auth import User
 from app.models.lifecycle import PublicationStatus
-from app.models.meta import get_meta_attr
 from app.modules.events.components.opening_hours import opening_hours
-from app.modules.events.models import EVENT_CLASSES, EventPost
+from app.modules.events.models import EventPost
 from app.modules.events.services import get_participants
 from app.modules.kyc.field_label import country_code_to_label, country_zip_code_to_city
 from app.modules.swork.models import Comment
@@ -56,6 +55,11 @@ class EventListVM(ViewModel):
             "likes": event.like_count,
             "replies": event.comment_count,
             "views": event.view_count,
+            # `is_accredited` n'est **pas** ici : la carte le lit
+            # elle-même dans `EventCardVM`, parce qu'elle est aussi
+            # rendue sans passer par ce view model (Business Wall d'une
+            # organisation). L'y calculer une seconde fois ne servirait
+            # qu'à faire croire que c'est de là qu'elle vient.
         }
 
 
@@ -112,11 +116,6 @@ class EventDetailVM(ViewModel):
 # =============================================================================
 # Helper Classes
 # =============================================================================
-
-TABS = [
-    {"id": cls.get_type_id(), "label": get_meta_attr(cls, "type_label")}
-    for cls in EVENT_CLASSES
-]
 
 
 class DateFilter:
@@ -189,7 +188,7 @@ class Calendar:
     prev_month: str
     num_weeks: int
 
-    def __init__(self, month: Arrow, active_tab_ids: list[str]) -> None:
+    def __init__(self, month: Arrow) -> None:
         self.month = month
         self.cells = []
 
@@ -216,9 +215,6 @@ class Calendar:
             .order_by(EventPost.start_datetime)
             .options(selectinload(EventPost.owner))
         )
-
-        if active_tab_ids:
-            stmt = stmt.where(EventPost.type.in_(active_tab_ids))
 
         events = list(get_multi(EventPost, stmt))
 

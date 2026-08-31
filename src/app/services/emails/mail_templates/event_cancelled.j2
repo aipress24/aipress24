@@ -1,0 +1,51 @@
+{# NOT-05 — un seul gabarit pour les trois déclencheurs, dont le corps
+   varie (§9.2). Le pied de page et l'adresse de l'événement sont
+   communs ; seul le paragraphe d'annonce change. #}
+<p>
+Bonjour {{ recipient_full_name }},
+</p>
+
+{% if change == "restored" %}
+  <p>
+  Bonne nouvelle&nbsp;: l'événement <strong>« {{ event_title }} »</strong>{% if
+  event_date %}, prévu le {{ event_date }},{% endif %} n'est finalement
+  <strong>pas annulé</strong>. Son organisateur vient de le rétablir.
+  </p>
+
+  <p>
+  Votre accréditation n'a jamais été retirée&nbsp;: elle reste acquise, vous
+  n'avez rien à refaire.
+  </p>
+{% elif change == "unpublished" %}
+  <p>
+  L'annonce de l'événement <strong>« {{ event_title }} »</strong>{% if
+  event_date %}, prévu le {{ event_date }},{% endif %} vient d'être retirée
+  par son organisateur.
+  </p>
+
+  <p>
+  Nous vous conseillons de vérifier auprès de lui qu'il aura bien lieu avant
+  de vous déplacer.
+  </p>
+{% else %}
+  <p>
+  L'événement <strong>« {{ event_title }} »</strong>{% if event_date %}, prévu
+  le {{ event_date }},{% endif %} a été <strong>annulé</strong> par son
+  organisateur.
+  </p>
+
+  {% if reason %}
+    <p>
+    Motif indiqué&nbsp;: {{ reason }}
+    </p>
+  {% endif %}
+{% endif %}
+
+<p>
+Sa page reste consultable&nbsp;:
+<a href="{{ event_url }}">{{ event_url }}</a>.
+</p>
+
+<p>
+L'équipe AiPRESS24
+</p>

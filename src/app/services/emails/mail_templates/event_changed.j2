@@ -1,0 +1,24 @@
+<p>
+Bonjour {{ recipient_full_name }},
+</p>
+
+<p>
+L'organisateur de l'événement <strong>« {{ event_title }} »</strong>{% if
+event_date %}, prévu le {{ event_date }},{% endif %} vient d'en modifier
+les informations pratiques.
+</p>
+
+<p>
+{{ changes }}
+</p>
+
+<p>
+Le détail à jour est sur sa page&nbsp;:
+<a href="{{ event_url }}">{{ event_url }}</a>. Votre accréditation reste
+acquise&nbsp;; si ces changements ne vous conviennent plus, vous pouvez
+vous désinscrire depuis cette même page.
+</p>
+
+<p>
+L'équipe AiPRESS24
+</p>

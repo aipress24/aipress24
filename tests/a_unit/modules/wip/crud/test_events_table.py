@@ -6,20 +6,41 @@
 
 from __future__ import annotations
 
+import arrow
+
 from app.models.lifecycle import PublicationStatus
 from app.modules.wip.crud.cbvs.events import EventsTable
+from app.modules.wip.models.eventroom import Event
 
 
 class _Item:
     """Minimal stand-in for an Event row used by EventsTable.get_actions.
 
-    The SUT only reads ``id`` (for URL building) and ``status`` (to choose
-    publish vs. unpublish action).
+    The SUT reads ``id`` (for URL building), ``status`` (publish vs.
+    unpublish) and the two cancellation predicates (ANN-01).
+
+    Ces deux prédicats sont **empruntés à `Event`**, pas réécrits : ils
+    ne lisent que `status` et `cancelled_at`, et une copie de la règle
+    dans un double de test ne prouverait que la copie.
     """
 
-    def __init__(self, id: int, status: PublicationStatus) -> None:
+    RESTORE_WINDOW_HOURS = Event.RESTORE_WINDOW_HOURS
+    can_cancel = Event.can_cancel
+    can_restore = Event.can_restore
+
+    def __init__(
+        self,
+        id: int,
+        status: PublicationStatus,
+        cancelled_at: arrow.Arrow | None = None,
+        publisher=None,
+    ) -> None:
         self.id = id
         self.status = status
+        self.cancelled_at = cancelled_at
+        # REL-02/REL-03 : sans organisation éditrice, il n'y a personne
+        # pour relire, et le parcours par défaut s'applique.
+        self.publisher = publisher
 
 
 class TestEventsTableActions:
@@ -59,3 +80,53 @@ class TestEventsTableActions:
         assert "Modifier" in labels
         assert "Images" in labels
         assert "Supprimer" in labels
+
+
+class TestCancellationActions:
+    """ANN-01 — quand « Annuler » et « Rétablir » sont proposés."""
+
+    def test_published_event_can_be_cancelled(self):
+        table = EventsTable()
+        item = _Item(id=1, status=PublicationStatus.PUBLIC)
+
+        labels = [a["label"] for a in table.get_actions(item)]
+
+        assert "Annuler l'événement" in labels
+        assert "Rétablir l'événement" not in labels
+
+    def test_draft_event_offers_neither(self):
+        """Un brouillon n'a été annoncé à personne : rien à annuler."""
+        table = EventsTable()
+        item = _Item(id=1, status=PublicationStatus.DRAFT)
+
+        labels = [a["label"] for a in table.get_actions(item)]
+
+        assert "Annuler l'événement" not in labels
+        assert "Rétablir l'événement" not in labels
+
+    def test_cancelled_event_offers_restore_within_the_window(self):
+        table = EventsTable()
+        item = _Item(
+            id=1,
+            status=PublicationStatus.PUBLIC,
+            cancelled_at=arrow.utcnow().shift(hours=-23),
+        )
+
+        labels = [a["label"] for a in table.get_actions(item)]
+
+        assert "Rétablir l'événement" in labels
+        assert "Annuler l'événement" not in labels
+
+    def test_a_stale_cancellation_offers_nothing(self):
+        """ANN-07 — passé 24 h, l'annulation est un fait acquis."""
+        table = EventsTable()
+        item = _Item(
+            id=1,
+            status=PublicationStatus.PUBLIC,
+            cancelled_at=arrow.utcnow().shift(hours=-25),
+        )
+
+        labels = [a["label"] for a in table.get_actions(item)]
+
+        assert "Rétablir l'événement" not in labels
+        assert "Annuler l'événement" not in labels

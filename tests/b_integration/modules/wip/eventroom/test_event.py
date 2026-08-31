@@ -46,6 +46,7 @@ def test_event_publication_workflow(db_session: scoped_session) -> None:
     event = Event(owner=joe)
     event.titre = "Test Event"
     event.contenu = "Test content"
+    event.address = "1 rue de la Paix, Paris"
     event.start_time = arrow.get("2025-12-01 10:00:00").datetime
     event.end_time = arrow.get("2025-12-01 12:00:00").datetime
 
@@ -98,6 +99,7 @@ def test_event_publication_validation(db_session: scoped_session) -> None:
     # BUSINESS RULE: Cannot publish without titre
     event.titre = ""
     event.contenu = "Some content"
+    event.address = "1 rue de la Paix, Paris"
     with pytest.raises(ValueError, match="titre"):
         event.publish()
 
@@ -115,6 +117,7 @@ def test_event_publication_validation(db_session: scoped_session) -> None:
     # the row is excluded). Block at publish time with a clear flash
     # rather than letting the user wonder where their event went.
     event.contenu = "Some content"
+    event.address = "1 rue de la Paix, Paris"
     with pytest.raises(ValueError, match="date"):
         event.publish()
 
@@ -136,6 +139,7 @@ def test_event_expiration(db_session: scoped_session) -> None:
     event = Event(owner=joe)
     event.titre = "Test Event"
     event.contenu = "Test content"
+    event.address = "1 rue de la Paix, Paris"
 
     db_session.add(event)
     db_session.flush()
@@ -162,6 +166,7 @@ def test_event_query_properties(db_session: scoped_session) -> None:
     event = Event(owner=joe)
     event.titre = "Test Event"
     event.contenu = "Test content"
+    event.address = "1 rue de la Paix, Paris"
     # Dates required at publish time (#0172).
     now = datetime.now(UTC)
     event.start_time = now + timedelta(days=1)
@@ -195,6 +200,7 @@ def test_event_temporal_validation(db_session: scoped_session) -> None:
     event = Event(owner=joe)
     event.titre = "Test Event"
     event.contenu = "Test content"
+    event.address = "1 rue de la Paix, Paris"
 
     db_session.add(event)
     db_session.flush()

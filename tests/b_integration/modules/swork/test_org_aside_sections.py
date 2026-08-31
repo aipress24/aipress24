@@ -12,7 +12,6 @@ import uuid
 from datetime import UTC, datetime, timedelta
 from typing import TYPE_CHECKING
 
-import sqlalchemy as sa
 from flask import g, render_template, url_for
 
 from app.models.auth import User
@@ -33,7 +32,11 @@ from app.modules.bw.bw_activation.models import (
     RoleAssignment,
 )
 from app.modules.bw.bw_activation.models.business_wall import BWStatus
-from app.modules.events.models import EventPost, participation_table
+from app.modules.events.models import (
+    Accreditation,
+    AccreditationStatus,
+    EventPost,
+)
 from app.modules.swork.views.organisation import OrgVM
 from app.services.activity_stream import ActivityType, get_timeline, post_activity
 
@@ -316,12 +319,18 @@ class TestEventsParticipes:
         db_session.add_all([joined, elsewhere])
         db_session.flush()
         # A BW member takes part in `joined`; a non-member in `elsewhere`.
-        db_session.execute(
-            sa.insert(participation_table).values(user_id=member.id, event_id=joined.id)
+        db_session.add(
+            Accreditation(
+                user_id=member.id,
+                event_id=joined.id,
+                status=AccreditationStatus.ACCEPTED,
+            )
         )
-        db_session.execute(
-            sa.insert(participation_table).values(
-                user_id=outsider.id, event_id=elsewhere.id
+        db_session.add(
+            Accreditation(
+                user_id=outsider.id,
+                event_id=elsewhere.id,
+                status=AccreditationStatus.ACCEPTED,
             )
         )
         db_session.flush()

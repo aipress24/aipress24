@@ -8,6 +8,7 @@ from typing import cast
 
 from arrow import Arrow
 from attr import define
+from flask import g
 
 from app.flask.lib.pywire import Component, component
 from app.flask.lib.view_model import ViewModel
@@ -15,6 +16,7 @@ from app.models.meta import get_meta_attr
 from app.modules.bw.bw_activation.user_utils import get_organisation_logo_url
 from app.modules.events.components.opening_hours import opening_hours
 from app.modules.events.models import EventPost
+from app.modules.events.pricing import price_label
 
 DEFAULT_LOGO_URL = "/static/img/transparent-square.png"
 
@@ -43,6 +45,24 @@ class EventCardVM(ViewModel):
             "likes": event.like_count,
             "replies": event.comment_count,
             "views": event.view_count,
+            # §7.2 — la pastille « Accrédité.e ». Renseignée par la vue
+            # liste, qui charge toutes les accréditations de la page en
+            # une requête ; **absente partout ailleurs**.
+            #
+            # C'est cette clé qu'il faut poser ici, et non se reposer
+            # sur `EventListVM` : la carte est rendue à deux
+            # profondeurs d'enveloppe —
+            # `EventCardVM(EventListVM(EventPost))` sur la liste, et
+            # `EventCardVM(EventPost)` sur le Business Wall d'une
+            # organisation, qui passe la ligne brute. Sur le second
+            # chemin la clé n'existait pas, et comme les gabarits sont
+            # rendus en `StrictUndefined`, la rubrique Événements du
+            # Business Wall **plantait** depuis le lot L2.
+            "is_accredited": getattr(event, "_is_accredited", False),
+            # PRX-04 — le tarif dépend du lecteur. Posé ici pour la
+            # même raison que la pastille ci-dessus : c'est le seul
+            # view model qui enveloppe sur les deux chemins de rendu.
+            "price_label": price_label(event, getattr(g, "user", None)),
         }
 
     def _get_organisation_logo_url(self) -> str:

@@ -10,7 +10,6 @@ from typing import TYPE_CHECKING
 
 import arrow
 import pytest
-import sqlalchemy as sa
 from flask import Flask, g
 from svcs.flask import container
 
@@ -19,7 +18,14 @@ from app.flask.lib.nav.registration import _inject_breadcrumbs_to_context
 from app.flask.lib.nav.request import NavRequest
 from app.models.auth import Role, User
 from app.models.lifecycle import PublicationStatus
-from app.modules.events.models import EventPost, participation_table
+from app.modules.events.models import (
+    Accreditation,
+    AccreditationStatus,
+    EventPost,
+)
+from app.modules.events.services import accredited_event_ids
+from app.modules.events.views._common import DateFilter
+from app.modules.events.views._filters import FilterBar
 from app.modules.events.views.events_list import EventsListView
 from app.services.context import Context
 from tests.c_e2e.conftest import make_authenticated_client
@@ -407,9 +413,11 @@ class TestUserAgendaWidget:
         sample_event: EventPost,
     ):
         self._setup_user_with_role(db_session, test_user)
-        db_session.execute(
-            sa.insert(participation_table).values(
-                event_id=sample_event.id, user_id=test_user.id
+        db_session.add(
+            Accreditation(
+                event_id=sample_event.id,
+                user_id=test_user.id,
+                status=AccreditationStatus.ACCEPTED,
             )
         )
         db_session.commit()
@@ -454,9 +462,11 @@ class TestUserAgendaWidget:
         )
         db_session.add(event)
         db_session.flush()
-        db_session.execute(
-            sa.insert(participation_table).values(
-                event_id=event.id, user_id=test_user.id
+        db_session.add(
+            Accreditation(
+                event_id=event.id,
+                user_id=test_user.id,
+                status=AccreditationStatus.ACCEPTED,
             )
         )
         db_session.commit()
@@ -478,9 +488,11 @@ class TestUserAgendaWidget:
         """Sidebar order: calendar, then « Votre agenda », then the
         two promo boxes (Stéfane, 2026-05-20)."""
         self._setup_user_with_role(db_session, test_user)
-        db_session.execute(
-            sa.insert(participation_table).values(
-                event_id=sample_event.id, user_id=test_user.id
+        db_session.add(
+            Accreditation(
+                event_id=sample_event.id,
+                user_id=test_user.id,
+                status=AccreditationStatus.ACCEPTED,
             )
         )
         db_session.commit()
@@ -545,9 +557,11 @@ class TestUserAgendaWidget:
         db_session.add_all([next_day, three_days_ago, in_ten_days, thirty_days_ago])
         db_session.flush()
         for event in (next_day, three_days_ago, in_ten_days, thirty_days_ago):
-            db_session.execute(
-                sa.insert(participation_table).values(
-                    event_id=event.id, user_id=test_user.id
+            db_session.add(
+                Accreditation(
+                    event_id=event.id,
+                    user_id=test_user.id,
+                    status=AccreditationStatus.ACCEPTED,
                 )
             )
         db_session.commit()
@@ -565,3 +579,139 @@ class TestUserAgendaWidget:
             in_ten_days.title,  # |+10d| = 10
             thirty_days_ago.title,  # |-30d| = 30
         ]
+
+
+class TestAgendaListsOnlyAccredited:
+    """Rien ne prouvait que « Votre agenda » filtre sur `ACCEPTED`.
+
+    Tous les tests du bloc insèrent une accréditation acceptée ou rien
+    du tout : supprimer le filtre de `accredited_event_ids` laissait la
+    suite verte, et le membre voyait dans son agenda les événements
+    qu'on lui avait refusés — la même sous-requête alimentant aussi la
+    colonne de droite du Business Wall.
+    """
+
+    @pytest.mark.parametrize(
+        "status",
+        [
+            AccreditationStatus.REQUESTED,
+            AccreditationStatus.REJECTED,
+            AccreditationStatus.WITHDRAWN,
+        ],
+    )
+    def test_a_non_accepted_row_keeps_the_event_out(
+        self, app: Flask, db_session: Session, test_user: User, status
+    ) -> None:
+        event = EventPost(title=f"Agenda {status.value}", owner=test_user)
+        event.status = PublicationStatus.PUBLIC
+        event.start_datetime = arrow.utcnow().shift(days=3)
+        db_session.add(event)
+        db_session.flush()
+        db_session.add(
+            Accreditation(event_id=event.id, user_id=test_user.id, status=status)
+        )
+        db_session.flush()
+
+        found = set(db_session.scalars(accredited_event_ids([test_user.id])))
+        assert event.id not in found
+
+    def test_an_accepted_row_puts_it_in(
+        self, app: Flask, db_session: Session, test_user: User
+    ) -> None:
+        event = EventPost(title="Agenda accepté", owner=test_user)
+        event.status = PublicationStatus.PUBLIC
+        event.start_datetime = arrow.utcnow().shift(days=3)
+        db_session.add(event)
+        db_session.flush()
+        db_session.add(
+            Accreditation(
+                event_id=event.id,
+                user_id=test_user.id,
+                status=AccreditationStatus.ACCEPTED,
+            )
+        )
+        db_session.flush()
+
+        found = set(db_session.scalars(accredited_event_ids([test_user.id])))
+        assert event.id in found
+
+
+class TestCancelledEventsOnThePublicSide:
+    """ANN-04 et ANN-08 — l'annonce reste, l'engagement s'en va.
+
+    C'est le point délicat du lot : un événement annulé garde
+    `PublicationStatus.PUBLIC` (ANN-03), donc **toutes** les requêtes
+    filtrant sur le statut le voient encore comme vivant. Chaque
+    exclusion doit être écrite à la main, et chacune est testée ici.
+    """
+
+    def _accredited_event(
+        self, db_session: Session, user: User, title: str, days: int
+    ) -> EventPost:
+        event = EventPost(title=title, owner=user)
+        event.status = PublicationStatus.PUBLIC
+        event.start_datetime = arrow.utcnow().shift(days=days)
+        event.end_datetime = arrow.utcnow().shift(days=days, hours=2)
+        db_session.add(event)
+        db_session.flush()
+        db_session.add(
+            Accreditation(
+                event_id=event.id,
+                user_id=user.id,
+                status=AccreditationStatus.ACCEPTED,
+            )
+        )
+        db_session.flush()
+        return event
+
+    def test_a_cancelled_event_leaves_the_agenda(
+        self, app: Flask, db_session: Session, test_user: User
+    ) -> None:
+        """ANN-08 — « Votre agenda » dit ce à quoi l'on se rend."""
+        kept = self._accredited_event(db_session, test_user, "Salon maintenu", 3)
+        dropped = self._accredited_event(db_session, test_user, "Salon annulé", 4)
+        dropped.cancelled_at = arrow.utcnow()
+        db_session.commit()
+
+        with app.test_request_context("/events/"):
+            g.user = test_user
+            titles = [e.title for e in EventsListView()._get_user_agenda_events()]
+
+        assert kept.title in titles
+        assert dropped.title not in titles
+
+    def test_it_is_still_listed_and_demoted(
+        self, app: Flask, db_session: Session, test_user: User
+    ) -> None:
+        """ANN-04 le garde visible, ANN-08 le fait passer en dernier à
+        **date** égale.
+
+        Les deux événements ont lieu le même jour à des heures
+        différentes, et l'annulé est le plus matinal : c'est ce qui rend
+        le test décisif. La liste est regroupée par jour en Python et
+        les paquets d'un même jour ne sont plus retriés — une clause
+        placée après `start_datetime` laisserait donc l'annulé en tête
+        de sa journée. Avec deux horaires identiques, les deux positions
+        marcheraient et le test ne prouverait rien.
+        """
+        day = arrow.utcnow().shift(days=5)
+        cancelled = EventPost(title="Salon annulé", owner=test_user)
+        cancelled.status = PublicationStatus.PUBLIC
+        cancelled.start_datetime = day.replace(hour=9, minute=0)
+        cancelled.end_datetime = day.replace(hour=11, minute=0)
+        cancelled.cancelled_at = arrow.utcnow()
+        alive = EventPost(title="Salon maintenu", owner=test_user)
+        alive.status = PublicationStatus.PUBLIC
+        alive.start_datetime = day.replace(hour=18, minute=0)
+        alive.end_datetime = day.replace(hour=20, minute=0)
+        db_session.add_all([cancelled, alive])
+        db_session.commit()
+
+        with app.test_request_context("/events/"):
+            g.user = test_user
+            date_filter = DateFilter({"day": "", "month": ""})
+            events = EventsListView()._get_events(date_filter, FilterBar(), "")
+
+        titles = [e.title for e in events]
+        assert cancelled.title in titles, "ANN-04 — l'annonce reste listée"
+        assert titles.index(alive.title) < titles.index(cancelled.title)

@@ -914,6 +914,85 @@ class TestOrgVM:
                 "delegated event must also still appear on the client BW"
             )
 
+    def test_get_events_includes_events_it_merely_organises(
+        self,
+        app: Flask,
+        db_session: Session,
+        test_user_with_profile: User,
+        test_organisation_media: Organisation,
+    ):
+        """ORG-05 — un événement dont l'organisation est l'organisatrice
+        sans en être l'éditrice apparaît sur son Business Wall.
+
+        C'est le cas d'usage du lot C7 : une agence RP édite pour son
+        client, et l'événement doit se voir des **deux** côtés — chez
+        l'agence parce qu'elle publie, chez le client parce qu'il
+        organise.
+        """
+        organiser = Organisation(name="Fake-Client organisateur")
+        db_session.add(organiser)
+        db_session.flush()
+
+        now = arrow.now()
+        event = EventPost(
+            title="Salon organisé par le client",
+            owner_id=test_user_with_profile.id,
+            publisher_id=test_organisation_media.id,
+            organiser_id=organiser.id,
+            status=PublicationStatus.PUBLIC,
+            start_datetime=now,
+            end_datetime=now.shift(days=1),
+            genre="Salon",
+            sector="Logistique",
+        )
+        db_session.add(event)
+        db_session.flush()
+
+        with app.test_request_context():
+            g.user = test_user_with_profile
+
+            organiser_events = OrgVM(organiser).get_events()
+            assert [e.title for e in organiser_events] == [event.title]
+
+            publisher_events = OrgVM(test_organisation_media).get_events()
+            assert [e.title for e in publisher_events] == [event.title], (
+                "l'éditrice ne le perd pas en chemin"
+            )
+
+    def test_an_event_appears_once_when_it_is_both(
+        self,
+        app: Flask,
+        db_session: Session,
+        test_user_with_profile: User,
+        test_organisation_media: Organisation,
+    ):
+        """La clause élargie est un `or_` sur des colonnes de la même
+        ligne : elle ne peut pas dédoubler. Le cas où l'organisation est
+        à la fois éditrice et organisatrice est le plus courant après ce
+        lot, et c'est celui qui dédoublerait si la clause devenait une
+        jointure."""
+        test_user_with_profile.organisation = test_organisation_media
+        now = arrow.now()
+        event = EventPost(
+            title="Salon maison",
+            owner_id=test_user_with_profile.id,
+            publisher_id=test_organisation_media.id,
+            organiser_id=test_organisation_media.id,
+            status=PublicationStatus.PUBLIC,
+            start_datetime=now,
+            end_datetime=now.shift(days=1),
+            genre="Salon",
+            sector="Logistique",
+        )
+        db_session.add(event)
+        db_session.flush()
+
+        with app.test_request_context():
+            g.user = test_user_with_profile
+            events = OrgVM(test_organisation_media).get_events()
+
+        assert [e.title for e in events] == ["Salon maison"]
+
     def test_get_events_excludes_drafts(
         self,
         app: Flask,

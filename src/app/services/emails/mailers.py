@@ -755,3 +755,115 @@ class ContentAlertMail(EmailTemplate):
     message: str = ""
     reporter_email: str = ""
     reporter_name: str = ""
+
+
+@dataclass(kw_only=True)
+class AccreditationAcceptedMail(EmailTemplate):
+    """NOT-02 — l'organisateur a accrédité le membre à son événement.
+
+    Doublée d'une cloche, mais l'email est le canal qui compte : c'est
+    l'information sur laquelle quelqu'un décide de se déplacer.
+
+    Args:
+        - sender / recipient / sender_mail: standard EmailTemplate fields.
+        - recipient_full_name: how to address the member.
+        - event_title: the event they are now accredited to.
+        - event_date: its start date, already formatted, or empty.
+        - event_url: link to the event on the EVENTS portal.
+    """
+
+    subject: str = "[Aipress24] Votre accréditation est confirmée"
+    template_html: str = "accreditation_accepted.j2"
+    recipient_full_name: str
+    event_title: str
+    event_date: str
+    event_url: str
+
+
+@dataclass(kw_only=True)
+class EventChangedMail(EmailTemplate):
+    """NOT-08 — un événement auquel le membre est accrédité a changé.
+
+    Doublée d'une cloche, mais l'email est le canal qui compte : une
+    date ou un lieu qui bouge décide d'un déplacement, et l'information
+    ne peut pas attendre un retour sur le site.
+
+    Args:
+        - sender / recipient / sender_mail: standard EmailTemplate fields.
+        - recipient_full_name: how to address the member.
+        - event_title / event_date: the event, and its start date.
+        - changes: the already-worded description of what moved.
+        - event_url: link to the event on the EVENTS portal.
+    """
+
+    subject: str = "[Aipress24] Un événement de votre agenda a changé"
+    template_html: str = "event_changed.j2"
+    # NOT-17, même motif que pour l'annulation : une date ou un lieu
+    # qui bouge décide d'un déplacement.
+    bypass_quota: bool = True
+    recipient_full_name: str
+    event_title: str
+    event_date: str
+    changes: str
+    event_url: str
+
+
+@dataclass(kw_only=True)
+class EventCancelledMail(EmailTemplate):
+    """NOT-05 — un événement de l'agenda du membre n'aura pas lieu
+    comme annoncé : annulé, rétabli, ou dépublié.
+
+    **Un seul gabarit pour les trois déclencheurs**, dont le corps
+    varie (NOT-05, §9.2) : ils disent la même chose à la même personne,
+    et trois classes n'auraient produit que trois copies du même pied
+    de page. Le `subject` est un champ de dataclass : l'appelant le
+    remplace selon le déclencheur.
+
+    Args:
+        - sender / recipient / sender_mail: standard EmailTemplate fields.
+        - recipient_full_name: how to address the member.
+        - event_title / event_date: the event, and its start date.
+        - change: "cancelled", "restored" or "unpublished" — selects the body.
+        - reason: the organiser's optional wording, empty if none.
+        - event_url: link to the event on the EVENTS portal.
+    """
+
+    subject: str = "[Aipress24] Un événement de votre agenda est annulé"
+    template_html: str = "event_cancelled.j2"
+    # NOT-17 — ce message part quelles que soient les préférences du
+    # membre. Le quota de vingt emails par semaine est une préférence
+    # de fait : sans cette dérogation, un membre très sollicité
+    # n'apprendrait pas que son événement est annulé.
+    bypass_quota: bool = True
+    recipient_full_name: str
+    event_title: str
+    event_date: str
+    change: str
+    reason: str
+    event_url: str
+
+
+@dataclass(kw_only=True)
+class EventReminderMail(EmailTemplate):
+    """NOT-09 — rappel de la veille, pour un membre accrédité.
+
+    Args:
+        - sender / recipient / sender_mail: standard EmailTemplate fields.
+        - recipient_full_name: how to address the member.
+        - event_title / event_date: the event, and when it starts.
+        - event_url: link to the event on the EVENTS portal.
+    """
+
+    subject: str = "[Aipress24] Rappel : votre événement a lieu demain"
+    template_html: str = "event_reminder.j2"
+    recipient_full_name: str
+    event_title: str
+    event_date: str
+    event_url: str
+    # NOT-13 — les modalités d'accès voyagent avec le rappel : c'est le
+    # seul moment où un accrédité les reçoit sans revenir sur le site.
+    # Valeur par défaut, parce qu'un rappel n'en a pas toujours et
+    # qu'une clé de charge utile sans champ correspondant lèverait
+    # `TypeError` à l'envoi — perdant tout le lot après que le registre
+    # l'a déjà marqué envoyé.
+    access_details: str = ""

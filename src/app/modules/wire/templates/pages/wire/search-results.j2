@@ -14,9 +14,22 @@
     <ul role="list" class="grid gap-6 grid-cols-1 md:grid-cols-2">
       <!-- was class="bg-white rounded-lg shadow" -->
       {% for post in posts %}
-        <li class="bg-white rounded shadow">
-          {{ post_card(post) }}
-        </li>
+        {# WIR-04 — un événement se distingue d'un article par un liseré,
+           et sa carte est celle d'EVENTS : elle porte la date de
+           l'événement et non sa date de publication, pour qu'on ne
+           confonde pas les deux. `post_card` lève sur un type qu'il ne
+           connaît pas ; le branchement est donc obligatoire, et
+           `is_event` est posé par la vue sur **chaque** élément — une
+           clé absente ferait échouer la page en `StrictUndefined`. #}
+        {% if post.is_event %}
+          <li class="bg-white rounded shadow border-l-4 border-pink-500">
+            {{ component("event-card", post) }}
+          </li>
+        {% else %}
+          <li class="bg-white rounded shadow">
+            {{ post_card(post) }}
+          </li>
+        {% endif %}
       {% endfor %}
     </ul>
   {% endif %}

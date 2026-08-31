@@ -11,7 +11,9 @@ from sqlalchemy import select
 from app.constants import LOCAL_TZ
 from app.flask.extensions import db
 from app.models.lifecycle import PublicationStatus
+from app.modules.events.change_detection import describe_state, has_changed, snapshot
 from app.modules.events.models import EventPost
+from app.modules.events.notifications import notify_event_changed
 from app.modules.wip.models.eventroom import Event
 from app.signals import (
     event_published,
@@ -59,11 +61,22 @@ def on_update_event(event: Event) -> None:
         return
 
     logger.debug("Updating post: {}", post)
+
+    # NOT-11 — le miroir porte encore l'ancien état tant que
+    # `update_post` ne l'a pas écrasé : la photographier avant et après
+    # suffit, sans rien savoir du modèle de saisie.
+    # (`modified_at` est déjà horodaté par `lifecycle_before_update` ;
+    # l'ancienne ligne `post.last_updated_at = ...` écrivait un
+    # attribut qui n'est pas une colonne d'`EventPost`.)
+    before = snapshot(post)
     update_post(post, event)
-    post.last_updated_at = now(LOCAL_TZ)
+    after = snapshot(post)
 
     db.session.add(post)
     db.session.flush()
+
+    if has_changed(before, after):
+        notify_event_changed(post, describe_state(after))
 
 
 def event_type_to_category(event_type: str) -> str:
@@ -95,7 +108,35 @@ def update_post(
 
     post.genre = info.event_type
     post.sector = info.sector
+    post.section = info.section
+    post.topic = info.topic
+    post.audience = list(info.audience or [])
     post.category = event_type_to_category(info.event_type)
+
+    # Mode de participation. `access_details` est recopié parce que le
+    # rappel de la veille en a besoin (NOT-13) ; c'est le seul endroit
+    # où un accrédité le voit.
+    post.mode = info.mode
+    post.platform = info.platform
+    post.access_details = info.access_details
+
+    # Tarif. Recopié tel quel, centimes compris : la conversion en
+    # euros appartient à l'affichage, pas au stockage.
+    post.pricing = info.pricing
+    post.price = info.price
+    post.currency = info.currency
+
+    # Organisateur (ORG-01). Recopié même quand il est vide : c'est le
+    # cas ordinaire, et la cascade ORG-03 retombe alors sur l'éditeur.
+    post.organiser_id = info.organiser_id
+    post.organiser_name = info.organiser_name
+
+    # Annulation (ANN-04) : le miroir barre l'annonce, il lui faut donc
+    # la date et le motif. Aucun des deux n'est surveillé par NOT-11 —
+    # une annulation n'est pas un changement d'horaire, elle a sa
+    # propre notification (NOT-05), émise par la route qui l'a décidée.
+    post.cancelled_at = info.cancelled_at
+    post.cancellation_reason = info.cancellation_reason
 
     post.url = info.url
     post.language = info.language
