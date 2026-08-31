@@ -23,6 +23,7 @@ from app.modules.events.models import (
     AccreditationStatus,
     EventPost,
 )
+from app.modules.events.services import accredited_event_ids
 from app.modules.events.views.events_list import EventsListView
 from app.services.context import Context
 from tests.c_e2e.conftest import make_authenticated_client
@@ -576,3 +577,58 @@ class TestUserAgendaWidget:
             in_ten_days.title,  # |+10d| = 10
             thirty_days_ago.title,  # |-30d| = 30
         ]
+
+
+class TestAgendaListsOnlyAccredited:
+    """Rien ne prouvait que « Votre agenda » filtre sur `ACCEPTED`.
+
+    Tous les tests du bloc insèrent une accréditation acceptée ou rien
+    du tout : supprimer le filtre de `accredited_event_ids` laissait la
+    suite verte, et le membre voyait dans son agenda les événements
+    qu'on lui avait refusés — la même sous-requête alimentant aussi la
+    colonne de droite du Business Wall.
+    """
+
+    @pytest.mark.parametrize(
+        "status",
+        [
+            AccreditationStatus.REQUESTED,
+            AccreditationStatus.REJECTED,
+            AccreditationStatus.WITHDRAWN,
+        ],
+    )
+    def test_a_non_accepted_row_keeps_the_event_out(
+        self, app: Flask, db_session: Session, test_user: User, status
+    ) -> None:
+        event = EventPost(title=f"Agenda {status.value}", owner=test_user)
+        event.status = PublicationStatus.PUBLIC
+        event.start_datetime = arrow.utcnow().shift(days=3)
+        db_session.add(event)
+        db_session.flush()
+        db_session.add(
+            Accreditation(event_id=event.id, user_id=test_user.id, status=status)
+        )
+        db_session.flush()
+
+        found = set(db_session.scalars(accredited_event_ids([test_user.id])))
+        assert event.id not in found
+
+    def test_an_accepted_row_puts_it_in(
+        self, app: Flask, db_session: Session, test_user: User
+    ) -> None:
+        event = EventPost(title="Agenda accepté", owner=test_user)
+        event.status = PublicationStatus.PUBLIC
+        event.start_datetime = arrow.utcnow().shift(days=3)
+        db_session.add(event)
+        db_session.flush()
+        db_session.add(
+            Accreditation(
+                event_id=event.id,
+                user_id=test_user.id,
+                status=AccreditationStatus.ACCEPTED,
+            )
+        )
+        db_session.flush()
+
+        found = set(db_session.scalars(accredited_event_ids([test_user.id])))
+        assert event.id in found

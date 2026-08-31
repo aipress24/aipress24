@@ -13,16 +13,20 @@ from app.flask.extensions import db
 from app.services.notifications import claim_due_notifications, send_claimed_mails
 
 
-@crontab("7-57/10 * * * *")
+@crontab("*/2 * * * *")
 def deliver_grouped_notifications() -> None:
-    """Drainer la file d'attente toutes les dix minutes.
+    """Drainer la file d'attente toutes les deux minutes.
 
-    Le pas est plus fin que la fenêtre de regroupement pour que le
-    retard ajouté à la livraison reste petit devant elle.
+    La dueness ne s'évalue qu'au déclenchement, donc le pas s'ajoute à
+    la fenêtre : à dix minutes, une notification ancrée à *t* partait
+    entre *t*+30 et *t*+40, et une modification arrivant dans cette
+    traîne fusionnait dans une ligne que la règle dit déjà livrée. À
+    deux minutes, l'écart tombe sous le seuil de perception et les deux
+    cas que NOT-12 nomme — cinq minutes, quarante-cinq minutes —
+    tombent juste quelle que soit la phase.
 
-    Le créneau évite HH:00 et HH:15, déjà pris par la réputation et la
-    reconstruction de l'index de recherche : trois tâches lourdes à la
-    même minute se gênent pour rien.
+    Le tour ne fait rien quand la file est vide : une requête indexée
+    sur `first_seen_at`.
     """
     # Valider **avant** d'envoyer : un envoi est irréversible, et il ne
     # doit jamais précéder l'écriture qui dit qu'il a eu lieu. Sinon un

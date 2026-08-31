@@ -89,6 +89,24 @@ def upgrade():
 
 
 def downgrade():
+    # Gardé comme son upgrade l'est. Après quelques jours
+    # d'exploitation, cette table ne contient plus seulement la reprise
+    # de `evt_participation` : elle porte les demandes reçues et les
+    # décisions prises depuis. Un retour arrière les détruirait sans un
+    # mot. On refuse, en disant quoi faire.
+    bind = op.get_bind()
+    carried = bind.execute(
+        sa.text("SELECT count(*) FROM evt_accreditation WHERE status <> 'ACCEPTED'")
+    ).scalar()
+    if carried:
+        msg = (
+            f"Refus de supprimer evt_accreditation : {carried} ligne(s) ne "
+            "proviennent pas de la reprise (demandes en cours, refus, "
+            "désinscriptions). Les exporter avant de revenir en arrière, "
+            "ou les supprimer sciemment."
+        )
+        raise RuntimeError(msg)
+
     op.drop_index("ix_evt_accreditation_user_status", table_name="evt_accreditation")
     op.drop_index("ix_evt_accreditation_event_status", table_name="evt_accreditation")
     op.drop_table("evt_accreditation")

@@ -55,6 +55,21 @@ def _refuse_if_populated() -> None:
         if count:
             populated.append(f"{table} ({count})")
 
+    # Seconde moitié de la condition : une ligne mère peut survivre à
+    # sa fille — table tronquée dans un dump restauré, nettoyage manuel,
+    # ou opérateur ayant suivi le message ci-dessous à moitié. Elle
+    # porterait alors une identité polymorphique que plus aucun mapper
+    # ne connaît.
+    orphans = bind.execute(
+        sa.text(
+            "SELECT count(*) FROM cnt_base WHERE type IN "
+            "('public_event','press_event','training_event',"
+            "'culture_event','contest_event')"
+        )
+    ).scalar()
+    if orphans:
+        populated.append(f"cnt_base ({orphans} ligne(s) mère(s))")
+
     if populated:
         msg = (
             "Refus de supprimer des sous-types d'événement non vides : "

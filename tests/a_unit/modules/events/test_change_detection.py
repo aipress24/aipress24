@@ -107,7 +107,14 @@ class TestHasChanged:
         assert has_changed(_snap(address=""), _snap(address="   ")) is False
 
     def test_an_unwatched_field_is_invisible_here(self) -> None:
-        """Corriger une faute dans le contenu ne doit alerter personne."""
+        """Corriger une faute dans le contenu ne doit alerter personne.
+
+        Les deux photographies portent un `contenu` **différent** :
+        sans cela le test comparait deux instantanés identiques et
+        n'aurait pas vu une détection élargie à toutes les clés
+        présentes — un refactor tentant, qui ferait notifier à chaque
+        correction de coquille.
+        """
         before = _snap(address="1 rue A", start_datetime=None)
         after = _snap(address="1 rue A", start_datetime=None)
 

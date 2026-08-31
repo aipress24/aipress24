@@ -155,7 +155,15 @@ class TestContentVisibility:
 
 class TestPostActions:
     """§8 — le dispatcher reçoit deux actions ; `toggle-participate`
-    disparaît."""
+    disparaît.
+
+    Les cas ci-dessous appellent les méthodes privées, ce qui vérifie
+    leur logique mais saute le répartiteur : renommer une action d'un
+    seul côté — le `hx-vals` du gabarit ou le `case` de la vue — passe
+    alors inaperçu, le POST tombant dans la branche par défaut qui
+    répond 200 avec un corps vide. `TestTheDispatcherIsWired` ci-dessous
+    ferme ce trou.
+    """
 
     def test_requesting_then_withdrawing(
         self, app: Flask, db_session: Session, event: EventPost, member: User

@@ -146,9 +146,15 @@ class TestGrouping:
     def test_the_window_is_not_slid_by_later_posts(
         self, app: Flask, db_session: Session, member: User
     ) -> None:
-        """Fenêtre fixe, ancrée sur le premier post. Une édition
-        continue ne repousse pas indéfiniment la livraison."""
-        anchor = arrow.utcnow()
+        """Fenêtre fixe, ancrée sur le premier post.
+
+        L'ancre est reculée de 29 minutes **avant** le second post :
+        avec une fenêtre glissante, ce second post la ramènerait à
+        maintenant et rien ne serait dû à T+31. La version précédente
+        de ce test ancrait à l'instant présent, où les deux
+        comportements sont indiscernables.
+        """
+        anchor = arrow.utcnow().shift(minutes=-29)
         with app.test_request_context("/"):
             service = container.get(NotificationService)
             service.post_grouped(member, "k", "a")
@@ -160,6 +166,8 @@ class TestGrouping:
             service.post_grouped(member, "k", "b")
             db_session.flush()
 
+            # L'ancre n'a pas bougé : la ligne reste due à T+31.
+            assert _pending(db_session, member)[0].first_seen_at == anchor
             assert _drain(db_session, anchor.shift(minutes=31)) == 1
 
     def test_different_keys_do_not_merge(
