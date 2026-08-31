@@ -36,14 +36,6 @@ def security():
     return render_template("pages/preferences/placeholder.j2", **ctx)
 
 
-@blueprint.route("/notification")
-@nav(menu=False)  # Placeholder
-def notification():
-    """Notification"""
-    ctx = {"title": "Notification"}
-    return render_template("pages/preferences/placeholder.j2", **ctx)
-
-
 @blueprint.route("/integration")
 @nav(menu=False)  # Placeholder
 def integration():

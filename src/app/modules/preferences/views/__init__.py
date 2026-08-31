@@ -7,6 +7,24 @@
 from __future__ import annotations
 
 # Import all view modules to register routes
-from . import banner, contact, home, interests, invitations, others, profile
+from . import (
+    banner,
+    contact,
+    home,
+    interests,
+    invitations,
+    notification,
+    others,
+    profile,
+)
 
-__all__ = ["banner", "contact", "home", "interests", "invitations", "others", "profile"]
+__all__ = [
+    "banner",
+    "contact",
+    "home",
+    "interests",
+    "invitations",
+    "notification",
+    "others",
+    "profile",
+]

@@ -431,6 +431,14 @@ class KYCProfile(Base):
     display_level: Mapped[int] = mapped_column(sa.Integer, default=1)
     presentation: Mapped[str] = mapped_column(default="")
     show_contact_details: Mapped[dict] = mapped_column(JSON, default=dict)
+
+    # PRF-01 — les familles d'email que le membre a coupées.
+    #
+    # **Une clé absente vaut « activé ».** Le dictionnaire vide est donc
+    # l'état de tous les profils existants, et la mise en service ne
+    # coupe rien à personne. C'est aussi ce qui rend le réglage sûr :
+    # oublier d'écrire une clé ne supprime jamais un envoi.
+    notification_preferences: Mapped[dict] = mapped_column(JSON, default=dict)
     info_personnelle: Mapped[dict] = mapped_column(JSON, default=dict)
     info_professionnelle: Mapped[dict] = mapped_column(JSON, default=dict)
     match_making: Mapped[dict] = mapped_column(JSON, default=dict)
@@ -794,6 +802,39 @@ class KYCProfile(Base):
                 data[contact_type.name][f"{mode}_key"] = key
                 data[contact_type.name][mode] = checked(bool(contact_details.get(key)))
         return data
+
+    def wants_notification(self, category) -> bool:
+        """Le membre accepte-t-il les emails de cette famille ? (PRF-01)
+
+        Une famille absente du dictionnaire est acceptée : c'est l'état
+        de tout profil qui n'a jamais visité l'écran, et le seul défaut
+        qui ne change le comportement de personne.
+        """
+        return bool(self.notification_preferences.get(str(category.value), True))
+
+    def all_notification_preferences(self) -> dict[str, bool]:
+        """L'état des quatre interrupteurs, pour le formulaire."""
+        from app.enums import OPTIONAL_NOTIFICATION_CATEGORIES
+
+        return {
+            category.value: self.wants_notification(category)
+            for category in OPTIONAL_NOTIFICATION_CATEGORIES
+        }
+
+    def parse_form_notification_preferences(self, data: dict[str, str]) -> None:
+        """Relire le formulaire : une case cochée vaut « je veux ».
+
+        Écrit les quatre clés, y compris celles restées à `True`. Le
+        dictionnaire cesse d'être vide dès la première visite, ce qui
+        n'a pas d'importance — la lecture traite l'absence et la
+        présence de la même façon.
+        """
+        from app.enums import OPTIONAL_NOTIFICATION_CATEGORIES
+
+        preferences = dict(self.notification_preferences)
+        for category in OPTIONAL_NOTIFICATION_CATEGORIES:
+            preferences[category.value] = bool(data.get(category.value))
+        self.notification_preferences = preferences
 
     def parse_form_contact_details(self, data: dict[str, str]) -> None:
         contact_details = deepcopy(self.show_contact_details)

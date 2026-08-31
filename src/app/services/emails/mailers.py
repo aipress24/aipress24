@@ -5,6 +5,9 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from typing import ClassVar
+
+from app.enums import NotificationCategory
 
 from .base import EmailTemplate
 
@@ -165,6 +168,8 @@ class PRPublicationNotificationMail(EmailTemplate):
         - content_url: absolute URL to the published content.
     """
 
+    category: ClassVar[NotificationCategory] = NotificationCategory.PUBLICATIONS
+
     subject: str = "[Aipress24] Votre agence RP a publié un contenu en votre nom"
     template_html: str = "pr_publication_notification.j2"
     sender_full_name: str
@@ -187,6 +192,8 @@ class SujetPropositionNotificationMail(EmailTemplate):
         - sujet_title: title of the proposed sujet.
         - sujet_url: absolute URL to the sujet detail page.
     """
+
+    category: ClassVar[NotificationCategory] = NotificationCategory.SOLICITATIONS
 
     subject: str = "[Aipress24] Une nouvelle proposition de sujet"
     template_html: str = "sujet_proposition_notification.j2"
@@ -213,6 +220,8 @@ class SujetAcceptanceNotificationMail(EmailTemplate):
           WORK/NEWSROOM/Commandes.
     """
 
+    category: ClassVar[NotificationCategory] = NotificationCategory.PUBLICATIONS
+
     subject: str = "[Aipress24] Votre sujet a été accepté"
     template_html: str = "sujet_acceptance_notification.j2"
     accepter_full_name: str
@@ -234,6 +243,8 @@ class MissionApplicationMail(EmailTemplate):
         - applications_url: absolute URL to the emitter's dashboard.
     """
 
+    category: ClassVar[NotificationCategory] = NotificationCategory.SOLICITATIONS
+
     subject: str = "[Aipress24] Nouvelle candidature sur votre mission"
     template_html: str = "mission_application_notification.j2"
     sender_full_name: str
@@ -246,6 +257,8 @@ class MissionApplicationMail(EmailTemplate):
 @dataclass(kw_only=True)
 class JustificatifReadyMail(EmailTemplate):
     """Notify the buyer that their justificatif PDF is downloadable."""
+
+    category: ClassVar[NotificationCategory] = NotificationCategory.PUBLICATIONS
 
     subject: str = "[Aipress24] Votre justificatif de publication est disponible"
     template_html: str = "justificatif_ready.j2"
@@ -324,6 +337,8 @@ class AvisEnqueteNotificationMail(EmailTemplate):
         )
         notification_mail.send()
     """
+
+    category: ClassVar[NotificationCategory] = NotificationCategory.SOLICITATIONS
 
     subject: str = "[AiPRESS24] Un nouvel avis d’enquête pourrait vous concerner"
     template_html: str = "avis_enquete_notification.j2"
@@ -614,6 +629,8 @@ class PublicationNotificationMail(EmailTemplate):
           (WORK / OPPORTUNITÉS / Notifications de publication).
     """
 
+    category: ClassVar[NotificationCategory] = NotificationCategory.PUBLICATIONS
+
     subject: str = "[AiPRESS24] Un journaliste vous signale une publication"
     template_html: str = "publication_notification.j2"
     sender_full_name: str
@@ -669,6 +686,8 @@ class ConsultationGiftMail(EmailTemplate):
           this user).
     """
 
+    category: ClassVar[NotificationCategory] = NotificationCategory.SOLICITATIONS
+
     subject: str = "[Aipress24] Un article vous a été offert"
     template_html: str = "consultation_gift.j2"
     recipient_full_name: str
@@ -688,6 +707,8 @@ class ShareContentMail(EmailTemplate):
         - article_title: title of the shared content.
         - article_url: link to read/view the content.
     """
+
+    category: ClassVar[NotificationCategory] = NotificationCategory.SOLICITATIONS
 
     subject: str = "[Aipress24] Un contenu vous est recommandé"
     template_html: str = "share_content.j2"
@@ -740,6 +761,8 @@ class ContentAlertMail(EmailTemplate):
         - reporter_email: email of the reporter.
         - reporter_name: full name of the reporter.
     """
+
+    category: ClassVar[NotificationCategory] = NotificationCategory.ALERTS
 
     sender: str = "contact@aipress24.com"
     recipient: str = "contact@aipress24.com"
@@ -853,6 +876,8 @@ class EventReminderMail(EmailTemplate):
         - event_title / event_date: the event, and when it starts.
         - event_url: link to the event on the EVENTS portal.
     """
+
+    category: ClassVar[NotificationCategory] = NotificationCategory.REMINDERS
 
     subject: str = "[Aipress24] Rappel : votre événement a lieu demain"
     template_html: str = "event_reminder.j2"

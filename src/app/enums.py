@@ -95,6 +95,57 @@ PRICING_LABELS: dict[EventPricing, str] = {
 }
 
 
+class NotificationCategory(StrEnum):
+    """La famille d'un email, qui décide s'il est désactivable.
+
+    Quatre familles et non trente interrupteurs : un par type d'email
+    serait ingérable, un seul serait inutilisable. Elles sont nommées
+    du point de vue du membre, pas du code qui les envoie.
+
+    `TRANSACTIONAL` est le **défaut** : un email dont on aurait oublié
+    de déclarer la famille part, au lieu d'être supprimé en silence.
+
+    Le principe qui les sépare : on ne coupe pas ce qu'on a soi-même
+    déclenché, ni ce qui engage. Cf. `specs/notifications-preferences.md`.
+    """
+
+    TRANSACTIONAL = auto()
+    ALERTS = auto()
+    SOLICITATIONS = auto()
+    REMINDERS = auto()
+    PUBLICATIONS = auto()
+
+
+#: Ce que chaque interrupteur coupe, dit au membre. Une phrase et non
+#: un intitulé : « Rappels » seul ne dit pas qu'on ne sera plus prévenu
+#: la veille d'un événement.
+NOTIFICATION_CATEGORY_LABELS: dict[NotificationCategory, tuple[str, str]] = {
+    NotificationCategory.ALERTS: (
+        "Veille et alertes",
+        "Les contenus que la plateforme vous signale selon vos centres d'intérêt.",
+    ),
+    NotificationCategory.SOLICITATIONS: (
+        "Sollicitations d'autres membres",
+        (
+            "Quand on vous propose un sujet, qu'on vous appelle sur un avis "
+            "d'enquête, ou qu'on vous partage un article."
+        ),
+    ),
+    NotificationCategory.REMINDERS: (
+        "Rappels",
+        "Le message de la veille d'un événement auquel vous êtes accrédité.",
+    ),
+    NotificationCategory.PUBLICATIONS: (
+        "Suivi de mes publications",
+        "Quand votre contenu est publié, ou qu'un justificatif est prêt.",
+    ),
+}
+
+#: Les familles que le membre peut couper. `TRANSACTIONAL` n'y est pas :
+#: on ne refuse pas la réponse à sa propre demande.
+OPTIONAL_NOTIFICATION_CATEGORIES = tuple(NOTIFICATION_CATEGORY_LABELS)
+
+
 class ContactTypeEnum(StrEnum):
     """Contact type enumeration."""
 

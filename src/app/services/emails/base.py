@@ -7,13 +7,17 @@ from __future__ import annotations
 from dataclasses import dataclass, fields
 from importlib import resources as rso
 from smtplib import SMTPException
+from typing import ClassVar
 
 from flask import render_template_string
 from flask_mailman import EmailMessage
 from loguru import logger
 from markdown import markdown
 
+from app.enums import NotificationCategory
+
 from . import mail_templates
+from ._preferences import recipient_wants
 from .email_limiter import count_recipient_mails, is_email_sending_allowed
 
 
@@ -26,6 +30,15 @@ class EmailTemplate:
     template_md: str = ""
     template_html: str = ""
     bypass_quota: bool = False
+
+    #: PRF-02 — la famille de ce message, qui décide s'il est
+    #: désactivable. Un `ClassVar` : il n'entre ni dans les champs de
+    #: la dataclass ni dans le contexte du gabarit.
+    #:
+    #: Le défaut est **transactionnel**, c'est-à-dire toujours envoyé.
+    #: Une classe qui oublie de déclarer sa famille part donc, plutôt
+    #: que d'être supprimée en silence.
+    category: ClassVar[NotificationCategory] = NotificationCategory.TRANSACTIONAL
 
     def __post_init__(self) -> None:
         self.ctx = {f.name: getattr(self, f.name) for f in fields(self)}
@@ -61,6 +74,16 @@ class EmailTemplate:
         raise ValueError(msg)
 
     def send(self) -> bool:
+        if not recipient_wants(self.recipient, self.category):
+            # PRF-05 — pas un incident : un réglage respecté. Journalisé
+            # en `info`, et `False` parce que rien n'est parti — un
+            # appelant qui compte ses envois doit compter juste.
+            logger.info(
+                f"Mail suppressed by preference: {self.__class__.__name__} "
+                f"({self.category.value}) {self.logged_informations}"
+            )
+            return False
+
         if self.bypass_quota or is_email_sending_allowed(self.recipient):
             result = self._send_mail()
             if result:
