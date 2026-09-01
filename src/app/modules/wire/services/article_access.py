@@ -11,12 +11,15 @@ used both from the detail view and the tests:
 - `truncate_body(html, limit)` — HTML-aware truncation for the
   preview shown to non-buyers.
 
-The verdict logic is split into a pure core
-(`_decide_can_read_full`) and an imperative shell
-(`user_can_read_full`) that injects the role check + DB lookups as
-default-arg callables. This keeps the call site identical for
-production code while letting unit tests exercise the rules without
-any monkey-patching.
+La règle est écrite **une fois**, dans `user_can_read_full`, qui
+reçoit ses trois lectures (rôle, achat, cadeau) en arguments nommés
+avec les implémentations de production par défaut : les tests passent
+des doublures et éprouvent la règle sans base, sans monkey-patching.
+
+Un `_decide_can_read_full` « cœur pur » a existé à côté, sans aucun
+appelant en production — la même échelle de règles, écrite deux fois,
+libre de diverger, avec des tests qui n'en pinnaient qu'une (audit du
+2026-09-02).
 """
 
 from __future__ import annotations
@@ -83,28 +86,6 @@ def user_can_read_full(
 
     check_gift = gift_lookup or has_received_consultation_gift
     return check_gift(user.id, post.id)
-
-
-def _decide_can_read_full(
-    *,
-    is_anonymous: bool,
-    is_author: bool,
-    is_admin: bool,
-    has_paid: bool,
-    has_gift: bool,
-) -> bool:
-    """Pure verdict: given the already-resolved booleans, return the
-    paywall decision. Used internally for unit tests of the rule
-    table; production code goes through `user_can_read_full`."""
-    if is_anonymous:
-        return False
-    if is_author:
-        return True
-    if is_admin:
-        return True
-    if has_paid:
-        return True
-    return has_gift
 
 
 def has_paid_consultation(user_id: int, post_id: int) -> bool:

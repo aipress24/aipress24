@@ -8,7 +8,7 @@ Exists to cover the paywall rule table + the HTML truncation helpers
 without spinning up a database or mocking SQLAlchemy. The verdict
 function `user_can_read_full` accepts injected lookup callables
 (default-arg DI) so tests pass plain Python callables instead of
-patching `db.session`. A pure `_decide_can_read_full` core captures
+patching `db.session`. Les lectures injectées capturent
 the rule table as a precedence ladder and is exercised in isolation.
 
 These tests intentionally use duck-typed `_User` / `_Post` stand-ins
@@ -24,7 +24,6 @@ import pytest
 from app.enums import RoleEnum
 from app.modules.wire.services.article_access import (
     _cut_on_word_boundary,
-    _decide_can_read_full,
     truncate_body,
     user_can_read_full,
 )
@@ -71,78 +70,104 @@ def _admin_role(_user: object, role: str) -> bool:
     return role == RoleEnum.ADMIN.name
 
 
-class TestDecideCanReadFull:
-    """Pure rule table: precedence is anonymous < author < admin <
-    paid < gift, with the first matching rule winning."""
+class TestLaTableDeRegles:
+    """Précédence : anonyme < auteur < admin < acheté < offert, la
+    première règle qui s'applique l'emportant.
+
+    Ces six cas visaient `_decide_can_read_full`, un « cœur pur » que
+    la production n'appelait jamais : la même échelle, écrite une
+    seconde fois, libre de diverger de celle qui décide réellement
+    (audit du 2026-09-02). Ils portent désormais sur
+    `user_can_read_full`, dont les trois lectures sont injectées — la
+    règle reste éprouvée sans base, et sur le chemin réel.
+    """
 
     def test_anonymous_blocks_even_if_all_other_flags_true(self) -> None:
+        post = _Post(post_id=1, owner_id=7)
+        user = _User(user_id=7, is_anonymous=True)
+
         assert (
-            _decide_can_read_full(
-                is_anonymous=True,
-                is_author=True,
-                is_admin=True,
-                has_paid=True,
-                has_gift=True,
+            user_can_read_full(
+                user,  # type: ignore[arg-type]
+                post,  # type: ignore[arg-type]
+                role_checker=_admin_role,
+                paid_lookup=_always_paid,
+                gift_lookup=_always_gifted,
             )
             is False
         )
 
     def test_author_wins_over_missing_purchases(self) -> None:
+        post = _Post(post_id=1, owner_id=7)
+        user = _User(user_id=7)
+
         assert (
-            _decide_can_read_full(
-                is_anonymous=False,
-                is_author=True,
-                is_admin=False,
-                has_paid=False,
-                has_gift=False,
+            user_can_read_full(
+                user,  # type: ignore[arg-type]
+                post,  # type: ignore[arg-type]
+                role_checker=_no_role,
+                paid_lookup=_never_paid,
+                gift_lookup=_never_gifted,
             )
             is True
         )
 
     def test_admin_unlocks_without_purchase(self) -> None:
+        post = _Post(post_id=1, owner_id=42)
+        user = _User(user_id=7)
+
         assert (
-            _decide_can_read_full(
-                is_anonymous=False,
-                is_author=False,
-                is_admin=True,
-                has_paid=False,
-                has_gift=False,
+            user_can_read_full(
+                user,  # type: ignore[arg-type]
+                post,  # type: ignore[arg-type]
+                role_checker=_admin_role,
+                paid_lookup=_never_paid,
+                gift_lookup=_never_gifted,
             )
             is True
         )
 
     def test_paid_purchase_unlocks(self) -> None:
+        post = _Post(post_id=1, owner_id=42)
+        user = _User(user_id=7)
+
         assert (
-            _decide_can_read_full(
-                is_anonymous=False,
-                is_author=False,
-                is_admin=False,
-                has_paid=True,
-                has_gift=False,
+            user_can_read_full(
+                user,  # type: ignore[arg-type]
+                post,  # type: ignore[arg-type]
+                role_checker=_no_role,
+                paid_lookup=_always_paid,
+                gift_lookup=_never_gifted,
             )
             is True
         )
 
     def test_gift_unlocks(self) -> None:
+        post = _Post(post_id=1, owner_id=42)
+        user = _User(user_id=7)
+
         assert (
-            _decide_can_read_full(
-                is_anonymous=False,
-                is_author=False,
-                is_admin=False,
-                has_paid=False,
-                has_gift=True,
+            user_can_read_full(
+                user,  # type: ignore[arg-type]
+                post,  # type: ignore[arg-type]
+                role_checker=_no_role,
+                paid_lookup=_never_paid,
+                gift_lookup=_always_gifted,
             )
             is True
         )
 
     def test_nothing_matches_returns_false(self) -> None:
+        post = _Post(post_id=1, owner_id=42)
+        user = _User(user_id=7)
+
         assert (
-            _decide_can_read_full(
-                is_anonymous=False,
-                is_author=False,
-                is_admin=False,
-                has_paid=False,
-                has_gift=False,
+            user_can_read_full(
+                user,  # type: ignore[arg-type]
+                post,  # type: ignore[arg-type]
+                role_checker=_no_role,
+                paid_lookup=_never_paid,
+                gift_lookup=_never_gifted,
             )
             is False
         )
