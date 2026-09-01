@@ -34,7 +34,7 @@ if TYPE_CHECKING:
     from sqlalchemy.orm import Session
 
 
-def _make_user(db_session: Session) -> User:
+def _make_user(db_session: Session, email: str = "events-pub@example.com") -> User:
     role = db_session.query(Role).filter_by(name=RoleEnum.PRESS_MEDIA.name).first()
     if role is None:
         role = Role(
@@ -45,7 +45,7 @@ def _make_user(db_session: Session) -> User:
         db_session.flush()
     profile = KYCProfile(match_making={"fonctions_journalisme": ["Journaliste"]})
     user = User(
-        email="events-pub@example.com",
+        email=email,
         first_name="Pub",
         last_name="Tester",
     )
@@ -207,24 +207,40 @@ def test_event_detail_shows_accreditation_button_for_journalist(
     member asks and the organiser decides, where the button used to
     grant accreditation outright. The regression this pins is unchanged
     — a journalist must be offered a way to ask.
+
+    **L'événement appartient à quelqu'un d'autre**, et c'est le sujet :
+    #0138b parle d'un journaliste devant l'annonce d'un tiers. Le
+    montage réutilisait le lecteur comme propriétaire par commodité, si
+    bien qu'il a viré au rouge quand #0319 a cessé de proposer le bouton
+    à l'organisateur — un défaut de fixture, pas de règle. Le pendant,
+    « l'organisateur ne le voit pas », est couvert par
+    `e2e_playwright/regressions/test_bugs_0319_0325.py`.
     """
     user = _make_user(db_session)
+    organiser = _make_user(db_session, email="events-organiser@example.com")
     agency = Organisation(name="Fake-Les Propulseurs PR")
     client_org = Organisation(name="Fake-Davi Logistique", bw_name="Davi Logistique")
     db_session.add_all([agency, client_org])
     db_session.flush()
     user.organisation = agency
     db_session.flush()
-    event = _make_event_with_publisher(db_session, user.id, client_org)
+    event = _make_event_with_publisher(db_session, organiser.id, client_org)
 
     client = make_authenticated_client(app, user)
     response = client.get(f"/events/{event.id}", follow_redirects=True)
     assert response.status_code == 200
     html = response.data.decode()
-    assert "Demande d&#39;accréditation" in html or "accréditation" in html, (
+    # Le geste, et pas seulement le mot : `hx-vals` est ce que le bouton
+    # *fait*. La forme précédente cherchait « Demande d&#39;accréditation »
+    # — une apostrophe échappée que le rendu ne produit pas, le texte
+    # littéral d'un gabarit n'étant pas échappé — puis retombait sur
+    # « accréditation », présent ailleurs dans la page. Elle passait donc
+    # sans jamais voir le bouton.
+    assert '"action": "request-accreditation"' in html, (
         "the accreditation button must be visible to journalists on "
         "the event detail (#0138b)"
     )
+    assert "Demande d'accréditation" in html, "…and it must carry its label (EVT-42)"
 
 
 def test_event_card_type_badge_is_a_real_link_not_dead_chip(
