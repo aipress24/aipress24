@@ -20,6 +20,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from app.enums import EventPricing, RoleEnum
+from app.modules.events.services import is_signed_in
 from app.ui.money import format_cents
 
 if TYPE_CHECKING:
@@ -72,6 +73,6 @@ def is_journalist(user: User | None) -> bool:
     administrateur, un compte de service — et renvoie de toute façon un
     `RoleEnum` là où l'on attendrait un `CommunityEnum`.
     """
-    if user is None or getattr(user, "is_anonymous", True):
+    if not is_signed_in(user):
         return False
     return user.has_role(RoleEnum.PRESS_MEDIA)

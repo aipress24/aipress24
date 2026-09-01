@@ -25,7 +25,11 @@ from app.models.lifecycle import PublicationStatus
 from app.models.tag_list import contains_tag
 from app.modules.events import blueprint
 from app.modules.events.models import EventPost
-from app.modules.events.services import accredited_event_ids, accredited_ids_among
+from app.modules.events.services import (
+    accredited_event_ids,
+    accredited_ids_among,
+    is_signed_in,
+)
 
 from ._common import Calendar, DateFilter, EventListVM
 from ._filters import FILTER_SPECS, FilterBar
@@ -129,7 +133,7 @@ class EventsListView(MethodView):
         start_datetime sink to the bottom.
         """
         user = getattr(g, "user", None)
-        if user is None or getattr(user, "is_anonymous", True):
+        if not is_signed_in(user):
             return []
         stmt = (
             select(EventPost)

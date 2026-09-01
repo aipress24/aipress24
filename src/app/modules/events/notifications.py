@@ -115,7 +115,12 @@ def _event_url(event: EventPost) -> str:
 
     try:
         return url_for("events.event", id=event.id, _external=True)
-    except Exception:
+    except RuntimeError:
+        # `RuntimeError` et non `Exception` : c'est ce que lève Flask
+        # quand `SERVER_NAME` manque hors requête. Attraper tout
+        # masquerait une `BuildError` sur un nom de route erroné, que le
+        # repli relancerait de toute façon — mais après avoir brouillé
+        # la trace.
         return url_for("events.event", id=event.id)
 
 

@@ -76,6 +76,18 @@ class AccreditationClosedError(Exception):
 #
 # Lecture
 #
+def is_signed_in(user) -> bool:
+    """Un membre identifié, par opposition à un visiteur.
+
+    Écrit cinq fois à l'identique dans le module avant l'audit du
+    2026-09-01. Le `getattr` avec défaut se gardait d'un objet sans
+    `is_anonymous`, que ni `User` ni l'utilisateur anonyme de
+    Flask-Security ne peuvent être — mais `g.user` vaut `None` hors
+    session, et c'est ce cas-là qui compte.
+    """
+    return user is not None and not user.is_anonymous
+
+
 def get_accreditation(event: EventPost, user: User) -> Accreditation | None:
     """La ligne du couple (événement, membre), s'il y en a une."""
     stmt = sa.select(Accreditation).where(
@@ -202,7 +214,7 @@ def sees_access_details(user: User, event: EventPost) -> bool:
     ce que MOD-02 demande, et ce dont un code d'entrée a besoin.
     L'organisateur voit les siens, évidemment — il les a saisis.
     """
-    if user is None or getattr(user, "is_anonymous", True):
+    if not is_signed_in(user):
         return False
     if user.id == event.owner_id:
         return True
@@ -215,7 +227,7 @@ def accredited_ids_among(user, event_ids: list[int]) -> set[int]:
     Une seule requête pour toute une page de liste. Un appel par carte
     en ferait autant qu'il y a d'événements affichés, pour une pastille.
     """
-    if user is None or getattr(user, "is_anonymous", True) or not event_ids:
+    if not is_signed_in(user) or not event_ids:
         return set()
     stmt = sa.select(Accreditation.event_id).where(
         Accreditation.user_id == user.id,

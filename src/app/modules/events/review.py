@@ -35,6 +35,7 @@ from app.modules.bw.bw_activation.models.role import (
 from app.modules.bw.bw_activation.user_utils import (
     get_active_business_wall_for_organisation,
 )
+from app.modules.events.services import is_signed_in
 
 if TYPE_CHECKING:
     from app.models.organisation import Organisation
@@ -120,7 +121,7 @@ def is_reviewer(user: User | None, organisation: Organisation | None) -> bool:
     """
     from app.modules.wip.crud.cbvs.events import _has_events_mission_on
 
-    if user is None or getattr(user, "is_anonymous", True) or organisation is None:
+    if not is_signed_in(user) or organisation is None:
         return False
 
     if not hasattr(g, "_event_reviewers"):
