@@ -11,7 +11,7 @@
       {# §7.1 — la mention « Accrédité.e » va en haut, tout à droite,
          sur la ligne date/heure. #}
       <div class="text-sm text-gray-700 flex items-start justify-between gap-2">
-        <div data-start-date="2022/02/17" data-end-date="2022/02/18" data-status="active">
+        <div>
           {# MOD-03 — le pictogramme du mode, lu **directement sur le
              modèle**. La carte est rendue à deux profondeurs
              d'enveloppe : `EventCardVM(EventListVM(EventPost))` sur la
@@ -60,20 +60,7 @@
       {% if event.cancelled_at and event.cancellation_reason %}
         <p class="text-sm text-red-700">{{ event.cancellation_reason }}</p>
       {% endif %}
-
-      <!--<div class="mt-4 flex text-gray-600">
-        {# icon("map-pin", class="h-5 w-5 mt-0.5 mr-1") #}
-        <a class="hover:underline" href=".?loc=city:{# event.city #}">{# event.city #}</a>,&nbsp;
-        <a class="hover:underline" href=".?loc=region:{# event.region #}">{# event.region #}</a>,&nbsp;
-        <a class="hover:underline" href=".?loc=country:{# event.country #}">{#{ event.country #}</a>
-      </div>
-    </div>-->
-
-    <!--<div class="flex-shrink-0 items-start ml-2 h-28 w-28 border border-gray-300">
-      <img
-          src="{# event.logo_url #}"/>
-    </div>-->
-
+    </div>
   </div>
 
   <div class="px-4 flex justify-between">
@@ -83,23 +70,6 @@
   </div>
 
   <div class="px-4">
-    {# Bug #0138: this type badge was a dead affordance — `href="#"` +
-       `hx-post="" hx-target="#content"` with no `force-tab` handler
-       anywhere; on the BW org page (no #content) clicking it did
-       nothing, so the event never "developed" (no Participants, no
-       accreditation block). Make it a real link to the event detail,
-       like the title link — works on every host. #}
-    <a
-        href="{{ url_for(event) }}"
-        class="chip ~positive @low"
-    >{{ event.type_label }}</a>
-
-    <a class="chip ~neutral @low">
-      {{ event.category }}
-    </a>
-    <a class="chip ~neutral @low">
-      {{ event.sector.split("/")[-1] }}
-    </a>
     {# Bug 0138: in the delegated case (author org ≠ publisher) the     #}
     {# italic "Publié par … en tant que contact presse de …" line says #}
     {# the client, so the "Pour : <client>" chip (#0129) is a redundant #}
@@ -107,11 +77,43 @@
     {# (self-published / no client delegation), keeping #0129 intact.   #}
     {% set _delegated = event.author.organisation and event.publisher
           and event.author.organisation.id != event.publisher.id %}
-    {% if event.publisher and not _delegated %}
-      <a class="chip ~info @low">
-        Pour : {{ event.publisher.bw_name or event.publisher.name }}
-      </a>
-    {% endif %}
+
+    {# `flex flex-wrap gap-2` : l'espacement venait des blancs entre les
+       balises, qui disparaissent au retour à la ligne — deux rangées de
+       puces se touchaient. La gouttière ne dépend plus de l'indentation
+       du gabarit.
+
+       **Chaque puce est conditionnelle.** `.chip` est un `inline-flex`
+       avec un padding : une valeur vide n'affichait pas « rien », elle
+       affichait une pastille de couleur nue. `type_label` vaut `""` par
+       défaut (`get_meta_attr`), et c'est ce qui mettait un ovale vert au
+       début de presque chaque carte. #}
+    <div class="flex flex-wrap items-center gap-2">
+      {# Bug #0138: this type badge was a dead affordance — `href="#"` +
+         `hx-post="" hx-target="#content"` with no `force-tab` handler
+         anywhere; on the BW org page (no #content) clicking it did
+         nothing, so the event never "developed" (no Participants, no
+         accreditation block). Make it a real link to the event detail,
+         like the title link — works on every host. #}
+      {% if event.type_label %}
+        <a href="{{ url_for(event) }}" class="chip ~positive @low">{{ event.type_label }}</a>
+      {% endif %}
+
+      {% if event.category %}
+        <span class="chip ~neutral @low">{{ event.category }}</span>
+      {% endif %}
+      {% set _sector = event.sector.split("/")[-1]|trim %}
+      {% if _sector %}
+        <span class="chip ~neutral @low">{{ _sector }}</span>
+      {% endif %}
+
+      {% if event.publisher and not _delegated %}
+        <span class="chip ~info @low">
+          Pour : {{ event.publisher.bw_name or event.publisher.name }}
+        </span>
+      {% endif %}
+    </div>
+
     {% if _delegated %}
       <div class="text-xs italic text-gray-500 mt-1">
         Publié par {{ event.author.organisation.name }} en tant que contact presse de {{ event.publisher.name }}.

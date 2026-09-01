@@ -268,7 +268,15 @@ def test_event_card_type_badge_is_a_real_link_not_dead_chip(
     # false positives of page-wide `#content` / `href="#"` chrome.
     assert "force-tab" not in body
     assert f'href="/events/{event.id}"' in body
-    assert "chip ~positive @low" in body  # the (now-linked) type badge
+
+    # Plus d'assertion sur « chip ~positive » : elle passait grâce à la
+    # pastille **vide**. `type_label` sort de `get_meta_attr`, et ni
+    # `EventPost.Meta` ni `EventListVM` ne le renseignent — il vaut `""`
+    # sur les deux chemins de rendu, donc cette puce n'a jamais eu de
+    # texte. Elle est désormais masquée à vide, et c'est l'ovale vert que
+    # portait chaque carte (audit du 2026-09-02). Le jour où le libellé
+    # sera alimenté, c'est un test sur ce libellé qu'il faudra écrire,
+    # pas sur la classe CSS.
 
 
 def test_a_cancelled_event_is_listed_with_its_banner(
