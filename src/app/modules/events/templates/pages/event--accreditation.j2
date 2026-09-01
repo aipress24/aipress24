@@ -52,7 +52,12 @@
     </button>
   {% elif accreditation == "rejected" %}
     <span class="text-sm text-gray-500">Demande refusée</span>
-  {% else %}
+  {% elif can_request %}
+    {# #0319 — `sees_content` ne suffit pas : il est vrai pour
+       l'organisateur, à qui l'on proposait donc de s'accréditer à son
+       propre événement. `can_request` porte la règle entière (RG-03),
+       et le service refuse le même geste — un bouton masqué sans POST
+       refusé ne serait qu'un décor. #}
     <button type="button"
             class="inline-flex items-center rounded-md border border-transparent bg-white px-4 py-2 text-sm font-medium text-gray-900 shadow-sm hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-900 focus:ring-offset-2"
             hx-post="{{ url_for('events.event', id=event.id) }}"

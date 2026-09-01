@@ -188,6 +188,30 @@ def in_audience(user: User, audience: list[str]) -> bool:
     return any(user.has_role(role) for role in roles if role is not None)
 
 
+def may_request_accreditation(user: User, event: EventPost) -> bool:
+    """Le membre peut-il demander une accréditation ? (RG-03)
+
+    Trois conditions, et la troisième manquait : être identifié,
+    appartenir à l'audience, **et ne pas être l'organisateur**.
+
+    `sees_full_content` l'écrivait déjà en commentaire — l'exception
+    qui ouvre le contenu à l'organisateur « n'ouvre pas le droit de
+    demander une accréditation » — mais rien ne la portait : le
+    gabarit s'appuyait sur `sees_full_content`, et proposait donc le
+    bouton à l'organisateur d'un événement dont il reçoit justement
+    les demandes (#0319).
+
+    Le même prédicat masque le bouton et refuse le POST, pour la
+    raison que porte déjà `is_open` : masquer sans refuser laisse
+    passer un POST forgé, refuser sans masquer affiche un bouton mort.
+    """
+    if not is_signed_in(user):
+        return False
+    if user.id == event.owner_id:
+        return False
+    return in_audience(user, event.audience or [])
+
+
 def sees_full_content(user: User, event: EventPost) -> bool:
     """Le membre voit-il le contenu de l'annonce ? (RG-02, RG-03b)
 
@@ -253,6 +277,9 @@ def request_accreditation(event: EventPost, user: User) -> Accreditation:
         PermissionError: le membre n'appartient pas à l'audience visée.
     """
     _require_open(event)
+    if user.id == event.owner_id:
+        msg = "Vous organisez cet événement : vous recevez les demandes."
+        raise PermissionError(msg)
     if not in_audience(user, event.audience or []):
         msg = "Cet événement est réservé à d'autres communautés."
         raise PermissionError(msg)

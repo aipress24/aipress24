@@ -26,6 +26,7 @@ from app.modules.events.services import (
     AccreditationClosedError,
     get_accreditation,
     is_open,
+    may_request_accreditation,
     request_accreditation,
     sees_access_details,
     sees_full_content,
@@ -76,6 +77,9 @@ class EventDetailView(MethodView):
             "related_events": [],
             "accreditation": _accreditation_status(event_obj, g.user),
             "sees_content": sees_full_content(g.user, event_obj),
+            # #0319 — `sees_content` dit la visibilité, pas le droit de
+            # demander : l'organisateur voit tout et ne demande rien.
+            "can_request": may_request_accreditation(g.user, event_obj),
             "audience": event_obj.audience or [],
             "is_open": is_open(event_obj),
             "sees_access_details": sees_access_details(g.user, event_obj),
@@ -187,6 +191,7 @@ class EventDetailView(MethodView):
             accreditation=_accreditation_status(event_obj, user),
             is_open=is_open(event_obj),
             sees_content=True,
+            can_request=may_request_accreditation(user, event_obj),
         )
         response = make_response(html)
         response.headers["HX-Trigger"] = json.dumps({"showToast": toast})
