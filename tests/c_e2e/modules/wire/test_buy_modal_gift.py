@@ -24,6 +24,7 @@ from app.modules.wire.models import (
     ArticlePurchaseGift,
     PurchaseProduct,
 )
+from app.services.stripe._price_model import StripePrice
 from tests.c_e2e.conftest import make_authenticated_client
 
 if TYPE_CHECKING:
@@ -114,6 +115,32 @@ def article(db_session: Session, press_role: Role) -> ArticlePost:
     return post
 
 
+def _mirror_price(db_session, price_id: str, cents: int) -> None:
+    """Une vraie ligne `stripe_price`, comme les webhooks en écrivent.
+
+    Remplace un `MagicMock` sur `stripe.Price.retrieve` : la modale lit
+    le miroir local depuis l'audit du 2026-09-02, et un mock ne
+    prouverait plus rien du chemin réel.
+    """
+    db_session.add(
+        StripePrice(
+            id=price_id,
+            product_id="prod_test",
+            unit_amount_cents=cents,
+            currency="eur",
+            active=True,
+            tax_behavior="exclusive",
+        )
+    )
+    db_session.flush()
+
+
+def _no_network(*_args, **_kwargs):
+    """Aucun prix affiché ne doit déclencher d'appel Stripe."""
+    msg = "stripe.Price.retrieve appelé pendant un rendu — cf. lessons-learned"
+    raise AssertionError(msg)
+
+
 class TestBuyModalGift:
     def test_modal_renders(self, app: Flask, reader: User, article: ArticlePost):
         client = make_authenticated_client(app, reader)
@@ -128,11 +155,13 @@ class TestBuyModalGift:
     def test_modal_shows_per_recipient_price_when_stripe_live(
         self,
         app: Flask,
+        db_session: Session,
         reader: User,
         article: ArticlePost,
     ):
         client = make_authenticated_client(app, reader)
-        fake_price = MagicMock(unit_amount=1500)  # 15.00 € HT
+        # même id que celui que `_price_id_for` est censé rendre
+        _mirror_price(db_session, "price_consultation", 1500)
         app.config["STRIPE_LIVE_ENABLED"] = True
         try:
             with (
@@ -144,10 +173,7 @@ class TestBuyModalGift:
                     "app.modules.wire.views.purchase.load_stripe_api_key",
                     return_value=True,
                 ),
-                patch(
-                    "stripe.Price.retrieve",
-                    return_value=fake_price,
-                ),
+                patch("stripe.Price.retrieve", _no_network),
             ):
                 response = client.get(f"/wire/{article.id}/buy_modal_gift")
         finally:

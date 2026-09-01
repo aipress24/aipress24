@@ -8,7 +8,7 @@ from __future__ import annotations
 
 import uuid
 from typing import TYPE_CHECKING
-from unittest.mock import MagicMock, patch
+from unittest.mock import patch
 
 import arrow
 import pytest
@@ -29,12 +29,39 @@ from app.modules.wire.models import (
     PurchaseStatus,
 )
 from app.modules.wire.services.justificatif import generate_justificatif_pdf
-from app.modules.wire.views.item import _CONSULTATION_PRICE_CACHE
+from app.services.stripe._price_model import StripePrice
 from tests.c_e2e.conftest import make_authenticated_client
 
 if TYPE_CHECKING:
     from flask import Flask
     from sqlalchemy.orm import Session
+
+
+def _mirror_price(db_session: Session, price_id: str, cents: int) -> StripePrice:
+    """Une vraie ligne `stripe_price`, comme les webhooks en écrivent.
+
+    Remplace un `MagicMock` sur `stripe.Price.retrieve` : l'affichage lit
+    désormais le miroir local, et un mock ne prouverait plus rien du
+    chemin réel. Une ligne vaut mieux qu'un double — elle a les mêmes
+    contraintes de type et de nullité que la production.
+    """
+    price = StripePrice(
+        id=price_id,
+        product_id="prod_test",
+        unit_amount_cents=cents,
+        currency="eur",
+        active=True,
+        tax_behavior="exclusive",
+    )
+    db_session.add(price)
+    db_session.flush()
+    return price
+
+
+def _no_network(*_args, **_kwargs):
+    """Le rendu ne doit appeler Stripe pour aucun prix affiché."""
+    msg = "stripe.Price.retrieve appelé pendant un rendu — cf. lessons-learned"
+    raise AssertionError(msg)
 
 
 def _unique_email() -> str:
@@ -102,28 +129,16 @@ def article(db_session: Session, author: User) -> ArticlePost:
 
 
 def test_reader_sees_truncated_body_with_overlay(
-    app: Flask, reader: User, article: ArticlePost
+    app: Flask, db_session: Session, reader: User, article: ArticlePost
 ):
-    _CONSULTATION_PRICE_CACHE.clear()
+    _mirror_price(db_session, "price_consultation_test", 350)
     app.config["STRIPE_LIVE_ENABLED"] = True
     try:
         client = make_authenticated_client(app, reader)
-        with (
-            patch(
-                "app.modules.wire.views.item.load_stripe_api_key",
-                return_value=True,
-            ),
-            patch(
-                "app.modules.wire.views.item._price_id_for",
-                return_value="price_consultation_test",
-            ),
-            patch(
-                "stripe.Price.retrieve",
-            ) as mock_price,
+        with patch(
+            "app.modules.wire.views.item._price_id_for",
+            return_value="price_consultation_test",
         ):
-            mock_price.return_value = MagicMock(
-                unit_amount=350, currency="eur", recurring=None
-            )
             response = client.get(f"/wire/{article.id}")
             assert response.status_code == 200
             body = response.data.decode()
@@ -133,15 +148,24 @@ def test_reader_sees_truncated_body_with_overlay(
             assert body.count("Texte significatif") < 50
     finally:
         app.config["STRIPE_LIVE_ENABLED"] = False
-        _CONSULTATION_PRICE_CACHE.clear()
 
 
-def test_reader_sees_dynamic_consultation_price(
-    app: Flask, reader: User, article: ArticlePost
+def test_reader_sees_consultation_price_from_the_local_mirror(
+    app: Flask, db_session: Session, reader: User, article: ArticlePost
 ):
-    """The paywall button reads the consultation price live from Stripe
-    (with a 1-hour cache) instead of the DB mirror."""
-    _CONSULTATION_PRICE_CACHE.clear()
+    """Le prix affiché vient du miroir `stripe_price`, sans appel réseau.
+
+    Ce test affirmait l'inverse — « reads the consultation price live
+    from Stripe (with a 1-hour cache) instead of the DB mirror » — et
+    pinnait donc le défaut que `notes/lessons-learned.md` interdit
+    nommément : « toute fenêtre de cache entre le prix qui fait foi chez
+    Stripe et celui qu'on affiche est un risque que le membre paie autre
+    chose que ce qu'il a lu ». Le cache d'une heure était cette fenêtre.
+
+    `stripe.Price.retrieve` lève désormais si on l'appelle : c'est
+    l'assertion qui compte, et elle porte sur le chemin réel.
+    """
+    _mirror_price(db_session, "price_consultation_test", 350)
     app.config["STRIPE_LIVE_ENABLED"] = True
     try:
         client = make_authenticated_client(app, reader)
@@ -150,33 +174,25 @@ def test_reader_sees_dynamic_consultation_price(
                 "app.modules.wire.views.item._price_id_for",
                 return_value="price_consultation_test",
             ),
-            patch(
-                "app.modules.wire.views.item.load_stripe_api_key",
-                return_value=True,
-            ),
-            patch(
-                "stripe.Price.retrieve",
-            ) as mock_price,
+            patch("stripe.Price.retrieve", _no_network),
         ):
-            mock_price.return_value = MagicMock(
-                unit_amount=350, currency="eur", recurring=None
-            )
             response = client.get(f"/wire/{article.id}")
             assert response.status_code == 200
             body = response.data.decode()
             assert "Droit de consultation" in body
             assert "3,50 €" in body
-            mock_price.assert_called_once_with("price_consultation_test")
 
-            # Second request within the cache TTL must not hit Stripe again.
-            response2 = client.get(f"/wire/{article.id}")
-            assert response2.status_code == 200
-            assert mock_price.call_count == 1
+            # Et le prix suit le miroir : pas de fenêtre de cache.
+            db_session.get(
+                StripePrice, "price_consultation_test"
+            ).unit_amount_cents = 990
+            db_session.flush()
+            body2 = client.get(f"/wire/{article.id}").data.decode()
+            assert "9,90 €" in body2, "le prix affiché est resté sur une valeur périmée"
         # The deprecated config key must no longer appear in the markup.
         assert "STRIPE_PRICE_CONSULTATION" not in body
     finally:
         app.config["STRIPE_LIVE_ENABLED"] = False
-        _CONSULTATION_PRICE_CACHE.clear()
 
 
 def test_paid_consultation_shows_full_body(
@@ -401,7 +417,7 @@ def _create_avis_and_invitation(
 def test_justificatif_button_shown_when_paywall_active(
     app: Flask, db_session: Session, reader: User, article: ArticlePost
 ):
-    _CONSULTATION_PRICE_CACHE.clear()
+    _mirror_price(db_session, "price_justif_test", 1500)
     # Button only shown when the reader was invited by the journalist.
     _create_avis_and_invitation(db_session, article, reader)
     db_session.commit()
@@ -409,33 +425,22 @@ def test_justificatif_button_shown_when_paywall_active(
     app.config["STRIPE_LIVE_ENABLED"] = True
     try:
         client = make_authenticated_client(app, reader)
-        with (
-            patch(
-                "app.modules.wire.views.item.load_stripe_api_key",
-                return_value=True,
-            ),
-            patch(
-                "app.modules.wire.views.item._price_id_for",
-                return_value="price_justif_test",
-            ),
-            patch("stripe.Price.retrieve") as mock_price,
+        with patch(
+            "app.modules.wire.views.item._price_id_for",
+            return_value="price_justif_test",
         ):
-            mock_price.return_value = MagicMock(
-                unit_amount=1500, currency="eur", recurring=None
-            )
             response = client.get(f"/wire/{article.id}")
         assert response.status_code == 200
         assert "Justificatif de publication" in response.data.decode()
     finally:
         app.config["STRIPE_LIVE_ENABLED"] = False
-        _CONSULTATION_PRICE_CACHE.clear()
 
 
 def test_justificatif_button_hidden_and_date_shown_after_purchase(
     app: Flask, db_session: Session, reader: User, article: ArticlePost
 ):
     """Once the justificatif is bought, hide button, show purchase date."""
-    _CONSULTATION_PRICE_CACHE.clear()
+    _mirror_price(db_session, "price_consultation_test", 350)
     _create_avis_and_invitation(db_session, article, reader)
     db_session.add(
         ArticlePurchase(
@@ -451,20 +456,10 @@ def test_justificatif_button_hidden_and_date_shown_after_purchase(
     app.config["STRIPE_LIVE_ENABLED"] = True
     try:
         client = make_authenticated_client(app, reader)
-        with (
-            patch(
-                "app.modules.wire.views.item.load_stripe_api_key",
-                return_value=True,
-            ),
-            patch(
-                "app.modules.wire.views.item._price_id_for",
-                return_value="price_consultation_test",
-            ),
-            patch("stripe.Price.retrieve") as mock_price,
+        with patch(
+            "app.modules.wire.views.item._price_id_for",
+            return_value="price_consultation_test",
         ):
-            mock_price.return_value = MagicMock(
-                unit_amount=350, currency="eur", recurring=None
-            )
             response = client.get(f"/wire/{article.id}")
         body = response.data.decode()
         assert response.status_code == 200
@@ -472,7 +467,6 @@ def test_justificatif_button_hidden_and_date_shown_after_purchase(
         assert "Justificatif acheté le" in body
     finally:
         app.config["STRIPE_LIVE_ENABLED"] = False
-        _CONSULTATION_PRICE_CACHE.clear()
 
 
 # -----------------------------------------------------------------------------

@@ -11,6 +11,13 @@ publication, Droits de reproduction — to real Stripe Checkout sessions.
 This MVP only persists the transaction. The "effect" of each purchase
 (access unlock, PDF generation, licence creation) is left to downstream
 specs.
+
+Aucune vue d'ici ne teste `user.is_anonymous` : le `before_request` du
+blueprint (`app/modules/wire/__init__.py`) lève `Unauthorized` avant
+d'atteindre la moindre vue de `/wire/*`. Quatre gardes le refaisaient,
+chacune commentée comme indispensable — « sans cela un visiteur anonyme
+verrait le prix Stripe » — et toutes injoignables (audit du
+2026-09-02). `g.user` est donc un membre identifié dans tout ce module.
 """
 
 from __future__ import annotations
@@ -18,6 +25,7 @@ from __future__ import annotations
 import unicodedata
 from typing import cast
 
+import sqlalchemy as sa
 import stripe
 from flask import current_app, flash, g, redirect, render_template, request, url_for
 from stripe import StripeError
@@ -36,7 +44,9 @@ from app.modules.wire.models import (
     PurchaseProduct,
     PurchaseStatus,
 )
+from app.modules.wire.services.recipients import parse_recipient_emails
 from app.services.stripe._client import StripeClient
+from app.services.stripe._price_model import StripePrice
 from app.services.stripe.product import (
     coerce_metadata,
     fetch_stripe_product_list,
@@ -170,13 +180,6 @@ def buy_modal(post_id: str, product: str):
     )
 
     user = cast(User, g.user)
-    # Gate the modal endpoint the same way `buy` gates the POST. Without
-    # this, an anonymous visitor can see the Stripe price and the
-    # would-be cumul rendered as if they were a buyer ; CESSION price
-    # in particular is sensitive (it's the rights tier).
-    if user.is_anonymous:
-        flash("Connectez-vous pour acheter cet article.", "error")
-        return redirect(url_for("security.login"))
 
     try:
         product_type = PurchaseProduct(product)
@@ -200,17 +203,7 @@ def buy_modal(post_id: str, product: str):
             )
             return redirect(_back_to_post(post))
 
-    amount_ht_eur: float | None = None
-    if current_app.config.get("STRIPE_LIVE_ENABLED") and load_stripe_api_key():
-        genre = getattr(post, "genre", "") or ""
-        price_id = _price_id_for(product_type, genre=genre)
-        if price_id:
-            try:
-                price = stripe.Price.retrieve(price_id)
-                if price.unit_amount is not None:
-                    amount_ht_eur = price.unit_amount / 100
-            except StripeError as exc:
-                warn(f"buy_modal: failed to retrieve price {price_id}: {exc}")
+    amount_ht_eur = _amount_ht_eur_for(product_type, post)
 
     vat_rate = VAT_RATES_BY_PRODUCT.get(product_type, 0.20)
     vat_eur, ttc_eur = _compute_vat_ttc(amount_ht_eur, vat_rate)
@@ -224,8 +217,7 @@ def buy_modal(post_id: str, product: str):
         ttc_eur=ttc_eur,
         vat_rate=vat_rate,
         user_cumul_eur=get_user_purchase_total(user.id) / 100,
-        org_cumul_eur=get_org_purchase_total(getattr(user, "organisation_id", None))
-        / 100,
+        org_cumul_eur=get_org_purchase_total(user.organisation_id) / 100,
         stripe_live=bool(current_app.config.get("STRIPE_LIVE_ENABLED")),
         article_consultation_duration=ARTICLE_CONSULTATION_DURATION,
     )
@@ -238,9 +230,6 @@ def buy(post_id: str, product: str):
     Auth required : the buyer must be logged in (for invoice/email).
     """
     user = cast(User, g.user)
-    if user.is_anonymous:
-        flash("Vous devez être connecté pour effectuer un achat.", "error")
-        return redirect(url_for("security.login"))
 
     try:
         product_type = PurchaseProduct(product)
@@ -265,7 +254,7 @@ def buy(post_id: str, product: str):
             )
             return redirect(_back_to_post(post))
 
-    price_id = _price_id_for(product_type, genre=getattr(post, "genre", "") or "")
+    price_id = _price_id_for(product_type, genre=post.genre)
     if not price_id:
         warn(f"No Stripe price configured for product {product_type.value}")
         flash("Produit momentanément indisponible.", "error")
@@ -349,27 +338,10 @@ def buy_modal_gift(post_id: str):
     )
 
     user = cast(User, g.user)
-    # Mirror the `buy` anonymous guard so the modal cannot leak prices
-    # or cumul to an unauthenticated visitor.
-    if user.is_anonymous:
-        flash("Connectez-vous pour offrir cet article.", "error")
-        return redirect(url_for("security.login"))
 
     post = get_obj(post_id, Post)
 
-    amount_ht_eur: float | None = None
-    if current_app.config.get("STRIPE_LIVE_ENABLED") and load_stripe_api_key():
-        price_id = _price_id_for(
-            PurchaseProduct.CONSULTATION_GIFT,
-            genre=getattr(post, "genre", "") or "",
-        )
-        if price_id:
-            try:
-                price = stripe.Price.retrieve(price_id)
-                if price.unit_amount is not None:
-                    amount_ht_eur = price.unit_amount / 100
-            except StripeError as exc:
-                warn(f"buy_modal_gift: failed to retrieve price: {exc}")
+    amount_ht_eur = _amount_ht_eur_for(PurchaseProduct.CONSULTATION_GIFT, post)
 
     vat_rate = VAT_RATES_BY_PRODUCT.get(PurchaseProduct.CONSULTATION_GIFT, 0.10)
     vat_eur, ttc_eur = _compute_vat_ttc(amount_ht_eur, vat_rate)
@@ -382,8 +354,7 @@ def buy_modal_gift(post_id: str):
         ttc_eur=ttc_eur,
         vat_rate=vat_rate,
         user_cumul_eur=get_user_purchase_total(user.id) / 100,
-        org_cumul_eur=get_org_purchase_total(getattr(user, "organisation_id", None))
-        / 100,
+        org_cumul_eur=get_org_purchase_total(user.organisation_id) / 100,
         stripe_live=bool(current_app.config.get("STRIPE_LIVE_ENABLED")),
         article_consultation_duration=ARTICLE_CONSULTATION_DURATION,
     )
@@ -405,9 +376,6 @@ def buy_gift(post_id: str):
     )
 
     user = cast(User, g.user)
-    if user.is_anonymous:
-        flash("Vous devez être connecté pour offrir un article.", "error")
-        return redirect(url_for("security.login"))
 
     post = get_obj(post_id, Post)
     if not current_app.config.get("STRIPE_LIVE_ENABLED"):
@@ -433,22 +401,18 @@ def buy_gift(post_id: str):
         seen.add(uid)
         candidate_ids.append(uid)
 
-    raw_emails_blob = "\n".join(request.form.getlist("beneficiary_email"))
-    emails = {
-        e.strip().lower()
-        for chunk in raw_emails_blob.replace(",", "\n").splitlines()
-        for e in [chunk]
-        if e.strip()
-    }
+    # Le même analyseur que le partage d'article : celui d'ici ne
+    # coupait pas sur l'espace et ne validait rien, si bien qu'une ligne
+    # d'adresses séparées par des espaces devenait une seule chaîne
+    # invalide — silencieusement, sur un chemin facturé.
+    emails = parse_recipient_emails(
+        "\n".join(request.form.getlist("beneficiary_email"))
+    )
     if emails:
-        from sqlalchemy import func as sa_func, select as sa_select
-
-        from app.models.auth import User as _User
-
         # Case-insensitive email match — Postgres `IN` is case-sensitive
         # so emails stored with mixed case would silently miss otherwise.
         rows = db.session.execute(
-            sa_select(_User.id).where(sa_func.lower(_User.email).in_(emails))
+            sa.select(User.id).where(sa.func.lower(User.email).in_(emails))
         ).all()
         for (uid,) in rows:
             if uid and uid not in seen:
@@ -477,12 +441,8 @@ def buy_gift(post_id: str):
     # rows) and become orphan `ArticlePurchaseGift` rows — buyer billed
     # for ghost seats.
     if candidate_ids:
-        from sqlalchemy import select as sa_select
-
-        from app.models.auth import User as _User
-
         existing_rows = db.session.execute(
-            sa_select(_User.id).where(_User.id.in_(candidate_ids))
+            sa.select(User.id).where(User.id.in_(candidate_ids))
         ).all()
         existing_ids = {uid for (uid,) in existing_rows}
         candidate_ids = [uid for uid in candidate_ids if uid in existing_ids]
@@ -502,7 +462,7 @@ def buy_gift(post_id: str):
 
     price_id = _price_id_for(
         PurchaseProduct.CONSULTATION_GIFT,
-        genre=getattr(post, "genre", "") or "",
+        genre=post.genre,
     )
     if not price_id:
         warn("No Stripe price configured for CONSULTATION_GIFT")
@@ -603,6 +563,39 @@ def purchase_cancel(purchase_id: int):
 # ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------
+
+
+def _amount_ht_eur_for(product: PurchaseProduct, post: Post) -> float | None:
+    """Le prix HT à afficher pour ce produit sur cet article.
+
+    `_price_id_for` interroge le catalogue Stripe : il reste derrière le
+    drapeau, comme avant. Seule la **lecture du montant** a changé de
+    source — le miroir local au lieu d'un `Price.retrieve` par rendu.
+    """
+    if not current_app.config.get("STRIPE_LIVE_ENABLED"):
+        return None
+    return _amount_ht_eur(_price_id_for(product, genre=post.genre))
+
+
+def _amount_ht_eur(price_id: str | None) -> float | None:
+    """Le prix HT affiché, lu dans le miroir local.
+
+    Jamais `stripe.Price.retrieve` : `notes/lessons-learned.md` en fait
+    une règle — « toute fenêtre de cache entre le prix qui fait foi chez
+    Stripe et celui qu'on affiche est un risque que le membre paie autre
+    chose que ce qu'il a lu ». Le miroir `stripe_price` est alimenté par
+    les webhooks `price.created/updated/deleted`, et `flask stripe
+    sync-prices` le rattrape.
+
+    `None` quand le prix est inconnu ou désactivé : les gabarits
+    affichent alors « prix indisponible » plutôt qu'un montant faux.
+    """
+    if not price_id:
+        return None
+    price = db.session.get(StripePrice, price_id)
+    if price is None or not price.active:
+        return None
+    return price.unit_amount_cents / 100
 
 
 def _normalize_string(value: str) -> str:
@@ -712,7 +705,12 @@ def _get_purchase_or_404(purchase_id: int) -> ArticlePurchase:
     if purchase is None:
         raise NotFound
     user = cast(User, g.user)
-    if not user.is_anonymous and purchase.owner_id != user.id:
+    # `and not user.is_anonymous` exemptait l'anonyme du contrôle de
+    # propriété au lieu de le refuser — une IDOR sur des identifiants
+    # entiers séquentiels, que seul le `before_request` du blueprint
+    # rendait inatteignable. La condition dit maintenant ce qu'elle veut
+    # dire, et ne dépend plus de lui.
+    if purchase.owner_id != user.id:
         raise Forbidden
     return purchase
 

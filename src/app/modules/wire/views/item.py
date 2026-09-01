@@ -11,9 +11,7 @@ from typing import TYPE_CHECKING, ClassVar, cast
 
 import arrow
 import sqlalchemy as sa
-import stripe
 from attr import field, frozen
-from cachetools import TTLCache
 from flask import (
     current_app,
     flash,
@@ -25,7 +23,6 @@ from flask import (
 )
 from flask.views import MethodView
 from sqlalchemy.orm import selectinload
-from stripe import StripeError
 from werkzeug import Response
 from werkzeug.exceptions import BadRequest, Forbidden
 
@@ -52,38 +49,98 @@ from app.modules.wire.models import (
     PressReleasePost,
     PurchaseProduct,
 )
+from app.modules.wire.services.recipients import parse_recipient_emails
 from app.modules.wire.views.purchase import _price_id_for
 from app.services.emails.mailers import ContentAlertMail, ShareContentMail
 from app.services.social_graph import SocialUser, adapt
-from app.services.stripe.utils import load_stripe_api_key
+from app.services.stripe.prices import stripe_price_display
 from app.services.tagging import get_tags
 from app.services.tracking import record_view
-from app.ui.money import format_cents
-
-# Cache formatted Stripe price strings for the paywall button.
-_CONSULTATION_PRICE_CACHE: TTLCache[str, str] = TTLCache(maxsize=256, ttl=3600)
 
 
-def _fetch_consultation_price(price_id: str) -> str:
-    """Fetch a Stripe Price by id, format it for display, and cache it."""
-    cached = _CONSULTATION_PRICE_CACHE.get(price_id)
-    if cached is not None:
-        return cached
+def _paywall_context(post: Post, user: User) -> dict:
+    """Tout ce que le péage a à dire sur ce couple (article, lecteur).
 
-    if not load_stripe_api_key():
-        return ""
+    Sortie de `ItemDetailView.get`, qui enchaînait l'aiguillage, le fil
+    d'Ariane, l'enregistrement de la vue, les métadonnées, six imports
+    locaux, huit calculs d'accès, une lecture de prix et une requête
+    d'invitation avant de rendre douze variables : on ne pouvait plus
+    dire ce qu'elle faisait sans « et » (audit du 2026-09-02).
 
-    try:
-        live_price = stripe.Price.retrieve(price_id)
-        if live_price.unit_amount is None:
-            return ""
-        display = format_cents(live_price.unit_amount, live_price.currency)
-    except StripeError as exc:
-        warn(f"item: failed to retrieve price {price_id}: {exc}")
-        return ""
+    `user` est un membre identifié : le `before_request` du blueprint
+    l'assure pour toute vue de `/wire/*`.
+    """
+    from app.modules.bw.bw_activation.rights_policy import is_eligible_for_cession
+    from app.modules.wire.services.article_access import (
+        get_user_justificatif_purchase_info,
+        get_user_purchase_info,
+        has_paid_consultation,
+        has_received_consultation_gift,
+        truncate_body,
+        user_can_read_full,
+    )
 
-    _CONSULTATION_PRICE_CACHE[price_id] = display
-    return display
+    # Les deux lectures d'accès, faites **une fois** et réutilisées.
+    # `user_can_read_full` les faisait déjà en interne, et la vue les
+    # refaisait juste après avec les mêmes arguments : deux requêtes de
+    # plus sur chaque page d'article, pour tout lecteur qui n'est ni
+    # l'auteur ni administrateur.
+    has_paid = has_paid_consultation(user.id, post.id)
+    has_gift = has_received_consultation_gift(user.id, post.id)
+    can_read_full = user_can_read_full(
+        user,
+        post,
+        paid_lookup=lambda _uid, _pid: has_paid,
+        gift_lookup=lambda _uid, _pid: has_gift,
+    )
+
+    # Ticket #0212: only truncate when the paywall is actually live.
+    # Before go-live (flag off) a non-buyer can't purchase anyway, so a
+    # truncated body with no buy CTA is a dead-end — show the full text.
+    paywall_active = bool(current_app.config.get("STRIPE_LIVE_ENABLED"))
+    body_preview = (
+        post.content
+        if can_read_full or not paywall_active
+        else truncate_body(post.content)
+    )
+
+    consultation_price_str = ""
+    if paywall_active and not can_read_full:
+        price_id = _price_id_for(PurchaseProduct.CONSULTATION, genre=post.genre)
+        consultation_price_str = stripe_price_display(price_id) if price_id else ""
+
+    return {
+        "can_cede": is_eligible_for_cession(user, post),
+        "can_read_full": can_read_full,
+        "user_has_paid_consultation": has_paid,
+        "user_has_offered_consultation": has_gift,
+        "purchase_info": get_user_purchase_info(user, post),
+        "justificatif_purchase_info": get_user_justificatif_purchase_info(user, post),
+        "body_preview": body_preview,
+        "consultation_price_str": consultation_price_str,
+        "has_justificatif_invitation": _has_justificatif_invitation(post, user),
+    }
+
+
+def _has_justificatif_invitation(post: Post, user: User) -> bool:
+    """Le journaliste a-t-il invité ce lecteur pour cet article ?
+
+    C'est la seule condition d'affichage du bouton « Justificatif ».
+    """
+    from app.modules.wip.models.newsroom.justificatif_invitation import (
+        JustificatifInvitation,
+    )
+
+    if not isinstance(post, ArticlePost) or not post.newsroom_id:
+        return False
+    return bool(
+        db.session.scalar(
+            sa.select(JustificatifInvitation.id)
+            .where(JustificatifInvitation.article_id == post.newsroom_id)
+            .where(JustificatifInvitation.recipient_id == user.id)
+            .limit(1)
+        )
+    )
 
 
 class ItemDetailView(MethodView):
@@ -115,81 +172,12 @@ class ItemDetailView(MethodView):
         # Build metadata
         metadata_list = self._get_metadata_list(post)
 
-        from app.modules.bw.bw_activation.rights_policy import (
-            is_eligible_for_cession,
-        )
-        from app.modules.wip.models.newsroom.justificatif_invitation import (
-            JustificatifInvitation,
-        )
-        from app.modules.wire.services.article_access import (
-            get_user_justificatif_purchase_info,
-            get_user_purchase_info,
-            has_paid_consultation,
-            has_received_consultation_gift,
-            truncate_body,
-            user_can_read_full,
-        )
-
-        can_cede = is_eligible_for_cession(g.user, post)
-        can_read_full = user_can_read_full(g.user, post)
-        purchase_info = get_user_purchase_info(g.user, post)
-        justificatif_purchase_info = get_user_justificatif_purchase_info(g.user, post)
-        user_has_paid_consultation = False
-        user_has_offered_consultation = False
-        if g.user and not g.user.is_anonymous:
-            user_has_paid_consultation = has_paid_consultation(g.user.id, post.id)
-            user_has_offered_consultation = has_received_consultation_gift(
-                g.user.id, post.id
-            )
-        # Ticket #0212: only truncate when the paywall is actually live.
-        # Before go-live (flag off) a non-buyer can't purchase anyway, so a
-        # truncated body with no buy CTA is a dead-end — show the full text.
-        paywall_active = bool(current_app.config.get("STRIPE_LIVE_ENABLED"))
-        if can_read_full or not paywall_active:
-            body_preview = post.content
-        else:
-            body_preview = truncate_body(post.content)
-
-        consultation_price_str = ""
-        if not can_read_full and current_app.config.get("STRIPE_LIVE_ENABLED"):
-            price_id = _price_id_for(
-                PurchaseProduct.CONSULTATION, genre=getattr(post, "genre", "") or ""
-            )
-            if price_id:
-                consultation_price_str = _fetch_consultation_price(price_id)
-
-        # Justificatif button is only shown when current user was explicitly
-        # invited by the journalist for this article.
-        has_justificatif_invitation = False
-        if (
-            isinstance(post, ArticlePost)
-            and g.user
-            and not g.user.is_anonymous
-            and post.newsroom_id
-        ):
-            has_justificatif_invitation = bool(
-                db.session.scalar(
-                    sa.select(JustificatifInvitation.id)
-                    .where(JustificatifInvitation.article_id == post.newsroom_id)
-                    .where(JustificatifInvitation.recipient_id == g.user.id)
-                    .limit(1)
-                )
-            )
-
         return render_template(
             template,
             title=post.title,
             post=view_model,
             metadata_list=metadata_list,
-            can_cede=can_cede,
-            can_read_full=can_read_full,
-            user_has_paid_consultation=user_has_paid_consultation,
-            user_has_offered_consultation=user_has_offered_consultation,
-            purchase_info=purchase_info,
-            justificatif_purchase_info=justificatif_purchase_info,
-            body_preview=body_preview,
-            consultation_price_str=consultation_price_str,
-            has_justificatif_invitation=has_justificatif_invitation,
+            **_paywall_context(post, g.user),
         )
 
     def post(self, id: str) -> str | Response:
@@ -504,24 +492,11 @@ class UserVM(Wrapper):
         return db.session.scalar(stmt)
 
 
-def _parse_recipient_emails(raw_emails: str) -> list[str]:
-    """Parse comma/newline/whitespace separated email list into unique emails."""
-    if not raw_emails:
-        return []
-    cleaned = raw_emails.replace(",", " ")
-    seen = set()
-    for raw_address in cleaned.split():
-        address = raw_address.strip().lower()
-        if "@" in address and "." in address.split("@")[-1]:
-            seen.add(address)
-    return list(seen)
-
-
 def _get_form_emails() -> list[str]:
     raw_emails_blob = "\n".join(
         request.form.getlist("recipient_emails")
     ) or request.form.get("recipient_emails", "")
-    return _parse_recipient_emails(raw_emails_blob)
+    return parse_recipient_emails(raw_emails_blob)
 
 
 @blueprint.route("/<post_id>/share_modal", methods=["GET"])
