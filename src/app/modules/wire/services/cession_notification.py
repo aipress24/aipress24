@@ -19,7 +19,6 @@ either (the payment is recorded ; the notification is best-effort).
 from __future__ import annotations
 
 from collections.abc import Callable
-from typing import TYPE_CHECKING, Any
 
 from svcs.flask import container
 
@@ -28,14 +27,14 @@ from app.flask.routing import url_for
 from app.logging import report_failure
 from app.models.auth import User
 from app.models.organisation import Organisation
-from app.modules.wire.models import ArticlePurchase, PurchaseStatus
+from app.modules.wire.models import ArticlePurchase, Post, PurchaseStatus
+from app.modules.wire.services._notification_helpers import (
+    MISSING_LABEL,
+    article_title,
+)
 from app.services.notifications import NotificationService
 
-if TYPE_CHECKING:
-    pass
-
 # Marker used everywhere when a label can't be resolved.
-_MISSING_LABEL = "—"
 
 
 def notify_cession_purchase(purchase_id: int) -> None:
@@ -89,7 +88,11 @@ def notify_cession_purchase(purchase_id: int) -> None:
             )
 
 
-def _should_notify_cession(purchase: Any, buyer: Any, post: Any) -> bool:
+def _should_notify_cession(
+    purchase: ArticlePurchase | None,
+    buyer: User | None,
+    post: Post | None,
+) -> bool:
     """Pure : true iff we have enough state to send the cession ack.
 
     The webhook commits PAID before calling us, but defensive checks
@@ -106,31 +109,31 @@ def _should_notify_cession(purchase: Any, buyer: Any, post: Any) -> bool:
 
 def _build_purchase_context(
     *,
-    purchase: Any,
-    post: Any,
-    author: Any,
+    purchase: ArticlePurchase,
+    post: Post,
+    author: User | None,
     media_name: str,
 ) -> dict[str, str]:
     """Pure : assemble the strings consumed by the in-app + email shells."""
     return {
-        "article_title": _extract_article_title(post),
+        "article_title": article_title(post),
         "author_full_name": _author_full_name(author),
         "media_name": media_name,
-        "amount_ht_eur": _format_amount_eur(getattr(purchase, "amount_cents", None)),
+        "amount_ht_eur": _format_amount_eur(purchase.amount_cents),
     }
 
 
-def _extract_article_title(post: Any) -> str:
-    """Pure : pick the article's display title with a marker fallback."""
-    title = getattr(post, "title", "") or getattr(post, "titre", "")
-    return title or _MISSING_LABEL
+def _author_full_name(author: User | None) -> str:
+    """Pure : full name of the author, marker fallback if missing.
 
-
-def _author_full_name(author: Any) -> str:
-    """Pure : full name of the author, marker fallback if missing."""
+    `None` est un cas réel — `db.session.get(User, post.owner_id)` peut
+    ne rien rendre sur un compte supprimé. Le `getattr` d'avant se
+    gardait en plus d'un `User` sans `full_name`, ce qu'aucun `User`
+    n'est (audit du 2026-09-02).
+    """
     if author is None:
-        return _MISSING_LABEL
-    return getattr(author, "full_name", "") or _MISSING_LABEL
+        return MISSING_LABEL
+    return author.full_name or MISSING_LABEL
 
 
 def _format_amount_eur(amount_cents: int | None) -> str:
@@ -148,17 +151,17 @@ def _format_cession_message(
     )
 
 
-def _org_media_label(org: Any | None) -> str:
+def _org_media_label(org: Organisation | None) -> str:
     """Pure : best-effort « organe de presse » label for an Organisation."""
     if org is None:
-        return _MISSING_LABEL
-    return getattr(org, "bw_name", None) or getattr(org, "name", "") or _MISSING_LABEL
+        return MISSING_LABEL
+    return getattr(org, "bw_name", None) or getattr(org, "name", "") or MISSING_LABEL
 
 
 def _author_media_name(
-    author: Any | None,
+    author: User | None,
     *,
-    org_loader: Callable[[int], Any | None] | None = None,
+    org_loader: Callable[[int], Organisation | None] | None = None,
 ) -> str:
     """Best-effort « organe de presse » label for the author.
 
@@ -169,7 +172,7 @@ def _author_media_name(
     session.
     """
     if author is None:
-        return _MISSING_LABEL
+        return MISSING_LABEL
     org = getattr(author, "organisation", None)
     if org is None and getattr(author, "organisation_id", None):
         loader = org_loader or _default_org_loader
@@ -177,7 +180,7 @@ def _author_media_name(
     return _org_media_label(org)
 
 
-def _default_org_loader(org_id: int) -> Any | None:
+def _default_org_loader(org_id: int) -> Organisation | None:
     """Production loader : `db.session.get(Organisation, org_id)`."""
     return db.session.get(Organisation, org_id)
 
@@ -193,9 +196,10 @@ def _post_in_app(
         author_full_name=author_full_name,
         media_name=media_name,
     )
+    # `RuntimeError` : cf. `_article_url` dans `gift_notification`.
     try:
         post_url = url_for("wip.achats")
-    except Exception:
+    except RuntimeError:
         post_url = "/wip/achats"
     container.get(NotificationService).post(buyer, message, url=post_url)
 

@@ -11,7 +11,7 @@ state, not interaction. » :
 
 * `_should_notify_cession` is a 3-arg predicate — drive it through
   the early-return branches with stand-in objects.
-* `_extract_article_title`, `_author_full_name`, `_format_amount_eur`
+* `article_title`, `_author_full_name`, `_format_amount_eur`
   and `_format_cession_message` are pure string shapers — drive them
   with literal inputs / `SimpleNamespace`.
 * `_org_media_label` is the bw_name → name → marker fallback ladder.
@@ -33,12 +33,12 @@ from types import SimpleNamespace
 
 import pytest
 
-from app.modules.wire.models import PurchaseStatus
+from app.modules.wire.models import Post, PurchaseStatus
+from app.modules.wire.services._notification_helpers import article_title
 from app.modules.wire.services.cession_notification import (
     _author_full_name,
     _author_media_name,
     _build_purchase_context,
-    _extract_article_title,
     _format_amount_eur,
     _format_cession_message,
     _org_media_label,
@@ -146,29 +146,28 @@ class TestShouldNotifyCession:
 
 
 # ---------------------------------------------------------------------------
-# _extract_article_title / _author_full_name / _format_amount_eur
+# article_title / _author_full_name / _format_amount_eur
 # ---------------------------------------------------------------------------
 
 
-class TestExtractArticleTitle:
-    """Title fallback : `title` → `titre` → marker."""
+class TestArticleTitle:
+    """Le titre, ou un marqueur visible.
 
-    def test_prefers_title(self) -> None:
-        post = SimpleNamespace(title="Le Vrai Titre", titre="legacy")
-        assert _extract_article_title(post) == "Le Vrai Titre"
+    Ces cas éprouvaient une échelle `title` → `titre` → marqueur, sur un
+    `SimpleNamespace` qui portait les deux attributs. La production n'en
+    passe jamais qu'un seul type : `purchase.post`, donc un `Post`, qui a
+    `title` et n'a pas `titre` — le second barreau était injoignable, et
+    la doublure certifiait une forme qui n'existe pas (audit du
+    2026-09-02).
+    """
 
-    def test_falls_back_to_titre_when_title_empty(self) -> None:
-        post = SimpleNamespace(title="", titre="Ancien Titre")
-        assert _extract_article_title(post) == "Ancien Titre"
+    def test_rend_le_titre(self) -> None:
+        assert article_title(Post(title="Le Vrai Titre")) == "Le Vrai Titre"
 
-    def test_marker_when_both_empty(self) -> None:
-        post = SimpleNamespace(title="", titre="")
-        assert _extract_article_title(post) == MISSING
-
-    def test_marker_when_both_missing(self) -> None:
-        """Post is a stand-in lacking both attributes."""
-        post = SimpleNamespace()
-        assert _extract_article_title(post) == MISSING
+    def test_marqueur_quand_le_titre_est_vide(self) -> None:
+        """Un article publié sans titre est une anomalie de données ;
+        elle ne doit pas vider la notification de son sujet."""
+        assert article_title(Post(title="")) == MISSING
 
 
 class TestAuthorFullName:

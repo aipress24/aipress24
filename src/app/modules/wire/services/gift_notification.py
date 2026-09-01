@@ -33,13 +33,15 @@ from app.modules.wire.models import (
     ArticlePurchaseGift,
     PurchaseProduct,
 )
+from app.modules.wire.services._notification_helpers import (
+    article_title,
+)
 from app.services.notifications import NotificationService
 
 if TYPE_CHECKING:
     pass
 
 # Marker for missing labels.
-_MISSING_LABEL = "—"
 
 
 def notify_gift_beneficiaries(purchase_id: int) -> int:
@@ -68,7 +70,7 @@ def notify_gift_beneficiaries(purchase_id: int) -> int:
     if not gifts:
         return 0
 
-    article_title = _extract_article_title(post)
+    title = article_title(post)
     article_url = _article_url(post)
 
     notified = 0
@@ -82,7 +84,7 @@ def notify_gift_beneficiaries(purchase_id: int) -> int:
         succeeded = _notify_one_gift(
             recipient=recipient,
             giver=giver,
-            article_title=article_title,
+            article_title=title,
             article_url=article_url,
             purchase_id=purchase_id,
             beneficiary_user_id=gift.beneficiary_user_id,
@@ -164,12 +166,6 @@ def _notify_one_gift(
     return succeeded
 
 
-def _extract_article_title(post: Any) -> str:
-    """Pure : pick the article's display title with a marker fallback."""
-    title = getattr(post, "title", "") or getattr(post, "titre", "")
-    return title or _MISSING_LABEL
-
-
 def _format_gift_message(*, article_title: str, giver_full_name: str) -> str:
     """Pure : the in-app cloche message text."""
     return f"{giver_full_name} vous offre un article à consulter : « {article_title} »."
@@ -185,9 +181,14 @@ def _article_url(post) -> str:
     """Best-effort absolute URL for the article. Falls back to a
     relative path if `url_for` can't build an external URL (e.g.
     no request context)."""
+    # `RuntimeError` et non `Exception` : c'est ce que lève Flask quand
+    # `SERVER_NAME` manque hors requête. Tout attraper masquerait une
+    # `BuildError` sur un nom de route erroné, que le repli relancerait
+    # de toute façon — après avoir brouillé la trace. Même correctif
+    # qu'`events/notifications.py`.
     try:
         return url_for("wire.item", id=base62.encode(post.id), _external=True)
-    except Exception:
+    except RuntimeError:
         return _relative_article_url(post.id)
 
 
