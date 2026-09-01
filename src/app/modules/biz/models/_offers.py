@@ -92,7 +92,9 @@ class ContractType(StrEnum):
     DOCTORAL = "DOCTORAL"
 
 
-class MissionOffer(MarketplaceContent, ClassificationMixin, Publishable, PaysZipVilleMixin):
+class MissionOffer(
+    MarketplaceContent, ClassificationMixin, Publishable, PaysZipVilleMixin
+):
     __tablename__ = "mkp_mission_offer"
 
     id: Mapped[int] = mapped_column(
@@ -155,7 +157,9 @@ class MissionOffer(MarketplaceContent, ClassificationMixin, Publishable, PaysZip
     emitter_org = relationship("Organisation", foreign_keys=[emitter_org_id])
 
 
-class ProjectOffer(MarketplaceContent, ClassificationMixin, Publishable, PaysZipVilleMixin):
+class ProjectOffer(
+    MarketplaceContent, ClassificationMixin, Publishable, PaysZipVilleMixin
+):
     """Editorial project — bigger than a pige (dossier, série, enquête)."""
 
     __tablename__ = "mkp_project_offer"
