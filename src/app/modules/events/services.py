@@ -76,7 +76,7 @@ class AccreditationClosedError(Exception):
 #
 # Lecture
 #
-def is_signed_in(user) -> bool:
+def is_signed_in(user: User | None) -> bool:
     """Un membre identifié, par opposition à un visiteur.
 
     Écrit cinq fois à l'identique dans le module avant l'audit du
@@ -188,7 +188,7 @@ def in_audience(user: User, audience: list[str]) -> bool:
     return any(user.has_role(role) for role in roles if role is not None)
 
 
-def may_request_accreditation(user: User, event: EventPost) -> bool:
+def may_request_accreditation(user: User | None, event: EventPost) -> bool:
     """Le membre peut-il demander une accréditation ? (RG-03)
 
     Trois conditions, et la troisième manquait : être identifié,
@@ -226,7 +226,7 @@ def sees_full_content(user: User, event: EventPost) -> bool:
     return in_audience(user, event.audience or [])
 
 
-def sees_access_details(user: User, event: EventPost) -> bool:
+def sees_access_details(user: User | None, event: EventPost) -> bool:
     """Le membre voit-il les modalités d'accès ? (MOD-02)
 
     **Ce n'est pas `sees_full_content`.** Celui-ci dit l'appartenance à
@@ -245,7 +245,7 @@ def sees_access_details(user: User, event: EventPost) -> bool:
     return is_participant(event, user)
 
 
-def accredited_ids_among(user, event_ids: list[int]) -> set[int]:
+def accredited_ids_among(user: User | None, event_ids: list[int]) -> set[int]:
     """Parmi ces événements, lesquels le membre est-il accrédité ? (§7.2)
 
     Une seule requête pour toute une page de liste. Un appel par carte

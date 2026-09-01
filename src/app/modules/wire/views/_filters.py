@@ -59,7 +59,6 @@ FILTER_SPECS = [
 ]
 
 FILTER_TAG_LABEL = {
-    "content_kind": "type",
     "sector": "secteur",
     "topic": "rubrique",
     "genre": "genre",

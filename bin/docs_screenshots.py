@@ -16,15 +16,21 @@ Examples:
 from __future__ import annotations
 
 import argparse
+import contextlib
 import csv
 import re
 import sys
 from pathlib import Path
 
-from playwright.sync_api import Page, TimeoutError as PWTimeout, sync_playwright
+from playwright.sync_api import Page, sync_playwright
 
 ROOT = Path(__file__).resolve().parent.parent
 CSV_PATH = ROOT / "local-notes" / "00-ListeDesProfilsDeTests-7.2.csv"
+
+#: La production, et c'est voulu : un guide utilisateur montre des pages
+#: peuplées, que seule la vraie base a. Le script ne fait que lire — il
+#: ouvre des formulaires de création, il n'en soumet aucun — et affiche
+#: sa cible avant de commencer. `--base-url` pointe ailleurs au besoin.
 BASE = "https://aipress24.com"
 VIEWPORT = {"width": 1440, "height": 960}
 
@@ -81,7 +87,8 @@ def find_profile(email: str) -> dict[str, str]:
                     "email": row[4].strip(),
                     "password": row[5],  # raw (leading spaces can matter)
                 }
-    raise SystemExit(f"Profile {email!r} not found in {CSV_PATH}")
+    msg = f"Profile {email!r} not found in {CSV_PATH}"
+    raise SystemExit(msg)
 
 
 def login(page: Page, base: str, profile: dict[str, str]) -> bool:
@@ -95,8 +102,12 @@ def login(page: Page, base: str, profile: dict[str, str]) -> bool:
 
 
 def _hide_debug_bar(page: Page) -> None:
-    """Hide the fixed performance/monitoring overlay ('… SQL · GET …')."""
-    try:
+    """Hide the fixed performance/monitoring overlay ('… SQL · GET …').
+
+    Cosmétique : sur une page qui ne la porte pas, il n'y a rien à
+    masquer et rien à signaler.
+    """
+    with contextlib.suppress(Exception):
         page.evaluate(
             """() => {
                 for (const el of document.querySelectorAll('*')) {
@@ -108,19 +119,17 @@ def _hide_debug_bar(page: Page) -> None:
                 }
             }"""
         )
-    except Exception:
-        pass
 
 
 def _dismiss_cookie_banner(page: Page) -> None:
     for label in ("Accepter", "Tout accepter", "J'accepte", "Accept", "OK"):
-        try:
+        # On essaie les libellés l'un après l'autre : celui qui n'existe
+        # pas sur cette page-ci n'est pas une erreur, c'est le suivant.
+        with contextlib.suppress(Exception):
             btn = page.get_by_role("button", name=label)
             if btn.count() and btn.first.is_visible():
                 btn.first.click(timeout=1500)
                 return
-        except Exception:
-            continue
 
 
 def _shoot(page: Page, base: str, url: str, dest: Path, wait_sel: str | None) -> None:
@@ -162,7 +171,8 @@ def capture(base: str, email: str, out: Path, only: set[str] | None) -> None:
         page.set_default_timeout(15_000)
         if not login(page, base, profile):
             browser.close()
-            raise SystemExit(f"Login failed for {profile['email']} on {base}")
+            msg = f"Login failed for {profile['email']} on {base}"
+            raise SystemExit(msg)
         print("Login OK\n")
 
         ok = fail = 0
@@ -173,7 +183,7 @@ def capture(base: str, email: str, out: Path, only: set[str] | None) -> None:
                 _shoot(page, base, path, out / f"{slug}.png", wait_sel)
                 print(f"  [ok]   {slug:26} {path}")
                 ok += 1
-            except (PWTimeout, Exception) as exc:
+            except Exception as exc:
                 print(f"  [fail] {slug:26} {path}  ({type(exc).__name__})")
                 fail += 1
 
@@ -191,7 +201,7 @@ def capture(base: str, email: str, out: Path, only: set[str] | None) -> None:
                 _shoot(page, base, href, out / f"{slug}.png", None)
                 print(f"  [ok]   {slug:26} {href}")
                 ok += 1
-            except (PWTimeout, Exception) as exc:
+            except Exception as exc:
                 print(f"  [fail] {slug:26} {list_path}  ({type(exc).__name__})")
                 fail += 1
 

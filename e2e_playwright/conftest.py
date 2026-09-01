@@ -394,8 +394,7 @@ def event_create_payload(
         for name in _EVENT_RICH_SELECTS:
             if not payload.get(name):
                 payload[name] = first_rich_select_option(name)
-        payload.setdefault("contenu", "")
-        if not payload["contenu"]:
+        if not payload.get("contenu"):
             payload["contenu"] = "<p>Contenu e2e</p>"
         payload.update(overrides)
         return payload
