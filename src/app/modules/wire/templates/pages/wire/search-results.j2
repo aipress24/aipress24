@@ -13,26 +13,10 @@
 
     <ul role="list" class="grid gap-6 grid-cols-1 md:grid-cols-2">
       <!-- was class="bg-white rounded-lg shadow" -->
-      {% for is_event, post in posts %}
-        {# WIR-04 — un événement se distingue d'un article par un liseré,
-           et sa carte est celle d'EVENTS : elle porte la date de
-           l'événement et non sa date de publication, pour qu'on ne
-           confonde pas les deux. `post_card` lève sur un type qu'il ne
-           connaît pas ; le branchement est donc obligatoire. La vue
-           apparie chaque publication à sa nature (`as_cards`) plutôt
-           que de taguer les instances — cf. le premier principe de
-           `notes/lessons-learned.md`. #}
-        {% if is_event %}
-          {# **Sans `<li>` enveloppant** : le composant ouvre le sien, et
-             l'imbriquer effondre la grille sur une colonne — c'est le
-             bug #0179, recréé par le lot C8 et signalé en #0324. Le
-             commentaire de `org--tab-events.html` le disait déjà. #}
-          {{ component("event-card", post, class_="border-l-4 border-pink-500") }}
-        {% else %}
-          <li class="bg-white rounded shadow">
-            {{ post_card(post) }}
-          </li>
-        {% endif %}
+      {% for post in posts %}
+        <li class="bg-white rounded shadow">
+          {{ post_card(post) }}
+        </li>
       {% endfor %}
     </ul>
   {% endif %}

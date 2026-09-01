@@ -369,15 +369,17 @@ class TestFilterBarGetFilters:
     def test_com_and_wall_tabs_share_the_full_spec(
         self, app: Flask, db_session: Session
     ):
-        """Both tabs now build their bar from FILTER_SPECS (ticket #0229).
+        """Both tabs build their bar from FILTER_SPECS (ticket #0229).
 
-        WIR-05 ajoute une exception au Wall, et à lui seul : le type de
-        contenu. C'est le seul onglet qui en mêle plusieurs — les autres
-        qualifient une source de presse, où la question ne se pose pas.
+        Le Wall a porté une exception le temps du lot `C8` : un filtre
+        « Type de contenu » pour départager articles et événements.
+        Les événements ont quitté le fil (arbitrage du 2026-09-01) et
+        le filtre avec eux — les deux onglets partagent de nouveau
+        exactement la même barre.
         """
         with app.test_request_context():
             com_ids = {f["id"] for f in FilterBar("com").get_filters()}
             wall_ids = {f["id"] for f in FilterBar("wall").get_filters()}
         expected = {s["id"] for s in FILTER_SPECS}
         assert com_ids == expected
-        assert wall_ids == expected | {"content_kind"}
+        assert wall_ids == expected

@@ -95,7 +95,7 @@ class WireTabView(MethodView):
         posts = self._get_posts(tabs, filter_bar)
         return render_template(
             "pages/wire/main.j2",
-            posts=as_cards(posts),
+            posts=posts,
             tabs=self._build_tabs(tabs),
             tab=tab,
             filter_bar=filter_bar,
@@ -110,7 +110,7 @@ class WireTabView(MethodView):
             "pages/wire.j2",
             title="News",
             page=page,
-            posts=as_cards(posts),
+            posts=posts,
             tabs=self._build_tabs(tabs),
             tab=tab,
             filter_bar=filter_bar,
@@ -163,31 +163,6 @@ class WireTabView(MethodView):
             if tag in tags:
                 filtered_posts.append(post)
         return filtered_posts
-
-
-def as_cards(posts: list) -> list[tuple[bool, object]]:
-    """Apparier chaque publication à la carte qui la rend (WIR-04).
-
-    Le Wall mêle des articles et des événements depuis le lot C8, et
-    `post_card` lève sur un type qu'il ne connaît pas : le gabarit doit
-    brancher.
-
-    Un couple, et **non un attribut posé sur le modèle**. Taguer les
-    instances marcherait, mais c'est du monkey-patching : invisible au
-    vérificateur de types, sans propriétaire, et le premier principe de
-    `notes/lessons-learned.md` l'interdit. La nature d'une publication
-    appartient au rendu, pas à la ligne de base.
-
-    `_annotate_paid_consultations`, juste en dessous, continue de poser
-    un attribut — et ce n'est pas un oubli : elle **mémorise un calcul**
-    pour l'instance qu'elle vient de compter, là où l'on inventait ici un
-    champ de schéma. La déplacer demanderait de faire passer les
-    compteurs jusqu'au composant de carte et à tous ses appels, sur le
-    chemin même dont elle supprime le N+1.
-    """
-    from app.modules.events.models import EventPost
-
-    return [(isinstance(post, EventPost), post) for post in posts]
 
 
 def _annotate_paid_consultations(posts: list) -> None:

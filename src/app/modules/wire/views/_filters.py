@@ -19,21 +19,6 @@ from app.models.lifecycle import PublicationStatus
 from app.modules.kyc.field_label import country_code_to_country_name
 from app.modules.wire.models import ArticlePost, PressReleasePost
 
-#: WIR-05 — le filtre « Type de contenu » du Wall.
-#:
-#: Deux valeurs et non trois : le Wall montre des articles, des brèves
-#: et — depuis le lot C8 — des événements. Les communiqués ont leur
-#: propre onglet (« Idées & Comm ») et n'entrent pas dans le fil ; les
-#: proposer ici offrirait un filtre qui ne retire jamais rien.
-CONTENT_KIND_ARTICLES = "Articles"
-CONTENT_KIND_EVENTS = "Événements"
-
-CONTENT_KIND_SPEC = {
-    "id": "content_kind",
-    "label": "Type de contenu",
-    "options": [CONTENT_KIND_ARTICLES, CONTENT_KIND_EVENTS],
-}
-
 FILTER_SPECS = [
     {
         "id": "sector",
@@ -85,7 +70,7 @@ FILTER_TAG_LABEL = {
 }
 
 
-FILTER_SPECS_BY_ID = {spec["id"]: spec for spec in [*FILTER_SPECS, CONTENT_KIND_SPEC]}
+FILTER_SPECS_BY_ID = {spec["id"]: spec for spec in FILTER_SPECS}
 
 
 SORTER_OPTIONS = [
@@ -251,13 +236,10 @@ class FilterBar:
         )
         articles = get_multi(ArticlePost, stmt)
 
-        # WIR-05 — le type de contenu n'est proposé que sur le Wall :
-        # c'est le seul onglet qui en mêle plusieurs.
-        specs = FILTER_SPECS
-        if self.tab == "wall":
-            specs = [CONTENT_KIND_SPEC, *FILTER_SPECS]
-
-        filter_set = FilterSet(specs)
+        # Plus de filtre « Type de contenu » : `WIR-05` n'existait que
+        # pour départager articles et événements dans le fil, et les
+        # événements n'y sont plus (arbitrage du 2026-09-01).
+        filter_set = FilterSet(FILTER_SPECS)
         filter_set.init(articles)
 
         return filter_set.get_filters()

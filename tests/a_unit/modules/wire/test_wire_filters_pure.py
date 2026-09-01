@@ -40,7 +40,6 @@ from flask import session
 from werkzeug.exceptions import BadRequest
 
 from app.modules.wire.views._filters import (
-    CONTENT_KIND_SPEC,
     FILTER_SPECS,
     FILTER_SPECS_BY_ID,
     FILTER_TAG_LABEL,
@@ -82,11 +81,12 @@ class TestFilterSpecsById:
 
     def test_keys_match_filter_specs_ids(self) -> None:
         """WIR-05 — l'index porte un identifiant de plus que
-        `FILTER_SPECS` : le type de contenu n'est proposé que sur le
-        Wall, seul onglet à en mêler plusieurs, mais il doit être
-        reconnu partout où un filtre actif est relu depuis la session.
+        `FILTER_SPECS`. Le filtre « Type de contenu » y figurait en
+        plus, le temps du lot `C8` : il départageait articles et
+        événements dans le fil, et il est parti avec eux (arbitrage du
+        2026-09-01).
         """
-        expected = {s["id"] for s in FILTER_SPECS} | {CONTENT_KIND_SPEC["id"]}
+        expected = {s["id"] for s in FILTER_SPECS}
 
         assert set(FILTER_SPECS_BY_ID.keys()) == expected
 

@@ -9,7 +9,6 @@ from collections.abc import Iterable
 from operator import itemgetter
 from typing import ClassVar
 
-import arrow
 import sqlalchemy as sa
 from flask import g, session
 from pipe import groupby
@@ -33,11 +32,7 @@ from app.modules.wire.models import (
 )
 from app.services.social_graph import adapt
 
-from ._filters import (
-    CONTENT_KIND_ARTICLES,
-    CONTENT_KIND_EVENTS,
-    FilterBar,
-)
+from ._filters import FilterBar
 
 # Allowed filter fields for ORM queries - prevents arbitrary attribute access
 ALLOWED_FILTER_FIELDS = {
@@ -51,21 +46,6 @@ ALLOWED_FILTER_FIELDS = {
 }
 
 DEFAULT_POSTS_LIMIT = 30
-
-#: Combien d'événements le fil accepte, **en plus** des publications.
-#:
-#: Ticket #0324 : sans plafond, la fusion gardait les trente contenus
-#: les plus récents de l'union — et si les événements étaient plus
-#: récents, ils prenaient les trente places. Le portail NEWS n'affichait
-#: plus un seul article. `WIR-05` l'avait prévu — « l'événement pouvant
-#: sinon noyer l'actualité chaude » — mais le filtre de type de contenu
-#: montre tout par défaut, donc la noyade précédait le remède.
-#:
-#: Un budget **supplémentaire** et non une part du budget : aucune
-#: publication qui figurait dans le fil n'en disparaît parce qu'un
-#: événement est arrivé. Le Wall reste un fil d'actualité que des
-#: événements accompagnent.
-WALL_EVENTS_LIMIT = 5
 
 
 def _members_of_orgs(org_ids: set[int]) -> set[User]:
@@ -204,13 +184,15 @@ class Tab(abc.ABC):
 
 
 class WallTab(Tab):
-    """Le fil personnalisé — le seul onglet qui mêle plusieurs natures
-    de contenu (WIR-01).
+    """Le fil de toutes les publications de presse.
 
-    Les quatre autres onglets qualifient des **sources de presse** :
-    agences, médias, journalistes, communicants. Un événement
-    n'appartient à aucune, et c'est pourquoi il n'entre que dans
-    celui-ci.
+    **N'y mêle pas d'événements.** Le lot `C8` les y avait fait entrer
+    (`EVT-53`, `WIR-01`), sur la lecture d'une carte de 2022 où
+    « Événements » figure parmi les blocs de la home page — lu comme
+    « dans le fil ». Arbitrage du 2026-09-01 : les événements restent
+    dans EVENTS, les actualités dans NEWS. Deux défauts de #0324
+    disparaissent avec eux : les événements évinçaient les articles du
+    fil, et leur carte s'y dédoublait.
     """
 
     id = "wall"
@@ -220,107 +202,6 @@ class WallTab(Tab):
 
     def get_authors(self):
         return []
-
-    def get_posts(self, filter_bar: FilterBar) -> list:
-        """Les publications du fil, événements compris (WIR-01, W1).
-
-        Une seconde requête fusionnée, et non un héritage de `Post` :
-        `EventPost` descend de `BaseContent` par une autre branche, et
-        l'aligner ferait porter à une table peuplée le coût d'un simple
-        affichage (arbitrage `M2`, option W1).
-
-        **Uniquement dans l'ordre chronologique.** Les autres tris
-        classent des articles — ventes, consultations payantes — et
-        n'ont pas d'équivalent sur un événement ; les y mêler
-        ordonnerait deux listes selon deux critères différents. Sous ces
-        tris, le fil reste ce qu'il était.
-        """
-        kinds = _selected_content_kinds(filter_bar)
-
-        # Chaque nature écartée est une requête qu'on n'émet pas, plutôt
-        # qu'un résultat qu'on jette.
-        posts = super().get_posts(filter_bar) if CONTENT_KIND_ARTICLES in kinds else []
-        if CONTENT_KIND_EVENTS not in kinds or filter_bar.sort_order != "date":
-            return posts
-
-        return _merge_by_date([*posts, *_wall_events(filter_bar)])
-
-
-def _selected_content_kinds(filter_bar: FilterBar) -> set[str]:
-    """Les natures de contenu retenues par le filtre (WIR-05).
-
-    Aucune sélection vaut « toutes » : c'est le comportement de tous les
-    autres filtres de cette barre, et un fil vide par défaut serait une
-    surprise désagréable.
-    """
-    chosen = {
-        f["value"] for f in filter_bar.active_filters if f["id"] == "content_kind"
-    }
-    return chosen or {CONTENT_KIND_ARTICLES, CONTENT_KIND_EVENTS}
-
-
-def _merge_by_date(items: list) -> list:
-    """Fusionner deux natures de contenu, du plus récent au plus ancien.
-
-    **Sans troncature** : chaque source arrive déjà plafonnée, et
-    rogner ici reviendrait à laisser la nature la plus récente évincer
-    l'autre — c'est ce qui a vidé le portail NEWS de ses articles
-    (#0324).
-
-    Les publications **sans date** sont mises de côté et remises en
-    queue, plutôt que ramenées à une date d'origine qui les trierait
-    par accident. Un contenu public sans date de publication est une
-    anomalie de données ; elle ne doit ni vider le fil de tout le monde,
-    ni se déguiser en 1970.
-    """
-    dated = [item for item in items if item.published_at]
-    undated = [item for item in items if not item.published_at]
-    dated.sort(key=lambda item: item.published_at, reverse=True)
-    return [*dated, *undated]
-
-
-def _wall_events(filter_bar: FilterBar) -> list:
-    """Les événements éligibles au fil (WIR-03).
-
-    Publics, non annulés, à venir. Les deux autres critères que la règle
-    énonce — « son organisateur ou son éditeur fait partie des
-    organisations suivies », « son secteur figure parmi les secteurs
-    suivis » — décrivent une personnalisation que **le Wall n'a pour
-    aucun contenu** : il liste toutes les publications publiques,
-    `get_authors()` y rend une liste vide, et rien dans le dépôt ne
-    permet de suivre un secteur. Les appliquer aux seuls événements les
-    rendrait moins visibles que les articles, ce qui est l'inverse de
-    l'intention.
-    """
-    from app.modules.events.models import EventPost
-
-    now = arrow.utcnow()
-    stmt = (
-        sa.select(EventPost)
-        .where(EventPost.status == PublicationStatus.PUBLIC)
-        .where(EventPost.cancelled_at.is_(None))
-        .where(EventPost.start_datetime >= now)
-        .order_by(EventPost.published_at.desc())
-        .options(
-            selectinload(EventPost.owner).options(
-                selectinload(User.organisation),
-                selectinload(User.profile),
-                selectinload(User.roles),
-            ),
-            selectinload(EventPost.publisher),
-        )
-        .limit(WALL_EVENTS_LIMIT)
-    )
-
-    for filter_id, filter_values in filter_bar.active_filters | groupby(
-        itemgetter("id")
-    ):
-        if filter_id not in ALLOWED_FILTER_FIELDS:
-            continue
-        values = {f["value"] for f in filter_values}
-        stmt = stmt.where(getattr(EventPost, filter_id).in_(values))
-
-    return list(db.session.scalars(stmt))
 
 
 class AgenciesTab(Tab):
