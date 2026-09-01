@@ -5,7 +5,6 @@
 from __future__ import annotations
 
 import random
-from typing import cast
 
 import app.settings.vocabularies as voc
 from app.enums import RoleEnum
@@ -24,11 +23,7 @@ class EditorialProductGenerator(BaseGenerator):
 
         product = EditorialProduct()
 
-        # cast to work around a mypy bug
-        product.status = cast(
-            "PublicationStatus",
-            random.choice(list(PublicationStatus)),  # type: ignore[arg-type]
-        )
+        product.status = random.choice(list(PublicationStatus))
 
         product.title = self.text_faker.text(1)
         product.content = self.text_faker.text(5)

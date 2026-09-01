@@ -6,7 +6,7 @@ from __future__ import annotations
 
 import io
 from collections import OrderedDict
-from typing import Any, cast
+from typing import Any
 
 import tomli
 from flask import current_app
@@ -97,8 +97,6 @@ class Form:
             field_type = field_spec["type"]
             msg = f"Unknown field type: {field_type} for field: {field_id}"
             raise ValueError(msg)
-
-        field_cls = cast("type[Field]", field_cls)
 
         if self.model:
             if not hasattr(self.model, field_id):
