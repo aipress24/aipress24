@@ -77,7 +77,7 @@ def achats():
         )
 
     user_total_cents = get_user_purchase_total(user.id)
-    org_total_cents = get_org_purchase_total(getattr(user, "organisation_id", None))
+    org_total_cents = get_org_purchase_total(user.organisation_id)
 
     months = _list_user_purchases_by_month(user)
 

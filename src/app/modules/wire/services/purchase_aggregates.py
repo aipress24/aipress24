@@ -24,7 +24,15 @@ from sqlalchemy.orm import aliased
 
 from app.flask.extensions import db
 from app.models.auth import User
-from app.modules.wire.models import ArticlePurchase, PurchaseStatus
+from app.models.organisation import Organisation
+from app.modules.wire.models import (
+    ArticlePost,
+    ArticlePurchase,
+    ArticlePurchaseGift,
+    Post,
+    PurchaseProduct,
+    PurchaseStatus,
+)
 from app.modules.wire.services.consultation_helpers import (
     purchase_within_duration_clause,
 )
@@ -33,13 +41,11 @@ if TYPE_CHECKING:
     from datetime import datetime
 
 
-def get_user_purchase_total(user_id: int | None) -> int:
+def get_user_purchase_total(user_id: int) -> int:
     """Return the cumul HT (cents) of `user`'s PAID article purchases.
 
     Anonymous / missing user → 0 (no purchases possible).
     """
-    if not user_id:
-        return 0
     stmt = (
         select(func.coalesce(func.sum(ArticlePurchase.amount_cents), 0))
         .where(ArticlePurchase.owner_id == user_id)
@@ -68,7 +74,7 @@ def get_org_purchase_total(org_id: int | None) -> int:
     return int(db.session.scalar(stmt) or 0)
 
 
-def get_user_sales_total(user_id: int | None) -> int:
+def get_user_sales_total(user_id: int) -> int:
     """Return the cumul HT (cents) of PAID purchases made on articles
     authored by `user_id`.
 
@@ -76,11 +82,8 @@ def get_user_sales_total(user_id: int | None) -> int:
     over `ArticlePurchase` rows whose `post.owner_id` is the user. Used
     by WORK/Ventes (#0193–#0196) to show « combien j'ai vendu ».
     """
-    if not user_id:
-        return 0
     # Lazy import to keep wire's cold start cheap and avoid a circular
     # import with the wire post model.
-    from app.modules.wire.models import Post
 
     stmt = (
         select(func.coalesce(func.sum(ArticlePurchase.amount_cents), 0))
@@ -92,7 +95,7 @@ def get_user_sales_total(user_id: int | None) -> int:
     return int(db.session.scalar(stmt) or 0)
 
 
-def list_user_press_book(user_id: int | None) -> list:
+def list_user_press_book(user_id: int) -> list:
     """Ticket #0195 — every article for which `user_id` owns a PAID
     JUSTIFICATIF purchase. The Press Book section on the user's profile
     surfaces these (« l'article va figurer à la rubrique « Press Book »
@@ -101,9 +104,6 @@ def list_user_press_book(user_id: int | None) -> list:
     Returns `ArticlePost` rows sorted by purchase date desc — newest
     acquisitions first.
     """
-    if not user_id:
-        return []
-    from app.modules.wire.models import ArticlePost, PurchaseProduct
 
     stmt = (
         select(ArticlePost)
@@ -116,7 +116,7 @@ def list_user_press_book(user_id: int | None) -> list:
     return list(db.session.scalars(stmt).unique())
 
 
-def list_user_received_gifts(user_id: int | None) -> list:
+def list_user_received_gifts(user_id: int) -> list:
     """Ticket #0227 — every article the user was offered a *currently
     valid* consultation for (they are the beneficiary of a PAID
     CONSULTATION_GIFT, within the consultation duration window). Surfaced
@@ -129,13 +129,6 @@ def list_user_received_gifts(user_id: int | None) -> list:
 
     Returns `ArticlePost` rows, newest gift first.
     """
-    if not user_id:
-        return []
-    from app.modules.wire.models import (
-        ArticlePost,
-        ArticlePurchaseGift,
-        PurchaseProduct,
-    )
 
     stmt = (
         select(ArticlePost)
@@ -153,11 +146,8 @@ def list_user_received_gifts(user_id: int | None) -> list:
     return list(db.session.scalars(stmt).unique())
 
 
-def count_user_press_book(user_id: int | None) -> int:
+def count_user_press_book(user_id: int) -> int:
     """Number of distinct articles in `user_id`'s Press Book."""
-    if not user_id:
-        return 0
-    from app.modules.wire.models import PurchaseProduct
 
     stmt = (
         select(func.count(func.distinct(ArticlePurchase.post_id)))
@@ -168,7 +158,7 @@ def count_user_press_book(user_id: int | None) -> int:
     return int(db.session.scalar(stmt) or 0)
 
 
-def list_org_press_book(org_id: int | None) -> list:
+def list_org_press_book(org_id: int) -> list:
     """The Press Book of an organisation = the aggregated Press Books of
     its members AND of BW affiliates. Erick #0195 : « ainsi que sur le
     Business Wall de votre organisation ». A justificatif bought by a
@@ -178,11 +168,8 @@ def list_org_press_book(org_id: int | None) -> list:
     are de-duplicated by ORM identity via `.unique()` — `SELECT DISTINCT`
     would conflict with the ORDER BY on `paid_at` under Postgres (which
     requires the ORDER BY columns to be in the SELECT list)."""
-    if not org_id:
-        return []
     # cyclic import protection
     from app.modules.bw.bw_activation.user_utils import user_affiliated_with_org_clause
-    from app.modules.wire.models import ArticlePost, PurchaseProduct
 
     stmt = (
         select(ArticlePost)
@@ -201,13 +188,10 @@ def list_org_press_book(org_id: int | None) -> list:
     return list(db.session.scalars(stmt).unique())
 
 
-def count_org_press_book(org_id: int | None) -> int:
+def count_org_press_book(org_id: int) -> int:
     """Number of distinct articles in the organisation's Press Book."""
-    if not org_id:
-        return 0
     # cyclic import protection
     from app.modules.bw.bw_activation.user_utils import user_affiliated_with_org_clause
-    from app.modules.wire.models import PurchaseProduct
 
     stmt = (
         select(func.count(func.distinct(ArticlePurchase.post_id)))
@@ -231,7 +215,6 @@ def _direct_consultation_count_stmt(post_id_predicate):
     callers so they cannot drift on the « what counts as a vue » rule.
     `post_id_predicate` is a callable taking the column and returning a
     SQLAlchemy boolean (`== post_id` or `.in_(post_ids)`)."""
-    from app.modules.wire.models import PurchaseProduct
 
     return (
         select(ArticlePurchase.post_id, func.count().label("c"))
@@ -247,7 +230,6 @@ def _gift_consultation_count_stmt(post_id_predicate):
     """SQL fragment counting PAID CONSULTATION_GIFT beneficiaries
     (each beneficiary is one « vue »), keyed by the parent purchase's
     `post_id`. Companion of `_direct_consultation_count_stmt`."""
-    from app.modules.wire.models import ArticlePurchaseGift, PurchaseProduct
 
     return (
         select(
@@ -274,7 +256,6 @@ def paid_consultation_count_subquery(post_id_col):
     correlated subqueries — e.g. the « Trier > Popularité (vues) »
     wall sort. Single source of truth for the rule, so display, sort,
     and batched count cannot diverge."""
-    from app.modules.wire.models import ArticlePurchaseGift, PurchaseProduct
 
     direct = (
         select(func.count())
@@ -356,7 +337,6 @@ def is_consultation_giftable_to(beneficiary_user_id: int, post_id: int) -> bool:
     """
     if not beneficiary_user_id or not post_id:
         return True
-    from app.modules.wire.models import ArticlePurchaseGift, PurchaseProduct
 
     direct_stmt = (
         select(func.count())
@@ -407,8 +387,6 @@ def list_sales_per_media() -> list[tuple[int, str, int]]:
     Used by Erick to drive the manual virements aux médias : the
     top-of-list rows are the media to pay out first.
     """
-    from app.models.organisation import Organisation
-    from app.modules.wire.models import Post
 
     stmt = (
         select(
@@ -434,7 +412,6 @@ def list_purchases_per_org() -> list[tuple[int, str, int]]:
     Used to drive per-org invoicing reconciliation : the rows are the
     invoices Erick can expect to issue at month-end.
     """
-    from app.models.organisation import Organisation
 
     stmt = (
         select(
@@ -465,7 +442,6 @@ def get_media_sales_total(media_org_id: int | None) -> int:
     """
     if not media_org_id:
         return 0
-    from app.modules.wire.models import Post
 
     stmt = (
         select(func.coalesce(func.sum(ArticlePurchase.amount_cents), 0))
@@ -504,8 +480,6 @@ def list_paid_purchases(
     première FPI, cf. `specs/finances-02.md` §A). One row per purchase —
     not aggregated. Optional `since`/`until` filter on `paid_at`.
     """
-    from app.models.organisation import Organisation
-    from app.modules.wire.models import Post
 
     buyer_org = aliased(Organisation)
     media_org = aliased(Organisation)
