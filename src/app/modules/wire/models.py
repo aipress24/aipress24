@@ -12,14 +12,18 @@ import sqlalchemy as sa
 from advanced_alchemy.types.file_object import FileObject, StoredObject
 from sqlalchemy import JSON, BigInteger, Enum, ForeignKey, Integer, orm
 from sqlalchemy.orm import Mapped, mapped_column
-from sqlalchemy.sql import func
 from sqlalchemy_utils import ArrowType
-from sqlalchemy_utils.functions.orm import hybrid_property
 
 from app.models.base import Base
 from app.models.base_content import BaseContent
 from app.models.lifecycle import PublicationStatus
-from app.models.mixins import IdMixin, LifeCycleMixin, Owned, Timestamped
+from app.models.mixins import (
+    IdMixin,
+    LifeCycleMixin,
+    Owned,
+    PaysZipVilleMixin,
+    Timestamped,
+)
 from app.models.organisation import Organisation
 from app.services.html_sanitize import SanitizedHTML
 from app.services.tagging.interfaces import Taggable
@@ -34,7 +38,7 @@ class PublisherType(StrEnum):
     OTHER = auto()
 
 
-class NewsMetadataMixin:
+class NewsMetadataMixin(PaysZipVilleMixin):
     # NEWS-Genres
     genre: Mapped[str] = mapped_column(default="", use_existing_column=True)
 
@@ -59,58 +63,6 @@ class NewsMetadataMixin:
     pays_zip_ville_detail: Mapped[str] = mapped_column(
         default="", use_existing_column=True
     )
-
-    @hybrid_property
-    def code_postal(self) -> str:
-        """Return the zip code"""
-        if not self.pays_zip_ville_detail:
-            return ""
-        try:
-            return self.pays_zip_ville_detail.split()[2]
-        except IndexError:
-            return ""
-
-    @code_postal.expression
-    def code_postal(cls):
-        """SQL expression for the zip code property."""
-        return func.coalesce(func.split_part(cls.pays_zip_ville_detail, " ", 3))
-
-    @hybrid_property
-    def departement(self) -> str:
-        """Return the 2 first digit of zip code"""
-        if not self.pays_zip_ville_detail:
-            return ""
-        try:
-            return self.pays_zip_ville_detail.split()[2][:2]
-        except IndexError:
-            return ""
-
-    @departement.expression
-    def departement(cls):
-        """SQL expression for the departement property."""
-        return func.coalesce(
-            func.substring(func.split_part(cls.pays_zip_ville_detail, " ", 3), 1, 2),
-            "",
-        )
-
-    @hybrid_property
-    def ville(self) -> str:
-        """Return the 4th part of pays_zip_ville_detail"""
-        if not self.pays_zip_ville_detail:
-            return ""
-        try:
-            data = self.pays_zip_ville_detail.split()[3]
-            if data.endswith('"}'):  # fixme: origin of bad formatting in test data?
-                return data[:-2]
-            return data
-        except IndexError:
-            return ""
-
-    @ville.expression
-    def ville(cls):
-        """SQL expression for the ville property."""
-        part = func.split_part(cls.pays_zip_ville_detail, " ", 4)
-        return func.coalesce(func.rtrim(part, '"}'), "")
 
 
 class Post(NewsMetadataMixin, BaseContent, LifeCycleMixin):

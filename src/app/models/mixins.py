@@ -10,9 +10,16 @@ import arrow
 import sqlalchemy as sa
 import sqlalchemy.event
 from sqlalchemy import BigInteger, orm
+from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy_utils import ArrowType
 
+from app.lib.geoloc import (
+    parse_pays_zip_ville,
+    sql_code_postal,
+    sql_departement,
+    sql_ville,
+)
 from app.lib.snowflakes import SnowflakeGenerator
 
 id_generator = SnowflakeGenerator()
@@ -155,3 +162,54 @@ class Addressable:
 #             stmt = stmt.where(cls.departement == value)
 
 #     return stmt
+
+
+class PaysZipVilleMixin:
+    """Les trois parties de « PAYS / CODEPOSTAL VILLE », lisibles et filtrables.
+
+    La classe hôte porte la colonne `pays_zip_ville_detail` ; ce mixin en
+    dérive `code_postal`, `departement` et `ville`, en Python **et** en SQL.
+
+    Il remplace quatre copies identiques — l'annuaire des membres, le
+    Wall, et les trois annonces de la place de marché — dont les
+    expressions SQL appelaient `split_part`, absent de SQLite : les
+    filtres géographiques ne rendaient rien hors PostgreSQL. Les deux
+    moitiés viennent désormais de `app.lib.geoloc`, et un test compare
+    leurs résultats sur les deux bases.
+
+    Le miroir des événements ne l'utilise pas : il a un point d'écriture
+    unique, ce qui autorise de vraies colonnes indexées, plus rapides à
+    filtrer. Ici il n'y en a pas, et des colonnes dénormalisées seraient
+    silencieusement périmées dès qu'un chemin d'écriture serait oublié.
+    """
+
+    #: Déclarée par la classe hôte — pas ici, pour ne pas la mapper deux
+    #: fois (WIRE la déclare avec `use_existing_column`).
+    pays_zip_ville_detail: Mapped[str]
+
+    @hybrid_property
+    def code_postal(self) -> str:
+        return parse_pays_zip_ville(self.pays_zip_ville_detail).code_postal
+
+    @code_postal.expression
+    @classmethod
+    def code_postal(cls):
+        return sql_code_postal(cls.pays_zip_ville_detail)
+
+    @hybrid_property
+    def departement(self) -> str:
+        return parse_pays_zip_ville(self.pays_zip_ville_detail).departement
+
+    @departement.expression
+    @classmethod
+    def departement(cls):
+        return sql_departement(cls.pays_zip_ville_detail)
+
+    @hybrid_property
+    def ville(self) -> str:
+        return parse_pays_zip_ville(self.pays_zip_ville_detail).ville
+
+    @ville.expression
+    @classmethod
+    def ville(cls):
+        return sql_ville(cls.pays_zip_ville_detail)

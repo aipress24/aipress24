@@ -92,7 +92,13 @@ def _create_expert_with_profile(
             "type_orga_detail": type_orga or [],
             "taille_orga": taille_orga or [],
             "pays_zip_ville": pays,
-            "pays_zip_ville_detail": f"{pays} CP {departement}000 {ville}",
+            # Le format réel : « PAYS / CODEPOSTAL VILLE ». Cette fabrique
+            # écrivait « FR CP 75000 Paris », avec la chaîne « CP » là où
+            # la production met « / ». L'ancien découpage positionnel
+            # l'acceptait par coïncidence — le séparateur occupait la
+            # même place —, si bien que ces tests validaient un format
+            # qui n'existe nulle part.
+            "pays_zip_ville_detail": f"{pays} / {departement}000 {ville}",
         },
         info_personnelle={
             "metier_principal_detail": metiers or [],

@@ -63,7 +63,10 @@ def test_user_with_profile(db_session: Session) -> User:
     profile.info_personnelle = {"competences": [], "competences_journalisme": []}
     profile.info_professionnelle = {
         "pays_zip_ville": "FRA",
-        "pays_zip_ville_detail": "75001 Paris",
+        # Format réel, mais stocké en **chaîne** et non en tableau :
+        # c'est la forme que l'ancienne expression SQL, qui indexait
+        # `->> 0`, ne savait pas lire là où le lecteur Python y arrivait.
+        "pays_zip_ville_detail": "FRA / 75001 Paris",
     }
     user.profile = profile
 
@@ -570,10 +573,10 @@ class TestMembersSearchByZip:
     def test_search_with_zip_executes_and_matches(
         self, app: Flask, db_session: Session, test_user_with_profile: User
     ) -> None:
-        # Fixture stores pays_zip_ville_detail = "75001 Paris" (a str,
-        # not a JSON array) — exactly the shape the old `->> 0`
-        # expression mishandled. The base query filters
-        # `User.active == true()` (default is False), so activate.
+        # La fixture stocke une **chaîne** et non un tableau JSON —
+        # exactement la forme que l'ancienne expression `->> 0` ratait.
+        # La requête de base filtre `User.active == true()`, faux par
+        # défaut : on active.
         test_user_with_profile.active = True
         db_session.flush()
 

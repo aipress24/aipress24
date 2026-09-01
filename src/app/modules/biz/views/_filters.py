@@ -618,7 +618,6 @@ class MissionFilterBar(BaseFilterBar):
 
 def _get_distinct_values(model: type, column_name: str) -> list[str]:
     """Query distinct non-empty values for a column from public offers."""
-    from sqlalchemy.exc import OperationalError
 
     column: InstrumentedAttribute = getattr(model, column_name)
 
@@ -636,12 +635,11 @@ def _get_distinct_values(model: type, column_name: str) -> list[str]:
 
     stmt = stmt.distinct().order_by(column)
 
-    try:
-        return list(db.session.scalars(stmt))
-    except OperationalError:
-        # Hybrid properties may use DB-specific functions (e.g., split_part)
-        # that don't work on all databases (e.g., SQLite)
-        return []
+    # Plus de `except OperationalError` ici : il masquait les
+    # expressions réservées à PostgreSQL des propriétés géographiques,
+    # qui rendaient le filtre vide plutôt que cassé. Elles sont portables
+    # depuis l'audit du 2026-09-01.
+    return list(db.session.scalars(stmt))
 
 
 def _get_distinct_json_values(model: type, column_name: str) -> set[str]:

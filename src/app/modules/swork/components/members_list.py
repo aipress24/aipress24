@@ -8,7 +8,7 @@ import re
 from typing import Any, ClassVar, cast
 
 from flask_super.registry import register
-from sqlalchemy import String, cast as sqla_cast, or_, select
+from sqlalchemy import cast as sqla_cast, or_, select
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import selectinload
 from sqlalchemy.sql import Select
@@ -67,21 +67,16 @@ class MembersList(BaseList):
         if m:
             zip_code = m.group(1)
             search = search.replace(zip_code, "").strip()
-            # Audit C3 / lessons-learned #11: `KYCProfile.code_postal`
-            # compiles to `split_part(... ->> 0, ' ', 3)` — Postgres-
-            # only AND assuming `pays_zip_ville_detail` is a JSON array
-            # (the Python getter handles both str and list). SQLite has
-            # no `split_part`, so this path was never exercised in CI.
-            # Match the zip substring against the whole field cast to
-            # text: dialect-portable, shape-agnostic (digits appear in
-            # the cast text whether the value is "75001 Paris" or
-            # ["FRA / 75001 Paris"]), and behaviour-equivalent for the
-            # `ILIKE %digits%` containment this search performs.
-            zip_text = sqla_cast(
-                KYCProfile.info_professionnelle["pays_zip_ville_detail"],
-                String,
+            # `KYCProfile.code_postal` était réservé à PostgreSQL —
+            # `split_part` et l'opérateur `->>` — d'où un contournement
+            # qui cherchait les chiffres dans le champ JSON entier
+            # converti en texte. La propriété est portable depuis l'audit
+            # du 2026-09-01, et chercher dans le code postal lui-même
+            # évite au passage de faire correspondre des chiffres qui
+            # traînent ailleurs dans la chaîne.
+            stmt = stmt.where(
+                User.profile.has(KYCProfile.code_postal.ilike(f"%{zip_code}%"))
             )
-            stmt = stmt.where(User.profile.has(zip_text.ilike(f"%{zip_code}%")))
 
         if search:
             stmt = stmt.where(

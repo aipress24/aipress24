@@ -23,6 +23,13 @@ from sqlalchemy.sql import func
 from sqlalchemy_utils import ArrowType
 
 from app.enums import ContactTypeEnum, OrganisationTypeEnum, RoleEnum
+from app.lib.geoloc import (
+    Localisation,
+    parse_pays_zip_ville,
+    sql_code_postal,
+    sql_departement,
+    sql_ville,
+)
 from app.lib.utils import split_taxonomy_value
 from app.modules.kyc.survey_model import get_survey_profile
 
@@ -527,70 +534,62 @@ class KYCProfile(Base):
         # `.get`; align `.country`/`.code_postal`/`.departement`.
         return self.info_professionnelle.get("pays_zip_ville") or ""
 
+    # `pays_zip_ville_detail` vit dans un JSON et vaut **toujours** une
+    # liste en base (186 profils sur 186) ; le lecteur Python acceptait
+    # aussi une chaîne, on garde cette tolérance.
+    #
+    # Les trois découpages viennent de `app.lib.geoloc`, comme ceux du
+    # Wall et de la place de marché. Les expressions appelaient
+    # `split_part` **et** l'opérateur `->>`, tous deux absents de
+    # SQLite : le filtre « Fonction » de l'annuaire des membres ne
+    # rendait rien hors PostgreSQL. `.as_string()` extrait de façon
+    # portable, vérifié sur les deux bases.
+
+    @property
+    def _localisation(self) -> Localisation:
+        detail = self.info_professionnelle.get("pays_zip_ville_detail")
+        if isinstance(detail, list):
+            detail = detail[0] if detail else ""
+        return parse_pays_zip_ville(detail)
+
     @hybrid_property
     def code_postal(self) -> str:
-        """Return the zip code"""
-        pays_zip_ville = self.info_professionnelle.get("pays_zip_ville_detail")
-        if not pays_zip_ville:
-            return ""
-        if isinstance(pays_zip_ville, list):
-            pays_zip_ville = pays_zip_ville[0]
-        try:
-            return pays_zip_ville.split()[2]
-        except IndexError:
-            return ""
+        return self._localisation.code_postal
 
     @code_postal.expression
+    @classmethod
     def code_postal(cls):
-        """SQL expression for the zip code property."""
-        extracted = cls.info_professionnelle["pays_zip_ville_detail"].op("->>")(0)
-        return func.coalesce(func.split_part(extracted, " ", 3))
+        return sql_code_postal(cls._detail_sql())
 
     @hybrid_property
     def departement(self) -> str:
-        """Return the 2 first digit of zip code"""
-        pays_zip_ville = self.info_professionnelle.get("pays_zip_ville_detail")
-        if not pays_zip_ville:
-            return ""
-        if isinstance(pays_zip_ville, list):
-            pays_zip_ville = pays_zip_ville[0]
-        try:
-            return pays_zip_ville.split()[2][:2]
-        except IndexError:
-            return ""
+        return self._localisation.departement
 
     @departement.expression
+    @classmethod
     def departement(cls):
-        """SQL expression for the departement property."""
-        extracted = cls.info_professionnelle["pays_zip_ville_detail"].op("->>")(0)
-        expression = func.coalesce(
-            func.substring(func.split_part(extracted, " ", 3), 1, 2),
-            "",
-        )
-        return expression
+        return sql_departement(cls._detail_sql())
 
     @hybrid_property
     def ville(self) -> str:
-        """Return the 4th part of pays_zip_ville_detail"""
-        pays_zip_ville = self.info_professionnelle.get("pays_zip_ville_detail")
-        if not pays_zip_ville:
-            return ""
-        if isinstance(pays_zip_ville, list):
-            pays_zip_ville = pays_zip_ville[0]
-        try:
-            return pays_zip_ville.split()[3]
-        except IndexError:
-            return ""
+        return self._localisation.ville
 
     @ville.expression
+    @classmethod
     def ville(cls):
-        """SQL expression for the ville property."""
-        extracted = cls.info_professionnelle["pays_zip_ville_detail"].op("->>")(0)
-        expression = func.coalesce(
-            func.split_part(extracted, " ", 4),
-            "",
-        )
-        return expression
+        return sql_ville(cls._detail_sql())
+
+    @classmethod
+    def _detail_sql(cls):
+        """La localisation brute, quelle que soit sa forme, en SQL portable.
+
+        La valeur est une **liste** dans les 186 profils de la base, mais
+        le lecteur Python accepte aussi une chaîne — et l'ancienne
+        expression SQL, elle, supposait un tableau. Le `coalesce` essaie
+        les deux, ce qui aligne enfin le SQL sur Python.
+        """
+        stored = cls.info_professionnelle["pays_zip_ville_detail"]
+        return func.coalesce(stored[0].as_string(), stored.as_string(), "")
 
     @property
     def metier_fonction(self) -> str:

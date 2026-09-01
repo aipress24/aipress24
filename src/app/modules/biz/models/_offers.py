@@ -26,12 +26,11 @@ from enum import StrEnum, auto
 import sqlalchemy as sa
 from sqlalchemy import JSON, BigInteger, ForeignKey, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
-from sqlalchemy.sql import func
 from sqlalchemy_utils.functions.orm import hybrid_property
 
 from app.models.base import Base
 from app.models.content.mixins import ClassificationMixin, Publishable
-from app.models.mixins import IdMixin, LifeCycleMixin, Owned
+from app.models.mixins import IdMixin, LifeCycleMixin, Owned, PaysZipVilleMixin
 
 from ._products import MarketplaceContent
 
@@ -93,7 +92,7 @@ class ContractType(StrEnum):
     DOCTORAL = "DOCTORAL"
 
 
-class MissionOffer(MarketplaceContent, ClassificationMixin, Publishable):
+class MissionOffer(MarketplaceContent, ClassificationMixin, Publishable, PaysZipVilleMixin):
     __tablename__ = "mkp_mission_offer"
 
     id: Mapped[int] = mapped_column(
@@ -138,60 +137,6 @@ class MissionOffer(MarketplaceContent, ClassificationMixin, Publishable):
     remote_required: Mapped[bool] = mapped_column(default=False)
 
     @hybrid_property
-    def code_postal(self) -> str:
-        """Return the zip code."""
-        if not self.pays_zip_ville_detail:
-            return ""
-        try:
-            return self.pays_zip_ville_detail.split()[2]
-        except IndexError:
-            return ""
-
-    @code_postal.expression
-    def code_postal(cls):
-        """SQL expression for the zip code property."""
-        return func.coalesce(func.split_part(cls.pays_zip_ville_detail, " ", 3), "")
-
-    @hybrid_property
-    def departement(self) -> str:
-        """Return the 2 first digit of zip code"""
-        if not self.pays_zip_ville_detail:
-            return ""
-        try:
-            return self.pays_zip_ville_detail.split()[2][:2]
-        except IndexError:
-            return ""
-
-    @departement.expression
-    def departement(cls):
-        """SQL expression for the departement property."""
-        return func.coalesce(
-            func.substring(func.split_part(cls.pays_zip_ville_detail, " ", 3), 1, 2),
-            "",
-        )
-
-    @hybrid_property
-    def ville(self) -> str:
-        """Return the city from `pays_zip_ville_detail`.
-
-        return the 4th part of pays_zip_ville_detail."""
-        if not self.pays_zip_ville_detail:
-            return ""
-        try:
-            data = self.pays_zip_ville_detail.split()[3]
-            if data.endswith('"}'):  # fixme: origin of bad formatting in test data?
-                return data[:-2]
-            return data
-        except IndexError:
-            return ""
-
-    @ville.expression
-    def ville(cls):
-        """SQL expression for the ville property."""
-        part = func.split_part(cls.pays_zip_ville_detail, " ", 4)
-        return func.coalesce(func.rtrim(part, '"}'), "")
-
-    @hybrid_property
     def type_mission(self) -> str:
         """Return the category value (type of mission)."""
         if self.category is None:
@@ -210,7 +155,7 @@ class MissionOffer(MarketplaceContent, ClassificationMixin, Publishable):
     emitter_org = relationship("Organisation", foreign_keys=[emitter_org_id])
 
 
-class ProjectOffer(MarketplaceContent, ClassificationMixin, Publishable):
+class ProjectOffer(MarketplaceContent, ClassificationMixin, Publishable, PaysZipVilleMixin):
     """Editorial project — bigger than a pige (dossier, série, enquête)."""
 
     __tablename__ = "mkp_project_offer"
@@ -242,65 +187,10 @@ class ProjectOffer(MarketplaceContent, ClassificationMixin, Publishable):
     # (`type_projet_journalisme` etc.).
     project_category: Mapped[str] = mapped_column(default="")
     project_type: Mapped[str] = mapped_column(default="")
-
-    @hybrid_property
-    def code_postal(self) -> str:
-        """Return the zip code."""
-        if not self.pays_zip_ville_detail:
-            return ""
-        try:
-            return self.pays_zip_ville_detail.split()[2]
-        except IndexError:
-            return ""
-
-    @code_postal.expression
-    def code_postal(cls):
-        """SQL expression for the zip code property."""
-        return func.coalesce(func.split_part(cls.pays_zip_ville_detail, " ", 3), "")
-
-    @hybrid_property
-    def departement(self) -> str:
-        """Return the 2 first digit of zip code"""
-        if not self.pays_zip_ville_detail:
-            return ""
-        try:
-            return self.pays_zip_ville_detail.split()[2][:2]
-        except IndexError:
-            return ""
-
-    @departement.expression
-    def departement(cls):
-        """SQL expression for the departement property."""
-        return func.coalesce(
-            func.substring(func.split_part(cls.pays_zip_ville_detail, " ", 3), 1, 2),
-            "",
-        )
-
-    @hybrid_property
-    def ville(self) -> str:
-        """Return the city from `pays_zip_ville_detail`.
-
-        return the 4th part of pays_zip_ville_detail."""
-        if not self.pays_zip_ville_detail:
-            return ""
-        try:
-            data = self.pays_zip_ville_detail.split()[3]
-            if data.endswith('"}'):  # fixme: origin of bad formatting in test data?
-                return data[:-2]
-            return data
-        except IndexError:
-            return ""
-
-    @ville.expression
-    def ville(cls):
-        """SQL expression for the ville property."""
-        part = func.split_part(cls.pays_zip_ville_detail, " ", 4)
-        return func.coalesce(func.rtrim(part, '"}'), "")
-
     emitter_org = relationship("Organisation", foreign_keys=[emitter_org_id])
 
 
-class JobOffer(MarketplaceContent, ClassificationMixin, Publishable):
+class JobOffer(MarketplaceContent, ClassificationMixin, Publishable, PaysZipVilleMixin):
     """Salaried or fixed-term position at a media / agency / org."""
 
     __tablename__ = "mkp_job_offer"
@@ -374,61 +264,6 @@ class JobOffer(MarketplaceContent, ClassificationMixin, Publishable):
     remote_ok: Mapped[bool] = mapped_column(default=False)  # pour etudiants
     remote_partial_time: Mapped[bool] = mapped_column(default=False)  # pour pros
     remote_full_time: Mapped[bool] = mapped_column(default=False)  # pour pros
-
-    @hybrid_property
-    def code_postal(self) -> str:
-        """Return the zip code."""
-        if not self.pays_zip_ville_detail:
-            return ""
-        try:
-            return self.pays_zip_ville_detail.split()[2]
-        except IndexError:
-            return ""
-
-    @code_postal.expression
-    def code_postal(cls):
-        """SQL expression for the zip code property."""
-        return func.coalesce(func.split_part(cls.pays_zip_ville_detail, " ", 3), "")
-
-    @hybrid_property
-    def departement(self) -> str:
-        """Return the 2 first digit of zip code"""
-        if not self.pays_zip_ville_detail:
-            return ""
-        try:
-            return self.pays_zip_ville_detail.split()[2][:2]
-        except IndexError:
-            return ""
-
-    @departement.expression
-    def departement(cls):
-        """SQL expression for the departement property."""
-        return func.coalesce(
-            func.substring(func.split_part(cls.pays_zip_ville_detail, " ", 3), 1, 2),
-            "",
-        )
-
-    @hybrid_property
-    def ville(self) -> str:
-        """Return the city from `pays_zip_ville_detail`.
-
-        return the 4th part of pays_zip_ville_detail."""
-        if not self.pays_zip_ville_detail:
-            return ""
-        try:
-            data = self.pays_zip_ville_detail.split()[3]
-            if data.endswith('"}'):  # fixme: origin of bad formatting in test data?
-                return data[:-2]
-            return data
-        except IndexError:
-            return ""
-
-    @ville.expression
-    def ville(cls):
-        """SQL expression for the ville property."""
-        part = func.split_part(cls.pays_zip_ville_detail, " ", 4)
-        return func.coalesce(func.rtrim(part, '"}'), "")
-
     emitter_org = relationship("Organisation", foreign_keys=[emitter_org_id])
 
 
