@@ -90,8 +90,6 @@ class EventDetailVM(ViewModel):
             "likes": event.like_count,
             "replies": event.comment_count,
             "views": event.view_count,
-            "type_label": "",
-            "type_id": "",
             "participants": participants,
             "opening": opening,
             "country_zip_city": (

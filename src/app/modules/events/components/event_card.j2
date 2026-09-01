@@ -84,23 +84,32 @@
        du gabarit.
 
        **Chaque puce est conditionnelle.** `.chip` est un `inline-flex`
-       avec un padding : une valeur vide n'affichait pas « rien », elle
-       affichait une pastille de couleur nue. `type_label` vaut `""` par
-       défaut (`get_meta_attr`), et c'est ce qui mettait un ovale vert au
-       début de presque chaque carte. #}
+       avec un padding : une valeur vide n'affiche pas « rien », elle
+       affiche une pastille de couleur nue. #}
     <div class="flex flex-wrap items-center gap-2">
-      {# Bug #0138: this type badge was a dead affordance — `href="#"` +
-         `hx-post="" hx-target="#content"` with no `force-tab` handler
-         anywhere; on the BW org page (no #content) clicking it did
-         nothing, so the event never "developed" (no Participants, no
-         accreditation block). Make it a real link to the event detail,
-         like the title link — works on every host. #}
-      {% if event.type_label %}
-        <a href="{{ url_for(event) }}" class="chip ~positive @low">{{ event.type_label }}</a>
-      {% endif %}
+      {# La famille de l'événement — « Press », « Business »… — et le
+         lien vers les autres de la même famille.
 
+         C'est ce que faisait la pastille verte `~positive` supprimée
+         ici : `Event` avait cinq sous-classes, chacune portant son
+         `Meta.type_label` (« Presse », « Salons/Colloques »…), et son
+         `type_id` servait à `hx-vals='{"force-tab": …}'` pour n'afficher
+         que ce type. L'aplatissement en un seul `EventPost` a emporté
+         les sous-classes, donc les `Meta` : `get_meta_attr` rendait
+         `""`, et il ne restait qu'un ovale vert vide sur chaque carte.
+
+         La notion, elle, a survécu un cran plus loin — les cinq
+         sous-classes sont devenues les cinq familles de l'ontologie
+         `events`, et `EventPost.category` en porte la forme normalisée.
+         Une seule puce désormais, celle qui a gardé sa donnée.
+
+         Un lien, et non un `hx-post` vers `#content` : la carte est
+         aussi rendue sur le Business Wall d'une organisation, qui n'a
+         pas ce conteneur — c'est très exactement ce qui rendait la
+         pastille d'origine inerte (#0138). #}
       {% if event.category %}
-        <span class="chip ~neutral @low">{{ event.category }}</span>
+        <a href="{{ url_for('events.events', category=event.category) }}"
+           class="chip ~neutral @low">{{ event.genre_family }}</a>
       {% endif %}
       {% set _sector = event.sector.split("/")[-1]|trim %}
       {% if _sector %}

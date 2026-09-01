@@ -12,7 +12,7 @@ from flask import g
 
 from app.flask.lib.pywire import Component, component
 from app.flask.lib.view_model import ViewModel
-from app.models.meta import get_meta_attr
+from app.lib.utils import split_taxonomy_value
 from app.modules.bw.bw_activation.user_utils import get_organisation_logo_url
 from app.modules.events.components.opening_hours import opening_hours
 from app.modules.events.models import EventPost
@@ -39,8 +39,11 @@ class EventCardVM(ViewModel):
         return {
             "author": event.owner,
             "organisation_image_url": self._get_organisation_logo_url(),
-            "type_id": get_meta_attr(event, "type_id", ""),
-            "type_label": get_meta_attr(event, "type_label", ""),
+            # `genre` s'écrit « FAMILLE / Détail » ; la carte affiche la
+            # famille, avec la casse de l'ontologie — `category` la
+            # normalise en minuscules pour le filtrage et ne peut pas
+            # servir de libellé.
+            "genre_family": split_taxonomy_value(event.genre)[0] or event.category,
             "opening": opening,
             "likes": event.like_count,
             "replies": event.comment_count,

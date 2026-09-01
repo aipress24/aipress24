@@ -59,13 +59,6 @@ class TestOpeningHours:
 
 
 # Stub classes for testing EventCard/EventCardVM without database
-class StubEventMeta:
-    """Meta class for stub event."""
-
-    type_id = "conference_123"
-    type_label = "Conference"
-
-
 class StubOrganisation:
     """Stub organisation for testing."""
 
@@ -82,15 +75,13 @@ class StubOwner:
 class StubEvent:
     """Stub event for testing EventCard without database."""
 
-    Meta = StubEventMeta
-
     def __init__(
         self,
         start_datetime=None,
         end_datetime=None,
         owner=None,
-        type_id="",
-        type_label="",
+        genre="Press / Conférence de presse",
+        category="press",
         like_count=0,
         comment_count=0,
         view_count=0,
@@ -112,15 +103,10 @@ class StubEvent:
         self.view_count = view_count
         self.title = "Test Event"
         self.summary = "Test Summary"
-        # Allow overriding Meta attributes
-        if type_id or type_label:
-
-            class DynamicMeta:
-                pass
-
-            DynamicMeta.type_id = type_id
-            DynamicMeta.type_label = type_label
-            self.Meta = DynamicMeta
+        # « FAMILLE / Détail », et sa famille normalisée : c'est ce
+        # qu'`event_receiver` écrit, et la puce de la carte s'en sert.
+        self.genre = genre
+        self.category = category
 
 
 class TestEventCardVM:
@@ -153,21 +139,24 @@ class TestEventCardVM:
 
         assert vm.organisation_image_url == "/static/img/logo-page-non-officielle.png"
 
-    def test_provides_type_id_from_meta(self):
-        """Test that ViewModel exposes type_id from Meta."""
-        event = StubEvent(type_id="conference_123", type_label="")
+    def test_la_puce_affiche_la_famille_du_genre(self):
+        """La famille, avec la casse de l'ontologie.
 
-        vm = EventCardVM(event)
+        Remplace deux tests de `type_id`/`type_label` : ils lisaient un
+        `Meta` que seul le stub fabriquait. `Event` avait cinq
+        sous-classes qui en portaient un ; l'aplatissement en un seul
+        `EventPost` les a emportées, et `get_meta_attr` rendait `""` en
+        production depuis. La notion est passée dans l'ontologie.
+        """
+        vm = EventCardVM(StubEvent(genre="Business / Salon professionnel"))
 
-        assert vm.type_id == "conference_123"
+        assert vm.genre_family == "Business"
 
-    def test_provides_type_label_from_meta(self):
-        """Test that ViewModel exposes type_label from Meta."""
-        event = StubEvent(type_id="", type_label="Conference")
+    def test_a_defaut_de_genre_la_categorie_sert_de_libelle(self):
+        """Les lignes anciennes n'ont que `category`, en minuscules."""
+        vm = EventCardVM(StubEvent(genre="", category="press"))
 
-        vm = EventCardVM(event)
-
-        assert vm.type_label == "Conference"
+        assert vm.genre_family == "press"
 
     def test_provides_opening_hours(self):
         """Test that ViewModel exposes formatted opening hours."""
@@ -199,35 +188,19 @@ class TestEventCardVM:
         assert vm.title == "Test Event"
         assert vm.summary == "Test Summary"
 
-    def test_defaults_for_missing_meta_attrs(self):
-        """Test that defaults are used when Meta attrs are missing."""
+    def test_sans_genre_ni_categorie_la_puce_disparait(self):
+        """Une famille vide n'affiche pas une puce vide.
 
-        class EmptyMeta:
-            pass
+        Remplaçait un test des défauts de `get_meta_attr` sur un `Meta`
+        vide — une forme que la production n'avait pas. La question qui
+        se pose vraiment est celle-ci : `.chip` est un `inline-flex` avec
+        un padding, donc une valeur vide s'y voit. Le gabarit ne rend la
+        puce que si la valeur existe ; encore faut-il qu'elle soit
+        franchement vide.
+        """
+        vm = EventCardVM(StubEvent(genre="", category=""))
 
-        class StubEventNoMeta:
-            """Event stub with empty Meta class."""
-
-            Meta = EmptyMeta
-
-            def __init__(self):
-                self.start_datetime = arrow.get("2024-01-15 10:00:00")
-                self.end_datetime = arrow.get("2024-01-15 12:00:00")
-                self.owner = StubOwner()
-                self.like_count = 0
-                self.comment_count = 0
-                self.view_count = 0
-                self.is_accredited = False
-                self.pricing = EventPricing.FREE_FOR_ALL
-                self.price = None
-                self.currency = "EUR"
-
-        event = StubEventNoMeta()
-
-        vm = EventCardVM(event)
-
-        assert vm.type_id == ""
-        assert vm.type_label == ""
+        assert vm.genre_family == ""
 
 
 class TestEventCard:
