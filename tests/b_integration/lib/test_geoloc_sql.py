@@ -40,6 +40,15 @@ CAS = [
     "FRA /",
     "",
     "n importe quoi",
+    # Les formes tordues : c'est là, et seulement là, que les deux
+    # moitiés d'une même règle divergent. Un corpus qui n'en contient
+    # aucune certifie un accord qui n'existe pas.
+    "FRA/75015 Paris",  # séparateur sans espaces
+    "FRA /75015 Paris",  # espace d'un seul côté
+    "FRA / 75015  Paris",  # espace en trop devant la ville
+    'FRA / 75001 Paris"',  # un seul des deux caractères parasites
+    "FRA / 75001 Paris}",  # l'autre
+    "FRA / 75015 ",  # code postal seul, espace en queue
 ]
 
 

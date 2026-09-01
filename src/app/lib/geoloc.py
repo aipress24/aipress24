@@ -96,12 +96,16 @@ def parse_pays_zip_ville(detail: str | None) -> Localisation:
 # partagée, au lieu d'une par classe.
 #
 # La seule primitive qui diffère entre PostgreSQL et SQLite est la
-# recherche de position ; `substr` et `||` sont communs.
+# recherche de position ; `substr`, `length`, `ltrim`, `trim`, `like` et
+# `||` sont communs.
+#
+# Ces expressions doivent rendre, sur une même chaîne, exactement ce que
+# rend `parse_pays_zip_ville` : `tests/b_integration/lib/test_geoloc_sql`
+# le vérifie sur les deux bases, et les entrées mal formées y comptent
+# autant que les autres — c'est là que les deux moitiés divergent.
 
-SEPARATOR_SQL = " / "
 
-
-class str_position(FunctionElement):  # noqa: N801 — nom SQL, pas une classe Python
+class StrPosition(FunctionElement):
     """Position 1-fondée d'une sous-chaîne, `0` si absente.
 
     `strpos` sur PostgreSQL, `instr` sur SQLite : mêmes arguments, même
@@ -112,24 +116,35 @@ class str_position(FunctionElement):  # noqa: N801 — nom SQL, pas une classe P
     inherit_cache = True
 
 
-@compiles(str_position, "postgresql")
+@compiles(StrPosition, "postgresql")
 def _str_position_postgresql(element, compiler, **kw) -> str:
     hay, needle = element.clauses
     return compiler.process(func.strpos(hay, needle), **kw)
 
 
-@compiles(str_position)
+@compiles(StrPosition)
 def _str_position_default(element, compiler, **kw) -> str:
     hay, needle = element.clauses
     return compiler.process(func.instr(hay, needle), **kw)
 
 
 def _after_separator(column):
-    """Ce qui suit « / » — « 75015 Paris » — ou `''` s'il n'y en a pas."""
-    start = str_position(column, SEPARATOR_SQL)
+    """Ce qui suit « / » — « 75015 Paris » — ou `''` s'il n'y en a pas.
+
+    Le séparateur est `SEPARATOR`, celui-là même que lit Python : le
+    chercher avec ses espaces (« FRA / 75015 ») laissait « FRA/75015 »
+    sans localisation côté SQL alors que Python la découpait. Le `ltrim`
+    qui suit absorbe les espaces, quel qu'en soit le nombre.
+
+    `coalesce` ici et nulle part ailleurs : c'est le point d'entrée
+    unique des trois expressions, et Python rend des parties vides sur
+    une entrée absente plutôt que de propager `None`.
+    """
+    detail = func.coalesce(column, "")
+    start = StrPosition(detail, SEPARATOR)
     return case(
         (start == 0, ""),
-        else_=func.ltrim(func.substr(column, start + len(SEPARATOR_SQL))),
+        else_=func.ltrim(func.substr(detail, start + len(SEPARATOR))),
     )
 
 
@@ -138,8 +153,8 @@ def sql_code_postal(column):
     reste = _after_separator(column)
     # `|| ' '` garantit qu'il y a un espace à trouver, même quand la
     # ville manque : sans lui, `substr(..., 1, -1)` rendrait `''`.
-    cut = str_position(reste + " ", " ")
-    return case((reste == "", ""), else_=func.substr(reste, 1, cut - 1))
+    cut = StrPosition(reste + " ", " ")
+    return func.substr(reste, 1, cut - 1)
 
 
 def sql_departement(column):
@@ -153,8 +168,28 @@ def sql_ville(column):
     « Le Havre » et « Gudiyattam H.O » existent dans les données de
     référence ; l'ancien `split_part(..., ' ', 4)` n'en gardait que la
     première moitié.
+
+    `trim` final, comme le `.strip()` de `parse_pays_zip_ville` : sans
+    lui, « 75015  Paris » rendait « Paris » en Python et «  Paris » en
+    SQL, et l'option proposée par un filtre ne retrouvait plus la ligne
+    dont elle venait.
     """
     reste = _after_separator(column)
-    cut = str_position(reste + " ", " ")
-    ville = func.substr(reste, cut + 1)
-    return case((reste == "", ""), else_=func.rtrim(ville, _STRAY_SUFFIX))
+    cut = StrPosition(reste + " ", " ")
+    return func.trim(_without_stray_suffix(func.substr(reste, cut + 1)))
+
+
+def _without_stray_suffix(text):
+    """`str.removesuffix`, et non `rtrim`.
+
+    `rtrim(x, '"}')` retire *les caractères* de l'ensemble, un à un :
+    sur « Paris} » il rendait « Paris » là où Python garde « Paris} ».
+    Seul le suffixe entier compte.
+    """
+    return case(
+        (
+            text.like(f"%{_STRAY_SUFFIX}"),
+            func.substr(text, 1, func.length(text) - len(_STRAY_SUFFIX)),
+        ),
+        else_=text,
+    )
