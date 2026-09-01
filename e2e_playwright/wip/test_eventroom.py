@@ -53,6 +53,8 @@ def test_wip_event_create_then_delete(
     login,
     authed_post,
     authed_get,
+    event_create_payload,
+    scrape_form_values,
 ) -> None:
     """Create an event from the new-form, then soft-delete it.
 
@@ -93,8 +95,7 @@ def test_wip_event_create_then_delete(
 
     create = authed_post(
         f"{base_url}/wip/events/",
-        _create_payload(
-            page,
+        event_create_payload(
             titre=title,
             chapo="Chapô e2e",
             contenu=contenu,
@@ -128,6 +129,8 @@ def test_wip_event_create_edit_delete(
     login,
     authed_post,
     authed_get,
+    event_create_payload,
+    scrape_form_values,
 ) -> None:
     """Create an event, edit its title, then soft-delete.
 
@@ -147,8 +150,7 @@ def test_wip_event_create_edit_delete(
         pytest.skip("events/new : ontology select empty")
 
     title = f"{_TITLE_PREFIX}edit-{int(time.time() * 1000) % 10**10}"
-    create_payload = _create_payload(
-        page,
+    create_payload = event_create_payload(
         titre=title,
         chapo="Chapô e2e edit",
         contenu="<p>Contenu initial</p>",
@@ -173,7 +175,7 @@ def test_wip_event_create_edit_delete(
             f"{base_url}/wip/events/edit/{new_id}/",
             wait_until="domcontentloaded",
         )
-        full_form = _scrape_form_values(page)
+        full_form = scrape_form_values()
         assert len(full_form) > 5, (
             f"edit form scrape returned only {len(full_form)} keys "
             f"({sorted(full_form.keys())}) — page may have 404'd or "
@@ -269,27 +271,6 @@ def test_wip_event_image_upload(
     assert "/not-authorized" not in resp["url"]
 
 
-def _create_payload(page: Page, **overrides: str) -> dict[str, str]:
-    """The whole rendered new-form, with `overrides` applied.
-
-    Posting a hand-written subset of the fields is how this test
-    rotted : `mode` (MOD-01) and `pricing` (PRX-01) became required in
-    August 2026, the create POST has failed validation ever since, and
-    nothing said so — the assertion meant to catch it compared the
-    response URL against `/wip/events`, which a re-rendered form
-    satisfies just as well as the redirect does.
-
-    Submitting everything the form renders is what the browser does,
-    and it is what the edit half of this file already did. A new
-    required field with a sane default now travels with the payload
-    instead of breaking the test.
-    """
-    payload = _scrape_form_values(page)
-    payload["_action"] = "save"
-    payload.update(overrides)
-    return payload
-
-
 def _assert_accepted(response: dict, label: str) -> None:
     """Fail unless the POST was accepted and redirected to the index.
 
@@ -328,62 +309,6 @@ def _first_option_value(page: Page, select_name: str) -> str:
             return '';
         }""",
         select_name,
-    )
-
-
-def _scrape_form_values(page: Page) -> dict[str, str]:
-    """Pull every named <input>/<textarea>/<select> value off the
-    rendered form into a flat dict.
-
-    Used for the edit round-trip : the server expects all fields back
-    or it nulls them via `populate_obj`. Skips empty names, file
-    inputs, and submit buttons. For multiple <select>, takes the
-    first selected value (or the first option if none selected).
-
-    Note : RichSelectField and CountrySelectField populate their
-    real <select> via Choices.js after `domcontentloaded`. To get
-    their value reliably we read from the Alpine `value:` slot in
-    the wrapper's x-data when the <select> itself is empty."""
-    return page.evaluate(
-        """() => {
-            const out = {};
-            const skip_types = new Set(['file', 'submit', 'button']);
-            // <input> + <textarea>
-            for (const el of document.querySelectorAll(
-                'input[name], textarea[name]'
-            )) {
-                const name = el.getAttribute('name');
-                if (!name) continue;
-                if (skip_types.has(el.type)) continue;
-                if (el.type === 'checkbox' || el.type === 'radio') {
-                    if (el.checked) out[name] = el.value || 'on';
-                    continue;
-                }
-                out[name] = el.value || '';
-            }
-            // <select>
-            for (const sel of document.querySelectorAll('select[name]')) {
-                const name = sel.getAttribute('name');
-                if (!name) continue;
-                if (sel.value && sel.value !== '') {
-                    out[name] = sel.value;
-                    continue;
-                }
-                // Fall back to the Alpine `value:` slot when Choices.js
-                // hasn't populated the real <select> yet.
-                const wrapper = sel.closest('[x-data]');
-                if (wrapper) {
-                    const xd = wrapper.getAttribute('x-data') || '';
-                    const m = xd.match(/value:\\s*'([^']*)'/);
-                    if (m) {
-                        out[name] = m[1] === 'None' ? '' : m[1];
-                        continue;
-                    }
-                }
-                out[name] = '';
-            }
-            return out;
-        }"""
     )
 
 

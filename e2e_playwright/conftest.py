@@ -263,6 +263,147 @@ def offer_required_selects(page: Page) -> Callable[[str], dict[str, str]]:
 
 
 @pytest.fixture
+def scrape_form_values(page: Page) -> Callable[[], dict[str, str]]:
+    """Every named <input>/<textarea>/<select> value on the rendered form.
+
+    The WIP CRUD handlers rebuild the model with `populate_obj`, which
+    writes `None` over any key the formdata omits — so a partial POST
+    either 500s on a NOT NULL column or, worse, fails validation on a
+    field the test never heard of. The browser returns the whole form ;
+    a test that hand-writes a payload rots the day a field is added,
+    which is how #0319's fixture and the eventroom tests both broke.
+
+    Skips file and submit inputs. `RichSelectField` populates its real
+    `<select>` through Choices.js after `domcontentloaded`, so when the
+    element is still empty we read the Alpine `value:` slot instead.
+    """
+
+    def _scrape() -> dict[str, str]:
+        return page.evaluate(
+            """() => {
+                    const out = {};
+                    const skip_types = new Set(['file', 'submit', 'button']);
+                    // <input> + <textarea>
+                    for (const el of document.querySelectorAll(
+                        'input[name], textarea[name]'
+                    )) {
+                        const name = el.getAttribute('name');
+                        if (!name) continue;
+                        if (skip_types.has(el.type)) continue;
+                        if (el.type === 'checkbox' || el.type === 'radio') {
+                            if (el.checked) out[name] = el.value || 'on';
+                            continue;
+                        }
+                        out[name] = el.value || '';
+                    }
+                    // <select>
+                    for (const sel of document.querySelectorAll('select[name]')) {
+                        const name = sel.getAttribute('name');
+                        if (!name) continue;
+                        if (sel.value && sel.value !== '') {
+                            out[name] = sel.value;
+                            continue;
+                        }
+                        // Fall back to the Alpine `value:` slot when Choices.js
+                        // hasn't populated the real <select> yet.
+                        const wrapper = sel.closest('[x-data]');
+                        if (wrapper) {
+                            const xd = wrapper.getAttribute('x-data') || '';
+                            const m = xd.match(/value:\\s*'([^']*)'/);
+                            if (m) {
+                                out[name] = m[1] === 'None' ? '' : m[1];
+                                continue;
+                            }
+                        }
+                        out[name] = '';
+                    }
+                    return out;
+                }"""
+        )
+
+    return _scrape
+
+
+@pytest.fixture
+def first_rich_select_option(page: Page) -> Callable[[str], str]:
+    """First non-empty option offered by a `RichSelectField`.
+
+    The widget renders an empty `<select>` plus a wrapper
+    `<div x-data="{ ..., options: [['v','l'], ...] }">` that Choices.js
+    fills after `domcontentloaded`. Reading `select.options` races that
+    init, so the pair is pulled straight out of the `x-data` literal.
+
+    `scrape_form_values` cannot supply these : on a *new* form there is
+    no selected value to scrape, and the field is required. A caller
+    building a create payload has to pick one.
+    """
+
+    def _first(select_name: str) -> str:
+        return page.evaluate(
+            """(name) => {
+                    const sel = document.querySelector(`select[name="${name}"]`);
+                    if (!sel) return '';
+                    const wrapper = sel.closest('[x-data]');
+                    if (!wrapper) return '';
+                    const xdata = wrapper.getAttribute('x-data') || '';
+                    // Find the first ['<value>', '<label>'] pair in the
+                    // options literal. Skips empty placeholders.
+                    const rx = /\\[\\s*'([^']*)'\\s*,\\s*'[^']*'\\s*\\]/g;
+                    let m;
+                    while ((m = rx.exec(xdata)) !== null) {
+                        if (m[1] && m[1].trim() !== '') return m[1];
+                    }
+                    return '';
+                }""",
+            select_name,
+        )
+
+    return _first
+
+
+#: Champs obligatoires du formulaire d'événement qu'un scrape ne peut
+#: pas remplir : `RichSelectField` rend un `<select>` vide que
+#: Choices.js peuple, et il n'y a rien à recopier sur un formulaire
+#: neuf. La valeur est prise dans l'ontologie affichée, jamais écrite
+#: en dur.
+_EVENT_RICH_SELECTS = ("sector", "event_type")
+
+
+@pytest.fixture
+def event_create_payload(
+    scrape_form_values, first_rich_select_option
+) -> Callable[..., dict[str, str]]:
+    """The whole rendered event form, ready to POST, with `overrides`.
+
+    Call it on `/wip/events/new`. Three groups of fields come from
+    three places, and all three are needed for `form.validate()` to
+    pass :
+
+    - what the form already holds — `mode` (MOD-01) and `pricing`
+      (PRX-01), required since August 2026, carry their defaults ;
+    - the required `RichSelectField`s, which a scrape reads as empty ;
+    - `contenu`, a rich-text field with no value on a new form.
+
+    Callers override the rest. Hand-writing the payload instead is
+    what rotted the eventroom tests and #0319's fixture alike.
+    """
+
+    def _payload(**overrides: str) -> dict[str, str]:
+        payload = scrape_form_values()
+        payload["_action"] = "save"
+        for name in _EVENT_RICH_SELECTS:
+            if not payload.get(name):
+                payload[name] = first_rich_select_option(name)
+        payload.setdefault("contenu", "")
+        if not payload["contenu"]:
+            payload["contenu"] = "<p>Contenu e2e</p>"
+        payload.update(overrides)
+        return payload
+
+    return _payload
+
+
+@pytest.fixture
 def pin_manageable_bw(page: Page, base_url: str, authed_post) -> Callable[[], bool]:
     """Pin an ACTIVE Business Wall the logged-in user can manage.
 
