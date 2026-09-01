@@ -30,7 +30,7 @@ _PRESS_MEDIA = "PRESS_MEDIA"
 
 
 def test_choices_open_wrapper_has_stacking_context(
-    page: Page, base_url: str, profile, login
+    page: Page, base_url: str, profile, login, ensure_choices_css
 ) -> None:
     """Bug #0136/#0146: the CSS rule `.choices.is-open { z-index: 50 }`
     must apply on any page that loads the Choices.css stylesheet, so
@@ -59,27 +59,7 @@ def test_choices_open_wrapper_has_stacking_context(
             f"(status={response.status if response else '?'})"
         )
 
-    # Confirm choices styles are wired up via Vite or stylesheet.
-    # When Vite dev assets are aborted in test fixtures, inject stylesheet
-    # if not yet attached so the CSS contract assertion can run.
-    page.evaluate(
-        """() => {
-          const hasChoices = Array.from(document.styleSheets).some(s => {
-            if ((s.href || "").includes("choices.css") || (s.href || "").includes("main.css") || (s.href || "").includes("styles.css")) return true;
-            try {
-              return Array.from(s.cssRules || []).some(r => (r.selectorText || "").includes(".choices"));
-            } catch (e) {
-              return false;
-            }
-          });
-          if (!hasChoices) {
-            const link = document.createElement("link");
-            link.rel = "stylesheet";
-            link.href = "/kyc/static/css/choices.css";
-            document.head.appendChild(link);
-          }
-        }"""
-    )
+    ensure_choices_css()
 
     # Synthesise the DOM Choices.js produces and compute getComputedStyle
     # on both states (closed vs open). Only `is-open` should carry a

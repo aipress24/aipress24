@@ -42,9 +42,6 @@ def test_most_routes(app: Flask, logged_in_client: FlaskClient) -> None:
         # Temp
         "/search",
         "/wallet/create-checkout-session",
-        # FIXME: Missing params ?
-        "/wip/billing/get_pdf",
-        "/wip/billing/get_csv",
         # FIXME: AttributeError: type object 'BaseContent' has no attribute 'status'
         "/wip/comroom/json_data",
         "/wip/newsroom/json_data",

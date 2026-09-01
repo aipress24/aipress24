@@ -64,6 +64,7 @@ def test_cm4_application_triggers_owner_notification(
     profile,
     login,
     mail_outbox,
+    offer_required_selects,
     resource: str,
 ) -> None:
     """End-to-end CM-4 : offerer creates an offer, candidate
@@ -94,6 +95,7 @@ def test_cm4_application_triggers_owner_notification(
             "candidature → notifications. Description >= 20 chars."
         ),
         **_OFFER_REQUIRED_FIELDS.get(resource, {}),
+        **offer_required_selects(resource),
     }
     create_resp = page.evaluate(
         """async (args) => {

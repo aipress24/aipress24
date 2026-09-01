@@ -39,6 +39,7 @@ def test_bug_0133_choices_dropdown_not_masked(
     base_url: str,
     profile,
     login,
+    ensure_choices_css,
 ) -> None:
     """Bug #0133 — Le dropdown Choices.js du sélecteur de média est
     masqué par le champ pays/code postal qui suit (z-index: 1 vs
@@ -51,6 +52,7 @@ def test_bug_0133_choices_dropdown_not_masked(
     login(p)
     resp = page.goto(f"{base_url}/wip/sujets/new/", wait_until="domcontentloaded")
     assert resp is not None and resp.status < 400
+    ensure_choices_css()
 
     # Bug #0133: verify the CSS rule for .choices__list--dropdown
     # has z-index >= 50. We read from the stylesheet rather than the
@@ -118,8 +120,7 @@ def test_bug_0142_step4_modal_harmonised() -> None:
     )
     # New harmonised pattern present.
     assert "rounded-2xl shadow-lg border border-gray-200" in content, (
-        "B03 modal must use the harmonised card class — bug #0142 "
-        "step 4 regressed."
+        "B03 modal must use the harmonised card class — bug #0142 step 4 regressed."
     )
     assert "Emails des membres" in content, (
         "B03 must surface an explicit form label above the textarea "
@@ -165,8 +166,7 @@ def test_bug_0154_step_nav_extended_to_articles_communiques_events() -> None:
         assert cbv.exists()
         cbv_content = cbv.read_text()
         assert "_step_nav_simple.j2" in cbv_content, (
-            f"{cbv_path} must import the step_nav_simple macro — "
-            f"bug #0154 regressed."
+            f"{cbv_path} must import the step_nav_simple macro — bug #0154 regressed."
         )
         assert f'"{view_name}"' in cbv_content, (
             f"{cbv_path} step-nav calls must reference {view_name!r}"
@@ -238,8 +238,7 @@ def test_bug_0169_revoke_partnership_notifies_partner() -> None:
     assert invitation_module.exists()
     content = invitation_module.read_text()
     assert "notify_partnership_revoked" in content, (
-        "revoke_partnership must trigger an in-app notification — "
-        "bug #0169 regressed."
+        "revoke_partnership must trigger an in-app notification — bug #0169 regressed."
     )
     assert "send_partnership_revoked_mail" in content, (
         "revoke_partnership must trigger an email — bug #0169 regressed."
@@ -305,8 +304,7 @@ def test_bug_0170_rdv_details_omits_proposed_slots() -> None:
         "block — bug #0170 regressed."
     )
     assert "proposed_slots_dt" not in content, (
-        "rdv_details.j2 must not iterate `proposed_slots_dt` — bug "
-        "#0170 regressed."
+        "rdv_details.j2 must not iterate `proposed_slots_dt` — bug #0170 regressed."
     )
 
 

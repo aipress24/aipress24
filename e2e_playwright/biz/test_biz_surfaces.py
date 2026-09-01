@@ -286,6 +286,7 @@ def test_biz_offer_create_then_detail_renders(
     profile,
     login,
     authed_post,
+    offer_required_selects,
     resource: str,
 ) -> None:
     """Round-trip : POST /biz/<resource>/new → assert detail page
@@ -320,6 +321,7 @@ def test_biz_offer_create_then_detail_renders(
             f"automatiquement par e2e_playwright/biz/."
         ),
         **_OFFER_REQUIRED_FIELDS.get(resource, {}),
+        **offer_required_selects(resource),
     }
     # POST and follow the 302 → /biz/<resource>/<new_id> via
     # the JS fetch (same-origin redirects are followed by default).

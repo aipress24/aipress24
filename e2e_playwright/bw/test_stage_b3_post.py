@@ -24,26 +24,16 @@ from __future__ import annotations
 import pytest
 from playwright.sync_api import Page
 
-# erick (PRESS_MEDIA) owns multiple BWs ; pin the one his
-# `Organisation.bw_id` actually points to so
-# `current_business_wall(user)` resolves correctly. Same trick
-# used in CM-2 with BrigitteWasser. Discovered via direct DB :
-# see the CM-2 commit message for the pattern.
-_ERICK_BW_ID = "3be67123-b68d-48ad-9043-e2a206d18893"
-
-
-def _select_known_bw(page, base_url: str, authed_post) -> bool:
-    """POST /BW/select-bw/<uid> to pin the chosen BW into the
-    session. Returns True if the session is now primed for the
-    expected BW."""
-    sel = authed_post(f"{base_url}/BW/select-bw/{_ERICK_BW_ID}", {})
-    return sel["status"] < 400 and "/auth/login" not in sel["url"]
+# La BW à piloter est découverte via `/BW/select-bw` (fixture
+# `pin_manageable_bw`) et non plus par un UUID recopié de la base :
+# celui qui était figé ici a été suspendu depuis, et les deux tests
+# atterrissaient sur /BW/not-authorized.
 
 
 @pytest.mark.mutates_db
 @pytest.mark.parallel_unsafe
 def test_stage_b3_change_emails_owner_only_is_noop(
-    page: Page, base_url: str, profile, login, authed_post
+    page: Page, base_url: str, profile, login, authed_post, pin_manageable_bw
 ) -> None:
     """POST ``action=change_emails`` with content set to the
     owner's email keeps every other member as-is (the
@@ -54,11 +44,11 @@ def test_stage_b3_change_emails_owner_only_is_noop(
     membership-shape change only."""
     p = profile("PRESS_MEDIA")
     login(p)
-    # Pin the BW erick's `Organisation.bw_id` resolves to. Without
-    # this, `current_business_wall(user)` may return None (or a
-    # different BW the user isn't manager of) → not_authorized.
-    if not _select_known_bw(page, base_url, authed_post):
-        pytest.skip("can't pin /BW/select-bw — login lost or user changed")
+    if not pin_manageable_bw():
+        pytest.skip(
+            "no ACTIVE Business Wall this account can manage — the seed BW "
+            "was put through the suspension flow; see `pin_manageable_bw`"
+        )
 
     resp = page.goto(
         f"{base_url}/BW/manage-organisation-members",
@@ -83,15 +73,18 @@ def test_stage_b3_change_emails_owner_only_is_noop(
 
 
 def test_stage_b3_post_unknown_action_renders_listing(
-    page: Page, base_url: str, profile, login, authed_post
+    page: Page, base_url: str, profile, login, authed_post, pin_manageable_bw
 ) -> None:
     """POST with an unrecognised action falls through the
     `if action == "change_emails":` check — the route then
     re-renders the members listing (default GET path)."""
     p = profile("PRESS_MEDIA")
     login(p)
-    if not _select_known_bw(page, base_url, authed_post):
-        pytest.skip("can't pin /BW/select-bw")
+    if not pin_manageable_bw():
+        pytest.skip(
+            "no ACTIVE Business Wall this account can manage — the seed BW "
+            "was put through the suspension flow; see `pin_manageable_bw`"
+        )
     resp = page.goto(
         f"{base_url}/BW/manage-organisation-members",
         wait_until="domcontentloaded",

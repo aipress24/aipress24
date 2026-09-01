@@ -32,7 +32,6 @@ COMMON_SURFACES = (
     "/wire/",
     "/wire/tab/wall",
     "/wip/",
-    "/wip/billing",
     "/wip/performance",
     "/wip/opportunities",
     "/wip/eventroom",

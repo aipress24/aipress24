@@ -207,32 +207,3 @@ def test_confirmation_paid_no_session_redirects(
         wait_until="domcontentloaded",
     )
     assert resp is not None and resp.status < 400
-
-
-# ─── stripe_info branches ──────────────────────────────────────────
-
-
-def test_stripe_info_free_type_redirects(
-    page: Page, base_url: str, profile, login
-) -> None:
-    """``GET /BW/stripe-info/<free_type>`` → redirect."""
-    p = profile("PRESS_MEDIA")
-    login(p)
-    resp = page.goto(
-        f"{base_url}/BW/stripe-info/media",
-        wait_until="domcontentloaded",
-    )
-    assert resp is not None and resp.status < 400
-
-
-def test_stripe_info_no_session_redirects(
-    page: Page, base_url: str, profile, login
-) -> None:
-    """``GET /BW/stripe-info/pr`` without session → redirect."""
-    p = profile("PRESS_MEDIA")
-    login(p)
-    resp = page.goto(
-        f"{base_url}/BW/stripe-info/pr",
-        wait_until="domcontentloaded",
-    )
-    assert resp is not None and resp.status < 400

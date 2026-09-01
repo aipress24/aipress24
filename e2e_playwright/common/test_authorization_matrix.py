@@ -21,6 +21,15 @@ sections it should not access. The gates we rely on :
 These three are the URL gates the rest of the suite (and the menu
 visibility checks in ``test_communities.py``) depend on. Any
 regression in role evaluation would be silent without these.
+
+**How denial looks on the wire.** Since 2026-08-11
+(`app/flask/hooks.py::handle_forbidden_error`) a `Forbidden` raised
+by a *UI* page no longer reaches the browser as 403 : it is flashed
+and redirected to `/`, which lands on the wall. Only `/api/` keeps
+the bare 403. The gate is intact — asserting on the status alone was
+not, and reported every one of these as an authorization regression.
+The handler stamps ``X-Access-Denied: true`` on the redirect for
+exactly this purpose, so that is what we look for.
 """
 
 from __future__ import annotations
@@ -38,7 +47,30 @@ ALL_COMMUNITIES = ("PRESS_MEDIA", *NON_PRESS_MEDIA)
 
 # Forbidden status set : Flask-Security may surface 401 (Unauthorized)
 # *or* 403 (Forbidden) depending on the gate's `abort()` choice.
+# Still the shape for `/api/` and for anything that aborts before the
+# error handler runs.
 FORBIDDEN_STATUSES = {401, 403}
+
+#: Posé par `handle_forbidden_error` sur la redirection qu'il rend.
+_DENIED_HEADER = "x-access-denied"
+
+
+def _was_denied(response) -> bool:
+    """True when the app refused the page, however it said so.
+
+    Either a forbidden status, or the redirect `handle_forbidden_error`
+    issues — whose marker header sits on the 302, not on the page we
+    finally land on, so walk back up the redirect chain.
+    """
+    if response.status in FORBIDDEN_STATUSES:
+        return True
+    request = response.request
+    while request is not None:
+        hop = request.response()
+        if hop is not None and hop.headers.get(_DENIED_HEADER) == "true":
+            return True
+        request = request.redirected_from
+    return False
 
 
 @pytest.mark.parametrize("community", NON_PRESS_MEDIA, ids=NON_PRESS_MEDIA)
@@ -54,9 +86,9 @@ def test_newsroom_forbidden_for_non_press_media(
     login(p)
     resp = page.goto(f"{base_url}/wip/newsroom", wait_until="domcontentloaded")
     assert resp is not None
-    assert resp.status in FORBIDDEN_STATUSES, (
-        f"{community} ({p['email']}) should be forbidden on "
-        f"/wip/newsroom but got {resp.status}"
+    assert _was_denied(resp), (
+        f"{community} ({p['email']}) should be denied on /wip/newsroom "
+        f"but got {resp.status} at {resp.url}"
     )
 
 
@@ -71,9 +103,9 @@ def test_comroom_forbidden_for_press_media(
     login(p)
     resp = page.goto(f"{base_url}/wip/comroom", wait_until="domcontentloaded")
     assert resp is not None
-    assert resp.status in FORBIDDEN_STATUSES, (
-        f"PRESS_MEDIA ({p['email']}) should be forbidden on "
-        f"/wip/comroom but got {resp.status}"
+    assert _was_denied(resp), (
+        f"PRESS_MEDIA ({p['email']}) should be denied on /wip/comroom "
+        f"but got {resp.status} at {resp.url}"
     )
 
 
@@ -94,7 +126,7 @@ def test_admin_forbidden_for_non_admin(
     login(p)
     resp = page.goto(f"{base_url}/admin/", wait_until="domcontentloaded")
     assert resp is not None
-    assert resp.status in FORBIDDEN_STATUSES, (
-        f"{community} ({p['email']}) should be forbidden on /admin/ "
-        f"but got {resp.status}"
+    assert _was_denied(resp), (
+        f"{community} ({p['email']}) should be denied on /admin/ "
+        f"but got {resp.status} at {resp.url}"
     )

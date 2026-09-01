@@ -62,11 +62,6 @@ SKIP_ENDPOINTS = {
     # Flask-Security endpoints that may not be configured in test mode
     "preferences.password",
     "preferences.email",
-    # Missing template
-    "wip.billing",
-    # Requires POST with parameters
-    "wip.billing_get_pdf",
-    "wip.billing_get_csv",
     # Profile form issues with test data
     "preferences.profile",
     "wip.org-registration",
@@ -566,9 +561,6 @@ class TestAnonymousAccessSurface:
         # These are protected routes that should require auth via blueprint hooks
         # even if they're not in the nav tree
         protected_routes = [
-            # WIP module - hidden routes
-            ("/wip/billing/get_pdf?invoice_id=1", "wip.billing_get_pdf"),
-            ("/wip/billing/get_csv?invoice_id=1", "wip.billing_get_csv"),
             # Admin module - should be blocked
             ("/admin/", "admin.index"),
             ("/admin/dashboard", "admin.dashboard"),

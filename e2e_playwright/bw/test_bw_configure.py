@@ -33,9 +33,12 @@ import re
 import pytest
 from playwright.sync_api import Page
 
-# Same BW used by the partnership / role-invitation lifecycle tests.
-# Erick is PRESS_MEDIA, BW is named, owner=erick → he is BWMi.
-_ERICK_NAMED_BW_ID = "3be67123-b68d-48ad-9043-e2a206d18893"
+# La BW à piloter vient de `pin_manageable_bw`, qui demande à
+# l'application ce que le compte peut gérer. L'UUID figé ici a été
+# suspendu depuis : `select_bw_post` n'accepte qu'une BW ACTIVE, ces
+# trois tests atterrissaient sur /BW/not-authorized, et ne se
+# sautaient que par ricochet — faute de trouver le champ `name` sur
+# la page d'erreur.
 _PRESS_MEDIA_COMMUNITY = "PRESS_MEDIA"
 
 _NAME_INPUT_RE = re.compile(r'<input[^>]+name="name"[^>]*value="([^"]*)"', re.IGNORECASE)
@@ -54,6 +57,7 @@ def _extract_form_value(html: str, pattern: re.Pattern[str]) -> str:
 
 @pytest.mark.mutates_db
 def test_bw_configure_content_post_uploads_logo(
+    pin_manageable_bw,
     page: Page,
     base_url: str,
     profile,
@@ -70,8 +74,11 @@ def test_bw_configure_content_post_uploads_logo(
     journalist = profile(_PRESS_MEDIA_COMMUNITY)
     login(journalist)
 
-    sel = authed_post(f"{base_url}/BW/select-bw/{_ERICK_NAMED_BW_ID}", {})
-    assert sel["status"] < 400 and "/auth/login" not in sel["url"]
+    if not pin_manageable_bw():
+        pytest.skip(
+            "no ACTIVE Business Wall this account can manage — the seed BW "
+            "was suspended; see `pin_manageable_bw`"
+        )
 
     # GET the form to extract current `name` + `siren` (mandatory
     # fields ; the route flashes + redirects if either is empty).
@@ -131,6 +138,7 @@ def test_bw_configure_content_post_uploads_logo(
 
 @pytest.mark.mutates_db
 def test_bw_configure_content_post_uploads_bandeau(
+    pin_manageable_bw,
     page: Page,
     base_url: str,
     profile,
@@ -145,8 +153,11 @@ def test_bw_configure_content_post_uploads_bandeau(
     journalist = profile(_PRESS_MEDIA_COMMUNITY)
     login(journalist)
 
-    sel = authed_post(f"{base_url}/BW/select-bw/{_ERICK_NAMED_BW_ID}", {})
-    assert sel["status"] < 400 and "/auth/login" not in sel["url"]
+    if not pin_manageable_bw():
+        pytest.skip(
+            "no ACTIVE Business Wall this account can manage — the seed BW "
+            "was suspended; see `pin_manageable_bw`"
+        )
 
     page.goto(f"{base_url}/BW/configure-content", wait_until="domcontentloaded")
     html = page.content()
@@ -171,6 +182,7 @@ def test_bw_configure_content_post_uploads_bandeau(
 
 @pytest.mark.mutates_db
 def test_bw_configure_gallery_post_adds_image(
+    pin_manageable_bw,
     page: Page,
     base_url: str,
     profile,
@@ -188,8 +200,11 @@ def test_bw_configure_gallery_post_adds_image(
     journalist = profile(_PRESS_MEDIA_COMMUNITY)
     login(journalist)
 
-    sel = authed_post(f"{base_url}/BW/select-bw/{_ERICK_NAMED_BW_ID}", {})
-    assert sel["status"] < 400 and "/auth/login" not in sel["url"]
+    if not pin_manageable_bw():
+        pytest.skip(
+            "no ACTIVE Business Wall this account can manage — the seed BW "
+            "was suspended; see `pin_manageable_bw`"
+        )
 
     # Snapshot the current gallery so we can diff after the POST and
     # find the freshly-added image's UUID for cleanup.

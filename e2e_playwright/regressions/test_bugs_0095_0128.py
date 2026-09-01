@@ -235,7 +235,7 @@ def test_bug_0112_rights_policy_has_media_picker(
     base_url: str,
     profile,
     login,
-    authed_post,
+    pin_manageable_bw,
 ) -> None:
     """Bug #0112 — Le configurateur de cession de droits utilisait un
     textarea pour coller les IDs BW (non ergonomique). Le fix le
@@ -244,18 +244,24 @@ def test_bug_0112_rights_policy_has_media_picker(
     Vérifie que la page affiche des checkboxes (pas un textarea) et
     qu'au moins un média est listé.
     """
-    # Select Erick's media BW to ensure the rights-policy card is visible.
-    p = profile(_PRESS_MEDIA)
-    erick_bw_id = "3be67123-b68d-48ad-9043-e2a206d18893"
-    login(p)
-    page.goto(f"{base_url}/BW/", wait_until="domcontentloaded")
-    if "/BW/dashboard" in page.url or "/BW/select-bw" in page.url:
-        sel = authed_post(f"{base_url}/BW/select-bw/{erick_bw_id}", {})
-        if sel["status"] >= 400 or "/auth/login" in sel["url"]:
-            pytest.skip(f"select-bw failed : {sel} — can't reach rights-policy")
+    # L'UUID d'une BW précise était recopié ici. Elle a été suspendue
+    # depuis, `select_bw_post` n'accepte qu'une BW ACTIVE, et le test
+    # atterrissait sur /BW/not-authorized puis sur un 404.
+    login(profile(_PRESS_MEDIA))
+    if not pin_manageable_bw():
+        pytest.skip(
+            "no ACTIVE Business Wall this account can manage — the seed BW "
+            "was suspended; see `pin_manageable_bw`"
+        )
 
     resp = page.goto(f"{base_url}/BW/rights-policy", wait_until="domcontentloaded")
-    assert resp is not None and resp.status < 400
+    assert resp is not None
+    if resp.status == 404:
+        # `can_configure_rights_policy` : la page n'existe que pour les
+        # BW `media` et `micro`. Une autre BW épinglée n'est pas une
+        # régression du #0112.
+        pytest.skip("pinned BW is not a media/micro one — no rights-policy page")
+    assert resp.status < 400
 
     # Post-fix : must have checkboxes, NOT a textarea
     has_checkboxes = (

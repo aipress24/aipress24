@@ -23,29 +23,29 @@ from __future__ import annotations
 import pytest
 from playwright.sync_api import Page
 
-# Erick's media BW (réutilisé par les tests bw lifecycle).
-_ERICK_BW_ID = "3be67123-b68d-48ad-9043-e2a206d18893"
 
+def _setup_bw_session(profile, login, pin_manageable_bw) -> bool:
+    """Login PRESS_MEDIA and pin a BW they can manage.
 
-def _setup_erick_bw_session(
-    page: Page, base_url: str, profile, login, authed_post
-) -> bool:
-    """Login PRESS_MEDIA + select erick's BW. Returns True if
-    /BW/assign-missions is reachable (BW activated, manager role)."""
-    p = profile("PRESS_MEDIA")
-    login(p)
-    sel = authed_post(f"{base_url}/BW/select-bw/{_ERICK_BW_ID}", {})
-    if sel["status"] >= 400 or "/auth/login" in sel["url"]:
-        return False
-    return True
+    L'UUID d'une BW précise était figé ici (« Erick's media BW »).
+    Elle a depuis été suspendue, et `select_bw_post` n'accepte qu'une
+    BW ACTIVE : les quatre tests atterrissaient sur
+    /BW/not-authorized. `pin_manageable_bw` demande à l'application
+    ce que le compte peut piloter.
+    """
+    login(profile("PRESS_MEDIA"))
+    return pin_manageable_bw()
 
 
 def test_assign_missions_get_renders(
-    page: Page, base_url: str, profile, login, authed_post
+    page: Page, base_url: str, profile, login, authed_post, pin_manageable_bw
 ) -> None:
     """``GET /BW/assign-missions`` rend le form post-fill_session."""
-    if not _setup_erick_bw_session(page, base_url, profile, login, authed_post):
-        pytest.skip("can't setup erick BW session")
+    if not _setup_bw_session(profile, login, pin_manageable_bw):
+        pytest.skip(
+            "no ACTIVE Business Wall this account can manage — the seed "
+            "BW was suspended; see `pin_manageable_bw`"
+        )
     resp = page.goto(
         f"{base_url}/BW/assign-missions",
         wait_until="domcontentloaded",
@@ -96,6 +96,7 @@ def test_assign_missions_post_finish_action(
     profile,
     login,
     authed_post,
+    pin_manageable_bw,
     missions_payload: dict,
     label: str,
 ) -> None:
@@ -106,8 +107,11 @@ def test_assign_missions_post_finish_action(
     flags) + sync_all_pr_missions + db.commit. Les 3 paramétrages
     couvrent : aucune mission, sous-ensemble, toutes les missions.
     """
-    if not _setup_erick_bw_session(page, base_url, profile, login, authed_post):
-        pytest.skip("can't setup erick BW session")
+    if not _setup_bw_session(profile, login, pin_manageable_bw):
+        pytest.skip(
+            "no ACTIVE Business Wall this account can manage — the seed "
+            "BW was suspended; see `pin_manageable_bw`"
+        )
 
     page.goto(
         f"{base_url}/BW/assign-missions",
@@ -125,13 +129,16 @@ def test_assign_missions_post_finish_action(
 
 @pytest.mark.mutates_db
 def test_assign_missions_post_previous_action(
-    page: Page, base_url: str, profile, login, authed_post
+    page: Page, base_url: str, profile, login, authed_post, pin_manageable_bw
 ) -> None:
     """``POST /BW/assign-missions`` avec ``action=previous`` :
     pour un media BW, redirige vers manage_external_partners.
     Drives le `case "previous"` branche `bw_type != "pr"`."""
-    if not _setup_erick_bw_session(page, base_url, profile, login, authed_post):
-        pytest.skip("can't setup erick BW session")
+    if not _setup_bw_session(profile, login, pin_manageable_bw):
+        pytest.skip(
+            "no ACTIVE Business Wall this account can manage — the seed "
+            "BW was suspended; see `pin_manageable_bw`"
+        )
     page.goto(
         f"{base_url}/BW/assign-missions",
         wait_until="domcontentloaded",
@@ -150,7 +157,7 @@ def test_assign_missions_post_previous_action(
 
 @pytest.mark.mutates_db
 def test_assign_missions_post_unknown_action_500(
-    page: Page, base_url: str, profile, login, authed_post
+    page: Page, base_url: str, profile, login, authed_post, pin_manageable_bw
 ) -> None:
     """``POST /BW/assign-missions`` avec une action inconnue : le
     `case _:` lève `ValueError`, Werkzeug remonte en 500.
@@ -159,8 +166,11 @@ def test_assign_missions_post_unknown_action_500(
     (un raise ValueError pour un mauvais form input devrait être un
     400 ou un flash + redirect).
     """
-    if not _setup_erick_bw_session(page, base_url, profile, login, authed_post):
-        pytest.skip("can't setup erick BW session")
+    if not _setup_bw_session(profile, login, pin_manageable_bw):
+        pytest.skip(
+            "no ACTIVE Business Wall this account can manage — the seed "
+            "BW was suspended; see `pin_manageable_bw`"
+        )
     page.goto(
         f"{base_url}/BW/assign-missions",
         wait_until="domcontentloaded",

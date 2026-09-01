@@ -93,25 +93,18 @@ def test_wip_event_create_then_delete(
 
     create = authed_post(
         f"{base_url}/wip/events/",
-        {
-            "_action": "save",
-            "titre": title,
-            "chapo": "Chapô e2e",
-            "contenu": contenu,
-            "sector": sector,
-            "event_type": event_type,
-        },
+        _create_payload(
+            page,
+            titre=title,
+            chapo="Chapô e2e",
+            contenu=contenu,
+            sector=sector,
+            event_type=event_type,
+        ),
     )
     assert create["status"] < 400, f"events POST create : {create}"
     assert "/auth/login" not in create["url"]
-    # On success the post() handler redirects to the index. If we
-    # stayed on POST /wip/events/ the form re-rendered with
-    # validation errors — fail loudly so future ontology drift is
-    # surfaced rather than swallowed by the listing scan below.
-    assert create["url"].rstrip("/").endswith("/wip/events"), (
-        f"events POST create stayed on form (validation error?) — "
-        f"final URL: {create['url']}"
-    )
+    _assert_accepted(create, "events POST create")
 
     new_id = _find_event_id(page, base_url, title)
     assert new_id is not None, (
@@ -154,16 +147,17 @@ def test_wip_event_create_edit_delete(
         pytest.skip("events/new : ontology select empty")
 
     title = f"{_TITLE_PREFIX}edit-{int(time.time() * 1000) % 10**10}"
-    create_payload = {
-        "_action": "save",
-        "titre": title,
-        "chapo": "Chapô e2e edit",
-        "contenu": "<p>Contenu initial</p>",
-        "sector": sector,
-        "event_type": event_type,
-    }
+    create_payload = _create_payload(
+        page,
+        titre=title,
+        chapo="Chapô e2e edit",
+        contenu="<p>Contenu initial</p>",
+        sector=sector,
+        event_type=event_type,
+    )
     create = authed_post(f"{base_url}/wip/events/", create_payload)
     assert create["status"] < 400 and "/auth/login" not in create["url"]
+    _assert_accepted(create, "events POST create")
     new_id = _find_event_id(page, base_url, title)
     assert new_id is not None, f"created event {title!r} not in listing"
 
@@ -273,6 +267,40 @@ def test_wip_event_image_upload(
     assert resp["status"] < 400, f"events images POST : {resp}"
     assert "/auth/login" not in resp["url"]
     assert "/not-authorized" not in resp["url"]
+
+
+def _create_payload(page: Page, **overrides: str) -> dict[str, str]:
+    """The whole rendered new-form, with `overrides` applied.
+
+    Posting a hand-written subset of the fields is how this test
+    rotted : `mode` (MOD-01) and `pricing` (PRX-01) became required in
+    August 2026, the create POST has failed validation ever since, and
+    nothing said so — the assertion meant to catch it compared the
+    response URL against `/wip/events`, which a re-rendered form
+    satisfies just as well as the redirect does.
+
+    Submitting everything the form renders is what the browser does,
+    and it is what the edit half of this file already did. A new
+    required field with a sane default now travels with the payload
+    instead of breaking the test.
+    """
+    payload = _scrape_form_values(page)
+    payload["_action"] = "save"
+    payload.update(overrides)
+    return payload
+
+
+def _assert_accepted(response: dict, label: str) -> None:
+    """Fail unless the POST was accepted and redirected to the index.
+
+    `post()` re-renders the form **at the same URL** when validation
+    fails, so only `redirected` separates the two outcomes.
+    """
+    assert response["redirected"], (
+        f"{label} : no redirect — the form re-rendered with validation "
+        f"errors (a required field is missing from the payload). "
+        f"Response: {response}"
+    )
 
 
 def _first_option_value(page: Page, select_name: str) -> str:

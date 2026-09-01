@@ -38,6 +38,58 @@ _PRESS_MEDIA = "PRESS_MEDIA"
 _EVENT_DETAIL_RE = re.compile(r"/events/(\d+)$")
 
 
+#: Ce que `event--accreditation.j2` sait afficher, une branche par
+#: entrée. Le bloc en montre **une** : le test #0127 vérifie que le
+#: membre a bien un geste ou un statut d'accréditation sous les yeux,
+#: pas lequel — l'état dépend de ce que les tests voisins ont laissé.
+_ACCREDITATION_STATES = (
+    "Demande d'accréditation",  # aucun geste encore
+    "Demande en cours",  # demandé
+    "Annuler ma demande",  # demandé
+    "Accrédité.e",  # accepté
+    "Se désinscrire",  # accepté
+    "Demande refusée",  # refusé
+    "Vous étiez accrédité.e",  # événement annulé
+)
+
+
+def _all_event_ids(page: Page, base_url: str) -> list[str]:
+    """Every /events/<id> the listing links to, in order."""
+    page.goto(f"{base_url}/events/", wait_until="domcontentloaded")
+    hrefs = page.locator("a[href]").evaluate_all(
+        "els => els.map(e => e.getAttribute('href'))"
+    )
+    ids = []
+    for href in hrefs or ():
+        if not href:
+            continue
+        path = href.split("#", 1)[0].split("?", 1)[0]
+        if path.startswith("http"):
+            path = "/" + path.split("/", 3)[-1]
+        m = _EVENT_DETAIL_RE.search(path)
+        if m and m.group(1) not in ids:
+            ids.append(m.group(1))
+    return ids
+
+
+def _accreditable_event_id(page: Page, base_url: str, limit: int = 12) -> str | None:
+    """Id of the first listed event that offers an accreditation control.
+
+    `event--accreditation.j2` always emits its wrapper div, but leaves
+    it **empty** outside the event's audience (RG-02), on a cancelled
+    event (ANN-05), and once accreditation has closed. Taking the first
+    event in the listing and assuming it offers the button is what made
+    these two tests fail : `/events/` is ordered by date, not by who
+    may accredit on it.
+    """
+    for event_id in _all_event_ids(page, base_url)[:limit]:
+        page.goto(f"{base_url}/events/{event_id}", wait_until="domcontentloaded")
+        block = page.locator(f"#accreditation-block-{event_id}")
+        if block.count() and (block.inner_text() or "").strip():
+            return event_id
+    return None
+
+
 def _first_event_id(page: Page, base_url: str) -> str | None:
     """Open /events/ and return the first /events/<id> we find."""
     page.goto(f"{base_url}/events/", wait_until="domcontentloaded")
@@ -208,14 +260,16 @@ def test_events_detail_shows_accreditation_button_for_journalist(
     event--header.j2."""
     p = profile(_PRESS_MEDIA)
     login(p)
-    event_id = _first_event_id(page, base_url)
+    event_id = _accreditable_event_id(page, base_url)
     if event_id is None:
-        pytest.skip("/events/ : no event found")
-    page.goto(f"{base_url}/events/{event_id}", wait_until="domcontentloaded")
-    body = page.content()
-    assert "S'accr" in body or "accréditation" in body.lower(), (
-        "expected accreditation button (S'accréditer / Annuler mon accréditation) "
-        "in event detail page for a journalist"
+        pytest.skip(
+            "no listed event offers an accreditation control to this "
+            "journalist — every one is out of audience, cancelled, or closed"
+        )
+    block = page.locator(f"#accreditation-block-{event_id}").inner_text()
+    assert any(state in block for state in _ACCREDITATION_STATES), (
+        f"accreditation block shows none of the states "
+        f"`event--accreditation.j2` renders : {block!r}"
     )
 
 
@@ -228,26 +282,32 @@ def test_events_toggle_participate_round_trip_journalist(
     Restores initial state by toggling an even number of times."""
     p = profile(_PRESS_MEDIA)
     login(p)
-    event_id = _first_event_id(page, base_url)
+    event_id = _accreditable_event_id(page, base_url)
     if event_id is None:
-        pytest.skip("/events/ : no event found")
+        pytest.skip(
+            "no listed event offers an accreditation control to this "
+            "journalist — every one is out of audience, cancelled, or closed"
+        )
 
-    page.goto(f"{base_url}/events/{event_id}", wait_until="domcontentloaded")
-
+    # `toggle-participate` was replaced by the explicit pair
+    # request/withdraw on 2026-08-31. It had no `case` left in
+    # `EventDetailView.post`, so it fell to `case _: return ""` — a
+    # 200 with an empty body, which is exactly what this test used to
+    # assert against, without ever touching an accreditation.
     first = authed_post(
         f"{base_url}/events/{event_id}",
-        {"action": "toggle-participate"},
+        {"action": "request-accreditation"},
     )
-    assert first["status"] == 200, f"first toggle-participate: {first}"
+    assert first["status"] == 200, f"request-accreditation: {first}"
     assert "/auth/login" not in first["url"]
-    # HTMX swap: response body is the new button label, must be non-empty.
-    assert first["len"] > 0, f"expected non-empty button label, got {first}"
+    # HTMX swap: response body is the re-rendered block, must be non-empty.
+    assert first["len"] > 0, f"expected the swapped block, got {first}"
 
     second = authed_post(
         f"{base_url}/events/{event_id}",
-        {"action": "toggle-participate"},
+        {"action": "withdraw-accreditation"},
     )
-    assert second["status"] == 200, f"second toggle-participate: {second}"
+    assert second["status"] == 200, f"withdraw-accreditation: {second}"
     assert second["len"] > 0
 
 
@@ -267,12 +327,17 @@ def test_events_toggle_participate_refused_for_non_journalist(
     if event_id is None:
         pytest.skip("/events/ : no event found")
 
+    # `toggle-participate` no longer has a `case` in
+    # `EventDetailView.post` (replaced 2026-08-31) : it fell to
+    # `case _: return ""`, a 200 with an empty body. The refusal this
+    # test is named for now lives in `_request_accreditation`, which
+    # answers 403 to a `PermissionError` from outside the audience.
     resp = authed_post(
         f"{base_url}/events/{event_id}",
-        {"action": "toggle-participate"},
+        {"action": "request-accreditation"},
     )
     assert resp["status"] == 403, (
-        f"toggle-participate as non-journalist: expected 403, got {resp['status']}"
+        f"request-accreditation as non-journalist: expected 403, got {resp['status']}"
     )
 
 

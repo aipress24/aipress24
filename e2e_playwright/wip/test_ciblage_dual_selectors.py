@@ -39,6 +39,20 @@ import pytest
 from playwright.sync_api import Page
 
 _PRESS_MEDIA = "PRESS_MEDIA"
+
+#: Les sept champs de la spécification d'Annie, par le `name` du
+#: `<select>` parent. La page peut en porter davantage — elle en porte
+#: huit depuis le ticket #0323 — mais aucun de ceux-ci ne doit
+#: disparaître.
+_REQUIRED_CASCADES = {
+    "secteur_parent",
+    "type_organisation_parent",
+    "fonction_pol_adm_parent",
+    "fonction_org_priv_parent",
+    "fonction_ass_syn_parent",
+    "metier_parent",
+    "competences_parent",
+}
 _AVIS_PAT = re.compile(r"^/wip/avis-enquete/(\d+)/$")
 
 
@@ -84,11 +98,22 @@ def test_dual_cascade_tom_select_initializes(
             "no .dual-select-cascade on /ciblage — partial may have "
             "been refactored, update this sentinel"
         )
-    assert cascade_count == 7, (
-        f"Expected 7 dual cascades, found {cascade_count}. "
-        "Annie's spec lists 7 fields (secteur, type_organisation, "
-        "fonction_pol_adm, fonction_org_priv, fonction_ass_syn, "
-        "metier, competences)."
+    # Annie's spec pins these seven; the page is free to grow more.
+    # Asserting an exact count made this test fail the day ticket
+    # #0323 added « Transformations majeures » (2026-08-31) — a
+    # deliberate feature, reported as a regression. Name what must be
+    # there instead, so a *removal* still fails and an *addition*
+    # doesn't.
+    rendered = set(
+        page.eval_on_selector_all(
+            '.dual-select-cascade select[data-role="parent"]',
+            "els => els.map(e => e.getAttribute('name'))",
+        )
+    )
+    missing = _REQUIRED_CASCADES - rendered
+    assert not missing, (
+        f"dual cascades missing from /ciblage: {sorted(missing)}. "
+        f"Rendered: {sorted(rendered)}."
     )
 
     # Each cascade must contain 2 `.ts-wrapper` (parent + child)

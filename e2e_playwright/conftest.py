@@ -166,6 +166,143 @@ def profiles() -> list[dict]:
     return _load_profiles_from_csv()
 
 
+#: Servi par le blueprint KYC. Le gabarit ne le lie pas : la feuille
+#: passe par le paquet Vite, et l'autouse `_abort_vite_dev_assets`
+#: coupe le serveur Vite — sous Playwright, ces règles sont donc
+#: toujours absentes.
+_CHOICES_CSS_URL = "/kyc/static/css/choices.css"
+
+
+@pytest.fixture
+def ensure_choices_css(page: Page) -> Callable[[], None]:
+    """Guarantee the Choices.js stylesheet is applied to the current page.
+
+    Call it **after** navigating. Two tests assert a CSS contract on
+    `.choices` — `wip/test_dropdown_zindex.py` (#0136/#0146) and
+    `regressions/test_bugs_0133_0172.py` (#0133) — and neither could
+    see the rules they check: the stylesheet reaches the browser
+    through Vite, which `_abort_vite_dev_assets` blocks. They reported
+    a CSS regression that never happened.
+
+    Injecting the blueprint-served copy is not enough on its own :
+    appending a `<link>` starts an *async* fetch, so a probe on the
+    next line still reads an unstyled DOM. Hence the `await`. A
+    moved or renamed stylesheet rejects, and fails the test for the
+    real reason instead of the misleading one.
+    """
+
+    def _ensure() -> None:
+        page.evaluate(
+            """async (href) => {
+              const loaded = Array.from(document.styleSheets).some(s => {
+                if ((s.href || "").includes("choices.css")) return true;
+                try {
+                  return Array.from(s.cssRules || []).some(
+                    r => (r.selectorText || "").includes(".choices")
+                  );
+                } catch (e) {
+                  return false;  // feuille cross-origin
+                }
+              });
+              if (loaded) return;
+              const link = document.createElement("link");
+              link.rel = "stylesheet";
+              link.href = href;
+              const applied = new Promise((resolve, reject) => {
+                link.onload = resolve;
+                link.onerror = () => reject(new Error(`cannot load ${href}`));
+              });
+              document.head.appendChild(link);
+              await applied;
+            }""",
+            _CHOICES_CSS_URL,
+        )
+
+    return _ensure
+
+
+#: Champs `SelectField` obligatoires qu'un formulaire d'annonce a
+#: gagnés après coup. La valeur est lue dans la page rendue : c'est
+#: l'ontologie qui la peuple qui bouge, pas la liste des champs.
+_LATE_REQUIRED_SELECTS: dict[str, tuple[str, ...]] = {
+    # Ajouté le 2026-07-24 (ontologie `type_job_statut`). Les payloads
+    # écrits à la main dans `biz/` et `cross_modules/` ne l'ont jamais
+    # porté : depuis, `form.validate()` échoue et `jobs/new` se
+    # re-rend au lieu de rediriger.
+    "jobs": ("statut",),
+}
+
+
+@pytest.fixture
+def offer_required_selects(page: Page) -> Callable[[str], dict[str, str]]:
+    """First non-empty option of each late-added required select.
+
+    Raises `pytest.skip` when the select has no option to pick : the
+    ontology behind it is not loaded in this database, so the form
+    cannot be submitted by a human either. Saying that is far more
+    useful than the « expected a redirect » the caller would report.
+    """
+
+    def _values(resource: str) -> dict[str, str]:
+        values = {}
+        for name in _LATE_REQUIRED_SELECTS.get(resource, ()):
+            value = page.eval_on_selector(
+                f'select[name="{name}"]',
+                "el => Array.from(el.options).map(o => o.value).find(v => v) || ''",
+            )
+            if not value:
+                pytest.skip(
+                    f"`{name}` on /biz/{resource}/new has no selectable option — "
+                    f"its ontology is not loaded in this database, so the form "
+                    f"cannot validate. Run `flask data upgrade-ontologies`."
+                )
+            values[name] = value
+        return values
+
+    return _values
+
+
+@pytest.fixture
+def pin_manageable_bw(page: Page, base_url: str, authed_post) -> Callable[[], bool]:
+    """Pin an ACTIVE Business Wall the logged-in user can manage.
+
+    Returns False when the account owns none — callers skip on that,
+    rather than reporting a permissions regression.
+
+    Three files used to hardcode the same UUID, « discovered via direct
+    DB ». That row was later put through the suspension flow
+    (`bw_cancellation.suspend`), which flips the status to SUSPENDED,
+    clears `Organisation.bw_id` and every user's `selected_bw_id`.
+    `select_bw_post` accepts an ACTIVE BW only, so all three began
+    landing on `/BW/not-authorized` — and their helper could not tell,
+    because it checked `status < 400` and a redirect to not-authorized
+    is a 200.
+
+    Asking `/BW/select-bw` which BWs the user may actually manage keeps
+    no UUID in the suite, and survives the next reseed.
+    """
+
+    def _pin() -> bool:
+        page.goto(f"{base_url}/BW/select-bw", wait_until="domcontentloaded")
+        # Exactly one active BW : `select_bw` pins it and redirects.
+        if "/BW/dashboard" in page.url:
+            return True
+        # Several : a picker, one POST form per BW. None : the route
+        # bounced to /BW/ and there is no form to find.
+        actions = page.eval_on_selector_all(
+            'form[action*="/BW/select-bw/"]',
+            "els => els.map(e => e.getAttribute('action'))",
+        )
+        for action in actions:
+            url = action if action.startswith("http") else f"{base_url}{action}"
+            resp = authed_post(url, {})
+            if resp["status"] < 400 and "not-authorized" not in resp["url"]:
+                return True
+        return False
+
+    return _pin
+
+
 @pytest.fixture
 def authed_post(page: Page) -> Callable[[str, dict[str, str]], dict]:
     """Returns ``post(url, form)`` that POSTs ``form`` (as
@@ -180,7 +317,14 @@ def authed_post(page: Page) -> Callable[[str, dict[str, str]], dict]:
     logging the user out for the rest of the test). Use this
     fixture instead.
 
-    Returns ``{"status": int, "url": str, "len": int}``.
+    Returns ``{"status": int, "url": str, "len": int,
+    "redirected": bool}``.
+
+    ``redirected`` is the only reliable "the POST was accepted" signal
+    for the WIP CRUD handlers : they redirect to the index on success
+    and **re-render the form at the same URL** on a validation error.
+    Comparing ``url`` cannot tell those apart when the POST target is
+    already the index URL.
     """
     js = """async (args) => {
         const body = new URLSearchParams(args.form).toString();
@@ -193,7 +337,8 @@ def authed_post(page: Page) -> Callable[[str, dict[str, str]], dict]:
             body: body,
         });
         const text = await r.text();
-        return {status: r.status, url: r.url, len: text.length};
+        return {status: r.status, url: r.url, len: text.length,
+                redirected: r.redirected};
     }"""
 
     def _post(url: str, form: dict[str, str]) -> dict:
