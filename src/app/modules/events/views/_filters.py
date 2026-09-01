@@ -296,14 +296,17 @@ class FilterBar:
         return result
 
 
-def _flatten(rows: list) -> list[str]:
+def _flatten(rows: list[list[str]]) -> list[str]:
     """Réduire les listes d'une colonne `TagList` aux valeurs présentes.
 
     `DISTINCT` a porté sur le texte entier de la colonne : deux
     événements aux fonctions `|A|B|` et `|A|C|` en sortent tous les
     deux, et `A` est là deux fois. Le dédoublonnage se fait donc ici.
+
+    Aucune ligne n'est `None` : la requête écarte les colonnes nulles, et
+    `TagList` rend `[]` plutôt que `None`.
     """
-    return sorted({value for row in rows or [] for value in (row or [])})
+    return sorted({value for row in rows for value in row})
 
 
 def _sorted_like_taxonomy(values: list[str], taxonomy: str | None) -> list[str]:

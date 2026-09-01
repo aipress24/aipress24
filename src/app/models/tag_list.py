@@ -68,6 +68,13 @@ def contains_tag(column: Any, values: list[str]) -> Any:
     SQLAlchemy fait passer le **motif** du `LIKE` par l'encodage du type,
     qui le prend pour une liste et l'assemble caractère par caractère.
     La requête part alors sans erreur et ne trouve jamais rien.
+
+    Le `false()` de tête n'est pas une précaution : `sa.or_()` sans
+    argument rend une clause **vide**, que `where()` ignore. Une liste
+    vide laisserait donc tout passer, là où « porte au moins une valeur
+    parmi aucune » est faux. L'appelant n'a ainsi rien à garder.
     """
     text = sa.cast(column, String)
-    return sa.or_(*(text.like(f"%{SEPARATOR}{value}{SEPARATOR}%") for value in values))
+    return sa.or_(
+        sa.false(), *(text.like(f"%{SEPARATOR}{value}{SEPARATOR}%") for value in values)
+    )

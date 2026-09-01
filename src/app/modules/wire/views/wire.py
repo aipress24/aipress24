@@ -177,6 +177,13 @@ def as_cards(posts: list) -> list[tuple[bool, object]]:
     vérificateur de types, sans propriétaire, et le premier principe de
     `notes/lessons-learned.md` l'interdit. La nature d'une publication
     appartient au rendu, pas à la ligne de base.
+
+    `_annotate_paid_consultations`, juste en dessous, continue de poser
+    un attribut — et ce n'est pas un oubli : elle **mémorise un calcul**
+    pour l'instance qu'elle vient de compter, là où l'on inventait ici un
+    champ de schéma. La déplacer demanderait de faire passer les
+    compteurs jusqu'au composant de carte et à tous ses appels, sur le
+    chemin même dont elle supprime le N+1.
     """
     from app.modules.events.models import EventPost
 

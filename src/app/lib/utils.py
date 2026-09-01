@@ -25,11 +25,45 @@ def merge_dicts(target: dict, other: dict) -> dict:
 
 
 def strip_taxonomy_prefix(value: str) -> str:
-    """Return the part of the taxonomy string after the last '/'.
+    """Return the part of the taxonomy string after the **last** '/'.
 
     Example:
         "STATUT / Etudiant.e" -> "Etudiant.e"
+        "DOMAINE / CATEGORIE / Valeur" -> "Valeur"
+
+    Convient aux ontologies dont les valeurs sont entièrement
+    hiérarchiques. **Pas** aux fonctions : voir `split_taxonomy_value`,
+    et la mise en garde qu'elle porte.
     """
     if not value:
         return ""
     return value.rsplit("/", 1)[-1].strip()
+
+
+def split_taxonomy_value(value: str) -> tuple[str, str]:
+    """Séparer « FAMILLE / Détail » en ses deux moitiés.
+
+    Rend `("", value)` quand la valeur ne porte pas de famille.
+
+    >>> split_taxonomy_value("DIRECTION COMMERCIALE / Responsable")
+    ('DIRECTION COMMERCIALE', 'Responsable')
+    >>> split_taxonomy_value("Caméraman")
+    ('', 'Caméraman')
+
+    Seule la **première** barre sépare, et c'est ce qui distingue cette
+    fonction de `strip_taxonomy_prefix` : « DIRECTION MARKETING / Expert
+    en référencement (SEO/SEM) » en porte deux, et découper sur la
+    dernière rendrait « SEM) ».
+
+    Une valeur **sans** famille n'est jamais découpée : c'est à
+    l'appelant de savoir si son ontologie en a une. Les fonctions du
+    journalisme n'en ont pas, et leurs barres sont internes —
+    « Journaliste spécialisé en droit/justice/police » deviendrait
+    « police ».
+    """
+    if not value:
+        return "", ""
+    family, separator, detail = value.partition("/")
+    if not separator:
+        return "", value.strip()
+    return family.strip(), detail.strip()

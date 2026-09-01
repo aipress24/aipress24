@@ -206,7 +206,7 @@ class Event(IdMixin, LifeCycleMixin, Owned, Base):
             end: Event end datetime
 
         Raises:
-            ValueError: If end time is before start time
+            BusinessRuleError: If end time is before start time
         """
         # Handle timezone-naive datetimes by adding UTC
         if start.tzinfo is None:
@@ -246,7 +246,7 @@ class Event(IdMixin, LifeCycleMixin, Owned, Base):
         qu'est un brouillon.
 
         Raises:
-            ValueError: un champ requis manque.
+            BusinessRuleError: un champ requis manque.
         """
         if not self.titre or not self.titre.strip():
             msg = "Cannot publish event: titre is required"
@@ -293,7 +293,7 @@ class Event(IdMixin, LifeCycleMixin, Owned, Base):
             publisher_id: Optional publisher organization ID
 
         Raises:
-            ValueError: If event cannot be published or validation fails
+            BusinessRuleError: If event cannot be published or validation fails
         """
         if not self.can_publish():
             msg = "Cannot publish event: event is not in DRAFT status"
@@ -338,7 +338,7 @@ class Event(IdMixin, LifeCycleMixin, Owned, Base):
         se rendre.
 
         Raises:
-            ValueError: un champ requis par le mode est vide.
+            BusinessRuleError: un champ requis par le mode est vide.
         """
         # Lié localement et **annoté** : `pyrefly` ne comprend pas
         # SQLAlchemy et voit un `InstrumentedAttribute[EventMode]` là où
@@ -377,7 +377,7 @@ class Event(IdMixin, LifeCycleMixin, Owned, Base):
         qu'on repasse le tarif à « gratuit ».
 
         Raises:
-            ValueError: tarif payant sans prix, ou prix négatif ou nul.
+            BusinessRuleError: tarif payant sans prix, ou prix négatif ou nul.
         """
         pricing: EventPricing = self.pricing
         if pricing == EventPricing.FREE_FOR_ALL:
@@ -409,7 +409,7 @@ class Event(IdMixin, LifeCycleMixin, Owned, Base):
         échec.
 
         Raises:
-            ValueError: événement pas en brouillon, ou incomplet.
+            BusinessRuleError: événement pas en brouillon, ou incomplet.
         """
         if not self.can_submit_for_review():
             msg = "Impossible de soumettre à relecture : seul un brouillon peut l'être."
@@ -439,7 +439,7 @@ class Event(IdMixin, LifeCycleMixin, Owned, Base):
         suivant.
 
         Raises:
-            ValueError: événement pas en relecture, ou motif vide.
+            BusinessRuleError: événement pas en relecture, ou motif vide.
         """
         if not self.can_send_back():
             msg = "Impossible de renvoyer cet événement : il n'est pas en relecture."
@@ -461,7 +461,7 @@ class Event(IdMixin, LifeCycleMixin, Owned, Base):
         Unpublish the event (return to DRAFT status).
 
         Raises:
-            ValueError: If event cannot be unpublished
+            BusinessRuleError: If event cannot be unpublished
         """
         if not self.can_unpublish():
             msg = "Cannot unpublish event: event is not PUBLIC"
@@ -509,7 +509,7 @@ class Event(IdMixin, LifeCycleMixin, Owned, Base):
         temps.
 
         Raises:
-            ValueError: événement non publié, déjà annulé, ou motif trop long.
+            BusinessRuleError: événement non publié, déjà annulé, ou motif trop long.
         """
         if not self.can_cancel():
             msg = (
@@ -540,7 +540,7 @@ class Event(IdMixin, LifeCycleMixin, Owned, Base):
         """Rétablir un événement annulé, dans les 24 heures (ANN-07).
 
         Raises:
-            ValueError: événement non annulé, ou fenêtre expirée.
+            BusinessRuleError: événement non annulé, ou fenêtre expirée.
         """
         if self.cancelled_at is None:
             msg = "Impossible de rétablir cet événement : il n'est pas annulé."
