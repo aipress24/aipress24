@@ -78,6 +78,17 @@
   </div>
 
   <div class="mb-5">
+    {# La famille d'événement, arrivée par un lien depuis une carte.
+       Elle se retire en lien et non en `hx-post` comme les filtres
+       ci-dessous : elle vit dans l'URL et non en session. #}
+    {% if category %}
+      <span class="inline-flex items-center rounded text-sm font-medium text-gray-600 bg-gray-200 my-1 py-1 px-2">
+        <span>type&nbsp;: {{ category_label }}</span>
+        <a href="{{ category_clear_url }}"
+           class="ml-1 hover:bg-gray-300"
+           aria-label="Retirer le filtre {{ category_label }}">✖</a>
+      </span>
+    {% endif %}
     {% for filter in filter_bar.active_filters %}
      <span
           class="inline-flex items-center rounded text-sm font-medium text-gray-600 bg-gray-200 my-1 py-1 px-2">
