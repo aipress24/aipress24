@@ -121,3 +121,52 @@ class TestLeFiltreDeLAnnuaire:
         # ... doit être ce que la requête SQL cherchera en base.
         assert option == user.profile.profile_label
         assert "profile_label" in str(KYCProfile.profile_label)
+
+
+class TestLesBarresInternes:
+    """Régression — revue Ken du 2026-09-01.
+
+    `strip_taxonomy_prefix` découpe sur la **dernière** barre, ce qui
+    convient aux ontologies dont toute valeur s'écrit « FAMILLE / Détail »
+    mais mutile celles dont la barre est **interne**. Quatre valeurs
+    réelles en portent une, et trois sont des fonctions de journalisme —
+    sur une plateforme de journalistes.
+    """
+
+    def test_une_fonction_de_journalisme_reste_entiere(self) -> None:
+        """Affichait « police »."""
+        profile = _profil(
+            {
+                "fonctions_journalisme": [
+                    "Journaliste spécialisé en droit/justice/police"
+                ]
+            }
+        )
+
+        assert profile.fonction == "Journaliste spécialisé en droit/justice/police"
+
+    def test_et_ses_deux_soeurs_aussi(self) -> None:
+        for value in (
+            "Journaliste spécialisé en écologie/environnement",
+            "Journaliste spécialisé en bricolage/jardinage",
+        ):
+            assert _profil({"fonctions_journalisme": [value]}).fonction == value
+
+    def test_seule_la_premiere_barre_separe_une_famille(self) -> None:
+        """Affichait « SEM) »."""
+        profile = _profil(
+            {
+                "fonctions_org_priv_detail": [
+                    "DIRECTION MARKETING / Expert en référencement (SEO/SEM)"
+                ]
+            }
+        )
+
+        assert profile.fonction == "Expert en référencement (SEO/SEM)"
+
+    def test_une_famille_collee_a_sa_barre_est_reconnue(self) -> None:
+        profile = _profil(
+            {"fonctions_org_priv_detail": ["AUTO-ENTREPRENEUR/Journaliste"]}
+        )
+
+        assert profile.fonction == "Journaliste"

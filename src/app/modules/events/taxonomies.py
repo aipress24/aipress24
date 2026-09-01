@@ -18,6 +18,7 @@ filtrer, plutôt que « Responsable grands comptes ».
 
 from __future__ import annotations
 
+from app.lib.utils import split_taxonomy_value
 from app.services.taxonomies import get_taxonomy
 
 COMPETENCE_TAXONOMIES = ("competence_expert", "journalisme_competence")
@@ -36,8 +37,6 @@ FAMILY_TAXONOMIES = (
 # barre, et elle y est interne — « Journaliste spécialisé en
 # bricolage/jardinage ». Les découper fabriquerait des options fantômes.
 FLAT_TAXONOMIES = ("journalisme_fonction",)
-
-FONCTION_TAXONOMIES = FAMILY_TAXONOMIES + FLAT_TAXONOMIES
 
 
 def competence_options() -> list[str]:
@@ -62,4 +61,4 @@ def _values(taxonomies: tuple[str, ...]) -> set[str]:
 
 
 def _family(value: str) -> str:
-    return value.partition("/")[0].strip()
+    return split_taxonomy_value(value)[0]

@@ -103,6 +103,12 @@ class TestFilteringInSql:
     def test_an_absent_value_finds_nothing(self, session) -> None:
         assert self._ids(session, "DIRECTION ACHATS") == []
 
+    def test_aucune_valeur_ne_ramene_rien(self, session) -> None:
+        """Revue Ken — `sa.or_()` sans argument rend une clause **vide**,
+        que `where()` ignore : le filtre laissait alors tout passer.
+        « Porte au moins une valeur parmi aucune » est faux."""
+        assert self._ids(session) == []
+
     def test_a_value_is_not_matched_as_a_prefix_of_another(self, session) -> None:
         """Sans les délimiteurs, « DIRECTION » ramènerait tout, et
         « DIRECTION COMMERCIALE » ramènerait « DIRECTION COMMERCIALE

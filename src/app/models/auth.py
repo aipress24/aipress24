@@ -23,7 +23,7 @@ from sqlalchemy.sql import func
 from sqlalchemy_utils import ArrowType
 
 from app.enums import ContactTypeEnum, OrganisationTypeEnum, RoleEnum
-from app.lib.utils import strip_taxonomy_prefix
+from app.lib.utils import split_taxonomy_value
 from app.modules.kyc.survey_model import get_survey_profile
 
 from .base import Base
@@ -35,6 +35,24 @@ from .mixins import Addressable, LifeCycleMixin
 
 if typing.TYPE_CHECKING:
     from .organisation import Organisation
+
+#: Les clés de `match_making` qui portent une fonction, dans l'ordre où
+#: elles décident laquelle représente le membre : le journalisme d'abord,
+#: parce que c'est lui qui situe quelqu'un sur AIpress24.
+FONCTION_KEYS = (
+    "fonctions_journalisme",
+    "fonctions_pol_adm_detail",
+    "fonctions_org_priv_detail",
+    "fonctions_ass_syn_detail",
+)
+
+#: Celles dont **toute** valeur s'écrit « FAMILLE / Détail » (416, 584 et
+#: 44 valeurs, sans exception). `fonctions_journalisme` en est absente à
+#: dessein : ses valeurs n'ont pas de famille, et trois d'entre elles
+#: portent une barre **interne** — « Journaliste spécialisé en
+#: droit/justice/police », qui deviendrait « police ».
+FONCTION_KEYS_WITH_FAMILY = frozenset(FONCTION_KEYS[1:])
+
 
 FIELD_TO_ORGA_FAMILY = {
     "nom_media": OrganisationTypeEnum.MEDIA,
@@ -625,12 +643,9 @@ class KYCProfile(Base):
 
     @property
     def toutes_fonctions(self) -> list[str]:
-        return (
-            self.match_making.get("fonctions_journalisme", [])
-            + self.match_making.get("fonctions_pol_adm_detail", [])
-            + self.match_making.get("fonctions_org_priv_detail", [])
-            + self.match_making.get("fonctions_ass_syn_detail", [])
-        )
+        return [
+            value for key in FONCTION_KEYS for value in self.match_making.get(key, [])
+        ]
 
     @property
     def fonction(self) -> str:
@@ -639,16 +654,25 @@ class KYCProfile(Base):
         Ticket #0325, règle `FCT-01` : la **première** de `toutes_fonctions`,
         préfixe de famille retiré (`"DIRECTION GÉNÉRALE / Président.e"` ->
         `"Président.e"`). Le KYC n'a pas de champ « fonction principale », et
-        l'ordre de `toutes_fonctions` place le journalisme en tête, ce qui est
+        l'ordre de `FONCTION_KEYS` place le journalisme en tête, ce qui est
         celui qui situe un membre sur AIpress24.
+
+        Le préfixe n'est retiré que pour les familles qui en ont un :
+        les fonctions du journalisme portent des barres **internes**
+        (« Journaliste spécialisé en droit/justice/police »), et les
+        découper afficherait « police ».
 
         Le repli sur `profile_label` appartient à `User.fonction` : ici, une
         chaîne vide dit la vérité, à savoir qu'aucune fonction n'est déclarée.
         """
-        fonctions = self.toutes_fonctions
-        if not fonctions:
-            return ""
-        return strip_taxonomy_prefix(fonctions[0])
+        for key in FONCTION_KEYS:
+            values = self.match_making.get(key, [])
+            if not values:
+                continue
+            if key not in FONCTION_KEYS_WITH_FAMILY:
+                return values[0].strip()
+            return split_taxonomy_value(values[0])[1]
+        return ""
 
     @property
     def fonctions_journalisme(self) -> list[str]:
