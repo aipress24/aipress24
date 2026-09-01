@@ -10,6 +10,7 @@ from sqlalchemy import select
 
 from app.constants import LOCAL_TZ
 from app.flask.extensions import db
+from app.lib.geoloc import parse_pays_zip_ville
 from app.models.lifecycle import PublicationStatus
 from app.modules.events.change_detection import describe_state, has_changed, snapshot
 from app.modules.events.models import EventPost
@@ -105,6 +106,12 @@ def update_post(
     post.address = info.address
     post.pays_zip_ville = info.pays_zip_ville
     post.pays_zip_ville_detail = info.pays_zip_ville_detail
+    # Découpée ici, et ici seulement : c'est le seul endroit où la
+    # localisation entre dans le miroir public (audit du 2026-09-01).
+    localisation = parse_pays_zip_ville(info.pays_zip_ville_detail)
+    post.code_postal = localisation.code_postal
+    post.departement = localisation.departement
+    post.ville = localisation.ville
 
     post.genre = info.event_type
     post.sector = info.sector

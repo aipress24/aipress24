@@ -14,9 +14,7 @@ from sqlalchemy import (
     orm,
 )
 from sqlalchemy.orm import Mapped, declared_attr, mapped_column
-from sqlalchemy.sql import func
 from sqlalchemy_utils import ArrowType
-from sqlalchemy_utils.functions.orm import hybrid_property
 
 from app.enums import EventMode, EventPricing
 from app.models.auth import User
@@ -219,57 +217,20 @@ class EventPost(EventPostBase):
     pays_zip_ville: Mapped[str] = mapped_column(default="")
     pays_zip_ville_detail: Mapped[str] = mapped_column(default="")
 
-    @hybrid_property
-    def code_postal(self) -> str:
-        """Return the zip code"""
-        if not self.pays_zip_ville_detail:
-            return ""
-        try:
-            return self.pays_zip_ville_detail.split()[2]
-        except IndexError:
-            return ""
-
-    @code_postal.expression
-    def code_postal(cls):
-        """SQL expression for the zip code property."""
-        return func.coalesce(func.split_part(cls.pays_zip_ville_detail, " ", 3))
-
-    @hybrid_property
-    def departement(self) -> str:
-        """Return the 2 first digit of zip code"""
-        if not self.pays_zip_ville_detail:
-            return ""
-        try:
-            return self.pays_zip_ville_detail.split()[2][:2]
-        except IndexError:
-            return ""
-
-    @departement.expression
-    def departement(cls):
-        """SQL expression for the departement property."""
-        return func.coalesce(
-            func.substring(func.split_part(cls.pays_zip_ville_detail, " ", 3), 1, 2),
-            "",
-        )
-
-    @hybrid_property
-    def ville(self) -> str:
-        """Return the 4th part of pays_zip_ville_detail"""
-        if not self.pays_zip_ville_detail:
-            return ""
-        try:
-            data = self.pays_zip_ville_detail.split()[3]
-            if data.endswith('"}'):  # fixme: origin of bad formatting in test data?
-                return data[:-2]
-            return data
-        except IndexError:
-            return ""
-
-    @ville.expression
-    def ville(cls):
-        """SQL expression for the ville property."""
-        part = func.split_part(cls.pays_zip_ville_detail, " ", 4)
-        return func.coalesce(func.rtrim(part, '"}'), "")
+    # Localisation découpée **à l'écriture** (audit du 2026-09-01).
+    #
+    # C'étaient trois propriétés hybrides, donc six implémentations pour
+    # trois notions : une en Python, une en SQL, par notion. Les
+    # expressions SQL appelaient `split_part`, absent de SQLite, si bien
+    # que les filtres « Département » et « Ville » ne rendaient jamais
+    # rien hors PostgreSQL — sous un `except OperationalError` qui
+    # rendait la panne muette.
+    #
+    # Dénormalisées parce que le point d'écriture est **unique** :
+    # `event_receiver` recopie la localisation, et lui seul.
+    code_postal: Mapped[str] = mapped_column(default="", index=True)
+    departement: Mapped[str] = mapped_column(default="", index=True)
+    ville: Mapped[str] = mapped_column(default="", index=True)
 
 
 class AccreditationStatus(StrEnum):

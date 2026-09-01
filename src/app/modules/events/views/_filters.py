@@ -191,12 +191,10 @@ class FilterBar:
     # State management
     #
     def get_state(self) -> dict:
-        try:
-            state_json = session["events:state"]
-        except KeyError:
+        state_json = session.get("events:state")
+        if state_json is None:
             return {}
-        else:
-            return loads(state_json)
+        return loads(state_json)
 
     def save_state(self) -> None:
         session["events:state"] = dumps(self.state)
@@ -333,11 +331,13 @@ def _get_distinct_values(column_name: str) -> list[str]:
 
     This ensures filter options only show values that will return results.
 
-    Note: Some hybrid_property columns (departement, ville) use PostgreSQL-specific
-    functions (split_part) that don't work on SQLite. In that case, return empty list.
+    Toutes les colonnes filtrées sont désormais de vraies colonnes :
+    `departement` et `ville` étaient des propriétés hybrides dont le SQL
+    n'existait que sur PostgreSQL, et la requête était enveloppée d'un
+    `except OperationalError` qui rendait le filtre vide plutôt que
+    cassé (audit du 2026-09-01).
     """
     import arrow
-    from sqlalchemy.exc import OperationalError
 
     column: InstrumentedAttribute = getattr(EventPost, column_name)
     today = arrow.now().floor("day")
@@ -362,16 +362,10 @@ def _get_distinct_values(column_name: str) -> list[str]:
     # lève `InvalidTextRepresentation` : la page /events/ entière
     # renvoie 500. SQLite, qui stocke l'énumération en `VARCHAR`,
     # accepte la comparaison — le défaut serait donc invisible à la
-    # suite SQLite. Et le filet `except OperationalError` ci-dessous ne
-    # le rattraperait pas non plus, l'erreur étant une `DataError`,
-    # laquelle laisse en outre la transaction PostgreSQL avortée : le
-    # filtre *suivant* de la boucle échouerait à son tour.
+    # suite SQLite. L'erreur est en outre une `DataError`, qui laisse
+    # la transaction PostgreSQL avortée : le filtre *suivant* de la
+    # boucle échouerait à son tour.
     if not isinstance(column.type, sa.Enum):
         stmt = stmt.where(column != "")
 
-    try:
-        return list(db.session.scalars(stmt))
-    except OperationalError:
-        # Hybrid properties may use DB-specific functions (e.g., split_part)
-        # that don't work on all databases (e.g., SQLite)
-        return []
+    return list(db.session.scalars(stmt))
