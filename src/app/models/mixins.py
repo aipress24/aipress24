@@ -147,23 +147,6 @@ class Addressable:
         ]
 
 
-# Unused
-# def filter_by_loc(stmt: orm.Query, loc: str, cls: type[Addressable]) -> orm.Query:
-#     if not loc:
-#         return stmt
-
-#     key, value = loc.split(":", 2)
-#     match key:
-#         case "city":
-#             stmt = stmt.where(cls.city == value)
-#         case "region":
-#             stmt = stmt.where(cls.region == value)
-#         case "departement":
-#             stmt = stmt.where(cls.departement == value)
-
-#     return stmt
-
-
 class PaysZipVilleMixin:
     """Les trois parties de « PAYS / CODEPOSTAL VILLE », lisibles et filtrables.
 
@@ -175,7 +158,12 @@ class PaysZipVilleMixin:
     expressions SQL appelaient `split_part`, absent de SQLite : les
     filtres géographiques ne rendaient rien hors PostgreSQL. Les deux
     moitiés viennent désormais de `app.lib.geoloc`, et un test compare
-    leurs résultats sur les deux bases.
+    leurs résultats sur les deux bases, entrées mal formées comprises.
+
+    Deux modèles y échappent, chacun pour sa raison, et tirent tout de
+    même leur découpage d'`app.lib.geoloc` : `KYCProfile`, dont la
+    localisation vit dans un JSON, et `BusinessWall`, qui la découpe à
+    l'écriture dans de vraies colonnes.
 
     Le miroir des événements ne l'utilise pas : il a un point d'écriture
     unique, ce qui autorise de vraies colonnes indexées, plus rapides à
@@ -183,8 +171,12 @@ class PaysZipVilleMixin:
     silencieusement périmées dès qu'un chemin d'écriture serait oublié.
     """
 
-    #: Déclarée par la classe hôte — pas ici, pour ne pas la mapper deux
-    #: fois (WIRE la déclare avec `use_existing_column`).
+    #: Une annotation `Mapped` nue **crée** une colonne : un hôte qui
+    #: ne déclarerait pas la sienne hériterait celle-ci, sans le
+    #: `default=""` que portent les quatre autres. Les hôtes actuels la
+    #: déclarent tous, et la sous-classe l'emporte sur le mixin — WIRE
+    #: ajoutant `use_existing_column` parce qu'il la déclare deux fois
+    #: par ailleurs.
     pays_zip_ville_detail: Mapped[str]
 
     @hybrid_property

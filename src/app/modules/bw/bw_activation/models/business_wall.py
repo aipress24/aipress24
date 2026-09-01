@@ -19,6 +19,7 @@ from sqlalchemy.orm.attributes import flag_modified
 
 from app.enums import BWType  # noqa: F401
 from app.lib.file_object_utils import deserialize_file_object
+from app.lib.geoloc import parse_pays_zip_ville
 from app.logging import warn
 
 if TYPE_CHECKING:
@@ -269,32 +270,30 @@ class BusinessWall(UUIDAuditBase):
     #     return self.bw_type == BWType.MEDIA.value
 
     def update_location_fields(self) -> None:
-        """Update code_postal, departement, and ville from pays_zip_ville_detail."""
+        """Update code_postal, departement, and ville from pays_zip_ville_detail.
+
+        Le découpage vient d'`app.lib.geoloc`, comme celui du miroir des
+        événements, de l'annuaire, du Wall et de la place de marché : le
+        BW en portait la sixième copie, celle qui restait quand les cinq
+        autres ont fusionné (audit du 2026-09-01).
+
+        Deux règles lui sont propres et restent ici : le département n'a
+        de sens qu'en France, et l'absence de localisation s'écrit `None`
+        plutôt que `""` — ces colonnes sont *nullables*, contrairement à
+        toutes les autres.
+        """
         if not self.pays_zip_ville_detail:
             self.code_postal = None
             self.departement = None
             self.ville = None
             return
-        try:
-            self.code_postal = self.pays_zip_ville_detail.split()[2]
-        except IndexError:
-            self.code_postal = ""
-        if self.pays_zip_ville == "FRA":
-            # only for France
-            try:
-                self.departement = self.code_postal[:2] if self.code_postal else ""
-            except IndexError:
-                self.departement = ""
-        else:
-            self.departement = ""
-        try:
-            parts = self.pays_zip_ville_detail.split()
-            ville = " ".join(parts[3:]) if len(parts) > 3 else ""
-            # origin of bad formatting in test data?
-            ville = ville.removesuffix('"}')
-        except IndexError:
-            ville = ""
-        self.ville = ville
+
+        localisation = parse_pays_zip_ville(self.pays_zip_ville_detail)
+        self.code_postal = localisation.code_postal
+        self.departement = (
+            localisation.departement if self.pays_zip_ville == "FRA" else ""
+        )
+        self.ville = localisation.ville
 
     @property
     def formatted_address(self) -> str:
