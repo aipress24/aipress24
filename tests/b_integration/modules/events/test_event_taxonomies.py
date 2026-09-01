@@ -4,10 +4,15 @@
 
 """Les options des deux axes de métadonnées — décision `M1`.
 
-Les valeurs semées ici sont **recopiées des ontologies réelles**, cas
-limites compris. C'est leur forme qui justifie la règle : les trois
-ontologies de fonctions professionnelles écrivent « FAMILLE / Détail »
-sans exception, celle du journalisme n'a pas de familles du tout.
+Ce qui se vérifie ici est ce qui a besoin des ontologies : **quelles
+ontologies sont lues, et laquelle est regroupée**. La règle de
+regroupement elle-même est pure et s'éprouve sans base, dans
+`tests/a_unit/modules/events/test_collapse_to_families.py`.
+
+Les valeurs semées sont recopiées des ontologies réelles : c'est leur
+forme qui justifie le partage — les trois ontologies de fonctions
+professionnelles écrivent « FAMILLE / Détail » sans exception, celle du
+journalisme n'a pas de familles du tout.
 """
 
 from __future__ import annotations
@@ -65,39 +70,24 @@ class TestLesCompetences:
 
 
 class TestLesFonctions:
-    def test_une_famille_remplace_ses_details(self, ontologies) -> None:
+    def test_les_quatre_ontologies_sont_lues(self, ontologies) -> None:
         options = fonction_options()
 
-        assert "DIRECTION COMMERCIALE" in options
+        assert "DIRECTION COMMERCIALE" in options  # privé
+        assert "PRÉSIDENCE DE LA RÉPUBLIQUE" in options  # public
+        assert "Direction" in options  # associatif
+        assert "Caméraman" in options  # journalisme
+
+    def test_seules_les_trois_ontologies_a_familles_sont_regroupees(
+        self, ontologies
+    ) -> None:
+        """Le partage est tout l'enjeu : regrouper le journalisme
+        afficherait « Journaliste spécialisé en droit », et ne pas
+        regrouper le privé noierait la liste sous 584 entrées."""
+        options = fonction_options()
+
         assert "DIRECTION COMMERCIALE / Responsable grands comptes" not in options
+        assert "Journaliste spécialisé en droit/justice/police" in options
 
     def test_deux_details_d_une_meme_famille_n_en_font_qu_une(self, ontologies) -> None:
-        options = fonction_options()
-
-        assert options.count("DIRECTION COMMERCIALE") == 1
-
-    def test_une_famille_collee_a_sa_barre_est_reconnue(self, ontologies) -> None:
-        assert "AUTO-ENTREPRENEUR" in fonction_options()
-
-    def test_seule_la_premiere_barre_separe(self, ontologies) -> None:
-        """« DIRECTION MARKETING / Expert en référencement (SEO/SEM) » en
-        compte deux ; découper sur la dernière donnerait une famille
-        « DIRECTION MARKETING / Expert en référencement (SEO »."""
-        options = fonction_options()
-
-        assert "DIRECTION MARKETING" in options
-        assert not any("SEO" in option for option in options)
-
-    def test_le_journalisme_garde_ses_fonctions_entieres(self, ontologies) -> None:
-        options = fonction_options()
-
-        assert "Journaliste spécialisé en bricolage/jardinage" in options
-        assert "Journaliste spécialisé en droit" not in options
-        assert "Journaliste spécialisé en bricolage" not in options
-
-    def test_aucune_option_de_famille_ne_garde_de_barre(self, ontologies) -> None:
-        options = fonction_options()
-        familles = [o for o in options if o.isupper()]
-
-        assert familles
-        assert not any("/" in famille for famille in familles)
+        assert fonction_options().count("DIRECTION COMMERCIALE") == 1
