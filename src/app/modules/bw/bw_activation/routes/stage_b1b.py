@@ -11,6 +11,7 @@ from typing import TYPE_CHECKING, Any, cast
 from uuid import UUID
 
 from flask import flash, g, redirect, render_template, request, session, url_for
+from sqlalchemy.exc import SQLAlchemyError
 
 from app.flask.extensions import db
 from app.lib.file_object_utils import create_file_object
@@ -158,9 +159,16 @@ def configure_gallery():
                 business_wall.add_bw_image(bw_image)
                 db.session.commit()
                 flash("Image ajoutée avec succès", "success")
-            except Exception as e:
+            except (OSError, SQLAlchemyError) as e:
+                # The storage write and the commit are what can fail
+                # here; everything else in the block is in-memory. The
+                # message shown no longer carries the exception text —
+                # the page used to say things like « Erreur lors de
+                # l'upload de l'image: NoSuchBucket ». Same treatment
+                # as stage B1's logo.
+                db.session.rollback()
                 warn(f"Error uploading gallery image: {e}")
-                flash(f"Erreur lors de l'upload de l'image: {e}", "error")
+                flash("L'envoi de l'image a échoué.", "error")
 
         return redirect(url_for("bw_activation.configure_gallery"))
 

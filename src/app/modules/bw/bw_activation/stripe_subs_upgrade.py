@@ -11,6 +11,7 @@ from typing import TYPE_CHECKING, Any
 import stripe
 
 from app.flask.extensions import db
+from app.logging import warn
 from app.modules.bw.bw_activation.bw_product import evaluate_subscription
 from app.services.stripe.product import resolve_product_price
 from app.services.stripe.utils import load_stripe_api_key
@@ -20,31 +21,45 @@ if TYPE_CHECKING:
 
 
 def _get_stripe_subscription(stripe_subscription_id: str) -> Any | None:
-    """Retrieve a Stripe subscription by id."""
+    """Retrieve a Stripe subscription by id.
+
+    `None` means we could not read it, and the caller turns that into
+    « Impossible de récupérer l'abonnement Stripe » for the operator.
+    It used to swallow every exception without a word, so that message
+    was the only trace an outage left.
+    """
     if not load_stripe_api_key():
+        warn(
+            f"Cannot retrieve Stripe subscription {stripe_subscription_id!r}: "
+            "Stripe API key not found"
+        )
         return None
     try:
         return stripe.Subscription.retrieve(stripe_subscription_id)
-    except Exception:
+    except stripe.StripeError as e:
+        warn(f"Failed to retrieve Stripe subscription {stripe_subscription_id!r}: {e}")
         return None
 
 
 def _find_item_to_replace(stripe_sub: Any) -> str | None:
-    """Return the first subscription item id."""
-    items = getattr(stripe_sub, "items", None)
-    if items is None:
-        return None
-    data = (
-        getattr(items, "data", None)
-        if not isinstance(items, dict)
-        else items.get("data")
-    )
+    """Return the first subscription item id.
+
+    A Stripe `Subscription.items` is a `ListObject` carrying `.data`;
+    both it and the items inside also answer to bracket access, which
+    is what the CLI fixtures hand us.
+    """
+    items = _get_key(stripe_sub, "items")
+    data = _get_key(items, "data") if items is not None else None
     if not data:
         return None
-    first_item = data[0]
-    if isinstance(first_item, dict):
-        return first_item.get("id")
-    return getattr(first_item, "id", None)
+    return _get_key(data[0], "id")
+
+
+def _get_key(obj: Any, key: str) -> Any:
+    """Read `key` off a Stripe object or a plain dict."""
+    if isinstance(obj, dict):
+        return obj.get(key)
+    return getattr(obj, key, None)
 
 
 def change_bw_subscription_tier(
@@ -102,7 +117,8 @@ def change_bw_subscription_tier(
             items=[{"id": item_id, "price": new_price_id}],
             proration_behavior="create_prorations",
         )
-    except Exception as e:
+    except stripe.StripeError as e:
+        warn(f"Failed to change subscription {stripe_subscription_id!r}: {e}")
         result["message"] = f"Erreur Stripe lors du changement d'abonnement : {e}"
         return result
 

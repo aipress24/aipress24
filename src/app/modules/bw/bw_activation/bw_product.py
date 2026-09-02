@@ -14,6 +14,7 @@ from typing import TYPE_CHECKING, Any
 
 import stripe
 
+from app.logging import warn
 from app.modules.bw.bw_activation.config import BW_TYPES, BWTYPE_ALLOWED_PRODUCTS
 from app.services.stripe.product import coerce_metadata, fetch_bw_product_list
 from app.services.stripe.utils import load_stripe_api_key
@@ -22,6 +23,36 @@ if TYPE_CHECKING:
     from stripe import Product
 
     from app.modules.bw.bw_activation.models.business_wall import BusinessWall
+
+
+def _current_stripe_product(stripe_subscription_id: str) -> Product | None:
+    """The product a live Stripe subscription is currently billing.
+
+    `None` when Stripe is unconfigured, unreachable, or the subscription
+    carries no item — the caller then compares against « no current
+    product » and recommends one.
+
+    The expanded subscription hands back `items.data[0].plan.product`.
+    Four `getattr` defaults and an `except Exception` used to guard that
+    one path, so a genuine API failure and an unusual payload shape were
+    indistinguishable.
+    """
+    if not load_stripe_api_key():
+        return None
+    try:
+        stripe_sub = stripe.Subscription.retrieve(
+            stripe_subscription_id, expand=["items.data.plan.product"]
+        )
+    except stripe.StripeError as e:
+        warn(f"Cannot read Stripe subscription {stripe_subscription_id!r}: {e}")
+        return None
+
+    items = stripe_sub.get("items")
+    data = items.get("data") if items else None
+    if not data:
+        return None
+    plan = data[0].get("plan")
+    return plan.get("product") if plan else None
 
 
 def allowed_bw_product_list(bw_type: str) -> list[Product]:
@@ -147,19 +178,7 @@ def evaluate_subscription(
     current_product: Product | None = None
     sub = current_bw.subscription
     if sub is not None and sub.stripe_subscription_id:
-        try:
-            if load_stripe_api_key():
-                stripe_sub = stripe.Subscription.retrieve(
-                    sub.stripe_subscription_id, expand=["items.data.plan.product"]
-                )
-                items = getattr(stripe_sub, "items", None)
-                if items and items.data:
-                    first_item = items.data[0]
-                    plan = getattr(first_item, "plan", None)
-                    if plan:
-                        current_product = getattr(plan, "product", None)
-        except Exception:
-            current_product = None
+        current_product = _current_stripe_product(sub.stripe_subscription_id)
 
     current_reference = ""
     if sub is not None and sub.pricing_tier and sub.pricing_tier != "via_pricing_table":

@@ -275,7 +275,7 @@ class BusinessWall(UUIDAuditBase):
         The splitting comes from `app.lib.geoloc`, like the one used by
         the events mirror, the directory, the Wall and the marketplace:
         the BW held the sixth copy, the one left over when the other
-        five merged (audit 2026-09-01).
+        five merged.
 
         Two rules are its own and stay here: the departement only makes
         sense in France, and a missing location is written `None` rather
@@ -353,7 +353,11 @@ class BusinessWall(UUIDAuditBase):
                         "filename": display_name,
                     }
                 )
-            except Exception as e:
+            except (KeyError, TypeError, ValueError) as e:
+                # A malformed stored payload skips its own tile rather
+                # than emptying the gallery. Narrow on purpose: a
+                # storage outage should surface, not render as a page
+                # with fewer images.
                 warn(f"gallery_image_signed_urls: {e}")
         return result
 
