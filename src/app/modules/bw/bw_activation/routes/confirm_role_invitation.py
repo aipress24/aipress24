@@ -8,6 +8,7 @@ from __future__ import annotations
 
 from datetime import UTC, datetime
 from typing import TYPE_CHECKING, cast
+from uuid import UUID
 
 from flask import g, redirect, render_template, request, session, url_for
 from sqlalchemy import select
@@ -36,11 +37,17 @@ if TYPE_CHECKING:
     from app.models.auth import User
 
 
+# `<uuid:bw_id>`: the id is a UUID primary key, and Werkzeug's
+# converter refuses a malformed one with a 404 before the view runs. The
+# `try/except Exception` below existed for exactly that case — Postgres
+# raises on `WHERE id = 'not-a-uuid'` — and relabelled it « Business
+# Wall introuvable », which also swallowed every genuine database
+# failure.
 @bp.route(
-    "/confirm-role-invitation/<bw_id>/<role_type>/<int:user_id>",
+    "/confirm-role-invitation/<uuid:bw_id>/<role_type>/<int:user_id>",
     methods=["GET", "POST"],
 )
-def confirm_role_invitation(bw_id: str, role_type: str, user_id: int):
+def confirm_role_invitation(bw_id: UUID, role_type: str, user_id: int):
     """Confirm or reject a role invitation.
 
     The role assignment status is updated to ACCEPTED or REJECTED
@@ -54,13 +61,9 @@ def confirm_role_invitation(bw_id: str, role_type: str, user_id: int):
         session["error"] = ERR_WRONG_VALIDATION_LINK
         return redirect(url_for("bw_activation.not_authorized"))
 
-    try:
-        business_wall = db.session.execute(
-            select(BusinessWall).where(BusinessWall.id == bw_id)
-        ).scalar_one_or_none()
-    except Exception:
-        business_wall = None
-
+    business_wall = db.session.execute(
+        select(BusinessWall).where(BusinessWall.id == bw_id)
+    ).scalar_one_or_none()
     if not business_wall:
         session["error"] = ERR_BW_NOT_FOUND
         warn(f"Business wall not found: {bw_id}")

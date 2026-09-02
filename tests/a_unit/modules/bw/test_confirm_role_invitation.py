@@ -79,11 +79,19 @@ class TestRouteRegistration:
     def test_url_pattern(self, url_map):
         """The URL is the public contract of an invitation email —
         the `<bw_id>/<role_type>/<int:user_id>` shape must stay
-        stable so old links keep working."""
+        stable so old links keep working.
+
+        `bw_id` takes the `uuid` converter. Links already in members'
+        inboxes carry a canonical UUID and still match; what no longer
+        matches is a malformed one, which used to reach the view and
+        blow up the `WHERE id = ...` on Postgres — caught there by an
+        `except Exception` that reported it as « Business Wall
+        introuvable ».
+        """
         rule = next(r for r in url_map.iter_rules() if r.endpoint == ENDPOINT)
         # blueprint mounted at /bw in the fixture above
-        assert (
-            rule.rule == "/bw/confirm-role-invitation/<bw_id>/<role_type>/<int:user_id>"
+        assert rule.rule == (
+            "/bw/confirm-role-invitation/<uuid:bw_id>/<role_type>/<int:user_id>"
         )
 
     def test_user_id_is_int_converter(self, url_map):

@@ -36,11 +36,17 @@ if TYPE_CHECKING:
     from app.models.auth import User
 
 
+# `<uuid:...>`, not `<...>`: both ids are UUID primary keys, and
+# Werkzeug's converter refuses a malformed one with a 404 before the
+# view runs. The two `try/except Exception` blocks below existed for
+# exactly that case — Postgres raises on `WHERE id = 'not-a-uuid'` —
+# and relabelled it « Business Wall introuvable », which also swallowed
+# every genuine database failure.
 @bp.route(
-    "/confirm-partnership-invitation/<bw_id>/<partnership_id>",
+    "/confirm-partnership-invitation/<uuid:bw_id>/<uuid:partnership_id>",
     methods=["GET", "POST"],
 )
-def confirm_partnership_invitation(bw_id: str, partnership_id: str):
+def confirm_partnership_invitation(bw_id: UUID, partnership_id: UUID):
     """Confirm or reject a partnership invitation.
 
     If accepted, a RoleAssignment is also created for the PR user.
@@ -48,28 +54,20 @@ def confirm_partnership_invitation(bw_id: str, partnership_id: str):
     template = "bw_activation/confirm_partnership_invitation.html"
     current_user = cast("User", g.user)
 
-    try:
-        business_wall = db.session.execute(
-            select(BusinessWall).where(BusinessWall.id == bw_id)
-        ).scalar_one_or_none()
-    except Exception:
-        business_wall = None
-
+    business_wall = db.session.execute(
+        select(BusinessWall).where(BusinessWall.id == bw_id)
+    ).scalar_one_or_none()
     if not business_wall:
         session["error"] = ERR_BW_NOT_FOUND
         warn(f"Business wall not found: {bw_id}")
         return redirect(url_for("bw_activation.not_authorized"))
 
-    try:
-        partnership = db.session.execute(
-            select(Partnership).where(
-                Partnership.id == partnership_id,
-                Partnership.business_wall_id == bw_id,
-            )
-        ).scalar_one_or_none()
-    except Exception:
-        partnership = None
-
+    partnership = db.session.execute(
+        select(Partnership).where(
+            Partnership.id == partnership_id,
+            Partnership.business_wall_id == bw_id,
+        )
+    ).scalar_one_or_none()
     if not partnership:
         warn(f"Partnership not found: {partnership_id}")
         session["error"] = ERR_INVITATION_NOT_FOUND
