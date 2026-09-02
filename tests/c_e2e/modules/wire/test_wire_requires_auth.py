@@ -19,8 +19,7 @@ it is no longer a redundancy that goes but access that opens — on
 from __future__ import annotations
 
 import pytest
-
-from app.modules.wire import blueprint
+from flask import Flask
 
 # One URL per shape of view: list, purchase detail, price modal, buy
 # POST. All must send a visitor to the home page or to login, never to a
@@ -56,13 +55,12 @@ def test_nor_through_a_post(client, url) -> None:
     )
 
 
-def test_the_guard_lives_in_the_before_request() -> None:
+def test_the_guard_lives_in_the_before_request(app: Flask) -> None:
     """The tests above would also pass if every view guarded itself.
 
     What we want to assert is that the guard is **single and central**:
     it is what allows the views to treat `g.user` as a signed-in member.
     """
-    names = [f.__name__ for f in blueprint.deferred_functions]
-    assert blueprint.before_request_funcs or names, (
+    assert app.before_request_funcs.get("wire"), (
         "the WIRE blueprint no longer registers a before_request"
     )
