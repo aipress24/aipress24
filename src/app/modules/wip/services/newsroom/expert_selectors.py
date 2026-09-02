@@ -308,6 +308,66 @@ class DualSelector(BaseSelector):
     # through Jinja autoescape — every `"` and `'` would be HTML-encoded
     # and the inline JS would be unparseable.
 
+    @cached_property
+    def _raw_taxonomy(self) -> dict[str, Any]:
+        return self._dual_taxonomy_loader(self.taxonomy_name or "")
+
+    @cached_property
+    def _taxonomy_detail_map(self) -> dict[str, list[str]]:
+        """Map from lowercase detail / categ to list of qualified taxonomy values.
+
+        Allows matching legacy profile values ('TRANSFORMATION ÉCOLOGIQUE / Adaptation...')
+        to current taxonomy ('Écologie / Adaptation...').
+        """
+        raw = self._raw_taxonomy
+        field2 = raw.get("field2", {})
+        mapping: dict[str, list[str]] = {}
+        if isinstance(field2, dict):
+            for items in field2.values():
+                for item in items:
+                    val = item[0] if isinstance(item, (list, tuple)) else item
+                    if "/" in val:
+                        _, detail = val.split("/", 1)
+                        mapping.setdefault(detail.strip().lower(), []).append(val)
+                    mapping.setdefault(val.strip().lower(), []).append(val)
+        return mapping
+
+    def _resolve_expert_values(self, raw_values: Iterable[str]) -> list[str]:
+        resolved: list[str] = []
+        seen: set[str] = set()
+        for val in raw_values:
+            if not val or not val.strip():
+                continue
+            val_clean = val.strip()
+            if val_clean not in seen:
+                seen.add(val_clean)
+                resolved.append(val_clean)
+
+            # exact full-string match
+            exact_matches = self._taxonomy_detail_map.get(val_clean.lower())
+            if exact_matches:
+                for tax_val in exact_matches:
+                    if tax_val not in seen:
+                        seen.add(tax_val)
+                        resolved.append(tax_val)
+            # suffix match for legacy families ("TRANSFORMATION FOO / Bar" -> "Foo / Bar")
+            elif "/" in val_clean:
+                _, detail = val_clean.split("/", 1)
+                for tax_val in self._taxonomy_detail_map.get(
+                    detail.strip().lower(), []
+                ):
+                    if tax_val not in seen:
+                        seen.add(tax_val)
+                        resolved.append(tax_val)
+        return resolved
+
+    def _raw_expert_values(self, expert: User) -> Iterable[str]:
+        return []
+
+    def _expert_values(self, expert: User) -> Iterable[str]:
+        raw = self._raw_expert_values(expert)
+        return self._resolve_expert_values(raw)
+
     def get_dual_tom_choices_for_js(self) -> dict:
         """Cascade options, shape per `convert_dual_choices_js`.
 
@@ -335,9 +395,7 @@ class DualSelector(BaseSelector):
         defines, the gating signal is "is any candidate-pool expert
         tagged with it?", not "is the taxonomy entry present?".
         """
-        raw = convert_dual_choices_js(
-            self._dual_taxonomy_loader(self.taxonomy_name or "")
-        )
+        raw = convert_dual_choices_js(self._raw_taxonomy)
         selected_parents = set(self._state.get(self.parent_id, []) or [])
         if isinstance(selected_parents, str):
             selected_parents = {selected_parents}
@@ -349,15 +407,36 @@ class DualSelector(BaseSelector):
             count = self._count_by_value.get(value, 0)
             if count == 0 and value not in self.values:
                 continue
-            parent_key = value.split(" / ")[0]
+            parent_key = value.split("/", 1)[0].strip()
             per_parent_count[parent_key] = per_parent_count.get(parent_key, 0) + count
             surviving_children.append(
                 {"value": value, "label": f"{opt['label']} ({count})"}
             )
 
+        # Keep orphan raw values not present in new taxonomies
+        known_child_values = {opt["value"] for opt in raw["field2"]}
+        orphan_values: set[str] = set()
+        for e in self._experts:
+            for val in self._raw_expert_values(e):
+                if not val or val in known_child_values or "/" not in val:
+                    continue
+                resolved = self._resolve_expert_values([val])
+                if not any(r in known_child_values for r in resolved):
+                    orphan_values.add(val)
+
+        for val in sorted(orphan_values):
+            count = self._count_by_value.get(val, 0)
+            if count == 0 and val not in self.values:
+                continue
+            parent_key = val.split("/", 1)[0].strip()
+            per_parent_count[parent_key] = per_parent_count.get(parent_key, 0) + count
+            surviving_children.append({"value": val, "label": f"{val} ({count})"})
+
         surviving_parents = []
+        seen_parents: set[str] = set()
         for opt in raw["field1"]:
             parent_value = opt["value"]
+            seen_parents.add(parent_value)
             if parent_value in per_parent_count:
                 surviving_parents.append(
                     {
@@ -370,6 +449,13 @@ class DualSelector(BaseSelector):
                 # even when no expert matches any of its children.
                 surviving_parents.append(
                     {"value": parent_value, "label": f"{opt['label']} (0)"}
+                )
+
+        # Append surviving parents from orphan values not in new taxonomy
+        for parent_key, p_count in sorted(per_parent_count.items()):
+            if parent_key not in seen_parents:
+                surviving_parents.append(
+                    {"value": parent_key, "label": f"{parent_key} ({p_count})"}
                 )
         return {"field1": surviving_parents, "field2": surviving_children}
 
@@ -408,7 +494,7 @@ class SecteurSelector(DualSelector):
     parent_label = "Catégorie de secteur"
     taxonomy_name = "secteur_detaille"
 
-    def _expert_values(self, expert: User) -> Iterable[str]:
+    def _raw_expert_values(self, expert: User) -> Iterable[str]:
         return expert.profile.secteurs_activite
 
 
@@ -446,7 +532,7 @@ class MetierSelector(DualSelector):
     parent_label = "Famille de métier"
     taxonomy_name = "metier"
 
-    def _expert_values(self, expert: User) -> Iterable[str]:
+    def _raw_expert_values(self, expert: User) -> Iterable[str]:
         return expert.tous_metiers
 
 
@@ -476,7 +562,7 @@ class FonctionPolitiquesAdministrativesSelector(DualSelector):
     parent_label = "Famille de fonction publique"
     taxonomy_name = "profession_fonction_public"
 
-    def _expert_values(self, expert: User) -> Iterable[str]:
+    def _raw_expert_values(self, expert: User) -> Iterable[str]:
         return expert.profile.fonctions_pol_adm_detail
 
 
@@ -487,7 +573,7 @@ class FonctionOrganisationsPriveesSelector(DualSelector):
     parent_label = "Famille de fonction privée"
     taxonomy_name = "profession_fonction_prive"
 
-    def _expert_values(self, expert: User) -> Iterable[str]:
+    def _raw_expert_values(self, expert: User) -> Iterable[str]:
         return expert.profile.fonctions_org_priv_detail
 
 
@@ -498,7 +584,7 @@ class FonctionAssociationsSyndicatsSelector(DualSelector):
     parent_label = "Famille de fonction associative"
     taxonomy_name = "profession_fonction_asso"
 
-    def _expert_values(self, expert: User) -> Iterable[str]:
+    def _raw_expert_values(self, expert: User) -> Iterable[str]:
         return expert.profile.fonctions_ass_syn_detail
 
 
@@ -506,9 +592,9 @@ class TransformationMajeureSelector(DualSelector):
     """Ticket #0323, et bloc 6 de #0321.
 
     Rien à inventer : la taxonomie `transformation_majeure` existe
-    (293 entrées, au format « FAMILLE / Détail » comme ses voisines) et
-    les profils portent déjà la clé — `KYCProfile.transformations_majeures`
-    la lit depuis le KYC. Il ne manquait que le sélecteur.
+    (au format « FAMILLE / Détail » comme ses voisines) et les profils
+    portent déjà la clé — `KYCProfile.transformations_majeures` la lit
+    depuis le KYC.
     """
 
     id = "transformation_majeure"
@@ -517,7 +603,7 @@ class TransformationMajeureSelector(DualSelector):
     parent_label = "Famille de transformation"
     taxonomy_name = "transformation_majeure"
 
-    def _expert_values(self, expert: User) -> Iterable[str]:
+    def _raw_expert_values(self, expert: User) -> Iterable[str]:
         return expert.profile.transformations_majeures
 
 
@@ -528,7 +614,7 @@ class CompetencesGeneralesSelector(DualSelector):
     parent_label = "Famille de compétence"
     taxonomy_name = "competence_expert"
 
-    def _expert_values(self, expert: User) -> Iterable[str]:
+    def _raw_expert_values(self, expert: User) -> Iterable[str]:
         return expert.profile.competences
 
 
@@ -548,7 +634,7 @@ class TypeOrganisationSelector(DualSelector):
     parent_label = "Catégorie d'organisation"
     taxonomy_name = "type_organisation_detail"
 
-    def _expert_values(self, expert: User) -> Iterable[str]:
+    def _raw_expert_values(self, expert: User) -> Iterable[str]:
         return expert.profile.type_organisation
 
 

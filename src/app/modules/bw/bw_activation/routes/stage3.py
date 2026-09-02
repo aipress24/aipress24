@@ -26,7 +26,7 @@ from stripe import InvalidRequestError, StripeError
 from svcs.flask import container
 
 from app.flask.extensions import db
-from app.logging import warn
+from app.logging import report_failure, warn
 from app.modules.admin.org_email_utils import change_members_emails
 from app.modules.bw.bw_activation import bp
 from app.modules.bw.bw_activation.bw_creation import (
@@ -469,33 +469,46 @@ def _create_stripe_checkout_session(
     organisation: Any | None,
     user_email: str | None,
 ) -> stripe.checkout.Session:
-    """Create a Stripe Checkout session, recovering from stale customer ids.
-
-    If the Organisation's stored "stripe_customer_id" no longer exists in
-    Stripe (deleted customer, environment switch, etc.), Stripe returns
-    "No such customer". In that case we clear the stored id, commit, and
-    retry with "customer_email" so a fresh Customer is created.
+    """Create a Stripe Checkout session, recovering from stale customer ids,
+    automatic tax or payment method issues.
     """
+    # warn(f"_create_stripe_checkout_session: creating session with keys {list(checkout_kwargs.keys())}")
     try:
         return stripe.checkout.Session.create(**checkout_kwargs)
     except InvalidRequestError as exc:
         err_msg = str(exc)
-        if (
-            "No such customer" not in err_msg
-            or organisation is None
-            or not organisation.stripe_customer_id
-        ):
-            raise
+        warn(f"Stripe Session.create InvalidRequestError: {err_msg}")
 
-        warn(
-            f"Stored Stripe customer {organisation.stripe_customer_id} not found",
-            "clearing and creating a new customer at checkout.",
-        )
-        organisation.stripe_customer_id = None
-        db.session.commit()
+        # Recovery 1: Invalid / deleted / stale customer ID
+        if "customer" in checkout_kwargs:
+            if organisation and getattr(organisation, "stripe_customer_id", None):
+                warn(
+                    f"Stored Stripe customer {organisation.stripe_customer_id} failed ({err_msg}), "
+                    "clearing and creating a new customer at checkout."
+                )
+                organisation.stripe_customer_id = None
+                db.session.commit()
+            retry_kwargs = _checkout_kwargs_without_customer(
+                checkout_kwargs, user_email
+            )
+            warn(f"Retrying Session.create without customer (email={user_email})...")
+            try:
+                return stripe.checkout.Session.create(**retry_kwargs)
+            except InvalidRequestError as retry_exc:
+                err_msg = str(retry_exc)
+                warn(f"Retry without customer also failed: {err_msg}")
+                checkout_kwargs = retry_kwargs
 
-        retry_kwargs = _checkout_kwargs_without_customer(checkout_kwargs, user_email)
-        return stripe.checkout.Session.create(**retry_kwargs)
+        # Recovery Payment method types incompatible
+        if "payment_method" in err_msg.lower():
+            warn(
+                f"Stripe payment_method error ({err_msg}), retrying without payment_method_types..."
+            )
+            no_pm_kwargs = dict(checkout_kwargs)
+            no_pm_kwargs.pop("payment_method_types", None)
+            return stripe.checkout.Session.create(**no_pm_kwargs)
+
+        raise
 
 
 def _is_idempotent_confirmation_target(
@@ -540,17 +553,22 @@ def checkout(bw_type: str):
 
     All BW types use this route.
     """
+    # warn(f"Entering /BW/checkout/{bw_type} for user={user_id} ({user_email})")
     if bw_type not in BW_TYPES:
+        warn(f"checkout: invalid bw_type '{bw_type}'")
         return redirect(url_for("bw_activation.index"))
 
     draft_bw = _get_or_create_draft_bw_for_checkout(g.user, bw_type)
     if draft_bw is None:
         # should never fail
+        user_id = getattr(g.user, "id", None)
+        warn(f"checkout: failed to get or create draft BW for user {user_id}")
         session["error"] = ERR_NO_ORGANISATION
         return redirect(url_for("bw_activation.not_authorized"))
 
     allowed_products = allowed_bw_product_list(bw_type)
     if not allowed_products:
+        warn(f"checkout: no allowed products found for bw_type '{bw_type}'")
         return redirect(url_for("bw_activation.index"))
 
     load_stripe_api_key()
@@ -611,6 +629,10 @@ def checkout(bw_type: str):
     org = draft_bw.get_organisation()
     customer_id = org.stripe_customer_id if org else None
     payer_email = _resolve_payer_email(draft_bw, g.user.email)
+    # warn(
+    #     f"checkout: draft_bw={draft_bw.id}, org={getattr(org, 'name', None)}, "
+    #     f"customer_id={customer_id}, payer_email={payer_email}, price_id={price_id}, quantity={checkout_quantity}"
+    # )
     checkout_kwargs.update(
         _resolve_stripe_customer_kwargs_for_payer(customer_id, payer_email)
     )
@@ -624,13 +646,15 @@ def checkout(bw_type: str):
             checkout_kwargs, org, payer_email
         )
     except StripeError as exc:
-        warn(f"BW checkout Session.create failed: {exc}")
+        warn(f"BW checkout Session.create failed for {bw_type}: {exc}")
+        report_failure(f"BW checkout Session.create failed ({bw_type})", exc)
         flash(
             "Le paiement n'a pas pu être initié. Merci de réessayer ou de "
             "contacter le support.",
             "danger",
         )
         return redirect(url_for("bw_activation.payment", bw_type=bw_type))
+    # warn(f"BW checkout Session.create succeeded: url={checkout_session.url}")
     return redirect(checkout_session.url, code=303)
 
 
@@ -657,7 +681,7 @@ def payment_cancel(bw_type: str):
 
 
 def _payment_live_enabled(bw_type: str, ctx: dict[str, Any]):
-    warn("in /payment/<bw_type> live")
+    # warn(f"in /payment/{bw_type} live for user={getattr(g.user, 'id', None)}")
     draft_bw = _get_or_create_draft_bw_for_checkout(g.user, bw_type)
 
     if draft_bw is None:
@@ -681,6 +705,10 @@ def _payment_live_enabled(bw_type: str, ctx: dict[str, Any]):
     chosen_product = select_product_for_quantity(allowed_products, quantity)
 
     price_id, default_price = resolve_product_price(chosen_product)
+    # warn(
+    #     f"_payment_live_enabled: draft_bw={draft_bw.id}, chosen_product={_get_value(chosen_product, 'id')}, "
+    #     f"price_id={price_id}, quantity={quantity}"
+    # )
 
     # For flat-priced products the display price is unit_amount × 1;
     # for tiered products (BW4PR) it depends on the actual quantity.

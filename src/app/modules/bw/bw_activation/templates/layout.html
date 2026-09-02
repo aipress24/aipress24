@@ -30,7 +30,7 @@
     {% block style %}{% endblock %}
     <script>
       window.data = {};
-      window.toasts = [];
+      window.toasts = {{ get_flashed_messages(with_categories=true) | tojson }};
     </script>
     {{ vite_tags() }}
     <script src="https://cdn.tailwindcss.com"></script>
@@ -44,6 +44,17 @@
 <body class="bg-gray-100 min-h-screen h-full min-h-screen">
     {% include '_header.html' %}
     <div class="container mx-auto px-4 py-8">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="mb-6 space-y-2">
+                    {% for category, message in messages %}
+                        <div class="p-4 rounded-md {% if category in ['error', 'danger'] %}bg-red-50 border-l-4 border-red-500 text-red-700{% elif category == 'warning' %}bg-yellow-50 border-l-4 border-yellow-500 text-yellow-700{% else %}bg-green-50 border-l-4 border-green-500 text-green-700{% endif %}">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
         {% block breadcrumb %}{% endblock %}
         {# « Retour vers la plateforme » : visible top + bottom on
            every BW activation/management page. Ref: bugs #0109,
