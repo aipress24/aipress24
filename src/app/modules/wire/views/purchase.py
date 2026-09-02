@@ -16,7 +16,7 @@ No view here tests `user.is_anonymous`: the blueprint's
 `before_request` (`app/modules/wire/__init__.py`) raises `Unauthorized`
 before any `/wire/*` view is reached. Four guards repeated it, each
 commented as indispensable — "without this an anonymous visitor would
-see the Stripe price" — and all unreachable (audit 2026-09-02). `g.user`
+see the Stripe price" — and all unreachable. `g.user`
 is therefore a signed-in member throughout this module.
 """
 

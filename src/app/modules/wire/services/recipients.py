@@ -8,7 +8,7 @@ Two views each had their own version — article sharing and buying a
 gift consultation — and they did not split alike: one accepted spaces as
 separators and validated the address shape, the other did not.
 "a@b.com c@d.com" therefore meant two recipients on one side and one
-invalid string on the other, on a billed path (audit 2026-09-02).
+invalid string on the other, on a billed path.
 """
 
 from __future__ import annotations

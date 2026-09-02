@@ -76,8 +76,8 @@ def press_release_with_geoloc(
 
 
 class TestOrglessAuthorDoesNotCrash:
-    """Regression (audit 2026-05-15, C1): an article/press-release
-    whose author has no organisation must render.
+    """Regression: an article/press-release whose author has no
+    organisation must render.
 
     `UserVM.get_organisation()` in `wire/views/item.py` ended with a
     bare `assert result`. `Wrapper.__attrs_post_init__` calls

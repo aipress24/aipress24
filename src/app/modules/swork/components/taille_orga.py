@@ -9,7 +9,7 @@ directory off `BusinessWall` — different models, so each keeps its own
 `__init__` and `apply`. Everything else was written twice: the sort key
 byte for byte, the label with two different apostrophes, and an
 `active_options` override that differed only by `state[i]` versus
-`state.get(i)` (audit 2026-09-02).
+`state.get(i)`.
 """
 
 from __future__ import annotations

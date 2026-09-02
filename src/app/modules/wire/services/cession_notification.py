@@ -126,8 +126,7 @@ def _author_full_name(author: User | None) -> str:
 
     `None` is a real case — `db.session.get(User, post.owner_id)` can
     return nothing for a deleted account. The previous `getattr` also
-    guarded against a `User` without `full_name`, which no `User` is
-    (audit 2026-09-02).
+    guarded against a `User` without `full_name`, which no `User` is.
     """
     if author is None:
         return MISSING_LABEL

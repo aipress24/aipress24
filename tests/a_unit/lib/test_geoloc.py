@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: AGPL-3.0-only
 
-"""L'analyse de « PAYS / CODEPOSTAL VILLE » — audit du 2026-09-01.
+"""L'analyse de « PAYS / CODEPOSTAL VILLE ».
 
 Remplace six implémentations — trois propriétés hybrides d'`EventPost`,
 chacune écrite deux fois, en Python et en SQL. Les valeurs ci-dessous

@@ -301,8 +301,7 @@ class TestOpportunityDetail:
 
 
 class TestOpportunityUnknownIdDoesNotCrash:
-    """Regression (audit 2026-05-15, C4): the POST endpoints used
-    `repo.get(id)`, which (Advanced-Alchemy `SQLAlchemySyncRepository`)
+    """Regression: the POST endpoints used `repo.get(id)`, which (Advanced-Alchemy `SQLAlchemySyncRepository`)
     *raises* `NotFoundError` on an unknown id — not the werkzeug 404
     — so a stale/forged contact id 500'd instead of 404'ing. The GET
     sibling already does it right with `get_one_or_none` +

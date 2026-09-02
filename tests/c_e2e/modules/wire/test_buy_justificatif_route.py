@@ -97,7 +97,7 @@ def _fake_payment_event(*, session_id: str, purchase_id: int) -> Event:
 
     An explicit double rather than a `MagicMock`: the latter answered
     any attribute at all, so a router reading a field absent from the
-    Stripe payload passed all the same (audit 2026-09-02).
+    Stripe payload passed all the same.
     """
     return checkout_completed(
         session_id=session_id,

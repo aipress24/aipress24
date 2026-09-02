@@ -261,7 +261,7 @@ class _BwColumnFilter(Filter):
     """A plain `BusinessWall` text column, filtered by exact match.
 
     Département and Ville were the same sixteen lines twice, differing
-    by the column alone (audit 2026-09-02).
+    by the column alone.
     """
 
     #: The `BusinessWall` column the options are matched against.

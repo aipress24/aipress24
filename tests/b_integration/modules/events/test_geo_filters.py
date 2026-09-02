@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: AGPL-3.0-only
 
-"""Les filtres géographiques d'un événement — audit du 2026-09-01.
+"""Les filtres géographiques d'un événement.
 
 `code_postal`, `departement` et `ville` étaient des propriétés hybrides
 dont l'expression SQL appelait `split_part`, absent de SQLite. Les deux

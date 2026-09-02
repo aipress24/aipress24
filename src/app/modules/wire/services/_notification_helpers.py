@@ -5,7 +5,7 @@
 """What the purchase notifications have in common.
 
 `_extract_article_title` existed identically in `gift_notification` and
-`cession_notification` (audit 2026-09-02).
+`cession_notification`.
 """
 
 from __future__ import annotations

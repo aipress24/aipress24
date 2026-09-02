@@ -323,7 +323,7 @@ def _get_distinct_values(column_name: str) -> list[str]:
     `departement` et `ville` étaient des propriétés hybrides dont le SQL
     n'existait que sur PostgreSQL, et la requête était enveloppée d'un
     `except OperationalError` qui rendait le filtre vide plutôt que
-    cassé (audit du 2026-09-01).
+    cassé.
     """
     import arrow
 

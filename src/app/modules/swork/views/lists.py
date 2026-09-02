@@ -5,7 +5,7 @@
 """The four directory landing pages.
 
 Each was its own 22-line module exporting one 6-line function; they
-differed by a route, an icon, a title and a template (audit 2026-09-02).
+differed by a route, an icon, a title and a template.
 Still four explicit handlers rather than a registration loop — a route
 you can grep for beats four lines saved.
 """

@@ -637,8 +637,8 @@ def _get_distinct_values(model: type, column_name: str) -> list[str]:
 
     # Plus de `except OperationalError` ici : il masquait les
     # expressions réservées à PostgreSQL des propriétés géographiques,
-    # qui rendaient le filtre vide plutôt que cassé. Elles sont portables
-    # depuis l'audit du 2026-09-01.
+    # qui rendaient le filtre vide plutôt que cassé. Elles sont
+    # désormais portables.
     return list(db.session.scalars(stmt))
 
 

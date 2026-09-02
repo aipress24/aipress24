@@ -273,9 +273,9 @@ def test_event_card_type_badge_is_a_real_link_not_dead_chip(
     # **empty** pill. `type_label` comes from `get_meta_attr`, and
     # neither `EventPost.Meta` nor `EventListVM` sets it — it is `""` on
     # both render paths, so that chip never had any text. It is now
-    # hidden when empty, and it was the green oval every card carried
-    # (audit 2026-09-02). The day the label is populated, the test to
-    # write is one on that label, not on the CSS class.
+    # hidden when empty, and it was the green oval every card carried.
+    # The day the label is populated, the test to write is one on that
+    # label, not on the CSS class.
 
 
 def test_a_cancelled_event_is_listed_with_its_banner(

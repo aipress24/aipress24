@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: AGPL-3.0-only
 
-"""Event-card layout — audit 2026-09-02.
+"""Event-card layout.
 
 Two defects that "the page returns 200" cannot see, both readable in the
 DOM:

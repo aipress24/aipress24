@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: AGPL-3.0-only
 
-"""Le découpage de la localisation, côté SQL — audit du 2026-09-01.
+"""Le découpage de la localisation, côté SQL.
 
 `sql_code_postal`, `sql_departement` et `sql_ville` remplacent quinze
 expressions réparties dans quatre modules, toutes bâties sur

@@ -142,8 +142,8 @@ class TestPublicPageRoute:
         client: FlaskClient,
         db_session,
     ):
-        """Regression (audit 2026-05-15, S2): the public served path
-        must sanitize stored HTML the same way the admin preview does.
+        """Regression: the public served path must sanitize stored HTML
+        the same way the admin preview does.
 
         `cms_preview` strips `<script>`/`<iframe>` + `bleach.clean`s,
         but `public/views/page.py:_render_md_content` did a bare

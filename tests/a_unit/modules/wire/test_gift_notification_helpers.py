@@ -84,7 +84,7 @@ class TestArticleTitle:
     `SimpleNamespace` carrying both attributes. Production only ever
     passes one type: `purchase.post`, hence a `Post`, which has `title`
     and no `titre` — the second rung was unreachable, and the double
-    certified a shape that does not exist (audit 2026-09-02).
+    certified a shape that does not exist.
     """
 
     def test_returns_the_title(self) -> None:

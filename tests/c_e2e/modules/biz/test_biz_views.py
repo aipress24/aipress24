@@ -42,8 +42,8 @@ def authenticated_client(app: Flask, test_user: User) -> FlaskClient:
 
 
 class TestBizItemOrglessSeller:
-    """Regression (audit 2026-05-15, C2): a marketplace item whose
-    seller has no KYC profile must render.
+    """Regression: a marketplace item whose seller has no KYC profile
+    must render.
 
     `biz-item--main.j2:111` did `{{ seller.profile.presentation }}`
     unguarded. `User.profile` is nullable (`auth.py:210` itself does

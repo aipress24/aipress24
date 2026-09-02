@@ -16,7 +16,7 @@ There used to be one test per signal — fifteen of them, calling fifteen
 receivers whose bodies were identical in groups. The receivers are now
 one per source type, so the payload tests are one per source type too,
 and what the extra tests used to imply — that each signal reaches a
-receiver — is asserted directly below (audit 2026-09-02).
+receiver — is asserted directly below.
 """
 
 from __future__ import annotations

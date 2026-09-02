@@ -217,7 +217,7 @@ class EventPost(EventPostBase):
     pays_zip_ville: Mapped[str] = mapped_column(default="")
     pays_zip_ville_detail: Mapped[str] = mapped_column(default="")
 
-    # Localisation découpée **à l'écriture** (audit du 2026-09-01).
+    # Localisation découpée **à l'écriture**.
     #
     # C'étaient trois propriétés hybrides, donc six implémentations pour
     # trois notions : une en Python, une en SQL, par notion. Les

@@ -9,7 +9,7 @@ The receivers are intentionally trivial — all the indexing logic lives
 in ``jobs.reindex_from_source``. Publish, unpublish and update stay
 separate *signals* because each has obvious semantics, but they feed one
 receiver per source type: the three bodies were identical, and stacking
-the ``connect`` decorators says so outright (audit 2026-09-02).
+the ``connect`` decorators says so outright.
 """
 
 from __future__ import annotations

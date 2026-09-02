@@ -18,7 +18,7 @@ without a database, and without monkey-patching.
 
 A `_decide_can_read_full` "pure core" lived alongside it with no
 production caller — the same ladder of rules, written twice, free to
-drift, with tests pinning only one of them (audit 2026-09-02).
+drift, with tests pinning only one of them.
 """
 
 from __future__ import annotations

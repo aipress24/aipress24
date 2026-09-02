@@ -65,7 +65,7 @@ def _paywall_context(post: Post, user: User) -> dict:
     breadcrumb, view recording, metadata, six local imports, eight
     access computations, a price lookup and an invitation query before
     rendering twelve variables: you could no longer say what it did
-    without an "and" (audit 2026-09-02).
+    without an "and".
 
     `user` is a signed-in member: the blueprint's `before_request`
     guarantees that for every `/wire/*` view.

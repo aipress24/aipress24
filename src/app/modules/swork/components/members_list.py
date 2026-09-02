@@ -150,7 +150,7 @@ class _MemberProfileListFilter(Filter):
     The four subclasses had a byte-identical `__init__` and an `apply`
     that differed only by the JSON key. `organisations_list.py` already
     factored the same shape into `_OrgListJsonArrayFilter`; this is that
-    base, on the members side (audit 2026-09-02).
+    base, on the members side.
     """
 
     #: The `KYCProfile` attribute the options are read from.

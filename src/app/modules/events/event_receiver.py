@@ -107,7 +107,7 @@ def update_post(
     post.pays_zip_ville = info.pays_zip_ville
     post.pays_zip_ville_detail = info.pays_zip_ville_detail
     # Découpée ici, et ici seulement : c'est le seul endroit où la
-    # localisation entre dans le miroir public (audit du 2026-09-01).
+    # localisation entre dans le miroir public.
     localisation = parse_pays_zip_ville(info.pays_zip_ville_detail)
     post.code_postal = localisation.code_postal
     post.departement = localisation.departement

@@ -556,8 +556,8 @@ class TestMembersListStaticMethods:
 
 
 class TestMembersSearchByZip:
-    """Regression (audit 2026-05-15, C3): a member search containing a
-    digit must execute on the DB without a dialect error.
+    """Regression: a member search containing a digit must execute on
+    the DB without a dialect error.
 
     `members_list.apply_search` filtered with
     `KYCProfile.code_postal.ilike(...)`. The `code_postal` SQL
