@@ -195,6 +195,32 @@ def app(db_url: str, n_plus_one_enabled: bool, n_plus_one_strict: bool):
     _manage_postgres_database(db_url, "drop")
 
 
+#: Config keys a test may set for itself and must not leave behind. The
+#: `app` fixture is session-scoped, so a plain `app.config[k] = v` in
+#: one test is still in force for every test that follows it.
+_PER_TEST_CONFIG_KEYS = ("STRIPE_SECRET_KEY", "STRIPE_LIVE_ENABLED")
+
+
+@pytest.fixture(autouse=True)
+def _restore_stripe_config(app):
+    """Undo per-test writes to the Stripe config keys.
+
+    A dozen Stripe tests set `STRIPE_SECRET_KEY` directly on the
+    session-scoped app. The leak was invisible while the code under test
+    swallowed the resulting « Invalid API Key » and reported success
+    anyway; once `cancel_stripe_subscription` started telling the truth,
+    an unrelated BW test began failing depending on run order.
+    """
+    missing = object()
+    saved = {key: app.config.get(key, missing) for key in _PER_TEST_CONFIG_KEYS}
+    yield
+    for key, value in saved.items():
+        if value is missing:
+            app.config.pop(key, None)
+        else:
+            app.config[key] = value
+
+
 @pytest.fixture
 def app_context(app) -> Generator[AppContext]:
     with app.app_context() as ctx:

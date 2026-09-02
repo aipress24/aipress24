@@ -68,9 +68,16 @@ class TestRemoveAllBw:
 class TestCancelStripeSubscriptions:
     """Test suite for Stripe subscription cancellation."""
 
-    def test_cancel_stripe_subscriptions_skips_without_key(self, db_session, app):
+    def test_cancel_stripe_subscriptions_skips_without_key(
+        self, db_session, app, monkeypatch
+    ):
         """When no Stripe key is configured, cancellation is skipped gracefully."""
-        app.config["STRIPE_SECRET_KEY"] = None
+        # `monkeypatch.setitem`, not a bare assignment: `app` is
+        # session-scoped, so a plain write leaked `sk_test_dummy` into
+        # every later test. It went unnoticed while
+        # `cancel_stripe_subscription` swallowed the resulting « Invalid
+        # API Key » and reported success anyway.
+        monkeypatch.setitem(app.config, "STRIPE_SECRET_KEY", None)
         org = Organisation(name="Stripe Org")
         user = User(email="stripe@example.com", organisation=org)
         db_session.add_all([org, user])
@@ -109,9 +116,11 @@ class TestCancelStripeSubscriptions:
             db_session.delete(org)
             db_session.commit()
 
-    def test_cancel_stripe_subscriptions_calls_stripe(self, db_session, app):
+    def test_cancel_stripe_subscriptions_calls_stripe(
+        self, db_session, app, monkeypatch
+    ):
         """When Stripe is configured, it cancels linked subscriptions."""
-        app.config["STRIPE_SECRET_KEY"] = "sk_test_dummy"
+        monkeypatch.setitem(app.config, "STRIPE_SECRET_KEY", "sk_test_dummy")
         org = Organisation(name="Stripe Org")
         user = User(email="stripe@example.com", organisation=org)
         db_session.add_all([org, user])
