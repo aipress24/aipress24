@@ -73,9 +73,9 @@
 
         <script>
             (function() {
-          // Re-fire the ciblage HTMX search whenever a selector changes.
-          // Shared between the flat selectors and the dual cascade so
-          // they behave identically — see bug #0150 phase 3.
+                // Re-fire the ciblage HTMX search whenever a selector changes.
+                // Shared between the flat selectors and the dual cascade so
+                // they behave identically — see bug #0150 phase 3.
                 function fireSearchUpdate() {
                     let values = htmx.values(htmx.find('#search-form'));
                     values.selector_change = 1;
@@ -87,7 +87,7 @@
                     });
                 }
 
-          // Tom-Select on flat selectors (single-level dropdowns).
+                // Tom-Select on flat selectors (single-level dropdowns).
                 function initFlatSelectors() {
                     document.querySelectorAll('.tom-select-it').forEach(el => {
                         if (el.tomselect) return;
@@ -101,11 +101,11 @@
                     });
                 }
 
-          // Tom-Select on dual-cascade selectors (parent → child).
-          // Payload is carried on data-* attributes (HTML-attribute-safe
-          // JSON via Flask's tojson). One init per `.dual-select-cascade`
-          // container — much easier to debug than 7 parallel Alpine
-          // instances. Bug #0150 phase 3.
+                // Tom-Select on dual-cascade selectors (parent → child).
+                // Payload is carried on data-* attributes (HTML-attribute-safe
+                // JSON via Flask's tojson). One init per `.dual-select-cascade`
+                // container — much easier to debug than 7 parallel Alpine
+                // instances. Bug #0150 phase 3.
                 function initDualSelectors() {
                     document.querySelectorAll('.dual-select-cascade').forEach(container => {
                         if (container.dataset.tomInitialized === '1') return;
