@@ -19,7 +19,7 @@ never raise — the payment is recorded ; the notification is best-effort.
 from __future__ import annotations
 
 from datetime import UTC, datetime
-from typing import TYPE_CHECKING, Any
+from typing import Any
 
 from svcs.flask import container
 
@@ -37,11 +37,6 @@ from app.modules.wire.services._notification_helpers import (
     article_title,
 )
 from app.services.notifications import NotificationService
-
-if TYPE_CHECKING:
-    pass
-
-# Marker for missing labels.
 
 
 def notify_gift_beneficiaries(purchase_id: int) -> int:

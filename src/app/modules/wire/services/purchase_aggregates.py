@@ -42,10 +42,7 @@ if TYPE_CHECKING:
 
 
 def get_user_purchase_total(user_id: int) -> int:
-    """Return the cumul HT (cents) of `user`'s PAID article purchases.
-
-    Anonymous / missing user → 0 (no purchases possible).
-    """
+    """Return the cumul HT (cents) of `user`'s PAID article purchases."""
     stmt = (
         select(func.coalesce(func.sum(ArticlePurchase.amount_cents), 0))
         .where(ArticlePurchase.owner_id == user_id)
@@ -82,9 +79,6 @@ def get_user_sales_total(user_id: int) -> int:
     over `ArticlePurchase` rows whose `post.owner_id` is the user. Used
     by WORK/Ventes (#0193–#0196) to show « combien j'ai vendu ».
     """
-    # Lazy import to keep wire's cold start cheap and avoid a circular
-    # import with the wire post model.
-
     stmt = (
         select(func.coalesce(func.sum(ArticlePurchase.amount_cents), 0))
         .select_from(ArticlePurchase)

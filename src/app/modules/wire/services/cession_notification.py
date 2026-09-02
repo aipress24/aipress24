@@ -34,8 +34,6 @@ from app.modules.wire.services._notification_helpers import (
 )
 from app.services.notifications import NotificationService
 
-# Marker used everywhere when a label can't be resolved.
-
 
 def notify_cession_purchase(purchase_id: int) -> None:
     """Send cloche + email acknowledgment for a CESSION purchase.
