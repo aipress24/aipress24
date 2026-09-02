@@ -17,11 +17,13 @@ Package Structure:
         stage1.py - Subscription confirmation
         stage2.py - Contact nomination
         stage3.py - Activation (free/paid)
-        stage_b1.py - Organisatin members
-        stage_b3.py - Internal roles
-        stage_b4.py - External partners
-        stage_b5.py - Missions/permissions
-        stage_b6.py - Content configuration
+        stage_b1.py - Content configuration
+        stage_b1b.py - Image gallery
+        stage_b2.py - Inviting organisation members
+        stage_b3.py - Managing organisation members
+        stage_b4.py - Internal roles (BWMi / BWPRi)
+        stage_b5.py - External partners
+        stage_b6.py - Missions/permissions
         dashboard.py - Dashboard and reset
 """
 
