@@ -219,11 +219,6 @@ def _(obj: MarketplaceContent) -> bool:
     return obj.status == PublicationStatus.PUBLIC
 
 
-# ── Group (swork) ────────────────────────────────────────────────────
-# Retiré de la recherche le 2026-05-21 — l'adapter et le receiver ne
-# sont plus enregistrés.
-
-
 # ── User (members) ───────────────────────────────────────────────────
 #
 # A user is searchable once they've been validated by an admin AND
@@ -238,8 +233,8 @@ def _(_: User) -> str:
 
 @to_doc.register
 def _(obj: User) -> dict[str, Any]:
-    # See note on the Group adapter — ``str()`` coercion to satisfy
-    # pyrefly's view of SQLAlchemy descriptor typing.
+    # `str()` coercion throughout: pyrefly types instance access on a
+    # mapped column as `InstrumentedAttribute[T]`, not `T`.
     first_name = str(obj.first_name or "")
     last_name = str(obj.last_name or "")
     title = obj.full_name.strip() or str(obj.email or "")
@@ -285,8 +280,7 @@ def _(_: Organisation) -> str:
 
 @to_doc.register
 def _(obj: Organisation) -> dict[str, Any]:
-    # See note on the Group adapter — ``str()`` coercion to satisfy
-    # pyrefly's view of SQLAlchemy descriptor typing.
+    # `str()` coercion: see the User adapter above.
     name = str(obj.name or "")
     bw_name = str(obj.bw_name or "")
     return {

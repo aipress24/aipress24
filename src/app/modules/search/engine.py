@@ -92,9 +92,7 @@ class SearchEngine:
         """Insert or update a document. The schema's ``id`` field is
         ``unique=True``, so wesh replaces an existing doc with the same id.
         """
-        ix = self._get_index()
-        with ix.writer() as w:
-            w.update_document(**doc)
+        self.bulk_upsert([doc])
 
     def bulk_upsert(self, docs) -> None:
         """Upsert many documents under a single writer transaction.

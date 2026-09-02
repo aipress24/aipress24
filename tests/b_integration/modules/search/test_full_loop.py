@@ -35,7 +35,7 @@ from wesh.backends.filedb.filestore import RamStorage
 from app.models.auth import User
 from app.models.lifecycle import PublicationStatus
 from app.modules.search.engine import SearchEngine
-from app.modules.search.receivers import _on_article_published
+from app.modules.search.receivers import _reindex_article
 from app.modules.wire.models import ArticlePost
 from app.signals import article_published
 
@@ -115,7 +115,7 @@ class TestSignalToEngineLoop:
             # blinker signal would also invoke wire/receivers.py which
             # expects a real wip Article model — that's not what we're
             # testing here.
-            _on_article_published(SimpleNamespace(id=12345))
+            _reindex_article(SimpleNamespace(id=12345))
 
             # Message should now be on the broker.
             message = _drain_one(stub_broker)
@@ -150,7 +150,7 @@ class TestSignalToEngineLoop:
                 connected.append(target)
 
         names = {getattr(fn, "__name__", "") for fn in connected}
-        assert "_on_article_published" in names, (
+        assert "_reindex_article" in names, (
             f"search receiver not connected to article_published; "
             f"connected receivers: {names}"
         )

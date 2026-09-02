@@ -6,9 +6,10 @@ job that, after the request transaction commits, reads the mirror Post
 from a fresh session and syncs its state to the index.
 
 The receivers are intentionally trivial — all the indexing logic lives
-in ``jobs.reindex_from_source``. Splitting publish/unpublish/update is
-kept for clarity (each signal has obvious semantics) even though the
-three paths feed the same job.
+in ``jobs.reindex_from_source``. Publish, unpublish and update stay
+separate *signals* because each has obvious semantics, but they feed one
+receiver per source type: the three bodies were identical, and stacking
+the ``connect`` decorators says so outright (audit 2026-09-02).
 """
 
 from __future__ import annotations
@@ -43,97 +44,40 @@ if TYPE_CHECKING:
     from app.modules.wip.models.eventroom import Event
 
 
-# ── Article ────────────────────────────────────────────────────────
-
-
 @article_published.connect
-def _on_article_published(article: Article) -> None:
-    reindex_from_source.send("article", article.id)
-
-
 @article_unpublished.connect
-def _on_article_unpublished(article: Article) -> None:
-    reindex_from_source.send("article", article.id)
-
-
 @article_updated.connect
-def _on_article_updated(article: Article) -> None:
+def _reindex_article(article: Article) -> None:
     reindex_from_source.send("article", article.id)
-
-
-# ── Press release (communiqué) ─────────────────────────────────────
 
 
 @communique_published.connect
-def _on_communique_published(communique: Communique) -> None:
-    reindex_from_source.send("press_release", communique.id)
-
-
 @communique_unpublished.connect
-def _on_communique_unpublished(communique: Communique) -> None:
-    reindex_from_source.send("press_release", communique.id)
-
-
 @communique_updated.connect
-def _on_communique_updated(communique: Communique) -> None:
+def _reindex_press_release(communique: Communique) -> None:
     reindex_from_source.send("press_release", communique.id)
-
-
-# ── Event ──────────────────────────────────────────────────────────
 
 
 @event_published.connect
-def _on_event_published(event: Event) -> None:
-    reindex_from_source.send("event", event.id)
-
-
 @event_unpublished.connect
-def _on_event_unpublished(event: Event) -> None:
-    reindex_from_source.send("event", event.id)
-
-
 @event_updated.connect
-def _on_event_updated(event: Event) -> None:
+def _reindex_event(event: Event) -> None:
     reindex_from_source.send("event", event.id)
-
-
-# ── Marketplace (mission / project / job / editorial product) ──────
 
 
 @marketplace_published.connect
-def _on_marketplace_published(offer: MarketplaceContent) -> None:
-    reindex_from_source.send("marketplace", offer.id)
-
-
 @marketplace_unpublished.connect
-def _on_marketplace_unpublished(offer: MarketplaceContent) -> None:
+def _reindex_marketplace(offer: MarketplaceContent) -> None:
     reindex_from_source.send("marketplace", offer.id)
-
-
-# Group: retiré de la recherche (2026-05-21) — plus de connect ici.
-
-
-# ── User (members directory) ───────────────────────────────────────
 
 
 @user_activated.connect
-def _on_user_activated(user: User) -> None:
-    reindex_from_source.send("user", user.id)
-
-
 @user_deactivated.connect
-def _on_user_deactivated(user: User) -> None:
+def _reindex_user(user: User) -> None:
     reindex_from_source.send("user", user.id)
-
-
-# ── Organisation ───────────────────────────────────────────────────
 
 
 @org_activated.connect
-def _on_org_activated(org: Organisation) -> None:
-    reindex_from_source.send("organisation", org.id)
-
-
 @org_deactivated.connect
-def _on_org_deactivated(org: Organisation) -> None:
+def _reindex_organisation(org: Organisation) -> None:
     reindex_from_source.send("organisation", org.id)
