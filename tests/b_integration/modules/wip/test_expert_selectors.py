@@ -235,6 +235,180 @@ class TestTransformationMajeureSelector:
 
         assert len(result) == len(experts_with_profiles)
 
+    def test_filter_matches_legacy_and_new_taxonomy_detail(self, db_session):
+        user = User(
+            email="transformer@example.com",
+            first_name="Jean",
+            last_name="Transformer",
+            active=True,
+        )
+        db_session.add(user)
+        db_session.flush()
+
+        profile = KYCProfile(
+            user=user,
+            match_making={
+                "transformation_majeure": ["TRANSFORMATION ÉCOLOGIQUE"],
+                "transformation_majeure_detail": [
+                    "TRANSFORMATION ÉCOLOGIQUE / Adaptation au changement climatique"
+                ],
+            },
+        )
+        db_session.add(profile)
+        db_session.flush()
+
+        def loader(name: str):
+            return {
+                "field1": [("Écologie", "Écologie")],
+                "field2": {
+                    "Écologie": [
+                        [
+                            "Écologie / Adaptation au changement climatique",
+                            "Écologie / Adaptation au changement climatique",
+                        ]
+                    ]
+                },
+            }
+
+        selector = TransformationMajeureSelector(
+            {}, [user], dual_taxonomy_loader=loader
+        )
+        choices = selector.get_dual_tom_choices_for_js()
+
+        # Both parent and child should survive with count 1
+        assert len(choices["field1"]) == 1
+        assert choices["field1"][0]["value"] == "Écologie"
+        assert "1" in choices["field1"][0]["label"]
+
+        assert len(choices["field2"]) == 1
+        assert (
+            choices["field2"][0]["value"]
+            == "Écologie / Adaptation au changement climatique"
+        )
+
+        matched = selector.filter_experts(
+            {"Écologie / Adaptation au changement climatique"}, [user]
+        )
+        assert len(matched) == 1
+        assert matched[0].id == user.id
+
+    def test_filter_preserves_unmapped_orphan_values_not_in_taxonomy(self, db_session):
+        user = User(
+            email="orphan@example.com",
+            first_name="Paul",
+            last_name="Orphan",
+            active=True,
+        )
+        db_session.add(user)
+        db_session.flush()
+
+        profile = KYCProfile(
+            user=user,
+            match_making={
+                "transformation_majeure": ["TRANSFORMATION INCONNUE"],
+                "transformation_majeure_detail": [
+                    "TRANSFORMATION INCONNUE / Sujet Totalement Nouveau"
+                ],
+            },
+        )
+        db_session.add(profile)
+        db_session.flush()
+
+        # Taxonomy has only "Écologie"
+        def loader(name: str):
+            return {
+                "field1": [("Écologie", "Écologie")],
+                "field2": {
+                    "Écologie": [
+                        [
+                            "Écologie / Adaptation",
+                            "Écologie / Adaptation",
+                        ]
+                    ]
+                },
+            }
+
+        selector = TransformationMajeureSelector(
+            {}, [user], dual_taxonomy_loader=loader
+        )
+        choices = selector.get_dual_tom_choices_for_js()
+
+        # The orphan parent and child should be included
+        parents = [p["value"] for p in choices["field1"]]
+        children = [c["value"] for c in choices["field2"]]
+        assert "TRANSFORMATION INCONNUE" in parents
+        assert "TRANSFORMATION INCONNUE / Sujet Totalement Nouveau" in children
+
+        matched = selector.filter_experts(
+            {"TRANSFORMATION INCONNUE / Sujet Totalement Nouveau"}, [user]
+        )
+        assert len(matched) == 1
+        assert matched[0].id == user.id
+
+
+class TestDualSelectorResolveExpertValues:
+    """Verifies _resolve_expert_values prioritization and edge cases."""
+
+    def test_exact_match_prevents_generic_suffix_collision(self):
+        def fake_loader(name: str):
+            return {
+                "field1": [
+                    ("Agriculture", "Agriculture"),
+                    ("Aéronautique", "Aéronautique"),
+                ],
+                "field2": {
+                    "Agriculture": [
+                        [
+                            "Agriculture / Autres",
+                            "Agriculture / Autres",
+                        ]
+                    ],
+                    "Aéronautique": [
+                        [
+                            "Aéronautique / Autres",
+                            "Aéronautique / Autres",
+                        ]
+                    ],
+                },
+            }
+
+        selector = TransformationMajeureSelector(
+            {}, [], dual_taxonomy_loader=fake_loader
+        )
+
+        # An expert with "Agriculture / Autres" must NOT leak into "Aéronautique / Autres"
+        res = selector._resolve_expert_values(["Agriculture / Autres"])
+        assert res == ["Agriculture / Autres"]
+
+    def test_resolves_all_items_without_premature_return(self):
+        def fake_loader(name: str):
+            return {
+                "field1": [("Écologie", "Écologie"), ("Numérique", "Numérique")],
+                "field2": {
+                    "Écologie": [
+                        ["Écologie / Climat", "Écologie / Climat"],
+                    ],
+                    "Numérique": [
+                        ["Numérique / Cloud", "Numérique / Cloud"],
+                    ],
+                },
+            }
+
+        selector = TransformationMajeureSelector(
+            {}, [], dual_taxonomy_loader=fake_loader
+        )
+
+        res = selector._resolve_expert_values(
+            [
+                "TRANSFORMATION ÉCOLOGIQUE / Climat",
+                "TRANSFORMATION DIGITALE / Cloud",
+            ]
+        )
+        assert "Écologie / Climat" in res
+        assert "Numérique / Cloud" in res
+        assert "TRANSFORMATION ÉCOLOGIQUE / Climat" in res
+        assert "TRANSFORMATION DIGITALE / Cloud" in res
+
 
 class TestCompetencesGeneralesSelector:
     """Tests for CompetencesGeneralesSelector."""
@@ -582,6 +756,7 @@ class TestDualSelector:
             FonctionOrganisationsPriveesSelector(state, experts_with_profiles),
             FonctionAssociationsSyndicatsSelector(state, experts_with_profiles),
             MetierSelector(state, experts_with_profiles),
+            TransformationMajeureSelector(state, experts_with_profiles),
             CompetencesGeneralesSelector(state, experts_with_profiles),
         ]
         for s in duals:
