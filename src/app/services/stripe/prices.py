@@ -22,9 +22,9 @@ from loguru import logger
 
 from app.flask.extensions import db
 from app.flask.util import utcnow
-from app.services.stripe._client import StripeClient, default_client
+from app.services.stripe._client import StripeClient
 from app.services.stripe._price_model import StripePrice
-from app.services.stripe.utils import load_stripe_api_key
+from app.services.stripe.utils import attr_or_item_getter, client_or_default
 from app.ui.money import format_cents
 
 __all__ = [
@@ -32,6 +32,7 @@ __all__ = [
     "StripePrice",
     "extract_price_payload",
     "list_drifts",
+    "stripe_price_amount",
     "stripe_price_display",
     "sync_all_prices",
     "upsert_price_from_event",
@@ -47,12 +48,37 @@ def stripe_price_display(price_id: str | None) -> str:
     known and active, else a fallback `"—"`. Reads from the local
     `stripe_price` table only — no network call.
     """
-    if not price_id:
-        return _DISPLAY_FALLBACK
-    price = db.session.get(StripePrice, price_id)
-    if price is None or not price.active:
+    price = _active_mirrored_price(price_id)
+    if price is None:
         return _DISPLAY_FALLBACK
     return format_cents(price.unit_amount_cents, price.currency)
+
+
+def stripe_price_amount(price_id: str | None) -> int | None:
+    """The pre-tax amount in cents, or `None` when there is no price to show.
+
+    The same rule as `stripe_price_display`, for the callers that need
+    the number rather than the string — the buy modals compute VAT off
+    it. Written once so a modal and a paywall button can never disagree
+    on which prices count.
+    """
+    price = _active_mirrored_price(price_id)
+    return None if price is None else price.unit_amount_cents
+
+
+def _active_mirrored_price(price_id: str | None) -> StripePrice | None:
+    """The mirrored price for `price_id`, when there is a live one.
+
+    `None` for an unknown id and for a row Stripe has deactivated: a
+    price we cannot vouch for is not shown at all, rather than shown
+    stale. This is the single definition of "a price we may display".
+    """
+    if not price_id:
+        return None
+    price = db.session.get(StripePrice, price_id)
+    if price is None or not price.active:
+        return None
+    return price
 
 
 def upsert_price_from_event(price_obj: Any) -> StripePrice:
@@ -98,8 +124,8 @@ def extract_price_payload(price_obj: Any) -> dict[str, Any]:
     - `metadata_json` defaults to `{}` so a free-text dict column
       never holds None.
     """
-    get = _attr_or_item_getter(price_obj)
-    recurring_get = _attr_or_item_getter(get("recurring") or {})
+    get = attr_or_item_getter(price_obj)
+    recurring_get = attr_or_item_getter(get("recurring") or {})
     return {
         "id": str(get("id")),
         "product_id": str(get("product") or ""),
@@ -111,26 +137,6 @@ def extract_price_payload(price_obj: Any) -> dict[str, Any]:
         "recurring_interval": recurring_get("interval"),
         "metadata_json": coerce_metadata(get("metadata")),
     }
-
-
-def _attr_or_item_getter(obj: Any) -> Any:
-    """Return a `.get(key, default=None)` callable for dict-like or attr-like.
-
-    Stripe v15 objects are no longer dict subclasses but still support
-    bracket notation and attribute access.
-    """
-    if obj is None:
-        return lambda k, d=None: d
-    if isinstance(obj, dict):
-        return obj.get
-
-    def _get(key: str, default: Any = None) -> Any:
-        try:
-            return obj[key]
-        except (KeyError, TypeError):
-            return getattr(obj, key, default)
-
-    return _get
 
 
 def coerce_metadata(raw_meta: Any) -> dict:
@@ -154,16 +160,8 @@ def sync_all_prices(*, client: StripeClient | None = None) -> int:
 
     Returns the number of rows touched. Used by the CLI command
     `flask stripe sync prices` (bootstrap + manual drift correction).
-
-    A passed `client` is assumed to be test-only and skips the API-key
-    check ; the production path requires the API key.
     """
-    if client is None:
-        if not load_stripe_api_key():
-            msg = "Stripe API key not configured"
-            raise RuntimeError(msg)
-        client = default_client()
-
+    client = client_or_default(client)
     count = 0
     for price in client.list_prices(active=True, limit=100):
         upsert_price_from_event(price)
@@ -189,12 +187,7 @@ def list_drifts(*, client: StripeClient | None = None) -> list[PriceDrift]:
     Read-only — no DB modification, no Stripe modification. Used by
     `flask stripe verify prices`.
     """
-    if client is None:
-        if not load_stripe_api_key():
-            msg = "Stripe API key not configured"
-            raise RuntimeError(msg)
-        client = default_client()
-
+    client = client_or_default(client)
     drifts: list[PriceDrift] = []
     locals_by_id = {p.id: p for p in db.session.query(StripePrice).all()}
 

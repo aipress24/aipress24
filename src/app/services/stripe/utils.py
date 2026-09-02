@@ -5,9 +5,13 @@
 from __future__ import annotations
 
 import sys
+from collections.abc import Callable
+from typing import Any
 
 import stripe
 from flask import Flask, current_app
+
+from app.services.stripe._client import StripeClient, default_client
 
 
 def check_stripe_secret_key(app: Flask) -> bool:
@@ -89,3 +93,39 @@ def load_pricing_table_id(bw_type_name: str) -> str:
             return pricing
     print(f"Warning: no Stripe pricing table found for bw_type_name {bw_type_name!r}")
     return ""
+
+
+def attr_or_item_getter(obj: Any) -> Callable[..., Any]:
+    """Return a `.get(key, default=None)` callable for dict-like or attr-like.
+
+    Stripe v15 objects are no longer dict subclasses but still support
+    bracket notation and attribute access. Shared by the price and
+    product mirrors, which read the same webhook payload shapes.
+    """
+    if obj is None:
+        return lambda k, d=None: d
+    if isinstance(obj, dict):
+        return obj.get
+
+    def _get(key: str, default: Any = None) -> Any:
+        try:
+            return obj[key]
+        except (KeyError, TypeError):
+            return getattr(obj, key, default)
+
+    return _get
+
+
+def client_or_default(client: StripeClient | None) -> StripeClient:
+    """The injected client, or the production one once the key is loaded.
+
+    A passed `client` is assumed to be test-only and skips the API-key
+    check; the production path requires the key and refuses without it.
+    Every mirror sync and drift listing enters through here.
+    """
+    if client is not None:
+        return client
+    if not load_stripe_api_key():
+        msg = "Stripe API key not configured"
+        raise RuntimeError(msg)
+    return default_client()

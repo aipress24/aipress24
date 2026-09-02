@@ -31,11 +31,11 @@ from loguru import logger
 
 from app.flask.extensions import db
 from app.flask.util import utcnow
-from app.services.stripe._client import StripeClient, default_client
+from app.services.stripe._client import StripeClient
 from app.services.stripe._price_model import StripePrice
 from app.services.stripe._product_model import StripeProduct
 from app.services.stripe.prices import coerce_metadata
-from app.services.stripe.utils import load_stripe_api_key
+from app.services.stripe.utils import attr_or_item_getter, client_or_default
 
 __all__ = [
     "MirroredProduct",
@@ -130,7 +130,7 @@ def extract_product_payload(product_obj: Any) -> dict[str, Any]:
     object, depending on whether the caller asked Stripe to expand it;
     both are reduced to the id.
     """
-    get = _attr_or_item_getter(product_obj)
+    get = attr_or_item_getter(product_obj)
     return {
         "id": str(get("id")),
         "name": str(get("name") or ""),
@@ -146,28 +146,8 @@ def _default_price_id(raw: Any) -> str | None:
         return None
     if isinstance(raw, str):
         return raw or None
-    price_id = _attr_or_item_getter(raw)("id")
+    price_id = attr_or_item_getter(raw)("id")
     return str(price_id) if price_id else None
-
-
-def _attr_or_item_getter(obj: Any) -> Any:
-    """Return a `.get(key, default=None)` callable for dict-like or attr-like.
-
-    Stripe v15 objects are no longer dict subclasses but still support
-    bracket notation and attribute access.
-    """
-    if obj is None:
-        return lambda k, d=None: d
-    if isinstance(obj, dict):
-        return obj.get
-
-    def _get(key: str, default: Any = None) -> Any:
-        try:
-            return obj[key]
-        except (KeyError, TypeError):
-            return getattr(obj, key, default)
-
-    return _get
 
 
 def sync_all_products(*, client: StripeClient | None = None) -> int:
@@ -176,16 +156,8 @@ def sync_all_products(*, client: StripeClient | None = None) -> int:
     Returns the number of rows touched. Used by `flask stripe sync
     products` (bootstrap) and by the hourly catch-up actor, which is
     what repairs the mirror if a webhook was ever dropped.
-
-    A passed `client` is assumed to be test-only and skips the API-key
-    check; the production path requires the API key.
     """
-    if client is None:
-        if not load_stripe_api_key():
-            msg = "Stripe API key not configured"
-            raise RuntimeError(msg)
-        client = default_client()
-
+    client = client_or_default(client)
     count = 0
     for product in client.list_products(active=True):
         upsert_product_from_event(product)
@@ -211,12 +183,7 @@ def list_product_drifts(*, client: StripeClient | None = None) -> list[ProductDr
     Read-only — no DB modification, no Stripe modification. Used by
     `flask stripe verify products`.
     """
-    if client is None:
-        if not load_stripe_api_key():
-            msg = "Stripe API key not configured"
-            raise RuntimeError(msg)
-        client = default_client()
-
+    client = client_or_default(client)
     drifts: list[ProductDrift] = []
     locals_by_id = {p.id: p for p in db.session.query(StripeProduct).all()}
 
@@ -231,7 +198,7 @@ def list_product_drifts(*, client: StripeClient | None = None) -> list[ProductDr
             continue
         if not local.active:
             drifts.append(ProductDrift(stripe_product.id, "active", False, True))
-        stripe_meta = coerce_metadata(_attr_or_item_getter(stripe_product)("metadata"))
+        stripe_meta = coerce_metadata(attr_or_item_getter(stripe_product)("metadata"))
         if local.metadata_json != stripe_meta:
             # The taxonomy is what product selection filters on, so a
             # metadata drift is the one that silently breaks buying.

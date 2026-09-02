@@ -45,7 +45,7 @@ from app.modules.wire.models import (
     PurchaseStatus,
 )
 from app.modules.wire.services.recipients import parse_recipient_emails
-from app.services.stripe._price_model import StripePrice
+from app.services.stripe.prices import stripe_price_amount
 from app.services.stripe.product_mirror import MirroredProduct, active_products
 from app.services.stripe.utils import load_stripe_api_key
 from app.settings.constants import ARTICLE_CONSULTATION_DURATION
@@ -554,7 +554,7 @@ def _amount_ht_eur_for(product: PurchaseProduct, post: Post) -> float | None:
 
 
 def _amount_ht_eur(price_id: str | None) -> float | None:
-    """The displayed pre-tax price, read from the local mirror.
+    """The displayed pre-tax price, in euros, read from the local mirror.
 
     Never `stripe.Price.retrieve`: `notes/lessons-learned.md` makes it a
     rule — "any cache window between Stripe's authoritative price and
@@ -563,15 +563,16 @@ def _amount_ht_eur(price_id: str | None) -> float | None:
     `price.created/updated/deleted` webhooks, and `flask stripe
     sync-prices` catches it up.
 
+    Which prices may be displayed is `stripe_price_amount`'s rule, not
+    a second copy of it here: the paywall button reads the same mirror
+    through `stripe_price_display`, and the two must not be able to
+    disagree on whether a given price counts.
+
     `None` when the price is unknown or inactive: the templates then
     show "price unavailable" rather than a wrong amount.
     """
-    if not price_id:
-        return None
-    price = db.session.get(StripePrice, price_id)
-    if price is None or not price.active:
-        return None
-    return price.unit_amount_cents / 100
+    cents = stripe_price_amount(price_id)
+    return None if cents is None else cents / 100
 
 
 def _normalize_string(value: str) -> str:
