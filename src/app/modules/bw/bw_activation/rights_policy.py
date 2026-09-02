@@ -15,6 +15,7 @@ from typing import TYPE_CHECKING, Any
 
 import sqlalchemy as sa
 
+from app.enums import BWType
 from app.flask.extensions import db
 from app.modules.bw.bw_activation.models.business_wall import (
     BusinessWall,
@@ -38,7 +39,34 @@ _VALID_OPTIONS = {"all_subscribed", "whitelist", "blacklist", "none"}
 # - `micro` : a journalist-in-micro-entreprise — per the platform
 #   CGV, the rights holder of their own production. Ref : bug
 #   #0112.
-_RIGHTS_HOLDER_BW_TYPES: tuple[str, ...] = ("media", "micro")
+#
+# Taken from `BWType` rather than spelled as bare strings: these values
+# are matched against `BusinessWall.bw_type` in SQL, so a rename on the
+# enum that this tuple did not follow would close the cession gate for
+# every media, silently and with a green suite.
+_RIGHTS_HOLDER_BW_TYPES: tuple[str, ...] = (BWType.MEDIA.value, BWType.MICRO.value)
+
+
+def normalise_policy(raw: dict[str, Any] | None) -> dict[str, Any]:
+    """What a stored policy means — decided here and nowhere else.
+
+    An absent policy, and one carrying an option outside
+    `_VALID_OPTIONS`, both mean the pre-MVP default: every subscribed
+    media may buy. `media_ids` come back as strings, which is what the
+    evaluator compares against.
+
+    Both readers go through this. `is_eligible_for_cession` used to
+    read `post.rights_sales_snapshot` raw and hand the unchecked option
+    straight to `evaluate_cession_policy`, whose fallback arm *granted*
+    the purchase — so a typo'd or pre-MVP snapshot authorised a rights
+    sale by a route this validation never covered.
+    """
+    if not raw or raw.get("option") not in _VALID_OPTIONS:
+        return dict(DEFAULT_POLICY)
+    return {
+        "option": raw["option"],
+        "media_ids": [str(x) for x in raw.get("media_ids", [])],
+    }
 
 
 def get_policy(bw: BusinessWall | None) -> dict[str, Any]:
@@ -47,15 +75,7 @@ def get_policy(bw: BusinessWall | None) -> dict[str, Any]:
     A BW with no explicit configuration preserves the pre-MVP behaviour
     (every subscribed media can buy cessions on its content).
     """
-    if bw is None:
-        return dict(DEFAULT_POLICY)
-    raw = bw.rights_sales_policy
-    if not raw or raw.get("option") not in _VALID_OPTIONS:
-        return dict(DEFAULT_POLICY)
-    return {
-        "option": raw["option"],
-        "media_ids": [str(x) for x in raw.get("media_ids", [])],
-    }
+    return normalise_policy(None if bw is None else bw.rights_sales_policy)
 
 
 def snapshot_policy_for(bw: BusinessWall | None) -> dict[str, Any]:
@@ -73,7 +93,13 @@ def evaluate_cession_policy(option: str, buyer_bw_id: str, media_ids: set[str]) 
     - `whitelist` → buyer_bw_id must be in media_ids
     - `blacklist` → buyer_bw_id must NOT be in media_ids
     - `none` → False (nobody authorised)
-    - unrecognised → True (defensive : pre-MVP default)
+    - unrecognised → False
+
+    The last arm used to return True, which meant an option this
+    function did not recognise *authorised* a rights sale. Callers now
+    pass an option `normalise_policy` has already checked, so the arm is
+    unreachable from production — and where it is reachable at all, a
+    policy nobody can read is not grounds for granting a licence.
 
     Extracted from `is_eligible_for_cession` so the rule is
     unit-testable without a DB session."""
@@ -87,7 +113,7 @@ def evaluate_cession_policy(option: str, buyer_bw_id: str, media_ids: set[str]) 
         case "none":
             return False
         case _:
-            return True
+            return False
 
 
 def is_eligible_for_cession(user: User | None, post: Post) -> bool:
@@ -107,29 +133,15 @@ def is_eligible_for_cession(user: User | None, post: Post) -> bool:
     if buyer_bw is None:
         return False
 
-    snapshot = post.rights_sales_snapshot or DEFAULT_POLICY
-    option = snapshot.get("option", "all_subscribed")
-    media_ids = {str(x) for x in snapshot.get("media_ids", [])}
+    snapshot = normalise_policy(post.rights_sales_snapshot)
+    media_ids = set(snapshot["media_ids"])
 
-    return evaluate_cession_policy(option, str(buyer_bw.id), media_ids)
-
-
-def _buyer_org_id_or_none(user: User | None) -> int | None:
-    """Pure prefix of `_buyer_media_bw_for` : extract the user's
-    organisation id, or None if no user / no org. Defensive
-    `getattr` keeps duck-typed callers (anonymous user proxies,
-    test stubs) from raising `AttributeError`.
-
-    Extracted from `_buyer_media_bw_for` so the defensive None /
-    no-org gate is unit-testable without a DB session."""
-    if user is None:
-        return None
-    return getattr(user, "organisation_id", None)
+    return evaluate_cession_policy(snapshot["option"], str(buyer_bw.id), media_ids)
 
 
 def _buyer_media_bw_for(user: User) -> BusinessWall | None:
     """Return the user's active rights-holder BW (media or micro)."""
-    org_id = _buyer_org_id_or_none(user)
+    org_id = user.organisation_id
     if org_id is None:
         return None
     stmt = (
@@ -159,13 +171,11 @@ def _collect_candidate_org_ids(post: Post) -> list[int]:
 
     Extracted from `emitter_bw_for_post` so the candidate-
     collection logic is unit-testable without a DB session."""
-    candidate_org_ids: list[int] = []
-    for attr in ("publisher_id", "media_id"):
-        val = getattr(post, attr, None)
-        if val is not None:
-            candidate_org_ids.append(val)
-    owner = getattr(post, "owner", None)
-    if owner is not None and getattr(owner, "organisation_id", None) is not None:
+    candidate_org_ids = [
+        org_id for org_id in (post.publisher_id, post.media_id) if org_id is not None
+    ]
+    owner = post.owner
+    if owner is not None and owner.organisation_id is not None:
         candidate_org_ids.append(owner.organisation_id)
     return candidate_org_ids
 
