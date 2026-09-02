@@ -1,3 +1,52 @@
+{% macro expert_table(rows, checked=false, table_class="") %}
+  {# One table for both lists. They differed by the rows, the `checked`
+     box and one background class — 37 of 38 lines were the same
+     (audit 2026-09-02). #}
+  <div class="overflow-x-auto">
+    <table class="dui-table dui-table-zebra border {{ table_class }} w-full">
+      <thead>
+        <tr class="bg-gray-100 text-gray-700">
+          <th class="w-12 text-center"></th>
+          <th>Nom</th>
+          <th>Organisation</th>
+          <th>Titre</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for expert in rows %}
+          {% set organisation = expert.organisation %}
+          <tr class="hover">
+            <th class="text-center">
+              <input name="expert:{{ expert.id }}"
+                     type="checkbox"
+                     {% if checked %}checked{% endif %}
+                     class="dui-checkbox dui-checkbox-sm dui-checkbox-primary"/>
+            </th>
+            <td>
+              <a class="hover:underline font-medium text-gray-900"
+                 href="{{ url_for(expert) }}">
+                {{ expert.name }}
+              </a>
+            </td>
+            <td>
+              {# `organisation` is optional — an unaffiliated member has
+                 none, and `StrictUndefined` would 500 on the chain. #}
+              {% if organisation %}
+                <a class="hover:underline text-gray-700"
+                   href="{{ url_for(organisation) }}">
+                  {{ organisation.name }}
+                </a>
+              {% endif %}
+            </td>
+            <td class="text-gray-600">{{ expert.job_title }}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+{% endmacro %}
+
+
 <div id="experts-results-block" class="mt-8 mb-8">
     {% if not experts %}
         <div id="no_experts"
@@ -15,9 +64,9 @@
             <div class="bg-gray-50 px-6 py-4 border-b border-gray-200 flex flex-wrap items-center justify-between gap-2">
                 <div>
                     <h2 class="text-lg font-bold text-gray-900 flex items-center gap-2">
-                        {% if experts|length == 50 %}
-                            <span>Plus de 50 profils trouvés</span>
-                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-gray-200 text-gray-800">affichage limité à 50</span>
+                        {% if experts|length == max_experts %}
+                            <span>Plus de {{ max_experts }} profils trouvés</span>
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-gray-200 text-gray-800">affichage limité à {{ max_experts }}</span>
                         {% else %}
                             <span>Profils trouvés</span>
                             <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-pink-100 text-pink-700">{{ experts|length }} profil{% if experts|length > 1 %}s{% endif %}</span>
@@ -30,46 +79,7 @@
             </div>
 
             <form class="p-6">
-                <div class="overflow-x-auto">
-                    <table class="dui-table dui-table-zebra border w-full">
-                        <thead>
-                            <tr class="bg-gray-100 text-gray-700">
-                                <th class="w-12 text-center"></th>
-                                <th>Nom</th>
-                                <th>Organisation</th>
-                                <th>Titre</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for expert in experts %}
-                                {% set organisation = expert.organisation %}
-                                <tr class="hover">
-                                    <th class="text-center">
-                                        <input
-                                            name="expert:{{ expert.id }}"
-                                            type="checkbox"
-                                            class="dui-checkbox dui-checkbox-sm dui-checkbox-primary"/>
-                                    </th>
-                                    <td>
-                                        <a class="hover:underline font-medium text-gray-900"
-                                           href="{{ url_for(expert) }}">
-                                            {{ expert.name }}
-                                        </a>
-                                    </td>
-                                    <td>
-                                        {% if organisation %}
-                                            <a class="hover:underline text-gray-700"
-                                               href="{{ url_for(organisation) }}">
-                                                {{ organisation.name }}
-                                            </a>
-                                        {% endif %}
-                                    </td>
-                                    <td class="text-gray-600">{{ expert.job_title }}</td>
-                                </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
+                {{ expert_table(experts) }}
 
                 <div class="mt-6 flex items-center">
                     <input
@@ -110,45 +120,7 @@
     <div class="p-6">
         {% if selected_experts %}
             <form id="send-ciblage-form">
-                <div class="overflow-x-auto">
-                    <table class="dui-table dui-table-zebra border bg-white w-full">
-                        <thead>
-                            <tr class="bg-gray-100 text-gray-700">
-                                <th class="w-12 text-center"></th>
-                                <th>Nom</th>
-                                <th>Organisation</th>
-                                <th>Titre</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for expert in selected_experts %}
-                                {% set organisation = expert.organisation %}
-                                <tr class="hover">
-                                    <th class="text-center">
-                                        <input name="expert:{{ expert.id }}"
-                                               type="checkbox"
-                                               checked class="dui-checkbox dui-checkbox-sm dui-checkbox-primary"/>
-                                    </th>
-                                    <td>
-                                        <a class="hover:underline font-medium text-gray-900"
-                                           href="{{ url_for(expert) }}">
-                                            {{ expert.name }}
-                                        </a>
-                                    </td>
-                                    <td>
-                                        {% if organisation %}
-                                            <a class="hover:underline text-gray-700"
-                                               href="{{ url_for(organisation) }}">
-                                                {{ organisation.name }}
-                                            </a>
-                                        {% endif %}
-                                    </td>
-                                    <td class="text-gray-600">{{ expert.job_title }}</td>
-                                </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
+                {{ expert_table(selected_experts, checked=true, table_class="bg-white") }}
 
                 <div class="mt-6 flex flex-wrap items-center justify-between gap-4">
                     <input

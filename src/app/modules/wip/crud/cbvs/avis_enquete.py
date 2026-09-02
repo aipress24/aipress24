@@ -47,6 +47,9 @@ from app.modules.wip.services.newsroom import (
     RDVAcceptanceData,
     RDVProposalData,
 )
+from app.modules.wip.services.newsroom.expert_filter import (
+    MAX_SELECTABLE_EXPERTS,
+)
 from app.modules.wip.services.newsroom.publication_notification_service import (
     PublicationNotificationError,
     PublicationNotificationService,
@@ -385,6 +388,11 @@ class AvisEnqueteWipView(BaseWipView):
             "form": filter_service,  # Template uses form.selectors
             "experts": experts,
             "selected_experts": selected_experts,
+            # The template says "affichage limité à N" when the list is
+            # capped; it used to compare against a literal 50 of its own,
+            # so raising the cap here would have silently stopped the
+            # banner appearing.
+            "max_experts": MAX_SELECTABLE_EXPERTS,
             "title": title,
             "model": model,
         }
