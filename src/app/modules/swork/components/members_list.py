@@ -156,6 +156,10 @@ class _MemberProfileListFilter(Filter):
     #: The `KYCProfile` attribute the options are read from.
     profile_attr: ClassVar[str] = ""
     #: The key inside `info_professionnelle` that `apply` matches on.
+    #: Empty means "same as `profile_attr`" — true for every filter but
+    #: `type_organisation`, whose column and JSON key disagree. Spelling
+    #: it out on both lines put the same string twice on three of the
+    #: four subclasses and hid the one that differs.
     json_key: ClassVar[str] = ""
     options: ClassVar[list[str]] = []  # ty:ignore[invalid-attribute-override]
 
@@ -174,11 +178,16 @@ class _MemberProfileListFilter(Filter):
             return []
         return getattr(user.profile, cls.profile_attr)
 
-    def apply(self, stmt, state):
+    @classmethod
+    def json_field(cls) -> str:
+        """The `info_professionnelle` key this filter matches on."""
+        return cls.json_key or cls.profile_attr
+
+    def apply(self, stmt: Select, state: dict[str, bool]) -> Select:
         active_options = self.active_options(state)
         if not active_options:
             return stmt
-        jsonb_col = sqla_cast(KYCProfile.info_professionnelle, JSONB)[self.json_key]
+        jsonb_col = sqla_cast(KYCProfile.info_professionnelle, JSONB)[self.json_field()]
         or_parts = [User.profile.has(jsonb_col.op("?")(opt)) for opt in active_options]
         return stmt.where(or_(*or_parts))
 
@@ -194,21 +203,18 @@ class FilterByTypeEntrepriseMedia(_MemberProfileListFilter):
     id = "type_entreprise_media"
     label = "Type entreprise presse et média"
     profile_attr = "type_entreprise_media"
-    json_key = "type_entreprise_media"
 
 
 class FilterByTypePresseEtMedia(_MemberProfileListFilter):
     id = "type_presse_et_media"
     label = "Type presse & média"
     profile_attr = "type_presse_et_media"
-    json_key = "type_presse_et_media"
 
 
 class FilterByTypeAgenceRP(_MemberProfileListFilter):
     id = "type_agence_rp"
     label = "Types de PR Agencies"
     profile_attr = "type_agence_rp"
-    json_key = "type_agence_rp"
 
 
 class FilterByTailleOrganisation(TailleOrgaFilter):

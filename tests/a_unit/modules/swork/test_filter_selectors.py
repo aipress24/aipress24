@@ -271,3 +271,19 @@ class TestFilterSelectorReturnTypes:
         )
         result = selector_fn(user)
         assert isinstance(result, list)
+
+
+@pytest.mark.parametrize(
+    ("filter_cls", "expected_key"),
+    [
+        # `type_organisation` is the one whose column and JSON key
+        # disagree; the other three fall back to `profile_attr`. Pinned
+        # against literals so the fallback can't silently resolve to "".
+        (FilterByTypeOrganisation, "type_orga_detail"),
+        (FilterByTypeEntrepriseMedia, "type_entreprise_media"),
+        (FilterByTypePresseEtMedia, "type_presse_et_media"),
+        (FilterByTypeAgenceRP, "type_agence_rp"),
+    ],
+)
+def test_each_filter_matches_on_its_own_json_key(filter_cls, expected_key):
+    assert filter_cls.json_field() == expected_key
