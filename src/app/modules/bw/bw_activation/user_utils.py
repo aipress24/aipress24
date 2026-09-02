@@ -17,7 +17,7 @@ from sqlalchemy.exc import NoInspectionAvailable
 from app.enums import ProfileEnum
 from app.flask.extensions import db
 from app.logging import warn
-from app.models.auth import BW_TYPE_FONCTION_SOURCES
+from app.models.auth import BW_TYPE_FONCTION_SOURCES, KYCProfile
 from app.modules.admin.utils import Organisation
 from app.modules.bw.bw_activation.bw_invitation import BW_ROLE_TYPE_LABEL
 from app.modules.bw.bw_activation.config import DEPRECATED_BW_TYPES
@@ -35,6 +35,12 @@ from app.modules.bw.bw_activation.utils import DASHBOARD_ACCESS_ROLES
 # full list of available fonctions for the autocomplete datalist
 # (bug #0107).
 StdDict = dict[str, str | int | float | bool | list[str] | None]
+
+#: The literal French label a CPPAP-approved press agency carries in
+#: `type_entreprise_media`. Written out at two call sites before, one of
+#: which compared against it twice, once as a list and once as a bare
+#: string that could never match.
+PRESS_AGENCY_LABEL = "Agence de presse"
 
 if TYPE_CHECKING:
     from app.models.auth import User
@@ -123,7 +129,15 @@ def can_activate_business_wall(user: User) -> bool:
 
 
 def get_current_user_data() -> StdDict:
-    data: StdDict = {}
+    """The signed-in user's details, as the activation forms need them.
+
+    Every value is bound to an annotated local first. Pyrefly has no
+    SQLAlchemy support, so instance access on a mapped column types as
+    `InstrumentedAttribute[T]` rather than `T`; the bindings state what
+    is true where a blanket `no-matching-overload` suppression used to
+    silence the whole dict (`notes/lessons-learned.md`, "prefer an
+    annotated local binding to a suppression").
+    """
     user = cast("User", g.user)
     org = user.organisation
 
@@ -131,24 +145,29 @@ def get_current_user_data() -> StdDict:
     # otherwise `metier_fonction` would often return a misleading value
     # (bug #0107). Falls back to `metier_fonction` when bw_type unknown.
     bw_type = session.get("bw_type")
-    # pyrefly: ignore [no-matching-overload]
-    data.update(
-        {
-            "first_name": user.first_name,
-            "last_name": user.last_name,
-            "phone": user.tel_mobile,
-            "email": user.email,
-            "fonction": user.metier_fonction_for_bw(bw_type),
-            # Bug #0107: the default value is the first item of an
-            # unordered KYC list, which is often misleading (e.g. "chef
-            # de projet média" for a "rédacteur en chef"). Expose the
-            # full list of relevant fonctions so the template can offer
-            # autocomplete on the input.
-            "fonctions_disponibles": _fonctions_disponibles_for_bw(user, bw_type),
-            "allow_activation": (org and org.is_auto_or_inactive),
-        }
-    )
-    return data
+    first_name: str = user.first_name
+    last_name: str = user.last_name
+    phone: str = user.tel_mobile
+    email: str = user.email
+
+    return {
+        "first_name": first_name,
+        "last_name": last_name,
+        "phone": phone,
+        "email": email,
+        "fonction": user.metier_fonction_for_bw(bw_type),
+        # Bug #0107: the default value is the first item of an
+        # unordered KYC list, which is often misleading (e.g. "chef
+        # de projet média" for a "rédacteur en chef"). Expose the
+        # full list of relevant fonctions so the template can offer
+        # autocomplete on the input.
+        "fonctions_disponibles": _fonctions_disponibles_for_bw(user, bw_type),
+        # `bool(...)`, not the bare `and`: the expression yields `None`
+        # for a user with no organisation, and `StdDict` promises a
+        # scalar. The template reads it as a flag either way; saying so
+        # is what lets the annotation hold.
+        "allow_activation": bool(org and org.is_auto_or_inactive),
+    }
 
 
 def _fonctions_disponibles_for_bw(user: User, bw_type: str | None) -> list[str]:
@@ -175,29 +194,43 @@ def _fonctions_disponibles_for_bw(user: User, bw_type: str | None) -> list[str]:
 
 
 def guess_best_bw_type(user: User) -> BWType:
-    # `user.profile` may be None for freshly-created users that
-    # haven't filled the KYC wizard yet. Since #0117 lifted the
-    # « must have an organisation » gate, those users now reach
-    # `index()` and trigger this helper. Default to `MEDIA`, like
-    # the malformed-profile-code path.
+    """The BW type this user's KYC profile points at.
+
+    `user.profile` may be None for freshly-created users who haven't
+    filled the KYC wizard yet — since #0117 lifted the « must have an
+    organisation » gate, those users reach `index()` and land here.
+    Default to `MEDIA`, like the malformed-profile-code path.
+
+    Five `getattr` defaults used to guard this: `user.profile` (a mapped
+    relationship, always present), `profile.get_value` behind a
+    `callable()` check (a plain method on `KYCProfile`), and
+    `guessed.value` on a value that came straight out of a
+    `dict[..., BWType]`. None of the guarded states can occur, and one
+    of them hid a dead comparison — `type_entreprise_media` is a
+    `list[str]` property, so the bare-string arm never matched.
+    """
     profile_code = profile_code_of(user)
     if profile_code is None:
-        return BWType.MEDIA  # type: ignore[invalid-return-type]
+        return BWType.MEDIA
+
     guessed = PROFILE_CODE_TO_BW2_TYPE.get(profile_code, BWType.MEDIA)
-    # if evaluated profile_code is Media, maybe we can detect a press agency if
-    # the field type_entreprise_media is "Agence de presse":
-    profile = getattr(user, "profile", None)
-    if guessed == BWType.MEDIA and profile:
-        get_val = getattr(profile, "get_value", None)
-        if callable(get_val):
-            type_ent = get_val("type_entreprise_media")
-        else:
-            type_ent = getattr(profile, "type_entreprise_media", None)
-        if type_ent in (["Agence de presse"], "Agence de presse"):
-            guessed = BWType.NEWS_AGENCY
-    if getattr(guessed, "value", guessed) in DEPRECATED_BW_TYPES:
-        return BWType.MEDIA  # type: ignore[invalid-return-type]
-    return guessed  # type: ignore[invalid-return-type]
+    if guessed == BWType.MEDIA and _is_press_agency_profile(user.profile):
+        guessed = BWType.NEWS_AGENCY
+
+    if guessed.value in DEPRECATED_BW_TYPES:
+        return BWType.MEDIA
+    return guessed
+
+
+def _is_press_agency_profile(profile: KYCProfile | None) -> bool:
+    """Does the KYC profile declare a CPPAP-approved press agency?
+
+    A `media` profile code says nothing about agency status; the
+    `type_entreprise_media` field is where it shows.
+    """
+    if profile is None:
+        return False
+    return profile.get_value("type_entreprise_media") == [PRESS_AGENCY_LABEL]
 
 
 def get_any_business_wall_for_organisation(org: Organisation) -> BusinessWall | None:
@@ -295,7 +328,7 @@ def bw_type_marks_agency(bw_type_label: str | None) -> bool:
     the « représenter mes clients » flow."""
     if not bw_type_label:
         return False
-    return "Agence de presse" in bw_type_label
+    return PRESS_AGENCY_LABEL in bw_type_label
 
 
 def is_organisation_an_agency(org: Organisation) -> bool:

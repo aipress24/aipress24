@@ -10,9 +10,43 @@ pricing, and onboarding messages.
 
 from __future__ import annotations
 
-from typing import Any
+from typing import NotRequired, TypedDict
 
 from .models import BWType
+
+
+class BWTypeConfig(TypedDict):
+    """One Business Wall type, as the activation funnel reads it.
+
+    A `dict[str, Any]` before: nine entries of thirteen-odd keys with no
+    checking, where `bw_info.get("fre")` returned `None` and the funnel
+    quietly took the paid branch. The `NotRequired`
+    keys are the ones only some types carry — spelled out so "absent"
+    is a documented state rather than an accident.
+    """
+
+    name: str
+    description: str
+    #: Free types skip Stripe entirely; the paid ones go through checkout.
+    free: bool
+    pricing_field: str
+    pricing_label: str
+    pricing_placeholder: str
+    pricing_default: int
+    rate_message: str
+    #: Wording used in the confirmation messages, e.g. "PR Manager".
+    manager_role: str
+    #: Single-person orgs may self-assign their own BW roles.
+    allows_self_management: bool
+    onboarding_messages: list[str]
+    #: Absent for the two types that ask for a pricing input.
+    skip_pricing_input: NotRequired[bool]
+    activation_text: NotRequired[str]
+    #: Only the types with NEWSROOM access advertise these.
+    newsroom_features: NotRequired[list[str]]
+    deprecated: NotRequired[bool]
+    pricing_explanation: NotRequired[str]
+
 
 # Ticket #0182 — INSEE-style employee-count brackets used to pre-select
 # the « Taille de l'organisation » dropdown in stage B01 from the value
@@ -101,10 +135,21 @@ DEPRECATED_BW_TYPES: set[str] = {
     BWType.UNION.value,
 }
 
+#: What a NEWSROOM-enabled Business Wall advertises. Three of the four
+#: types listing these spelled the same five lines out; the fourth
+#: genuinely differs and keeps its own list.
+NEWSROOM_FEATURES: list[str] = [
+    "Propositions de sujets aux rédacteurs en chef",
+    "Commandes de sujets de la part de rédacteurs en chef aux journalistes",
+    "Avis d'enquête des journalistes auprès des parties prenantes concernées",
+    "Justificatifs de publication sur AiPRESS24",
+    "Ventes de copyrights",
+]
+
 # Business Wall Types configuration
-BW_TYPES: dict[str, dict[str, Any]] = {
+BW_TYPES: dict[str, BWTypeConfig] = {
     # Free BW types (5 types)
-    BWType.MEDIA.value: {  # type: ignore [unresolved-attribute]
+    BWType.MEDIA.value: {
         "name": "Business Wall for Media",
         "description": "Pour les organes de presse reconnus.",
         "free": True,
@@ -117,13 +162,7 @@ BW_TYPES: dict[str, dict[str, Any]] = {
         "activation_text": "Approuver l'accord de diffusion sur AiPRESS24 + Business Wall CGV",
         "manager_role": "PR Manager",  # For confirmation messages
         "allows_self_management": False,  # Single-person orgs can self-assign roles
-        "newsroom_features": [
-            "Propositions de sujets aux rédacteurs en chef",
-            "Commandes de sujets de la part de rédacteurs en chef aux journalistes",
-            "Avis d'enquête des journalistes auprès des parties prenantes concernées",
-            "Justificatifs de publication sur AiPRESS24",
-            "Ventes de copyrights",
-        ],
+        "newsroom_features": NEWSROOM_FEATURES,
         "onboarding_messages": [
             "Votre abonnement gratuit à Business Wall for Media sera la vitrine sur AiPRESS24 de l'organe de presse reconnu que vous dirigez.",
             "Vous devez créer un seul Business Wall for Media par organe de presse.",
@@ -133,7 +172,7 @@ BW_TYPES: dict[str, dict[str, Any]] = {
             "Les informations que vous allez saisir seront vérifiées par les équipes d'AiPRESS24.",
         ],
     },
-    BWType.NEWS_AGENCY.value: {  # type: ignore [unresolved-attribute]
+    BWType.NEWS_AGENCY.value: {
         "name": "Business Wall for News Agency",
         "description": "Cet abonnement est exclusivement réservé aux Agences de presse agréées par la Commission Paritaire des Publications et Agences de Presse (CPPAP).",
         "free": True,
@@ -146,13 +185,7 @@ BW_TYPES: dict[str, dict[str, Any]] = {
         "activation_text": "Approuver l'accord de diffusion sur AiPRESS24 + Business Wall CGV",
         "manager_role": "PR Manager",  # For confirmation messages
         "allows_self_management": False,  # Single-person orgs can self-assign roles
-        "newsroom_features": [
-            "Propositions de sujets aux rédacteurs en chef",
-            "Commandes de sujets de la part de rédacteurs en chef aux journalistes",
-            "Avis d'enquête des journalistes auprès des parties prenantes concernées",
-            "Justificatifs de publication sur AiPRESS24",
-            "Ventes de copyrights",
-        ],
+        "newsroom_features": NEWSROOM_FEATURES,
         "onboarding_messages": [
             "Votre abonnement gratuit à Business Wall for News Agency (BW4NA) sera la vitrine sur AiPRESS24 de l'agence de presse que vous dirigez.",
             "Vous ne pouvez créer qu'un seul Business Wall for News Agency par agence de presse sur AiPRESS24.",
@@ -163,7 +196,7 @@ BW_TYPES: dict[str, dict[str, Any]] = {
             "Les informations que vous allez saisir seront vérifiées par les équipes d'AiPRESS24.",
         ],
     },
-    BWType.MICRO.value: {  # type: ignore [unresolved-attribute]
+    BWType.MICRO.value: {
         "name": "Business Wall for Journalist",
         "description": "Pour les journalistes structurés en micro-entreprise travaillant pour des organes de presse reconnus.",
         "deprecated": False,
@@ -177,13 +210,7 @@ BW_TYPES: dict[str, dict[str, Any]] = {
         "activation_text": "Approuver l'accord de diffusion sur AiPRESS24 + Business Wall CGV",
         "manager_role": "PR Manager",
         "allows_self_management": True,  # Single-person orgs can self-assign roles
-        "newsroom_features": [
-            "Propositions de sujets aux rédacteurs en chef",
-            "Commandes de sujets de la part de rédacteurs en chef aux journalistes",
-            "Avis d'enquête des journalistes auprès des parties prenantes concernées",
-            "Justificatifs de publication sur AiPRESS24",
-            "Ventes de copyrights",
-        ],
+        "newsroom_features": NEWSROOM_FEATURES,
         "onboarding_messages": [
             "Votre abonnement gratuit à Business Wall for Journalist sera la vitrine sur AiPRESS24 de votre micro-entreprise de presse travaillant pour des organes de presse reconnus.",
             "Pour bénéficier de Business Wall for Journalist, de l'accès aux fonctionnalités de NEWSROOM (propositions et commandes de sujets, Avis d'enquête digital, etc.) et pour commercialiser vos contenus journalistiques (consultations sur NEWS, Consultations Offertes, justificatifs de publication, revente de ©, fonds mutualisé des Avis d'enquêtes), vous devrez approuver notre contrat de diffusion sur AiPRESS24.",
@@ -191,7 +218,7 @@ BW_TYPES: dict[str, dict[str, Any]] = {
             "Les informations que vous allez saisir seront vérifiées par les équipes d'AiPRESS24.",
         ],
     },
-    BWType.CORPORATE_MEDIA.value: {  # type: ignore [unresolved-attribute]
+    BWType.CORPORATE_MEDIA.value: {
         "name": "Business Wall for Corporate Media",
         "description": "Pour les médias d'entreprise et institutionnels.",
         "deprecated": True,
@@ -217,7 +244,7 @@ BW_TYPES: dict[str, dict[str, Any]] = {
             "Les informations que vous allez saisir seront vérifiées par les équipes d'AiPRESS24.",
         ],
     },
-    BWType.UNION.value: {  # type: ignore [unresolved-attribute]
+    BWType.UNION.value: {
         "name": "Business Wall for Union",
         "description": "Pour les syndicats ou fédérations de la presse ou des médias, clubs de la presse ou associations de journalistes.",
         "deprecated": True,
@@ -238,7 +265,7 @@ BW_TYPES: dict[str, dict[str, Any]] = {
             "Vous devez déclarer également déclarer et valider individuellement chaque PR Agency ou chaque PR Consultant qui vous représentent sur AiPRESS24 et peuvent agir en tant que contact presse, publier vos communiqués de presse et vos événements.",
         ],
     },
-    BWType.ACADEMICS.value: {  # type: ignore [unresolved-attribute]
+    BWType.ACADEMICS.value: {
         "name": "Business Wall for Academics",
         "description": "Pour les établissements de recherche ou d'enseignement supérieur.",
         "free": True,
@@ -259,7 +286,7 @@ BW_TYPES: dict[str, dict[str, Any]] = {
         ],
     },
     # Paid BW types (3 types)
-    BWType.PR.value: {  # type: ignore [unresolved-attribute]
+    BWType.PR.value: {
         "name": "Business Wall for PR",
         "description": "Pour les agences de relations presse et les consultants indépendants.",
         "free": False,
@@ -293,7 +320,7 @@ BW_TYPES: dict[str, dict[str, Any]] = {
             "Les informations que vous allez saisir seront vérifiées par les équipes d'AiPRESS24.",
         ],
     },
-    BWType.LEADERS_EXPERTS.value: {  # type: ignore [unresolved-attribute]
+    BWType.LEADERS_EXPERTS.value: {
         "name": "Business Wall for Leaders & Experts",
         "description": "Pour les entreprises, associations, experts et leaders d'opinion.",
         "free": False,
@@ -316,7 +343,7 @@ BW_TYPES: dict[str, dict[str, Any]] = {
             "Les informations que vous allez saisir seront vérifiées par les équipes d'AiPRESS24.",
         ],
     },
-    BWType.TRANSFORMERS.value: {  # type: ignore [unresolved-attribute]
+    BWType.TRANSFORMERS.value: {
         "name": "Business Wall for Transformers",
         "description": "Pour les acteurs de l'innovation et de la transformation numérique.",
         "free": False,

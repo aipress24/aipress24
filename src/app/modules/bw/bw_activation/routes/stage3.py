@@ -377,7 +377,12 @@ def _preview_checkout_amount(
             checkout_kwargs, org, payer_email
         )
         return preview_session.amount_subtotal
-    except Exception as exc:
+    except stripe.StripeError as exc:
+        # The preview is decoration: the Checkout page is authoritative
+        # on what gets charged, so a failed preview shows no amount
+        # rather than blocking the purchase. `StripeError`, not
+        # `Exception` — a `BuildError` or a bad kwarg here is our bug
+        # and should surface.
         warn(f"Preview checkout session failed: {exc}")
         return None
 
@@ -853,7 +858,7 @@ def confirmation_paid():
         # « Activation Réussie » card lied. Flip the status here so the
         # gate on /wip/opportunities/ stops blocking.
         if _should_finalise_draft(existing):
-            existing.status = BWStatus.ACTIVE.value  # type: ignore[assignment]
+            existing.status = BWStatus.ACTIVE.value
             # Link organisation to BW
             org = existing.get_organisation()
             if org:
