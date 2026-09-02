@@ -6,16 +6,17 @@
 
 from __future__ import annotations
 
-import contextlib
-from typing import cast
+from typing import Any, cast
 from uuid import UUID
 
 from flask import g, session
+from sqlalchemy.exc import SQLAlchemyError
 from svcs.flask import container
 
 from app.enums import RoleEnum
 from app.flask.extensions import db
 from app.flask.sqla import get_obj
+from app.logging import warn
 from app.models.auth import User
 from app.modules.bw.bw_activation.models import (
     BusinessWall,
@@ -72,60 +73,82 @@ def is_bw_manager_or_admin(user: User, bw: BusinessWall) -> bool:
     return user.id in bw_managers_ids(bw)
 
 
+#: The activation funnel's session state, at the value each key takes
+#: before anything has been chosen. The three writers below used to
+#: spell these seven names out one `session[...] = ...` at a time, 21
+#: string literals in all, where a typo was silent.
+_INITIAL_STATE: dict[str, Any] = {
+    "bw_type": None,
+    "bw_type_confirmed": False,
+    "suggested_bw_type": "media",  # Default suggestion based on KYC
+    "contacts_confirmed": False,
+    "bw_activated": False,
+    "pricing_value": None,
+}
+
+#: The same state once a BW has been in play and is being dropped: no
+#: id, and no suggestion either — the KYC default would be misleading
+#: after an explicit cancellation.
+_CLEARED_STATE: dict[str, Any] = _INITIAL_STATE | {
+    "bw_id": None,
+    "suggested_bw_type": "",
+    "error": "",
+}
+
+
 def init_session():
     """Initialize session with default values if not set.
 
     This function sets up all necessary session variables for the
     Business Wall activation workflow.
     """
-    if "bw_type" not in session:
-        session["bw_type"] = None
-    if "bw_type_confirmed" not in session:
-        session["bw_type_confirmed"] = False
-    if "suggested_bw_type" not in session:
-        session["suggested_bw_type"] = "media"  # Default suggestion based on KYC
-    if "contacts_confirmed" not in session:
-        session["contacts_confirmed"] = False
-    if "bw_activated" not in session:
-        session["bw_activated"] = False
-    if "pricing_value" not in session:
-        session["pricing_value"] = None
+    for key, value in _INITIAL_STATE.items():
+        session.setdefault(key, value)
 
 
 def fill_session(current_bw: BusinessWall) -> None:
     """Load into session information from current Businesswall."""
-    session["bw_id"] = str(current_bw.id)
-    session["bw_type"] = current_bw.bw_type
-    session["bw_type_confirmed"] = True
-    session["suggested_bw_type"] = current_bw.bw_type
-    session["contacts_confirmed"] = True
-    session["bw_activated"] = True
-    session["pricing_value"] = None
-    session["error"] = ""
-
-    # Persist the selection in the user profile if logged in
-    with contextlib.suppress(Exception):
-        if g.user and not g.user.is_anonymous:
-            g.user.selected_bw_id = current_bw.id
-            db.session.commit()
+    session.update(
+        _CLEARED_STATE
+        | {
+            "bw_id": str(current_bw.id),
+            "bw_type": current_bw.bw_type,
+            "bw_type_confirmed": True,
+            "suggested_bw_type": current_bw.bw_type,
+            "contacts_confirmed": True,
+            "bw_activated": True,
+        }
+    )
+    _remember_selected_bw(current_bw.id)
 
 
 def clear_bw_session() -> None:
     """Clear session BW information when cancelling subscription."""
-    session["bw_id"] = None
-    session["bw_type"] = None
-    session["bw_type_confirmed"] = False
-    session["suggested_bw_type"] = ""
-    session["contacts_confirmed"] = False
-    session["bw_activated"] = False
-    session["pricing_value"] = None
-    session["error"] = ""
+    session.update(_CLEARED_STATE)
+    _remember_selected_bw(None)
 
-    # Clear from user profile if logged in
-    with contextlib.suppress(Exception):
-        if g.user and not g.user.is_anonymous:
-            g.user.selected_bw_id = None
-            db.session.commit()
+
+def _remember_selected_bw(bw_id: UUID | None) -> None:
+    """Persist the signed-in user's BW choice across sessions.
+
+    `contextlib.suppress(Exception)` used to wrap this, so a failed
+    commit was invisible *and* left the session needing a rollback —
+    the next statement of the same request then died with a
+    `PendingRollbackError` pointing nowhere near the cause. The write
+    stays best-effort: the session already carries the choice for this
+    request, and losing the cross-session memory is not worth failing
+    the page over. But it says so out loud and hands back a usable
+    session.
+    """
+    user = g.user
+    if not user or user.is_anonymous:
+        return
+    user.selected_bw_id = bw_id
+    try:
+        db.session.commit()
+    except SQLAlchemyError as e:
+        db.session.rollback()
+        warn(f"Could not persist selected_bw_id={bw_id} for user {user.id}: {e}")
 
 
 def init_missions_state():
@@ -251,7 +274,7 @@ def get_press_relation_bw_list() -> list[BusinessWall]:
     return cast(
         list[BusinessWall],
         bw_service.list(
-            bw_type=BWType.PR.value,  # type: ignore [unresolved-attribute]
+            bw_type=BWType.PR.value,
             status=BWStatus.ACTIVE.value,
         ),
     )

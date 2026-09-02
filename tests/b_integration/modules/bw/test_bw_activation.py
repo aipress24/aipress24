@@ -14,6 +14,7 @@ from typing import TYPE_CHECKING
 
 import pytest
 from flask import Flask, g, session
+from flask_security.core import AnonymousUser
 
 from app.enums import ProfileEnum
 from app.models.auth import KYCProfile, User
@@ -23,9 +24,9 @@ from app.modules.bw.bw_activation.bw_creation import (
     create_new_paid_bw_record,
 )
 from app.modules.bw.bw_activation.bw_invitation import (
-    invite_bwmi_by_email,
+    invite_role_by_email,
     invite_user_role,
-    revoke_bwmi_by_email,
+    revoke_user_role,
 )
 from app.modules.bw.bw_activation.config import BW_TYPES
 from app.modules.bw.bw_activation.models import (
@@ -248,6 +249,12 @@ class TestFillSession:
     ) -> None:
         """fill_session should populate session from BusinessWall."""
         with app.test_request_context():
+            # `app/flask/hooks.py` sets `g.user` on every request, so
+            # every real caller of `fill_session` has one. A bare
+            # `test_request_context()` does not run that hook — set it
+            # the way production does, rather than making the helper
+            # tolerate a state production never produces.
+            g.user = AnonymousUser()
             fill_session(test_business_wall)
 
             assert session.get("bw_type") == "media"
@@ -929,7 +936,7 @@ class TestCurrentBusinessWall:
 
 
 class TestInviteBwmiByEmail:
-    """Tests for invite_bwmi_by_email function."""
+    """Tests for inviting a BWMi by email address."""
 
     def test_invite_existing_org_member(
         self,
@@ -937,7 +944,7 @@ class TestInviteBwmiByEmail:
         test_business_wall: BusinessWall,
         test_org: Organisation,
     ) -> None:
-        """invite_bwmi_by_email should succeed for org members."""
+        """Inviting an org member to BWMi succeeds."""
         # Create an active user in the organisation
         # Note: get_user_per_email requires active=True, is_clone=False
         member = User(email="member@example.com", active=True, is_clone=False)
@@ -947,7 +954,9 @@ class TestInviteBwmiByEmail:
         db_session.flush()
 
         # send_role_invitation_mail is mocked
-        result = invite_bwmi_by_email(test_business_wall, "member@example.com")
+        result = invite_role_by_email(
+            test_business_wall, "member@example.com", BWRoleType.BWMI
+        )
 
         assert result.is_success
 
@@ -965,15 +974,23 @@ class TestInviteBwmiByEmail:
         self,
         test_business_wall: BusinessWall,
     ) -> None:
-        """invite_bwmi_by_email should fail for non-existent users."""
-        result = invite_bwmi_by_email(test_business_wall, "nonexistent@example.com")
+        """An address with no account behind it fails, with a reason."""
+        result = invite_role_by_email(
+            test_business_wall, "nonexistent@example.com", BWRoleType.BWMI
+        )
 
         assert result.is_failure
         assert result.code.value == "failed_unknown_email"
 
 
-class TestRevokeBwmiByEmail:
-    """Tests for revoke_bwmi_by_email function."""
+class TestRevokeBwmiRole:
+    """Revoking a BWMi role removes its assignment row.
+
+    Written against `revoke_bwmi_by_email`, a wrapper that resolved the
+    address and had no production caller. The funnel
+    calls `revoke_user_role` with the resolved user, which is what this
+    now exercises.
+    """
 
     def test_revoke_existing_bwmi_role(
         self,
@@ -981,7 +998,7 @@ class TestRevokeBwmiByEmail:
         test_business_wall: BusinessWall,
         test_org: Organisation,
     ) -> None:
-        """revoke_bwmi_by_email should remove the BWMI role."""
+        """The assignment row is gone after a revoke."""
         # Create an active user and assign BWMI role
         member = User(email="revoke_test@example.com", active=True, is_clone=False)
         member.organisation = test_org
@@ -989,10 +1006,9 @@ class TestRevokeBwmiByEmail:
         db_session.add(member)
         db_session.flush()
 
-        # Add the role first using invite_bwmi_by_email
-        # send_role_invitation_mail is mocked
-        invite_result = invite_bwmi_by_email(
-            test_business_wall, "revoke_test@example.com"
+        # Add the role first, through the production invite path.
+        invite_result = invite_role_by_email(
+            test_business_wall, "revoke_test@example.com", BWRoleType.BWMI
         )
         assert invite_result.is_success, "Failed to invite user first"
         db_session.flush()
@@ -1001,7 +1017,7 @@ class TestRevokeBwmiByEmail:
         initial_roles = len(test_business_wall.role_assignments)
 
         # Now revoke
-        result = revoke_bwmi_by_email(test_business_wall, "revoke_test@example.com")
+        result = revoke_user_role(test_business_wall, member, BWRoleType.BWMI)
 
         assert result is True
         db_session.refresh(test_business_wall)
