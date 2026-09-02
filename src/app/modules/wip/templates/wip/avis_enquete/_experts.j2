@@ -1,173 +1,232 @@
-{% if not experts %}
-  <div id="no_experts">
-    <h2 class="aui-title mt-8">
-        Aucun nouveau profil trouvé avec ces critères
-    </h2>
-  </div>
-{% endif %}
-{% if experts %}
-  <div id="experts">
-    <h2 class="aui-title mt-8">
-      {% if experts|length == 50 %}
-        Plus de 50 profils trouvés (affichage limité à 50)
-      {% else %}
-        Profils ({{ experts|length }} profils trouvés)
-      {% endif %}
-    </h2>
+<div id="experts-results-block" class="mt-8 mb-8">
+    {% if not experts %}
+        <div id="no_experts"
+             class="bg-gray-50 border border-gray-200 rounded-xl p-6 text-center shadow-xs">
+            <h2 class="text-lg font-bold text-gray-800 mb-1">
+                Aucun nouveau profil trouvé avec ces critères
+            </h2>
+            <p class="text-sm text-gray-500">
+                Essayez d'ajuster ou d'élargir vos filtres ci-dessus pour afficher davantage de contacts potentiels.
+            </p>
+        </div>
+    {% else %}
+        <div id="experts"
+             class="bg-white border border-gray-200 rounded-xl shadow-xs overflow-hidden">
+            <div class="bg-gray-50 px-6 py-4 border-b border-gray-200 flex flex-wrap items-center justify-between gap-2">
+                <div>
+                    <h2 class="text-lg font-bold text-gray-900 flex items-center gap-2">
+                        {% if experts|length == 50 %}
+                            <span>Plus de 50 profils trouvés</span>
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-gray-200 text-gray-800">affichage limité à 50</span>
+                        {% else %}
+                            <span>Profils trouvés</span>
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-pink-100 text-pink-700">{{ experts|length }} profil{% if experts|length > 1 %}s{% endif %}</span>
+                        {% endif %}
+                    </h2>
+                    <p class="text-xs sm:text-sm text-gray-600 mt-1">
+                        Cochez les profils que vous souhaitez solliciter, puis cliquez sur « Valider la sélection » pour les ajouter à vos destinataires.
+                    </p>
+                </div>
+            </div>
 
-    <p class="mb-8">Choisissez les profils que vous souhaitez solliciter dans la liste suivante:</p>
+            <form class="p-6">
+                <div class="overflow-x-auto">
+                    <table class="dui-table dui-table-zebra border w-full">
+                        <thead>
+                            <tr class="bg-gray-100 text-gray-700">
+                                <th class="w-12 text-center"></th>
+                                <th>Nom</th>
+                                <th>Organisation</th>
+                                <th>Titre</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for expert in experts %}
+                                {% set organisation = expert.organisation %}
+                                <tr class="hover">
+                                    <th class="text-center">
+                                        <input
+                                            name="expert:{{ expert.id }}"
+                                            type="checkbox"
+                                            class="dui-checkbox dui-checkbox-sm dui-checkbox-primary"/>
+                                    </th>
+                                    <td>
+                                        <a class="hover:underline font-medium text-gray-900"
+                                           href="{{ url_for(expert) }}">
+                                            {{ expert.name }}
+                                        </a>
+                                    </td>
+                                    <td>
+                                        {% if organisation %}
+                                            <a class="hover:underline text-gray-700"
+                                               href="{{ url_for(organisation) }}">
+                                                {{ organisation.name }}
+                                            </a>
+                                        {% endif %}
+                                    </td>
+                                    <td class="text-gray-600">{{ expert.job_title }}</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
 
-    <form>
-      <div class="overflow-x-auto">
-        <table class="dui-table dui-table-zebra border">
-          <!-- head -->
-          <thead>
-          <tr>
-            <th></th>
-            <th>Nom</th>
-            <th>Organisation</th>
-            <th>Titre</th>
-          </tr>
-          </thead>
-          <tbody>
-
-          {% for expert in experts %}
-            {% set organisation = expert.organisation %}
-            <tr>
-              <th><input name="expert:{{ expert.id }}" type="checkbox"/></th>
-              <td><a
-                  class="hover:underline"
-                  href="{{ url_for(expert) }}">{{ expert.name }}</a>
-              </td>
-              <td>
-                {% if organisation %}
-                  <a
-                      class="hover:underline"
-                      href="{{ url_for(organisation) }}">{{ organisation.name }}</a>
-                {% endif %}
-              </td>
-              <td>{{ expert.job_title }}</td>
-            </tr>
-          {% endfor %}
-          </tbody>
-        </table>
-      </div>
-
-      <div class="mt-8">
-        <input
-            hx-post=""
-            hx-target="#main"
-            type="submit"
-            class="aui-button"
-            name="action:add" value="Valider / mettre à jour la sélection">
-      </div>
-    </form>
-  </div>
-{% endif %}
-
-<h2 class="aui-title mt-8">
-  Profils sélectionnés ({{ selected_experts|length }})
-</h2>
-
-{% if selected_experts %}
-  <p class="mb-8">Vous avez choisi de contacter les profils suivants:</p>
-
-  <form id="send-ciblage-form">
-    <div class="overflow-x-auto">
-      <table class="dui-table dui-table-zebra border">
-        <!-- head -->
-        <thead>
-        <tr>
-          <th></th>
-          <th>Nom</th>
-          <th>Organisation</th>
-          <th>Titre</th>
-        </tr>
-        </thead>
-        <tbody>
-
-        {% for expert in selected_experts %}
-          {% set organisation = expert.organisation %}
-          <tr>
-            <th><input name="expert:{{ expert.id }}" type="checkbox" checked/></th>
-            <td><a
-                class="hover:underline"
-                href="{{ url_for(expert) }}">{{ expert.name }}</a>
-            </td>
-            <td>
-              {% if organisation %}
-                <a
-                    class="hover:underline"
-                    href="{{ url_for(organisation) }}">{{ organisation.name }}</a>
-              {% endif %}
-            </td>
-            <td>{{ expert.job_title }}</td>
-          </tr>
-        {% endfor %}
-        </tbody>
-      </table>
-    </div>
-
-    <div class="mt-8">
-      <input
-          hx-post=""
-          hx-target="#main"
-          type="submit"
-          name="action:update"
-          class="aui-button mr-4"
-          value="Mettre à jour la sélection">
-      <button
-          type="button"
-          data-modal-target="send-ciblage-modal"
-          data-modal-toggle="send-ciblage-modal"
-          class="aui-button aui-button-primary"
-          >Envoyer la demande</button>
-    </div>
-  </form>
-
-<div id="send-ciblage-modal"
-  data-modal-backdrop="static"
-  tabindex="-1"
-  aria-hidden="true"
-  class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full">
-  <div class="relative p-4 w-full max-w-md max-h-full">
-    <div class="relative bg-white rounded-lg shadow dark:bg-gray-700">
-      <div class="p-4 md:p-5 text-center">
-        <svg class="mx-auto mb-4 text-gray-400 w-12 h-12 dark:text-gray-200" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
-        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 11V6m0 8h.01M19 10a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/>
-        </svg>
-        <h3
-          class="mb-5 text-lg font-normal text-gray-500 dark:text-gray-400"
-        >
-          Êtes-vous sûr de vouloir envoyer cette demande aux profils sélectionnés ?
-        </h3>
-        <p
-          class="mb-5 text-lg font-normal text-gray-500 dark:text-gray-400"
-        >
-          Important: votre adresse mail sera dans ce message.
-        </p>
-        <button
-          type="submit"
-          form="send-ciblage-form"
-          data-modal-hide="send-ciblage-modal"
-          hx-post=""
-          hx-target="body"
-          name="action:confirm"
-          class="text-white bg-red-600 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 dark:focus:ring-red-800 font-medium rounded-lg text-sm inline-flex items-center px-5 py-2.5 text-center"
-        >
-          Oui, envoyer
-        </button>
-        <button
-          type="button"
-          data-modal-hide="send-ciblage-modal"
-          class="py-2.5 px-5 ms-3 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-100 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700"
-        >
-          Non, annuler
-        </button>
-      </div>
-    </div>
-  </div>
+                <div class="mt-6 flex items-center">
+                    <input
+                        hx-post=""
+                        hx-target="#main"
+                        type="submit"
+                        class="aui-button aui-button-primary font-semibold shadow-sm"
+                        name="action:add"
+                        value="Valider / mettre à jour la sélection"
+                    />
+                </div>
+            </form>
+        </div>
+    {% endif %}
 </div>
-{% else %}
-  <p>Vous n'avez encore sélectionné aucun profil</p>
-{% endif %}
+
+
+<div id="selected-experts-block"
+     class="bg-pink-50/30 border-2 border-pink-300 rounded-xl shadow-sm overflow-hidden mb-8">
+    <div class="bg-pink-100/60 px-6 py-4 border-b border-pink-200 flex flex-wrap items-center justify-between gap-2">
+        <div>
+            <h2 class="text-lg font-bold text-gray-900 flex items-center gap-2">
+                <span>Profils sélectionnés</span>
+                <span class="inline-flex items-center px-3 py-0.5 rounded-full text-xs font-bold bg-pink-600 text-white">
+                    {{ selected_experts|length }}
+                </span>
+            </h2>
+            <p class="text-xs sm:text-sm text-gray-600 mt-1">
+                {% if selected_experts %}
+                    Vous avez choisi de contacter les profils suivants. Cliquez sur « Envoyer la demande » pour expédier l'avis d'enquête.
+                {% else %}
+                    Vous n'avez encore sélectionné aucun profil.
+                {% endif %}
+            </p>
+        </div>
+    </div>
+
+    <div class="p-6">
+        {% if selected_experts %}
+            <form id="send-ciblage-form">
+                <div class="overflow-x-auto">
+                    <table class="dui-table dui-table-zebra border bg-white w-full">
+                        <thead>
+                            <tr class="bg-gray-100 text-gray-700">
+                                <th class="w-12 text-center"></th>
+                                <th>Nom</th>
+                                <th>Organisation</th>
+                                <th>Titre</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for expert in selected_experts %}
+                                {% set organisation = expert.organisation %}
+                                <tr class="hover">
+                                    <th class="text-center">
+                                        <input name="expert:{{ expert.id }}"
+                                               type="checkbox"
+                                               checked class="dui-checkbox dui-checkbox-sm dui-checkbox-primary"/>
+                                    </th>
+                                    <td>
+                                        <a class="hover:underline font-medium text-gray-900"
+                                           href="{{ url_for(expert) }}">
+                                            {{ expert.name }}
+                                        </a>
+                                    </td>
+                                    <td>
+                                        {% if organisation %}
+                                            <a class="hover:underline text-gray-700"
+                                               href="{{ url_for(organisation) }}">
+                                                {{ organisation.name }}
+                                            </a>
+                                        {% endif %}
+                                    </td>
+                                    <td class="text-gray-600">{{ expert.job_title }}</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="mt-6 flex flex-wrap items-center justify-between gap-4">
+                    <input
+                        hx-post=""
+                        hx-target="#main"
+                        type="submit"
+                        name="action:update"
+                        class="aui-button text-gray-700 bg-white border border-gray-300 hover:bg-gray-50"
+                        value="Mettre à jour la sélection"
+                    />
+                    <button
+                        type="button"
+                        data-modal-target="send-ciblage-modal"
+                        data-modal-toggle="send-ciblage-modal"
+                        class="aui-button aui-button-primary font-bold px-6 py-2.5 shadow-sm"
+                    >
+                        Envoyer la demande ({{ selected_experts|length }})
+                    </button>
+                </div>
+            </form>
+
+      {# Modal confirmation #}
+            <div
+                id="send-ciblage-modal"
+                data-modal-backdrop="static"
+                tabindex="-1"
+                aria-hidden="true"
+                class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full"
+            >
+                <div class="relative p-4 w-full max-w-md max-h-full">
+                    <div class="relative bg-white rounded-lg shadow-lg dark:bg-gray-700 border border-gray-200">
+                        <div class="p-4 md:p-5 text-center">
+                            <svg class="mx-auto mb-4 text-pink-500 w-12 h-12"
+                                 aria-hidden="true"
+                                 xmlns="http://www.w3.org/2000/svg"
+                                 fill="none"
+                                 viewBox="0 0 20 20">
+                                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 11V6m0 8h.01M19 10a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/>
+                            </svg>
+                            <h3 class="mb-3 text-lg font-semibold text-gray-900 dark:text-white">
+                                Êtes-vous sûr de vouloir envoyer cette demande aux {{ selected_experts|length }}
+                                profil{% if selected_experts|length > 1 %}s{% endif %}
+                                sélectionné{% if selected_experts|length > 1 %}s{% endif %} ?
+                            </h3>
+                            <p class="mb-5 text-sm text-gray-600 dark:text-gray-400">
+                                Important : votre adresse email sera communiquée dans ce message.
+                            </p>
+                            <div class="flex justify-center gap-3">
+                                <button
+                                    type="submit"
+                                    form="send-ciblage-form"
+                                    data-modal-hide="send-ciblage-modal"
+                                    hx-post=""
+                                    hx-target="body"
+                                    name="action:confirm"
+                                    class="text-white bg-pink-600 hover:bg-pink-700 focus:ring-4 focus:outline-none focus:ring-pink-300 font-medium rounded-lg text-sm inline-flex items-center px-5 py-2.5 text-center shadow-xs"
+                                >
+                                    Oui, envoyer
+                                </button>
+                                <button
+                                    type="button"
+                                    data-modal-hide="send-ciblage-modal"
+                                    class="py-2.5 px-5 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-300 hover:bg-gray-100 focus:z-10 focus:ring-4 focus:ring-gray-100"
+                                >
+                                    Non, annuler
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% else %}
+            <div class="text-center py-6 text-gray-500 bg-white rounded-lg border border-dashed border-gray-300">
+                <p class="text-sm">
+                    Vous n'avez encore sélectionné aucun profil.<br>
+                    Cochez les profils trouvés ci-dessus, puis cliquez sur « Valider la sélection ».
+                </p>
+            </div>
+        {% endif %}
+    </div>
+</div>
