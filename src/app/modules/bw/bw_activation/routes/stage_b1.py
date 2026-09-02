@@ -48,91 +48,11 @@ if TYPE_CHECKING:
 # of stage B1 from the imperative Flask shell above.
 
 
-def parse_content_form(form: dict[str, Any]) -> dict[str, Any]:
-    """Pure: project the multi-form into a clean update dict.
-
-    The original route inlines ~25 ``request.form.get(...).strip()`` /
-    ``request.form.getlist(...)`` reads, each guarded by ``if value:``.
-    This helper does the same projection on a plain dict so we can
-    assert the contract of "which fields make it through, and what
-    siblings come along (e.g. ``*_detail`` lists)" without a Flask
-    request context.
-
-    Returns a dict with only the keys whose value is truthy (matches
-    the route's conditional-assignment pattern). For dual selectors
-    the ``_detail`` companion list is included alongside the primary
-    field even when empty (mirrors the route's ``or []`` fallback).
-
-    Missing form keys are treated as the empty string / empty list.
-    """
-
-    def _get(name: str) -> str:
-        v = form.get(name, "")
-        return v.strip() if isinstance(v, str) else ""
-
-    def _getlist(name: str) -> list[str]:
-        v = form.get(name, [])
-        return list(v) if isinstance(v, (list, tuple)) else []
-
-    out: dict[str, Any] = {}
-
-    # Mandatory scalar text fields
-    for key in (
-        "name",
-        "logo_image_copyright",
-        "cover_image_copyright",
-        "name_group",
-        "siren",
-        "tva",
-        "agrement",
-        "name_official",
-        "positionnement_editorial",
-        "presentation",
-        "audience_cible",
-        "periodicite",
-        "tel_standard",
-        "postal_address",
-        "geolocalisation",
-        "site_url",
-        "taille_orga",
-        "clients",
-        "name_institution",
-    ):
-        value = _get(key)
-        if value:
-            out[key] = value
-
-    # type_organisation: scalar + companion list
-    type_orga = _get("type_organisation")
-    if type_orga:
-        out["type_organisation"] = [type_orga]
-        out["type_organisation_detail"] = _getlist("type_organisation_detail")
-
-    # Multi-select fields
-    for key in ("type_entreprise_media", "type_presse_et_media", "type_agence_rp"):
-        values = _getlist(key)
-        if values:
-            out[key] = values
-
-    # Dual multi-selects (primary + _detail companion)
-    for primary, detail in (
-        ("secteurs_activite", "secteurs_activite_detail"),
-        ("interest_political", "interest_political_detail"),
-        ("interest_economics", "interest_economics_detail"),
-        ("interest_association", "interest_association_detail"),
-    ):
-        values = _getlist(primary)
-        if values:
-            out[primary] = values
-            out[detail] = _getlist(detail)
-
-    # pays_zip_ville (primary + sibling detail string)
-    pays_zip_ville = _get("pays_zip_ville")
-    if pays_zip_ville:
-        out["pays_zip_ville"] = pays_zip_ville
-        out["pays_zip_ville_detail"] = _get("pays_zip_ville_detail")
-
-    return out
+#: What the user is told when a mandatory field comes back empty.
+MANDATORY_FIELD_MESSAGES: dict[str, str] = {
+    "name": "Le nom officiel de l'organisation est obligatoire",
+    "siren": "Le numéro SIREN est obligatoire",
+}
 
 
 def content_form_missing_required(form: dict[str, Any]) -> list[str]:
@@ -140,13 +60,67 @@ def content_form_missing_required(form: dict[str, Any]) -> list[str]:
 
     The route enforces two mandatory text fields and short-circuits to
     a flash + redirect when either is empty: ``name`` and ``siren``.
+
+    It does now, at least: this helper was written for that job, tested,
+    and never called — the route checked `name` at the top of a 200-line
+    straight line and `siren` two thirds down.
     """
-    missing: list[str] = []
-    for key in ("name", "siren"):
-        v = form.get(key, "")
-        if not (isinstance(v, str) and v.strip()):
-            missing.append(key)
-    return missing
+    return [
+        key
+        for key in MANDATORY_FIELD_MESSAGES
+        if not (isinstance(v := form.get(key, ""), str) and v.strip())
+    ]
+
+
+#: Free-text fields the form and the model name identically, written
+#: only when the user supplied something. Twenty-odd copies of
+#: « read it, strip it, set it if truthy, flag modified » said this one
+#: field at a time.
+_TEXT_FIELDS: tuple[str, ...] = (
+    "logo_image_copyright",
+    "cover_image_copyright",
+    "name_group",
+    "siren",
+    "tva",
+    "agrement",
+    "name_official",
+    "positionnement_editorial",
+    "audience_cible",
+    "periodicite",
+    "tel_standard",
+    "postal_address",
+    "geolocalisation",
+    "site_url",
+    "taille_orga",
+    "clients",
+    "name_institution",
+)
+
+#: Multi-selects, read with `getlist`.
+_LIST_FIELDS: tuple[str, ...] = (
+    "type_entreprise_media",
+    "type_presse_et_media",
+    "type_agence_rp",
+)
+
+#: Dual selects: a parent list and its `<name>_detail` companion,
+#: written together so the pair cannot drift apart.
+_DUAL_FIELDS: tuple[str, ...] = (
+    "secteurs_activite",
+    "interest_political",
+    "interest_economics",
+    "interest_association",
+)
+
+#: The billing identity, blanked when the payer is the BW owner.
+_PAYER_FIELDS: tuple[str, ...] = (
+    "payer_first_name",
+    "payer_last_name",
+    "payer_service",
+    "payer_email",
+    "payer_phone",
+    "payer_address",
+)
 
 
 @bp.route("/configure-content", methods=["GET", "POST"])
@@ -165,318 +139,190 @@ def configure_content():
         session["error"] = ERR_NOT_MANAGER
         return redirect(url_for("bw_activation.not_authorized"))
 
-    bw_type = session["bw_type"]
-    bw_info = BW_TYPES.get(bw_type, {})
-
-    modified = False
-
     if request.method == "POST":
-        # Handle name field (mandatory)
-        name = request.form.get("name", "").strip()
-        if name:
-            business_wall.name = name
-            org = business_wall.get_organisation()
-            if org:
-                # sync org.bw_name with new BW.name
-                org.bw_name = name
-            db.session.flush()
-            modified = True
-        else:
-            flash("Le nom officiel de l'organisation est obligatoire", "error")
-            return redirect(url_for("bw_activation.configure_content"))
+        return _handle_content_post(business_wall)
 
-        logo_result = extract_image_from_request(
-            file_storage=request.files.get("logo_image"),
-            data_url=request.form.get("logo_image"),
-            orig_filename=request.form.get("logo_image_filename") or None,
+    return _render_content_form(business_wall)
+
+
+def _handle_content_post(business_wall):
+    """Apply the submitted content form, then move on to the gallery.
+
+    The mandatory fields are checked *first*. They used to be checked
+    where they happened to appear in a 200-line straight line — `name`
+    at the top, `siren` two thirds down — with everything in between
+    already assigned and flushed. Nothing was committed on that path, so
+    the outcome is the same and the reading is not.
+    """
+    form = request.form
+    missing = content_form_missing_required(form)
+    if missing:
+        for field in missing:
+            flash(MANDATORY_FIELD_MESSAGES[field], "error")
+        return redirect(url_for("bw_activation.configure_content"))
+
+    modified = _apply_name(business_wall, form.get("name", "").strip())
+    modified |= _apply_images(business_wall)
+    modified |= _apply_text_fields(business_wall, form)
+    modified |= _apply_list_fields(business_wall, form)
+    modified |= _apply_dual_fields(business_wall, form)
+    modified |= _apply_type_organisation(business_wall, form)
+    modified |= _apply_presentation(business_wall, form)
+    modified |= _apply_location(business_wall, form)
+    modified |= _apply_payer_identity(business_wall, form)
+
+    if modified:
+        db.session.commit()
+
+    return redirect(url_for("bw_activation.configure_gallery"))
+
+
+def _apply_name(business_wall, name: str) -> bool:
+    """Set the BW name, keeping `org.bw_name` in step with it."""
+    business_wall.name = name
+    org = business_wall.get_organisation()
+    if org:
+        org.bw_name = name
+    db.session.flush()
+    return True
+
+
+def _apply_images(business_wall) -> bool:
+    """Logo and bandeau, from either a file input or a data URL.
+
+    One call each where the two were the same twenty-two lines twice,
+    differing by the form field, the model attribute and two messages.
+    """
+    logo = _store_bw_image(business_wall, "logo_image", "logo", "Logo")
+    bandeau = _store_bw_image(business_wall, "cover_image", "bandeau_image", "Bandeau")
+    return logo or bandeau
+
+
+def _store_bw_image(business_wall, attribute: str, field: str, label: str) -> bool:
+    """Save one uploaded image onto `business_wall.<attribute>`.
+
+    Returns whether anything changed. The failure message shown to the
+    user no longer carries the exception text — that goes to the log,
+    where it belongs; the page said things like « Erreur lors de
+    l'upload du logo: NoSuchBucket ».
+    """
+    result = extract_image_from_request(
+        file_storage=request.files.get(field),
+        data_url=request.form.get(field),
+        orig_filename=request.form.get(f"{field}_filename") or None,
+    )
+    if not result:
+        return False
+
+    content = result.bytes
+    if len(content) >= MAX_IMAGE_SIZE:
+        flash(f"{label} : l'image est trop volumineuse (max 4MB)", "error")
+        return False
+
+    try:
+        file_obj = create_file_object(
+            content=content,
+            original_filename=result.filename,
+            content_type=result.content_type,
         )
-        if logo_result:
-            try:
-                content = logo_result.bytes
-                if len(content) < MAX_IMAGE_SIZE:
-                    file_obj = create_file_object(
-                        content=content,
-                        original_filename=logo_result.filename,
-                        content_type=logo_result.content_type,
-                    )
-                    # Save the file to S3 storage (required before assigning to model)
-                    saved_file_obj = file_obj.save()
-                    business_wall.logo_image = saved_file_obj
-                    db.session.flush()
-                    modified = True
-                    flash("Logo mis à jour avec succès", "success")
-                    warn(
-                        f"Logo updated for BW {logo_result.filename!r} {business_wall.id}"
-                    )
-                else:
-                    flash("L'image est trop volumineuse (max 4MB)", "error")
-            except Exception as e:
-                warn(f"Error uploading logo: {e}")
-                flash(f"Erreur lors de l'upload du logo: {e}", "error")
+        # Save the file to S3 storage (required before assigning to model)
+        saved_file_obj = file_obj.save()
+    except OSError as e:
+        warn(f"Error uploading {label.lower()}: {e}")
+        flash(f"{label} : l'envoi de l'image a échoué.", "error")
+        return False
 
-        # cover_image (bandeau)
-        bandeau_result = extract_image_from_request(
-            file_storage=request.files.get("bandeau_image"),
-            data_url=request.form.get("bandeau_image"),
-            orig_filename=request.form.get("bandeau_image_filename") or None,
-        )
-        if bandeau_result:
-            try:
-                content = bandeau_result.bytes
-                if len(content) < MAX_IMAGE_SIZE:
-                    file_obj = create_file_object(
-                        content=content,
-                        original_filename=bandeau_result.filename,
-                        content_type=bandeau_result.content_type,
-                    )
-                    # Save the file to S3 storage (required before assigning to model)
-                    saved_file_obj = file_obj.save()
-                    business_wall.cover_image = saved_file_obj
-                    db.session.flush()
-                    modified = True
-                    flash("Bandeau mis à jour avec succès", "success")
-                    warn(
-                        f"Bandeau updated for BW {bandeau_result.filename!r} {business_wall.id}"
-                    )
-                else:
-                    flash("L'image du bandeau est trop volumineuse (max 4MB)", "error")
-            except Exception as e:
-                warn(f"Error uploading bandeau: {e}")
-                flash(f"Erreur lors de l'upload du bandeau: {e}", "error")
+    setattr(business_wall, attribute, saved_file_obj)
+    db.session.flush()
+    flash(f"{label} mis à jour avec succès", "success")
+    warn(f"{label} updated for BW {result.filename!r} {business_wall.id}")
+    return True
 
-        # copyright of logo
-        logo_image_copyright = request.form.get("logo_image_copyright", "").strip()
-        if logo_image_copyright:
-            business_wall.logo_image_copyright = logo_image_copyright
+
+def _apply_text_fields(business_wall, form) -> bool:
+    """Write every supplied `_TEXT_FIELDS` value. Blanks leave the row."""
+    modified = False
+    for field in _TEXT_FIELDS:
+        value = form.get(field, "").strip()
+        if value:
+            setattr(business_wall, field, value)
             modified = True
+    return modified
 
-        # Copyright of image banner
-        cover_image_copyright = request.form.get("cover_image_copyright", "").strip()
-        if cover_image_copyright:
-            business_wall.cover_image_copyright = cover_image_copyright
+
+def _apply_list_fields(business_wall, form) -> bool:
+    """Write every supplied multi-select."""
+    modified = False
+    for field in _LIST_FIELDS:
+        values = form.getlist(field)
+        if values:
+            setattr(business_wall, field, values)
             modified = True
+    return modified
 
-        # type_organisation dual select
-        type_orga = request.form.get("type_organisation")
-        type_orga_detail = request.form.getlist("type_organisation_detail")
-        if type_orga:
-            business_wall.type_organisation = [type_orga]
-            business_wall.type_organisation_detail = type_orga_detail or []
+
+def _apply_dual_fields(business_wall, form) -> bool:
+    """Write each parent list together with its `_detail` companion."""
+    modified = False
+    for field in _DUAL_FIELDS:
+        values = form.getlist(field)
+        if not values:
+            continue
+        setattr(business_wall, field, values)
+        setattr(business_wall, f"{field}_detail", form.getlist(f"{field}_detail") or [])
+        modified = True
+    return modified
+
+
+def _apply_type_organisation(business_wall, form) -> bool:
+    """A dual select whose parent arrives as a single value, not a list."""
+    type_orga = form.get("type_organisation")
+    if not type_orga:
+        return False
+    business_wall.type_organisation = [type_orga]
+    business_wall.type_organisation_detail = (
+        form.getlist("type_organisation_detail") or []
+    )
+    return True
+
+
+def _apply_presentation(business_wall, form) -> bool:
+    """The one text field a user may legitimately clear."""
+    presentation = form.get("presentation", "").strip()
+    if presentation == business_wall.presentation:
+        return False
+    business_wall.presentation = presentation
+    return True
+
+
+def _apply_location(business_wall, form) -> bool:
+    """Country + postcode/city, with the derived columns refreshed."""
+    pays_zip_ville = form.get("pays_zip_ville", "").strip()
+    if not pays_zip_ville:
+        return False
+    business_wall.pays_zip_ville = pays_zip_ville
+    business_wall.pays_zip_ville_detail = form.get("pays_zip_ville_detail", "").strip()
+    business_wall.update_location_fields()
+    return True
+
+
+def _apply_payer_identity(business_wall, form) -> bool:
+    """Who pays: the BW owner, or a separately-named billing contact."""
+    payer_is_owner = coerce_payer_is_owner(form.get("payer_is_owner"))
+    modified = business_wall.payer_is_owner != payer_is_owner
+    business_wall.payer_is_owner = payer_is_owner
+
+    for field in _PAYER_FIELDS:
+        value = "" if payer_is_owner else form.get(field, "").strip()
+        if value != getattr(business_wall, field):
+            setattr(business_wall, field, value)
             modified = True
+    return modified
 
-        # name_group (Groupe ou entité de rattachement)
-        name_group = request.form.get("name_group", "").strip()
-        if name_group:
-            business_wall.name_group = name_group
-            modified = True
 
-        # siren (mandatory)
-        siren = request.form.get("siren", "").strip()
-        if siren:
-            business_wall.siren = siren
-            modified = True
-        else:
-            flash("Le numéro SIREN est obligatoire", "error")
-            db.session.flush()
-            return redirect(url_for("bw_activation.configure_content"))
-
-        # tva (optional)
-        tva = request.form.get("tva", "").strip()
-        if tva:
-            business_wall.tva = tva
-            modified = True
-
-        # agrement (CPPAP / Agrément - for media type)
-        agrement = request.form.get("agrement", "").strip()
-        if agrement:
-            business_wall.agrement = agrement
-            modified = True
-
-        # name_official (Nom officiel de l'organe de presse)
-        name_official = request.form.get("name_official", "").strip()
-        if name_official:
-            business_wall.name_official = name_official
-            modified = True
-
-        # type_entreprise_media (Nature de votre organe de presse / multi select)
-        type_entreprise_media = request.form.getlist("type_entreprise_media")
-        if type_entreprise_media:
-            business_wall.type_entreprise_media = type_entreprise_media
-            modified = True
-
-        # type_presse_et_media (Type de presse / multi select)
-        type_presse_et_media = request.form.getlist("type_presse_et_media")
-        if type_presse_et_media:
-            business_wall.type_presse_et_media = type_presse_et_media
-            modified = True
-
-        # presentation
-        presentation = request.form.get("presentation", "").strip()
-        if presentation != business_wall.presentation:
-            business_wall.presentation = presentation
-            modified = True
-
-        # positionnement_editorial (Positionnement éditorial)
-        positionnement_editorial = request.form.get(
-            "positionnement_editorial", ""
-        ).strip()
-        if positionnement_editorial:
-            business_wall.positionnement_editorial = positionnement_editorial
-            modified = True
-
-        # audience_cible (Audiences ciblées)
-        audience_cible = request.form.get("audience_cible", "").strip()
-        if audience_cible:
-            business_wall.audience_cible = audience_cible
-            modified = True
-
-        # periodicite (Périodicité - single selection)
-        periodicite = request.form.get("periodicite", "").strip()
-        if periodicite:
-            business_wall.periodicite = periodicite
-            modified = True
-
-        # secteurs_activite and secteurs_activite_detail (dual multi select)
-        secteurs_activite = request.form.getlist("secteurs_activite")
-        secteurs_activite_detail = request.form.getlist("secteurs_activite_detail")
-        if secteurs_activite:
-            business_wall.secteurs_activite = secteurs_activite
-            business_wall.secteurs_activite_detail = secteurs_activite_detail or []
-            modified = True
-
-        # interest_political and interest_political_detail (dual multi select)
-        interest_political = request.form.getlist("interest_political")
-        interest_political_detail = request.form.getlist("interest_political_detail")
-        if interest_political:
-            business_wall.interest_political = interest_political
-            business_wall.interest_political_detail = interest_political_detail or []
-            modified = True
-
-        # interest_economics and interest_economics_detail (dual multi select)
-        interest_economics = request.form.getlist("interest_economics")
-        interest_economics_detail = request.form.getlist("interest_economics_detail")
-        if interest_economics:
-            business_wall.interest_economics = interest_economics
-            business_wall.interest_economics_detail = interest_economics_detail or []
-            modified = True
-
-        # interest_association and interest_association_detail (dual multi select)
-        interest_association = request.form.getlist("interest_association")
-        interest_association_detail = request.form.getlist(
-            "interest_association_detail"
-        )
-        if interest_association:
-            business_wall.interest_association = interest_association
-            business_wall.interest_association_detail = (
-                interest_association_detail or []
-            )
-            modified = True
-
-        # tel_standard (Téléphone du standard)
-        tel_standard = request.form.get("tel_standard", "").strip()
-        if tel_standard:
-            business_wall.tel_standard = tel_standard
-            modified = True
-
-        # postal_address (Adresse postale du siège social)
-        postal_address = request.form.get("postal_address", "").strip()
-        if postal_address:
-            business_wall.postal_address = postal_address
-            modified = True
-
-        # pays_zip_ville and pays_zip_ville_detail (Pays, Code postal et ville)
-        pays_zip_ville = request.form.get("pays_zip_ville", "").strip()
-        pays_zip_ville_detail = request.form.get("pays_zip_ville_detail", "").strip()
-        if pays_zip_ville:
-            business_wall.pays_zip_ville = pays_zip_ville
-            modified = True
-            business_wall.pays_zip_ville_detail = pays_zip_ville_detail
-            business_wall.update_location_fields()
-            modified = True
-
-        # geolocalisation (Géolocalisation)
-        geolocalisation = request.form.get("geolocalisation", "").strip()
-        if geolocalisation:
-            business_wall.geolocalisation = geolocalisation
-            modified = True
-
-        # site_url (URL du site web)
-        site_url = request.form.get("site_url", "").strip()
-        if site_url:
-            business_wall.site_url = site_url
-            modified = True
-
-        # taille_orga (Taille de l'organisation - single selection)
-        taille_orga = request.form.get("taille_orga", "").strip()
-        if taille_orga:
-            business_wall.taille_orga = taille_orga
-            modified = True
-
-        # type_agence_rp (Type de votre PR Agency / multi select)
-        type_agence_rp = request.form.getlist("type_agence_rp")
-        if type_agence_rp:
-            business_wall.type_agence_rp = type_agence_rp
-            modified = True
-
-        # clients (Liste de vos clients)
-        clients = request.form.get("clients", "").strip()
-        if clients:
-            business_wall.clients = clients
-            modified = True
-
-        # name_institution (Nom officiel de votre établissement - for academics)
-        name_institution = request.form.get("name_institution", "").strip()
-        if name_institution:
-            business_wall.name_institution = name_institution
-            modified = True
-
-        # Payer billing identity
-        payer_is_owner = coerce_payer_is_owner(request.form.get("payer_is_owner"))
-        if business_wall.payer_is_owner != payer_is_owner:
-            business_wall.payer_is_owner = payer_is_owner
-            modified = True
-        if payer_is_owner:
-            for field in (
-                "payer_first_name",
-                "payer_last_name",
-                "payer_service",
-                "payer_email",
-                "payer_phone",
-                "payer_address",
-            ):
-                if getattr(business_wall, field):
-                    setattr(business_wall, field, "")
-                    modified = True
-        else:
-            for field in (
-                "payer_first_name",
-                "payer_last_name",
-                "payer_service",
-                "payer_email",
-                "payer_phone",
-                "payer_address",
-            ):
-                value = request.form.get(field, "").strip()
-                if value != getattr(business_wall, field):
-                    setattr(business_wall, field, value)
-                    modified = True
-
-        if modified:
-            db.session.commit()
-
-        return redirect(url_for("bw_activation.configure_gallery"))
-
-    type_orga_ontology = get_taxonomy_dual_select("type_organisation_detail")
-    type_entreprise_media_ontology = get_full_taxonomy("type_entreprises_medias")
-    type_agence_rp_ontology = get_full_taxonomy("type_agence_rp")
-    type_presse_et_media_ontology = get_full_taxonomy("media_type")
-    periodicite_ontology = get_full_taxonomy("periodicite")
-    secteurs_activite_ontology = get_taxonomy_dual_select("secteur_detaille")
-    taille_orga_ontology = get_full_taxonomy("taille_organisation")
-    interest_political_ontology = get_taxonomy_dual_select("interet_politique")
-    interest_economics_ontology = get_taxonomy_dual_select("interet_orga")
-    interest_association_ontology = get_taxonomy_dual_select("interet_asso")
-    pays_ontology = get_full_countries()
+def _render_content_form(business_wall):
+    """The GET side: the ontologies every dropdown on the page needs."""
+    bw_type = session["bw_type"]
 
     # Ticket #0182 — pre-select the « Taille de l'organisation »
     # dropdown from the employee count entered in the pricing form.
@@ -489,18 +335,18 @@ def configure_content():
     return render_template(
         "bw_activation/B01_configure_content.html",
         bw_type=bw_type,
-        bw_info=bw_info,
+        bw_info=BW_TYPES.get(bw_type, {}),
         business_wall=business_wall,
-        type_orga_ontology=type_orga_ontology,
-        type_entreprise_media_ontology=type_entreprise_media_ontology,
-        type_agence_rp_ontology=type_agence_rp_ontology,
-        type_presse_et_media_ontology=type_presse_et_media_ontology,
-        periodicite_ontology=periodicite_ontology,
-        secteurs_activite_ontology=secteurs_activite_ontology,
-        taille_orga_ontology=taille_orga_ontology,
+        type_orga_ontology=get_taxonomy_dual_select("type_organisation_detail"),
+        type_entreprise_media_ontology=get_full_taxonomy("type_entreprises_medias"),
+        type_agence_rp_ontology=get_full_taxonomy("type_agence_rp"),
+        type_presse_et_media_ontology=get_full_taxonomy("media_type"),
+        periodicite_ontology=get_full_taxonomy("periodicite"),
+        secteurs_activite_ontology=get_taxonomy_dual_select("secteur_detaille"),
+        taille_orga_ontology=get_full_taxonomy("taille_organisation"),
         default_taille_orga=default_taille_orga,
-        interest_political_ontology=interest_political_ontology,
-        interest_economics_ontology=interest_economics_ontology,
-        interest_association_ontology=interest_association_ontology,
-        pays_ontology=pays_ontology,
+        interest_political_ontology=get_taxonomy_dual_select("interet_politique"),
+        interest_economics_ontology=get_taxonomy_dual_select("interet_orga"),
+        interest_association_ontology=get_taxonomy_dual_select("interet_asso"),
+        pays_ontology=get_full_countries(),
     )

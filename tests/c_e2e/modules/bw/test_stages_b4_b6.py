@@ -213,10 +213,18 @@ class TestStageB6ContentRoutes:
         test_org: Organisation,
         db_session: Session,
     ) -> None:
-        """POST to configure-content updates BW.name and syncs Organisation.bw_name."""
+        """POST to configure-content updates BW.name and syncs Organisation.bw_name.
+
+        `siren` is posted too, and has to be: the form requires it, so a
+        submission without it is redirected back and nothing is saved.
+        This test used to omit it and still pass — the old handler
+        assigned `name` and flushed *before* reaching the siren check,
+        so the test's session read a value the request then discarded at
+        teardown.
+        """
         response = authenticated_owner_client.post(
             "/BW/configure-content",
-            data={"name": "My New BW Name"},
+            data={"name": "My New BW Name", "siren": "123456789"},
             follow_redirects=True,
         )
         assert response.status_code == 200
