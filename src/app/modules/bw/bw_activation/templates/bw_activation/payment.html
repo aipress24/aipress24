@@ -72,10 +72,20 @@
                     </p>
                 </div>
                 <div id="stripe-pt-wrapper">
-                    <form method="POST" action="{{ url_for('bw_activation.checkout', bw_type=bw_type) }}">
+                    {# Ticket #0326 — Erick : « il faut appuyer plusieurs fois
+                       pour passer à Stripe ». La création de la session peut
+                       enchaîner jusqu'à trois allers-retours Stripe ; sans
+                       état visible le bouton paraît inerte et l'utilisateur
+                       reclique, ce qui ouvre une session de paiement de plus
+                       à chaque fois. Un seul envoi possible, et on le dit. #}
+                    <form method="POST"
+                          action="{{ url_for('bw_activation.checkout', bw_type=bw_type) }}"
+                          onsubmit="this.dataset.sent ? event.preventDefault() : (this.dataset.sent = 1,
+                                    this.querySelector('button').disabled = true,
+                                    this.querySelector('button').textContent = 'Redirection vers Stripe…')">
                         <button
                             type="submit"
-                            class="w-full rounded-md bg-blue-600 px-4 py-3 text-sm font-semibold text-white shadow-sm hover:bg-blue-700">
+                            class="w-full rounded-md bg-blue-600 px-4 py-3 text-sm font-semibold text-white shadow-sm hover:bg-blue-700 disabled:cursor-progress disabled:bg-blue-400">
                             {% if bw_info.free %}Activer gratuitement sur Stripe{% else %}Procéder au paiement sur Stripe{% endif %}
                         </button>
                     </form>

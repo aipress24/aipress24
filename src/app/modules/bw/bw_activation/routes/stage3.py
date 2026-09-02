@@ -170,10 +170,13 @@ def payment(bw_type: str):
     Free types use the same page but display "activate for free"
     and proceed to a 0EUR Stripe checkout.
     """
+    # Ticket #0326 : ces deux retours étaient muets eux aussi.
     if bw_type not in BW_TYPES:
+        flash("Ce type de Business Wall n'existe pas.", "danger")
         return redirect(url_for("bw_activation.index"))
 
     if not session.get("pricing_value"):
+        flash("Merci de choisir d'abord votre offre.", "warning")
         return redirect(url_for("bw_activation.index"))
 
     bw_info = BW_TYPES[bw_type]
@@ -558,9 +561,14 @@ def checkout(bw_type: str):
 
     All BW types use this route.
     """
+    # Ticket #0326 : chaque sortie de cette route dit désormais pourquoi.
+    # Trois d'entre elles renvoyaient l'utilisateur au début du tunnel
+    # sans un mot — ce qui, vu du bouton, ne se distingue pas d'un clic
+    # sans effet, et c'est ce qui faisait recliquer.
     # warn(f"Entering /BW/checkout/{bw_type} for user={user_id} ({user_email})")
     if bw_type not in BW_TYPES:
         warn(f"checkout: invalid bw_type '{bw_type}'")
+        flash("Ce type de Business Wall n'existe pas.", "danger")
         return redirect(url_for("bw_activation.index"))
 
     draft_bw = _get_or_create_draft_bw_for_checkout(g.user, bw_type)
@@ -571,12 +579,29 @@ def checkout(bw_type: str):
         session["error"] = ERR_NO_ORGANISATION
         return redirect(url_for("bw_activation.not_authorized"))
 
+    # Avant le premier appel Stripe, et `allowed_bw_product_list` en est
+    # un : le retour de `load_stripe_api_key` était ignoré et la clé
+    # chargée après coup, si bien qu'une instance non configurée
+    # ressortait en « aucune offre disponible » — un message qui accuse
+    # le catalogue au lieu de la configuration.
+    if not load_stripe_api_key():
+        warn("checkout: no Stripe API key configured")
+        flash(
+            "Le paiement en ligne n'est pas configuré sur cette instance. "
+            "Merci de contacter le support.",
+            "danger",
+        )
+        return redirect(url_for("bw_activation.payment", bw_type=bw_type))
+
     allowed_products = allowed_bw_product_list(bw_type)
     if not allowed_products:
         warn(f"checkout: no allowed products found for bw_type '{bw_type}'")
+        flash(
+            "Aucune offre n'est disponible pour ce type de Business Wall. "
+            "Merci de contacter le support.",
+            "danger",
+        )
         return redirect(url_for("bw_activation.index"))
-
-    load_stripe_api_key()
 
     # For subscription Products, quantity only used for selecting the product
     quantity = _parse_quantity_from_session_value(session.get("pricing_value", 1))
