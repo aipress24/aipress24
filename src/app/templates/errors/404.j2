@@ -1,10 +1,22 @@
 {% extends "errors/_base.j2" %}
 
-{% block content %}
-  <main role="main">
-    <div class="mt-6 text-center">
-      <h1>404</h1>
-      <p>Page not found.</p>
-    </div>
-  </main>
+{# Ticket : « il ne devrait jamais y avoir de page "Not found" nue ».
+   Le déclencheur est une notification de la cloche qui pointe un
+   contenu depuis retiré — le membre cliquait et tombait sur la page
+   Werkzeug par défaut, en anglais, qui affichait de surcroît le
+   message interne (« Can't match id 7501006361107369984 »). #}
+
+{% block page_title %}Page introuvable{% endblock %}
+
+{% block title %}Cette page n'existe pas, ou plus{% endblock %}
+
+{% block explanation %}
+  <p>
+    Le contenu que vous cherchez a pu être retiré, dépublié par son
+    auteur, ou n'a jamais existé à cette adresse.
+  </p>
+  <p>
+    Si vous êtes arrivé·e ici depuis une notification, c'est
+    probablement que la publication concernée n'est plus en ligne.
+  </p>
 {% endblock %}

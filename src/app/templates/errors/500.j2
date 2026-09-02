@@ -1,10 +1,18 @@
 {% extends "errors/_base.j2" %}
 
-{% block content %}
-  <main role="main">
-    <div class="mt-6 text-center">
-      <h1>500</h1>
-      <p>Internal server error.</p>
-    </div>
-  </main>
+{% block page_title %}Erreur technique{% endblock %}
+
+{% block title %}Une erreur technique est survenue{% endblock %}
+
+{% block explanation %}
+  <p>
+    Le problème vient de nous, pas de vous. Il a été enregistré et
+    l'équipe technique en est informée.
+  </p>
+  <p>
+    Vous pouvez réessayer dans un instant. Si cela se reproduit, merci
+    de nous écrire à
+    <a href="mailto:contact@aipress24.com" class="text-blue-600 hover:underline">contact@aipress24.com</a>
+    en indiquant ce que vous tentiez de faire.
+  </p>
 {% endblock %}

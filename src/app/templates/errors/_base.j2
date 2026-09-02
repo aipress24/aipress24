@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="abilian">
+<html lang="fr" data-theme="abilian">
 <head prefix="og: https://ogp.me/ns#">
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 
-  <title>Error - AiPRESS24</title>
+  <title>{% block page_title %}Erreur{% endblock %} - AiPRESS24</title>
 
   <!-- Favicons -->
   <link rel="icon" href="/static/icon/aipress24-favicon.png"/>
@@ -13,9 +13,40 @@
   {{ vite_tags() }}
 </head>
 
-<body class="bg-gray-100 min-h-screen h-full min-h-screen">
+{# Volontairement autonome : une page d'erreur n'hérite pas de
+   `layout.html`. Celui-ci lit `g.user`, la cloche, la barre de
+   navigation — autant de machinerie qui peut être précisément ce qui
+   vient d'échouer, et qui transformerait un 404 lisible en 500 nu. #}
+<body class="bg-gray-100 min-h-screen h-full">
 
-{% block content %}
-{% endblock %}
+<main role="main" class="mx-auto flex min-h-screen max-w-xl flex-col justify-center px-6">
+  <div class="rounded-lg bg-white p-8 shadow-sm">
+    <a href="/" class="mb-6 inline-block">
+      <img src="/static/img/aipress24-logo-small.png" alt="AiPRESS24" class="h-8 w-auto"/>
+    </a>
+
+    <h1 class="text-xl font-semibold text-gray-900">
+      {% block title %}{% endblock %}
+    </h1>
+
+    <div class="mt-3 space-y-3 text-sm text-gray-600">
+      {% block explanation %}{% endblock %}
+    </div>
+
+    <div class="mt-8 flex flex-wrap gap-3">
+      {% block actions %}
+        <a href="/"
+           class="inline-flex items-center rounded-md bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-700">
+          Retour à l'accueil
+        </a>
+        <a href="/wire/"
+           class="inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">
+          Voir les actualités
+        </a>
+      {% endblock %}
+    </div>
+  </div>
+</main>
+
 </body>
 </html>

@@ -5,14 +5,32 @@
 from __future__ import annotations
 
 import importlib.metadata
+from collections.abc import Callable
+from typing import cast
 
-from flask import Flask, current_app, flash, g, redirect, request, session
+from flask import (
+    Flask,
+    current_app,
+    flash,
+    g,
+    redirect,
+    render_template,
+    request,
+    session,
+)
+from flask.typing import ResponseReturnValue
 from flask_login import current_user
 from flask_security.core import AnonymousUser
 from flask_security.signals import user_authenticated
 from svcs.flask import container
 from werkzeug import Response
-from werkzeug.exceptions import Forbidden, NotFound, Unauthorized
+from werkzeug.exceptions import (
+    Forbidden,
+    HTTPException,
+    InternalServerError,
+    NotFound,
+    Unauthorized,
+)
 
 from app.flask.doorman import doorman
 from app.flask.lib.proxies import unproxy
@@ -46,6 +64,8 @@ def register_hooks(app: Flask) -> None:
     app.context_processor(inject_extra_context)
     app.errorhandler(Unauthorized)(handle_authentication_error)
     app.errorhandler(Forbidden)(handle_forbidden_error)
+    app.errorhandler(NotFound)(handle_not_found_error)
+    app.errorhandler(InternalServerError)(handle_internal_error)
     user_authenticated.connect(_clear_per_user_session_state, app)
 
     # app.after_request(dump_session)
@@ -77,6 +97,67 @@ def handle_authentication_error(_e):
     # dumping them on the default landing page (the « parcours du
     # combattant » : se reconnecter, rouvrir un onglet, recoller l'URL).
     return redirect(url_for("security.login", next=request.path))
+
+
+def _delegate_to_api(e: HTTPException) -> ResponseReturnValue | None:
+    """Rendre la main au module API, ou `None` si ce n'est pas son ressort.
+
+    `/api/v1` a son propre rendu JSON, et un client qui reçoit du HTML à
+    la place d'un corps d'erreur ne sait rien en faire. Mais un
+    gestionnaire enregistré pour `NotFound` est plus spécifique que
+    celui de l'API, enregistré pour `HTTPException` : sans cette
+    délégation, les 404 de l'API repartaient en HTML.
+
+    Le gestionnaire est **cherché dans le registre de l'application**,
+    pas importé : `setup.cfg` fait de `app.modules.api_v1` une feuille
+    que `app.flask` n'a pas le droit d'importer (contrat « The public
+    API module is a leaf »).
+    """
+    if not request.path.startswith("/api/"):
+        return None
+    registered = (
+        current_app.error_handler_spec.get(None, {}).get(None, {}).get(HTTPException)
+    )
+    if registered is None:
+        return e.get_response()
+    # Flask type ses gestionnaires comme pouvant être asynchrones ; cette
+    # application n'en a aucun. Le `cast` énonce ce fait, plutôt que de
+    # faire taire un code de diagnostic entier.
+    handler = cast("Callable[[HTTPException], ResponseReturnValue]", registered)
+    return handler(e)
+
+
+def handle_not_found_error(e: NotFound) -> ResponseReturnValue:
+    """Rendre une page 404 lisible plutôt que celle de Werkzeug.
+
+    Il n'y avait aucun gestionnaire pour `NotFound` : un contenu retiré
+    servait la page par défaut — en anglais, sans issue, et affichant le
+    message interne de l'exception (« Can't match id 750100636… »). Un
+    membre y arrivait depuis une notification de la cloche pointant une
+    publication depuis dépubliée.
+
+    `e.description` n'est **pas** repris : il est écrit pour les logs,
+    pas pour un lecteur, et nomme des identifiants internes.
+
+    Les chemins d'API gardent leur rendu JSON, comme le fait déjà
+    `handle_forbidden_error` pour le 403.
+    """
+    api_response = _delegate_to_api(e)
+    if api_response is not None:
+        return api_response
+    return render_template("errors/404.j2"), 404
+
+
+def handle_internal_error(e: InternalServerError) -> ResponseReturnValue:
+    """Même règle pour la 500 : jamais de page nue.
+
+    Le gabarit est autonome — il n'hérite pas de `layout.html`, dont le
+    rendu peut être ce qui vient d'échouer.
+    """
+    api_response = _delegate_to_api(e)
+    if api_response is not None:
+        return api_response
+    return render_template("errors/500.j2"), 500
 
 
 def handle_forbidden_error(e: Forbidden) -> Response:
