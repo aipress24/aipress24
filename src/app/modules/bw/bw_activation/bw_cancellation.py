@@ -202,7 +202,11 @@ def cancel_business_wall_from_app(
         result["stripe_cancelled"] = True
 
     local_result = close_business_wall_locally(bw, commit=commit)
-    result["success"] = local_result["success"]
+    # Both halves must have worked. Reporting the local close alone as
+    # success let a BW be closed here while Stripe went on billing it;
+    # the callers roll back on a falsy `success`, which is the outcome
+    # we want when the billing side could not be stopped.
+    result["success"] = bool(local_result["success"] and result["stripe_cancelled"])
     result["reason"] = local_result.get("reason") or stripe_error
     result["cleared_users_count"] = local_result.get("cleared_users_count", 0)
     result["cleared_role_assignments_count"] = local_result.get(
