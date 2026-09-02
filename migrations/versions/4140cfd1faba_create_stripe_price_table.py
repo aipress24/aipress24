@@ -12,7 +12,6 @@ Create Date: 2026-05-11 12:05:00.000000
 
 """
 
-# ruff: noqa: INP001
 
 from __future__ import annotations
 

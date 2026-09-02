@@ -43,6 +43,7 @@ from app.services.stripe.product import (
     fetch_stripe_product_list,
     resolve_product_price,
 )
+from app.services.stripe.product_mirror import list_product_drifts, sync_all_products
 from app.services.stripe.reconciliation import (
     reconcile_customers,
     reconcile_purchases,
@@ -56,6 +57,7 @@ from app.services.stripe.utils import load_stripe_api_key
 # dataclass instances; an empty list means "no drift".
 VERIFIERS: dict[str, Callable[[], list]] = {
     "prices": list_drifts,
+    "products": list_product_drifts,
     "customers": reconcile_customers,
     "subscriptions": reconcile_subscriptions,
     "purchases": reconcile_purchases,
@@ -139,6 +141,14 @@ def sync_prices() -> None:
     """Re-sync every active Stripe Price into `stripe_price`."""
     n = sync_all_prices()
     click.echo(f"Synced {n} active price(s) from Stripe.")
+
+
+@sync.command("products")
+@with_appcontext
+def sync_products() -> None:
+    """Re-sync every active Stripe Product into `stripe_product`."""
+    n = sync_all_products()
+    click.echo(f"Synced {n} active product(s) from Stripe.")
 
 
 @sync.command("customers")

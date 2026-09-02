@@ -36,21 +36,21 @@ from app.modules.wire.views.purchase import (
     _select_price_id,
     buy_modal_close,
 )
+from app.services.stripe.product_mirror import MirroredProduct
 
 
 def _stripe_product(
     *, metadata: dict[str, str], price_id: str | None
-) -> SimpleNamespace:
-    """Build a Stripe-Product-shaped stand-in.
+) -> MirroredProduct:
+    """Build the row `_select_price_id` receives.
 
-    Mirrors the SDK's attribute-access shape : `.metadata` is a dict,
-    `.default_price` is either a falsy value or an object with `.id`.
+    Not a Stripe-shaped stand-in any more: the selector reads the local
+    mirror, whose `default_price` is a bare id string already resolved
+    by `active_products()`.
     """
-    if price_id is None:
-        default_price: SimpleNamespace | None = None
-    else:
-        default_price = SimpleNamespace(id=price_id)
-    return SimpleNamespace(metadata=dict(metadata), default_price=default_price)
+    return MirroredProduct(
+        id="prod_stub", metadata=dict(metadata), default_price=price_id
+    )
 
 
 class TestBuyModalClose:

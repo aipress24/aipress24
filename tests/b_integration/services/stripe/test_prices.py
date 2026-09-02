@@ -13,6 +13,7 @@ branch (falsy ``price_id``) lives at the a_unit tier.
 
 from __future__ import annotations
 
+from datetime import UTC, datetime
 from types import SimpleNamespace
 from typing import TYPE_CHECKING
 
@@ -103,6 +104,13 @@ class TestStripePriceDisplay:
         assert stripe_price_display("price_other_currency") == "123,45 CHF"
 
 
+def _synced_at(db_session: Session, price_id: str) -> datetime:
+    """Read from the database: the column is naive on SQLite, aware on
+    PostgreSQL, and the two do not compare."""
+    db_session.expire_all()
+    return db_session.get(StripePrice, price_id).synced_at
+
+
 class TestUpsertPriceFromEvent:
     """`upsert_price_from_event` covers price.created / .updated / .deleted."""
 
@@ -132,9 +140,11 @@ class TestUpsertPriceFromEvent:
                 currency="eur",
                 active=True,
                 tax_behavior="exclusive",
+                synced_at=datetime(2020, 1, 1, tzinfo=UTC),
             )
         )
         db_session.flush()
+        before = _synced_at(db_session, "price_upd_001")
 
         payload = _stripe_price_payload(
             price_id="price_upd_001",
@@ -148,6 +158,9 @@ class TestUpsertPriceFromEvent:
         fetched = db_session.get(StripePrice, "price_upd_001")
         assert fetched is not None
         assert fetched.unit_amount_cents == 999
+        # The hourly catch-up actor re-upserts unchanged rows, so this
+        # column has to mean "last synced", not "first seen".
+        assert _synced_at(db_session, "price_upd_001") > before
 
     def test_handles_dict_like_payload(self, db_session: Session) -> None:
         """Stripe webhooks sometimes deliver dict-like objects."""

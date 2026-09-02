@@ -46,6 +46,7 @@ from app.modules.stripe import blueprint
 from app.modules.wire.models import ArticlePurchase, PurchaseProduct, PurchaseStatus
 from app.services.stripe.customers import mirror_customer_to_org
 from app.services.stripe.prices import upsert_price_from_event
+from app.services.stripe.product_mirror import upsert_product_from_event
 from app.services.stripe.retriever import (
     retrieve_customer,
     retrieve_invoice,
@@ -225,6 +226,13 @@ _EVENT_HANDLER_NAMES = {
     "price.created": "on_price_created",  # suivi juin 2026
     "price.updated": "on_price_updated",  # suivi juin 2026
     "price.deleted": "on_price_deleted",  # suivi juin 2026
+    # Product mirror — same three events, same rules. The product's
+    # metadata carries the taxonomy that decides which product serves a
+    # purchase, so this is what keeps price resolution off the request
+    # path (2026-09-02).
+    "product.created": "on_product_created",
+    "product.updated": "on_product_updated",
+    "product.deleted": "on_product_deleted",
     # Subscription dunning — auto-suspend / reactivate on payment.
     # Spec: local-notes/specs/finances-02.md §B.
     "invoice.payment_failed": "on_invoice_payment_failed",
@@ -434,6 +442,35 @@ def _handle_price_event(event: stripe.Event, *, force_inactive: bool = False) ->
     price = upsert_price_from_event(data_obj)
     if force_inactive:
         price.active = False
+    db.session.commit()
+
+
+def on_product_created(event: stripe.Event) -> None:
+    """Mirror a newly-created Stripe Product into the local cache."""
+    _handle_product_event(event)
+
+
+def on_product_updated(event: stripe.Event) -> None:
+    """Reflect a Stripe Product update into the local cache.
+
+    Metadata changes arrive here: the taxonomy an admin edits in the
+    Stripe dashboard is what selects the product at buy time.
+    """
+    _handle_product_event(event)
+
+
+def on_product_deleted(event: stripe.Event) -> None:
+    """Mark a deleted Stripe Product as inactive locally (never DELETE)."""
+    # As with `price.deleted`, the payload can still report `active=true`
+    # for an object Stripe has deleted; force the local row inactive.
+    _handle_product_event(event, force_inactive=True)
+
+
+def _handle_product_event(event: stripe.Event, *, force_inactive: bool = False) -> None:
+    data_obj = _get_event_object(event)
+    product = upsert_product_from_event(data_obj)
+    if force_inactive:
+        product.active = False
     db.session.commit()
 
 

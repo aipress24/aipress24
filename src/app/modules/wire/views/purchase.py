@@ -45,13 +45,8 @@ from app.modules.wire.models import (
     PurchaseStatus,
 )
 from app.modules.wire.services.recipients import parse_recipient_emails
-from app.services.stripe._client import StripeClient
 from app.services.stripe._price_model import StripePrice
-from app.services.stripe.product import (
-    coerce_metadata,
-    fetch_stripe_product_list,
-    resolve_product_price,
-)
+from app.services.stripe.product_mirror import MirroredProduct, active_products
 from app.services.stripe.utils import load_stripe_api_key
 from app.settings.constants import ARTICLE_CONSULTATION_DURATION
 
@@ -604,14 +599,13 @@ def _post_genre_to_taxo(product: PurchaseProduct, genre: str) -> str | None:
 
 
 def _is_product_matching_taxonomy(
-    prod: stripe.Product, product: PurchaseProduct, taxo_genre: str | None
+    prod: MirroredProduct, product: PurchaseProduct, taxo_genre: str | None
 ) -> bool:
     """Check whether a product matches the new taxonomy filters + genre."""
     filters = _PRODUCT_TAXONOMY_FILTERS.get(product)
     if not filters:
         return False
-    # Stripe v15 delivers metadata as a StripeObject, not a dict.
-    metadata = coerce_metadata(prod.metadata)
+    metadata = prod.metadata
     for key, value in filters.items():
         if metadata.get(key) != value:
             return False
@@ -619,50 +613,52 @@ def _is_product_matching_taxonomy(
 
 
 def _select_price_id(
-    products: list[stripe.Product],
+    products: list[MirroredProduct],
     product: PurchaseProduct,
     genre: str = "",
 ) -> str:
-    """Pure : given a list of Stripe products, return the right price id.
+    """Pure : given the mirrored products, return the right price id.
 
-    Extracted from `_price_id_for` so the lookup logic can be unit-
-    tested without any Stripe SDK or live HTTP call. The shape each
-    product must expose is the one the Stripe SDK gives us — attribute
-    access to `.metadata` (mapping) and `.default_price` (object with
-    `.id`, string ID, or missing).
+    Reads `prod.default_price` directly rather than going through
+    `resolve_product_price`. That helper exists to cope with the shapes
+    the Stripe SDK returns, and it reaches for `Price.retrieve` /
+    `Price.list` when the price is not already expanded — a network
+    call, on the render path, for an object this function discards. The
+    mirror has already resolved the id (`stripe_product.default_price_id`,
+    else an active row in `stripe_price`), so there is nothing to fetch.
 
-    Uses "resolve_product_price" so a product whose "default_price"
-    isn't expanded (or isn't set) still resolves via a fallback to
-    "Price.list".
-
-    Returns "" when no candidate matches OR no active price.
+    Returns "" when no candidate matches OR no candidate has a price.
     """
     taxo_genre = _post_genre_to_taxo(product, genre)
 
-    # 1. New taxonomy, genre-specific when possible.
-    if taxo_genre is not None:
-        for prod in products:
-            if _is_product_matching_taxonomy(prod, product, taxo_genre):
-                price_id, _ = resolve_product_price(prod)
-                if price_id:
-                    return price_id
+    # A product carrying this genre wins; failing that, any product in
+    # the same taxonomy family does.
+    genre_match = (
+        _first_price_id(products, product, taxo_genre) if taxo_genre is not None else ""
+    )
+    return genre_match or _first_price_id(products, product, None)
 
-    # 2. New taxonomy, any genre in the same family.
+
+def _first_price_id(
+    products: list[MirroredProduct],
+    product: PurchaseProduct,
+    taxo_genre: str | None,
+) -> str:
+    """The price of the first matching product that has one, else "".
+
+    A product matching the taxonomy but carrying no price is skipped
+    rather than returned empty: the catalogue may hold a half-configured
+    entry, and the next candidate can still serve the purchase.
+    """
     for prod in products:
-        if _is_product_matching_taxonomy(prod, product, None):
-            price_id, _ = resolve_product_price(prod)
-            if price_id:
-                return price_id
-
+        if not _is_product_matching_taxonomy(prod, product, taxo_genre):
+            continue
+        if prod.default_price:
+            return prod.default_price
     return ""
 
 
-def _price_id_for(
-    product: PurchaseProduct,
-    genre: str = "",
-    *,
-    client: StripeClient | None = None,
-) -> str:
+def _price_id_for(product: PurchaseProduct, genre: str = "") -> str:
     """Resolve the Stripe price id for a given (product × genre).
 
     Strategy :
@@ -674,13 +670,13 @@ def _price_id_for(
     Returns "" when neither strategy finds a candidate (handled by
     the caller with a flash).
 
-    Pass an explicit `client` to inject a fake StripeClient — used by
-    unit tests to seed canned products without monkeypatching. The
-    default production path goes through `fetch_stripe_product_list`'s
-    own default client (the real Stripe SDK adapter).
+    Reads the local product mirror, never Stripe. This runs on the
+    article render path for every reader who hasn't bought, and listing
+    the Stripe catalogue there is what `notes/lessons-learned.md` rules
+    out. The mirror is kept current by the `product.*` webhooks and
+    repaired hourly by `app.actors.stripe_mirrors`.
     """
-    products = fetch_stripe_product_list(active=True, client=client)
-    return _select_price_id(products, product, genre)
+    return _select_price_id(active_products(), product, genre)
 
 
 def _get_purchase_or_404(purchase_id: int) -> ArticlePurchase:

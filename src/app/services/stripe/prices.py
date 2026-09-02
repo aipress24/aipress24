@@ -21,6 +21,7 @@ from typing import Any
 from loguru import logger
 
 from app.flask.extensions import db
+from app.flask.util import utcnow
 from app.services.stripe._client import StripeClient, default_client
 from app.services.stripe._price_model import StripePrice
 from app.services.stripe.utils import load_stripe_api_key
@@ -68,6 +69,7 @@ def upsert_price_from_event(price_obj: Any) -> StripePrice:
         db.session.add(existing)
     for field, value in payload.items():
         setattr(existing, field, value)
+    existing.synced_at = utcnow()
     return existing
 
 

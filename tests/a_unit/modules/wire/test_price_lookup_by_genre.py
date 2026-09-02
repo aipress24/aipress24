@@ -18,78 +18,45 @@ The refactor splits the lookup in two :
   (genre-preferring + back-compat flat fallback + product-type
   isolation). Tests exercise it directly with `SimpleNamespace`
   stand-ins, no client, no Stripe SDK, no fakes.
-* `_price_id_for(product, genre, *, client=None)` — the imperative
-  shell that asks the Stripe product list, then delegates to
-  `_select_price_id`. Tests pass a real `FakeStripeClient` carrying
-  canned products (dict-shaped, since `fetch_stripe_product_list`
-  wraps every row in `stripe.Product().update(dict)`).
+* `_price_id_for(product, genre)` — the imperative shell that reads
+  the local product mirror, then delegates to `_select_price_id`. It
+  needs a database, so it is tested one tier up, in
+  `tests/b_integration/services/stripe/test_product_mirror.py`.
 
-Both layers verify the SUT's *return value* (the resolved price id
+Tests here verify the SUT's *return value* (the resolved price id
 string), not interactions on a mock object.
 """
 
 from __future__ import annotations
 
-from types import SimpleNamespace
-
 import pytest
 
 from app.modules.wire.models import PurchaseProduct
-from app.modules.wire.views.purchase import _price_id_for, _select_price_id
-from tests.a_unit.services.stripe._fake_client import FakeStripeClient
+from app.modules.wire.views.purchase import _select_price_id
+from app.services.stripe.product_mirror import MirroredProduct
 
 # ---------------------------------------------------------------------------
-# Stand-in builders — plain `SimpleNamespace`, no stdlib mocks.
+# Stand-in builder — the real type, no stubs and no mocks.
 # ---------------------------------------------------------------------------
 
 
-def _stub_product(*, metadata: dict, price_id: str | None) -> SimpleNamespace:
-    """Build a Stripe-shaped Product stand-in for the *pure* helper.
+def _stub_product(*, metadata: dict, price_id: str | None) -> MirroredProduct:
+    """Build the row `_select_price_id` actually receives.
 
-    `_select_price_id` only reads `.metadata.get(...)` and
-    `.default_price.id` / truthiness — anything that ducks those two
-    attribute accesses works. SimpleNamespace + a dict is the
-    minimum viable shape, deliberately chosen over stdlib mocks so the
-    test couples to the attribute contract, not to mock-recording.
+    `MirroredProduct` is a frozen dataclass with three fields, so the
+    tests construct the production type directly rather than ducking an
+    SDK shape. `price_id` is a bare id string: the mirror has already
+    resolved it, which is why the selector never fetches anything.
     """
-    default_price: SimpleNamespace | None
-    if price_id is None:
-        default_price = None
-    else:
-        default_price = SimpleNamespace(id=price_id)
-    return SimpleNamespace(metadata=metadata, default_price=default_price)
-
-
-def _product_row(
-    prod_id: str,
-    *,
-    metadata: dict,
-    price_id: str | None,
-) -> dict:
-    """Build a dict-shaped row for `FakeStripeClient.product_listing`.
-
-    `fetch_stripe_product_list` wraps every row in `Product().update`
-    which only accepts a Mapping. Once wrapped, the SUT reads
-    `prod.metadata.get(...)` (dict-like) and `prod.default_price.id`
-    (attribute access) — so `default_price` must be an attr-accessible
-    object, and we pass a `SimpleNamespace` for it.
-    """
-    default_price: SimpleNamespace | None
-    if price_id is None:
-        default_price = None
-    else:
-        default_price = SimpleNamespace(id=price_id)
-    return {
-        "id": prod_id,
-        "name": prod_id,
-        "active": True,
-        "metadata": metadata,
-        "default_price": default_price,
-    }
+    return MirroredProduct(
+        id=metadata.get("id", "prod_stub"),
+        metadata=metadata,
+        default_price=price_id,
+    )
 
 
 # ---------------------------------------------------------------------------
-# Layer 1 : the pure selector. No I/O, no client, no fake.
+# The pure selector. No I/O, no client, no fake.
 # ---------------------------------------------------------------------------
 
 
@@ -349,101 +316,3 @@ class TestSelectPriceIdByGenre:
         ]
         result = _select_price_id(products, PurchaseProduct.CONSULTATION, genre=genre)
         assert result == "p_generic"
-
-
-# ---------------------------------------------------------------------------
-# Layer 2 : the orchestrator. Real `FakeStripeClient`, no patching.
-# ---------------------------------------------------------------------------
-
-
-class TestPriceIdForWithFakeClient:
-    """`_price_id_for` is the imperative shell — fetches the product
-    list via the injected client, then delegates to `_select_price_id`.
-    Tests wire a `FakeStripeClient` with canned `product_listing` rows
-    and assert the resolved price id string. No patching."""
-
-    def test_consultation_resolves_via_fake_client(self) -> None:
-        fake = FakeStripeClient(
-            product_listing=[
-                _product_row(
-                    "prod_c",
-                    metadata={
-                        "domain": "consultation",
-                        "family": "article",
-                        "offer": "paid",
-                    },
-                    price_id="p_c",
-                ),
-            ]
-        )
-        assert _price_id_for(PurchaseProduct.CONSULTATION, client=fake) == "p_c"
-
-    def test_genre_specific_resolves_via_fake_client(self) -> None:
-        fake = FakeStripeClient(
-            product_listing=[
-                _product_row(
-                    "prod_generic",
-                    metadata={
-                        "domain": "consultation",
-                        "family": "article",
-                        "offer": "paid",
-                    },
-                    price_id="p_generic",
-                ),
-                _product_row(
-                    "prod_enquete",
-                    metadata={
-                        "domain": "consultation",
-                        "family": "article",
-                        "offer": "paid",
-                        "genre": "survey",
-                    },
-                    price_id="p_enquete",
-                ),
-            ]
-        )
-        result = _price_id_for(
-            PurchaseProduct.CONSULTATION, genre="Enquête", client=fake
-        )
-        assert result == "p_enquete"
-
-    def test_falls_back_to_generic_via_fake_client(self) -> None:
-        fake = FakeStripeClient(
-            product_listing=[
-                _product_row(
-                    "prod_generic",
-                    metadata={
-                        "domain": "consultation",
-                        "family": "article",
-                        "offer": "paid",
-                    },
-                    price_id="p_generic",
-                ),
-            ]
-        )
-        result = _price_id_for(
-            PurchaseProduct.CONSULTATION, genre="Interview", client=fake
-        )
-        assert result == "p_generic"
-
-    def test_empty_product_listing_returns_empty_string(self) -> None:
-        """No Stripe products configured at all → the lookup returns
-        "" and the caller flashes « Produit momentanément indisponible »
-        rather than crashing."""
-        fake = FakeStripeClient()
-        assert _price_id_for(PurchaseProduct.CONSULTATION, client=fake) == ""
-
-    def test_unrelated_products_return_empty_string(self) -> None:
-        """Stripe products exist but none carries the right taxonomy.
-        Pin that the family scan doesn't accidentally match an
-        unrelated product type."""
-        fake = FakeStripeClient(
-            product_listing=[
-                _product_row(
-                    "prod_other",
-                    metadata={"other": "x"},
-                    price_id="p_other",
-                ),
-            ]
-        )
-        assert _price_id_for(PurchaseProduct.CONSULTATION, client=fake) == ""
