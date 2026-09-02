@@ -27,10 +27,10 @@ from playwright.sync_api import Page, sync_playwright
 ROOT = Path(__file__).resolve().parent.parent
 CSV_PATH = ROOT / "local-notes" / "00-ListeDesProfilsDeTests-7.2.csv"
 
-#: La production, et c'est voulu : un guide utilisateur montre des pages
-#: peuplées, que seule la vraie base a. Le script ne fait que lire — il
-#: ouvre des formulaires de création, il n'en soumet aucun — et affiche
-#: sa cible avant de commencer. `--base-url` pointe ailleurs au besoin.
+#: Production, and deliberately so: a user guide shows populated
+#: pages, which only the real database has. The script only reads — it
+#: opens create forms, it submits none — and prints its target before
+#: starting. Point `--base-url` elsewhere when needed.
 BASE = "https://aipress24.com"
 VIEWPORT = {"width": 1440, "height": 960}
 
@@ -104,8 +104,8 @@ def login(page: Page, base: str, profile: dict[str, str]) -> bool:
 def _hide_debug_bar(page: Page) -> None:
     """Hide the fixed performance/monitoring overlay ('… SQL · GET …').
 
-    Cosmétique : sur une page qui ne la porte pas, il n'y a rien à
-    masquer et rien à signaler.
+    Cosmetic: on a page that does not carry it there is nothing to hide
+    and nothing to report.
     """
     with contextlib.suppress(Exception):
         page.evaluate(
@@ -123,8 +123,8 @@ def _hide_debug_bar(page: Page) -> None:
 
 def _dismiss_cookie_banner(page: Page) -> None:
     for label in ("Accepter", "Tout accepter", "J'accepte", "Accept", "OK"):
-        # On essaie les libellés l'un après l'autre : celui qui n'existe
-        # pas sur cette page-ci n'est pas une erreur, c'est le suivant.
+        # Try the labels one after another: the one that does not exist
+        # on this page is not an error, it is the next one.
         with contextlib.suppress(Exception):
             btn = page.get_by_role("button", name=label)
             if btn.count() and btn.first.is_visible():

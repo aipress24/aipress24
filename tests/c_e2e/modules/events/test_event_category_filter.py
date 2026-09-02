@@ -2,20 +2,20 @@
 #
 # SPDX-License-Identifier: AGPL-3.0-only
 
-"""La famille d'événement : la puce, le lien, le filtre — 2026-09-02.
+"""The event family: the chip, the link, the filter — 2026-09-02.
 
-`Event` avait cinq sous-classes portant chacune un `Meta.type_label`
-(« Presse », « Salons/Colloques »…), et la carte en faisait une pastille
-verte dont le `type_id` alimentait `hx-vals='{"force-tab": …}'` : cliquer
-n'affichait plus que ce type. L'aplatissement en un seul `EventPost` a
-emporté les sous-classes ; `get_meta_attr` rendait `""`, et il ne restait
-qu'un ovale vert vide sur chaque carte.
+`Event` had five subclasses, each carrying a `Meta.type_label`
+("Presse", "Salons/Colloques"…), and the card turned it into a green
+pill whose `type_id` fed `hx-vals='{"force-tab": …}'`: clicking narrowed
+the list to that type. Flattening everything into a single `EventPost`
+took the subclasses with it; `get_meta_attr` returned `""`, and all that
+remained was an empty green oval on every card.
 
-La notion avait survécu un cran plus loin — les cinq sous-classes sont
-devenues les cinq familles de l'ontologie `events`, et
-`EventPost.category` en porte la forme normalisée. Ces tests couvrent ce
-qui la remplace : une puce qui porte la famille, un **lien** vers les
-autres événements de la même famille, et un filtre visible et annulable.
+The notion had survived one step further along — the five subclasses
+became the five families of the `events` taxonomy, and
+`EventPost.category` holds the normalised form. These tests cover what
+replaces it: a chip carrying the family, a **link** to the other events
+of the same family, and a filter that is visible and removable.
 """
 
 from __future__ import annotations
@@ -35,11 +35,11 @@ from app.modules.events.views.events_list import _category_label, _url_without
 from tests.c_e2e.conftest import make_authenticated_client
 
 
-def _make_event(db_session, owner, titre: str, genre: str) -> EventPost:
+def _make_event(db_session, owner, title: str, genre: str) -> EventPost:
     start = arrow.now().shift(days=2)
     event = EventPost(
-        title=titre,
-        summary="Résumé.",
+        title=title,
+        summary="Summary.",
         owner_id=owner.id,
         status=PublicationStatus.PUBLIC,
         start_datetime=start,
@@ -54,8 +54,8 @@ def _make_event(db_session, owner, titre: str, genre: str) -> EventPost:
 
 
 @pytest.fixture
-def deux_familles(app, db_session):
-    """Un événement Press et un événement Business, et un client."""
+def two_families(app, db_session):
+    """One Press event, one Business event, and a client."""
     role = db_session.query(Role).filter_by(name=RoleEnum.PRESS_MEDIA.name).first()
     if role is None:
         role = Role(
@@ -76,96 +76,96 @@ def deux_familles(app, db_session):
     db_session.add(user)
     db_session.flush()
 
-    presse = _make_event(db_session, user, "Un point presse", "Press / Point presse")
-    salon = _make_event(
-        db_session, user, "Un salon pro", "Business / Salon professionnel"
+    press = _make_event(db_session, user, "A press briefing", "Press / Point presse")
+    show = _make_event(
+        db_session, user, "A trade show", "Business / Salon professionnel"
     )
-    return make_authenticated_client(app, user), presse, salon
+    return make_authenticated_client(app, user), press, show
 
 
-def test_la_puce_porte_la_famille_et_pointe_vers_les_siennes(deux_familles) -> None:
-    """Un lien, et non un `hx-post` : la carte est aussi rendue sur le
-    Business Wall d'une organisation, qui n'a pas de `#content` — c'est
-    exactement ce qui rendait la pastille d'origine inerte (#0138)."""
-    client, _presse, _salon = deux_familles
+def test_the_chip_carries_the_family_and_points_at_its_own(two_families) -> None:
+    """A link, not an `hx-post`: the card is also rendered on an
+    organisation's Business Wall, which has no `#content` — which is
+    exactly what made the original pill inert (#0138)."""
+    client, _press, _show = two_families
 
     html = client.get("/events/", follow_redirects=True).data.decode()
     chips = BeautifulSoup(html, "html.parser").select("li.card .chip")
-    familles = {c.get_text(strip=True): c for c in chips}
+    families = {c.get_text(strip=True): c for c in chips}
 
-    assert "Press" in familles, f"la famille manque : {list(familles)}"
-    assert "Business" in familles
+    assert "Press" in families, f"the family is missing: {list(families)}"
+    assert "Business" in families
 
-    lien = familles["Press"]
-    assert lien.name == "a", "la puce doit être un lien"
-    assert lien["href"].endswith("/events/?category=press"), lien["href"]
+    link = families["Press"]
+    assert link.name == "a", "the chip must be a link"
+    assert link["href"].endswith("/events/?category=press"), link["href"]
 
 
-def test_le_lien_ne_garde_que_sa_famille(deux_familles) -> None:
-    """L'usage réel : la liste se restreint pour de bon."""
-    client, presse, salon = deux_familles
+def test_the_link_keeps_only_its_family(two_families) -> None:
+    """The real use: the list actually narrows."""
+    client, press, show = two_families
 
     html = client.get("/events/?category=press", follow_redirects=True).data.decode()
 
-    assert presse.title in html
-    assert salon.title not in html, "le filtre laisse passer les autres familles"
+    assert press.title in html
+    assert show.title not in html, "the filter lets other families through"
 
 
-def test_le_filtre_actif_se_voit_et_se_retire(deux_familles) -> None:
-    """Un filtre qu'on ne voit pas est un filtre qu'on ne peut pas
-    retirer. Il se retire en lien, et non par le `hx-post` des autres :
-    il vit dans l'URL et non en session."""
-    client, _presse, _salon = deux_familles
+def test_the_active_filter_is_visible_and_removable(two_families) -> None:
+    """A filter you cannot see is a filter you cannot remove. It clears
+    with a link, not with the others' `hx-post`: it lives in the URL and
+    not in the session."""
+    client, _press, _show = two_families
 
     html = client.get("/events/?category=press", follow_redirects=True).data.decode()
     soup = BeautifulSoup(html, "html.parser")
-    retrait = soup.select_one('a[aria-label^="Retirer le filtre"]')
+    clear = soup.select_one('a[aria-label^="Retirer le filtre"]')
 
-    assert retrait is not None, "aucun moyen de retirer le filtre de famille"
-    # Le libellé, et non la forme stockée : « Press », pas « press ».
-    assert "type\u00a0: Press" in retrait.parent.get_text()
-    assert "category" not in retrait["href"], retrait["href"]
+    assert clear is not None, "no way to remove the family filter"
+    # The label, not the stored form: "Press", not "press".
+    assert "type : Press" in clear.parent.get_text()
+    assert "category" not in clear["href"], clear["href"]
 
 
-def test_retirer_la_famille_garde_la_recherche(deux_familles) -> None:
-    """Un retour sec à `/events/` effacerait la recherche en cours."""
-    client, _presse, _salon = deux_familles
+def test_clearing_the_family_keeps_the_search(two_families) -> None:
+    """A bare return to `/events/` would wipe the current search."""
+    client, _press, _show = two_families
 
     html = client.get(
-        "/events/?category=press&search=point", follow_redirects=True
+        "/events/?category=press&search=press", follow_redirects=True
     ).data.decode()
-    retrait = BeautifulSoup(html, "html.parser").select_one(
+    clear = BeautifulSoup(html, "html.parser").select_one(
         'a[aria-label^="Retirer le filtre"]'
     )
 
-    assert retrait is not None, "aucun moyen de retirer le filtre de famille"
-    assert "search=point" in retrait["href"], retrait["href"]
+    assert clear is not None, "no way to remove the family filter"
+    assert "search=press" in clear["href"], clear["href"]
 
 
-class TestLeLibelleDeLaFamille:
-    """« press » est une forme stockée, pas un libellé."""
+class TestTheFamilyLabel:
+    """ "press" is a stored form, not a label."""
 
-    def test_retrouve_la_casse_des_familles_reelles(self) -> None:
+    def test_recovers_the_case_of_the_real_families(self) -> None:
         assert _category_label("press") == "Press"
         assert _category_label("business") == "Business"
 
-    def test_les_underscores_redeviennent_des_espaces(self) -> None:
-        """`event_type_to_category` les y avait mis."""
+    def test_underscores_become_spaces_again(self) -> None:
+        """`event_type_to_category` is what put them there."""
         assert _category_label("arts_du_spectacle") == "Arts du spectacle"
 
-    def test_rien_ne_donne_rien(self) -> None:
+    def test_nothing_gives_nothing(self) -> None:
         assert _category_label("") == ""
 
 
-class TestLAdresseSansUnParametre:
-    def test_retire_le_parametre_vise(self, app) -> None:
+class TestTheUrlWithoutOneParameter:
+    def test_drops_the_targeted_parameter(self, app) -> None:
         with app.test_request_context("/events/?category=press&search=x"):
             url = _url_without(request.args, "category")
 
         assert "category" not in url
         assert "search=x" in url
 
-    def test_garde_les_autres_tels_quels(self, app) -> None:
+    def test_keeps_the_others_as_they_were(self, app) -> None:
         with app.test_request_context("/events/?search=x&month=2026-09"):
             url = _url_without(request.args, "category")
 

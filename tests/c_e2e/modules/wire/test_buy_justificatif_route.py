@@ -17,7 +17,7 @@ from __future__ import annotations
 
 import uuid
 from typing import TYPE_CHECKING
-from unittest.mock import MagicMock, patch
+from unittest.mock import patch
 
 import arrow
 import pytest
@@ -34,6 +34,12 @@ from app.modules.wire.models import (
 )
 from app.modules.wire.services.purchase_aggregates import list_user_press_book
 from tests.c_e2e.conftest import make_authenticated_client
+from tests.c_e2e.modules.wire._stripe_doubles import (
+    CheckoutSession,
+    Event,
+    Price,
+    checkout_completed,
+)
 
 if TYPE_CHECKING:
     from flask import Flask
@@ -71,7 +77,7 @@ def article(db_session: Session) -> ArticlePost:
 def _patch_buy(checkout_url: str = "https://stripe/checkout/jdp") -> tuple:
     """Patch the Stripe boundary the buy route touches: price resolution,
     api key load, price retrieve (one-off, not recurring), and checkout."""
-    fake_session = MagicMock(url=checkout_url)
+    fake_session = CheckoutSession(url=checkout_url)
     return (
         patch(
             "app.modules.wire.views.purchase._price_id_for",
@@ -81,29 +87,23 @@ def _patch_buy(checkout_url: str = "https://stripe/checkout/jdp") -> tuple:
             "app.modules.wire.views.purchase.load_stripe_api_key",
             return_value=True,
         ),
-        patch("stripe.Price.retrieve", return_value=MagicMock(recurring=None)),
+        patch("stripe.Price.retrieve", return_value=Price(recurring=None)),
         patch("stripe.checkout.Session.create", return_value=fake_session),
     )
 
 
-def _fake_payment_event(*, session_id: str, purchase_id: int) -> MagicMock:
-    data_obj = {
-        "id": session_id,
-        "mode": "payment",
-        "metadata": {
-            "purchase_id": str(purchase_id),
-            "product_type": "justificatif",
-        },
-        "payment_intent": "pi_jdp_1",
-        "amount_total": 1500,
-        "currency": "eur",
-        "payment_status": "paid",
-    }
-    event = MagicMock()
-    event.id = f"evt_{session_id}"
-    event.type = "checkout.session.completed"
-    event.data.object = data_obj
-    return event
+def _fake_payment_event(*, session_id: str, purchase_id: int) -> Event:
+    """Un `checkout.session.completed` payé pour un justificatif.
+
+    An explicit double rather than a `MagicMock`: the latter answered
+    any attribute at all, so a router reading a field absent from the
+    Stripe payload passed all the same (audit 2026-09-02).
+    """
+    return checkout_completed(
+        session_id=session_id,
+        purchase_id=purchase_id,
+        product_type="justificatif",
+    )
 
 
 def _buy(app: Flask, buyer: User, article: ArticlePost):

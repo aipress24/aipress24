@@ -2,29 +2,28 @@
 #
 # SPDX-License-Identifier: AGPL-3.0-only
 
-"""Lire une liste d'adresses saisie à la main dans un formulaire.
+"""Read a hand-typed list of addresses from a form.
 
-Deux vues en avaient chacune leur version — le partage d'article et
-l'achat d'une consultation offerte — et elles ne découpaient pas pareil :
-l'une acceptait l'espace comme séparateur et validait la forme de
-l'adresse, l'autre non. « a@b.com c@d.com » donnait donc deux
-destinataires d'un côté et une chaîne invalide de l'autre, sur un
-chemin facturé (audit du 2026-09-02).
+Two views each had their own version — article sharing and buying a
+gift consultation — and they did not split alike: one accepted spaces as
+separators and validated the address shape, the other did not.
+"a@b.com c@d.com" therefore meant two recipients on one side and one
+invalid string on the other, on a billed path (audit 2026-09-02).
 """
 
 from __future__ import annotations
 
 
 def parse_recipient_emails(raw_emails: str) -> list[str]:
-    """Découper une saisie libre en adresses uniques et minuscules.
+    """Split free-form input into unique, lower-cased addresses.
 
-    Virgules, retours à la ligne et espaces séparent indifféremment :
-    un membre qui colle une colonne d'un tableur, une liste séparée par
-    des virgules ou une ligne d'adresses obtient le même résultat.
+    Commas, newlines and spaces separate interchangeably: a member who
+    pastes a spreadsheet column, a comma-separated list or a line of
+    addresses gets the same result.
 
-    Les entrées qui n'ont pas la forme d'une adresse sont écartées ici
-    plutôt qu'en aval : c'est la frontière, et une adresse invalide n'a
-    de sens ni pour un envoi ni pour une facturation.
+    Entries that do not look like an address are dropped here rather
+    than downstream: this is the boundary, and an invalid address makes
+    sense neither for sending nor for billing.
     """
     if not raw_emails:
         return []
@@ -38,12 +37,11 @@ def parse_recipient_emails(raw_emails: str) -> list[str]:
 
 
 def _looks_like_an_email(address: str) -> bool:
-    """Quelque chose, une arobase, puis un domaine pointé.
+    """Something, an at-sign, then a dotted domain.
 
-    Rien de plus : la validation sérieuse appartient au serveur de
-    messagerie, pas à un formulaire. Mais la partie locale doit exister —
-    l'ancien contrôle acceptait « @exemple.com », qui serait parti en
-    destinataire facturé.
+    Nothing more: real validation belongs to the mail server, not to a
+    form. But the local part must exist — the previous check accepted
+    "@example.com", which would have gone out as a billed recipient.
     """
     local, separator, domain = address.partition("@")
     return bool(separator and local and "." in domain)

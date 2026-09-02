@@ -160,10 +160,10 @@ class PaysZipVilleMixin:
     moitiés viennent désormais de `app.lib.geoloc`, et un test compare
     leurs résultats sur les deux bases, entrées mal formées comprises.
 
-    Deux modèles y échappent, chacun pour sa raison, et tirent tout de
-    même leur découpage d'`app.lib.geoloc` : `KYCProfile`, dont la
-    localisation vit dans un JSON, et `BusinessWall`, qui la découpe à
-    l'écriture dans de vraies colonnes.
+    Two models sit outside it, each for its own reason, and still take
+    their splitting from `app.lib.geoloc`: `KYCProfile`, whose location
+    lives in a JSON column, and `BusinessWall`, which splits it on write
+    into real columns.
 
     Le miroir des événements ne l'utilise pas : il a un point d'écriture
     unique, ce qui autorise de vraies colonnes indexées, plus rapides à
@@ -171,12 +171,11 @@ class PaysZipVilleMixin:
     silencieusement périmées dès qu'un chemin d'écriture serait oublié.
     """
 
-    #: Une annotation `Mapped` nue **crée** une colonne : un hôte qui
-    #: ne déclarerait pas la sienne hériterait celle-ci, sans le
-    #: `default=""` que portent les quatre autres. Les hôtes actuels la
-    #: déclarent tous, et la sous-classe l'emporte sur le mixin — WIRE
-    #: ajoutant `use_existing_column` parce qu'il la déclare deux fois
-    #: par ailleurs.
+    #: A bare `Mapped` annotation **creates** a column: a host that did
+    #: not declare its own would inherit this one, without the
+    #: `default=""` the other four carry. Every current host declares
+    #: it, and the subclass wins over the mixin — WIRE adding
+    #: `use_existing_column` because it declares it twice elsewhere.
     pays_zip_ville_detail: Mapped[str]
 
     @hybrid_property

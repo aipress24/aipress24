@@ -9,7 +9,7 @@ from __future__ import annotations
 
 import uuid
 from typing import TYPE_CHECKING
-from unittest.mock import MagicMock, patch
+from unittest.mock import patch
 
 import arrow
 import pytest
@@ -26,6 +26,7 @@ from app.modules.wire.models import (
 )
 from app.services.stripe._price_model import StripePrice
 from tests.c_e2e.conftest import make_authenticated_client
+from tests.c_e2e.modules.wire._stripe_doubles import CheckoutSession
 
 if TYPE_CHECKING:
     from flask import Flask
@@ -116,11 +117,11 @@ def article(db_session: Session, press_role: Role) -> ArticlePost:
 
 
 def _mirror_price(db_session, price_id: str, cents: int) -> None:
-    """Une vraie ligne `stripe_price`, comme les webhooks en écrivent.
+    """A real `stripe_price` row, as the webhooks write them.
 
-    Remplace un `MagicMock` sur `stripe.Price.retrieve` : la modale lit
-    le miroir local depuis l'audit du 2026-09-02, et un mock ne
-    prouverait plus rien du chemin réel.
+    Replaces a `MagicMock` on `stripe.Price.retrieve`: the modal reads
+    the local mirror since the 2026-09-02 audit, and a mock would no
+    longer prove anything about the real path.
     """
     db_session.add(
         StripePrice(
@@ -136,7 +137,7 @@ def _mirror_price(db_session, price_id: str, cents: int) -> None:
 
 
 def _no_network(*_args, **_kwargs):
-    """Aucun prix affiché ne doit déclencher d'appel Stripe."""
+    """No displayed price may trigger a Stripe call."""
     msg = "stripe.Price.retrieve appelé pendant un rendu — cf. lessons-learned"
     raise AssertionError(msg)
 
@@ -160,7 +161,7 @@ class TestBuyModalGift:
         article: ArticlePost,
     ):
         client = make_authenticated_client(app, reader)
-        # même id que celui que `_price_id_for` est censé rendre
+        # same id as the one `_price_id_for` is meant to return
         _mirror_price(db_session, "price_consultation", 1500)
         app.config["STRIPE_LIVE_ENABLED"] = True
         try:
@@ -189,7 +190,7 @@ class TestBuyGiftEmailResolution:
     field that the back-end resolves to AiPRESS24 user ids."""
 
     def _patch_stripe(self) -> tuple:
-        fake_session = MagicMock(url="https://stripe/x")
+        fake_session = CheckoutSession(url="https://stripe/x")
         return (
             patch(
                 "app.modules.wire.views.purchase._price_id_for",

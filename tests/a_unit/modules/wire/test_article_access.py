@@ -8,7 +8,7 @@ Exists to cover the paywall rule table + the HTML truncation helpers
 without spinning up a database or mocking SQLAlchemy. The verdict
 function `user_can_read_full` accepts injected lookup callables
 (default-arg DI) so tests pass plain Python callables instead of
-patching `db.session`. Les lectures injectées capturent
+patching `db.session`. The injected lookups capture
 the rule table as a precedence ladder and is exercised in isolation.
 
 These tests intentionally use duck-typed `_User` / `_Post` stand-ins
@@ -71,15 +71,15 @@ def _admin_role(_user: object, role: str) -> bool:
 
 
 class TestLaTableDeRegles:
-    """Précédence : anonyme < auteur < admin < acheté < offert, la
-    première règle qui s'applique l'emportant.
+    """Precedence: anonymous < author < admin < paid < gifted, the
+    first matching rule winning.
 
-    Ces six cas visaient `_decide_can_read_full`, un « cœur pur » que
-    la production n'appelait jamais : la même échelle, écrite une
-    seconde fois, libre de diverger de celle qui décide réellement
-    (audit du 2026-09-02). Ils portent désormais sur
-    `user_can_read_full`, dont les trois lectures sont injectées — la
-    règle reste éprouvée sans base, et sur le chemin réel.
+    These six cases targeted `_decide_can_read_full`, a "pure core"
+    production never called: the same ladder, written a second time,
+    free to drift from the one that actually decides (audit
+    2026-09-02). They now bear on `user_can_read_full`, whose three
+    lookups are injected — the rule stays testable without a database,
+    and on the real path.
     """
 
     def test_anonymous_blocks_even_if_all_other_flags_true(self) -> None:

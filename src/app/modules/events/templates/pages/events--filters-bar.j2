@@ -78,9 +78,9 @@
   </div>
 
   <div class="mb-5">
-    {# La famille d'événement, arrivée par un lien depuis une carte.
-       Elle se retire en lien et non en `hx-post` comme les filtres
-       ci-dessous : elle vit dans l'URL et non en session. #}
+    {# The event family, arrived by a link from a card. It clears with
+       a link and not with an `hx-post` like the filters below: it lives
+       in the URL, not in the session. #}
     {% if category %}
       <span class="inline-flex items-center rounded text-sm font-medium text-gray-600 bg-gray-200 my-1 py-1 px-2">
         <span>type&nbsp;: {{ category_label }}</span>

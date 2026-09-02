@@ -126,10 +126,10 @@ def _build_purchase_context(
 def _author_full_name(author: User | None) -> str:
     """Pure : full name of the author, marker fallback if missing.
 
-    `None` est un cas réel — `db.session.get(User, post.owner_id)` peut
-    ne rien rendre sur un compte supprimé. Le `getattr` d'avant se
-    gardait en plus d'un `User` sans `full_name`, ce qu'aucun `User`
-    n'est (audit du 2026-09-02).
+    `None` is a real case — `db.session.get(User, post.owner_id)` can
+    return nothing for a deleted account. The previous `getattr` also
+    guarded against a `User` without `full_name`, which no `User` is
+    (audit 2026-09-02).
     """
     if author is None:
         return MISSING_LABEL
@@ -196,7 +196,7 @@ def _post_in_app(
         author_full_name=author_full_name,
         media_name=media_name,
     )
-    # `RuntimeError` : cf. `_article_url` dans `gift_notification`.
+    # `RuntimeError`: see `_article_url` in `gift_notification`.
     try:
         post_url = url_for("wip.achats")
     except RuntimeError:

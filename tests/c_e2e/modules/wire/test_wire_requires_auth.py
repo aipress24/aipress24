@@ -2,19 +2,18 @@
 #
 # SPDX-License-Identifier: AGPL-3.0-only
 
-"""Le blueprint WIRE est fermé aux visiteurs — sentinelle, 2026-09-02.
+"""The WIRE blueprint is closed to visitors — sentinel, 2026-09-02.
 
-`app/modules/wire/__init__.py` lève `Unauthorized` dans son
-`before_request`. Quatre vues d'achat refaisaient ce contrôle, et une
-cinquième — `_get_purchase_or_404` — l'écrivait à l'envers : elle
-*exemptait* l'anonyme du contrôle de propriété au lieu de le refuser.
-Les quatre doublons sont partis et la condition inversée est redressée,
-ce qui laisse `before_request` seul en charge.
+`app/modules/wire/__init__.py` raises `Unauthorized` in its
+`before_request`. Four purchase views repeated that check, and a fifth —
+`_get_purchase_or_404` — had it backwards: it *exempted* anonymous
+callers from the ownership check instead of refusing them. The four
+duplicates are gone and the inverted condition is fixed, which leaves
+`before_request` solely in charge.
 
-Ce fichier est la sentinelle qui va avec : si la garde disparaît, ce
-n'est plus une redondance qui saute, c'est l'accès qui s'ouvre — sur
-`/wire/purchase/<id>/success`, dont les identifiants sont des entiers
-séquentiels.
+This file is the sentinel that goes with that: if the guard disappears,
+it is no longer a redundancy that goes but access that opens — on
+`/wire/purchase/<id>/success`, whose ids are sequential integers.
 """
 
 from __future__ import annotations
@@ -23,9 +22,9 @@ import pytest
 
 from app.modules.wire import blueprint
 
-# Une URL par forme de vue : liste, détail d'achat, modale de prix,
-# POST d'achat. Toutes doivent renvoyer un visiteur vers l'accueil ou
-# la connexion, jamais un corps de page.
+# One URL per shape of view: list, purchase detail, price modal, buy
+# POST. All must send a visitor to the home page or to login, never to a
+# page body.
 URLS_GET = [
     "/wire/",
     "/wire/purchase/1/success",
@@ -40,31 +39,30 @@ URLS_POST = [
 
 
 @pytest.mark.parametrize("url", URLS_GET)
-def test_un_visiteur_n_atteint_aucune_vue_wire(client, url) -> None:
+def test_a_visitor_reaches_no_wire_view(client, url) -> None:
     response = client.get(url)
 
     assert response.status_code in (301, 302, 401), (
-        f"{url} a répondu {response.status_code} à un anonyme"
+        f"{url} answered {response.status_code} to an anonymous caller"
     )
 
 
 @pytest.mark.parametrize("url", URLS_POST)
-def test_ni_par_un_post(client, url) -> None:
+def test_nor_through_a_post(client, url) -> None:
     response = client.post(url, data={})
 
     assert response.status_code in (301, 302, 401), (
-        f"{url} a répondu {response.status_code} à un anonyme"
+        f"{url} answered {response.status_code} to an anonymous caller"
     )
 
 
-def test_la_garde_est_bien_dans_le_before_request() -> None:
-    """Le test ci-dessus passerait aussi si chaque vue se gardait seule.
+def test_the_guard_lives_in_the_before_request() -> None:
+    """The tests above would also pass if every view guarded itself.
 
-    Ce qu'on veut affirmer, c'est que la garde est **unique et
-    centralisée** : c'est elle qui autorise les vues à traiter `g.user`
-    comme un membre identifié.
+    What we want to assert is that the guard is **single and central**:
+    it is what allows the views to treat `g.user` as a signed-in member.
     """
-    noms = [f.__name__ for f in blueprint.deferred_functions]
-    assert blueprint.before_request_funcs or noms, (
-        "le blueprint WIRE n'enregistre plus de before_request"
+    names = [f.__name__ for f in blueprint.deferred_functions]
+    assert blueprint.before_request_funcs or names, (
+        "the WIRE blueprint no longer registers a before_request"
     )

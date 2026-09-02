@@ -35,12 +35,12 @@ COLUMNS = ("code_postal", "departement", "ville")
 
 def upgrade() -> None:
     for column in COLUMNS:
-        # `nullable=False` : le modèle les déclare `Mapped[str]`. Créées
-        # nullables, la base migrée et celle que `create_all` monte pour
-        # les tests n'auraient pas le même schéma, et l'autogénération
-        # suivante réclamerait un `alter_column` fantôme. Le
-        # `server_default` remplit les lignes existantes avant que la
-        # contrainte ne s'applique.
+        # `nullable=False`: the model declares them `Mapped[str]`.
+        # Created nullable, the migrated database and the one
+        # `create_all` builds for the tests would not share a schema,
+        # and the next autogenerate would ask for a phantom
+        # `alter_column`. The `server_default` fills existing rows
+        # before the constraint applies.
         op.add_column(
             TABLE, sa.Column(column, sa.String(), nullable=False, server_default="")
         )
@@ -52,11 +52,11 @@ def upgrade() -> None:
 def _parse(detail: str) -> tuple[str, str, str]:
     """« FRA / 75015 Paris » → `("75015", "75", "Paris")`.
 
-    Recopié d'`app.lib.geoloc.parse_pays_zip_ville` **exprès**, et non
-    importé : une migration est un enregistrement historique, et importer
-    le code vivant la ferait rejouer autre chose le jour où l'analyseur
-    change — ou refuser de démarrer le jour où le module bouge. C'est le
-    seul endroit du dépôt où cette duplication est le but.
+    Copied from `app.lib.geoloc.parse_pays_zip_ville` **on purpose**,
+    not imported: a migration is a historical record, and importing live
+    code would make it replay something else the day the parser changes
+    — or refuse to start the day the module moves. This is the one place
+    in the repo where that duplication is the point.
     """
     if not detail:
         return "", "", ""
@@ -74,8 +74,8 @@ def _parse(detail: str) -> tuple[str, str, str]:
 def _backfill() -> None:
     """Remplir les trois colonnes depuis la chaîne déjà stockée.
 
-    En Python et non en SQL : `substr`/`strpos` portables tiendraient en
-    quinze lignes illisibles là où l'analyse tient en huit.
+    In Python and not in SQL: portable `substr`/`strpos` would take
+    fifteen unreadable lines where the parse takes eight.
     """
     bind = op.get_bind()
     rows = bind.execute(

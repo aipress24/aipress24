@@ -59,16 +59,16 @@ from app.services.tracking import record_view
 
 
 def _paywall_context(post: Post, user: User) -> dict:
-    """Tout ce que le péage a à dire sur ce couple (article, lecteur).
+    """Everything the paywall has to say about this (article, reader).
 
-    Sortie de `ItemDetailView.get`, qui enchaînait l'aiguillage, le fil
-    d'Ariane, l'enregistrement de la vue, les métadonnées, six imports
-    locaux, huit calculs d'accès, une lecture de prix et une requête
-    d'invitation avant de rendre douze variables : on ne pouvait plus
-    dire ce qu'elle faisait sans « et » (audit du 2026-09-02).
+    Extracted from `ItemDetailView.get`, which chained dispatch, the
+    breadcrumb, view recording, metadata, six local imports, eight
+    access computations, a price lookup and an invitation query before
+    rendering twelve variables: you could no longer say what it did
+    without an "and" (audit 2026-09-02).
 
-    `user` est un membre identifié : le `before_request` du blueprint
-    l'assure pour toute vue de `/wire/*`.
+    `user` is a signed-in member: the blueprint's `before_request`
+    guarantees that for every `/wire/*` view.
     """
     from app.modules.bw.bw_activation.rights_policy import is_eligible_for_cession
     from app.modules.wire.services.article_access import (
@@ -80,11 +80,11 @@ def _paywall_context(post: Post, user: User) -> dict:
         user_can_read_full,
     )
 
-    # Les deux lectures d'accès, faites **une fois** et réutilisées.
-    # `user_can_read_full` les faisait déjà en interne, et la vue les
-    # refaisait juste après avec les mêmes arguments : deux requêtes de
-    # plus sur chaque page d'article, pour tout lecteur qui n'est ni
-    # l'auteur ni administrateur.
+    # The two access lookups, done **once** and reused.
+    # `user_can_read_full` already made them internally, and the view
+    # repeated them right after with the same arguments: two extra
+    # queries on every article page, for any reader who is neither the
+    # author nor an admin.
     has_paid = has_paid_consultation(user.id, post.id)
     has_gift = has_received_consultation_gift(user.id, post.id)
     can_read_full = user_can_read_full(
@@ -123,9 +123,9 @@ def _paywall_context(post: Post, user: User) -> dict:
 
 
 def _has_justificatif_invitation(post: Post, user: User) -> bool:
-    """Le journaliste a-t-il invité ce lecteur pour cet article ?
+    """Has the journalist invited this reader for this article?
 
-    C'est la seule condition d'affichage du bouton « Justificatif ».
+    That is the only condition for showing the "Justificatif" button.
     """
     from app.modules.wip.models.newsroom.justificatif_invitation import (
         JustificatifInvitation,

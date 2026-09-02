@@ -272,15 +272,14 @@ class BusinessWall(UUIDAuditBase):
     def update_location_fields(self) -> None:
         """Update code_postal, departement, and ville from pays_zip_ville_detail.
 
-        Le découpage vient d'`app.lib.geoloc`, comme celui du miroir des
-        événements, de l'annuaire, du Wall et de la place de marché : le
-        BW en portait la sixième copie, celle qui restait quand les cinq
-        autres ont fusionné (audit du 2026-09-01).
+        The splitting comes from `app.lib.geoloc`, like the one used by
+        the events mirror, the directory, the Wall and the marketplace:
+        the BW held the sixth copy, the one left over when the other
+        five merged (audit 2026-09-01).
 
-        Deux règles lui sont propres et restent ici : le département n'a
-        de sens qu'en France, et l'absence de localisation s'écrit `None`
-        plutôt que `""` — ces colonnes sont *nullables*, contrairement à
-        toutes les autres.
+        Two rules are its own and stay here: the departement only makes
+        sense in France, and a missing location is written `None` rather
+        than `""` — these columns are *nullable*, unlike all the others.
         """
         if not self.pays_zip_ville_detail:
             self.code_postal = None

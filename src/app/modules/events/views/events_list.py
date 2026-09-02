@@ -39,40 +39,39 @@ LIST_ARGS = {
     "day": webargs.fields.Str(load_default=""),
     "search": webargs.fields.Str(load_default=""),
     "loc": webargs.fields.Str(load_default=""),
-    # La famille d'événement, telle que `event_type_to_category` la
-    # normalise. Un argument d'URL et non un filtre de session, pour la
-    # raison qui a fait de la puce un lien : la carte est aussi rendue
-    # hors de cette page. L'état tient dans l'adresse — elle se partage,
-    # et revenir à `/events/` l'annule.
+    # The event family, as `event_type_to_category` normalises it. A
+    # URL argument and not a session filter, for the reason that made
+    # the chip a link: the card is also rendered outside this page. The
+    # state lives in the address — it can be shared, and going back to
+    # `/events/` clears it.
     "category": webargs.fields.Str(load_default=""),
 }
 
 
 def _url_without(args, key: str) -> str:
-    """L'adresse courante, moins un paramètre.
+    """The current address, minus one parameter.
 
-    Le « ✖ » des autres filtres poste `action: remove` : ils vivent en
-    session. La famille vit dans l'URL, et s'y retire donc en lien — ce
-    qui garde aussi la recherche et le mois en cours, là où un retour sec
-    à `/events/` les effacerait au passage.
+    The other filters' "✖" posts `action: remove`: they live in the
+    session. The family lives in the URL, and so clears with a link —
+    which also keeps the current search and month, where a bare return
+    to `/events/` would wipe them along the way.
     """
     kept = [(k, v) for k, v in args.items(multi=True) if k != key]
     return url_for("events.events", **dict(kept))
 
 
 def _category_label(category: str) -> str:
-    """« press » → « Press » : l'inverse d'`event_type_to_category`.
+    """ "press" → "Press": the inverse of `event_type_to_category`.
 
-    Une fonction pure, et non une relecture de l'ontologie. Chercher la
-    famille dont la normalisation redonne cette valeur serait plus exact
-    en théorie — mais c'est une requête par affichage pour un libellé,
-    et le résultat est identique sur les cinq familles réelles (`Press`,
-    `Business`, `Culture`, `Sports`, `Politics`), toutes en un mot
-    capitalisé.
+    A pure function, not a re-read of the taxonomy. Looking up the
+    family whose normalisation yields this value would be more exact in
+    theory — but that is one query per render for a label, and the
+    result is identical on the five real families (`Press`, `Business`,
+    `Culture`, `Sports`, `Politics`), all single capitalised words.
 
-    La normalisation reste lossy : une famille accentuée en milieu de mot
-    reviendrait avec sa casse d'origine perdue. Aucune n'est dans ce cas,
-    et l'ontologie est la seule à pouvoir en ajouter.
+    The normalisation stays lossy: a family accented mid-word would come
+    back with its original case lost. None is in that case, and only the
+    taxonomy can add one.
     """
     return category.replace("_", " ").capitalize()
 
@@ -146,10 +145,10 @@ class EventsListView(MethodView):
         return {
             "grouped_events": sorted(grouper.items()),
             "search": search,
-            # Un filtre qu'on ne voit pas est un filtre qu'on ne peut pas
-            # retirer : le gabarit en affiche une puce, que le lien de
-            # retrait annule. `category` est la forme stockée, en
-            # minuscules ; `category_label` est ce qui s'affiche.
+            # A filter you cannot see is a filter you cannot remove:
+            # the template shows a chip for it, which the clear link
+            # dismisses. `category` is the stored form, lower-cased;
+            # `category_label` is what gets displayed.
             "category": category,
             "category_label": _category_label(category),
             "category_clear_url": _url_without(request.args, "category"),
@@ -232,8 +231,8 @@ class EventsListView(MethodView):
         stmt = self._apply_filter_bar(stmt, filter_bar)
         stmt = self._apply_search(stmt, search)
         if category:
-            # Égalité et non `ilike` : `category` est écrite par
-            # `event_type_to_category`, jamais saisie à la main.
+            # Equality, not `ilike`: `category` is written by
+            # `event_type_to_category`, never typed by hand.
             stmt = stmt.where(EventPost.category == category)
 
         return list(get_multi(EventPost, stmt))

@@ -78,35 +78,35 @@
     {% set _delegated = event.author.organisation and event.publisher
           and event.author.organisation.id != event.publisher.id %}
 
-    {# `flex flex-wrap gap-2` : l'espacement venait des blancs entre les
-       balises, qui disparaissent au retour à la ligne — deux rangées de
-       puces se touchaient. La gouttière ne dépend plus de l'indentation
-       du gabarit.
+    {# `flex flex-wrap gap-2`: the spacing used to come from whitespace
+       between the tags, which disappears on wrap — two rows of chips
+       touched. The gutter no longer depends on template indentation.
 
-       **Chaque puce est conditionnelle.** `.chip` est un `inline-flex`
-       avec un padding : une valeur vide n'affiche pas « rien », elle
-       affiche une pastille de couleur nue. #}
+       **Every chip is conditional.** `.chip` is an `inline-flex` with
+       padding: an empty value does not render "nothing", it renders a
+       bare coloured pill. #}
     <div class="flex flex-wrap items-center gap-2">
-      {# La famille de l'événement — « Press », « Business »… — et le
-         lien vers les autres de la même famille.
+      {# The event family — "Press", "Business"… — and the link to the
+         others in the same family.
 
-         C'est ce que faisait la pastille verte `~positive` supprimée
-         ici : `Event` avait cinq sous-classes, chacune portant son
-         `Meta.type_label` (« Presse », « Salons/Colloques »…), et son
-         `type_id` servait à `hx-vals='{"force-tab": …}'` pour n'afficher
-         que ce type. L'aplatissement en un seul `EventPost` a emporté
-         les sous-classes, donc les `Meta` : `get_meta_attr` rendait
-         `""`, et il ne restait qu'un ovale vert vide sur chaque carte.
+         This is what the green `~positive` pill removed here used to
+         do: `Event` had five subclasses, each carrying its own
+         `Meta.type_label` ("Presse", "Salons/Colloques"…), and its
+         `type_id` fed `hx-vals='{"force-tab": …}'` to show only that
+         type. Flattening into a single `EventPost` took the subclasses
+         with it, and so the `Meta` classes: `get_meta_attr` returned
+         `""`, and all that was left was an empty green oval on every
+         card.
 
-         La notion, elle, a survécu un cran plus loin — les cinq
-         sous-classes sont devenues les cinq familles de l'ontologie
-         `events`, et `EventPost.category` en porte la forme normalisée.
-         Une seule puce désormais, celle qui a gardé sa donnée.
+         The notion itself survived one step further along — the five
+         subclasses became the five families of the `events` taxonomy,
+         and `EventPost.category` holds the normalised form. One chip
+         now, the one that kept its data.
 
-         Un lien, et non un `hx-post` vers `#content` : la carte est
-         aussi rendue sur le Business Wall d'une organisation, qui n'a
-         pas ce conteneur — c'est très exactement ce qui rendait la
-         pastille d'origine inerte (#0138). #}
+         A link, not an `hx-post` to `#content`: the card is also
+         rendered on an organisation's Business Wall, which has no such
+         container — precisely what made the original pill inert
+         (#0138). #}
       {% if event.category %}
         <a href="{{ url_for('events.events', category=event.category) }}"
            class="chip ~neutral @low">{{ event.genre_family }}</a>

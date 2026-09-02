@@ -40,15 +40,15 @@ CAS = [
     "FRA /",
     "",
     "n importe quoi",
-    # Les formes tordues : c'est là, et seulement là, que les deux
-    # moitiés d'une même règle divergent. Un corpus qui n'en contient
-    # aucune certifie un accord qui n'existe pas.
-    "FRA/75015 Paris",  # séparateur sans espaces
-    "FRA /75015 Paris",  # espace d'un seul côté
-    "FRA / 75015  Paris",  # espace en trop devant la ville
-    'FRA / 75001 Paris"',  # un seul des deux caractères parasites
-    "FRA / 75001 Paris}",  # l'autre
-    "FRA / 75015 ",  # code postal seul, espace en queue
+    # The awkward shapes: there, and only there, do the two halves of
+    # one rule drift apart. A corpus containing none of them certifies
+    # an agreement that does not exist.
+    "FRA/75015 Paris",  # separator without spaces
+    "FRA /75015 Paris",  # space on one side only
+    "FRA / 75015  Paris",  # extra space before the city
+    'FRA / 75001 Paris"',  # only one of the two stray characters
+    "FRA / 75001 Paris}",  # the other one
+    "FRA / 75015 ",  # postcode alone, trailing space
 ]
 
 

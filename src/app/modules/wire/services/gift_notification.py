@@ -181,11 +181,11 @@ def _article_url(post) -> str:
     """Best-effort absolute URL for the article. Falls back to a
     relative path if `url_for` can't build an external URL (e.g.
     no request context)."""
-    # `RuntimeError` et non `Exception` : c'est ce que lève Flask quand
-    # `SERVER_NAME` manque hors requête. Tout attraper masquerait une
-    # `BuildError` sur un nom de route erroné, que le repli relancerait
-    # de toute façon — après avoir brouillé la trace. Même correctif
-    # qu'`events/notifications.py`.
+    # `RuntimeError` and not `Exception`: that is what Flask raises
+    # when `SERVER_NAME` is missing outside a request. Catching
+    # everything would hide a `BuildError` on a wrong endpoint name,
+    # which the fallback would re-raise anyway — after muddying the
+    # traceback. Same fix as `events/notifications.py`.
     try:
         return url_for("wire.item", id=base62.encode(post.id), _external=True)
     except RuntimeError:

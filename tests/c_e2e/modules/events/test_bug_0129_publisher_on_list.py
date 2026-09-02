@@ -208,12 +208,12 @@ def test_event_detail_shows_accreditation_button_for_journalist(
     grant accreditation outright. The regression this pins is unchanged
     — a journalist must be offered a way to ask.
 
-    **L'événement appartient à quelqu'un d'autre**, et c'est le sujet :
-    #0138b parle d'un journaliste devant l'annonce d'un tiers. Le
-    montage réutilisait le lecteur comme propriétaire par commodité, si
-    bien qu'il a viré au rouge quand #0319 a cessé de proposer le bouton
-    à l'organisateur — un défaut de fixture, pas de règle. Le pendant,
-    « l'organisateur ne le voit pas », est couvert par
+    **The event belongs to somebody else**, and that is the point:
+    #0138b is about a journalist looking at a third party's listing. The
+    fixture reused the reader as the owner for convenience, so it turned
+    red when #0319 stopped offering the button to the organiser — a
+    fixture defect, not a rule one. The converse, "the organiser does
+    not see it", is covered by
     `e2e_playwright/regressions/test_bugs_0319_0325.py`.
     """
     user = _make_user(db_session)
@@ -230,12 +230,12 @@ def test_event_detail_shows_accreditation_button_for_journalist(
     response = client.get(f"/events/{event.id}", follow_redirects=True)
     assert response.status_code == 200
     html = response.data.decode()
-    # Le geste, et pas seulement le mot : `hx-vals` est ce que le bouton
-    # *fait*. La forme précédente cherchait « Demande d&#39;accréditation »
-    # — une apostrophe échappée que le rendu ne produit pas, le texte
-    # littéral d'un gabarit n'étant pas échappé — puis retombait sur
-    # « accréditation », présent ailleurs dans la page. Elle passait donc
-    # sans jamais voir le bouton.
+    # The action, not just the word: `hx-vals` is what the button
+    # *does*. The previous form looked for "Demande d&#39;accréditation"
+    # — an escaped apostrophe the render never produces, a template's
+    # literal text not being escaped — then fell back to
+    # "accréditation", present elsewhere on the page. It therefore
+    # passed without ever seeing the button.
     assert '"action": "request-accreditation"' in html, (
         "the accreditation button must be visible to journalists on "
         "the event detail (#0138b)"
@@ -269,14 +269,13 @@ def test_event_card_type_badge_is_a_real_link_not_dead_chip(
     assert "force-tab" not in body
     assert f'href="/events/{event.id}"' in body
 
-    # Plus d'assertion sur « chip ~positive » : elle passait grâce à la
-    # pastille **vide**. `type_label` sort de `get_meta_attr`, et ni
-    # `EventPost.Meta` ni `EventListVM` ne le renseignent — il vaut `""`
-    # sur les deux chemins de rendu, donc cette puce n'a jamais eu de
-    # texte. Elle est désormais masquée à vide, et c'est l'ovale vert que
-    # portait chaque carte (audit du 2026-09-02). Le jour où le libellé
-    # sera alimenté, c'est un test sur ce libellé qu'il faudra écrire,
-    # pas sur la classe CSS.
+    # No more assertion on "chip ~positive": it passed thanks to the
+    # **empty** pill. `type_label` comes from `get_meta_attr`, and
+    # neither `EventPost.Meta` nor `EventListVM` sets it — it is `""` on
+    # both render paths, so that chip never had any text. It is now
+    # hidden when empty, and it was the green oval every card carried
+    # (audit 2026-09-02). The day the label is populated, the test to
+    # write is one on that label, not on the CSS class.
 
 
 def test_a_cancelled_event_is_listed_with_its_banner(

@@ -11,15 +11,14 @@ used both from the detail view and the tests:
 - `truncate_body(html, limit)` — HTML-aware truncation for the
   preview shown to non-buyers.
 
-La règle est écrite **une fois**, dans `user_can_read_full`, qui
-reçoit ses trois lectures (rôle, achat, cadeau) en arguments nommés
-avec les implémentations de production par défaut : les tests passent
-des doublures et éprouvent la règle sans base, sans monkey-patching.
+The rule is written **once**, in `user_can_read_full`, which takes its
+three lookups (role, purchase, gift) as keyword arguments defaulting to
+the production implementations: tests pass doubles and exercise the rule
+without a database, and without monkey-patching.
 
-Un `_decide_can_read_full` « cœur pur » a existé à côté, sans aucun
-appelant en production — la même échelle de règles, écrite deux fois,
-libre de diverger, avec des tests qui n'en pinnaient qu'une (audit du
-2026-09-02).
+A `_decide_can_read_full` "pure core" lived alongside it with no
+production caller — the same ladder of rules, written twice, free to
+drift, with tests pinning only one of them (audit 2026-09-02).
 """
 
 from __future__ import annotations

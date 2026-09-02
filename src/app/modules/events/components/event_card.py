@@ -39,10 +39,9 @@ class EventCardVM(ViewModel):
         return {
             "author": event.owner,
             "organisation_image_url": self._get_organisation_logo_url(),
-            # `genre` s'écrit « FAMILLE / Détail » ; la carte affiche la
-            # famille, avec la casse de l'ontologie — `category` la
-            # normalise en minuscules pour le filtrage et ne peut pas
-            # servir de libellé.
+            # `genre` is written "FAMILY / Detail"; the card shows the
+            # family, with the taxonomy's own case — `category`
+            # lower-cases it for filtering and cannot serve as a label.
             "genre_family": split_taxonomy_value(event.genre)[0] or event.category,
             "opening": opening,
             "likes": event.like_count,

@@ -11,7 +11,7 @@ from __future__ import annotations
 import uuid
 from datetime import UTC, datetime
 from typing import TYPE_CHECKING
-from unittest.mock import MagicMock, patch
+from unittest.mock import patch
 
 import arrow
 import pytest
@@ -29,6 +29,10 @@ from app.modules.wire.models import (
     PurchaseStatus,
 )
 from tests.c_e2e.conftest import make_authenticated_client
+from tests.c_e2e.modules.wire._stripe_doubles import (
+    CheckoutSession,
+    Price,
+)
 
 if TYPE_CHECKING:
     from flask import Flask
@@ -110,7 +114,7 @@ def article(db_session: Session, author: User) -> ArticlePost:
 def _patch_stripe(success_url: str = "https://stripe/checkout/x") -> tuple:
     """Return a tuple of context managers patching the Stripe boundary
     for buy_gift : price lookup, api key load, and checkout creation."""
-    fake_session = MagicMock(url=success_url)
+    fake_session = CheckoutSession(url=success_url)
     return (
         patch(
             "app.modules.wire.views.purchase._price_id_for",
@@ -369,8 +373,8 @@ class TestBuyGiftFlow:
 def _patch_stripe_buy(success_url: str = "https://stripe/checkout/x") -> tuple:
     """Patch the Stripe boundary for the single-article `buy` route: price
     id, api key, Price.retrieve (mode detection) and checkout creation."""
-    fake_session = MagicMock(url=success_url)
-    fake_price = MagicMock(recurring=None)  # one-off → mode="payment"
+    fake_session = CheckoutSession(url=success_url)
+    fake_price = Price(recurring=None)  # one-off → mode="payment"
     return (
         patch(
             "app.modules.wire.views.purchase._price_id_for",

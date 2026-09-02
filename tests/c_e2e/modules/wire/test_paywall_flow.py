@@ -38,12 +38,12 @@ if TYPE_CHECKING:
 
 
 def _mirror_price(db_session: Session, price_id: str, cents: int) -> StripePrice:
-    """Une vraie ligne `stripe_price`, comme les webhooks en écrivent.
+    """A real `stripe_price` row, as the webhooks write them.
 
-    Remplace un `MagicMock` sur `stripe.Price.retrieve` : l'affichage lit
-    désormais le miroir local, et un mock ne prouverait plus rien du
-    chemin réel. Une ligne vaut mieux qu'un double — elle a les mêmes
-    contraintes de type et de nullité que la production.
+    Replaces a `MagicMock` on `stripe.Price.retrieve`: display now reads
+    the local mirror, and a mock would no longer prove anything about
+    the real path. A row beats a double — it carries the same type and
+    nullability constraints as production.
     """
     price = StripePrice(
         id=price_id,
@@ -59,7 +59,7 @@ def _mirror_price(db_session: Session, price_id: str, cents: int) -> StripePrice
 
 
 def _no_network(*_args, **_kwargs):
-    """Le rendu ne doit appeler Stripe pour aucun prix affiché."""
+    """No displayed price may trigger a Stripe call during render."""
     msg = "stripe.Price.retrieve appelé pendant un rendu — cf. lessons-learned"
     raise AssertionError(msg)
 
@@ -153,17 +153,18 @@ def test_reader_sees_truncated_body_with_overlay(
 def test_reader_sees_consultation_price_from_the_local_mirror(
     app: Flask, db_session: Session, reader: User, article: ArticlePost
 ):
-    """Le prix affiché vient du miroir `stripe_price`, sans appel réseau.
+    """The displayed price comes from the `stripe_price` mirror, with no
+    network call.
 
-    Ce test affirmait l'inverse — « reads the consultation price live
-    from Stripe (with a 1-hour cache) instead of the DB mirror » — et
-    pinnait donc le défaut que `notes/lessons-learned.md` interdit
-    nommément : « toute fenêtre de cache entre le prix qui fait foi chez
-    Stripe et celui qu'on affiche est un risque que le membre paie autre
-    chose que ce qu'il a lu ». Le cache d'une heure était cette fenêtre.
+    This test used to assert the opposite — "reads the consultation
+    price live from Stripe (with a 1-hour cache) instead of the DB
+    mirror" — and so pinned the very defect `notes/lessons-learned.md`
+    forbids by name: "any cache window between Stripe's authoritative
+    price and the displayed one is a risk that the user pays an amount
+    other than the one shown". The one-hour cache was that window.
 
-    `stripe.Price.retrieve` lève désormais si on l'appelle : c'est
-    l'assertion qui compte, et elle porte sur le chemin réel.
+    `stripe.Price.retrieve` now raises if called: that is the assertion
+    that counts, and it bears on the real path.
     """
     _mirror_price(db_session, "price_consultation_test", 350)
     app.config["STRIPE_LIVE_ENABLED"] = True
@@ -182,13 +183,13 @@ def test_reader_sees_consultation_price_from_the_local_mirror(
             assert "Droit de consultation" in body
             assert "3,50 €" in body
 
-            # Et le prix suit le miroir : pas de fenêtre de cache.
+            # And the price follows the mirror: no cache window.
             db_session.get(
                 StripePrice, "price_consultation_test"
             ).unit_amount_cents = 990
             db_session.flush()
             body2 = client.get(f"/wire/{article.id}").data.decode()
-            assert "9,90 €" in body2, "le prix affiché est resté sur une valeur périmée"
+            assert "9,90 €" in body2, "the displayed price stayed on a stale value"
         # The deprecated config key must no longer appear in the markup.
         assert "STRIPE_PRICE_CONSULTATION" not in body
     finally:

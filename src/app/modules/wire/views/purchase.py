@@ -12,12 +12,12 @@ This MVP only persists the transaction. The "effect" of each purchase
 (access unlock, PDF generation, licence creation) is left to downstream
 specs.
 
-Aucune vue d'ici ne teste `user.is_anonymous` : le `before_request` du
-blueprint (`app/modules/wire/__init__.py`) lève `Unauthorized` avant
-d'atteindre la moindre vue de `/wire/*`. Quatre gardes le refaisaient,
-chacune commentée comme indispensable — « sans cela un visiteur anonyme
-verrait le prix Stripe » — et toutes injoignables (audit du
-2026-09-02). `g.user` est donc un membre identifié dans tout ce module.
+No view here tests `user.is_anonymous`: the blueprint's
+`before_request` (`app/modules/wire/__init__.py`) raises `Unauthorized`
+before any `/wire/*` view is reached. Four guards repeated it, each
+commented as indispensable — "without this an anonymous visitor would
+see the Stripe price" — and all unreachable (audit 2026-09-02). `g.user`
+is therefore a signed-in member throughout this module.
 """
 
 from __future__ import annotations
@@ -401,10 +401,10 @@ def buy_gift(post_id: str):
         seen.add(uid)
         candidate_ids.append(uid)
 
-    # Le même analyseur que le partage d'article : celui d'ici ne
-    # coupait pas sur l'espace et ne validait rien, si bien qu'une ligne
-    # d'adresses séparées par des espaces devenait une seule chaîne
-    # invalide — silencieusement, sur un chemin facturé.
+    # The same parser as article sharing: the one here did not split
+    # on spaces and validated nothing, so a line of space-separated
+    # addresses became a single invalid string — silently, on a billed
+    # path.
     emails = parse_recipient_emails(
         "\n".join(request.form.getlist("beneficiary_email"))
     )
@@ -566,11 +566,11 @@ def purchase_cancel(purchase_id: int):
 
 
 def _amount_ht_eur_for(product: PurchaseProduct, post: Post) -> float | None:
-    """Le prix HT à afficher pour ce produit sur cet article.
+    """The pre-tax price to display for this product on this article.
 
-    `_price_id_for` interroge le catalogue Stripe : il reste derrière le
-    drapeau, comme avant. Seule la **lecture du montant** a changé de
-    source — le miroir local au lieu d'un `Price.retrieve` par rendu.
+    `_price_id_for` queries the Stripe catalogue: it stays behind the
+    flag, as before. Only the **amount lookup** changed source — the
+    local mirror instead of one `Price.retrieve` per render.
     """
     if not current_app.config.get("STRIPE_LIVE_ENABLED"):
         return None
@@ -578,17 +578,17 @@ def _amount_ht_eur_for(product: PurchaseProduct, post: Post) -> float | None:
 
 
 def _amount_ht_eur(price_id: str | None) -> float | None:
-    """Le prix HT affiché, lu dans le miroir local.
+    """The displayed pre-tax price, read from the local mirror.
 
-    Jamais `stripe.Price.retrieve` : `notes/lessons-learned.md` en fait
-    une règle — « toute fenêtre de cache entre le prix qui fait foi chez
-    Stripe et celui qu'on affiche est un risque que le membre paie autre
-    chose que ce qu'il a lu ». Le miroir `stripe_price` est alimenté par
-    les webhooks `price.created/updated/deleted`, et `flask stripe
-    sync-prices` le rattrape.
+    Never `stripe.Price.retrieve`: `notes/lessons-learned.md` makes it a
+    rule — "any cache window between Stripe's authoritative price and
+    the displayed one is a risk that the user pays an amount other than
+    the one shown". The `stripe_price` mirror is fed by the
+    `price.created/updated/deleted` webhooks, and `flask stripe
+    sync-prices` catches it up.
 
-    `None` quand le prix est inconnu ou désactivé : les gabarits
-    affichent alors « prix indisponible » plutôt qu'un montant faux.
+    `None` when the price is unknown or inactive: the templates then
+    show "price unavailable" rather than a wrong amount.
     """
     if not price_id:
         return None
@@ -705,11 +705,11 @@ def _get_purchase_or_404(purchase_id: int) -> ArticlePurchase:
     if purchase is None:
         raise NotFound
     user = cast(User, g.user)
-    # `and not user.is_anonymous` exemptait l'anonyme du contrôle de
-    # propriété au lieu de le refuser — une IDOR sur des identifiants
-    # entiers séquentiels, que seul le `before_request` du blueprint
-    # rendait inatteignable. La condition dit maintenant ce qu'elle veut
-    # dire, et ne dépend plus de lui.
+    # `and not user.is_anonymous` exempted anonymous callers from the
+    # ownership check instead of refusing them — an IDOR on sequential
+    # integer ids, kept out of reach only by the blueprint's
+    # `before_request`. The condition now says what it means, and no
+    # longer depends on it.
     if purchase.owner_id != user.id:
         raise Forbidden
     return purchase

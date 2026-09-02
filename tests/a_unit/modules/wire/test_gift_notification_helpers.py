@@ -10,7 +10,7 @@ without touching the database, the mailer or `NotificationService`,
 following the project rule « Don't use mocks. Prefer stubs. Verify
 state, not interaction. » :
 
-* `article_title` — le titre, ou un marqueur visible.
+* `article_title` — the title, or a visible marker.
 * `_format_gift_message` — interpolated French sentence.
 * `_relative_article_url` — base62-encoded fallback path.
 * `_article_url` — exercised inside `app.test_request_context()` to
@@ -78,22 +78,21 @@ class _User:
 
 
 class TestArticleTitle:
-    """Le titre, ou un marqueur visible.
+    """The title, or a visible marker.
 
-    Ces cas éprouvaient une échelle `title` → `titre` → marqueur, sur un
-    `SimpleNamespace` qui portait les deux attributs. La production n'en
-    passe jamais qu'un seul type : `purchase.post`, donc un `Post`, qui a
-    `title` et n'a pas `titre` — le second barreau était injoignable, et
-    la doublure certifiait une forme qui n'existe pas (audit du
-    2026-09-02).
+    These cases exercised a `title` → `titre` → marker ladder on a
+    `SimpleNamespace` carrying both attributes. Production only ever
+    passes one type: `purchase.post`, hence a `Post`, which has `title`
+    and no `titre` — the second rung was unreachable, and the double
+    certified a shape that does not exist (audit 2026-09-02).
     """
 
-    def test_rend_le_titre(self) -> None:
+    def test_returns_the_title(self) -> None:
         assert article_title(Post(title="Le Vrai Titre")) == "Le Vrai Titre"
 
-    def test_marqueur_quand_le_titre_est_vide(self) -> None:
-        """Un article publié sans titre est une anomalie de données ;
-        elle ne doit pas vider la notification de son sujet."""
+    def test_marker_when_the_title_is_empty(self) -> None:
+        """An article published without a title is a data anomaly; it
+        must not strip the notification of its subject."""
         assert article_title(Post(title="")) == MISSING
 
 

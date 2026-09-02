@@ -103,8 +103,8 @@ class StubEvent:
         self.view_count = view_count
         self.title = "Test Event"
         self.summary = "Test Summary"
-        # « FAMILLE / Détail », et sa famille normalisée : c'est ce
-        # qu'`event_receiver` écrit, et la puce de la carte s'en sert.
+        # "FAMILY / Detail", and its normalised family: that is what
+        # `event_receiver` writes, and what the card's chip uses.
         self.genre = genre
         self.category = category
 
@@ -139,21 +139,21 @@ class TestEventCardVM:
 
         assert vm.organisation_image_url == "/static/img/logo-page-non-officielle.png"
 
-    def test_la_puce_affiche_la_famille_du_genre(self):
-        """La famille, avec la casse de l'ontologie.
+    def test_the_chip_shows_the_genre_family(self):
+        """The family, with the taxonomy's own case.
 
-        Remplace deux tests de `type_id`/`type_label` : ils lisaient un
-        `Meta` que seul le stub fabriquait. `Event` avait cinq
-        sous-classes qui en portaient un ; l'aplatissement en un seul
-        `EventPost` les a emportées, et `get_meta_attr` rendait `""` en
-        production depuis. La notion est passée dans l'ontologie.
+        Replaces two `type_id`/`type_label` tests: they read a `Meta`
+        that only the stub fabricated. `Event` had five subclasses
+        carrying one; flattening them into a single `EventPost` took
+        them away, and `get_meta_attr` has returned `""` in production
+        ever since. The notion moved into the taxonomy.
         """
         vm = EventCardVM(StubEvent(genre="Business / Salon professionnel"))
 
         assert vm.genre_family == "Business"
 
-    def test_a_defaut_de_genre_la_categorie_sert_de_libelle(self):
-        """Les lignes anciennes n'ont que `category`, en minuscules."""
+    def test_without_a_genre_the_category_serves_as_label(self):
+        """Legacy rows only have `category`, in lower case."""
         vm = EventCardVM(StubEvent(genre="", category="press"))
 
         assert vm.genre_family == "press"
@@ -188,15 +188,14 @@ class TestEventCardVM:
         assert vm.title == "Test Event"
         assert vm.summary == "Test Summary"
 
-    def test_sans_genre_ni_categorie_la_puce_disparait(self):
-        """Une famille vide n'affiche pas une puce vide.
+    def test_with_neither_genre_nor_category_the_chip_disappears(self):
+        """An empty family must not render an empty chip.
 
-        Remplaçait un test des défauts de `get_meta_attr` sur un `Meta`
-        vide — une forme que la production n'avait pas. La question qui
-        se pose vraiment est celle-ci : `.chip` est un `inline-flex` avec
-        un padding, donc une valeur vide s'y voit. Le gabarit ne rend la
-        puce que si la valeur existe ; encore faut-il qu'elle soit
-        franchement vide.
+        This replaced a test of `get_meta_attr` defaults on an empty
+        `Meta` — a shape production did not have. The question that
+        actually arises is this one: `.chip` is an `inline-flex` with
+        padding, so an empty value shows. The template renders the chip
+        only when the value exists; it still has to be plainly empty.
         """
         vm = EventCardVM(StubEvent(genre="", category=""))
 

@@ -2,19 +2,18 @@
 #
 # SPDX-License-Identifier: AGPL-3.0-only
 
-"""La mise en page de la carte d'événement — audit du 2026-09-02.
+"""Event-card layout — audit 2026-09-02.
 
-Deux défauts que « la page rend 200 » ne voit pas, et qui se lisent
-tous les deux dans le DOM :
+Two defects that "the page returns 200" cannot see, both readable in the
+DOM:
 
-- un bloc mort mis en commentaire avait emporté un `</div>` **vivant**.
-  Le navigateur refermait au `</li>`, si bien que le résumé, les puces,
-  l'auteur et le pied de carte se retrouvaient imbriqués dans l'entête,
-  décalés de 16 px vers la droite — la date et le titre restaient seuls
-  à la bonne marge ;
-- `.chip` est un `inline-flex` avec un padding : une valeur vide n'y
-  affichait pas « rien » mais une pastille de couleur nue, et
-  `type_label` vaut `""` par défaut.
+- a dead block left commented out had swallowed a **live** `</div>`. The
+  browser closed at `</li>`, so the summary, the chips, the author and
+  the card footer ended up nested inside the header, 16px too far right
+  — the date and the title alone stayed at the correct margin;
+- `.chip` is an `inline-flex` with padding: an empty value did not
+  render "nothing" there but a bare coloured pill, and `type_label`
+  defaults to `""`.
 """
 
 from __future__ import annotations
@@ -33,7 +32,7 @@ from tests.c_e2e.conftest import make_authenticated_client
 
 @pytest.fixture
 def card(app, db_session):
-    """La carte d'un événement public, telle que /events/ la rend."""
+    """A public event's card, as /events/ renders it."""
     role = db_session.query(Role).filter_by(name=RoleEnum.PRESS_MEDIA.name).first()
     if role is None:
         role = Role(
@@ -67,8 +66,8 @@ def card(app, db_session):
         start_datetime=start,
         end_datetime=start.shift(hours=1),
         category="press",
-        # `type_label` n'est pas renseigné : c'est le cas courant, et
-        # celui qui produisait l'ovale vert vide.
+        # `type_label` is left unset: that is the common case, and the
+        # one that produced the empty green oval.
         sector="Industrie / Télécommunications & internet",
     )
     db_session.add(event)
@@ -77,57 +76,57 @@ def card(app, db_session):
     client = make_authenticated_client(app, user)
     html = client.get("/events/", follow_redirects=True).data.decode()
     li = BeautifulSoup(html, "html.parser").select_one("li.card")
-    assert li is not None, "aucune carte d'événement sur /events/"
+    assert li is not None, "no event card on /events/"
     return li
 
 
-def test_les_sections_sont_soeurs_et_non_imbriquees(card) -> None:
-    """Le vrai symptôme : un `</div>` emporté par un commentaire.
+def test_the_sections_are_siblings_not_nested(card) -> None:
+    """The real symptom: a `</div>` carried off by a comment.
 
-    Les puces, l'auteur et le pied appartenaient à l'entête et non à la
-    carte. On l'affirme sur la structure et non sur des pixels : c'est
-    l'imbrication qui décale, la marge n'en est que la conséquence.
+    The chips, the author and the footer belonged to the header rather
+    than to the card. We assert on structure and not on pixels: nesting
+    is what shifts them, the margin is only its consequence.
     """
     header = card.select_one("div.pt-4")
     assert header is not None
 
-    for selector, quoi in (
-        (".chip", "les puces"),
-        ("hr", "les filets"),
-        ("button[hx-vals]", "le bouton J'aime"),
+    for selector, what in (
+        (".chip", "the chips"),
+        ("hr", "the rules"),
+        ("button[hx-vals]", "the like button"),
     ):
         found = card.select(selector)
-        assert found, f"{quoi} : absent de la carte"
+        assert found, f"{what}: missing from the card"
         for element in found:
             assert element not in header.descendants, (
-                f"{quoi} : imbriqué dans l'entête au lieu d'être frère — "
-                "un `</div>` manque, et tout ce qui suit le titre se "
-                "décale d'un cran vers la droite"
+                f"{what}: nested in the header instead of being a sibling — "
+                "a `</div>` is missing, and everything after the title "
+                "shifts one notch to the right"
             )
 
 
-def test_aucune_puce_vide(card) -> None:
-    """Une puce sans texte est une pastille de couleur nue."""
-    vides = [
+def test_no_empty_chip(card) -> None:
+    """A chip with no text is a bare coloured pill."""
+    empty = [
         str(chip) for chip in card.select(".chip") if not chip.get_text(strip=True)
     ]
-    assert not vides, f"puces vides — `.chip` a un padding, elles se voient : {vides}"
+    assert not empty, f"empty chips — `.chip` has padding, they show: {empty}"
 
 
-def test_les_puces_attendues_sont_la(card) -> None:
-    """La garde ne doit pas non plus manger les puces renseignées."""
+def test_the_expected_chips_are_there(card) -> None:
+    """The guard must not swallow the chips that do have a value."""
     labels = {chip.get_text(strip=True) for chip in card.select(".chip")}
 
     assert "press" in labels
-    # Le secteur est la feuille de « FAMILLE / Détail », sans l'espace
-    # que laissait `split("/")[-1]`.
+    # The sector is the leaf of "FAMILY / Detail", without the space
+    # `split("/")[-1]` used to leave behind.
     assert "Télécommunications & internet" in labels
     assert "Pour : Fake-Agence Capri RP" in labels
 
 
-def test_la_rangee_de_puces_a_une_gouttiere(card) -> None:
-    """L'espacement venait des blancs du gabarit, qui disparaissent au
-    retour à la ligne : deux rangées de puces se touchaient."""
+def test_the_chip_row_has_a_gutter(card) -> None:
+    """The spacing came from template whitespace, which disappears on
+    wrap: two rows of chips touched."""
     row = card.select_one(".chip").parent
 
     assert "flex" in row["class"]

@@ -99,10 +99,10 @@ def parse_pays_zip_ville(detail: str | None) -> Localisation:
 # recherche de position ; `substr`, `length`, `ltrim`, `trim`, `like` et
 # `||` sont communs.
 #
-# Ces expressions doivent rendre, sur une même chaîne, exactement ce que
-# rend `parse_pays_zip_ville` : `tests/b_integration/lib/test_geoloc_sql`
-# le vérifie sur les deux bases, et les entrées mal formées y comptent
-# autant que les autres — c'est là que les deux moitiés divergent.
+# On any given string these expressions must return exactly what
+# `parse_pays_zip_ville` returns: `tests/b_integration/lib/test_geoloc_sql`
+# checks that on both databases, and malformed input counts as much as
+# the rest — that is where the two halves drift apart.
 
 
 class StrPosition(FunctionElement):
@@ -131,14 +131,14 @@ def _str_position_default(element, compiler, **kw) -> str:
 def _after_separator(column):
     """Ce qui suit « / » — « 75015 Paris » — ou `''` s'il n'y en a pas.
 
-    Le séparateur est `SEPARATOR`, celui-là même que lit Python : le
-    chercher avec ses espaces (« FRA / 75015 ») laissait « FRA/75015 »
-    sans localisation côté SQL alors que Python la découpait. Le `ltrim`
-    qui suit absorbe les espaces, quel qu'en soit le nombre.
+    The separator is `SEPARATOR`, the very one Python reads: looking
+    for it with its spaces ("FRA / 75015") left "FRA/75015" with no
+    location on the SQL side while Python split it fine. The `ltrim`
+    that follows absorbs the spaces, however many there are.
 
-    `coalesce` ici et nulle part ailleurs : c'est le point d'entrée
-    unique des trois expressions, et Python rend des parties vides sur
-    une entrée absente plutôt que de propager `None`.
+    `coalesce` here and nowhere else: this is the single entry point of
+    all three expressions, and Python returns empty parts on missing
+    input rather than propagating `None`.
     """
     detail = func.coalesce(column, "")
     start = StrPosition(detail, SEPARATOR)
@@ -169,10 +169,9 @@ def sql_ville(column):
     référence ; l'ancien `split_part(..., ' ', 4)` n'en gardait que la
     première moitié.
 
-    `trim` final, comme le `.strip()` de `parse_pays_zip_ville` : sans
-    lui, « 75015  Paris » rendait « Paris » en Python et «  Paris » en
-    SQL, et l'option proposée par un filtre ne retrouvait plus la ligne
-    dont elle venait.
+    A closing `trim`, like `parse_pays_zip_ville`'s `.strip()`: without
+    it, "75015  Paris" gave "Paris" in Python and " Paris" in SQL, and
+    the option a filter offered no longer found the row it came from.
     """
     reste = _after_separator(column)
     cut = StrPosition(reste + " ", " ")
@@ -180,11 +179,11 @@ def sql_ville(column):
 
 
 def _without_stray_suffix(text):
-    """`str.removesuffix`, et non `rtrim`.
+    """`str.removesuffix`, and not `rtrim`.
 
-    `rtrim(x, '"}')` retire *les caractères* de l'ensemble, un à un :
-    sur « Paris} » il rendait « Paris » là où Python garde « Paris} ».
-    Seul le suffixe entier compte.
+    `rtrim(x, '"}')` strips *the characters* of the set, one by one: on
+    "Paris}" it returned "Paris" where Python keeps "Paris}". Only the
+    whole suffix counts.
     """
     return case(
         (

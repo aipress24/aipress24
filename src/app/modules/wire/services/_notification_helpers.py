@@ -2,10 +2,10 @@
 #
 # SPDX-License-Identifier: AGPL-3.0-only
 
-"""Ce que les notifications d'achat ont en commun.
+"""What the purchase notifications have in common.
 
-`_extract_article_title` existait à l'identique dans
-`gift_notification` et `cession_notification` (audit du 2026-09-02).
+`_extract_article_title` existed identically in `gift_notification` and
+`cession_notification` (audit 2026-09-02).
 """
 
 from __future__ import annotations
@@ -15,16 +15,16 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from app.modules.wire.models import Post
 
-#: Ce qui s'affiche quand la donnée manque. Le tiret cadratin des deux
-#: notifieurs, à l'identique : ce n'est pas le moment de changer ce que
-#: lisent les membres.
+#: What is displayed when the data is missing. The em dash both
+#: notifiers used, unchanged: this is not the moment to alter what
+#: members read.
 MISSING_LABEL = "—"
 
 
 def article_title(post: Post) -> str:
-    """Le titre de l'article, ou un marqueur visible.
+    """The article's title, or a visible marker.
 
-    Un `Post` publié sans titre est une anomalie de données ; elle ne
-    doit pas vider une notification de son sujet.
+    A `Post` published without a title is a data anomaly; it must not
+    strip a notification of its subject.
     """
     return post.title or MISSING_LABEL
