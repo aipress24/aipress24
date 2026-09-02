@@ -73,8 +73,8 @@ class TailleOrgaFilter(Filter):
         rather than the narrower `list[str]` these codes really are:
         `list` is invariant, so narrowing it would break substitution.
 
-        `.get` rather than `state[...]`: the members directory indexed
-        directly and would raise on a state shorter than its option list.
+        `.get` rather than `state[...]`: `state` is posted by the form
+        and can be shorter than `options`, so indexing it would raise.
         """
         codes: list[str | FilterOption] = []
         for i in range(len(state)):
