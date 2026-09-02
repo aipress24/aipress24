@@ -4,7 +4,7 @@
 
 """SQLAlchemy event hooks for the Wire module.
 
-- `_snapshot_rights_policy_on_publish`: freezes the emitter BW's
+- `_snapshot_rights_policy`: freezes the emitter BW's
   cession-de-droits policy onto the Post the first time it reaches
   `PublicationStatus.PUBLIC`. Non-retroactive — subsequent updates
   never overwrite the snapshot.
@@ -46,13 +46,12 @@ def _freeze_policy(target: Post) -> None:
     target.rights_sales_snapshot = snapshot_policy_for(bw)
 
 
-@sa.event.listens_for(Post, "before_update", propagate=True)
-def _snapshot_rights_policy_on_update(_mapper, _connection, target: Post) -> None:
-    if _status_transitions_to_public(target):
-        _freeze_policy(target)
-
-
+# One listener for both events: `_status_transitions_to_public` already
+# answers the insert case ("on insert, value is in `.added` without
+# prior recorded history; decide based on the current value"), so the
+# insert listener was re-asking the same question a second way.
 @sa.event.listens_for(Post, "before_insert", propagate=True)
-def _snapshot_rights_policy_on_insert(_mapper, _connection, target: Post) -> None:
-    if target.status == PublicationStatus.PUBLIC:
+@sa.event.listens_for(Post, "before_update", propagate=True)
+def _snapshot_rights_policy(_mapper, _connection, target: Post) -> None:
+    if _status_transitions_to_public(target):
         _freeze_policy(target)

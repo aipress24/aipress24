@@ -13,36 +13,23 @@ from app.modules.wip.models.comroom import Communique
 from app.modules.wire.models import ArticlePost, PressReleasePost
 
 
-@url_for.register
-def _url_for_article(
-    item: ArticlePost, _ns: str = "wire", _action: str = "", **kw: str
-) -> str:
-    name = f"{_ns}.item"
+# One handler for both: the two were byte-identical apart from the
+# annotation, and `singledispatch` registers a function under as many
+# types as you stack on it.
+#
+# The `_action` parameter is gone with them. It routed to
+# `.article_action`, an endpoint that exists nowhere in the repo, and
+# nothing could reach it anyway: `Table.url_for` accepts `_action` and
+# drops it rather than forwarding.
+@url_for.register(ArticlePost)
+@url_for.register(PressReleasePost)
+def _url_for_post(item, _ns: str = "wire", **kw: str) -> str:
     kw["id"] = base62.encode(item.id)
-
-    if _action:
-        return url_for(".article_action", **kw)
-
-    return url_for(name, **kw)
+    return url_for(f"{_ns}.item", **kw)
 
 
 @url_for.register
-def _url_for_press_release(
-    item: PressReleasePost, _ns: str = "wire", _action: str = "", **kw: str
-) -> str:
-    name = f"{_ns}.item"
-    kw["id"] = base62.encode(item.id)
-
-    if _action:
-        return url_for(".article_action", **kw)
-
-    return url_for(name, **kw)
-
-
-@url_for.register
-def _url_for_communique(
-    item: Communique, _ns: str = "wire", _action: str = "", **kw: str
-) -> str:
+def _url_for_communique(item: Communique, _ns: str = "wire", **kw: str) -> str:
     stmt = sa.select(PressReleasePost).where(PressReleasePost.newsroom_id == item.id)
     post = db.session.scalar(stmt)
 

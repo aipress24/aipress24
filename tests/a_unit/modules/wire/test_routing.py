@@ -70,14 +70,6 @@ class TestArticlePostRouting:
         assert isinstance(result, str)
         assert result.startswith("/wire/")
 
-    def test_url_for_article_with_action(
-        self, app: Flask, app_context, article_post: ArticlePost
-    ) -> None:
-        """Test _url_for_article with _action parameter fails when route doesn't exist."""
-        # The article_action route doesn't exist, so this should raise BuildError
-        with pytest.raises(BuildError):
-            url_for(article_post, _action="edit")
-
     def test_url_for_article_with_namespace(
         self, app: Flask, app_context, article_post: ArticlePost
     ) -> None:
@@ -110,14 +102,6 @@ class TestPressReleasePostRouting:
         assert result is not None
         assert isinstance(result, str)
         assert result.startswith("/wire/")
-
-    def test_url_for_press_release_with_action(
-        self, app: Flask, app_context, press_release_post: PressReleasePost
-    ) -> None:
-        """Test _url_for_communique with _action parameter fails when route doesn't exist."""
-        # The article_action route doesn't exist, so this should raise BuildError
-        with pytest.raises(BuildError):
-            url_for(press_release_post, _action="delete")
 
     def test_url_for_press_release_with_namespace(
         self, app: Flask, app_context, press_release_post: PressReleasePost

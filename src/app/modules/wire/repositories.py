@@ -19,17 +19,9 @@ class ArticlePostRepository(PublishableRepository[ArticlePost]):
 
     model_type = ArticlePost
 
-    def get_by_newsroom_id(self, newsroom_id: int) -> ArticlePost | None:
-        """Get an ArticlePost by its corresponding newsroom article ID."""
-        return self.get_one_or_none(ArticlePost.newsroom_id == newsroom_id)
-
 
 @service
 class PressReleasePostRepository(PublishableRepository[PressReleasePost]):
     """Repository for PressReleasePost model."""
 
     model_type = PressReleasePost
-
-    def get_by_newsroom_id(self, newsroom_id: int) -> PressReleasePost | None:
-        """Get a PressReleasePost by its corresponding newsroom communique ID."""
-        return self.get_one_or_none(PressReleasePost.newsroom_id == newsroom_id)

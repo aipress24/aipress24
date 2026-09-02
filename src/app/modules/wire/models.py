@@ -128,10 +128,6 @@ class Post(NewsMetadataMixin, BaseContent, LifeCycleMixin):
             foreign_keys=[cls.media_id],  # type: ignore[list-item]
         )
 
-    @property
-    def is_news_agency(self) -> bool:
-        return False
-
 
 class ArticlePost(Post, Taggable):
     __mapper_args__: ClassVar[dict] = {

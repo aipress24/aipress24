@@ -55,8 +55,6 @@ from app.services.stripe.product import (
 from app.services.stripe.utils import load_stripe_api_key
 from app.settings.constants import ARTICLE_CONSULTATION_DURATION
 
-_PRODUCT_TO_ENV: dict[PurchaseProduct, str] = {}
-
 # Upper bound on the recipient list of one CdAO (Consultation d'article
 # offerte) purchase. Generous enough for a small team / classroom, low
 # enough to block trivial DoS via a 10k-entry POST that would otherwise
@@ -65,6 +63,12 @@ MAX_GIFT_BENEFICIARIES = 50
 
 # Taxonomy filters used to pick the right Stripe product for each
 # one-off purchase type. See "notes/specs/taxo_produits.md".
+#
+# Spelled out per product rather than factored into
+# `{domain} + {family, offer}`: this table is a **contract**, pinned
+# value by value by `test_purchase_view_extras.py` and compared against
+# `cli/stripe.py`'s copy by a drift guard. A flat table is what you
+# check against the Stripe dashboard.
 _PRODUCT_TAXONOMY_FILTERS: dict[PurchaseProduct, dict[str, str]] = {
     PurchaseProduct.JUSTIFICATIF: {
         "domain": "certificate",
@@ -94,43 +98,20 @@ _PRODUCT_TAXONOMY_FILTERS: dict[PurchaseProduct, dict[str, str]] = {
 }
 
 # French genre labels (from the `news-genres` ontology) to taxonomy
-# genre values. The mapping is product-dependent because the taxonomy
-# uses `feature` for license/certificate products but `dossier` for
-# consultation products for the same French "Dossier" genre.
-_FRENCH_TO_TAXO_GENRE: dict[PurchaseProduct, dict[str, str]] = {
-    PurchaseProduct.JUSTIFICATIF: {
-        "actualite": "news",
-        "dossier": "feature",
-        "enquete": "survey",
-        "exclusivite": "exclu",
-        "interview": "itw",
-        "reportage": "report",
-    },
-    PurchaseProduct.CONSULTATION: {
-        "actualite": "news",
-        "dossier": "dossier",
-        "enquete": "survey",
-        "exclusivite": "exclu",
-        "interview": "itw",
-        "reportage": "report",
-    },
-    PurchaseProduct.CONSULTATION_GIFT: {
-        "actualite": "news",
-        "dossier": "dossier",
-        "enquete": "survey",
-        "exclusivite": "exclu",
-        "interview": "itw",
-        "reportage": "report",
-    },
-    PurchaseProduct.CESSION: {
-        "actualite": "news",
-        "dossier": "feature",
-        "enquete": "survey",
-        "exclusivite": "exclu",
-        "interview": "itw",
-        "reportage": "report",
-    },
+# genre values. Identical for every product...
+_FRENCH_TO_TAXO_GENRE = {
+    "actualite": "news",
+    "enquete": "survey",
+    "exclusivite": "exclu",
+    "interview": "itw",
+    "reportage": "report",
 }
+
+# ...except "Dossier", the one label whose taxonomy value depends on the
+# product: `feature` for the licence and certificate products, `dossier`
+# for the consultation ones. Four near-identical maps used to say this
+# by repeating the five stable pairs four times over.
+_DOSSIER_IS_FEATURE = {PurchaseProduct.JUSTIFICATIF, PurchaseProduct.CESSION}
 
 # TVA rates for modal preview
 VAT_RATES_BY_PRODUCT: dict[PurchaseProduct, float] = {
@@ -617,7 +598,9 @@ def _post_genre_to_taxo(product: PurchaseProduct, genre: str) -> str | None:
     if genre in _TAXO_GENRE_VALUES:
         return genre
     normalized = _normalize_string(genre)
-    return _FRENCH_TO_TAXO_GENRE.get(product, {}).get(normalized)
+    if normalized == "dossier":
+        return "feature" if product in _DOSSIER_IS_FEATURE else "dossier"
+    return _FRENCH_TO_TAXO_GENRE.get(normalized)
 
 
 def _is_product_matching_taxonomy(
