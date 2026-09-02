@@ -9,23 +9,17 @@ from __future__ import annotations
 from . import (
     group,
     group_new,
-    groups,
     home,
+    lists,
     member,
-    members,
     organisation,
-    organisations,
-    parrainages,
 )
 
 __all__ = [
     "group",
     "group_new",
-    "groups",
     "home",
+    "lists",
     "member",
-    "members",
     "organisation",
-    "organisations",
-    "parrainages",
 ]
