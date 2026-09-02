@@ -41,7 +41,20 @@ def context(  # noqa
 ) -> Generator[BrowserContext, None, None]:
     pages: list[Page] = []
     context = browser.new_context(**browser_context_args)
-    context.on("page", pages.append)
+
+    def _remember(page: Page) -> None:
+        """Retenir chaque page ouverte, pour les traces et les vidéos.
+
+        Une fonction Python, et non `pages.append` : depuis Playwright
+        1.6x, `wrap_handler` pose un attribut sur le handler pour le
+        retrouver au `remove_listener`, et une méthode native de `list`
+        refuse l'affectation. Le montage de la fixture échouait sur
+        « 'builtin_function_or_method' object has no attribute
+        '_pw_impl_instance_' », donc tout `tests-e2e/`.
+        """
+        pages.append(page)
+
+    context.on("page", _remember)
 
     tracing_option = pytestconfig.getoption("--tracing")
     capture_trace = tracing_option in ["on", "retain-on-failure"]
