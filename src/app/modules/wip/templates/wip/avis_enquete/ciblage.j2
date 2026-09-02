@@ -1,46 +1,46 @@
 {% extends "wip/layout/_base.j2" %}
 {% from "wip/avis_enquete/_step_nav.j2" import step_nav %}
 
-  {% macro render_selector(selector, model) %}
-  <div class="aui-field-group mb-4">
-      <label for="{{ selector.id }}" class="font-bold block mb-1">
-          {{ selector.label }}
-      </label>
+{% macro render_selector(selector, model) %}
+    <div class="aui-field-group mb-4">
+        <label for="{{ selector.id }}" class="font-bold block mb-1">
+            {{ selector.label }}
+        </label>
 
-      <select
-          id="{{ selector.id }}"
-          name="{{ selector.id }}"
-          class="tom-select-it"
-          multiple
-          placeholder="Choisir..."
-      >
-          {% for opt in selector.options %}
-              <option value="{{ opt.id }}" {{ opt.selected }}>
-                  {{ opt.label }}
-              </option>
-          {% endfor %}
-      </select>
-  </div>
-  {% endmacro %}
+        <select
+            id="{{ selector.id }}"
+            name="{{ selector.id }}"
+            class="tom-select-it"
+            multiple
+            placeholder="Choisir..."
+        >
+            {% for opt in selector.options %}
+                <option value="{{ opt.id }}" {{ opt.selected }}>
+                    {{ opt.label }}
+                </option>
+            {% endfor %}
+        </select>
+    </div>
+{% endmacro %}
 
 {% block body_content %}
-  <div id="main">
-    {{ step_nav(model, "cibler") }}
-    <script src="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/js/tom-select.complete.min.js"></script>
+    <div id="main">
+        {{ step_nav(model, "cibler") }}
+        <script src="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/js/tom-select.complete.min.js"></script>
 
-    <h2 class="aui-title">Cibler les personnes à contacter</h2>
+        <h2 class="aui-title mb-3">Cibler les personnes à contacter</h2>
 
     {# Ticket #0321 — la phrase d'accroche qu'Erick demande, au mot
        près. Elle dit trois choses : qu'on peut combiner les filtres,
        qu'on a le droit de tâtonner, et que le journalisme est traité
        à part. C'est le mélange des deux univers qui perdait les
        utilisateurs. #}
-    <p class="text-sm text-gray-600 mb-6">
-      Pour trouver vos contacts, utilisez un ou plusieurs filtres ci-dessous.
-      Faites des essais pour obtenir la liste la plus pertinente. Les
-      recherches sur le journalisme, la presse et les médias sont traitées
-      à part.
-    </p>
+        <p class="text-sm text-gray-800 bg-blue-50 p-4 rounded-r mb-6 shadow-xs">
+            Pour trouver vos contacts, utilisez un ou plusieurs filtres ci-dessous.
+            Faites des essais pour obtenir la liste la plus pertinente. Les
+            recherches sur le journalisme, la presse et les médias sont traitées
+            à part.
+        </p>
 
     {# Bug #0150 / phase 2: sections thématiques pour ne plus noyer
        la rédactrice dans 17 dropdowns plats. Chaque section reste
@@ -50,155 +50,155 @@
        Ticket #0321: les blocs sont numérotés. Le numéro vient de
        `loop.index`, pas du titre, pour qu'il suive automatiquement
        l'ordre défini par `build_sections_from_selectors`. #}
-    <form id="search-form" hx-target="#main">
-      {% for section in form.sections %}
-        <section class="mb-6">
-          <h3 class="text-lg font-semibold text-gray-800 border-b border-gray-200 pb-1 mb-3">
-            <span class="text-pink-600">{{ loop.index }}</span> — {{ section.title }}
-          </h3>
-          <div class="grid lg:grid-cols-2 gap-4">
-            {% for selector in section.selectors %}
-              {% if selector.is_dual %}
-                {% include "wip/avis_enquete/_dual_selector.j2" %}
-              {% else %}
-                {{ render_selector(selector, model) }}
-              {% endif %}
+        <form id="search-form" hx-target="#main">
+            {% for section in form.sections %}
+                <section class="mb-6 bg-white p-5 rounded-lg border border-gray-200 shadow-xs">
+                    <h3 class="text-base md:text-lg font-semibold text-gray-800 border-b border-gray-200 pb-2 mb-4">
+                        <span class="text-pink-600">{{ loop.index }}</span> — {{ section.title }}
+                    </h3>
+                    <div class="grid lg:grid-cols-2 gap-4">
+                        {% for selector in section.selectors %}
+                            {% if selector.is_dual %}
+                                {% include "wip/avis_enquete/_dual_selector.j2" %}
+                            {% else %}
+                                {{ render_selector(selector, model) }}
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                </section>
             {% endfor %}
-          </div>
-        </section>
-      {% endfor %}
-    </form>
+        </form>
 
-    {% include "wip/avis_enquete/_experts.j2" %}
+        {% include "wip/avis_enquete/_experts.j2" %}
 
-    <script>
-      (function() {
+        <script>
+            (function() {
           // Re-fire the ciblage HTMX search whenever a selector changes.
           // Shared between the flat selectors and the dual cascade so
           // they behave identically — see bug #0150 phase 3.
-          function fireSearchUpdate() {
-              let values = htmx.values(htmx.find('#search-form'));
-              values.selector_change = 1;
-              const url = "{{ url_for('AvisEnqueteWipView:ciblage', id=model.id) }}";
-              htmx.ajax('GET', url, {
-                  target: '#main',
-                  select: '#main',
-                  values: values
-              });
-          }
+                function fireSearchUpdate() {
+                    let values = htmx.values(htmx.find('#search-form'));
+                    values.selector_change = 1;
+                    const url = "{{ url_for('AvisEnqueteWipView:ciblage', id=model.id) }}";
+                    htmx.ajax('GET', url, {
+                        target: '#main',
+                        select: '#main',
+                        values: values
+                    });
+                }
 
           // Tom-Select on flat selectors (single-level dropdowns).
-          function initFlatSelectors() {
-              document.querySelectorAll('.tom-select-it').forEach(el => {
-                  if (el.tomselect) return;
-                  new TomSelect(el, {
-                      maxOptions: null,
-                      maxItems: null,
-                      allowEmptyOption: true,
-                      plugins: ['remove_button'],
-                      onChange: fireSearchUpdate
-                  });
-              });
-          }
+                function initFlatSelectors() {
+                    document.querySelectorAll('.tom-select-it').forEach(el => {
+                        if (el.tomselect) return;
+                        new TomSelect(el, {
+                            maxOptions: null,
+                            maxItems: null,
+                            allowEmptyOption: true,
+                            plugins: ['remove_button'],
+                            onChange: fireSearchUpdate
+                        });
+                    });
+                }
 
           // Tom-Select on dual-cascade selectors (parent → child).
           // Payload is carried on data-* attributes (HTML-attribute-safe
           // JSON via Flask's tojson). One init per `.dual-select-cascade`
           // container — much easier to debug than 7 parallel Alpine
           // instances. Bug #0150 phase 3.
-          function initDualSelectors() {
-              document.querySelectorAll('.dual-select-cascade').forEach(container => {
-                  if (container.dataset.tomInitialized === '1') return;
-                  container.dataset.tomInitialized = '1';
+                function initDualSelectors() {
+                    document.querySelectorAll('.dual-select-cascade').forEach(container => {
+                        if (container.dataset.tomInitialized === '1') return;
+                        container.dataset.tomInitialized = '1';
 
-                  const allOptions = JSON.parse(container.dataset.options || '{}');
-                  const initialParent = JSON.parse(container.dataset.value || '[]');
-                  const initialChild = JSON.parse(container.dataset.secondValue || '[]');
-                  const parentEl = container.querySelector('select[data-role="parent"]');
-                  const childEl = container.querySelector('select[data-role="child"]');
-                  if (!parentEl || !childEl) return;
+                        const allOptions = JSON.parse(container.dataset.options || '{}');
+                        const initialParent = JSON.parse(container.dataset.value || '[]');
+                        const initialChild = JSON.parse(container.dataset.secondValue || '[]');
+                        const parentEl = container.querySelector('select[data-role="parent"]');
+                        const childEl = container.querySelector('select[data-role="child"]');
+                        if (!parentEl || !childEl) return;
 
                   // `allowEmptyOption: true` matches the flat-selector
                   // config — without it Tom-Select shrinks the empty
                   // wrapper to a tiny content-sized box (visible on the
                   // live page before this fix).
-                  const parentSelect = new TomSelect(parentEl, {
-                      maxOptions: null,
-                      maxItems: null,
-                      allowEmptyOption: true,
-                      options: allOptions.field1 || [],
-                      preload: false,
-                      labelField: 'label',
-                      searchField: ['label'],
-                      diacritics: true,
-                      plugins: { remove_button: { title: 'Retirer' } }
-                  });
+                        const parentSelect = new TomSelect(parentEl, {
+                            maxOptions: null,
+                            maxItems: null,
+                            allowEmptyOption: true,
+                            options: allOptions.field1 || [],
+                            preload: false,
+                            labelField: 'label',
+                            searchField: ['label'],
+                            diacritics: true,
+                            plugins: { remove_button: { title: 'Retirer' } }
+                        });
 
-                  const childSelect = new TomSelect(childEl, {
-                      maxOptions: null,
-                      maxItems: null,
-                      allowEmptyOption: true,
-                      preload: false,
-                      labelField: 'label',
-                      searchField: ['label'],
-                      diacritics: true,
-                      plugins: { remove_button: { title: 'Retirer' } }
-                  });
-                  childSelect.disable();
+                        const childSelect = new TomSelect(childEl, {
+                            maxOptions: null,
+                            maxItems: null,
+                            allowEmptyOption: true,
+                            preload: false,
+                            labelField: 'label',
+                            searchField: ['label'],
+                            diacritics: true,
+                            plugins: { remove_button: { title: 'Retirer' } }
+                        });
+                        childSelect.disable();
 
-                  let lastVal = [];
-                  function refreshChild() {
-                      const selection = parentSelect.getValue() || [];
-                      if (JSON.stringify(selection) === JSON.stringify(lastVal)) return;
-                      lastVal = selection;
-                      const secondList = (allOptions.field2 || []).filter(el => {
-                          const key = el.value.split(' / ')[0];
-                          return selection.includes(key);
-                      });
-                      const keepValues = childSelect.getValue();
-                      childSelect.clear();
-                      childSelect.clearOptions();
-                      childSelect.addOptions(secondList);
+                        let lastVal = [];
+                        function refreshChild() {
+                            const selection = parentSelect.getValue() || [];
+                            if (JSON.stringify(selection) === JSON.stringify(lastVal)) return;
+                            lastVal = selection;
+                            const secondList = (allOptions.field2 || []).filter(el => {
+                                const key = el.value.split(' / ')[0];
+                                return selection.includes(key);
+                            });
+                            const keepValues = childSelect.getValue();
+                            childSelect.clear();
+                            childSelect.clearOptions();
+                            childSelect.addOptions(secondList);
                       // refreshOptions(false): bug #0119 fix — passing
                       // an array misfires the API and truncates the
                       // dropdown rendering at ~50 items.
-                      childSelect.refreshOptions(false);
-                      childSelect.enable();
-                      const validValues = new Set(secondList.map(o => o.value));
-                      const surviving = (Array.isArray(keepValues) ? keepValues : [keepValues])
-                          .filter(v => validValues.has(v));
-                      if (surviving.length) {
-                          childSelect.setValue(surviving, true);
-                      }
-                  }
+                            childSelect.refreshOptions(false);
+                            childSelect.enable();
+                            const validValues = new Set(secondList.map(o => o.value));
+                            const surviving = (Array.isArray(keepValues) ? keepValues : [keepValues])
+                                .filter(v => validValues.has(v));
+                            if (surviving.length) {
+                                childSelect.setValue(surviving, true);
+                            }
+                        }
 
-                  parentEl.addEventListener('change', () => {
-                      refreshChild();
-                      fireSearchUpdate();
-                  });
-                  childEl.addEventListener('change', fireSearchUpdate);
+                        parentEl.addEventListener('change', () => {
+                            refreshChild();
+                            fireSearchUpdate();
+                        });
+                        childEl.addEventListener('change', fireSearchUpdate);
 
-                  if (initialParent.length > 0) {
-                      parentSelect.setValue(initialParent, true);
-                      refreshChild();
-                  }
-                  if (initialChild.length > 0) {
-                      childSelect.setValue(initialChild, true);
-                  }
-              });
-          }
+                        if (initialParent.length > 0) {
+                            parentSelect.setValue(initialParent, true);
+                            refreshChild();
+                        }
+                        if (initialChild.length > 0) {
+                            childSelect.setValue(initialChild, true);
+                        }
+                    });
+                }
 
-          function setup() {
-              if (typeof TomSelect === 'undefined') {
-                  setTimeout(setup, 10);
-                  return;
-              }
-              initFlatSelectors();
-              initDualSelectors();
-          }
-          setup();
-      })();
-    </script>
-    {{ step_nav(model, "cibler") }}
-  </div>
+                function setup() {
+                    if (typeof TomSelect === 'undefined') {
+                        setTimeout(setup, 10);
+                        return;
+                    }
+                    initFlatSelectors();
+                    initDualSelectors();
+                }
+                setup();
+            })();
+        </script>
+        {{ step_nav(model, "cibler") }}
+    </div>
 {% endblock %}
