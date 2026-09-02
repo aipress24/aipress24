@@ -129,6 +129,7 @@ if TYPE_CHECKING:
 
 
 class ArticlesTable(BaseTable):
+    view_class = "ArticlesWipView"
     id = "articles-table"
 
     def __init__(self, q="") -> None:
@@ -168,9 +169,6 @@ class ArticlesTable(BaseTable):
         return Markup(
             f'<a href="{url_for("ArticlesWipView:get", id=obj.id)}">{obj.title}</a>'
         )
-
-    def url_for(self, obj, _action="get", **kwargs):
-        return url_for(f"ArticlesWipView:{_action}", id=obj.id, **kwargs)
 
     def get_actions(self, item):
         actions = [

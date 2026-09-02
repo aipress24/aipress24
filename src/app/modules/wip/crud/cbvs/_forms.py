@@ -20,6 +20,34 @@ from app.flask.lib.wtforms.fields import (
 from app.modules.kyc.dynform import CountrySelectField
 
 
+def country_and_city_field() -> CountrySelectField:
+    """The country + postcode/city pair, declared identically by every
+    WIP form.
+
+    Six byte-identical thirteen-line blocks said this before.
+
+    Called in a form class body, so what it actually hands back is a
+    fresh `UnboundField` — WTForms' `Field.__new__` swaps it in, and
+    each call gets its own creation counter, which is what keeps the six
+    forms' field order intact. The annotation says `CountrySelectField`
+    because that is what the constructor is statically; no annotation
+    expresses the metaclass swap.
+    """
+    return CountrySelectField(
+        name="pays_zip_ville",
+        name2="pays_zip_ville_detail",
+        label="Pays",
+        id="pzv",
+        id2="pzv_detail",
+        label2="Code postal et ville",
+        choices=[],
+        # validators=validators_list,
+        validate_choice=False,
+        # render_kw=render_kw,
+        readonly=0,
+    )
+
+
 class ArticleForm(Form):
     # Group: headers
     titre = StringField("Titre", validators=[validators.InputRequired()])
@@ -59,19 +87,7 @@ class ArticleForm(Form):
         validators=[validators.InputRequired()],
     )
 
-    pays_zip_ville = CountrySelectField(
-        name="pays_zip_ville",
-        name2="pays_zip_ville_detail",
-        label="Pays",
-        id="pzv",
-        id2="pzv_detail",
-        label2="Code postal et ville",
-        choices=[],
-        # validators=validators_list,
-        validate_choice=False,
-        # render_kw=render_kw,
-        readonly=0,
-    )
+    pays_zip_ville = country_and_city_field()
 
     # Group: copyright
     copyright = RichSelectField(
@@ -151,19 +167,7 @@ class AvisEnqueteForm(Form):
         validators=[validators.InputRequired()],
     )
 
-    pays_zip_ville = CountrySelectField(
-        name="pays_zip_ville",
-        name2="pays_zip_ville_detail",
-        label="Pays",
-        id="pzv",
-        id2="pzv_detail",
-        label2="Code postal et ville",
-        choices=[],
-        # validators=validators_list,
-        validate_choice=False,
-        # render_kw=render_kw,
-        readonly=0,
-    )
+    pays_zip_ville = country_and_city_field()
 
     # Group: dates
     date_debut_enquete = DateTimeField(
@@ -254,19 +258,7 @@ class SujetForm(Form):
         validators=[validators.InputRequired()],
     )
 
-    pays_zip_ville = CountrySelectField(
-        name="pays_zip_ville",
-        name2="pays_zip_ville_detail",
-        label="Pays",
-        id="pzv",
-        id2="pzv_detail",
-        label2="Code postal et ville",
-        choices=[],
-        # validators=validators_list,
-        validate_choice=False,
-        # render_kw=render_kw,
-        readonly=0,
-    )
+    pays_zip_ville = country_and_city_field()
 
     # Group: dates
     date_limite_validite = DateTimeField(
@@ -339,19 +331,7 @@ class CommandeForm(Form):
         validators=[validators.InputRequired()],
     )
 
-    pays_zip_ville = CountrySelectField(
-        name="pays_zip_ville",
-        name2="pays_zip_ville_detail",
-        label="Pays",
-        id="pzv",
-        id2="pzv_detail",
-        label2="Code postal et ville",
-        choices=[],
-        # validators=validators_list,
-        validate_choice=False,
-        # render_kw=render_kw,
-        readonly=0,
-    )
+    pays_zip_ville = country_and_city_field()
 
     # Group: dates
     date_limite_validite = DateTimeField(
@@ -441,19 +421,7 @@ class CommuniqueForm(Form):
         validators=[validators.InputRequired()],
     )
 
-    pays_zip_ville = CountrySelectField(
-        name="pays_zip_ville",
-        name2="pays_zip_ville_detail",
-        label="Pays",
-        id="pzv",
-        id2="pzv_detail",
-        label2="Code postal et ville",
-        choices=[],
-        # validators=validators_list,
-        validate_choice=False,
-        # render_kw=render_kw,
-        readonly=0,
-    )
+    pays_zip_ville = country_and_city_field()
 
     # --- Groupe: Dates ---
     embargoed_until = DateTimeField(
@@ -592,19 +560,7 @@ class EventForm(Form):
         validators=[validators.Optional()],
     )
 
-    pays_zip_ville = CountrySelectField(
-        name="pays_zip_ville",
-        name2="pays_zip_ville_detail",
-        label="Pays",
-        id="pzv",
-        id2="pzv_detail",
-        label2="Code postal et ville",
-        choices=[],
-        # validators=validators_list,
-        validate_choice=False,
-        # render_kw=render_kw,
-        readonly=0,
-    )
+    pays_zip_ville = country_and_city_field()
 
     url = StringField(
         "URL de l'événement (pour les événements en ligne ou hybrides)",

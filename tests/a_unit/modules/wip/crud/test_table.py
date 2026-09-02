@@ -57,34 +57,6 @@ class TestBaseDataSource:
             ds = BaseDataSource(model_class=Article, q="")
             assert ds.offset == 0
 
-    def test_next_offset_increments(self, app: Flask):
-        """Test next_offset increments by limit."""
-        with app.test_request_context("/?offset=0&limit=10"):
-            ds = BaseDataSource(model_class=Article, q="")
-            # Stub get_count to return 100
-            ds.get_count = lambda: 100
-            assert ds.next_offset() == 10
-
-    def test_next_offset_stays_at_end(self, app: Flask):
-        """Test next_offset stays at current when at end."""
-        with app.test_request_context("/?offset=90&limit=10"):
-            ds = BaseDataSource(model_class=Article, q="")
-            ds.get_count = lambda: 95
-            # 90 + 10 = 100 >= 95, so stays at 90
-            assert ds.next_offset() == 90
-
-    def test_prev_offset_decrements(self, app: Flask):
-        """Test prev_offset decrements by limit."""
-        with app.test_request_context("/?offset=20&limit=10"):
-            ds = BaseDataSource(model_class=Article, q="")
-            assert ds.prev_offset() == 10
-
-    def test_prev_offset_stops_at_zero(self, app: Flask):
-        """Test prev_offset doesn't go below 0."""
-        with app.test_request_context("/?offset=5&limit=10"):
-            ds = BaseDataSource(model_class=Article, q="")
-            assert ds.prev_offset() == 0
-
 
 class TestBaseTable:
     """Tests for the BaseTable class."""

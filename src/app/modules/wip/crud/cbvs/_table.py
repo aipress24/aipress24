@@ -12,6 +12,7 @@ from sqlalchemy import func, select
 from sqlalchemy.orm import Mapped
 
 from app.flask.extensions import db
+from app.flask.routing import url_for
 from app.models.auth import User
 from app.models.mixins import LifeCycleMixin, Owned
 from app.modules.wip.components import DataSource, Table
@@ -94,15 +95,6 @@ class BaseDataSource(DataSource):
 
         return db.session.scalar(stmt) or 0
 
-    def next_offset(self) -> int:
-        new_offset = self.offset + self.limit
-        if new_offset < self.get_count():
-            return new_offset
-        return self.offset
-
-    def prev_offset(self) -> int:
-        return max(0, self.offset - self.limit)
-
 
 def make_datasource(model_class: type, q: str) -> BaseDataSource:
     return BaseDataSource(model_class=model_class, q=q)
@@ -115,6 +107,14 @@ class BaseTable(Table):
     #: Set by the CBV layer (`_make_table`) for the HTMX table template.
     _action_url: str = ""
     _new_url: str = ""
+
+    #: The Flask-Classful view this table links its rows to. Six
+    #: subclasses each carried the same two-line `url_for` differing only
+    #: by this string.
+    view_class: str = ""
+
+    def url_for(self, obj, _action="get", **kwargs):
+        return url_for(f"{self.view_class}:{_action}", id=obj.id, **kwargs)
 
     def __init__(self, model_class: type, q: str = "") -> None:
         self.q = q

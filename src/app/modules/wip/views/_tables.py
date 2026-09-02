@@ -39,10 +39,16 @@ class RecentContentsDataSource(DataSource):
 
 
 def get_name(obj):
-    # FIXME: temp hack
+    """The publisher's name, for a table that mixes content types.
+
+    `RecentContentsDataSource` selects `BaseContent` polymorphically and
+    `publisher` is not on that base, so what arrives here varies by row.
+    `AttributeError` rather than a bare `except`: the tolerance is for a
+    row shape without `.name`, not for `KeyboardInterrupt`.
+    """
     try:
         return obj.name if obj else ""
-    except:  # noqa: E722
+    except AttributeError:
         return ""
 
 

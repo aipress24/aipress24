@@ -70,14 +70,12 @@ class AvisEnqueteDataSource(BaseDataSource):
 
 
 class AvisEnqueteTable(BaseTable):
+    view_class = "AvisEnqueteWipView"
     id = "avis-enquete-table"
 
     def __init__(self, q="") -> None:
         super().__init__(AvisEnquete, q)
         self.data_source = AvisEnqueteDataSource(AvisEnquete, q)
-
-    def url_for(self, obj, _action="get", **kwargs):
-        return url_for(f"AvisEnqueteWipView:{_action}", id=obj.id, **kwargs)
 
     def get_columns(self):
         return [

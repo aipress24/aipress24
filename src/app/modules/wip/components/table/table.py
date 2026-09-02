@@ -162,11 +162,10 @@ class Pagination:
             args["limit"] = str(data_source.limit)
             return f"{request.path}?{urlencode(args)}"
 
-        links = []
-        for i in range(1, total_pages + 1):
-            links.append(
-                {"page": i, "is_current": i == current_page, "url": get_url_for_page(i)}
-            )
+        links = [
+            {"page": i, "is_current": i == current_page, "url": get_url_for_page(i)}
+            for i in range(1, total_pages + 1)
+        ]
 
         ctx = {
             "total": total,

@@ -13,7 +13,6 @@ from werkzeug import Response
 from werkzeug.exceptions import Forbidden
 
 from app.flask.extensions import db
-from app.flask.routing import url_for
 from app.logging import warn
 from app.modules.bw.bw_activation.user_utils import (
     can_user_publish_for,
@@ -59,6 +58,7 @@ class CommandeDataSource(BaseDataSource):
 
 
 class CommandesTable(BaseTable):
+    view_class = "CommandesWipView"
     id = "commandes-table"
 
     def __init__(self, q="") -> None:
@@ -66,9 +66,6 @@ class CommandesTable(BaseTable):
 
     def _make_datasource(self, model_class: type, q: str) -> BaseDataSource:
         return CommandeDataSource(model_class=model_class, q=q)
-
-    def url_for(self, obj, _action="get", **kwargs):
-        return url_for(f"CommandesWipView:{_action}", id=obj.id, **kwargs)
 
 
 class CommandesWipView(BaseWipView):

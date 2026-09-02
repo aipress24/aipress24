@@ -60,13 +60,11 @@ if TYPE_CHECKING:
 
 
 class CommuniquesTable(BaseTable):
+    view_class = "CommuniquesWipView"
     id = "communiques-table"
 
     def __init__(self, q="") -> None:
         super().__init__(Communique, q)
-
-    def url_for(self, obj, _action="get", **kwargs):
-        return url_for(f"CommuniquesWipView:{_action}", id=obj.id, **kwargs)
 
     def get_columns(self):
         return [

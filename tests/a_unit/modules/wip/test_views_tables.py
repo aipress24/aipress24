@@ -28,15 +28,18 @@ class TestGetName:
         """get_name returns an empty string for None."""
         assert get_name(None) == ""
 
-    def test_get_name_with_exception(self):
-        """get_name swallows an attribute access that raises."""
+    def test_get_name_on_a_row_shape_without_a_name(self):
+        """The tolerance that matters: `RecentContentsDataSource` selects
+        `BaseContent` polymorphically and `publisher` is not on that
+        base, so a row can arrive without `.name`.
 
-        class _Raises:
-            @property
-            def name(self):
-                raise RuntimeError
+        Was a class whose `name` property raised `RuntimeError` — a shape
+        production never produces, and it pinned a bare `except`."""
 
-        assert get_name(_Raises()) == ""
+        class _NoName:
+            pass
+
+        assert get_name(_NoName()) == ""
 
 
 class TestRecentContentsDataSource:

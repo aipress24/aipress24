@@ -76,13 +76,11 @@ if TYPE_CHECKING:
 
 
 class EventsTable(BaseTable):
+    view_class = "EventsWipView"
     id = "events-table"
 
     def __init__(self, q="") -> None:
         super().__init__(Event, q)
-
-    def url_for(self, obj, _action="get", **kwargs):
-        return url_for(f"EventsWipView:{_action}", id=obj.id, **kwargs)
 
     def get_actions(self, item):
         actions = [
