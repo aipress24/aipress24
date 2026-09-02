@@ -29,8 +29,8 @@ We pin :
      FilterOption — they are NOT homogeneous, which is intentional).
 
 This file complements (does not duplicate) the existing tests for
-`FilterByTailleOrganisation`, `_taille_orga_label`, etc., which live
-in `test_taille_orga_label.py`.
+`FilterByTailleOrganisation`, `taille_orga_label`, etc., which live
+in `testtaille_orga_label.py`.
 """
 
 from __future__ import annotations

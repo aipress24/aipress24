@@ -9,7 +9,7 @@ Six filter classes (FilterByTypeOrganisation, FilterByTypeEntrepriseMedia,
 FilterByTypePresseEtMedia, FilterByTypeAgenceRP, FilterByTailleOrganisation,
 FilterBySecteurActivite) follow the same pattern :
 
-- `selector(user)` is a static method
+- `selector(user)` is callable off the class
 - It reads a specific attribute of `user.profile` and returns it as
   a list / FilterOption
 - When `user.profile is None`, it defensively returns an empty / null
@@ -205,11 +205,11 @@ class TestFilterByTailleOrganisation:
         assert isinstance(result, FilterOption)
         # Code is the raw ontology value ; option is the human form.
         assert result.code == "10"
-        assert "10" in result.option  # via _taille_orga_label
+        assert "10" in result.option  # via taille_orga_label
 
-    def test_uses_taille_orga_label_for_display(self):
+    def test_usestaille_orga_label_for_display(self):
         """Cross-check that the selector routes through
-        `_taille_orga_label` — the « 1 personne » special case is
+        `taille_orga_label` — the « 1 personne » special case is
         the cleanest signal."""
         user = _user_with_profile(info_professionnelle={"taille_orga": "1"})
         result = FilterByTailleOrganisation.selector(user)

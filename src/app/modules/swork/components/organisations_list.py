@@ -29,6 +29,11 @@ from app.modules.swork.common import Directory
 from app.modules.swork.settings import SWORK_LIST_LIMIT
 
 from .base import BaseList, Filter, FilterOption
+from .taille_orga import (
+    TailleOrgaFilter,
+    taille_orga_label,
+    taille_orga_sort_key,
+)
 
 
 @dataclass(frozen=True)
@@ -252,40 +257,40 @@ class FilterByCountryOrm(Filter):
         return stmt
 
 
-class FilterByDeptOrm(Filter):
+class _BwColumnFilter(Filter):
+    """A plain `BusinessWall` text column, filtered by exact match.
+
+    Département and Ville were the same sixteen lines twice, differing
+    by the column alone (audit 2026-09-02).
+    """
+
+    #: The `BusinessWall` column the options are matched against.
+    bw_column: ClassVar[str] = ""
+
+    def __init__(self, names: list[str] | None = None) -> None:
+        super().__init__()
+        if names:
+            self.options: list[str | FilterOption] = list(names)
+
+    def apply(self, stmt: Select, state: dict[str, bool]) -> Select:
+        active_options = self.active_options(state)
+        if not active_options:
+            return stmt
+        return stmt.where(BusinessWall.status == BWStatus.ACTIVE.value).where(
+            getattr(BusinessWall, self.bw_column).in_(active_options)
+        )
+
+
+class FilterByDeptOrm(_BwColumnFilter):
     id = "dept"
     label = "Département"
-
-    def __init__(self, names: list[str] | None = None) -> None:
-        super().__init__()
-        if names:
-            self.options: list[str | FilterOption] = list(names)
-
-    def apply(self, stmt: Select, state: dict[str, bool]) -> Select:
-        active_options = self.active_options(state)
-        if active_options:
-            stmt = stmt.where(BusinessWall.status == BWStatus.ACTIVE.value).where(
-                BusinessWall.departement.in_(active_options)
-            )
-        return stmt
+    bw_column = "departement"
 
 
-class FilterByCityOrm(Filter):
+class FilterByCityOrm(_BwColumnFilter):
     id = "city"
     label = "Ville"
-
-    def __init__(self, names: list[str] | None = None) -> None:
-        super().__init__()
-        if names:
-            self.options: list[str | FilterOption] = list(names)
-
-    def apply(self, stmt: Select, state: dict[str, bool]) -> Select:
-        active_options = self.active_options(state)
-        if active_options:
-            stmt = stmt.where(BusinessWall.status == BWStatus.ACTIVE.value).where(
-                BusinessWall.ville.in_(active_options)
-            )
-        return stmt
+    bw_column = "ville"
 
 
 # ---------------------------------------------------------------------------
@@ -357,58 +362,20 @@ class OrgFilterBySecteurActivite(_OrgListJsonArrayFilter):
     bw_field = "secteurs_activite_detail"
 
 
-def _taille_orga_sort_key(code: str) -> int:
-    """Sort key for taille_organisation codes in ascending numeric order."""
-    if code == "+":
-        return 999999999
-    try:
-        return int(code)
-    except ValueError:
-        return 999999
-
-
-def _taille_orga_label(value: str) -> str:
-    """Mirror of MembersList helper — converts the raw ontology code
-    (« 1 », « 49 », « + ») into a user-friendly label."""
-    if value == "+":
-        return "Plus de 1 000 000"
-    if value == "1":
-        return "1 personne"
-    try:
-        num = int(value)
-        return f"Jusqu'à {num}"
-    except ValueError:
-        return value
-
-
-class OrgFilterByTailleOrganisation(Filter):
-    """Single-value BW field — uses `_taille_orga_label` for display
-    while keeping the raw ontology code on the wire (so URL state
-    stays stable across label tweaks)."""
-
-    id = "taille_organisation"
-    label = "Tailles d'organisation"
-    options: ClassVar[list[str | FilterOption]] = []  # ty:ignore[invalid-attribute-override]
+class OrgFilterByTailleOrganisation(TailleOrgaFilter):
+    """Single-value BW field."""
 
     def __init__(self, bws: list[BusinessWall] | None = None) -> None:
         if not bws:
             return
         codes = sorted(
             {str(bw.taille_orga) for bw in bws if bw.taille_orga},
-            key=_taille_orga_sort_key,
+            key=taille_orga_sort_key,
         )
         # pyrefly: ignore [read-only]
         self.options = [  # ty:ignore[invalid-attribute-access]
-            FilterOption(_taille_orga_label(code), code) for code in codes
+            FilterOption(taille_orga_label(code), code) for code in codes
         ]
-
-    def active_options(self, state):
-        options = []
-        for i in range(len(state)):
-            if state.get(str(i)):
-                filter_option: FilterOption = cast(FilterOption, self.options[i])
-                options.append(filter_option.code)
-        return options
 
     def apply(self, stmt: Select, state: dict[str, bool]) -> Select:
         codes = self.active_options(state)

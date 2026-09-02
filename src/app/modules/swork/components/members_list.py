@@ -24,6 +24,11 @@ from app.modules.swork.common import Directory
 from app.modules.swork.settings import SWORK_LIST_LIMIT
 
 from .base import BaseList, Filter, FilterOption
+from .taille_orga import (
+    TailleOrgaFilter,
+    taille_orga_label,
+    taille_orga_sort_key,
+)
 
 
 @register
@@ -139,158 +144,81 @@ class FilterByJobTitle(Filter):
         return stmt
 
 
-class FilterByTypeOrganisation(Filter):
+class _MemberProfileListFilter(Filter):
+    """Shared shape for the JSON-list KYC profile filters.
+
+    The four subclasses had a byte-identical `__init__` and an `apply`
+    that differed only by the JSON key. `organisations_list.py` already
+    factored the same shape into `_OrgListJsonArrayFilter`; this is that
+    base, on the members side (audit 2026-09-02).
+    """
+
+    #: The `KYCProfile` attribute the options are read from.
+    profile_attr: ClassVar[str] = ""
+    #: The key inside `info_professionnelle` that `apply` matches on.
+    json_key: ClassVar[str] = ""
+    options: ClassVar[list[str]] = []  # ty:ignore[invalid-attribute-override]
+
+    def __init__(self, objects: list | None = None) -> None:
+        if not objects:
+            return
+        options = sorted({value for obj in objects for value in self.selector(obj)})
+        self.options = [opt for opt in options if opt]  # type: ignore[misc, ty:invalid-attribute-access]
+
+    @classmethod
+    def selector(cls, user: User) -> list[str]:
+        """A classmethod, not an instance method: the tests pin
+        `FilterByX.selector(user)` callable straight off the class, and
+        `profile_attr` is class-level data anyway."""
+        if not user.profile:
+            return []
+        return getattr(user.profile, cls.profile_attr)
+
+    def apply(self, stmt, state):
+        active_options = self.active_options(state)
+        if not active_options:
+            return stmt
+        jsonb_col = sqla_cast(KYCProfile.info_professionnelle, JSONB)[self.json_key]
+        or_parts = [User.profile.has(jsonb_col.op("?")(opt)) for opt in active_options]
+        return stmt.where(or_(*or_parts))
+
+
+class FilterByTypeOrganisation(_MemberProfileListFilter):
     id = "type_organisation"
     label = "Type Organisation"
-    options: ClassVar[list[str]] = []  # ty:ignore[invalid-attribute-override]
-
-    def __init__(self, objects: list | None = None) -> None:
-        if not objects:
-            return
-
-        options = sorted({value for obj in objects for value in self.selector(obj)})
-        self.options = [opt for opt in options if opt]  # type: ignore[misc, ty:invalid-attribute-access]
-
-    @staticmethod
-    def selector(user: User) -> list[str]:
-        if not user.profile:
-            return []
-        return user.profile.type_organisation
-
-    def apply(self, stmt, state):
-        active_options = self.active_options(state)
-        if not active_options:
-            return stmt
-        jsonb_col = sqla_cast(KYCProfile.info_professionnelle, JSONB)[
-            "type_orga_detail"
-        ]
-        or_parts = [User.profile.has(jsonb_col.op("?")(opt)) for opt in active_options]
-        stmt = stmt.where(or_(*or_parts))
-        return stmt
+    profile_attr = "type_organisation"
+    json_key = "type_orga_detail"
 
 
-class FilterByTypeEntrepriseMedia(Filter):
+class FilterByTypeEntrepriseMedia(_MemberProfileListFilter):
     id = "type_entreprise_media"
     label = "Type entreprise presse et média"
-    options: ClassVar[list[str]] = []  # ty:ignore[invalid-attribute-override]
-
-    def __init__(self, objects: list | None = None) -> None:
-        if not objects:
-            return
-
-        options = sorted({value for obj in objects for value in self.selector(obj)})
-        self.options = [opt for opt in options if opt]  # type: ignore[misc, ty:invalid-attribute-access]
-
-    @staticmethod
-    def selector(user: User) -> list[str]:
-        if not user.profile:
-            return []
-        return user.profile.type_entreprise_media
-
-    def apply(self, stmt, state):
-        active_options = self.active_options(state)
-        if not active_options:
-            return stmt
-        jsonb_col = sqla_cast(KYCProfile.info_professionnelle, JSONB)[
-            "type_entreprise_media"
-        ]
-        or_parts = [User.profile.has(jsonb_col.op("?")(opt)) for opt in active_options]
-        stmt = stmt.where(or_(*or_parts))
-        return stmt
+    profile_attr = "type_entreprise_media"
+    json_key = "type_entreprise_media"
 
 
-class FilterByTypePresseEtMedia(Filter):
+class FilterByTypePresseEtMedia(_MemberProfileListFilter):
     id = "type_presse_et_media"
     label = "Type presse & média"
-    options: ClassVar[list[str]] = []  # ty:ignore[invalid-attribute-override]
-
-    def __init__(self, objects: list | None = None) -> None:
-        if not objects:
-            return
-
-        options = sorted({value for obj in objects for value in self.selector(obj)})
-        self.options = [opt for opt in options if opt]  # type: ignore[misc, ty:invalid-attribute-access]
-
-    @staticmethod
-    def selector(user: User) -> list[str]:
-        if not user.profile:
-            return []
-        return user.profile.type_presse_et_media
-
-    def apply(self, stmt, state):
-        active_options = self.active_options(state)
-        if not active_options:
-            return stmt
-        jsonb_col = sqla_cast(KYCProfile.info_professionnelle, JSONB)[
-            "type_presse_et_media"
-        ]
-        or_parts = [User.profile.has(jsonb_col.op("?")(opt)) for opt in active_options]
-        stmt = stmt.where(or_(*or_parts))
-        return stmt
+    profile_attr = "type_presse_et_media"
+    json_key = "type_presse_et_media"
 
 
-class FilterByTypeAgenceRP(Filter):
+class FilterByTypeAgenceRP(_MemberProfileListFilter):
     id = "type_agence_rp"
     label = "Types de PR Agencies"
-    options: ClassVar[list[str]] = []  # ty:ignore[invalid-attribute-override]
-
-    def __init__(self, objects: list | None = None) -> None:
-        if not objects:
-            return
-
-        options = sorted({value for obj in objects for value in self.selector(obj)})
-        self.options = [opt for opt in options if opt]  # type: ignore[misc, ty:invalid-attribute-access]
-
-    @staticmethod
-    def selector(user: User) -> list[str]:
-        if not user.profile:
-            return []
-        return user.profile.type_agence_rp
-
-    def apply(self, stmt, state):
-        active_options = self.active_options(state)
-        if not active_options:
-            return stmt
-        jsonb_col = sqla_cast(KYCProfile.info_professionnelle, JSONB)["type_agence_rp"]
-        or_parts = [User.profile.has(jsonb_col.op("?")(opt)) for opt in active_options]
-        stmt = stmt.where(or_(*or_parts))
-        return stmt
+    profile_attr = "type_agence_rp"
+    json_key = "type_agence_rp"
 
 
-def _taille_orga_sort_key(code: str) -> int:
-    """Sort key for taille_organisation codes in ascending numeric order."""
-    if code == "+":
-        return 999999999
-    try:
-        return int(code)
-    except ValueError:
-        return 999999
-
-
-def _taille_orga_label(value: str) -> str:
-    if value == "+":
-        return "Plus de 1 000 000"
-    if value == "1":
-        return "1 personne"
-    try:
-        num = int(value)
-        return f"Jusqu’à {num}"
-    except ValueError:
-        return value
-
-
-class FilterByTailleOrganisation(Filter):
-    id = "taille_organisation"
-    label = "Tailles d’organisation"
-    options: ClassVar[list[str | FilterOption]] = []  # ty:ignore[invalid-attribute-override]
-
+class FilterByTailleOrganisation(TailleOrgaFilter):
     def __init__(self, objects: list | None = None) -> None:
         if not objects:
             return
         raw_options = {self.selector(obj) for obj in objects}
         options = sorted(
             [opt for opt in raw_options if opt and opt.code],
-            key=lambda opt: _taille_orga_sort_key(opt.code),
+            key=lambda opt: taille_orga_sort_key(opt.code),
         )
         # pyrefly: ignore [read-only]
         self.options = options  # ty:ignore[invalid-attribute-access]
@@ -303,15 +231,7 @@ class FilterByTailleOrganisation(Filter):
         if not raw:
             return FilterOption("", "")
         code = str(raw)
-        return FilterOption(_taille_orga_label(code), code)
-
-    def active_options(self, state):
-        options = []
-        for i in range(len(state)):
-            if state[str(i)]:
-                filter_option: FilterOption = cast(FilterOption, self.options[i])
-                options.append(filter_option.code)
-        return options
+        return FilterOption(taille_orga_label(code), code)
 
     def apply(self, stmt, state):
         active_options = self.active_options(state)
