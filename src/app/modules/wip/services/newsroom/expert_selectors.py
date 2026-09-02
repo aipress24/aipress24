@@ -407,7 +407,7 @@ class DualSelector(BaseSelector):
             count = self._count_by_value.get(value, 0)
             if count == 0 and value not in self.values:
                 continue
-            parent_key = value.split(" / ")[0]
+            parent_key = value.split("/", 1)[0].strip()
             per_parent_count[parent_key] = per_parent_count.get(parent_key, 0) + count
             surviving_children.append(
                 {"value": value, "label": f"{opt['label']} ({count})"}
@@ -428,7 +428,7 @@ class DualSelector(BaseSelector):
             count = self._count_by_value.get(val, 0)
             if count == 0 and val not in self.values:
                 continue
-            parent_key = val.split("/", 1)[0]
+            parent_key = val.split("/", 1)[0].strip()
             per_parent_count[parent_key] = per_parent_count.get(parent_key, 0) + count
             surviving_children.append({"value": val, "label": f"{val} ({count})"})
 
