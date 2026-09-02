@@ -9,7 +9,7 @@
     <p class="mt-2 text-sm text-gray-500">
       Posté par
       <a href="{{ url_for(post.author) }}"
-         class="font-medium text-gray-900">{{ post.author.full_name }}</a>,
+         class="font-medium text-gray-900">{{ post.author.full_name }}</a>{% if post.author.fonction %}, {{ post.author.fonction }}{% endif %}{% if post.author.organisation %} / {{ post.author.organisation.bw_name or post.author.organisation.name }}{% endif %},
       le
       {{ post.created_at.format("DD MMMM YYYY, à HH:mm", locale="fr") }}.
       {% if post.modified_at %}

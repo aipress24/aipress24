@@ -66,15 +66,14 @@
                 <p class="text-sm font-medium text-gray-900">
                     {{ post.author.name }}
                 </p>
-                {% if post.author.organisation %}
-                    <p class="text-sm text-gray-500 truncate">
-                        {{ post.author.job_title }} @ {{ post.author.organisation.bw_name or post.author.organisation.name }}
-                    </p>
-                {% else %}
-                    <p class="text-sm text-gray-500 truncate">
-                        {{ post.author.job_title }}
-                    </p>
-                {% endif%}
+                {# Ticket #0325 : la fonction déclarée, pas le libellé KYC
+                   passe-partout. `fonction` retombe sur `profile_label`
+                   quand le membre n'a rien déclaré, donc la carte ne perd
+                   jamais son sous-titre. Séparateur « / » et non « @ » ni
+                   « chez », comme le demande le ticket. #}
+                <p class="text-sm text-gray-500 truncate">
+                    {{ post.author.fonction }}{% if post.author.organisation %} / {{ post.author.organisation.bw_name or post.author.organisation.name }}{% endif %}
+                </p>
             </a>
         </div>
     </div>
@@ -91,7 +90,7 @@
     {# Bug #0093 / #0241: self-published CP, or any article — surface the
        author, fonction and organisation. #}
     <div class="px-4 py-1 text-xs italic text-gray-500">
-        Publié par {{ post.author.full_name }}{% if post.author.job_title %}, {{ post.author.job_title }}{% endif %}{% if post.author.organisation %} chez {{ post.author.organisation.bw_name or post.author.organisation.name }}{% endif %}.
+        Publié par {{ post.author.full_name }}{% if post.author.fonction %}, {{ post.author.fonction }}{% endif %}{% if post.author.organisation %} / {{ post.author.organisation.bw_name or post.author.organisation.name }}{% endif %}.
     </div>
 {% endif %}
 

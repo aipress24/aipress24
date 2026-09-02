@@ -434,10 +434,14 @@ class TestPostCardSelfPublicationByline:
         db_session.flush()
 
         html = self._render(app, cp)
+        # Ticket #0325 : « / » et non « chez ». Erick demande
+        # « Prénom, Nom, Fonction / Nom de l'organisation », précisément
+        # pour éviter d'avoir à choisir entre « chez », « à » et « au ».
         assert (
             "Publié par Catherine Samorian, consultante en Relations "
-            "Presse chez Fake-RoulezJeunesse." in html
+            "Presse / Fake-RoulezJeunesse." in html
         )
+        assert " chez " not in html
         assert "en tant que contact presse de" not in html
 
     def test_delegated_cp_keeps_contact_presse_phrasing(self, db_session, app):
@@ -506,7 +510,8 @@ class TestPostCardArticleByline:
         html = self._render(app, article)
         assert "en tant que contact presse de" not in html
         assert "Publié par Eliane Kan" in html
-        assert "chez Agence TCA" in html
+        # Ticket #0325 : le séparateur remplace « chez ».
+        assert "/ Agence TCA" in html
         # Bug 0241: the footer uses the "Source :" / "Pour :" labels.
         assert "Source :" in html
         assert "Pour :" in html
