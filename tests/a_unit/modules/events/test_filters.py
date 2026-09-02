@@ -130,15 +130,3 @@ class TestFilterBarStateManipulation:
         assert active[0]["id"] == "genre"
         assert active[0]["value"] == "conference"
         assert active[0]["tag_label"] == FILTER_TAG_LABEL["genre"]
-
-    def test_tag_property_returns_tag_value(self) -> None:
-        """Test tag property extracts tag filter value."""
-        bar = self._create_bar({"filters": [{"id": "tag", "value": "python"}]})
-
-        assert bar.tag == "python"
-
-    def test_tag_property_returns_empty_when_no_tag(self) -> None:
-        """Test tag property returns empty string when no tag filter."""
-        bar = self._create_bar({"filters": []})
-
-        assert bar.tag == ""

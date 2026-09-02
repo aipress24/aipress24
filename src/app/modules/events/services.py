@@ -458,20 +458,6 @@ def _require_open(event: EventPost) -> None:
         raise AccreditationClosedError(reason)
 
 
-#
-# Compatibilité — parcours actuel, jusqu'au lot L2
-#
-def _is_user_in(user_id, participant_ids) -> bool:
-    """Pure predicate: True iff `user_id` is in `participant_ids`.
-
-    Extracted for testability (functional core). `participant_ids` may be any
-    iterable of ids; `user_id` is compared by equality.
-    """
-    if user_id is None:
-        return False
-    return any(pid == user_id for pid in participant_ids)
-
-
 def is_participant(event: EventPost, user: User) -> bool:
     """True if `user` is accredited to `event`."""
     accreditation = get_accreditation(event, user)
@@ -479,48 +465,3 @@ def is_participant(event: EventPost, user: User) -> bool:
         accreditation is not None
         and accreditation.status == AccreditationStatus.ACCEPTED
     )
-
-
-def add_participant(event: EventPost, user: User) -> bool:
-    """Accréditer directement, sans passer par une demande.
-
-    C'est le parcours livré aujourd'hui : le membre s'accrédite lui-même
-    d'un clic. Il disparaît au lot L2, remplacé par
-    `request_accreditation` et la décision de l'organisateur.
-
-    Returns True iff the member was not already accredited.
-    """
-    if is_participant(event, user):
-        return False
-
-    accreditation = get_accreditation(event, user)
-    if accreditation is None:
-        accreditation = Accreditation(event_id=event.id, user_id=user.id)
-        db.session.add(accreditation)
-    accreditation.status = AccreditationStatus.ACCEPTED
-    accreditation.decided_at = arrow.utcnow()
-    return True
-
-
-def remove_participant(event: EventPost, user: User) -> bool:
-    """Retirer son accréditation. Returns True iff there was one."""
-    accreditation = get_accreditation(event, user)
-    if accreditation is None or accreditation.status != AccreditationStatus.ACCEPTED:
-        return False
-
-    accreditation.status = AccreditationStatus.WITHDRAWN
-    return True
-
-
-def can_user_accredit(user: User, event: EventPost) -> bool:
-    """Le membre peut-il demander une accréditation à cet événement ?
-
-    RG-05 — la restriction au rôle `PRESS_MEDIA` sur **tous** les
-    événements est levée. C'était l'écart E1 : le livré interdisait à
-    un universitaire de s'inscrire à un webinaire académique, et aucune
-    spécification ne le demandait. Le seul filtre est désormais le
-    ciblage choisi par l'organisateur ; un événement de presse se
-    restreint aux journalistes en cochant leur communauté, pas par une
-    règle codée en dur.
-    """
-    return in_audience(user, event.audience or [])

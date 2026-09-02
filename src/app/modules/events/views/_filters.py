@@ -163,14 +163,6 @@ class FilterBar:
         return active
 
     @property
-    def tag(self) -> str:
-        filters = self.state.get("filters", [])
-        for filter in filters:
-            if filter["id"] == "tag":
-                return filter["value"]
-        return ""
-
-    @property
     def sorter(self) -> dict:
         return {
             "options": [
@@ -201,10 +193,6 @@ class FilterBar:
 
     def reset(self) -> None:
         self.state = {}
-        self.save_state()
-
-    def set_tag(self, value: str) -> None:
-        self.add_filter("tag", value)
         self.save_state()
 
     def update_state(self) -> None:

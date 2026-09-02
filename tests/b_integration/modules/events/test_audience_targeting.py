@@ -27,7 +27,6 @@ from app.models.lifecycle import PublicationStatus
 from app.modules.events.models import EventPost
 from app.modules.events.services import (
     AccreditationClosedError,
-    can_user_accredit,
     in_audience,
     request_accreditation,
     sees_access_details,
@@ -161,7 +160,7 @@ class TestRoleRestrictionIsLifted:
     ) -> None:
         """Test 6 du §12 — non-régression de l'écart E1."""
         academic = _member(db_session, "academic", RoleEnum.ACADEMIC)
-        assert can_user_accredit(academic, event) is True
+        assert in_audience(academic, event.audience or []) is True
 
     def test_a_press_event_still_restricts_to_journalists(
         self, db_session: Session, event: EventPost
@@ -172,8 +171,8 @@ class TestRoleRestrictionIsLifted:
         journalist = _member(db_session, "journo4", RoleEnum.PRESS_MEDIA)
         academic = _member(db_session, "academic2", RoleEnum.ACADEMIC)
 
-        assert can_user_accredit(journalist, event) is True
-        assert can_user_accredit(academic, event) is False
+        assert in_audience(journalist, event.audience or []) is True
+        assert in_audience(academic, event.audience or []) is False
 
 
 class TestTheGuardsActuallyBite:

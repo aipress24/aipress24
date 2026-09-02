@@ -16,8 +16,7 @@ from sqlalchemy import select
 from app.enums import RoleEnum
 from app.models.auth import Role, User
 from app.models.lifecycle import PublicationStatus
-from app.modules.events.models import EventPost
-from app.modules.events.services import add_participant
+from app.modules.events.models import Accreditation, AccreditationStatus, EventPost
 from app.modules.events.views._common import (
     Calendar,
     DateFilter,
@@ -167,7 +166,13 @@ class TestEventsEndpoints:
         db_session.flush()
         assert orgless.organisation is None
 
-        add_participant(sample_event, orgless)
+        db_session.add(
+            Accreditation(
+                event_id=sample_event.id,
+                user_id=orgless.id,
+                status=AccreditationStatus.ACCEPTED,
+            )
+        )
         db_session.flush()
 
         view_model = EventDetailVM(sample_event)
@@ -337,26 +342,6 @@ class TestFilterBar:
             assert len(active) == 1
             assert active[0]["id"] == "genre"
             assert active[0]["value"] == "Conference"
-
-    def test_tag_empty(self, app: Flask, db_session: Session):
-        """Test tag returns empty string when no tag filter."""
-        with app.test_request_context():
-            fb = FilterBar()
-            fb.state = {}
-
-            assert fb.tag == ""
-
-    def test_tag_with_tag_filter(self, app: Flask, db_session: Session):
-        """Test tag returns value when tag filter is set."""
-        with app.test_request_context():
-            fb = FilterBar()
-            fb.state = {
-                "filters": [
-                    {"id": "tag", "value": "tech"},
-                ]
-            }
-
-            assert fb.tag == "tech"
 
     def test_sorter_returns_options(self, app: Flask, db_session: Session):
         """Test sorter returns options dictionary."""

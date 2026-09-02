@@ -28,7 +28,6 @@ from app.modules.events.models import EventPost
 from app.modules.events.services import (
     accredited_event_ids,
     accredited_ids_among,
-    is_signed_in,
 )
 
 from ._common import Calendar, DateFilter, EventListVM
@@ -104,11 +103,6 @@ class EventsListView(MethodView):
 
     def _handle_htmx_get(self, filter_bar: FilterBar) -> str:
         """Handle HTMX GET requests (partial updates)."""
-        if "tag" in request.args:
-            tag = request.args["tag"]
-            filter_bar.reset()
-            filter_bar.set_tag(tag)
-
         if request.headers.get("Hx-Target") == "members-list":
             ctx = self._build_context(filter_bar)
             return render_template("pages/events--search-results.j2", **ctx)
@@ -174,9 +168,10 @@ class EventsListView(MethodView):
         Ties broken in favour of the upcoming side; events without a
         start_datetime sink to the bottom.
         """
-        user = getattr(g, "user", None)
-        if not is_signed_in(user):
-            return []
+        # No anonymity guard: the blueprint's `before_request` raises
+        # `Unauthorized` before any `/events/*` view runs, and
+        # `app/flask/hooks.py` always sets `g.user`.
+        user = g.user
         stmt = (
             select(EventPost)
             .where(EventPost.id.in_(accredited_event_ids([user.id])))

@@ -13,8 +13,6 @@ hand-rolled stand-ins and no DB.
 This file covers the *imperative shell* — the four functions that actually
 hit the ``evt_participation`` association table:
 
-* ``add_participant`` — inserts a row, is idempotent on re-adds.
-* ``remove_participant`` — deletes a row, is idempotent on missing rows.
 * ``is_participant`` — reflects the current state of the table.
 * ``get_participants`` — loads ``User`` rows back from the table, honours
   ``order_by`` and ``limit``.
@@ -44,10 +42,9 @@ from app.modules.events.models import (
     EventPost,
 )
 from app.modules.events.services import (
-    add_participant,
     get_participants,
     is_participant,
-    remove_participant,
+    withdraw_accreditation,
 )
 
 if TYPE_CHECKING:
@@ -57,6 +54,20 @@ if TYPE_CHECKING:
 # ----------------------------------------------------------------
 # Fixtures — real model rows, no mocks
 # ----------------------------------------------------------------
+
+
+def _accredit(db_session, event, user) -> None:
+    """Make `user` accredited, by writing the row.
+
+    `add_participant` did this until lot L2 removed it; the tests below
+    only ever used it as setup.
+    """
+    db_session.add(
+        Accreditation(
+            event_id=event.id, user_id=user.id, status=AccreditationStatus.ACCEPTED
+        )
+    )
+    db_session.flush()
 
 
 @pytest.fixture
@@ -92,101 +103,20 @@ def _participation_row_count(db_session: Session, event_id: int) -> int:
 
 
 # ----------------------------------------------------------------
-# add_participant
 # ----------------------------------------------------------------
 
 
-class TestAddParticipantRoundTrip:
-    """``add_participant`` must insert a row and be idempotent."""
-
-    def test_insert_creates_row(
-        self, db_session: Session, event: EventPost, users: list[User]
-    ) -> None:
-        assert _participation_row_count(db_session, event.id) == 0
-
-        inserted = add_participant(event, users[0])
-        db_session.flush()
-
-        assert inserted is True
-        assert _participation_row_count(db_session, event.id) == 1
-
-    def test_insert_is_idempotent(
-        self, db_session: Session, event: EventPost, users: list[User]
-    ) -> None:
-        add_participant(event, users[0])
-        db_session.flush()
-
-        second = add_participant(event, users[0])
-        db_session.flush()
-
-        assert second is False
-        assert _participation_row_count(db_session, event.id) == 1
-
-    def test_multiple_users_can_join(
-        self, db_session: Session, event: EventPost, users: list[User]
-    ) -> None:
-        for u in users:
-            assert add_participant(event, u) is True
-        db_session.flush()
-
-        assert _participation_row_count(db_session, event.id) == len(users)
-
-    # NOTE: an earlier `test_works_for_concrete_subclasses` was deleted.
-    # Its premise was wrong: the five event subtypes were siblings of
-    # `EventPost`, not subclasses — they wrote to their own tables and
-    # never landed in `evt_event_post`, which is what
-    # `Accreditation.event_id` FKs to. SQLite skipped the FK check ;
-    # Postgres surfaced the violation. Those classes are gone since lot
-    # C0b ; only `EventPost` remains.
+# NOTE: an earlier `test_works_for_concrete_subclasses` was deleted.
+# Its premise was wrong: the five event subtypes were siblings of
+# `EventPost`, not subclasses — they wrote to their own tables and
+# never landed in `evt_event_post`, which is what
+# `Accreditation.event_id` FKs to. SQLite skipped the FK check ;
+# Postgres surfaced the violation. Those classes are gone since lot
+# C0b ; only `EventPost` remains.
 
 
 # ----------------------------------------------------------------
-# remove_participant
 # ----------------------------------------------------------------
-
-
-class TestRemoveParticipantRoundTrip:
-    """``remove_participant`` must delete the row and be idempotent."""
-
-    def test_add_then_remove_clears_row(
-        self, db_session: Session, event: EventPost, users: list[User]
-    ) -> None:
-        add_participant(event, users[0])
-        db_session.flush()
-        assert _participation_row_count(db_session, event.id) == 1
-
-        removed = remove_participant(event, users[0])
-        db_session.flush()
-
-        assert removed is True
-        assert _participation_row_count(db_session, event.id) == 0
-
-    def test_remove_when_absent_is_idempotent(
-        self, db_session: Session, event: EventPost, users: list[User]
-    ) -> None:
-        # No prior add → the row isn't there.
-        removed = remove_participant(event, users[0])
-        db_session.flush()
-
-        assert removed is False
-        assert _participation_row_count(db_session, event.id) == 0
-
-    def test_remove_only_target_user(
-        self, db_session: Session, event: EventPost, users: list[User]
-    ) -> None:
-        for u in users:
-            add_participant(event, u)
-        db_session.flush()
-        assert _participation_row_count(db_session, event.id) == 3
-
-        remove_participant(event, users[1])
-        db_session.flush()
-
-        assert _participation_row_count(db_session, event.id) == 2
-        # The other two are still there.
-        assert is_participant(event, users[0]) is True
-        assert is_participant(event, users[1]) is False
-        assert is_participant(event, users[2]) is True
 
 
 # ----------------------------------------------------------------
@@ -205,18 +135,15 @@ class TestIsParticipantRoundTrip:
     def test_true_after_add(
         self, db_session: Session, event: EventPost, users: list[User]
     ) -> None:
-        add_participant(event, users[0])
-        db_session.flush()
+        _accredit(db_session, event, users[0])
 
         assert is_participant(event, users[0]) is True
 
     def test_false_after_remove(
         self, db_session: Session, event: EventPost, users: list[User]
     ) -> None:
-        add_participant(event, users[0])
-        db_session.flush()
-        remove_participant(event, users[0])
-        db_session.flush()
+        _accredit(db_session, event, users[0])
+        withdraw_accreditation(event, users[0])
 
         assert is_participant(event, users[0]) is False
 
@@ -228,8 +155,7 @@ class TestIsParticipantRoundTrip:
         db_session.add_all([e1, e2])
         db_session.flush()
 
-        add_participant(e1, users[0])
-        db_session.flush()
+        _accredit(db_session, e1, users[0])
 
         assert is_participant(e1, users[0]) is True
         assert is_participant(e2, users[0]) is False
@@ -252,8 +178,8 @@ class TestGetParticipantsRoundTrip:
     def test_returns_added_users(
         self, db_session: Session, event: EventPost, users: list[User]
     ) -> None:
-        add_participant(event, users[0])
-        add_participant(event, users[2])
+        _accredit(db_session, event, users[0])
+        _accredit(db_session, event, users[2])
         db_session.flush()
 
         result = get_participants(event)
@@ -266,7 +192,7 @@ class TestGetParticipantsRoundTrip:
     ) -> None:
         # Insert in non-sorted order to make the ordering observable.
         for idx in (2, 0, 1):
-            add_participant(event, users[idx])
+            _accredit(db_session, event, users[idx])
         db_session.flush()
 
         result = get_participants(event, order_by=User.email.asc())
@@ -278,7 +204,7 @@ class TestGetParticipantsRoundTrip:
         self, db_session: Session, event: EventPost, users: list[User]
     ) -> None:
         for u in users:
-            add_participant(event, u)
+            _accredit(db_session, event, u)
         db_session.flush()
 
         result = get_participants(event, limit=2)

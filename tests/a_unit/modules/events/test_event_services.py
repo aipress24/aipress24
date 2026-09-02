@@ -19,11 +19,9 @@ from app.modules.events.models import (
     EventPost,
 )
 from app.modules.events.services import (
-    add_participant,
-    can_user_accredit,
     get_participants,
+    in_audience,
     is_participant,
-    remove_participant,
 )
 
 if TYPE_CHECKING:
@@ -210,51 +208,16 @@ class TestIsParticipant:
         assert is_participant(event_post, journalist) is True
 
 
-class TestAddParticipant:
-    def test_inserts_row_when_absent(
-        self, event_post: EventPost, journalist: User
-    ) -> None:
-        inserted = add_participant(event_post, journalist)
-        assert inserted is True
-        assert is_participant(event_post, journalist) is True
+class TestAudienceTargeting:
+    """Bug 0127: accreditation reserved to journalists (RoleEnum.PRESS_MEDIA).
 
-    def test_idempotent_when_already_accredited(
-        self, db: SQLAlchemy, event_post: EventPost, journalist: User
-    ) -> None:
-        _add_participant(db, event_post, journalist)
-
-        inserted = add_participant(event_post, journalist)
-
-        assert inserted is False
-        # And exactly one row, not two — UniqueConstraint on (user_id, event_id).
-        assert len(get_participants(event_post)) == 1
-
-
-class TestRemoveParticipant:
-    def test_deletes_existing_row(
-        self, db: SQLAlchemy, event_post: EventPost, journalist: User
-    ) -> None:
-        _add_participant(db, event_post, journalist)
-
-        deleted = remove_participant(event_post, journalist)
-
-        assert deleted is True
-        assert is_participant(event_post, journalist) is False
-
-    def test_idempotent_when_absent(
-        self, event_post: EventPost, journalist: User
-    ) -> None:
-        deleted = remove_participant(event_post, journalist)
-        assert deleted is False
-
-
-class TestCanUserAccredit:
-    """Bug 0127: accreditation reserved to journalists (RoleEnum.PRESS_MEDIA)."""
+    Went through `can_user_accredit`, a one-line forward to `in_audience`
+    that lot L2 left behind; these assert `in_audience` directly."""
 
     def test_journalist_can_accredit(self, event_post: EventPost) -> None:
         user = _UserStub(roles={RoleEnum.PRESS_MEDIA})
 
-        assert can_user_accredit(user, event_post) is True
+        assert in_audience(user, event_post.audience or []) is True
 
     def test_a_non_journalist_may_accredit_when_untargeted(
         self, event_post: EventPost
@@ -263,13 +226,15 @@ class TestCanUserAccredit:
         l'écart E1, qui réservait tout événement aux journalistes."""
         user = _UserStub(roles=set())
 
-        assert can_user_accredit(user, event_post) is True
+        assert in_audience(user, event_post.audience or []) is True
 
     def test_targeting_is_what_restricts(self, event_post: EventPost) -> None:
         event_post.audience = [CommunityEnum.PRESS_MEDIA.value]
 
-        assert can_user_accredit(_UserStub(roles=set()), event_post) is False
+        assert in_audience(_UserStub(roles=set()), event_post.audience or []) is False
         assert (
-            can_user_accredit(_UserStub(roles={RoleEnum.PRESS_MEDIA}), event_post)
+            in_audience(
+                _UserStub(roles={RoleEnum.PRESS_MEDIA}), event_post.audience or []
+            )
             is True
         )

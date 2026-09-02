@@ -194,24 +194,6 @@ class TestActiveFiltersEdges:
 # ---------------------------------------------------------------------------
 
 
-class TestTagPropertyMixed:
-    def test_tag_returns_first_tag_when_mixed(self) -> None:
-        state = {
-            "filters": [
-                {"id": "genre", "value": "conf"},
-                {"id": "tag", "value": "python"},
-                {"id": "tag", "value": "django"},
-            ]
-        }
-        bar = _make_bar(state)
-        # The implementation returns the FIRST tag filter found.
-        assert bar.tag == "python"
-
-    def test_tag_ignores_non_tag_filters(self) -> None:
-        bar = _make_bar({"filters": [{"id": "genre", "value": "conf"}]})
-        assert bar.tag == ""
-
-
 # ---------------------------------------------------------------------------
 # remove_filter no-ops and add/remove cycles
 # ---------------------------------------------------------------------------
@@ -275,18 +257,7 @@ class TestAddRemoveCycles:
 # ---------------------------------------------------------------------------
 
 
-class TestSetTagAndReset:
-    def test_set_tag_adds_tag_filter_and_saves(self) -> None:
-        bar = _make_bar()
-        bar.set_tag("python")
-        assert bar.state["filters"] == [{"id": "tag", "value": "python"}]
-        assert bar.saves == 1
-
-    def test_set_tag_then_tag_property(self) -> None:
-        bar = _make_bar()
-        bar.set_tag("django")
-        assert bar.tag == "django"
-
+class TestReset:
     def test_reset_clears_state_and_saves(self) -> None:
         bar = _make_bar(
             {

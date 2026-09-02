@@ -13,7 +13,4 @@ from .models import EventPost
 def url_for_event(event: EventPost, _ns: str = "events", **kw):
     name = f"{_ns}.event"
     kw["id"] = event.id
-    # if _ns == "public":
-    #     kw["slug"] = event.slug
-
     return url_for(name, **kw)
