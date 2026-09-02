@@ -226,11 +226,17 @@ class TestSelectorIdentity:
             assert selector_cls.is_dual is False
 
     def test_pays_selector_identity(self) -> None:
-        """PaysSelector pins its own identity: stable form key + the
-        `pays` taxonomy backing the dropdown. It is a flat selector
-        (no parent cascade)."""
+        """PaysSelector pins its own identity: stable form key, and no
+        backing taxonomy. It is a flat selector (no parent cascade).
+
+        It declared `taxonomy_name = "pays"` until ticket #0323, but no
+        `pays` ontology is ever seeded, so the load returned an empty
+        list on every request and the options came from the candidate
+        pool alone. The declaration named data that does not exist —
+        the very mismatch that ticket is about.
+        """
         assert PaysSelector.id == "pays"
-        assert PaysSelector.taxonomy_name == "pays"
+        assert PaysSelector.taxonomy_name is None
         assert PaysSelector.is_dual is False
         assert issubclass(PaysSelector, BaseSelector)
         assert not issubclass(PaysSelector, DualSelector)

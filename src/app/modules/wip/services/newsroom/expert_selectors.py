@@ -38,6 +38,7 @@ from dataclasses import dataclass
 from functools import cached_property
 from typing import Any
 
+from app.logging import warn
 from app.models.auth import User
 from app.modules.kyc.field_label import (
     country_code_to_country_name,
@@ -310,7 +311,23 @@ class DualSelector(BaseSelector):
 
     @cached_property
     def _raw_taxonomy(self) -> dict[str, Any]:
-        return self._dual_taxonomy_loader(self.taxonomy_name or "")
+        """La taxonomie qui alimente la cascade.
+
+        Un nom inconnu ressort en dictionnaire vide, sans erreur : la
+        liste déroulante se rend alors vide et rien ne dit pourquoi.
+        C'est ce silence qui a coûté deux jours sur le ticket #0323 —
+        « la taxonomie apparaît mais pas son contenu ». Il est désormais
+        tracé. `test_ciblage_taxonomies_exist.py` attrape le cas au plus
+        tôt ; ce garde-fou couvre l'autre voie, une base dont les
+        ontologies n'ont pas été chargées.
+        """
+        raw = self._dual_taxonomy_loader(self.taxonomy_name or "")
+        if not raw.get("field2"):
+            warn(
+                f"ciblage: la taxonomie {self.taxonomy_name!r} du filtre "
+                f"{self.id!r} est vide — la liste déroulante le sera aussi."
+            )
+        return raw
 
     @cached_property
     def _taxonomy_detail_map(self) -> dict[str, list[str]]:
@@ -661,15 +678,26 @@ class TailleOrganisationSelector(BaseSelector):
 class PaysSelector(BaseSelector):
     """Filter by country.
 
-    Backed by the `pays` taxonomy but the country code stored on a
-    profile is a single string, not a list — so `_expert_values`
-    wraps it in a single-element list and `filter_experts` is
-    overridden to compare on equality.
+    Data-driven, like Département et Ville : the options are the country
+    codes the candidate pool actually carries, rendered through
+    `country_code_to_country_name`.
+
+    It declared `taxonomy_name = "pays"` until ticket #0323. No such
+    ontology is ever seeded — `TAXO_NAME_ONTOLOGIE_SLUG` has no `pays`
+    entry — so the load returned an empty list on every request and the
+    dropdown was already built from expert values alone. The declaration
+    described an intent the data never backed, and it is the shape of
+    mismatch that ticket is about: a name asked for on one side, absent
+    on the other, failing silently.
+
+    The country code stored on a profile is a single string, not a list —
+    so `_expert_values` wraps it and `filter_experts` compares on
+    equality.
     """
 
     id = "pays"
     label = "Pays"
-    taxonomy_name = "pays"
+    taxonomy_name = None
 
     def _expert_values(self, expert: User) -> Iterable[str]:
         country = expert.profile.country
