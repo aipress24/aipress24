@@ -113,7 +113,7 @@ class BaseTable(Table):
     #: by this string.
     view_class: str = ""
 
-    def url_for(self, obj, _action="get", **kwargs):
+    def url_for(self, obj: Any, _action: str = "get", **kwargs: Any) -> str:
         return url_for(f"{self.view_class}:{_action}", id=obj.id, **kwargs)
 
     def __init__(self, model_class: type, q: str = "") -> None:

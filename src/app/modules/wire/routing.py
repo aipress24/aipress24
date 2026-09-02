@@ -23,7 +23,9 @@ from app.modules.wire.models import ArticlePost, PressReleasePost
 # drops it rather than forwarding.
 @url_for.register(ArticlePost)
 @url_for.register(PressReleasePost)
-def _url_for_post(item, _ns: str = "wire", **kw: str) -> str:
+def _url_for_post(
+    item: ArticlePost | PressReleasePost, _ns: str = "wire", **kw: str
+) -> str:
     kw["id"] = base62.encode(item.id)
     return url_for(f"{_ns}.item", **kw)
 

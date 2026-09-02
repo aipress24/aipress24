@@ -38,18 +38,19 @@ class RecentContentsDataSource(DataSource):
         return len(list(db.session.scalars(self.query())))
 
 
-def get_name(obj):
+def get_name(obj: Any) -> str:
     """The publisher's name, for a table that mixes content types.
 
     `RecentContentsDataSource` selects `BaseContent` polymorphically and
-    `publisher` is not on that base, so what arrives here varies by row.
-    `AttributeError` rather than a bare `except`: the tolerance is for a
-    row shape without `.name`, not for `KeyboardInterrupt`.
+    `publisher` is not on that base, so what arrives here is an
+    `Organisation`, `None`, or — for a subclass that names the column
+    something else — whatever that column holds.
+
+    `getattr` with a default rather than a `try`/`except`: the absent
+    attribute is the normal case here, not an error to be caught, and
+    `getattr(None, ...)` covers the empty publisher in the same breath.
     """
-    try:
-        return obj.name if obj else ""
-    except AttributeError:
-        return ""
+    return getattr(obj, "name", "") or ""
 
 
 @define
