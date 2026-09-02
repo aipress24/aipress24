@@ -26,8 +26,7 @@ from app.modules.bw.bw_activation.bw_invitation import (
     InvitationOutcomeCode,
     _sender_identity,
     apply_bw_missions_to_pr_user,
-    change_bwmi_emails,
-    change_bwpri_emails,
+    change_role_emails,
     ensure_roles_membership,
     invite_pr_provider,
     invite_user_role,
@@ -464,7 +463,7 @@ class TestInviteUserRoleIntegration:
 
 
 # -----------------------------------------------------------------------------
-# Tests: change_bwpri_emails / change_bwmi_emails aggregators
+# Tests: change_role_emails / change_role_emails aggregators
 # -----------------------------------------------------------------------------
 
 
@@ -477,7 +476,7 @@ class TestChangeRoleEmails:
     that admins received zero feedback when an invitation was dropped.
     """
 
-    def test_change_bwpri_emails_returns_outcome_per_new_invite(
+    def test_change_role_emails_returns_outcome_per_new_invite(
         self,
         db_session: Session,
         media_bw: BusinessWall,
@@ -503,7 +502,9 @@ class TestChangeRoleEmails:
         db_session.add(member)
         db_session.flush()
 
-        outcomes = change_bwpri_emails(media_bw, "lorraine@example.com")
+        outcomes = change_role_emails(
+            media_bw, "lorraine@example.com", BWRoleType.BWPRI
+        )
         db_session.flush()
 
         assert len(outcomes) == 1
@@ -528,20 +529,20 @@ class TestChangeRoleEmails:
         assert "PR Manager (internal)" in notifications[0].message
         assert "Business Wall Manager (internal)" not in notifications[0].message
 
-    def test_change_bwpri_emails_surfaces_unknown_email(
+    def test_change_role_emails_surfaces_unknown_email(
         self,
         media_bw: BusinessWall,
     ):
         """An e-mail that doesn't match any active user returns a
         specific failure code so the route can flash the admin."""
-        outcomes = change_bwpri_emails(media_bw, "ghost@example.com")
+        outcomes = change_role_emails(media_bw, "ghost@example.com", BWRoleType.BWPRI)
 
         assert len(outcomes) == 1
         assert outcomes[0].is_failure
         assert outcomes[0].code == InvitationOutcomeCode.FAILED_UNKNOWN_EMAIL
         assert outcomes[0].email == "ghost@example.com"
 
-    def test_change_bwpri_emails_surfaces_non_member_failure(
+    def test_change_role_emails_surfaces_non_member_failure(
         self,
         db_session: Session,
         media_bw: BusinessWall,
@@ -561,13 +562,15 @@ class TestChangeRoleEmails:
         db_session.add(outsider)
         db_session.flush()
 
-        outcomes = change_bwpri_emails(media_bw, "outsider@example.com")
+        outcomes = change_role_emails(
+            media_bw, "outsider@example.com", BWRoleType.BWPRI
+        )
 
         assert len(outcomes) == 1
         assert outcomes[0].is_failure
         assert outcomes[0].code == InvitationOutcomeCode.FAILED_NOT_IN_ORG
 
-    def test_change_bwpri_emails_skips_already_accepted(
+    def test_change_role_emails_skips_already_accepted(
         self,
         db_session: Session,
         media_bw: BusinessWall,
@@ -599,12 +602,14 @@ class TestChangeRoleEmails:
         db_session.flush()
         db_session.refresh(media_bw)
 
-        outcomes = change_bwpri_emails(media_bw, "accepted@example.com")
+        outcomes = change_role_emails(
+            media_bw, "accepted@example.com", BWRoleType.BWPRI
+        )
 
         # The aggregator filtered the address out: no invite attempted.
         assert outcomes == []
 
-    def test_change_bwpri_emails_mixed_batch(
+    def test_change_role_emails_mixed_batch(
         self,
         db_session: Session,
         media_bw: BusinessWall,
@@ -624,8 +629,8 @@ class TestChangeRoleEmails:
         db_session.add(valid_member)
         db_session.flush()
 
-        outcomes = change_bwpri_emails(
-            media_bw, "valid@example.com unknown@example.com"
+        outcomes = change_role_emails(
+            media_bw, "valid@example.com unknown@example.com", BWRoleType.BWPRI
         )
 
         outcomes_by_email = {o.email: o for o in outcomes}
@@ -676,7 +681,9 @@ class TestChangeRoleEmails:
         db_session.refresh(media_bw)
 
         # Hermance now invites Lorraine to BWPRi.
-        outcomes = change_bwpri_emails(media_bw, "lorraine@example.com")
+        outcomes = change_role_emails(
+            media_bw, "lorraine@example.com", BWRoleType.BWPRI
+        )
         db_session.flush()
 
         assert outcomes[0].is_success
@@ -694,7 +701,7 @@ class TestChangeRoleEmails:
         assert stale_bwmi.invitation_status == InvitationStatus.ACCEPTED.value
         assert stale_bwmi.role_type == BWRoleType.BWMI.value
 
-    def test_change_bwmi_emails_revokes_pending_user_dropped_from_list(
+    def test_change_role_emails_revokes_pending_user_dropped_from_list(
         self,
         db_session: Session,
         media_bw: BusinessWall,
@@ -730,7 +737,7 @@ class TestChangeRoleEmails:
         db_session.flush()
         db_session.refresh(media_bw)
 
-        change_bwmi_emails(media_bw, "")
+        change_role_emails(media_bw, "", BWRoleType.BWMI)
         db_session.flush()
 
         remaining = (
@@ -1508,7 +1515,7 @@ class TestBwpriInvitationVisibleInPreferences:
         db_session.flush()
 
         # Boss invites Nina as BWPRi via the real textarea aggregator.
-        outcomes = change_bwpri_emails(media_bw, "nina@example.com")
+        outcomes = change_role_emails(media_bw, "nina@example.com", BWRoleType.BWPRI)
         db_session.flush()
         assert outcomes[0].is_success
 

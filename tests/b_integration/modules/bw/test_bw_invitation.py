@@ -16,8 +16,7 @@ from app.models.auth import User
 from app.models.organisation import Organisation
 from app.modules.bw.bw_activation.bw_invitation import (
     apply_bw_missions_to_pr_user,
-    change_bwmi_emails,
-    change_bwpri_emails,
+    change_role_emails,
     ensure_roles_membership,
     invite_user_role,
     revoke_user_role,
@@ -352,7 +351,7 @@ class TestEnsureRolesMembership:
 
 
 class TestChangeBWMiEmails:
-    """Tests for change_bwmi_emails function."""
+    """Tests for change_role_emails function."""
 
     def test_add_new_bwmi_invitation(
         self,
@@ -362,7 +361,7 @@ class TestChangeBWMiEmails:
         member_with_known_email: User,
     ) -> None:
         """Add BWMi invitation for org member."""
-        change_bwmi_emails(business_wall, "member@example.com")
+        change_role_emails(business_wall, "member@example.com", BWRoleType.BWMI)
         db_session.flush()
 
         db_session.refresh(business_wall)
@@ -392,7 +391,7 @@ class TestChangeBWMiEmails:
         assert len(business_wall.role_assignments) == 1
 
         # remove, empty list for change
-        change_bwmi_emails(business_wall, "")
+        change_role_emails(business_wall, "", BWRoleType.BWMI)
         db_session.flush()
 
         db_session.refresh(business_wall)
@@ -421,9 +420,8 @@ class TestChangeBWMiEmails:
         db_session.flush()
 
         # Invite both
-        change_bwmi_emails(
-            business_wall,
-            "member1@example.com member2@example.com",
+        change_role_emails(
+            business_wall, "member1@example.com member2@example.com", BWRoleType.BWMI
         )
         db_session.flush()
 
@@ -437,7 +435,7 @@ class TestChangeBWMiEmails:
 
 
 class TestChangeBWPRiEmails:
-    """Tests for change_bwpri_emails function."""
+    """Tests for change_role_emails function."""
 
     def test_add_new_bwpri_invitation(
         self,
@@ -447,7 +445,7 @@ class TestChangeBWPRiEmails:
         member_with_known_email: User,
     ) -> None:
         """Add new BWPRi invitation for org member."""
-        change_bwpri_emails(business_wall, "member@example.com")
+        change_role_emails(business_wall, "member@example.com", BWRoleType.BWPRI)
         db_session.flush()
 
         db_session.refresh(business_wall)
@@ -476,7 +474,7 @@ class TestChangeBWPRiEmails:
         assert len(business_wall.role_assignments) == 1
 
         # Remove
-        change_bwpri_emails(business_wall, "")
+        change_role_emails(business_wall, "", BWRoleType.BWPRI)
         db_session.flush()
 
         db_session.refresh(business_wall)
@@ -505,8 +503,8 @@ class TestChangeBWPRiEmails:
         db_session.flush()
 
         # Invite to different roles
-        change_bwmi_emails(business_wall, "bwmi@example.com")
-        change_bwpri_emails(business_wall, "bwpri@example.com")
+        change_role_emails(business_wall, "bwmi@example.com", BWRoleType.BWMI)
+        change_role_emails(business_wall, "bwpri@example.com", BWRoleType.BWPRI)
         db_session.flush()
 
         db_session.refresh(business_wall)

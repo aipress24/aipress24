@@ -10,6 +10,7 @@ from typing import TYPE_CHECKING, Any, cast
 
 from flask import flash, g, redirect, render_template, request, session, url_for
 from werkzeug import Response
+from werkzeug.exceptions import NotFound
 
 from app.flask.extensions import db
 from app.flask.sqla import get_obj
@@ -18,8 +19,7 @@ from app.models.auth import User
 from app.modules.bw.bw_activation import bp
 from app.modules.bw.bw_activation.bw_invitation import (
     InvitationOutcome,
-    change_bwmi_emails,
-    change_bwpri_emails,
+    change_role_emails,
     revoke_user_role,
 )
 from app.modules.bw.bw_activation.config import BW_TYPES
@@ -38,6 +38,60 @@ from app.modules.bw.bw_activation.utils import (
 
 if TYPE_CHECKING:
     from app.modules.bw.bw_activation.models import BusinessWall
+
+
+#: The two textarea actions, and the role each one manages. The four
+#: arms of a `match` said this before: two invite arms differing only by
+#: the function called, and two remove arms that were the same fourteen
+#: lines but for a constant.
+_INVITE_ACTIONS: dict[str, BWRoleType] = {
+    "change_bwmi_invitations": BWRoleType.BWMI,
+    "change_bwpri_invitations": BWRoleType.BWPRI,
+}
+
+_REMOVE_ACTIONS: dict[str, BWRoleType] = {
+    "remove_bwmi": BWRoleType.BWMI,
+    "remove_bwpri": BWRoleType.BWPRI,
+}
+
+
+def _back_to_internal_roles() -> Response:
+    """The HTMX redirect every POST arm answers with."""
+    response = Response("")
+    response.headers["HX-Redirect"] = url_for("bw_activation.manage_internal_roles")
+    return response
+
+
+def _apply_email_list_for(
+    business_wall: BusinessWall, role: BWRoleType
+) -> list[InvitationOutcome]:
+    """Diff the submitted address list against the current invitations."""
+    outcomes = change_role_emails(business_wall, request.form["content"], role)
+    db.session.commit()
+    return outcomes
+
+
+def _remove_role(business_wall: BusinessWall, role: BWRoleType) -> None:
+    """Revoke one role from one user, and say so if it did not happen.
+
+    The failure used to be swallowed and the admin redirected to a page
+    that still listed the person: they clicked « retirer », saw the
+    role, and had no way to know the click had failed.
+    """
+    user_id = request.form.get("user_id")
+    if not user_id:
+        return
+    try:
+        user_to_remove = cast(User, get_obj(user_id, User))
+    except NotFound:
+        warn(f"Cannot remove {role.value} for unknown user {user_id}")
+        flash("Cet utilisateur n'existe plus.", "error")
+        return
+
+    if not revoke_user_role(business_wall, user_to_remove, role):
+        flash("Ce rôle n'était pas attribué à cet utilisateur.", "error")
+        return
+    db.session.commit()
 
 
 @bp.route("/manage-internal-roles", methods=["GET", "POST"])
@@ -62,61 +116,18 @@ def manage_internal_roles():
 
     if request.method == "POST":
         action = request.form.get("action")
-        match action:
-            case "change_bwmi_invitations":
-                raw_mails = request.form["content"]
-                outcomes = change_bwmi_emails(business_wall, raw_mails)
-                db.session.commit()
-                _flash_invitation_outcomes(outcomes)
-                response = Response("")
-                response.headers["HX-Redirect"] = url_for(
-                    "bw_activation.manage_internal_roles"
-                )
-                return response
-            case "change_bwpri_invitations":
-                raw_mails = request.form["content"]
-                outcomes = change_bwpri_emails(business_wall, raw_mails)
-                db.session.commit()
-                _flash_invitation_outcomes(outcomes)
-                response = Response("")
-                response.headers["HX-Redirect"] = url_for(
-                    "bw_activation.manage_internal_roles"
-                )
-                return response
-            case "remove_bwmi":
-                user_id = request.form.get("user_id")
-                if user_id:
-                    try:
-                        user_to_remove = cast(User, get_obj(user_id, User))
-                        revoke_user_role(business_wall, user_to_remove, BWRoleType.BWMI)
-                        db.session.commit()
-                    except Exception as e:
-                        warn(f"Failed to remove BWMi {user_id}: {e}")
-                response = Response("")
-                response.headers["HX-Redirect"] = url_for(
-                    "bw_activation.manage_internal_roles"
-                )
-                return response
-            case "remove_bwpri":
-                user_id = request.form.get("user_id")
-                if user_id:
-                    try:
-                        user_to_remove = cast(User, get_obj(user_id, User))
-                        revoke_user_role(
-                            business_wall, user_to_remove, BWRoleType.BWPRI
-                        )
-                        db.session.commit()
-                    except Exception as e:
-                        warn(f"Failed to remove BWPRi {user_id}: {e}")
-                response = Response("")
-                response.headers["HX-Redirect"] = url_for(
-                    "bw_activation.manage_internal_roles"
-                )
-                return response
-            case _:
-                session["error"] = ERR_UNKNOWN_ACTION
-                warn("unknown action", action)
-                return redirect(url_for("bw_activation.not_authorized"))
+        if action in _INVITE_ACTIONS:
+            _flash_invitation_outcomes(
+                _apply_email_list_for(business_wall, _INVITE_ACTIONS[action])
+            )
+            return _back_to_internal_roles()
+        if action in _REMOVE_ACTIONS:
+            _remove_role(business_wall, _REMOVE_ACTIONS[action])
+            return _back_to_internal_roles()
+
+        session["error"] = ERR_UNKNOWN_ACTION
+        warn("unknown action", action)
+        return redirect(url_for("bw_activation.not_authorized"))
 
     # Build context for template
     ctx = _build_context(business_wall, bw_type, bw_info)
@@ -161,8 +172,13 @@ def _categorize_role_assignments(
     """Categorize BW role assignments into owner / BWMi / BWPRi buckets.
 
     Pure-ish helper — all DB access goes through `user_loader`, a
-    keyword-injected callable `(user_id) -> user_or_None`. Returning
-    `None` (or raising) for an unknown id means « skip ».
+    keyword-injected callable `(user_id) -> user_or_None`. `None` for
+    an unknown id means « skip ».
+
+    « or raising » used to be part of that contract, honoured by two
+    `try/except Exception` blocks in the loop below — which caught far
+    more than a missing row. The loader answers
+    `None`, once, and this function just reads it.
 
     For BWMi / BWPRi : accepted assignments land in the « members »
     list, pending / rejected / expired land in the « invitations »
@@ -187,10 +203,7 @@ def _categorize_role_assignments(
             if owner_info:
                 # only the first owner wins; matches legacy `break`
                 continue
-            try:
-                owner_user = user_loader(user_id)
-            except Exception:
-                owner_user = None
+            owner_user = user_loader(user_id)
             if owner_user is None:
                 owner_info = {"email": "N/A", "full_name": "Inconnu"}
             else:
@@ -200,10 +213,7 @@ def _categorize_role_assignments(
                 }
             continue
 
-        try:
-            user = user_loader(user_id)
-        except Exception:  # noqa: S112 — defensive: any load error means skip
-            continue
+        user = user_loader(user_id)
         if user is None:
             continue
 
@@ -234,8 +244,12 @@ def _build_context(
 ) -> dict[str, str | dict | list]:
     """Build context for internal roles template."""
 
-    def _load(user_id):
-        return get_obj(user_id, User)
+    def _load(user_id: int) -> User | None:
+        """`None` for a role assignment whose user row is gone."""
+        try:
+            return cast(User, get_obj(user_id, User))
+        except NotFound:
+            return None
 
     parts = _categorize_role_assignments(
         business_wall.role_assignments, user_loader=_load

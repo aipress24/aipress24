@@ -13,8 +13,11 @@ decision* embedded in it :
   assignments, the user's active flag, and org membership state,
   what should the shell DO (create / resurrect / no-op / fail) and
   what admin-facing `InvitationOutcomeCode` should bubble up?
-- `decide_revoke_action` : given the role assignments list and a
-  `(user, role)` pair, *which row* (if any) qualifies for deletion?
+- `find_existing_assignment` : given the role assignments list and a
+  `(user, role)` pair, *which row* (if any) is it? The invite path asks
+  to decide idempotency, the revoke path asks to decide what to delete;
+  `decide_revoke_action` was a second, byte-identical copy of it and is
+  gone.
 - `select_non_member_assignments` : given the role assignments and
   the current org member ids, *which rows* should be revoked because
   the user is no longer a member?
@@ -42,7 +45,7 @@ from app.modules.bw.bw_activation.bw_invitation import (
     InviteAction,
     InviteDecision,
     decide_invite_outcome,
-    decide_revoke_action,
+    find_existing_assignment,
     select_non_member_assignments,
 )
 from app.modules.bw.bw_activation.models import BWRoleType, InvitationStatus
@@ -227,18 +230,23 @@ class TestDecideInviteOutcomeCreate:
         assert decision.action == InviteAction.CREATE_NEW
 
 
-class TestDecideRevokeAction:
-    """Pure: returns the matching assignment or None."""
+class TestFindExistingAssignment:
+    """Pure: returns the assignment matching `(user_id, role)`, or None.
+
+    These cases were written against `decide_revoke_action`, the revoke
+    path's own copy of this search. One function now answers for both
+    paths, so they pin it directly.
+    """
 
     def test_empty_list_returns_none(self):
-        assert decide_revoke_action([], 1, BWRoleType.BWMI.value) is None
+        assert find_existing_assignment([], 1, BWRoleType.BWMI.value) is None
 
     def test_none_list_returns_none(self):
-        assert decide_revoke_action(None, 1, BWRoleType.BWMI.value) is None
+        assert find_existing_assignment(None, 1, BWRoleType.BWMI.value) is None
 
     def test_matching_user_and_role_returned(self):
         target = _accepted(user_id=42, role=BWRoleType.BWPRI.value)
-        result = decide_revoke_action(
+        result = find_existing_assignment(
             [_accepted(user_id=99, role=BWRoleType.BWMI.value), target],
             42,
             BWRoleType.BWPRI.value,
@@ -246,7 +254,7 @@ class TestDecideRevokeAction:
         assert result is target
 
     def test_no_match_returns_none(self):
-        result = decide_revoke_action(
+        result = find_existing_assignment(
             [_accepted(user_id=99, role=BWRoleType.BWMI.value)],
             42,
             BWRoleType.BWMI.value,
@@ -256,7 +264,7 @@ class TestDecideRevokeAction:
     def test_different_role_same_user_no_match(self):
         """The (user_id, role_type) tuple is the match key.
         A BWMI row must not be returned when revoking BWPRI."""
-        result = decide_revoke_action(
+        result = find_existing_assignment(
             [_accepted(user_id=42, role=BWRoleType.BWMI.value)],
             42,
             BWRoleType.BWPRI.value,
@@ -267,7 +275,7 @@ class TestDecideRevokeAction:
         """Even REJECTED rows should be picked up — revocation
         deletes the row outright."""
         target = _rejected(user_id=1, role=BWRoleType.BWMI.value)
-        result = decide_revoke_action([target], 1, BWRoleType.BWMI.value)
+        result = find_existing_assignment([target], 1, BWRoleType.BWMI.value)
         assert result is target
 
     def test_returns_first_match(self):
@@ -278,7 +286,7 @@ class TestDecideRevokeAction:
         first.label = "first"
         second = _pending(user_id=1)
         second.label = "second"
-        result = decide_revoke_action([first, second], 1, BWRoleType.BWMI.value)
+        result = find_existing_assignment([first, second], 1, BWRoleType.BWMI.value)
         assert result is first
 
 

@@ -40,7 +40,6 @@ from dataclasses import dataclass
 from types import SimpleNamespace
 
 import pytest
-from werkzeug.exceptions import NotFound
 
 from app.modules.bw.bw_activation.bw_invitation import (
     InvitationOutcome,
@@ -83,13 +82,16 @@ class AssignmentStub:
 
 def _loader_from(users: dict[int, UserStub]):
     """Build a deterministic `user_loader` over an in-memory dict.
-    Missing ids raise `NotFound` (the only branch the categoriser
-    handles specially)."""
+
+    Missing ids answer `None`, which is the loader's whole contract.
+    This stub used to raise `NotFound` instead, matching a categoriser
+    that wrapped every call in `except Exception`;
+    the production loader now translates the missing row itself, in one
+    place, and the categoriser reads a plain `None`.
+    """
 
     def _load(user_id):
-        if user_id not in users:
-            raise NotFound
-        return users[user_id]
+        return users.get(user_id)
 
     return _load
 
@@ -199,10 +201,10 @@ class TestCategorizeRoleAssignmentsOwner:
             "full_name": "Alice Owner",
         }
 
-    def test_owner_load_failure_falls_back_to_inconnu(self):
-        """`get_obj` may raise (race with delete, ghost user). The
-        legacy code surfaced « Inconnu / N/A » in the template
-        rather than crashing the page — pin the fallback."""
+    def test_missing_owner_falls_back_to_inconnu(self):
+        """A ghost owner row (race with a delete) shows « Inconnu / N/A »
+        in the template rather than crashing the page — pin the
+        fallback."""
         assignments = [
             AssignmentStub(
                 role_type=BWRoleType.BW_OWNER.value,
@@ -334,26 +336,11 @@ class TestCategorizeRoleAssignmentsSkipsUnknownUsers:
         )
         assert result["bwmi_invitations"] == ["here@x.com"]
 
-    def test_other_exception_also_skipped(self):
-        """Any exception during user load is treated as « skip »
-        (defensive). Pin so a future refactor that narrows the
-        `except` clause doesn't unmask transient DB errors as 500."""
-
-        msg = "transient db error"
-
-        def angry_loader(_user_id):
-            raise RuntimeError(msg)
-
-        assignments = [
-            AssignmentStub(
-                role_type=BWRoleType.BWMI.value,
-                invitation_status=InvitationStatus.PENDING.value,
-                user_id=1,
-            ),
-        ]
-        result = _categorize_role_assignments(assignments, user_loader=angry_loader)
-        # No crash, just empty buckets.
-        assert result["bwmi_invitations"] == []
+    # `test_other_exception_also_skipped` lived here, pinning « any
+    # exception during user load is treated as skip » and warning that
+    # « a future refactor that narrows the except clause » would be a
+    # regression. It had it backwards: a transient database error
+    # rendering an empty member list is the failure, not the fix.
 
 
 class TestCategorizeRoleAssignmentsUnknownRoleTypes:

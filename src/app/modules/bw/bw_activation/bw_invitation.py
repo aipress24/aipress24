@@ -118,8 +118,19 @@ class InvitationOutcome:
 
     @property
     def is_failure(self) -> bool:
-        """Nothing happened and the admin needs to be told why."""
-        return self.code.value.startswith("failed_")
+        """Nothing happened and the admin needs to be told why.
+
+        Members, not a `startswith("failed_")` on the spelling: a new
+        failure code whose value did not carry the prefix was silently
+        not a failure, and the admin saw a success.
+        Its two sibling properties always enumerated.
+        """
+        return self.code in (
+            InvitationOutcomeCode.FAILED_INACTIVE,
+            InvitationOutcomeCode.FAILED_NOT_IN_ORG,
+            InvitationOutcomeCode.FAILED_NO_ORG,
+            InvitationOutcomeCode.FAILED_UNKNOWN_EMAIL,
+        )
 
     @property
     def is_idempotent(self) -> bool:
@@ -138,12 +149,17 @@ class InvitationOutcome:
         return self.is_success
 
 
-def find_existing_assignment(role_assignments, user_id: int, role_value: str):
+def find_existing_assignment(
+    role_assignments: list[RoleAssignment] | None,
+    user_id: int,
+    role_value: str,
+) -> RoleAssignment | None:
     """Search a BW's role_assignments for one matching (user, role).
 
     Returns the assignment row or None. Pure — no DB session needed
-    (the list is already loaded on the BW row). Extracted from
-    `invite_user_role` so the search rule is unit-testable."""
+    (the list is already loaded on the BW row). Both the invite and the
+    revoke path ask this question; `decide_revoke_action` used to ask it
+    again with an identical body."""
     if not role_assignments:
         return None
     for assignment in role_assignments:
@@ -152,7 +168,9 @@ def find_existing_assignment(role_assignments, user_id: int, role_value: str):
     return None
 
 
-def classify_existing_assignment(assignment) -> InvitationOutcomeCode | None:
+def classify_existing_assignment(
+    assignment: RoleAssignment,
+) -> InvitationOutcomeCode | None:
     """Map an already-existing RoleAssignment's invitation_status to
     the outcome code an admin should see :
 
@@ -207,7 +225,7 @@ class InviteDecision:
 
 def decide_invite_outcome(
     *,
-    role_assignments,
+    role_assignments: list[RoleAssignment] | None,
     user_id: int,
     user_active: bool,
     role_value: str,
@@ -253,21 +271,9 @@ def decide_invite_outcome(
     return InviteDecision(InviteAction.CREATE_NEW, InvitationOutcomeCode.CREATED)
 
 
-def decide_revoke_action(role_assignments, user_id: int, role_value: str):
-    """Find the assignment to revoke for `(user, role)` on this BW.
-
-    Returns the assignment to delete, or None if no matching row
-    exists. Pure : reads only the already-loaded list. The shell is
-    a 2-line delete + flush around this."""
-    if not role_assignments:
-        return None
-    for assignment in role_assignments:
-        if assignment.user_id == user_id and assignment.role_type == role_value:
-            return assignment
-    return None
-
-
-def select_non_member_assignments(role_assignments, member_ids: set[int]) -> list:
+def select_non_member_assignments(
+    role_assignments: list[RoleAssignment] | None, member_ids: set[int]
+) -> list[RoleAssignment]:
     """Return role assignments whose user_id is not in `member_ids`.
 
     The « ensure all role assignments are for current org members »
@@ -437,7 +443,9 @@ def revoke_user_role(business_wall: BusinessWall, user: User, role: BWRoleType) 
     Returns:
         True if done successfully
     """
-    target = decide_revoke_action(business_wall.role_assignments, user.id, role.value)
+    target = find_existing_assignment(
+        business_wall.role_assignments, user.id, role.value
+    )
     if target is None:
         return False
 
@@ -455,18 +463,25 @@ def revoke_user_role(business_wall: BusinessWall, user: User, role: BWRoleType) 
     return True
 
 
-def invite_bwmi_by_email(
+def invite_role_by_email(
     business_wall: BusinessWall,
     email: str,
+    role: BWRoleType,
     *,
     user_lookup: Callable[[str], User | None] | None = None,
     invite_fn: Callable[..., InvitationOutcome] | None = None,
 ) -> InvitationOutcome:
-    """Invite a user to become BWMi (Business Wall Manager Internal).
+    """Invite the user with this address to take `role` on the BW.
+
+    One function per role before — `invite_bwmi_by_email` and
+    `invite_bwpri_by_email`, identical but for the constant they passed
+    on the last line. Their `revoke_*` twins had no production caller at
+    all and are gone.
 
     Args:
         business_wall: target BW.
         email: candidate user's email address.
+        role: the role to invite them to.
         user_lookup: seam to resolve email → User. Defaults to the
             production `get_user_per_email`. Tests pass a stub.
         invite_fn: seam to perform the actual role invitation. Defaults
@@ -483,98 +498,7 @@ def invite_bwmi_by_email(
     if not user or not user.active:
         return InvitationOutcome(InvitationOutcomeCode.FAILED_UNKNOWN_EMAIL, email)
 
-    return invite(business_wall, user, BWRoleType.BWMI)
-
-
-def revoke_bwmi_by_email(
-    business_wall: BusinessWall,
-    email: str,
-    *,
-    user_lookup: Callable[[str], User | None] | None = None,
-    revoke_fn: Callable[..., bool] | None = None,
-) -> bool:
-    """Revoke a user from BWMi (Business Wall Manager Internal).
-
-    Args:
-        business_wall: target BW.
-        email: candidate user's email address.
-        user_lookup: seam to resolve email → User. Defaults to the
-            production `get_user_per_email`. Tests pass a stub.
-        revoke_fn: seam to perform the actual role revocation. Defaults
-            to `revoke_user_role`. Tests pass a stub.
-
-    Returns:
-        True if done successfully
-    """
-    lookup = user_lookup or get_user_per_email
-    revoke = revoke_fn or revoke_user_role
-
-    user = lookup(email)
-    if not user or not user.active:
-        return False
-
-    return revoke(business_wall, user, BWRoleType.BWMI)
-
-
-def invite_bwpri_by_email(
-    business_wall: BusinessWall,
-    email: str,
-    *,
-    user_lookup: Callable[[str], User | None] | None = None,
-    invite_fn: Callable[..., InvitationOutcome] | None = None,
-) -> InvitationOutcome:
-    """Invite a user to become BWPRI (PR Manager Internal).
-
-    Args:
-        business_wall: target BW.
-        email: candidate user's email address.
-        user_lookup: seam to resolve email → User. Defaults to the
-            production `get_user_per_email`. Tests pass a stub.
-        invite_fn: seam to perform the actual role invitation. Defaults
-            to `invite_user_role`. Tests pass a stub.
-
-    Returns:
-        `InvitationOutcome` describing the result. `FAILED_UNKNOWN_EMAIL`
-        if no active user matches the address.
-    """
-    lookup = user_lookup or get_user_per_email
-    invite = invite_fn or invite_user_role
-
-    user = lookup(email)
-    if not user or not user.active:
-        return InvitationOutcome(InvitationOutcomeCode.FAILED_UNKNOWN_EMAIL, email)
-
-    return invite(business_wall, user, BWRoleType.BWPRI)
-
-
-def revoke_bwpri_by_email(
-    business_wall: BusinessWall,
-    email: str,
-    *,
-    user_lookup: Callable[[str], User | None] | None = None,
-    revoke_fn: Callable[..., bool] | None = None,
-) -> bool:
-    """Revoke a user from BWPRI (PR Manager Internal).
-
-    Args:
-        business_wall: target BW.
-        email: candidate user's email address.
-        user_lookup: seam to resolve email → User. Defaults to the
-            production `get_user_per_email`. Tests pass a stub.
-        revoke_fn: seam to perform the actual role revocation. Defaults
-            to `revoke_user_role`. Tests pass a stub.
-
-    Returns:
-        True if done successfully
-    """
-    lookup = user_lookup or get_user_per_email
-    revoke = revoke_fn or revoke_user_role
-
-    user = lookup(email)
-    if not user:
-        return False
-
-    return revoke(business_wall, user, BWRoleType.BWPRI)
+    return invite(business_wall, user, role)
 
 
 def ensure_roles_membership(business_wall: BusinessWall) -> int:
@@ -607,33 +531,21 @@ def ensure_roles_membership(business_wall: BusinessWall) -> int:
     return len(to_revoke)
 
 
-def change_bwmi_emails(
-    business_wall: BusinessWall, raw_mails: str
+def change_role_emails(
+    business_wall: BusinessWall, raw_mails: str, role: BWRoleType
 ) -> list[InvitationOutcome]:
-    """Update BWMi invitations based on email list.
+    """Update `role` invitations from the admin textarea's address list.
+
+    One function per role before — `change_bwmi_emails` and
+    `change_bwpri_emails`, each a single call to `_apply_email_list`
+    with a different constant.
 
     Returns:
         List of `InvitationOutcome`, one per email that triggered a new
         invitation attempt (skips entries already pending/accepted in
         the current list). The caller surfaces failures to the admin.
     """
-    return _apply_email_list(
-        business_wall, raw_mails, BWRoleType.BWMI, invite_bwmi_by_email
-    )
-
-
-def change_bwpri_emails(
-    business_wall: BusinessWall, raw_mails: str
-) -> list[InvitationOutcome]:
-    """Update BWPRi invitations based on email list.
-
-    Returns:
-        List of `InvitationOutcome`, one per email that triggered a new
-        invitation attempt.
-    """
-    return _apply_email_list(
-        business_wall, raw_mails, BWRoleType.BWPRI, invite_bwpri_by_email
-    )
+    return _apply_email_list(business_wall, raw_mails, role)
 
 
 def parse_email_list(raw_mails: str | None) -> set[str]:
@@ -654,14 +566,18 @@ def _apply_email_list(
     business_wall: BusinessWall,
     raw_mails: str,
     role: BWRoleType,
-    invite_fn,
 ) -> list[InvitationOutcome]:
     """Diff a textarea-supplied email list against the current set.
 
     Pending users no longer in the list are revoked. Emails not yet
-    pending-or-accepted are invited via `invite_fn`. Returns the
-    outcomes of every invite attempt so the route can flash failures
-    to the admin — bug #0139 v2 surfaced the cost of swallowing them.
+    pending-or-accepted are invited. Returns the outcomes of every
+    invite attempt so the route can flash failures to the admin — bug
+    #0139 v2 surfaced the cost of swallowing them.
+
+    The role used to arrive twice, once as `role` and once baked into an
+    `invite_fn` argument, with nothing checking that the two agreed:
+    passing BWMi here alongside the BWPRi inviter would have revoked one
+    role while inviting the other.
     """
     new_mails = parse_email_list(raw_mails)
     org = business_wall.get_organisation()
@@ -684,11 +600,11 @@ def _apply_email_list(
         if (user.email or "").lower() not in new_mails:
             revoke_user_role(business_wall, user, role)
 
-    outcomes: list[InvitationOutcome] = []
-    for mail in new_mails:
-        if mail not in active_emails:
-            outcomes.append(invite_fn(business_wall, mail))
-    return outcomes
+    return [
+        invite_role_by_email(business_wall, mail, role)
+        for mail in new_mails
+        if mail not in active_emails
+    ]
 
 
 def _safe_get_user_list(
