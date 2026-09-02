@@ -152,10 +152,15 @@ def _format_cession_message(
 
 
 def _org_media_label(org: Organisation | None) -> str:
-    """Pure : best-effort « organe de presse » label for an Organisation."""
+    """Pure : best-effort « organe de presse » label for an Organisation.
+
+    `None` is a real case — the caller loads the org by id. The columns
+    are not: both are non-nullable, so they are read directly rather
+    than through `getattr` defaults that cannot fire.
+    """
     if org is None:
         return MISSING_LABEL
-    return getattr(org, "bw_name", None) or getattr(org, "name", "") or MISSING_LABEL
+    return org.bw_name or org.name or MISSING_LABEL
 
 
 def _author_media_name(
