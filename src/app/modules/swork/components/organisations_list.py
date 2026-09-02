@@ -366,16 +366,14 @@ class OrgFilterByTailleOrganisation(TailleOrgaFilter):
     """Single-value BW field."""
 
     def __init__(self, bws: list[BusinessWall] | None = None) -> None:
+        super().__init__()
         if not bws:
             return
         codes = sorted(
             {str(bw.taille_orga) for bw in bws if bw.taille_orga},
             key=taille_orga_sort_key,
         )
-        # pyrefly: ignore [read-only]
-        self.options = [  # ty:ignore[invalid-attribute-access]
-            FilterOption(taille_orga_label(code), code) for code in codes
-        ]
+        self.options = [FilterOption(taille_orga_label(code), code) for code in codes]
 
     def apply(self, stmt: Select, state: dict[str, bool]) -> Select:
         codes = self.active_options(state)

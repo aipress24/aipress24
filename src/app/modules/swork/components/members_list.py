@@ -161,13 +161,18 @@ class _MemberProfileListFilter(Filter):
     #: it out on both lines put the same string twice on three of the
     #: four subclasses and hid the one that differs.
     json_key: ClassVar[str] = ""
-    options: ClassVar[list[str]] = []  # ty:ignore[invalid-attribute-override]
 
     def __init__(self, objects: list | None = None) -> None:
+        # `Filter.__init__` gives this instance its own `options` list.
+        # Skipping it left every subclass reading one list shared by the
+        # whole family, and the base's own option-building doesn't fit
+        # here anyway: these columns hold lists, so the values are
+        # flattened rather than taken one per object.
+        super().__init__()
         if not objects:
             return
         options = sorted({value for obj in objects for value in self.selector(obj)})
-        self.options = [opt for opt in options if opt]  # type: ignore[misc, ty:invalid-attribute-access]
+        self.options = [opt for opt in options if opt]
 
     @classmethod
     def selector(cls, user: User) -> list[str]:
@@ -219,15 +224,14 @@ class FilterByTypeAgenceRP(_MemberProfileListFilter):
 
 class FilterByTailleOrganisation(TailleOrgaFilter):
     def __init__(self, objects: list | None = None) -> None:
+        super().__init__()
         if not objects:
             return
         raw_options = {self.selector(obj) for obj in objects}
-        options = sorted(
+        self.options = sorted(
             [opt for opt in raw_options if opt and opt.code],
             key=lambda opt: taille_orga_sort_key(opt.code),
         )
-        # pyrefly: ignore [read-only]
-        self.options = options  # ty:ignore[invalid-attribute-access]
 
     @staticmethod
     def selector(user: User) -> FilterOption:

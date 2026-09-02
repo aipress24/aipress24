@@ -14,7 +14,7 @@ byte for byte, the label with two different apostrophes, and an
 
 from __future__ import annotations
 
-from typing import ClassVar, cast
+from typing import cast
 
 from .base import Filter, FilterOption
 
@@ -64,7 +64,6 @@ class TailleOrgaFilter(Filter):
 
     id = "taille_organisation"
     label = "Tailles d’organisation"
-    options: ClassVar[list[str | FilterOption]] = []  # ty:ignore[invalid-attribute-override]
 
     def active_options(self, state: dict[str, bool]) -> list[str | FilterOption]:
         """The selected **codes**, where the base class returns options.
