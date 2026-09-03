@@ -9,6 +9,7 @@ Uses the `responses` library for HTTP stubbing instead of unittest.mock.
 
 from __future__ import annotations
 
+import requests
 import responses
 
 from app.services.web import TIMEOUT, check_url
@@ -87,10 +88,12 @@ class TestCheckUrl:
     @responses.activate
     def test_connection_error_returns_false(self) -> None:
         """Network errors should return False."""
+        # `requests.exceptions.ConnectionError`, not the builtin one:
+        # that is what `requests` raises, and it is a `RequestException`.
         responses.add(
             responses.GET,
             "https://example.com",
-            body=ConnectionError("Connection refused"),
+            body=requests.exceptions.ConnectionError("Connection refused"),
         )
 
         result = check_url("https://example.com")

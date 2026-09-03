@@ -6,27 +6,36 @@
 from __future__ import annotations
 
 import requests
-import rich
+from loguru import logger
 
-TIMEOUT = 60
+#: A screenshot job waits behind this call; past that, the URL is
+#: unusable for what it is wanted for anyway.
+TIMEOUT = 15
 
-scraper_is_installed = False
+_EMPTY_URLS = frozenset({"", "http://", "https://"})
 
 
 def check_url(url: str) -> bool:
-    if url in {"", "http://", "https://"}:
+    """Does the URL answer 200, over HTTPS?
+
+    An `http://` argument is rewritten: the caller (`jobs/screenshots`)
+    only captures pages served in the clear by accident.
+    """
+    if url in _EMPTY_URLS:
         return False
 
     if url.startswith("http://"):
-        url = url.replace("http://", "https://")
+        logger.debug(f"check_url: rewriting {url!r} to https")
+        url = url.replace("http://", "https://", 1)
 
     try:
         headers = {"User-Agent": "Python Requests"}
         result = requests.get(url, headers=headers, timeout=TIMEOUT)
-        status = result.status_code
-        rich.print(f"[red]Status: {status}[/] for URL: {url}")
-    except Exception as e:
-        rich.print(f"[red]Status: {e}[/] for URL: {url}")
-        status = -1
+    except requests.RequestException as e:
+        # The root of what `requests` raises — narrow enough that a bug
+        # in this module surfaces instead of reading as "unreachable".
+        logger.info(f"check_url: {url!r} unreachable ({e})")
+        return False
 
-    return status == 200
+    logger.debug(f"check_url: {url!r} answered {result.status_code}")
+    return result.status_code == 200
