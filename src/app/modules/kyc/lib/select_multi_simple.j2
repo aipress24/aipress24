@@ -1,48 +1,75 @@
 <script src="https://cdn.jsdelivr.net/npm/tom-select/dist/js/tom-select.complete.min.js"></script>
 
-<div
-    x-data="{   
-      multiple: true,
-      create: false,
-      value: {{ field.get_data() }},
-      options: {{ field.get_tom_choices_for_js() }},
-      init() {
-        this.$nextTick(() => {
-          let choices = new TomSelect(this.$refs.select, {
-             create: this.create,
-             createOnBlur: true,
-             maxOptions: null,
-             maxItems: null,
-             options: this.options,
-             preload: false,
-             labelField: 'label',
-             searchField: ['label'],
-             plugins: {
-		      remove_button:{
-			     title:'Retirer',
-		      }
-        	 },
-             });
+<div>
 
-          choices.setValue(this.value, true);
+    <script type="application/json" id="{{ field.id }}_config">
+        {{ {
+            "options": field.get_tom_choices_for_js(),
+            "value": field.get_data(),
+            "lock": 1 if field.lock else 0
+        } | tojson }}
+    </script>
 
-          if ({{ field.lock }})
-            choices.lock();
+    <div
+        x-data="{
+                config: null,
+                multiple: true,
+                create: false,
+                value: [],
+                options: [],
+                init() {
+                const config_elem = document.getElementById('{{ field.id }}_config');
+                if (config_elem) {
+                try {
+                this.config = JSON.parse(config_elem.textContent);
+                this.options = this.config.options || [];
+                this.value = this.config.value || [];
+                } catch (e) {
+                console.error('Failed to parse config for {{ field.id }}', e);
+                }
+                }
+                this.$nextTick(() => {
+                let choices = new TomSelect(this.$refs.select, {
+                create: this.create,
+                createOnBlur: true,
+                maxOptions: null,
+                maxItems: null,
+                options: this.options,
+                preload: false,
+                labelField: 'label',
+                searchField: ['label'],
+                diacritics: true,
+                plugins: {
+                remove_button:{
+                title:'Retirer',
+                }
+                },
+                });
 
-          this.$refs.select.addEventListener('change', () => {
-            this.value = choices.getValue();
-          });
+                if (this.value && this.value.length > 0) {
+                choices.setValue(this.value, true);
+                }
 
-        })
-      }
-    }"
-    class="col-span-12 w-full"
->
-  <select
-      id="{{ field.id }}"
-      name="{{ field.name }}"
-      {% if field.flags.required %}required{% endif %}
-      x-ref="select"
-      >
-  </select>
+                if (this.config && this.config.lock) {
+                choices.lock();
+                }
+
+                this.$refs.select.addEventListener('change', () => {
+                this.value = choices.getValue();
+                });
+
+                })
+                }
+                }"
+        class="col-span-12 w-full"
+    >
+        <select
+            id="{{ field.id }}"
+            name="{{ field.name }}"
+            {% if field.flags.required %}required{% endif %}
+            multiple
+            x-ref="select"
+        >
+        </select>
+    </div>
 </div>
