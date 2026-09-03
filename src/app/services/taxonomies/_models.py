@@ -8,6 +8,7 @@ Simple model for taxonomies.
 
 from __future__ import annotations
 
+from sqlalchemy import Index
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.models.base import Base
@@ -25,4 +26,12 @@ class TaxonomyEntry(IdMixin, Base):
     seq: Mapped[int] = mapped_column()
 
     #: the name of the taxonomy it belongs to ("subject", "sector", etc.)
+    #:
+    #: Indexed together with the sort key: every read filters on this
+    #: column and orders by `(seq, name)`. Without it Postgres scans the
+    #: whole table — 19k rows to return 150 — on every form render.
     taxonomy_name: Mapped[str]
+
+    __table_args__ = (
+        Index("ix_tax_taxonomy_name_seq", "taxonomy_name", "seq", "name"),
+    )
