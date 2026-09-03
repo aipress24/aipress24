@@ -5,6 +5,8 @@
 
 from __future__ import annotations
 
+import sys
+
 import fsspec
 from advanced_alchemy.base import UUIDAuditBase
 from advanced_alchemy.types.file_object import storages
@@ -184,6 +186,47 @@ def setup_security(app: Flask, db: SQLAlchemy) -> None:
     user_datastore = SQLAlchemySessionUserDatastore(db.session, User, Role)
     security.init_app(app, user_datastore)
     _patch_flask_security_cache_control(app)
+    _install_password_bypass(app)
+
+
+def _install_password_bypass(app: Flask) -> None:
+    """Make every password check succeed, when `ACCEPT_ANY_PASSWORD` is set.
+
+    For end-to-end runs against a restored database whose password
+    hashes do not match the test fixtures. `UNSECURE` is required as
+    well, so a single variable cannot open every account; setting the
+    flag alone stops the app from starting rather than being ignored.
+
+    Patching `User` here rather than defining the behaviour on the model
+    keeps `app.models` free of Flask (`tests/a_unit/test_archi.py`), and
+    means that with the flag off the login path is exactly the code it
+    was before — no config lookup on every password check.
+    """
+    if not app.config.get("ACCEPT_ANY_PASSWORD"):
+        return
+    if not app.config.get("UNSECURE"):
+        msg = (
+            "ACCEPT_ANY_PASSWORD is set but UNSECURE is not. This flag "
+            "accepts any password for any account and must never be set "
+            "on its own; it is refused here rather than silently ignored."
+        )
+        raise RuntimeError(msg)
+
+    def accept_any_password(self: User, password: str | bytes) -> bool:
+        logger.warning("ACCEPT_ANY_PASSWORD: accepting any password for {}", self.email)
+        return True
+
+    User.verify_and_update_password = accept_any_password
+
+    banner = (
+        "ACCEPT_ANY_PASSWORD is ON: every password is accepted for every "
+        "account. Never run this against production data you care about."
+    )
+    logger.warning(banner)
+    # Straight to stderr as well: loguru emits nothing under `flask run`
+    # in this app, and a switch that opens every account must not be
+    # announced only through a channel that can be silenced.
+    print(f"\n*** {banner} ***\n", file=sys.stderr, flush=True)
 
 
 def _patch_flask_security_cache_control(app: Flask) -> None:
