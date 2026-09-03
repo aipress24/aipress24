@@ -21,6 +21,8 @@ refactor lands.
 
 from __future__ import annotations
 
+from urllib.parse import urlparse
+
 import pytest
 from playwright.sync_api import Page
 
@@ -62,10 +64,11 @@ def test_notifications_mark_all_read_open_redirect_safe(
         f"open-redirect : POST followed `next=evil` to "
         f"{resp['url']} — _safe_next_url is broken"
     )
-    # Conversely, the response should land somewhere on our host.
-    # base_url has the form http://127.0.0.1:5000.
-    assert "127.0.0.1:5000" in resp["url"] or resp["url"] == "/", (
-        f"open-redirect defense : final URL not on our host : {resp['url']}"
+    # Conversely, the response should land somewhere on our host — taken
+    # from `base_url`, since the suite also runs on a throwaway port.
+    host = urlparse(base_url).netloc
+    assert host in resp["url"] or resp["url"] == "/", (
+        f"open-redirect defense : final URL not on our host ({host}) : {resp['url']}"
     )
 
 
