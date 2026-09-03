@@ -35,6 +35,16 @@ def _product(prod_id: str, **fields) -> dict:
     return base
 
 
+class TestNoApiKey:
+    """With no key configured we do not go looking: empty list."""
+
+    def test_no_api_key_returns_empty(self, app, app_context) -> None:
+        """The real path, with no fake client: nothing is called."""
+        app.config.pop("STRIPE_SECRET_KEY", None)
+
+        assert fetch_stripe_product_list() == []
+
+
 class TestFetchStripeProductList:
     def test_empty_listing_returns_empty(self) -> None:
         result = fetch_stripe_product_list(client=FakeStripeClient())
