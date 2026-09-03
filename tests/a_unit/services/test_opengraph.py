@@ -132,21 +132,18 @@ class TestGenericFallback:
 
         assert "og:description" not in result
 
-    def test_empty_summary_string_is_still_set(self):
-        """Empty-string summary is "present" — defensive contract for ``hasattr``."""
-        obj = SimpleNamespace(name="X", summary="")
+    @pytest.mark.parametrize("summary", ["", None])
+    def test_an_empty_description_emits_no_tag(self, summary):
+        """Nothing to say, so no tag.
+
+        `fragments/opengraph.j2` filters on `{% if v %}` anyway; the
+        decision belongs to the producer, where a reader looks for it.
+        """
+        obj = SimpleNamespace(name="X", summary=summary)
 
         result = to_opengraph_generic(obj, _url_for=fake_url_for)
 
-        assert result["og:description"] == ""
-
-    def test_none_summary_is_propagated(self):
-        """``None`` summary is still set — no implicit coercion."""
-        obj = SimpleNamespace(name="X", summary=None)
-
-        result = to_opengraph_generic(obj, _url_for=fake_url_for)
-
-        assert result["og:description"] is None
+        assert "og:description" not in result
 
 
 # ---------------------------------------------------------------------------
