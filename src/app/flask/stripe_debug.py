@@ -100,6 +100,13 @@ class MockSession:
         self.customer_email = kwargs.get("customer_email")
         self.metadata = kwargs.get("metadata", {})
         self.line_items = kwargs.get("line_items", [])
+        # Line items carry Stripe price ids, and this mock has no price
+        # catalogue, so it cannot total them. `None` is what the callers
+        # already handle as "no preview available" — a made-up number
+        # would show a wrong price to a buyer. A real Session always has
+        # these, and code that reads them must not `AttributeError`.
+        self.amount_subtotal = None
+        self.amount_total = None
         self._raw = kwargs
 
     def to_dict(self) -> dict:
