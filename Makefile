@@ -41,65 +41,41 @@ test-cov-all:
 test-with-typeguard:
 	pytest tests --typeguard-packages=app
 
-## Quick e2e — skips the 169-profile slow smoke (default for local iteration).
-test-e2e-local:
-	pytest -v --browser firefox \
-	--base-url=http://127.0.0.1:5000 \
-	-m "not slow" e2e_playwright
-
-## Full e2e including the 169-profile slow smoke (~10 minutes).
-test-e2e-local-full:
-	pytest -v --browser firefox \
-	--base-url=http://127.0.0.1:5000 \
-	e2e_playwright
-
-## Quick e2e against prod — skips slow smoke and any mutating test.
-test-e2e-prod:
-	pytest -v --browser firefox \
-	--base-url=$(PROD_URL) \
-	-m "not slow" e2e_playwright
-
-## Full e2e against prod — includes the 169-profile credential smoke.
-test-e2e-prod-full:
-	pytest -v --browser firefox \
-	--base-url=$(PROD_URL) \
-	e2e_playwright
-
-## Per-module e2e shortcuts. Use `MOD=<name>` (default `wip`) to run a
-## single module's tests against the local dev server. Faster than the
-## full `test-e2e-local` (~3 min full → 30-60 s per module).
+## Self-contained e2e: boots its own server on 8899, runs the suite,
+## tears the server down, exits with pytest's status. Nothing else to
+## start — a `make run` dev server can stay up on 5000.
+##
+## The server runs with FLASK_ACCEPT_ANY_PASSWORD so the suite can sign
+## in against any database, including a restored production dump whose
+## password hashes don't match the CSV fixtures.
+##
+## `mutates_db` and `slow` are excluded by default.
+##
+## Set E2E_BASE_URL to run against a server that is already up — a
+## `make run` on 5000, or production — instead of starting one.
 ##
 ## Examples :
-##   make test-e2e MOD=wip
-##   make test-e2e MOD=bw
-##   make test-e2e MOD=common
+##   make test-e2e                       # whole suite, no DB writes
+##   make test-e2e MOD=kyc               # one module
+##   make test-e2e E2E_ALL=1             # include mutates_db + slow
+##   make test-e2e E2E_PYTEST_ARGS=-q    # dots, not one line per test
+##   make test-e2e E2E_BASE_URL=http://127.0.0.1:5000
+##   make test-e2e E2E_BASE_URL=https://aipress24.com E2E_MARKERS='not slow'
 ##
 ## Available modules : admin api biz bw common cross_modules events
 ##                     infra kyc notifications preferences public
 ##                     regressions security swork wip wire
-MOD ?= wip
-test-e2e:
-	pytest -v --browser firefox \
-	--base-url=http://127.0.0.1:5000 \
-	-m "not slow" e2e_playwright/$(MOD)
+export MOD
+export E2E_ALL
+export E2E_BASE_URL
+export E2E_BROWSER
+export E2E_MARKERS
+export E2E_PORT
+export E2E_PYTEST_ARGS
+export E2E_SERVER_LOG
 
-## Parallel e2e — pytest-xdist with mail buffer per-worker isolation.
-## 2 passes : (1) parallel-safe tests in N workers, (2) parallel_unsafe
-## tests serial. The split is needed because some tests share seed-user
-## state (password change, in-flight email change, BW activation on a
-## specific guinea pig user). When multi-tenant fixtures (Sprint 7
-## phase B) lands, parallel_unsafe should disappear.
-##
-## NWORKERS controls the parallel pass : `make test-e2e-parallel NWORKERS=4`.
-NWORKERS ?= 4
-test-e2e-parallel:
-	pytest -v --browser firefox \
-	--base-url=http://127.0.0.1:5000 \
-	-n $(NWORKERS) --dist=loadfile \
-	-m "not slow and not parallel_unsafe" e2e_playwright
-	pytest -v --browser firefox \
-	--base-url=http://127.0.0.1:5000 \
-	-m "parallel_unsafe" e2e_playwright
+test-e2e:
+	uv run python e2e_playwright/run_e2e.py
 
 
 #

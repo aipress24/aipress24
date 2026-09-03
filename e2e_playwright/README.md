@@ -4,22 +4,44 @@ Read-only Playwright tests that exercise the four **go/no-go** sections of `loca
 
 ## Run
 
+The self-contained way — nothing to start beforehand:
+
 ```bash
-# Local dev server, quick (skips slow smoke)
-make test-e2e-local            # http://127.0.0.1:5000
-
-# Local dev server, full (includes 169-profile login smoke, ~10 min)
-make test-e2e-local-full
-
-# Single module — much faster, default MOD=wip
-make test-e2e MOD=bw           # or: common, infra, wip, wire, admin, security
-
-# Production, quick
-PROD_URL=https://aipress24.com make test-e2e-prod
-
-# Production, full (149+ logins against prod — heavy but read-only)
-PROD_URL=https://aipress24.com make test-e2e-prod-full
+make test-e2e                  # whole suite, no DB writes
+make test-e2e MOD=kyc          # one module
+make test-e2e E2E_ALL=1        # include the mutates_db and slow tests
+make test-e2e E2E_PYTEST_ARGS=-q   # dots, not one line per test
 ```
+
+`run_e2e.py` boots a server on **8899** (so a `make run` dev server stays free
+on 5000), waits for it, runs pytest, then stops the server and exits with
+pytest's status — a failed suite fails `make`. The server's own output goes to
+`e2e_playwright/server.log`, **not** to the terminal, so what you see is pytest
+and nothing else. It runs with `FLASK_ACCEPT_ANY_PASSWORD`, so the suite signs
+in against any database — including a restored production dump whose hashes
+don't match the CSV.
+
+If something goes wrong before the first test, the script prints the tail of
+that log for you. `E2E_PORT=8901` runs a second suite alongside a first; the
+script refuses to start rather than fight over a busy port.
+
+`mutates_db` is excluded unless `E2E_ALL=1`: those tests write, and the KYC
+signup ones create real members. Note that an empty `E2E_MARKERS=""` does
+*not* mean "run everything" — `export` hands undefined make variables down as
+empty, so empty has to keep meaning "use the default". Hence `E2E_ALL`.
+
+Against a server that is already up — your own `make run`, or production —
+set `E2E_BASE_URL`. Nothing is started and nothing is stopped:
+
+```bash
+make test-e2e E2E_BASE_URL=http://127.0.0.1:5000
+make test-e2e E2E_BASE_URL=https://aipress24.com E2E_MARKERS='not slow'
+```
+
+`make test-e2e` is the only e2e rule; `test-e2e-local`, `-prod`, `-attached`
+and `-parallel` are gone. Their behaviour lives in the knobs above, and
+`E2E_PYTEST_ARGS` covers the rest — `E2E_PYTEST_ARGS='-n 4 --dist=loadfile'`
+for the parallel pass, for instance.
 
 ## Layout
 
@@ -34,12 +56,14 @@ e2e_playwright/
 │                + test_communities.py + test_deep_navigation.py
 │                + test_functional_coverage.py
 ├── infra/      test_mail_harness.py + test_upload_limits.py
+├── kyc/        test_kyc_smoke.py + test_kyc_widgets.py
+│                + test_kyc_inscription.py
 ├── security/   test_auth_flows.py
 ├── wip/        test_avis_lifecycle.py + test_wip_lifecycle.py + test_wip_subpages.py
 └── wire/       test_paywall_ui.py
 ```
 
-New module dirs (`kyc/`, `swork/`, `biz/`, `events/`, `stripe/`, `notifications/`, `preferences/`, `public/`, `api/`) are added as the plan in `local-notes/plans/e2e-tests-playwright.md` progresses.
+New module dirs (`swork/`, `biz/`, `events/`, `stripe/`, `notifications/`, `preferences/`, `public/`, `api/`) are added as the plan in `local-notes/plans/e2e-tests-playwright.md` progresses.
 
 ## Test layers
 
@@ -51,6 +75,9 @@ New module dirs (`kyc/`, `swork/`, `biz/`, `events/`, `stripe/`, `notifications/
 | `common/test_functional_coverage.py` | URL gates (positive) | read-only |
 | `common/test_deep_navigation.py` | deep GET crawl | read-only |
 | `common/test_all_profiles_smoke.py` | credential smoke | read-only, **slow** |
+| `kyc/test_kyc_smoke.py` | KYC routes render | read-only (1 `mutates_db`) |
+| `kyc/test_kyc_widgets.py` | tom-select widgets, taxonomies reach the browser | read-only |
+| `kyc/test_kyc_inscription.py` | signup tunnel per community + refusals | mutates_db |
 | `infra/test_mail_harness.py` | `/debug/mail/*` smoke | read-only |
 | `infra/test_upload_limits.py` | upload size limit | read-only |
 | `wire/test_paywall_ui.py` | paywall surface | read-only |
@@ -64,13 +91,13 @@ New module dirs (`kyc/`, `swork/`, `biz/`, `events/`, `stripe/`, `notifications/
 
 ## Markers
 
-- `slow` — long-running (the 169-profile smoke). Skipped from `make test-e2e-local` / `test-e2e-prod`. Included in the `-full` variants.
-- `mutates_db` — tests that perform writes. Auto-skipped against the prod target (see `_block_db_writes_on_prod` in `conftest.py`).
+- `slow` — long-running (the 169-profile smoke). Excluded by default; `E2E_ALL=1` includes it.
+- `mutates_db` — tests that perform writes. Excluded by default; `E2E_ALL=1` includes them. `_block_db_writes_on_prod` in `conftest.py` also skips them when `--base-url` names production — but it matches on the hostname only, so it does **not** fire on a local server holding a production copy.
 
 Run a single file manually :
 
 ```bash
-pytest -v --browser firefox --base-url=http://127.0.0.1:5000 \
+pytest -v --browser chromium --base-url=http://127.0.0.1:5000 \
     e2e_playwright/common/test_authorization_matrix.py
 ```
 
@@ -82,11 +109,28 @@ The suite **does not seed** these accounts. They must already exist on the targe
 
 ## Browser
 
-Default browser is Firefox (matches `Makefile` targets). To use Chromium:
+**Chromium is the default.** Measured back to back on an idle machine:
+
+| module | chromium | firefox | webkit |
+|---|---|---|---|
+| `kyc` (26 tests) | **14 s** | 29 s | hangs |
+| `wire` (21 tests) | **43 s** | 72 s | — |
+
+Roughly twice as quick, green on both. Firefox also stalls on the aborted
+Vite module graph (see `_abort_vite_dev_assets`), which is its own pathology
+and not something the suite can fix.
+
+**WebKit hangs**: 240 s on a three-test module without running a single one.
+Not investigated further — use it only if you are chasing a Safari-specific
+bug, and expect to debug the harness first.
 
 ```bash
-pytest -v --browser chromium e2e_playwright
+make test-e2e E2E_BROWSER=firefox     # or webkit, at your peril
 ```
+
+Anything engine-specific in a test is a bug in the test: pin what the widget
+reports (`select.tomselect.isOpen`, `ts.dropdown_content`), not how an engine
+happens to hide a dropdown.
 
 ## Coverage
 
@@ -105,7 +149,7 @@ Workflow :
 2. Run the e2e suite to drive traffic :
 
    ```bash
-   make test-e2e-local-full
+   make test-e2e E2E_ALL=1
    ```
 
 3. Inspect the dashboard live :

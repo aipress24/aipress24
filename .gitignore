@@ -72,3 +72,6 @@ OLD/
 # Local
 .aider*
 docs
+
+# e2e harness: server output, kept out of the terminal
+e2e_playwright/server.log

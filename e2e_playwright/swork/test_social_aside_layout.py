@@ -13,8 +13,8 @@ main column to grow past its track and squeezed the aside.
 
 Fix: `min-w-0` on both `<main>` and `<aside>` so they can shrink.
 
-This test runs in a real browser (default channel; Firefox can be
-selected via `--browser firefox`) and asserts the aside's rendered
+This test runs in a real browser (chromium by default; another can
+be selected via `--browser`) and asserts the aside's rendered
 width stays in a sensible range when the main column contains a
 representative post.
 """

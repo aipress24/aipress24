@@ -703,7 +703,9 @@ def _abort_vite_dev_assets(page: Page) -> None:
     130 ms while the browser hangs past 180 s.
 
     Aborting these requests fail-fast lets DCL fire as soon as the
-    HTML is parsed. Tests don't need hot-module-reload ; they only
+    HTML is parsed. Still worth doing now that chromium is the default
+    browser: the harness starts no Vite dev server, so those requests
+    have nothing to answer them either way. Tests don't need hot-module-reload ; they only
     need the rendered DOM, the inline ``<style>`` block, and the
     non-Vite scripts (htmx, alpine, choices.js, tom-select) which
     are already inlined or served by the Flask blueprint.
