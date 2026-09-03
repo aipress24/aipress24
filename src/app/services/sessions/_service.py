@@ -23,6 +23,8 @@ _marker = object()
 @service
 @define
 class SessionService:
+    #: Injected rather than reading `g.user`: a service must stay
+    #: constructible, and testable, outside a request context.
     auth_service: AuthService
     db_session: scoped_session
     # repo: SessionRepository

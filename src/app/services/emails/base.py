@@ -4,7 +4,7 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass, fields
+from dataclasses import dataclass, field, fields
 from importlib import resources as rso
 from smtplib import SMTPException
 from typing import ClassVar
@@ -40,8 +40,12 @@ class EmailTemplate:
     #: que d'être supprimée en silence.
     category: ClassVar[NotificationCategory] = NotificationCategory.TRANSACTIONAL
 
+    #: The context handed to the template: every dataclass field.
+    #: `field(init=False)` keeps it out of the constructor signature.
+    ctx: dict = field(init=False, default_factory=dict)
+
     def __post_init__(self) -> None:
-        self.ctx = {f.name: getattr(self, f.name) for f in fields(self)}
+        self.ctx = {f.name: getattr(self, f.name) for f in fields(self) if f.init}
 
     def _render_md(self) -> str:
         body = rso.read_text(mail_templates, self.template_md)
@@ -95,16 +99,6 @@ class EmailTemplate:
         return result
 
     def _send_mail(self) -> bool:
-        # subject='',
-        # body='',
-        # from_email=None,
-        # to=None,
-        # bcc=None,
-        # connection=None,
-        # attachments=None,
-        # headers=None,
-        # cc=None,
-        # reply_to=None,
         message = EmailMessage(
             subject=self.subject,
             body=self.render(),

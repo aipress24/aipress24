@@ -147,9 +147,7 @@ def _send_mail(payload: dict) -> bool:
         )
         return False
 
-    try:
-        mailer(**payload["mail_kwargs"]).send()
-    except Exception as exc:
-        report_failure(f"notifications: grouped mail {name!r} failed", exc)
-        return False
-    return True
+    # No `except`: `EmailTemplate.send()` already catches `SMTPException`
+    # and returns a bool, so anything raised here is a programming error
+    # — wrong kwargs, missing template — and must surface.
+    return mailer(**payload["mail_kwargs"]).send()
