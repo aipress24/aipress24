@@ -28,11 +28,14 @@ class SimpleRichSelectMultipleField(SelectMultipleField):
         super().__init__(label, validators, **kwargs)
 
     def get_choices_for_js(self) -> list[dict[str, Any]]:
-        # Format required for TomSelect options: list of dicts with value & label
+        """TomSelect options: a list of `{value, label}` dicts.
+
+        Built from `iter_choices`, which is what the widget itself
+        renders from. Unpacking `self.choices` directly only handles the
+        `(value, label)` form; WTForms also accepts bare strings and
+        `(value, label, render_kw)` triples, and a dict for optgroups.
+        """
         return [
-            {
-                "value": str(v),
-                "label": str(label),
-            }
-            for v, label in (self.choices or [])
+            {"value": str(value), "label": str(label)}
+            for value, label, *_ in self.iter_choices()
         ]
