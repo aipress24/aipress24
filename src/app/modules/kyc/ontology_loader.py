@@ -5,6 +5,7 @@
 from __future__ import annotations
 
 from collections.abc import Callable
+from threading import RLock
 
 from cachetools import TTLCache, cached
 
@@ -180,7 +181,7 @@ def nom_orga_choices() -> list[str]:
 # thrashed : a member-profile render touches ~19 ontologies, which got evicted
 # by other pages and reloaded on every view (19 redundant tax_taxonomy
 # queries). Taxonomies are small static reference lists, so cache them all.
-@cached(cache=TTLCache(maxsize=256, ttl=3600))
+@cached(cache=TTLCache(maxsize=256, ttl=3600), lock=RLock())
 def get_ontology_content(ontology: str) -> list | dict:
     if ontology == "pays":
         return get_full_countries()
@@ -190,8 +191,12 @@ def get_ontology_content(ontology: str) -> list | dict:
 
 
 def clear_ontology_cache() -> None:
-    """Clear the in memory TTLCache of ontologie content."""
-    get_ontology_content.cache.clear()
+    """Clear the in-memory caches of ontology content.
+
+    Through `cache_clear`, which takes the same lock as the reads —
+    clearing the `TTLCache` directly would not.
+    """
+    get_ontology_content.cache_clear()
 
 
 def get_choices(field_type: str) -> list | dict:
@@ -211,7 +216,7 @@ def get_choices(field_type: str) -> list | dict:
     return choices_map[field_type]()
 
 
-@cached(cache=TTLCache(maxsize=100, ttl=3600))
+@cached(cache=TTLCache(maxsize=100, ttl=3600), lock=RLock())
 def zip_code_city_list(country_code: str) -> list[dict[str, str]]:
     return get_zip_code_country(country_code)
 

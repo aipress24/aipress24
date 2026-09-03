@@ -4,9 +4,6 @@
 
 from __future__ import annotations
 
-from svcs.flask import container
-
-from app.services.cache import Cache
 from app.services.taxonomies import get_taxonomy
 
 __all__ = [
@@ -42,13 +39,13 @@ def get_topics():
     return get_vocab("topics")
 
 
-def get_vocab(name):
-    cache = container.get(Cache)
-    if name in cache:
-        return cache[name]
-    value = get_taxonomy(name)
-    cache.set(name, value)
-    return value
+def get_vocab(name: str) -> list[str]:
+    """A taxonomy's values, for the NEWSROOM forms.
+
+    Read on every call, deliberately: see
+    `local-notes/decisions/2026-09-03-taxonomy-vocabulary-cache.md`.
+    """
+    return get_taxonomy(name)
 
 
 # JOBS = []
