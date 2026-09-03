@@ -5,7 +5,9 @@
 from __future__ import annotations
 
 import sys
+from functools import cached_property
 from pathlib import Path
+from typing import Any
 
 from flask import current_app
 from markupsafe import Markup
@@ -13,10 +15,16 @@ from wtforms import widgets
 from wtforms.fields.choices import SelectMultipleField
 
 
-def convert_to_tom_choices_js(choices: list | dict) -> list:
+def convert_to_tom_choices_js(choices: list | dict) -> list[dict[str, Any]]:
     if isinstance(choices, list):
         # required by choices.js : list of dict
-        return [{"value": item[0], "label": item[1]} for item in choices]
+        return [
+            {
+                "value": item[0] if isinstance(item, (list, tuple)) else str(item),
+                "label": item[1] if isinstance(item, (list, tuple)) else str(item),
+            }
+            for item in choices
+        ]
     if isinstance(choices, dict):
         # dict is a dict of groups of labels:
         return _dict_to_group_tom_choices(choices)
@@ -25,18 +33,19 @@ def convert_to_tom_choices_js(choices: list | dict) -> list:
     raise TypeError
 
 
-def _dict_to_group_tom_choices(choices: dict) -> list:
-    # Fixme:  this fromat seems ok for choices.setChoices()
-    # but neither at init time of for wtforms???
+def _dict_to_group_tom_choices(choices: dict) -> list[dict[str, Any]]:
     groups = []
     for group, items in choices.items():
         choices_group = [
-            {"optgroup": group, "value": label, "label": label} for label in items
+            {
+                "optgroup": group,
+                "value": item[0] if isinstance(item, (list, tuple)) else str(item),
+                "label": item[1] if isinstance(item, (list, tuple)) else str(item),
+            }
+            for item in items
         ]
         groups.extend(choices_group)
 
-    # fails on the production server (OSError: [Errno 90] Message too long)
-    # debug(groups)
     return groups
 
 
@@ -64,10 +73,71 @@ class SelectMultiSimpleField(SelectMultipleField):
         self.create = False
         self.choices = kwargs["choices"]
 
-    def get_tom_choices_for_js(self) -> list:
-        return convert_to_tom_choices_js(self.choices)
+    @cached_property
+    def _taxonomy_map(self) -> dict[str, list[str]]:
+        mapping: dict[str, list[str]] = {}
+        raw = self.choices or []
+        if isinstance(raw, list):
+            for item in raw:
+                val = item[0] if isinstance(item, (list, tuple)) else str(item)
+                val_clean = val.strip()
+                mapping.setdefault(val_clean.lower(), []).append(val_clean)
+                if "/" in val_clean:
+                    _, suffix = val_clean.split("/", 1)
+                    mapping.setdefault(suffix.strip().lower(), []).append(val_clean)
+        elif isinstance(raw, dict):
+            for _group, items in raw.items():
+                for item in items:
+                    val = item[0] if isinstance(item, (list, tuple)) else str(item)
+                    val_clean = val.strip()
+                    mapping.setdefault(val_clean.lower(), []).append(val_clean)
+                    if "/" in val_clean:
+                        _, suffix = val_clean.split("/", 1)
+                        mapping.setdefault(suffix.strip().lower(), []).append(val_clean)
+        return mapping
 
-    def get_data(self) -> list:
-        if self.data is None:
+    def _resolve_values(self) -> list[str]:
+        raw = self.data
+        if not raw:
             return []
-        return self.data
+        if isinstance(raw, str):
+            raw = [raw]
+        resolved: list[str] = []
+        seen: set[str] = set()
+        for val in raw:
+            if not val or not str(val).strip():
+                continue
+            val_clean = str(val).strip()
+            matches = self._taxonomy_map.get(val_clean.lower())
+            if matches:
+                for tax_val in matches:
+                    if tax_val not in seen:
+                        seen.add(tax_val)
+                        resolved.append(tax_val)
+            elif "/" in val_clean:
+                _, suffix = val_clean.split("/", 1)
+                suf_matches = self._taxonomy_map.get(suffix.strip().lower())
+                if suf_matches:
+                    for tax_val in suf_matches:
+                        if tax_val not in seen:
+                            seen.add(tax_val)
+                            resolved.append(tax_val)
+                elif val_clean not in seen:
+                    seen.add(val_clean)
+                    resolved.append(val_clean)
+            elif val_clean not in seen:
+                seen.add(val_clean)
+                resolved.append(val_clean)
+        return resolved
+
+    def get_tom_choices_for_js(self) -> list[dict[str, Any]]:
+        base = convert_to_tom_choices_js(self.choices)
+        known_values = {opt["value"] for opt in base}
+        for val in self._resolve_values():
+            if val not in known_values:
+                known_values.add(val)
+                base.append({"value": val, "label": val})
+        return base
+
+    def get_data(self) -> list[str]:
+        return self._resolve_values()

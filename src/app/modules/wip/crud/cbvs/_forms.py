@@ -5,7 +5,7 @@
 from __future__ import annotations
 
 from wtforms import Form, validators
-from wtforms.fields.choices import SelectField, SelectMultipleField
+from wtforms.fields.choices import SelectField
 from wtforms.fields.simple import StringField, TextAreaField
 
 from app.enums import MODE_LABELS, PRICING_LABELS, EventMode, EventPricing
@@ -16,6 +16,7 @@ from app.flask.lib.wtforms.fields import (
     RichSelectField,
     RichTextField,
     SimpleRichSelectField,
+    SimpleRichSelectMultipleField,
 )
 from app.modules.kyc.dynform import CountrySelectField
 
@@ -521,12 +522,12 @@ class EventForm(Form):
     # des taxonomies, alors que les fonctions sont **calculées** — les
     # familles de quatre ontologies (voir `events/taxonomies.py`). Les
     # options sont posées par `_make_media_choices`.
-    competences = SelectMultipleField(
+    competences = SimpleRichSelectMultipleField(
         "Compétences visées",
         render_kw={"width": 6},
         validators=[validators.Optional()],
     )
-    fonctions = SelectMultipleField(
+    fonctions = SimpleRichSelectMultipleField(
         "Fonctions visées",
         render_kw={"width": 6},
         validators=[validators.Optional()],

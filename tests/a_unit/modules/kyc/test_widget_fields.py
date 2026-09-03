@@ -203,6 +203,34 @@ def test_select_multi_simple_field_get_tom_choices_for_js():
     assert result[2] == {"value": "tag3", "label": "Tag 3"}
 
 
+class TestFormSelectMultiLegacy(Form):
+    """Test form for select multi simple field with hierarchical taxonomy."""
+
+    skills = SelectMultiSimpleField(
+        label="Skills",
+        choices=[
+            ("Édition / Rédiger des articles", "Édition / Rédiger des articles"),
+            ("Audio / Montage", "Audio / Montage"),
+        ],
+    )
+
+
+def test_select_multi_simple_field_normalizes_legacy_and_preserves_orphans():
+    """Test SelectMultiSimpleField suffix normalization and orphan preservation."""
+    form = TestFormSelectMultiLegacy(
+        data={"skills": ["Rédiger des articles", "Orphan Skill"]}
+    )
+
+    resolved = form.skills.get_data()
+    assert "Édition / Rédiger des articles" in resolved
+    assert "Orphan Skill" in resolved
+
+    choices = form.skills.get_tom_choices_for_js()
+    choice_vals = {c["value"] for c in choices}
+    assert "Édition / Rédiger des articles" in choice_vals
+    assert "Orphan Skill" in choice_vals
+
+
 def test_valid_image_field_init():
     """Test ValidImageField initialization."""
     form = TestFormImage()

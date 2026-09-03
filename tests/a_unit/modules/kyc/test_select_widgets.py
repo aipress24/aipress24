@@ -6,6 +6,7 @@
 
 from __future__ import annotations
 
+import json
 from pathlib import Path
 
 import pytest
@@ -438,26 +439,25 @@ class TestDualSelectFieldGetData:
     """Test suite for DualSelectField get_data methods."""
 
     def test_get_data_with_values(self) -> None:
-        """Test get_data returns repr of data."""
+        """Test get_data returns JSON of data."""
         form = TestFormDualSelect(data={"selector": ["cat1", "cat2"]})
         result = form.selector.get_data()
 
-        assert result == repr(["cat1", "cat2"])
+        assert result == json.dumps(["cat1", "cat2"])
 
     def test_get_data_with_none(self) -> None:
-        """Test get_data returns empty list repr when None."""
+        """Test get_data returns empty list JSON when None."""
         form = TestFormDualSelect(data={"selector": None})
         result = form.selector.get_data()
 
-        assert result == repr([])
+        assert result == json.dumps([])
 
     def test_get_data2_with_default(self) -> None:
-        """Test get_data2 returns empty string repr when default."""
+        """Test get_data2 returns empty list JSON when default."""
         form = TestFormDualSelect()
         result = form.selector.get_data2()
 
-        # data2 defaults to empty string
-        assert result == repr("")
+        assert result == json.dumps([])
 
 
 class TestDualSelectFieldChoicesForJs:
@@ -472,6 +472,29 @@ class TestDualSelectFieldChoicesForJs:
         assert "field2" in result
         assert len(result["field1"]) == 2
         assert result["field1"][0] == {"value": "cat1", "label": "Category 1"}
+
+    def test_normalizes_legacy_uppercase_values_and_preserves_orphans(
+        self,
+    ) -> None:
+        """Test that legacy uppercase details and parents are mapped to new taxo if exists."""
+        form = TestFormDualSelect(data={"selector": ["CAT1"]})
+        form.selector.data2 = ["CAT1 / sub1", "UNKNOWN_PARENT / new taxo item"]
+
+        data2_json = form.selector.get_data2()
+        resolved2 = json.loads(data2_json)
+        assert "sub1" in resolved2
+        assert "UNKNOWN_PARENT / new taxo item" in resolved2
+
+        data_json = form.selector.get_data()
+        resolved1 = json.loads(data_json)
+        assert "cat1" in resolved1
+        assert "UNKNOWN_PARENT" in resolved1
+
+        choices = form.selector.get_dual_tom_choices_for_js()
+        f1_vals = {c["value"] for c in choices["field1"]}
+        f2_vals = {c["value"] for c in choices["field2"]}
+        assert "UNKNOWN_PARENT" in f1_vals
+        assert "UNKNOWN_PARENT / new taxo item" in f2_vals
 
 
 # =============================================================================

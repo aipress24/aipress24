@@ -11,6 +11,7 @@ from .price import PriceField
 from .rich_select import RichSelectField
 from .rich_text import RichTextField
 from .simple_rich_select import SimpleRichSelectField
+from .simple_rich_select_multiple import SimpleRichSelectMultipleField
 
 __all__ = [
     "DateTimeField",
@@ -20,4 +21,5 @@ __all__ = [
     "RichSelectField",
     "RichTextField",
     "SimpleRichSelectField",
+    "SimpleRichSelectMultipleField",
 ]

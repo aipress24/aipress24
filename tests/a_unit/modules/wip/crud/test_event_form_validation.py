@@ -459,8 +459,8 @@ class TestLesDeuxAxesDeCiblage:
     def test_ils_acceptent_plusieurs_valeurs(self, app: Flask):
         form = _make_form(app, {})
 
-        assert form.competences.type == "SelectMultipleField"
-        assert form.fonctions.type == "SelectMultipleField"
+        assert form.competences.type == "SimpleRichSelectMultipleField"
+        assert form.fonctions.type == "SimpleRichSelectMultipleField"
 
     def test_un_evenement_sans_ciblage_reste_valide(self, app: Flask):
         """Facultatifs : les rendre obligatoires invaliderait tous les
