@@ -6,4 +6,10 @@ from __future__ import annotations
 
 
 class Taggable:
-    pass
+    """Marker: this model accepts tags.
+
+    Must stay empty. `ArticlePost` and `PressReleasePost` inherit it
+    among their declarative bases, so any annotation here — `id: int`,
+    say — becomes a column SQLAlchemy tries to map, and importing the
+    models fails.
+    """

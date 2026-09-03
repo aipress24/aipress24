@@ -76,13 +76,16 @@ def get_taxonomy_dual_select(
     distinct: list[str] = []
     field2: dict[str, list[list[str]]] = {}
     for item in results:
-        if item.category not in seen:
-            seen.add(item.category)
-            distinct.append(item.category)
-            # pyrefly: ignore [unsupported-operation]
-            field2[item.category] = []
-        # pyrefly: ignore [bad-index]
-        field2[item.category].append([item.value, item.name])
+        # Annotated bindings: pyrefly has no SQLAlchemy support and
+        # types a mapped column as `InstrumentedAttribute[str]`.
+        category: str = item.category
+        value: str = item.value
+        label: str = item.name
+        if category not in seen:
+            seen.add(category)
+            distinct.append(category)
+            field2[category] = []
+        field2[category].append([value, label])
     response = {}
     response["field1"] = [(category, category) for category in distinct]
     response["field2"] = field2

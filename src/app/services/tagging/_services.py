@@ -13,14 +13,12 @@ from .interfaces import Taggable
 
 
 def add_tag(obj: Taggable, label: str, type: str = "manual") -> TagApplication:
+    """Build a tag application for `obj`.
+
+    Every `Taggable` is a declarative model, so `obj.id` is always there.
+    """
     tag = TagApplication(type=type, label=label)
-
-    # Use duck typing - any object with an id attribute
-    if hasattr(obj, "id"):
-        tag.object_id = obj.id  # type: ignore[invalid-assignment]
-    else:  # pragma: no cover
-        raise NotImplementedError
-
+    tag.object_id = obj.id
     return tag
 
 

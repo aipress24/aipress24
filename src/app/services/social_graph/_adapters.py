@@ -164,7 +164,7 @@ class SocialUser(FollowableAdapter):
         stmt = sa.insert(table).values(followee_id=object.id, follower_id=subject.id)
         db.session.execute(stmt)
 
-        post_activity(ActivityType.Follow, unadapt(subject), unadapt(object))  # type: ignore[arg-type]
+        post_activity(ActivityType.Follow, unadapt(subject), unadapt(object))
 
     def unfollow(self, object: Followable) -> None:
         subject = self.user
@@ -181,7 +181,7 @@ class SocialUser(FollowableAdapter):
         )
         db.session.execute(stmt)
 
-        post_activity(ActivityType.Unfollow, unadapt(subject), unadapt(object))  # type: ignore[arg-type]
+        post_activity(ActivityType.Unfollow, unadapt(subject), unadapt(object))
 
     #
     # Likes
