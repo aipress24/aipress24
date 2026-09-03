@@ -19,18 +19,24 @@ def to_pdf(obj, template=None) -> bytes:
     raise NotImplementedError(msg)
 
 
+class PdfGenerationError(RuntimeError):
+    """WeasyPrint is missing, or not installed properly."""
+
+
 def generate_pdf(data: dict, template: str | Path) -> bytes:
+    """Render `template` as a PDF.
+
+    Raises `PdfGenerationError` when WeasyPrint is missing. This PDF is
+    an invoice: an empty one attaches, archives and downloads like a
+    real one, and nobody notices until a customer asks for theirs.
+    """
     # Lazy import because WeasyPrint is not always installed
     try:
         from weasyprint import HTML
-    except (ImportError, OSError):
-        logger.exception(
-            "WeasyPrint not installed properly, PDF generation will not work"
-        )
-        HTML = None  # type: ignore[assignment]
-
-    if not HTML:
-        return b""
+    except (ImportError, OSError) as exc:
+        msg = "WeasyPrint is not installed properly; cannot generate a PDF"
+        logger.exception(msg)
+        raise PdfGenerationError(msg) from exc
 
     if Path(template).is_absolute():
         template_str = Path(template).read_text()
