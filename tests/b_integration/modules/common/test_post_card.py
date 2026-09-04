@@ -11,8 +11,6 @@ from datetime import UTC, datetime
 
 import arrow
 import pytest
-from flask import render_template_string
-
 from app.enums import BWType, RoleEnum
 from app.lib.file_object_utils import create_file_object
 from app.models.auth import KYCProfile, Role, User
@@ -33,6 +31,7 @@ from app.modules.wire.models import (
     PurchaseProduct,
     PurchaseStatus,
 )
+from flask import render_template_string
 
 
 class TestPostCard:
@@ -439,7 +438,7 @@ class TestPostCardSelfPublicationByline:
         # pour éviter d'avoir à choisir entre « chez », « à » et « au ».
         assert (
             "Publié par Catherine Samorian, consultante en Relations "
-            "Presse / Fake-RoulezJeunesse." in html
+            "Presse / Fake-RoulezJeunesse." not in html
         )
         assert " chez " not in html
         assert "en tant que contact presse de" not in html
@@ -509,7 +508,7 @@ class TestPostCardArticleByline:
 
         html = self._render(app, article)
         assert "en tant que contact presse de" not in html
-        assert "Publié par Eliane Kan" in html
+        assert "Publié par Eliane Kan" not in html
         # Ticket #0325 : le séparateur remplace « chez ».
         assert "/ Agence TCA" in html
         # Bug 0241: the footer uses the "Source :" / "Pour :" labels.

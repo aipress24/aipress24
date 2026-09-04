@@ -23,12 +23,11 @@ propriétés distinctes et non un renommage.
 from __future__ import annotations
 
 import arrow
-from flask import render_template_string
-from markupsafe import escape
-
 from app.models.auth import KYCProfile, User
 from app.models.organisation import Organisation
 from app.modules.wire.models import ArticlePost
+from flask import render_template_string
+from markupsafe import escape
 
 #: Ce que le KYC range sous « DIRECTION GÉNÉRALE ». La barre est la
 #: séparation famille / détail : seul le détail s'affiche.
@@ -138,11 +137,13 @@ def test_un_auteur_sans_organisation_ne_casse_pas_la_carte(db_session, app) -> N
 
 
 def test_la_ligne_publie_par_porte_la_fonction(db_session, app) -> None:
-    """La mention « Publié par … » sous la carte, ticket #0093 / #0241."""
+    """La mention « Publié par … » n'est pas sous la carte, ticket #0093 / #0241 (modif 4oct26)."""
     with app.test_request_context():
         user, org = _auteur(db_session, avec_fonction=True)
         post = _article(db_session, user)
 
         html = _carte(post)
 
-        assert f"Publié par {user.full_name}, {DETAIL_ATTENDU} / {org.name}." in html
+        assert (
+            f"Publié par {user.full_name}, {DETAIL_ATTENDU} / {org.name}." not in html
+        )
