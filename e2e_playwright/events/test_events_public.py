@@ -48,7 +48,7 @@ _ACCREDITATION_STATES = (
     "Annuler ma demande",  # demandé
     "Accrédité.e",  # accepté
     "Se désinscrire",  # accepté
-    "Demande refusée",  # refusé
+    "Accréditation non accordée",  # refusé
     "Vous étiez accrédité.e",  # événement annulé
 )
 

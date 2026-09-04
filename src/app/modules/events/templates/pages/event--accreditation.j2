@@ -25,6 +25,10 @@
       <span class="inline-flex items-center rounded-full bg-green-100 px-3 py-1 text-sm font-medium text-green-800">
         Accrédité.e
       </span>
+    {% elif accreditation == "rejected" %}
+      <span class="inline-flex items-center rounded-full bg-gray-100 px-3 py-1 text-sm font-medium text-gray-700">
+        Accréditation non accordée
+      </span>
     {% endif %}
   {% elif accreditation == "accepted" %}
     <span class="inline-flex items-center rounded-full bg-green-100 px-3 py-1 text-sm font-medium text-green-800">
@@ -51,7 +55,9 @@
       Annuler ma demande
     </button>
   {% elif accreditation == "rejected" %}
-    <span class="text-sm text-gray-500">Demande refusée</span>
+    <span class="inline-flex items-center rounded-full bg-gray-100 px-3 py-1 text-sm font-medium text-gray-700">
+      Accréditation non accordée
+    </span>
   {% elif can_request %}
     {# #0319 — `sees_content` ne suffit pas : il est vrai pour
        l'organisateur, à qui l'on proposait donc de s'accréditer à son

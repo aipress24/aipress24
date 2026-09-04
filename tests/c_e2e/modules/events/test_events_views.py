@@ -715,3 +715,49 @@ class TestCancelledEventsOnThePublicSide:
         titles = [e.title for e in events]
         assert cancelled.title in titles, "ANN-04 — l'annonce reste listée"
         assert titles.index(alive.title) < titles.index(cancelled.title)
+
+
+class TestEventDetailAccreditationStatus:
+    """Tests for accreditation badge display on the public event detail page."""
+
+    def _setup_user_with_role(self, db_session: Session, user: User) -> None:
+        user.active = True
+        role = Role(
+            name=RoleEnum.PRESS_MEDIA.name, description=RoleEnum.PRESS_MEDIA.value
+        )
+        db_session.add(role)
+        db_session.flush()
+        user.roles.append(role)
+        db_session.flush()
+
+    def test_event_detail_shows_rejected_accreditation(
+        self, app: Flask, db_session: Session, test_user: User
+    ) -> None:
+        """When accreditation request is rejected, the event detail page
+        must display 'Accréditation non accordée'."""
+        self._setup_user_with_role(db_session, test_user)
+
+        future = arrow.utcnow().shift(days=3)
+        event = EventPost(
+            title="Conférence Presse",
+            owner_id=test_user.id,
+            status=PublicationStatus.PUBLIC,
+            start_datetime=future,
+            end_datetime=future.shift(hours=2),
+        )
+        db_session.add(event)
+        db_session.flush()
+        db_session.add(
+            Accreditation(
+                event_id=event.id,
+                user_id=test_user.id,
+                status=AccreditationStatus.REJECTED,
+            )
+        )
+        db_session.commit()
+
+        client = make_authenticated_client(app, test_user)
+        response = client.get(f"/events/{event.id}")
+        assert response.status_code == 200
+        html = response.data.decode()
+        assert "Accréditation non accordée" in html
