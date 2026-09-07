@@ -51,6 +51,20 @@
        `loop.index`, pas du titre, pour qu'il suive automatiquement
        l'ordre défini par `build_sections_from_selectors`. #}
         <form id="search-form" hx-target="#main">
+
+            {# ajout checkbox "include_journalists" 2026-09-07 #}
+            <div class="mb-6">
+                <label class="inline-flex items-center gap-2 cursor-pointer">
+                    <input type="checkbox"
+                           id="include-journalists"
+                           name="include_journalists"
+                           class="dui-checkbox dui-checkbox-primary">
+                    <span class="text-sm font-medium text-gray-800">
+                        Inclure des journalistes dans la sélection
+                    </span>
+                </label>
+            </div>
+
             {% for section in form.sections %}
                 <section class="mb-6 bg-white p-5 rounded-lg border border-gray-200 shadow-xs">
                     <h3 class="text-base md:text-lg font-semibold text-gray-800 border-b border-gray-200 pb-2 mb-4">
