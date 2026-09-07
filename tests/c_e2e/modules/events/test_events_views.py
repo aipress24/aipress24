@@ -734,7 +734,7 @@ class TestEventDetailAccreditationStatus:
         self, app: Flask, db_session: Session, test_user: User
     ) -> None:
         """When accreditation request is rejected, the event detail page
-        must display 'Accréditation non accordée'."""
+        must display 'Nous sommes désolés de ne pouvoir vous accréditer pour cet événement'."""
         self._setup_user_with_role(db_session, test_user)
 
         future = arrow.utcnow().shift(days=3)
@@ -760,4 +760,7 @@ class TestEventDetailAccreditationStatus:
         response = client.get(f"/events/{event.id}")
         assert response.status_code == 200
         html = response.data.decode()
-        assert "Accréditation non accordée" in html
+        assert (
+            "Nous sommes désolés de ne pouvoir vous accréditer pour cet événement"
+            in html
+        )
