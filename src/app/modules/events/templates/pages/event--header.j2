@@ -1,45 +1,45 @@
 <section
-    class="bg-gray-500"
+    class="bg-sky-600"
     style="background-size: cover;">
 
-  <div class="lg:max-w-7xl mx-auto">
-    <div class="py-8 px-6 flex items-center justify-between space-x-8">
+    <div class="lg:max-w-7xl mx-auto">
+        <div class="py-8 px-6 flex items-center justify-between space-x-8">
 
 
-      <div class="text-gray-50">
+            <div class="text-gray-50">
         {# ANN-04 — le bandeau vit ici et non dans le corps de la page :
            `event--main.j2` est masqué aux membres hors audience (RG-02),
            qui doivent pourtant apprendre que l'événement est annulé,
            l'annonce elle-même leur restant visible (RG-01). #}
-        {% if event.cancelled_at %}
-          <div class="my-2 rounded bg-red-50 border border-red-200 p-3 text-red-800">
-            <p class="font-semibold">Événement annulé</p>
-            {% if event.cancellation_reason %}
-              <p class="text-sm mt-1">{{ event.cancellation_reason }}</p>
-            {% endif %}
-            <p class="text-xs mt-1 text-red-700">
-              Annulation annoncée le {{ event.cancelled_at|localdt }}.
-            </p>
-          </div>
-        {% endif %}
+                {% if event.cancelled_at %}
+                    <div class="my-2 rounded bg-red-50 border border-red-200 p-3 text-red-800">
+                        <p class="font-semibold">Événement annulé</p>
+                        {% if event.cancellation_reason %}
+                            <p class="text-sm mt-1">{{ event.cancellation_reason }}</p>
+                        {% endif %}
+                        <p class="text-xs mt-1 text-red-700">
+                            Annulation annoncée le {{ event.cancelled_at|localdt }}.
+                        </p>
+                    </div>
+                {% endif %}
 
-        <h1 class="text-2xl font-bold my-2{% if event.cancelled_at %} line-through{% endif %}">
-          {{ event.title }}
-        </h1>
+                <h1 class="text-2xl font-bold my-2{% if event.cancelled_at %} line-through{% endif %}">
+                    {{ event.title }}
+                </h1>
 
-        <div class="flex">
-          {{ icon("clock", class="w-6 h-6 mr-1") }}
-          {{ event.opening }}
+                <div class="flex">
+                    {{ icon("clock", class="w-6 h-6 mr-1") }}
+                    {{ event.opening }}
+                </div>
+                <div class="flex">
+                    {{ icon("map-pin", class="w-6 h-6 mr-1") }}
+                    <div>
+                        {{ event.country_zip_city }}
+                    </div>
+                </div>
+            </div>
+
+            {% include "pages/event--accreditation.j2" %}
         </div>
-        <div class="flex">
-          {{ icon("map-pin", class="w-6 h-6 mr-1") }}
-          <div>
-          {{ event.country_zip_city }}
-          </div>
-        </div>
-      </div>
-
-      {% include "pages/event--accreditation.j2" %}
     </div>
-  </div>
 </section>
