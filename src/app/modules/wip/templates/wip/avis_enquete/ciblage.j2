@@ -58,6 +58,8 @@
                     <input type="checkbox"
                            id="include-journalists"
                            name="include_journalists"
+                           value="on"
+                           {% if form.include_journalists %}checked{% endif %}
                            class="dui-checkbox dui-checkbox-primary">
                     <span class="text-sm font-medium text-gray-800">
                         Inclure des journalistes dans la sélection
@@ -202,7 +204,16 @@
                     });
                 }
 
+                function initCheckbox() {
+                    const cb = document.getElementById('include-journalists');
+                    if (cb && !cb.dataset.listenerAttached) {
+                        cb.dataset.listenerAttached = '1';
+                        cb.addEventListener('change', fireSearchUpdate);
+                    }
+                }
+
                 function setup() {
+                    initCheckbox();
                     if (typeof TomSelect === 'undefined') {
                         setTimeout(setup, 10);
                         return;

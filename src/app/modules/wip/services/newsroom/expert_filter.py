@@ -8,7 +8,7 @@ from __future__ import annotations
 
 from collections.abc import Generator, Iterable
 from dataclasses import dataclass
-from typing import cast
+from typing import Any, cast
 
 from flask import request
 from svcs.flask import container
@@ -43,6 +43,46 @@ from .expert_selectors import (
 )
 
 MAX_SELECTABLE_EXPERTS = 50
+
+ALL_SELECTOR_CLASSES: tuple[type[BaseSelector], ...] = (
+    SecteurSelector,
+    MetierSelector,
+    FonctionPolitiquesAdministrativesSelector,
+    FonctionOrganisationsPriveesSelector,
+    FonctionAssociationsSyndicatsSelector,
+    FonctionJournalismeSelector,
+    CompetencesGeneralesSelector,
+    CompetencesJournalismeSelector,
+    TypeEntreprisePresseMediasSelector,
+    TypePresseMediasSelector,
+    TypeOrganisationSelector,
+    TailleOrganisationSelector,
+    TransformationMajeureSelector,
+    LanguesSelector,
+    PaysSelector,
+    DepartementSelector,
+    VilleSelector,
+)
+
+
+def is_press_media(expert: Any) -> bool:
+    """Check if expert belongs to PRESS_MEDIA community."""
+    profile = expert.profile
+    community = profile.profile_community
+    return community == "PRESS_MEDIA"
+
+
+def is_include_journalists_checked(state: FilterState) -> bool:
+    """Return the 'include_journalists' checkbox value."""
+    raw = state.get("include_journalists")
+    return bool(raw)
+
+
+def prefilter_journalists(experts: list[User], state: FilterState) -> list[User]:
+    """Pre-filter experts on PRESS_MEDIA community."""
+    if is_include_journalists_checked(state):
+        return experts
+    return [e for e in experts if not is_press_media(e)]
 
 
 @dataclass(frozen=True)
@@ -94,10 +134,11 @@ def apply_filter_pipeline(
     5. Cap at ``max_count`` — the UI table has no pagination ;
        beyond 50 the journalist is told to refine.
     """
-    if all(not state.get(s.id) for s in selectors):
-        return experts[:max_count]
+    filtered_experts = prefilter_journalists(experts, state)
 
-    filtered = experts
+    if all(not state.get(s.id) for s in selectors):
+        return filtered_experts[:max_count]
+
     for selector in selectors:
         selected_values = state.get(selector.id)
         if not selected_values:
@@ -107,10 +148,10 @@ def apply_filter_pipeline(
             if isinstance(selected_values, list)
             else {selected_values}
         )
-        filtered = selector.filter_experts(criteria, filtered)
+        filtered_experts = selector.filter_experts(criteria, filtered_experts)
 
     selected_ids = set(state.get("selected_experts", []))
-    new_experts = [e for e in filtered if e.id not in selected_ids]
+    new_experts = [e for e in filtered_experts if e.id not in selected_ids]
     new_experts.sort(key=lambda e: (e.last_name, e.first_name))
     return new_experts[:max_count]
 
@@ -288,7 +329,7 @@ def build_sections_from_selectors(
     ]
 
 
-def compute_tracked_form_keys(selectors: list[BaseSelector]) -> set[str]:
+def compute_tracked_form_keys(selectors: Iterable[BaseSelector]) -> set[str]:
     """Return the set of form keys ``merge_form_state_into_filter``
     should pay attention to : every selector id, plus the parent_id
     of any dual selector (parent dropdowns don't filter experts but
@@ -362,6 +403,8 @@ class ExpertFilterService:
     def clear_state(self) -> None:
         """Clear filter state from session."""
         self._state = {}
+        self._all_experts = None
+        self._selectors = None
         self.save_state()
 
     def get_selectable_experts(self) -> list[User]:
@@ -433,6 +476,11 @@ class ExpertFilterService:
         return parse_action_from_form(request.form.to_dict())
 
     @property
+    def include_journalists(self) -> bool:
+        """Return True if the 'include_journalists' checkbox is checked."""
+        return is_include_journalists_checked(self._state)
+
+    @property
     def state(self) -> FilterState:
         """Current filter state (read-only access)."""
         return self._state
@@ -460,10 +508,15 @@ class ExpertFilterService:
         if "selector_change" not in selector_data:
             return
 
-        tracked_keys = compute_tracked_form_keys(self._get_selectors())
+        tracked_keys = compute_tracked_form_keys(ALL_SELECTOR_CLASSES) | {
+            "include_journalists"
+        }
+
         self._state = merge_form_state_into_filter(
             self._state, selector_data, tracked_keys
         )
+        self._all_experts = None
+        self._selectors = None
 
     def _get_expert_ids_from_request(self) -> Generator[int]:
         """Extract expert IDs from form data."""
@@ -475,12 +528,10 @@ class ExpertFilterService:
         When an `AvisEnquete` is set on the service (via `initialize`),
         the candidate pool is first pre-scoped with the MVP matchmaking
         pre-filter (thematic match + recent activity).
+
+        Journalists (profile_community == PRESS_MEDIA) are filtered first.
         """
         if self._all_experts is None:
-            # Exclude profileless active users (incomplete sign-up) : every
-            # expert selector reads `expert.profile.<attr>`, so a NULL
-            # profile would crash the ciblage screen — and an expert with
-            # no KYC profile can't be matched to an avis anyway.
             # Exclude profileless active users (incomplete sign-up) : every
             # expert selector reads `expert.profile.<attr>`, so a NULL
             # profile would crash the ciblage screen — and an expert with
@@ -492,7 +543,8 @@ class ExpertFilterService:
                 )
 
                 experts = match_experts_to_avis(experts, self._avis_enquete)
-            self._all_experts = experts
+
+            self._all_experts = prefilter_journalists(experts, self._state)
         return self._all_experts
 
     def _get_selectors(self) -> list[BaseSelector]:
@@ -500,22 +552,6 @@ class ExpertFilterService:
         if self._selectors is None:
             experts = self._get_all_experts()
             self._selectors = [
-                SecteurSelector(self._state, experts),
-                MetierSelector(self._state, experts),
-                FonctionPolitiquesAdministrativesSelector(self._state, experts),
-                FonctionOrganisationsPriveesSelector(self._state, experts),
-                FonctionAssociationsSyndicatsSelector(self._state, experts),
-                FonctionJournalismeSelector(self._state, experts),
-                CompetencesGeneralesSelector(self._state, experts),
-                CompetencesJournalismeSelector(self._state, experts),
-                TypeEntreprisePresseMediasSelector(self._state, experts),
-                TypePresseMediasSelector(self._state, experts),
-                TypeOrganisationSelector(self._state, experts),
-                TailleOrganisationSelector(self._state, experts),
-                TransformationMajeureSelector(self._state, experts),
-                LanguesSelector(self._state, experts),
-                PaysSelector(self._state, experts),
-                DepartementSelector(self._state, experts),
-                VilleSelector(self._state, experts),
+                cls(self._state, experts) for cls in ALL_SELECTOR_CLASSES
             ]
         return self._selectors
