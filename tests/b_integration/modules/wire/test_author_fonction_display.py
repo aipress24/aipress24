@@ -23,11 +23,12 @@ propriétés distinctes et non un renommage.
 from __future__ import annotations
 
 import arrow
+from flask import render_template_string
+from markupsafe import escape
+
 from app.models.auth import KYCProfile, User
 from app.models.organisation import Organisation
 from app.modules.wire.models import ArticlePost
-from flask import render_template_string
-from markupsafe import escape
 
 #: Ce que le KYC range sous « DIRECTION GÉNÉRALE ». La barre est la
 #: séparation famille / détail : seul le détail s'affiche.

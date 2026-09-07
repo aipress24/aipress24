@@ -11,6 +11,8 @@ from datetime import UTC, datetime
 
 import arrow
 import pytest
+from flask import render_template_string
+
 from app.enums import BWType, RoleEnum
 from app.lib.file_object_utils import create_file_object
 from app.models.auth import KYCProfile, Role, User
@@ -31,7 +33,6 @@ from app.modules.wire.models import (
     PurchaseProduct,
     PurchaseStatus,
 )
-from flask import render_template_string
 
 
 class TestPostCard:
