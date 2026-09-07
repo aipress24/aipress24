@@ -67,15 +67,24 @@ ALL_SELECTOR_CLASSES: tuple[type[BaseSelector], ...] = (
 
 def is_press_media(expert: Any) -> bool:
     """Check if expert belongs to PRESS_MEDIA community."""
-    profile = expert.profile
-    community = profile.profile_community
+    profile = getattr(expert, "profile", None)
+    community = (
+        getattr(profile, "profile_community", "")
+        if profile is not None
+        else getattr(expert, "profile_community", "")
+    )
     return community == "PRESS_MEDIA"
 
 
 def is_include_journalists_checked(state: FilterState) -> bool:
-    """Return the 'include_journalists' checkbox value."""
+    """Return True if the 'include_journalists' checkbox is checked in state."""
     raw = state.get("include_journalists")
-    return bool(raw)
+    if not raw:
+        return False
+    if isinstance(raw, (list, tuple, set)):
+        clean = [str(v).strip().lower() for v in raw if v and str(v).strip()]
+        return any(v in {"on", "1", "true"} for v in clean)
+    return str(raw).strip().lower() in {"on", "1", "true"}
 
 
 def prefilter_journalists(experts: list[User], state: FilterState) -> list[User]:

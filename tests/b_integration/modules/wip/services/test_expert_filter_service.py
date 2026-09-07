@@ -70,6 +70,7 @@ def _create_expert_with_profile(
     ville: str = "Paris",
     first_name: str = "Expert",
     last_name: str = "Test",
+    profile_community: str = "",
 ) -> User:
     """Create an expert user with a profile containing specified attributes."""
     user = User(
@@ -83,6 +84,7 @@ def _create_expert_with_profile(
     profile = KYCProfile(
         user_id=user.id,
         profile_id=f"profile_{email.split('@', maxsplit=1)[0]}",
+        profile_community=profile_community,
         info_professionnelle={
             "secteurs_activite_medias_detail": secteurs or [],
             "secteurs_activite_rp_detail": [],
@@ -1327,6 +1329,90 @@ class TestStateManagement:
 
         assert expert.id in pool_ids
         assert profileless.id not in pool_ids
+
+    def test_get_all_experts_prefilters_press_media_when_unchecked(
+        self, db_session
+    ) -> None:
+        """When include_journalists is not checked, experts with
+        profile_community == PRESS_MEDIA are excluded from the candidate pool."""
+        media_expert = _create_expert_with_profile(
+            db_session,
+            "media@test.com",
+            secteurs=["Tech"],
+            profile_community="PRESS_MEDIA",
+        )
+        corp_expert = _create_expert_with_profile(
+            db_session,
+            "corp@test.com",
+            secteurs=["Tech"],
+            profile_community="LEADERS_EXPERTS",
+        )
+        db_session.flush()
+
+        service = ExpertFilterService(
+            session={}, user_repo=_StubUserRepo([media_expert, corp_expert])
+        )
+        pool_ids = {e.id for e in service._get_all_experts()}
+
+        assert media_expert.id not in pool_ids
+        assert corp_expert.id in pool_ids
+
+    def test_get_all_experts_includes_press_media_when_checked(
+        self, db_session
+    ) -> None:
+        """When include_journalists is checked, all experts are eligible."""
+        media_expert = _create_expert_with_profile(
+            db_session,
+            "media2@test.com",
+            secteurs=["Tech"],
+            profile_community="PRESS_MEDIA",
+        )
+        db_session.flush()
+
+        service = ExpertFilterService(
+            session={"newsroom:ciblage1": {"include_journalists": ["on"]}},
+            user_repo=_StubUserRepo([media_expert]),
+        )
+        service._set_session_key("1")
+        service._restore_state()
+        pool_ids = {e.id for e in service._get_all_experts()}
+
+        assert media_expert.id in pool_ids
+
+    def test_update_state_tracks_include_journalists(self, db_session, app) -> None:
+        """The include_journalists checkbox is tracked across HTMX requests."""
+        expert = _create_expert_with_profile(
+            db_session, "e_track@test.com", secteurs=["Tech"]
+        )
+
+        # 1. Checked in request
+        with app.test_request_context(
+            method="POST",
+            headers={"HX-Request": "true"},
+            data={
+                "selector_change": "1",
+                "include_journalists": ["on"],
+            },
+        ):
+            service = ExpertFilterService(session={}, user_repo=_StubUserRepo([expert]))
+            service._update_state_from_request()
+            assert service._state.get("include_journalists") == ["on"]
+
+        # 2. Unchecked in next request (omitted from form)
+        with app.test_request_context(
+            method="POST",
+            headers={"HX-Request": "true"},
+            data={
+                "selector_change": "1",
+            },
+        ):
+            service = ExpertFilterService(
+                session={"key": {"include_journalists": ["on"]}},
+                user_repo=_StubUserRepo([expert]),
+            )
+            service._state = {"include_journalists": ["on"]}
+            service._update_state_from_request()
+            assert "include_journalists" not in service._state
 
     def test_update_state_from_htmx_request(self, db_session, app) -> None:
         """State is updated from HTMX request data."""
