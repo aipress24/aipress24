@@ -171,7 +171,8 @@ def _log_invalid_form(form) -> None:
     for field in form:
         if field.name in {"_next", "csrf_token"}:
             continue
-        print(f"field {field.name!r}:  {field.data!r}", file=sys.stderr)
+        field_data = repr(field.data)[:50]
+        print(f"field {field.name!r}:  {field_data}", file=sys.stderr)
         if field.errors:
             print(f"Error: {field.errors}", file=sys.stderr)
         if hasattr(field, "double_select"):
