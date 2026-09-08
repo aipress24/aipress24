@@ -14,6 +14,8 @@ from markupsafe import Markup
 from wtforms import widgets
 from wtforms.fields.choices import SelectMultipleField
 
+from app.modules.kyc.lib.retained_values import RetainsProfileValues
+
 
 def convert_to_tom_choices_js(choices: list | dict) -> list[dict[str, Any]]:
     if isinstance(choices, list):
@@ -60,7 +62,7 @@ class SelectMultiSimpleWidget(widgets.Select):
         return current_app.jinja_env.from_string(template_path.read_text())
 
 
-class SelectMultiSimpleField(SelectMultipleField):
+class SelectMultiSimpleField(RetainsProfileValues, SelectMultipleField):
     widget = SelectMultiSimpleWidget()
 
     def __init__(

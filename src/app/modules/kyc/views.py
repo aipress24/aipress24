@@ -71,6 +71,7 @@ from . import blueprint
 from .community_role import append_user_role_from_community
 from .dynform import TAG_LABELS, generate_form
 from .field_label import data_to_label
+from .lib.retained_values import retain_profile_values
 from .ontology_loader import zip_code_city_list
 from .populate_profile import populate_form_data, populate_json_field
 from .renderer import render_field
@@ -309,6 +310,12 @@ def wizard_page(profile_id: str):
         form = generate_form(profile, form_data, mode_edition=modify_form)
     else:
         form = generate_form(profile, mode_edition=modify_form)
+        # #0333 — this leg builds the form from the submission alone,
+        # so the values the profile held are not on the fields. They
+        # are what tells an obsolete value the member never touched
+        # from one they would be picking now, so hand them over before
+        # validating.
+        retain_profile_values(form, session_service.get("form_raw_results") or {})
 
     if request.method == "GET":
         ctx = {"form": form, "render_field": render_field}

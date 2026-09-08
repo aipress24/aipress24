@@ -25,6 +25,7 @@ from wtforms.fields.core import UnboundField
 
 from .lib.country_select import CountrySelectField
 from .lib.dual_select_multi import DualSelectField
+from .lib.retained_values import retain_profile_values
 from .lib.select_multi_optgroup import SelectMultiOptgroupField
 from .lib.select_multi_simple import SelectMultiSimpleField
 from .lib.select_multi_simple_free import SelectMultiSimpleFreeField
@@ -584,4 +585,8 @@ def generate_form(
     form = DynForm()
     managed_data = _collect_managed_data(form, form_data)
     _fill_managed_data(form, managed_data)
+    # #0333 — a value the current taxonomy dropped is still the
+    # profile's own. Widen the options so it is displayed, and so
+    # `pre_validate` accepts it back.
+    retain_profile_values(form, managed_data)
     return form

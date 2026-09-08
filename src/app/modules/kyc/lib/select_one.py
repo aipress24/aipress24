@@ -12,6 +12,8 @@ from markupsafe import Markup
 from wtforms import widgets
 from wtforms.fields.choices import SelectField
 
+from app.modules.kyc.lib.retained_values import RetainsProfileValues
+
 
 def convert_to_tom_choices_js(choices: list | dict) -> list:
     if isinstance(choices, list):
@@ -63,7 +65,7 @@ class SelectOneWidget(widgets.Select):
         return current_app.jinja_env.from_string(template_path.read_text())
 
 
-class SelectOneField(SelectField):
+class SelectOneField(RetainsProfileValues, SelectField):
     widget = SelectOneWidget()
 
     def __init__(
