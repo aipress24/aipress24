@@ -5,13 +5,13 @@
 from __future__ import annotations
 
 from datetime import UTC, datetime
-from typing import Any, ClassVar, cast
+from typing import ClassVar
 
 import arrow
 import sqlalchemy as sa
 from advanced_alchemy.types.file_object import FileObject, StoredObject
 from sqlalchemy import event as sa_event, orm
-from sqlalchemy.orm import Mapped, mapped_column, validates
+from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy_utils import ArrowType
 
 from app.enums import MODE_LABELS, PRICING_LABELS, EventMode, EventPricing
@@ -193,28 +193,6 @@ class Event(IdMixin, LifeCycleMixin, Owned, Base):
     def title(self):
         return self.titre
 
-    @validates("mode")
-    def _validate_mode(self, key: str, value: Any) -> EventMode:
-        if isinstance(value, EventMode):
-            return value
-        if isinstance(value, str):
-            try:
-                return EventMode[value]
-            except KeyError:
-                return EventMode(value)
-        return value
-
-    @validates("pricing")
-    def _validate_pricing(self, key: str, value: Any) -> EventPricing:
-        if isinstance(value, EventPricing):
-            return value
-        if isinstance(value, str):
-            try:
-                return EventPricing[value]
-            except KeyError:
-                return EventPricing(value)
-        return value
-
     # ------------------------------------------------------------
     # Business Logic - Publication Workflow
     # ------------------------------------------------------------
@@ -362,24 +340,16 @@ class Event(IdMixin, LifeCycleMixin, Owned, Base):
         Raises:
             BusinessRuleError: un champ requis par le mode est vide.
         """
-        raw_mode = self.mode
-        mode: EventMode  # for pyrefly
-        if isinstance(raw_mode, EventMode):
-            mode = raw_mode
-        elif isinstance(raw_mode, str):
-            try:
-                mode = EventMode[raw_mode]
-            except KeyError:
-                mode = EventMode(raw_mode)
-        else:
-            mode = cast(EventMode, raw_mode)
-
-        rules = self.REQUIRED_BY_MODE.get(mode)
-        if rules is None:
-            return
+        # Lié localement et **annoté** : `pyrefly` ne comprend pas
+        # SQLAlchemy et voit un `InstrumentedAttribute[EventMode]` là où
+        # le descripteur rend un `EventMode`. L'annotation dit ce qui
+        # est vrai, plutôt que de museler un code d'erreur entier.
+        mode: EventMode = self.mode
 
         missing = [
-            label for field, label in rules if not (getattr(self, field) or "").strip()
+            label
+            for field, label in self.REQUIRED_BY_MODE[mode]
+            if not (getattr(self, field) or "").strip()
         ]
         if not missing:
             return
@@ -388,10 +358,9 @@ class Event(IdMixin, LifeCycleMixin, Owned, Base):
         # nombre de champs manquants, celui de l'article du libellé de
         # chacun, et les deux se contredisent — « les modalités d'accès
         # est obligatoire ». Une liste n'a pas ce problème.
-        label_mode = MODE_LABELS.get(mode, str(mode))
         msg = (
             f"Impossible de publier : pour un événement "
-            f"{label_mode}, il manque {', '.join(missing)}."
+            f"{MODE_LABELS[mode]}, il manque {', '.join(missing)}."
         )
         raise BusinessRuleError(msg)
 
@@ -410,27 +379,16 @@ class Event(IdMixin, LifeCycleMixin, Owned, Base):
         Raises:
             BusinessRuleError: tarif payant sans prix, ou prix négatif ou nul.
         """
-        raw_pricing = self.pricing
-        pricing: EventPricing  # pyrefly
-        if isinstance(raw_pricing, EventPricing):
-            pricing = raw_pricing
-        elif isinstance(raw_pricing, str):
-            try:
-                pricing = EventPricing[raw_pricing]
-            except KeyError:
-                pricing = EventPricing(raw_pricing)
-        else:
-            pricing = cast(EventPricing, raw_pricing)
+        pricing: EventPricing = self.pricing
 
         if pricing == EventPricing.FREE_FOR_ALL:
             self.price = None
             return
 
         if not self.price or self.price <= 0:
-            label_pricing = PRICING_LABELS.get(pricing, str(pricing)).lower()
             msg = (
                 "Impossible de publier : un événement "
-                f"« {label_pricing} » demande un prix."
+                f"« {PRICING_LABELS[pricing].lower()} » demande un prix."
             )
             raise BusinessRuleError(msg)
 
