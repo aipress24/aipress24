@@ -4,6 +4,8 @@
 #
 from __future__ import annotations
 
+from typing import Any
+
 from wtforms import Form, validators
 from wtforms.fields.choices import SelectField
 from wtforms.fields.simple import StringField, TextAreaField
@@ -471,6 +473,13 @@ class CommuniqueForm(Form):
 # --------------------------------------------------------------------------
 
 
+def _coerce_event_mode(val: Any) -> str:
+    """Enforce the mode is a string."""
+    if isinstance(val, EventMode):
+        return val.name
+    return "" if val is None else str(val)
+
+
 class EventForm(Form):
     # --- Groupe: En-têtes ---
     titre = StringField("Titre de l'événement", validators=[validators.InputRequired()])
@@ -544,6 +553,7 @@ class EventForm(Form):
     mode = SelectField(
         "Format de l'événement",
         choices=[(m.name, MODE_LABELS[m].capitalize()) for m in EventMode],
+        coerce=_coerce_event_mode,
         default=EventMode.ON_SITE.name,
         render_kw={"width": 3},
         validators=[validators.InputRequired()],

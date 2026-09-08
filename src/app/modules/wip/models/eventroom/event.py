@@ -5,13 +5,13 @@
 from __future__ import annotations
 
 from datetime import UTC, datetime
-from typing import ClassVar
+from typing import Any, ClassVar, cast
 
 import arrow
 import sqlalchemy as sa
 from advanced_alchemy.types.file_object import FileObject, StoredObject
 from sqlalchemy import event as sa_event, orm
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, validates
 from sqlalchemy_utils import ArrowType
 
 from app.enums import MODE_LABELS, PRICING_LABELS, EventMode, EventPricing
@@ -193,6 +193,17 @@ class Event(IdMixin, LifeCycleMixin, Owned, Base):
     def title(self):
         return self.titre
 
+    @validates("mode")
+    def _validate_mode(self, key: str, value: Any) -> EventMode:
+        if isinstance(value, EventMode):
+            return value
+        if isinstance(value, str):
+            try:
+                return EventMode[value]
+            except KeyError:
+                return EventMode(value)
+        return value
+
     # ------------------------------------------------------------
     # Business Logic - Publication Workflow
     # ------------------------------------------------------------
@@ -340,16 +351,24 @@ class Event(IdMixin, LifeCycleMixin, Owned, Base):
         Raises:
             BusinessRuleError: un champ requis par le mode est vide.
         """
-        # Lié localement et **annoté** : `pyrefly` ne comprend pas
-        # SQLAlchemy et voit un `InstrumentedAttribute[EventMode]` là où
-        # le descripteur rend un `EventMode`. L'annotation dit ce qui
-        # est vrai, plutôt que de museler un code d'erreur entier.
-        mode: EventMode = self.mode
+        raw_mode = self.mode
+        mode: EventMode  # for pyrefly
+        if isinstance(raw_mode, EventMode):
+            mode = raw_mode
+        elif isinstance(raw_mode, str):
+            try:
+                mode = EventMode[raw_mode]
+            except KeyError:
+                mode = EventMode(raw_mode)
+        else:
+            mode = cast(EventMode, raw_mode)
+
+        rules = self.REQUIRED_BY_MODE.get(mode)
+        if rules is None:
+            return
 
         missing = [
-            label
-            for field, label in self.REQUIRED_BY_MODE[mode]
-            if not (getattr(self, field) or "").strip()
+            label for field, label in rules if not (getattr(self, field) or "").strip()
         ]
         if not missing:
             return
@@ -358,9 +377,10 @@ class Event(IdMixin, LifeCycleMixin, Owned, Base):
         # nombre de champs manquants, celui de l'article du libellé de
         # chacun, et les deux se contredisent — « les modalités d'accès
         # est obligatoire ». Une liste n'a pas ce problème.
+        label_mode = MODE_LABELS.get(mode, str(mode))
         msg = (
             f"Impossible de publier : pour un événement "
-            f"{MODE_LABELS[mode]}, il manque {', '.join(missing)}."
+            f"{label_mode}, il manque {', '.join(missing)}."
         )
         raise BusinessRuleError(msg)
 
