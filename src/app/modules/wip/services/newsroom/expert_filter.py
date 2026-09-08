@@ -534,11 +534,14 @@ class ExpertFilterService:
     def _get_all_experts(self) -> list[User]:
         """Get all experts (cached).
 
-        When an `AvisEnquete` is set on the service (via `initialize`),
-        the candidate pool is first pre-scoped with the MVP matchmaking
-        pre-filter (thematic match + recent activity).
-
-        Journalists (profile_community == PRESS_MEDIA) are filtered first.
+        Journalists (`profile_community == PRESS_MEDIA`) are excluded
+        **before** the thematic pre-filter, not after — bug #0344. That
+        pre-filter falls back to the unfiltered pool when too few
+        candidates match the sector, and the fallback has to be computed
+        on the population actually shown. Run the other way round, a
+        sector matching enough journalists passed the floor, then lost
+        every one of them to the exclusion: the ciblage screen was empty
+        for every sector unless « inclure les journalistes » was ticked.
         """
         if self._all_experts is None:
             # Exclude profileless active users (incomplete sign-up) : every
@@ -546,6 +549,7 @@ class ExpertFilterService:
             # profile would crash the ciblage screen — and an expert with
             # no KYC profile can't be matched to an avis anyway.
             experts = [e for e in self._user_repo.list(active=True) if e.profile]
+            experts = prefilter_journalists(experts, self._state)
             if self._avis_enquete is not None:
                 from app.modules.wip.services.newsroom.avis_matching import (
                     match_experts_to_avis,
@@ -553,7 +557,7 @@ class ExpertFilterService:
 
                 experts = match_experts_to_avis(experts, self._avis_enquete)
 
-            self._all_experts = prefilter_journalists(experts, self._state)
+            self._all_experts = experts
         return self._all_experts
 
     def _get_selectors(self) -> list[BaseSelector]:
