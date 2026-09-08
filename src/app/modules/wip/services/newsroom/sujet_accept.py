@@ -92,9 +92,11 @@ def build_commande_payload(sujet: Sujet, accepter_id: int) -> dict:
     - `brief` defaults to "" when the author didn't fill one (NOT
       NULL column on Commande).
     - `status = DRAFT` — the rédac chef tweaks before publishing.
-    - `date_bouclage` AND `date_paiement` default to the sujet's
-      `date_parution_prevue` so the NOT-NULL columns get a sensible
-      starting point ; the rédac chef can adjust before publishing.
+    - `date_bouclage` defaults to the sujet's `date_parution_prevue`
+      so the NOT-NULL column gets a sensible starting point ; the
+      rédac chef can adjust before publishing. `date_paiement` is left
+      unset — it left the form with #0343, and inventing one would put
+      a date nobody chose on the commande.
     """
     return {
         "owner_id": sujet.owner_id,
@@ -107,7 +109,6 @@ def build_commande_payload(sujet: Sujet, accepter_id: int) -> dict:
         "date_limite_validite": sujet.date_limite_validite,
         "date_parution_prevue": sujet.date_parution_prevue,
         "date_bouclage": sujet.date_parution_prevue,
-        "date_paiement": sujet.date_parution_prevue,
     }
 
 

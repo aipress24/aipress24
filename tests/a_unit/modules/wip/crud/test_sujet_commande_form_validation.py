@@ -309,7 +309,6 @@ _COMMANDE_DATE_FIELDS = [
     "date_limite_validite",
     "date_bouclage",
     "date_parution_prevue",
-    "date_paiement",
 ]
 
 _COMMANDE_REQUIRED_FIELDS = [
@@ -321,7 +320,6 @@ _COMMANDE_REQUIRED_FIELDS = [
     "date_limite_validite",
     "date_bouclage",
     "date_parution_prevue",
-    "date_paiement",
 ]
 
 
@@ -337,7 +335,6 @@ def _commande_baseline() -> dict[str, str]:
         "date_limite_validite": _GOOD_DATETIME,
         "date_bouclage": _GOOD_DATETIME,
         "date_parution_prevue": _GOOD_DATETIME,
-        "date_paiement": _GOOD_DATETIME,
     }
 
 
@@ -351,9 +348,9 @@ def _make_commande_form(app: Flask, data: dict | None = None) -> CommandeForm:
 
 class TestCommandeFormRequiredFields:
     """Pin every InputRequired. CommandeForm has the same metadata
-    contract as SujetForm *plus* two extra required dates
-    (`date_bouclage`, `date_paiement`). Pinning both sets prevents a
-    silent loosening in either form."""
+    contract as SujetForm *plus* one extra required date
+    (`date_bouclage`). Pinning both sets prevents a silent loosening
+    in either form."""
 
     def test_baseline_validates(self, app: Flask):
         form = _make_commande_form(app, _commande_baseline())
@@ -437,7 +434,6 @@ class TestCommandeFormShape:
             "date_limite_validite",
             "date_bouclage",
             "date_parution_prevue",
-            "date_paiement",
         }
         assert set(form._fields.keys()) == expected
 
@@ -458,15 +454,15 @@ class TestCommandeFormShape:
             "dates",
         }
 
-    def test_dates_group_lists_all_four_commande_dates(self, app: Flask):
-        """`CommandeForm` carries four date-fields in workflow order :
-        validity → bouclage → parution → paiement. Pin the list to
-        catch silent reorder / omission."""
+    def test_dates_group_lists_the_commande_dates(self, app: Flask):
+        """`CommandeForm` carries three date-fields in workflow order :
+        validity → bouclage → parution. Pin the list to catch silent
+        reorder / omission. `date_paiement` left with #0343 — a rédac
+        chef does not know when the invoice will be paid."""
         assert CommandeForm.Meta.groups["dates"]["fields"] == [
             "date_limite_validite",
             "date_bouclage",
             "date_parution_prevue",
-            "date_paiement",
         ]
 
     def test_media_id_label_is_commande_adressee_a(self, app: Flask):
@@ -490,10 +486,11 @@ class TestSujetVsCommandeContrast:
         commande = _make_commande_form(app, {})
         sujet_fields = set(sujet._fields.keys())
         commande_fields = set(commande._fields.keys())
-        # date_bouclage + date_paiement live only on CommandeForm.
+        # date_bouclage lives only on CommandeForm.
         assert "date_bouclage" in commande_fields
-        assert "date_paiement" in commande_fields
         assert "date_bouclage" not in sujet_fields
+        # Neither form asks for a payment date any more (#0343).
+        assert "date_paiement" not in commande_fields
         assert "date_paiement" not in sujet_fields
 
     def test_shared_metadata_fields_identical(self, app: Flask):

@@ -352,11 +352,6 @@ class CommandeForm(Form):
         render_kw={"width": 3},
         validators=[validators.InputRequired()],
     )
-    date_paiement = DateTimeField(
-        "Date/heure de paiement",
-        render_kw={"width": 3},
-        validators=[validators.InputRequired()],
-    )
 
     class Meta:
         groups = {
@@ -378,7 +373,6 @@ class CommandeForm(Form):
                     "date_limite_validite",
                     "date_bouclage",
                     "date_parution_prevue",
-                    "date_paiement",
                 ],
             },
         }

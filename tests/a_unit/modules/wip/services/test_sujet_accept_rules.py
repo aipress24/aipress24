@@ -184,17 +184,23 @@ class TestBuildCommandePayload:
         assert payload["date_limite_validite"] == deadline
         assert payload["date_parution_prevue"] == publish
 
-    def test_bouclage_and_paiement_default_to_publication_date(self):
-        """Commande requires `date_bouclage` AND `date_paiement` (NOT
-        NULL). We default both to the publication date as a
-        reasonable starting point — the rédac chef tweaks before
-        publishing the commande. Pin so a refactor doesn't silently
-        let nulls reach the flush."""
+    def test_bouclage_defaults_to_publication_date(self):
+        """`date_bouclage` is NOT NULL, so it defaults to the
+        publication date as a reasonable starting point — the rédac
+        chef tweaks before publishing the commande. Pin so a refactor
+        doesn't silently let nulls reach the flush."""
         publish = datetime(2026, 2, 15, tzinfo=UTC)
         sujet = _sujet_stub(date_parution_prevue=publish)
         payload = build_commande_payload(sujet, accepter_id=7)
         assert payload["date_bouclage"] == publish
-        assert payload["date_paiement"] == publish
+
+    def test_no_payment_date_is_invented(self):
+        """#0343 — the field left the form because nobody knows the
+        date at commission time. Filling it here would put a date on
+        the commande that no one chose."""
+        sujet = _sujet_stub(date_parution_prevue=datetime(2026, 2, 15, tzinfo=UTC))
+        payload = build_commande_payload(sujet, accepter_id=7)
+        assert "date_paiement" not in payload
 
 
 # ---------------------------------------------------------------------------

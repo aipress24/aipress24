@@ -39,8 +39,13 @@ class Commande(
     # Parution prévue
     date_parution_prevue: Mapped[datetime] = mapped_column(sa.DateTime(timezone=True))
 
-    # Paiement
-    date_paiement: Mapped[datetime] = mapped_column(sa.DateTime(timezone=True))
+    # Paiement. Nullable depuis #0343 : la date de paiement n'est pas
+    # connue à la commande — « c'est un problème récurrent dans notre
+    # profession ». Le champ a quitté le formulaire ; la colonne reste
+    # pour les commandes qui en portent déjà une.
+    date_paiement: Mapped[datetime | None] = mapped_column(
+        sa.DateTime(timezone=True), default=None
+    )
 
     status: Mapped[PublicationStatus] = mapped_column(
         sa.Enum(PublicationStatus), default=PublicationStatus.DRAFT
