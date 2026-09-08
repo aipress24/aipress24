@@ -26,6 +26,7 @@ from .models import (
     NotificationKind,
     NotificationSent,
 )
+from .notifications import format_event_date
 
 #: Heure parisienne à partir de laquelle le rappel de la veille est dû.
 REMINDER_HOUR = 9
@@ -167,7 +168,7 @@ def _bell_and_payload(session, event: EventPost, member) -> dict:
     ce qui suit, en donnant l'illusion d'un incident isolé. Mieux vaut
     que le tour s'arrête et soit rejoué.
     """
-    when = event.start_datetime.to(LOCAL_TZ).format("DD/MM/YYYY à HH:mm")
+    when = format_event_date(event.start_datetime, "DD/MM/YYYY à HH:mm")
     url = _reminder_url(event)
 
     session.add(

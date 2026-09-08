@@ -80,8 +80,8 @@ class EventDetailVM(ViewModel):
         )
 
         # Convert Arrow dates to datetime for opening_hours function
-        start_dt = event.start_datetime.datetime if event.start_datetime else None
-        end_dt = event.end_datetime.datetime if event.end_datetime else None
+        start_dt = getattr(event.start_datetime, "datetime", event.start_datetime) if event.start_datetime else None
+        end_dt = getattr(event.end_datetime, "datetime", event.end_datetime) if event.end_datetime else None
         opening = opening_hours(start_dt, end_dt) if start_dt and end_dt else ""
 
         return {

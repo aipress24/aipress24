@@ -6,8 +6,11 @@
 
 from __future__ import annotations
 
+import datetime
 from typing import TYPE_CHECKING
+from zoneinfo import ZoneInfo
 
+import arrow
 import pytest
 from arrow import now
 
@@ -23,7 +26,8 @@ from app.modules.events.event_receiver import (
     on_update_event,
     update_post,
 )
-from app.modules.events.models import EventPost
+from app.modules.events.models import Accreditation, AccreditationStatus, EventPost
+from app.modules.events.notifications import notify_event_changed
 from app.modules.wip.models.eventroom import Event
 
 if TYPE_CHECKING:
@@ -442,3 +446,63 @@ class TestOnUpdateEvent:
         updated_post = get_post(test_event)
         assert updated_post.modified_at is not None
         assert updated_post.modified_at >= before
+
+    def test_update_published_event_with_datetime_start_time_triggers_notification(
+        self, db_session: Session, test_event: Event, test_user: User
+    ):
+        """When event is a datetime.datetime for start_time,
+        on_update_event does not crash on .to(LOCAL_TZ)."""
+        # Event has a python datetime (not Arrow)
+        test_event.start_time = datetime.datetime(
+            2026, 10, 1, 10, 0, tzinfo=ZoneInfo("UTC")
+        )
+        test_event.end_time = datetime.datetime(
+            2026, 10, 1, 18, 0, tzinfo=ZoneInfo("UTC")
+        )
+        db_session.flush()
+
+        # Create published post
+        post = EventPost(
+            title="Old Title",
+            content="Old Content",
+            eventroom_id=test_event.id,
+            owner=test_user,
+            status=PublicationStatus.PUBLIC,
+        )
+        post.start_datetime = arrow.get("2026-09-01T10:00:00Z")
+        post.end_datetime = arrow.get("2026-09-01T18:00:00Z")
+        db_session.add(post)
+        db_session.flush()
+
+        accreditation = Accreditation(
+            event=post,
+            user=test_user,
+            status=AccreditationStatus.ACCEPTED,
+        )
+        db_session.add(accreditation)
+        db_session.flush()
+
+        on_update_event(test_event)
+
+        updated_post = get_post(test_event)
+        assert updated_post is not None
+        assert isinstance(updated_post.start_datetime, arrow.Arrow)
+        assert updated_post.start_datetime == arrow.get("2026-10-01T10:00:00Z")
+
+    def test_notify_event_changed_accepts_python_datetime(
+        self, db_session: Session, test_user: User
+    ):
+        """notify_event_changed safely formats start_datetime when it is a python datetime."""
+        post = EventPost(
+            title="Meeting",
+            content="Content",
+            owner=test_user,
+            status=PublicationStatus.PUBLIC,
+        )
+        post.start_datetime = datetime.datetime(
+            2026, 11, 15, 14, 0, tzinfo=ZoneInfo("UTC")
+        )
+        db_session.add(post)
+        db_session.flush()
+
+        notify_event_changed(post, ["L'adresse a changé."])

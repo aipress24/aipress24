@@ -4,6 +4,7 @@
 
 from __future__ import annotations
 
+import arrow
 from arrow import now
 from loguru import logger
 from sqlalchemy import select
@@ -99,8 +100,15 @@ def update_post(
     post.publisher_id = info.publisher_id
 
     # Schedule
-    post.start_datetime = info.start_time  # type: ignore[assignment]
-    post.end_datetime = info.end_time  # type: ignore[assignment]
+    if info.start_time:
+        post.start_datetime = arrow.get(info.start_time)  # pyrefly: ignore [no-matching-overload]
+    else:
+        post.start_datetime = None
+
+    if info.end_time:
+        post.end_datetime = arrow.get(info.end_time)  # pyrefly: ignore [no-matching-overload]
+    else:
+        post.end_datetime = None
 
     # Location
     post.address = info.address

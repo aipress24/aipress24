@@ -12,6 +12,8 @@ modèle source, pas de hook de session, pas d'historique d'attributs.
 
 from __future__ import annotations
 
+from datetime import datetime
+
 import arrow
 
 from app.constants import LOCAL_TZ
@@ -126,7 +128,9 @@ def _same(old, new) -> bool:
     """
     if old is None or new is None:
         return old is None and new is None
-    if isinstance(old, arrow.Arrow) or isinstance(new, arrow.Arrow):
+    if isinstance(old, arrow.Arrow | datetime) or isinstance(
+        new, arrow.Arrow | datetime
+    ):
         return arrow.get(old) == arrow.get(new)
     return str(old).strip() == str(new).strip()
 
@@ -144,8 +148,8 @@ def _render(value) -> str:
     """
     if value is None or not str(value).strip():
         return NOTHING
-    if isinstance(value, arrow.Arrow):
-        return value.to(LOCAL_TZ).format("DD/MM/YYYY HH:mm")
+    if isinstance(value, arrow.Arrow | datetime):
+        return arrow.get(value).to(LOCAL_TZ).format("DD/MM/YYYY HH:mm")
     if isinstance(value, EventMode):
         # Sans quoi le message annoncerait « Format : EventMode.ONLINE ».
         return MODE_LABELS[value]

@@ -18,8 +18,9 @@ déplacement.
 from __future__ import annotations
 
 from enum import StrEnum
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
+import arrow
 from svcs.flask import container
 
 from app.constants import LOCAL_TZ
@@ -30,6 +31,12 @@ from app.services.notifications import NotificationService
 if TYPE_CHECKING:
     from app.models.auth import User
     from app.modules.events.models import EventPost
+
+
+def format_event_date(dt: Any, fmt: str = "DD/MM/YYYY") -> str:
+    if not dt:
+        return ""
+    return arrow.get(dt).to(LOCAL_TZ).format(fmt)
 
 
 def notify_request_received(event: EventPost, requester: User) -> None:
@@ -52,7 +59,7 @@ def notify_accepted(event: EventPost, member: User) -> None:
     Cloche **et** email : c'est l'information qui décide d'un
     déplacement, elle ne peut pas dépendre d'un retour sur le site.
     """
-    when = event.start_datetime.format("DD/MM/YYYY") if event.start_datetime else ""
+    when = format_event_date(event.start_datetime)
     _post(
         member,
         f"Vous êtes accrédité.e à l'événement « {event.title} »"
@@ -176,11 +183,7 @@ def notify_event_changed(event: EventPost, details: list[str]) -> None:
     detail = " ".join(details)
     message = f"L'événement « {event.title} » a été modifié. {detail}"
     url = _event_url(event)
-    when = (
-        event.start_datetime.to(LOCAL_TZ).format("DD/MM/YYYY")
-        if event.start_datetime
-        else ""
-    )
+    when = format_event_date(event.start_datetime)
 
     service = container.get(NotificationService)
     for member in get_participants(event):
@@ -274,11 +277,8 @@ def notify_status_change(event: EventPost, change: EventStatusChange) -> int:
     from app.modules.events.services import get_participants
 
     bell_text, subject = _STATUS_CHANGE_TEXT[change]
-    when = (
-        event.start_datetime.to(LOCAL_TZ).format("DD/MM/YYYY")
-        if event.start_datetime
-        else ""
-    )
+    when = format_event_date(event.start_datetime)
+
     message = bell_text.format(title=event.title, when=f" du {when}" if when else "")
     url = _event_url(event)
 

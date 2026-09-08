@@ -38,10 +38,10 @@ class EventPostBase(
     # - content: more detailed description of the event (html)
 
     # Event schedule (full datetime with timezone)
-    start_datetime: Mapped[ArrowType | None] = mapped_column(
+    start_datetime: Mapped[arrow.Arrow | None] = mapped_column(
         ArrowType(timezone=True), info={"group": "dates"}
     )
-    end_datetime: Mapped[ArrowType | None] = mapped_column(
+    end_datetime: Mapped[arrow.Arrow | None] = mapped_column(
         ArrowType(timezone=True), info={"group": "dates"}
     )
 
