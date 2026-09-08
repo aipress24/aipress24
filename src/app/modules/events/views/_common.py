@@ -24,8 +24,8 @@ from app.models.lifecycle import PublicationStatus
 from app.modules.events.components.opening_hours import opening_hours
 from app.modules.events.models import EventPost
 from app.modules.events.services import get_participants
-from app.modules.kyc.field_label import country_code_to_label, country_zip_code_to_city
 from app.modules.swork.models import Comment
+from app.ui.geoloc import offer_geoloc_label
 
 # =============================================================================
 # View Models
@@ -80,8 +80,16 @@ class EventDetailVM(ViewModel):
         )
 
         # Convert Arrow dates to datetime for opening_hours function
-        start_dt = getattr(event.start_datetime, "datetime", event.start_datetime) if event.start_datetime else None
-        end_dt = getattr(event.end_datetime, "datetime", event.end_datetime) if event.end_datetime else None
+        start_dt = (
+            getattr(event.start_datetime, "datetime", event.start_datetime)
+            if event.start_datetime
+            else None
+        )
+        end_dt = (
+            getattr(event.end_datetime, "datetime", event.end_datetime)
+            if event.end_datetime
+            else None
+        )
         opening = opening_hours(start_dt, end_dt) if start_dt and end_dt else ""
 
         return {
@@ -92,10 +100,7 @@ class EventDetailVM(ViewModel):
             "views": event.view_count,
             "participants": participants,
             "opening": opening,
-            "country_zip_city": (
-                f"{country_zip_code_to_city(event.pays_zip_ville_detail)}, "
-                f"{country_code_to_label(event.pays_zip_ville)}"
-            ),
+            "country_zip_city": offer_geoloc_label(event),
             "comments": self.get_comments(),
         }
 
