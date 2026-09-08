@@ -141,15 +141,22 @@ def register_s3_storage(app: Flask) -> None:
     access_key = app.config["S3_ACCESS_KEY_ID"]
     secret_key = app.config["S3_SECRET_ACCESS_KEY"]
     bucket_name = app.config["S3_BUCKET_NAME"]
+    region_name = app.config.get("S3_REGION_NAME", "fr-paris")
     use_ssl = app.config.get("S3_USE_SSL", False)
+
+    client_kwargs = {
+        "endpoint_url": endpoint_url,
+        "aws_access_key_id": access_key,
+        "aws_secret_access_key": secret_key,
+        "region_name": region_name,
+        "verify": use_ssl,
+    }
 
     s3_fs = fsspec.filesystem(
         "s3",
-        client_kwargs={
-            "endpoint_url": endpoint_url,
-            "aws_access_key_id": access_key,
-            "aws_secret_access_key": secret_key,
-            "verify": use_ssl,
+        client_kwargs=client_kwargs,
+        config_kwargs={
+            "signature_version": "s3v4",
         },
         use_ssl=use_ssl,
     )
