@@ -23,6 +23,7 @@ from sqlalchemy.sql import func
 from sqlalchemy_utils import ArrowType
 
 from app.enums import ContactTypeEnum, OrganisationTypeEnum, RoleEnum
+from app.lib.file_object_utils import media_url
 from app.lib.geoloc import (
     Localisation,
     parse_pays_zip_ville,
@@ -388,31 +389,19 @@ class User(LifeCycleMixin, Addressable, UserMixin, Base):
         file_obj: FileObject | None = self.cover_image
         if file_obj is None:
             return "/static/img/transparent-square.png"
-        try:
-            return file_obj.sign(expires_in=expires_in, for_upload=False)
-        except RuntimeError as e:
-            msg = f"Storage failed to sign URL for banner user.id : {self.id}, key {file_obj.path}: {e}"
-            raise RuntimeError(msg) from e
+        return media_url(file_obj)
 
     def photo_image_signed_url(self, expires_in: int = 3600) -> str:
         file_obj: FileObject | None = self.photo_image
         if file_obj is None:
             return "/static/img/transparent-square.png"
-        try:
-            return file_obj.sign(expires_in=expires_in, for_upload=False)
-        except RuntimeError as e:
-            msg = f"Storage failed to sign URL for photo user.id : {self.id}, key {file_obj.path}: {e}"
-            raise RuntimeError(msg) from e
+        return media_url(file_obj)
 
     def photo_carte_presse_image_signed_url(self, expires_in: int = 3600) -> str:
         file_obj: FileObject | None = self.photo_carte_presse_image
         if file_obj is None:
             return "/static/img/transparent-square.png"
-        try:
-            return file_obj.sign(expires_in=expires_in, for_upload=False)
-        except RuntimeError as e:
-            msg = f"Storage failed to sign URL for carte presse user.id : {self.id}, key {file_obj.path}: {e}"
-            raise RuntimeError(msg) from e
+        return media_url(file_obj)
 
 
 class Role(Base, RoleMixin):

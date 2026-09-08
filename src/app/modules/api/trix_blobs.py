@@ -7,7 +7,7 @@ from __future__ import annotations
 
 from flask import request
 
-from app.lib.file_object_utils import create_file_object
+from app.lib.file_object_utils import create_file_object, media_url
 
 from . import blueprint
 
@@ -30,8 +30,7 @@ def upload_blob() -> tuple[dict, int]:
     )
     saved_file_obj = file_obj.save()
 
-    expires_in = 300000000  # ~10years
-    url = saved_file_obj.sign(expires_in=expires_in, for_upload=False)
+    url = media_url(saved_file_obj)
 
     return {
         "url": url,

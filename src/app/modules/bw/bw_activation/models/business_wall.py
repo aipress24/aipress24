@@ -18,7 +18,7 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.orm.attributes import flag_modified
 
 from app.enums import BWType  # noqa: F401
-from app.lib.file_object_utils import deserialize_file_object
+from app.lib.file_object_utils import deserialize_file_object, media_url
 from app.lib.geoloc import parse_pays_zip_ville
 from app.logging import warn
 
@@ -311,26 +311,18 @@ class BusinessWall(UUIDAuditBase):
         file_obj: FileObject | None = self.cover_image
         if file_obj is None:
             return "/static/img/transparent-square.png"
-        try:
-            return file_obj.sign(expires_in=expires_in, for_upload=False)
-        except RuntimeError as e:
-            msg = f"Storage failed to sign URL for cover image org.id : {self.id}, key {file_obj.path}: {e}"
-            raise RuntimeError(msg) from e
+        return media_url(file_obj)
 
     def logo_image_signed_url(self, expires_in: int = 3600) -> str:
         file_obj: FileObject | None = self.logo_image
         if file_obj is None:
             return "/static/img/transparent-square.png"
-        try:
-            return file_obj.sign(expires_in=expires_in, for_upload=False)
-        except RuntimeError as e:
-            msg = f"Storage failed to sign URL for logo image org.id : {self.id}, key {file_obj.path}: {e}"
-            raise RuntimeError(msg) from e
+        return media_url(file_obj)
 
     def gallery_image_signed_urls(
         self, expires_in: int = 3600
     ) -> list[dict[str, int | str]]:
-        """Return list of gallery images with their signed URLs."""
+        """Return list of gallery images with their URLs via media_url()."""
         result: list[dict[str, int | str]] = []
         for idx, img_data in enumerate(self.gallery_images or []):
             if not img_data:
@@ -339,7 +331,7 @@ class BusinessWall(UUIDAuditBase):
                 file_obj = deserialize_file_object(img_data)
                 if not file_obj:
                     continue
-                url = file_obj.sign(expires_in=expires_in, for_upload=False)
+                url = media_url(file_obj)
                 # Use original_name if available, otherwise fall back to filename
                 display_name = (
                     img_data.get("original_name")

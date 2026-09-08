@@ -12,7 +12,7 @@ from flask import current_app
 from markupsafe import Markup
 from wtforms import FileField, widgets
 
-from app.lib.file_object_utils import deserialize_file_object
+from app.lib.file_object_utils import deserialize_file_object, media_url
 
 
 class ValidImageWidgetSquare(widgets.Input):
@@ -64,8 +64,8 @@ class ValidImageFieldSquare(FileField):
         return 0
 
     def get_image_url(self) -> str | None:
-        if self.file_object:
-            return self.file_object.sign()
+        if self.file_object and self.file_object.path:
+            return media_url(self.file_object)
         return None
 
     def id_preload_name(self) -> str:

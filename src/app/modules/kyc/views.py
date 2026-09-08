@@ -43,7 +43,11 @@ from app.constants import (
 )
 from app.enums import CommunityEnum
 from app.flask.extensions import db
-from app.lib.file_object_utils import create_file_object, deserialize_file_object
+from app.lib.file_object_utils import (
+    create_file_object,
+    deserialize_file_object,
+    media_url,
+)
 from app.models.auth import (
     KYCProfile,
     Role,
@@ -777,8 +781,8 @@ def collect_photo_url(
     url = ""
     if survey_field.type in {"photo", "photo_square"}:
         file_object = kyc_data.get(survey_field.name)
-        if isinstance(file_object, FileObject):
-            url = file_object.sign()
+        if isinstance(file_object, FileObject) and file_object.path:
+            url = media_url(file_object)
             images[survey_field.name] = url
             images[survey_field.id] = url
     return url
@@ -823,8 +827,7 @@ def replace_file_object_by_name(content: dict[str, Any]) -> None:
         if isinstance(value, dict):
             for sub_key, sub_val in value.items():
                 if isinstance(sub_val, FileObject):
-                    # value[sub_key] = sub_val.filename
-                    value[sub_key] = sub_val.sign(expires_in=3600)
+                    value[sub_key] = media_url(sub_val)
 
 
 def _public_group_info(level: int) -> dict[str, Any]:
