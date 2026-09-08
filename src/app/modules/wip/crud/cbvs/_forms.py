@@ -480,6 +480,13 @@ def _coerce_event_mode(val: Any) -> str:
     return "" if val is None else str(val)
 
 
+def _coerce_event_pricing(val: Any) -> str:
+    """Enforce pricing is a string."""
+    if isinstance(val, EventPricing):
+        return val.name
+    return "" if val is None else str(val)
+
+
 class EventForm(Form):
     # --- Groupe: En-têtes ---
     titre = StringField("Titre de l'événement", validators=[validators.InputRequired()])
@@ -594,6 +601,7 @@ class EventForm(Form):
     pricing = SelectField(
         "Tarif",
         choices=[(p.name, PRICING_LABELS[p]) for p in EventPricing],
+        coerce=_coerce_event_pricing,
         default=EventPricing.FREE_FOR_ALL.name,
         render_kw={"width": 3},
         validators=[validators.InputRequired()],

@@ -204,6 +204,17 @@ class Event(IdMixin, LifeCycleMixin, Owned, Base):
                 return EventMode(value)
         return value
 
+    @validates("pricing")
+    def _validate_pricing(self, key: str, value: Any) -> EventPricing:
+        if isinstance(value, EventPricing):
+            return value
+        if isinstance(value, str):
+            try:
+                return EventPricing[value]
+            except KeyError:
+                return EventPricing(value)
+        return value
+
     # ------------------------------------------------------------
     # Business Logic - Publication Workflow
     # ------------------------------------------------------------
@@ -399,15 +410,27 @@ class Event(IdMixin, LifeCycleMixin, Owned, Base):
         Raises:
             BusinessRuleError: tarif payant sans prix, ou prix négatif ou nul.
         """
-        pricing: EventPricing = self.pricing
+        raw_pricing = self.pricing
+        pricing: EventPricing  # pyrefly
+        if isinstance(raw_pricing, EventPricing):
+            pricing = raw_pricing
+        elif isinstance(raw_pricing, str):
+            try:
+                pricing = EventPricing[raw_pricing]
+            except KeyError:
+                pricing = EventPricing(raw_pricing)
+        else:
+            pricing = cast(EventPricing, raw_pricing)
+
         if pricing == EventPricing.FREE_FOR_ALL:
             self.price = None
             return
 
         if not self.price or self.price <= 0:
+            label_pricing = PRICING_LABELS.get(pricing, str(pricing)).lower()
             msg = (
                 "Impossible de publier : un événement "
-                f"« {PRICING_LABELS[pricing].lower()} » demande un prix."
+                f"« {label_pricing} » demande un prix."
             )
             raise BusinessRuleError(msg)
 
