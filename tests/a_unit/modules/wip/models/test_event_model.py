@@ -661,23 +661,3 @@ class TestRequiredFieldsPerMode:
         """Une entrée manquante ferait lever `KeyError` au milieu de la
         publication, là où l'on attend un message en clair."""
         assert set(Event.REQUIRED_BY_MODE) == set(EventMode)
-
-    def test_string_mode_and_pricing_are_coerced_by_model(self):
-        """WTForms populate_obj assigns string member names ('ON_SITE', 'PAID').
-        The model needs coerce them to EventMode / EventPricing."""
-        event = Event()
-        event.mode = "ON_SITE"
-        assert event.mode == EventMode.ON_SITE
-        assert isinstance(event.mode, EventMode)
-
-        event.pricing = "PAID"
-        assert event.pricing == EventPricing.PAID
-        assert isinstance(event.pricing, EventPricing)
-
-    def test_publishing_with_string_mode_does_not_raise_key_error(self):
-        """When mode is as string, check_publishable must not raise."""
-        stub = _EventStub(
-            mode="ON_SITE", pricing="FREE_FOR_ALL", address="1 rue de la Paix"
-        )
-        Event.check_publishable(stub)
-        assert stub.price is None

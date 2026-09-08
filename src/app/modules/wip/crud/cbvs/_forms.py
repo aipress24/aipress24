@@ -4,8 +4,6 @@
 #
 from __future__ import annotations
 
-from typing import Any
-
 from wtforms import Form, validators
 from wtforms.fields.choices import SelectField
 from wtforms.fields.simple import StringField, TextAreaField
@@ -467,20 +465,6 @@ class CommuniqueForm(Form):
 # --------------------------------------------------------------------------
 
 
-def _coerce_event_mode(val: Any) -> str:
-    """Enforce the mode is a string."""
-    if isinstance(val, EventMode):
-        return val.name
-    return "" if val is None else str(val)
-
-
-def _coerce_event_pricing(val: Any) -> str:
-    """Enforce pricing is a string."""
-    if isinstance(val, EventPricing):
-        return val.name
-    return "" if val is None else str(val)
-
-
 class EventForm(Form):
     # --- Groupe: En-têtes ---
     titre = StringField("Titre de l'événement", validators=[validators.InputRequired()])
@@ -553,9 +537,9 @@ class EventForm(Form):
     # lever `LookupError` à l'ORM en relecture.
     mode = SelectField(
         "Format de l'événement",
-        choices=[(m.name, MODE_LABELS[m].capitalize()) for m in EventMode],
-        coerce=_coerce_event_mode,
-        default=EventMode.ON_SITE.name,
+        choices=[(m.value, MODE_LABELS[m].capitalize()) for m in EventMode],
+        coerce=EventMode,
+        default=EventMode.ON_SITE,
         render_kw={"width": 3},
         validators=[validators.InputRequired()],
     )
@@ -594,9 +578,9 @@ class EventForm(Form):
     # portant le **nom** du membre : c'est ce que `sa.Enum` stocke.
     pricing = SelectField(
         "Tarif",
-        choices=[(p.name, PRICING_LABELS[p]) for p in EventPricing],
-        coerce=_coerce_event_pricing,
-        default=EventPricing.FREE_FOR_ALL.name,
+        choices=[(p.value, PRICING_LABELS[p]) for p in EventPricing],
+        coerce=EventPricing,
+        default=EventPricing.FREE_FOR_ALL,
         render_kw={"width": 3},
         validators=[validators.InputRequired()],
     )

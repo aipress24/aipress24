@@ -84,8 +84,8 @@ def _make_form(app: Flask, data: dict | None = None) -> EventForm:
     # le pose ici, comme on pose déjà les choix des deux
     # `RichSelectField`.
     payload = dict(data or {})
-    payload.setdefault("mode", EventMode.ON_SITE.name)
-    payload.setdefault("pricing", EventPricing.FREE_FOR_ALL.name)
+    payload.setdefault("mode", EventMode.ON_SITE.value)
+    payload.setdefault("pricing", EventPricing.FREE_FOR_ALL.value)
     payload = ImmutableMultiDict(payload)
     with app.test_request_context():
         form = EventForm(payload)
@@ -389,7 +389,7 @@ class TestFormShape:
 class TestTheModeField:
     """MOD-01, MOD-04, MOD-06 — le format de participation au formulaire."""
 
-    def test_the_choices_carry_the_enum_names(self, app: Flask):
+    def test_the_choices_carry_the_enum_values(self, app: Flask):
         """`sa.Enum` stocke le **nom** du membre, pas sa valeur. Un
         formulaire qui posterait « on_site » ferait lever `LookupError`
         à l'ORM en relecture."""
@@ -407,9 +407,13 @@ class TestTheModeField:
         # « une chaîne, ou un couple, ou un triplet ». Nos options sont
         # des couples, mais le dépaquetage l'affirmerait sans preuve.
         values = [choice[0] for choice in choices]
-        assert values == [m.name for m in EventMode]
-        assert "ON_SITE" in values
-        assert "on_site" not in values
+        assert values == [m.value for m in EventMode]
+        # The wire format is the `StrEnum`'s own value, so a submitted
+        # option coerces straight back to its member. Using `.name`
+        # here is what let "ON_SITE" reach `REQUIRED_BY_MODE` and raise
+        # `KeyError` at publication time.
+        assert "on_site" in values
+        assert "ON_SITE" not in values
 
     def test_the_labels_are_readable(self, app: Flask):
         form = _make_form(app, {})
