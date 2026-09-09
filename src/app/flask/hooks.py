@@ -54,6 +54,13 @@ _PER_USER_SESSION_KEY_PREFIXES: tuple[str, ...] = (
     "wire:",
     "swork:",
     "biz:",
+    # `newsroom:ciblage<avis id>` holds the targeting filters of an avis
+    # d'enquête, and `newsroom:sujet` the sujet list state. Both were
+    # missing here, so on a shared browser the next member to sign in
+    # inherited the previous one's criteria — and a ciblage that filters
+    # on someone else's criteria shows them nobody, with no visible
+    # cause. Same defect as #0118, one module later.
+    "newsroom:",
 )
 
 
