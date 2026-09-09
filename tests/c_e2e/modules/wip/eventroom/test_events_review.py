@@ -118,7 +118,9 @@ class TestSendingBack:
             "/", method="POST", data={"_action": "send-back", "comment": "Motif"}
         ):
             g.user = test_user
-            with pytest.raises(Forbidden):
+            # NotFound depuis l'audit du 2026-09-09 : le refus est
+            # décidé par `_get_model`, qui masque l'existence.
+            with pytest.raises((Forbidden, NotFound)):
                 EventsWipView().review(pending_event.id)
 
         fresh_db.session.refresh(pending_event)
@@ -149,7 +151,9 @@ class TestSendingBack:
 
         with app.test_request_context("/"):
             g.user = stranger
-            with pytest.raises(Forbidden):
+            # NotFound depuis l'audit du 2026-09-09 : le refus est
+            # décidé par `_get_model`, qui masque l'existence.
+            with pytest.raises((Forbidden, NotFound)):
                 EventsWipView().review(pending_event.id)
 
 

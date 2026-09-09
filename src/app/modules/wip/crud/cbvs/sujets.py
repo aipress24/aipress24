@@ -12,7 +12,7 @@ from flask_super.registry import register
 from sqlalchemy import and_, func, or_, select
 from sqlalchemy.orm import selectinload
 from werkzeug import Response
-from werkzeug.exceptions import Forbidden, NotFound
+from werkzeug.exceptions import Forbidden
 
 from app.flask.extensions import db
 from app.flask.lib.templates import templated
@@ -287,36 +287,26 @@ class SujetsWipView(BaseWipView):
     msg_delete_ok = "Le sujet a été supprimé"
     msg_delete_ko = "Vous n'êtes pas autorisé à supprimer ce sujet"
 
-    def _get_model(self, id):
+    def _can_access(self, model: Sujet) -> bool:
         """Per-record visibility gate for Sujet (security VULN-001).
 
         The LIST view's `_media_recipient_clause` restricts received
-        Sujets to rédacteurs en chef (#0132 pt 1). The same gate must
-        apply when a record is fetched by primary key — otherwise the
-        get / edit / accept / publish / unpublish / delete routes
-        bypass the visibility rule via direct URL.
+        Sujets to rédacteurs en chef (#0132 pt 1), so the by-id fetch
+        must say the same thing.
 
         Authorized viewers :
         - the Sujet's own owner, regardless of status ;
         - the target media's rédac chef when the Sujet is PUBLIC.
-
-        Anything else 404s (existence-hiding).
         """
-        model = super()._get_model(id)
-        if model is None or self._user_can_access_sujet(model):
-            return model
-        raise NotFound
-
-    def _user_can_access_sujet(self, sujet: Sujet) -> bool:
         user = g.user
         if user is None or user.is_anonymous:
             return False
-        if sujet.owner_id == user.id:
+        if model.owner_id == user.id:
             return True
         return (
-            sujet.media_id == user.organisation_id
-            and sujet.status == PublicationStatus.PUBLIC
-            and _is_redac_chef_of_org(user, sujet.media_id)
+            model.media_id == user.organisation_id
+            and model.status == PublicationStatus.PUBLIC
+            and _is_redac_chef_of_org(user, model.media_id)
         )
 
     def _post_update_model(self, model: Sujet) -> None:

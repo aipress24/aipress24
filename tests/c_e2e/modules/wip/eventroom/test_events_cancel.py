@@ -258,6 +258,8 @@ class TestOnlyTheOrganiser:
             data={"_action": "cancel-event"},
         )
 
-        assert response.status_code == 302
-        assert response.headers.get("X-Access-Denied") == "true"
+        # Le refus tient ; sa forme a changé avec l'audit du 2026-09-09 :
+        # `BaseWipView._get_model` masque désormais l'existence (404)
+        # au lieu de rediriger, ce qui confirmait l'identifiant.
+        assert response.status_code == 404
         assert stranger_event.cancelled_at is None

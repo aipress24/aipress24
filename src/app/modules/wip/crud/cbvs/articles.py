@@ -20,7 +20,7 @@ from flask_super.registry import register
 from markupsafe import Markup
 from sqlalchemy.orm import Session
 from werkzeug import Response
-from werkzeug.exceptions import Forbidden, NotFound
+from werkzeug.exceptions import NotFound
 
 from app.flask.extensions import db
 from app.flask.lib.templates import templated
@@ -258,7 +258,6 @@ class ArticlesWipView(BaseWipView):
     def get(self, id):
         """Step « Voir » — wrapped with the #0154 step-nav bar."""
         model = self._get_model(id)
-        self._require_author(model)
         title = f"{self.label_view} '{model.title}'"
         ctx = self._view_ctx(model, title=title, mode="view")
         ctx["article"] = model
@@ -268,7 +267,6 @@ class ArticlesWipView(BaseWipView):
     def edit(self, id):
         """Step « Modifier » — wrapped with the #0154 step-nav bar."""
         model = self._get_model(id)
-        self._require_author(model)
         title = f"{self.label_edit} '{model.title}'"
         ctx = self._view_ctx(model, title=title)
         ctx["article"] = model
@@ -285,7 +283,6 @@ class ArticlesWipView(BaseWipView):
     def publish(self, id):
         repo = self._get_repo()
         article = cast("Article", self._get_model(id))
-        self._require_author(article)
 
         # Use business method to publish (includes validation)
         try:
@@ -304,7 +301,6 @@ class ArticlesWipView(BaseWipView):
     def unpublish(self, id):
         repo = self._get_repo()
         article = cast("Article", self._get_model(id))
-        self._require_author(article)
 
         # Use business method to unpublish (includes validation)
         try:
@@ -339,7 +335,6 @@ class ArticlesWipView(BaseWipView):
         # is rejected immediately.
         if id := request.form.get("id"):
             model = cast("Article", self._get_model(id))
-            self._require_author(model)
         else:
             model = self.model_class()
             model.owner = g.user
@@ -375,11 +370,6 @@ class ArticlesWipView(BaseWipView):
         flash("Enregistré")
         return redirect(self._url_for("index"))
 
-    def _require_author(self, article: Article) -> None:
-        """Security: WIP article pages are private to the author."""
-        if article.owner_id != g.user.id:
-            raise Forbidden
-
     @route("/<int:id>/notify/", methods=["GET", "POST"])
     def notify(self, id: int):
         """Ticket #0195 — « Justificatif » action : notify enquête
@@ -397,15 +387,12 @@ class ArticlesWipView(BaseWipView):
             notify_avis_participants_of_justificatif,
         )
 
+        # Only the article's author gets here: `_get_model` refuses a
+        # record this user cannot reach. That matters more on this route
+        # than on the others — a stranger who got through could spam
+        # recipients in the author's name, or reconnoitre their avis list.
         article = cast("Article", self._get_model(id))
         user = g.user
-
-        # Only the article's author can trigger justificatif notifications.
-        # Without this guard any WIP user could POST/GET for any article
-        # id and either spam recipients in the author's name or
-        # reconnoitre the journalist's avis list.
-        if getattr(article, "owner_id", None) != user.id:
-            raise Forbidden
 
         if request.method == "POST":
             try:

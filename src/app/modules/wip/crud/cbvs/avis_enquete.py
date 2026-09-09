@@ -221,11 +221,28 @@ class AvisEnqueteWipView(BaseWipView):
         if user_can_access_newsroom(g.user):
             return None
 
-        action = request.endpoint and request.endpoint.split(":")[-1]
-        if action in self.PER_CONTACT_ACTIONS and self._user_is_party_to_contact():
+        if self._is_per_contact_party():
             return None
 
         raise Forbidden
+
+    def _is_per_contact_party(self) -> bool:
+        """Cette requête est-elle une action RDV d'une des deux parties ?"""
+        action = request.endpoint and request.endpoint.split(":")[-1]
+        return bool(
+            action in self.PER_CONTACT_ACTIONS and self._user_is_party_to_contact()
+        )
+
+    def _can_access(self, model) -> bool:
+        """Le propriétaire, et les deux parties d'un RDV (#0173).
+
+        `before_request` accorde déjà les actions RDV au journaliste et
+        à l'expert du contact visé, quel que soit le propriétaire de
+        l'avis. La lecture par identifiant doit dire la même chose, ou
+        elle défait cette dérogation — un expert sollicité ne pourrait
+        plus ouvrir son propre rendez-vous.
+        """
+        return super()._can_access(model) or self._is_per_contact_party()
 
     def _user_is_party_to_contact(self) -> bool:
         """True if the logged-in user is the journalist or the expert

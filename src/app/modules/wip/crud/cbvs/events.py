@@ -228,6 +228,20 @@ def _accrediter_label(event) -> str:
     return f"Accréditer ({pending})" if pending else "Accréditer"
 
 
+def _is_organiser(event, user) -> bool:
+    """Le prédicat de `_require_organiser`, réutilisable.
+
+    Extrait pour que `EventsWipView._can_access` et le garde des
+    écrans d'accréditation disent la même chose : une règle écrite
+    deux fois est une règle qui finit par diverger.
+    """
+    if user is None or user.is_anonymous:
+        return False
+    if event.owner_id == user.id:
+        return True
+    return bool(event.publisher and _has_events_mission_on(user, event.publisher))
+
+
 def _require_organiser(event) -> None:
     """Refuser l'accès à qui n'organise pas cet événement (§6).
 
@@ -246,12 +260,8 @@ def _require_organiser(event) -> None:
     `can_user_publish_for` faisait, sa première condition étant
     l'appartenance.
     """
-    user = g.user
-    if event.owner_id == user.id:
-        return
-    if event.publisher and _has_events_mission_on(user, event.publisher):
-        return
-    raise Forbidden
+    if not _is_organiser(event, g.user):
+        raise Forbidden
 
 
 def _has_events_mission_on(user, organisation) -> bool:
@@ -340,6 +350,17 @@ class EventsWipView(BaseWipView):
 
     msg_delete_ok = "L'événement a été supprimé"
     msg_delete_ko = "Vous n'êtes pas autorisé à supprimer cet événement"
+
+    def _can_access(self, model) -> bool:
+        """Le propriétaire, ou un habilité du BW éditeur (§6).
+
+        `before_request` garde Event'Room dans son ensemble ; c'est ici
+        que se joue « cet événement-ci ». Le lot L4 avait posé la règle
+        sur les seuls écrans d'accréditation, en la nommant : « n'importe
+        quel membre y ayant accès atteignait les écrans de n'importe quel
+        autre ». `get` et `edit` passaient encore à côté.
+        """
+        return _is_organiser(model, g.user)
 
     def before_request(self, *_args, **_kwargs) -> Response | None:
         if resp := super().before_request(*_args, **_kwargs):

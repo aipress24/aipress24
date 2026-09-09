@@ -17,6 +17,7 @@ from flask_classful import FlaskView, route
 from sqlalchemy import select
 from svcs.flask import container
 from werkzeug import Response
+from werkzeug.exceptions import NotFound
 from wtforms import Form as WTForm
 
 from app.constants import LOCAL_TZ
@@ -543,5 +544,36 @@ class BaseWipView(FlaskView, abc.ABC):
         return container.get(self.repo_class)
 
     def _get_model(self, id):
+        """Fetch by primary key, under the same rule the list applies.
+
+        `BaseDataSource._base_query` filters the list on
+        `owner_id == user.id`. Fetching by id used to skip that, so
+        every route reached through this method — get, edit, post,
+        and each module's own screens — served another member's record
+        to anyone the blueprint gate let in, and `post` overwrote it.
+
+        The rule now lives here, once, and a view that legitimately
+        shows more widens it by overriding `_can_access`. That is the
+        way round that fails safe: a new route inherits the check, and
+        a wider rule has to be written on purpose.
+
+        `NotFound` rather than `Forbidden`, so the response does not
+        confirm the record exists.
+        """
         repo = self._get_repo()
-        return repo.get(id)
+        model = repo.get(id)
+        if model is None or self._can_access(model):
+            return model
+        raise NotFound
+
+    def _can_access(self, model) -> bool:
+        """May the current user reach this record? Owner only, by default.
+
+        Mirrors the default list clause. Override to widen — see
+        `SujetsWipView`, `CommandesWipView` and `EventsWipView`, whose
+        lists are wider for reasons of their own.
+        """
+        user = g.user
+        if user is None or user.is_anonymous:
+            return False
+        return getattr(model, "owner_id", None) == user.id

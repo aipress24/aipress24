@@ -152,14 +152,18 @@ class TestDecisions:
 class TestConfidentiality:
     """§6 — la liste nominative n'appartient qu'à l'organisateur.
 
-    `handle_forbidden_error` (`flask/hooks.py:82`) convertit les 403
-    d'interface en redirection vers `/`, avec un en-tête
-    `X-Access-Denied`. C'est lui qu'on vérifie, pas le code 403 brut,
-    que seules les routes `/api/` renvoient.
+    Le refus prend deux formes selon l'endroit où il est décidé, et
+    le test porte sur le refus, pas sur sa forme : `_get_model` masque
+    l'existence (404) depuis l'audit du 2026-09-09, tandis qu'un 403
+    levé plus loin devient une redirection portant `X-Access-Denied`
+    (`handle_forbidden_error`). Seules les routes `/api/` rendent un
+    403 brut.
     """
 
     @staticmethod
     def _is_denied(response) -> bool:
+        if response.status_code == 404:
+            return True
         return (
             response.status_code == 302
             and response.headers.get("X-Access-Denied") == "true"
