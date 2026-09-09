@@ -8,6 +8,7 @@ from __future__ import annotations
 from flask import request
 
 from app.lib.file_object_utils import create_file_object, media_url
+from app.settings.constants import MAX_IMAGE_SIZE
 
 from . import blueprint
 
@@ -23,8 +24,12 @@ def upload_blob() -> tuple[dict, int]:
         return {"error": "Empty filename"}, 400
     filename = file.filename
 
+    content = file.read()
+    if len(content) > MAX_IMAGE_SIZE:
+        return {"error": "File too large"}, 413
+
     file_obj = create_file_object(
-        content=file.read(),
+        content=content,
         original_filename=filename,
         content_type=file.content_type or "application/octet-stream",
     )

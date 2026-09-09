@@ -36,6 +36,25 @@ def media_url(file_object: FileObject | None) -> str:
     return _PLACEHOLDER_IMAGE_URL
 
 
+# The extension is what `/media` hands to `mimetypes.guess_type`, so it
+# decides the Content-Type the browser is told to trust. An uploader who
+# names their file `.svg` or `.html` gets `image/svg+xml` or `text/html`
+# served from this application's own origin — script execution against
+# the viewer's session. An allowlist, not a denylist: `.html` is as
+# scriptable as `.svg` and a denylist would have to guess the whole set.
+# Anything unrecognised is stored without an extension, which `/media`
+# then serves as `application/octet-stream`.
+SAFE_SUFFIXES = frozenset(
+    {".jpg", ".jpeg", ".png", ".gif", ".webp", ".avif", ".pdf", ".ods", ".csv", ".txt"}
+)
+
+
+def safe_suffix(filename: str) -> str:
+    """The file's extension, if it is one we are willing to serve back."""
+    suffix = Path(filename).suffix.lower()
+    return suffix if suffix in SAFE_SUFFIXES else ""
+
+
 def create_file_object(
     content: bytes,
     original_filename: str,
@@ -65,8 +84,7 @@ def create_file_object(
         >>> # user.photo_image = file_obj
     """
     content_hash = hashlib.sha256(content).hexdigest()
-    ext = Path(original_filename).suffix.lower()  # .jpg, .png, etc.
-    storage_name = f"{content_hash}{ext}"
+    storage_name = f"{content_hash}{safe_suffix(original_filename)}"
 
     return FileObject(
         backend=backend,
