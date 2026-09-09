@@ -161,9 +161,15 @@ def test_an_untouched_profile_can_be_saved_again(
     page.goto(f"{base_url}/kyc/modify", wait_until="domcontentloaded")
     assert "/kyc/" in page.url, f"le parcours de modification n'a pas ouvert: {page.url}"
 
-    page.goto(f"{base_url}/kyc/wizard/P002", wait_until="networkidle")
-    if page.locator("form").count() == 0:
-        pytest.skip("le wizard n'a pas rendu de formulaire pour ce compte")
+    response = page.goto(f"{base_url}/kyc/wizard/P002", wait_until="networkidle")
+    # Vérifier que la page est vivante AVANT de chercher un message
+    # d'erreur : une 500 n'en affiche pas davantage, et ce test est
+    # passé au vert contre une 500 exactement pour cette raison.
+    assert response is not None, "le wizard n'a pas répondu"
+    assert response.status == 200, f"le wizard ne rend pas: {response.status}"
+    assert page.locator('[name="civilite"]').count() > 0, (
+        "le wizard a répondu 200 sans rendre ses champs"
+    )
 
     # Ce que le serveur a rendu, renvoyé tel quel.
     page.evaluate(
