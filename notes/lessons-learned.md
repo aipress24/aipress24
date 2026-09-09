@@ -511,6 +511,13 @@ Firefox serializes new scripts behind earlier HMR sockets; DCL stalls indefinite
 - [ ] Adding a kwarg to a component used via a shared convention? Update every sibling.
 - [ ] Server re-renders a form the user is editing? Preserve in-flight selections.
 
+### Before declaring a change verified
+
+- [ ] Ran the browser suite **for the module you touched** (`make test-e2e MOD=<module>`), not a subset that happens to be nearby? A KYC change verified with `MOD=regressions` shipped a 500 on the whole sign-up wizard.
+- [ ] Does the assertion distinguish success from a 500? Asserting the *absence* of an error message passes against an error page, which has no such message either. Assert the status and one field the page must contain.
+- [ ] Called a service getter with no default? `SessionService.get(key)` raises `KeyError`; `dict.get` returns `None`. `x = svc.get(k) or {}` reads safe and is not.
+- [ ] Is the template renderable under the test config at all? `WTF_CSRF_ENABLED = False` makes `form.csrf_token` undefined, so any page rendering it cannot be covered below the browser tier without turning CSRF back on.
+
 ### Before acting on a bug or a finding
 
 - [ ] Reproduced the exact production error string in a red test?

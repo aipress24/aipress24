@@ -1,0 +1,103 @@
+{
+  "threat_model": "notes/security/threat-model.md",
+  "date": "2026-09-09",
+  "scope": [
+    "src/app/flask/hooks.py",
+    "src/app/flask/doorman.py",
+    "src/app/flask/main.py",
+    "src/app/__init__.py",
+    "src/app/modules/wip/crud/cbvs/*.py",
+    "src/app/modules/api_v1/*.py",
+    "src/app/modules/stripe/views/webhook.py",
+    "src/app/modules/media/views.py",
+    "src/app/lib/file_object_utils.py",
+    "src/app/lib/image_utils.py",
+    "src/app/modules/preferences/views/banner.py",
+    "src/app/blueprints/ontology/*.py",
+    "src/app/modules/dashboard/*.py",
+    ".github/workflows/*.yml"
+  ],
+  "model_gaps": [
+    "`/media/<hash>` is a public, session-independent read of every uploaded file. The model's entry-point table does not list it, and the endpoint itself does no authorization: knowing the sha256 is the whole access control. That may be intended (content-addressed, unguessable) but it is a decision the model should state.",
+    "`.github/workflows/fly-deploy.yml` holds `secrets.FLY_API_TOKEN` and deploys to Fly.io, which the user confirmed is not in use. A live credential on a dead path is an asset the model should either retire or account for.",
+    "The production deployment path is unknown, so no invariant that depends on an environment variable (`ACCEPT_ANY_PASSWORD`, `UNSECURE`, `TESTING`, `FLASK_STRIPE_DEBUG_PASSWORD`) can be checked by reading this tree."
+  ],
+  "findings": [
+    {
+      "id": "F1",
+      "title": "Any journalist can open, edit and act on another journalist's avis d'enquête, including its ciblage screen",
+      "file": "src/app/modules/wip/crud/cbvs/_base.py",
+      "line": 545,
+      "cwe": "CWE-639",
+      "severity": "high",
+      "adversary": "a signed-in member of another organisation holding the PRESS_MEDIA role",
+      "invariant": "A member reaches the edit, targeting and accreditation screens of a WIP resource only if they own it or hold a mission on the owning Business Wall (invariant 3)",
+      "evidence": "`BaseWipView._get_model` is `repo.get(id)` with no owner clause (_base.py:545-547). `AvisEnqueteWipView.before_request` (avis_enquete.py:217-228) gates on `user_can_access_newsroom(g.user)` — a community-role check, not ownership — and then `get` (l.293), `edit` (l.302) and `ciblage` (l.310) fetch by primary key alone. The ciblage screen renders targeted experts by name, organisation and job title (_experts.j2:19-30) and its `confirm` action publishes the avis and emails those experts. `SujetWipView._get_model` (sujets.py:290) is an explicit per-record gate whose docstring calls it 'security VULN-001' and states the reason: 'otherwise the get / edit / accept / publish / unpublish / delete routes bypass the visibility rule via direct URL'. `CommuniqueWipView._get_model` (communiques.py:197) only decodes base62 ids. Article, Commande and Avis d'enquête use the unscoped base.",
+      "out_of_model": false,
+      "verdict": "confirmed",
+      "verification": "Escalated during verification: the path is a WRITE, not a read. The verifier ran a two-journalist exploit against the real app: read 200 on get/edit/ciblage, then POST /wip/avis-enquete/ with the hidden `id` from the rendered form overwrote the victim's record in place, owner unchanged. Corrections to the filing: Article IS protected by `_require_author` (articles.py:378-381) — the original claim was wrong about it; Communique (communiques.py:188) and Commande (commandes.py:101) have role-only gates and share the defect. `delete` holds because _base.py:472 checks the owner explicitly, which shows the omission is per-route, not deliberate."
+    },
+    {
+      "id": "F2",
+      "title": "Uploaded filename extension is carried into the storage name, and /media guesses the MIME type from it",
+      "file": "src/app/lib/file_object_utils.py",
+      "line": 68,
+      "cwe": "CWE-79",
+      "severity": "high",
+      "adversary": "any signed-in member",
+      "invariant": "User-supplied text reaches templates through Jinja2 autoescaping; nothing renders it as active content (invariant 7)",
+      "evidence": "`create_file_object` takes `ext = Path(original_filename).suffix.lower()` with no allowlist and builds `<sha256><ext>` (file_object_utils.py:67-69). `banner.py:48-57` passes the browser-supplied filename straight in and checks only the size; `image_utils.py:57` accepts any `data:image/*` URL, which includes `data:image/svg+xml`. `/media/<storage_name>` accepts `^[0-9a-f]{64}(?:\\.[A-Za-z0-9]{1,10})?$` (media/views.py:21), so `.svg` passes, and serves it with `mimetypes.guess_type(storage_name)` (l.37) — `image/svg+xml` — from the application's own origin. An SVG navigated to directly executes its script against that origin.",
+      "out_of_model": true,
+      "verdict": "confirmed",
+      "verification": "Escalated from medium. Every candidate control failed: `resized`/`squared` (image_utils.py:100,119) are the only Pillow re-encoders and have no callers, so nothing is re-encoded; `ValidImageField` declares zero validators; `api/trix_blobs.py:20-30` has no size or type check at all and returns the media URL as `href`, which bleach preserves (html_sanitize.py:87-89), giving one-click same-origin navigation from a published article. `.html` also passes the /media regex and yields text/html — a sharper primitive than SVG. The CSP that should cap this carries 'unsafe-inline' and 'unsafe-eval' on script-src with img-src *."
+    },
+    {
+      "id": "F3",
+      "title": "Deploy workflow runs an unpinned third-party action from a moving branch while holding the deploy token",
+      "file": ".github/workflows/fly-deploy.yml",
+      "line": 14,
+      "cwe": "CWE-829",
+      "severity": "low",
+      "adversary": "whoever controls the `superfly/flyctl-actions` repository, or anyone who compromises it",
+      "invariant": "Only code that has been reviewed runs on a runner that holds publishing credentials",
+      "evidence": "`uses: superfly/flyctl-actions/setup-flyctl@master` resolves a branch, not a commit, so its content can change under the workflow at any time. The next step passes `FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}`. `lint.yml:17` and `tests.yml:15` have the same shape with `voxmedia/github-action-slack-notify-build@v1` and `secrets.SLACK_BOT_TOKEN`. No workflow declares a `permissions:` block, so each job inherits the repository default token scope.",
+      "out_of_model": false,
+      "verdict": "confirmed-in-part",
+      "verification": "Severity reduced from medium. CONFIRMED: `superfly/flyctl-actions/setup-flyctl@master` is a moving branch on the job that receives FLY_API_TOKEN one step later (same job, same runner), and the action's `version:` input additionally defaults to `latest`, so pinning the action alone would not pin the flyctl binary. REFUTED: `voxmedia/...@v1` — that repository is archived, so GitHub rejects tag writes and the ref cannot move. NEEDS INPUT: the missing `permissions:` blocks — the org postdates GitHub's read-only default and fork PRs get a read-only token unconditionally, so the consequence is unproven. Coverage established: no expression injection anywhere (no github.event.* reaches any run:), and no pull_request_target or workflow_run."
+    },
+    {
+      "id": "F4",
+      "title": "A second app factory registers the ontology admin blueprint at the URL root with no authentication",
+      "file": "src/app/__init__.py",
+      "line": 23,
+      "cwe": "CWE-306",
+      "severity": "low",
+      "adversary": "an anonymous visitor, if this factory is ever the one that serves",
+      "invariant": "A request to /admin/ without the ADMIN role reaches no handler (invariant 1)",
+      "evidence": "`app.flask.main.create_app` registers `ontology_bp` at `url_prefix='/admin/ontology'` (main.py:268), where the doorman prefix rule covers it. `app.create_app` (src/app/__init__.py:11-24) builds a bare `Flask(__name__)` and registers the same blueprint with no prefix, putting `/create-taxonomy`, `/create`, `/edit/<id>`, `/delete/<id>` and `/import/<name>` at the root. The blueprint itself has no `before_request` and its routes carry no auth decorator (blueprints/ontology/routes.py:28-193). Nothing in the tree calls `app.create_app`, and `server.main` uses `app.flask.main.create_app` — but `flask` CLI auto-discovery resolves `create_app` in a package named `app`, so `FLASK_APP=app` would select the stub.",
+      "out_of_model": true,
+      "verdict": "refuted",
+      "verification": "The Flask CLI would indeed select `app.create_app` under FLASK_APP=app, but every route on that app 500s before touching data: the stub never calls setup_config or db.init_app, so `db.session` raises RuntimeError. Unconditionally broken — no environment variable can make it work, only a code change. Nothing in the tree selects it (wsgi.py, Makefile, hop3.toml, Dockerfile, nua, Procfile all name the real factory). Dead code to delete, not a latent trap."
+    },
+    {
+      "id": "F5",
+      "title": "Anonymous requests are authenticated as user id 0 whenever TESTING is set, with no second flag required",
+      "file": "src/app/flask/hooks.py",
+      "line": 189,
+      "cwe": "CWE-1188",
+      "severity": "low",
+      "adversary": "an anonymous visitor, if TESTING is ever set in a reachable environment",
+      "invariant": "Every module blueprint requires an authenticated user before dispatch (invariant 2)",
+      "evidence": "`authenticate_user` sets `g.user = get_obj(0, User)` for any unauthenticated request when `current_app.testing` (hooks.py:189-195). The comparable switch, `ACCEPT_ANY_PASSWORD`, was deliberately hardened to refuse to start unless `UNSECURE` is also set (extensions.py:212-220) and to announce itself on stderr; this path has neither guard nor banner. `current_user` stays anonymous, so the doorman and blueprint gates still refuse, but any view that authorises off `g.user` would see user 0.",
+      "out_of_model": true,
+      "verdict": "refuted",
+      "verification": "Refuted as exploitable, and my own evidence was wrong. I wrote that 'current_user stays anonymous so the gates still refuse'; that is false for /BW, whose gate reads g.user (bw_activation/__init__.py:42) where every other module gate imports current_user. The verifier proved anonymous 200s on /BW/* under TESTING when a User(id=0) row exists. What actually refutes it is the second precondition: id 0 cannot exist — autoincrement PK, the shipped dump setvals the sequence to 1, and import_user drops an explicit id. FLASK_TESTING is settable from the environment and nothing in the repo sets it."
+    }
+  ],
+  "verification_summary": {
+    "candidates": 5,
+    "confirmed": 2,
+    "confirmed_in_part": 1,
+    "refuted": 2
+  }
+}
