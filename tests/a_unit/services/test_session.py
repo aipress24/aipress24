@@ -125,6 +125,19 @@ def test_session_service_get_without_default_raises_keyerror(db: SQLAlchemy) -> 
         session_service.get("missing_key")
 
 
+def test_session_service_get_without_default_raises_keyerror_with_session(
+    db: SQLAlchemy,
+) -> None:
+    """Test get() without default raises KeyError when session exists but key doesn't."""
+    g.user = FakeUser()
+
+    session_service = container.get(SessionService)
+    session_service.set("other_key", "value")
+
+    with pytest.raises(KeyError, match="missing_key"):
+        session_service.get("missing_key")
+
+
 def test_session_service_getitem(db: SQLAlchemy) -> None:
     """Test SessionService __getitem__ method."""
     g.user = FakeUser()
@@ -133,6 +146,16 @@ def test_session_service_getitem(db: SQLAlchemy) -> None:
     session_service.set("item", "value")
 
     assert session_service["item"] == "value"
+
+
+def test_session_service_getitem_missing_raises_keyerror(db: SQLAlchemy) -> None:
+    """Test __getitem__ raises KeyError when key doesn't exist."""
+    g.user = FakeUser()
+
+    session_service = container.get(SessionService)
+
+    with pytest.raises(KeyError, match="missing_key"):
+        _ = session_service["missing_key"]
 
 
 def test_session_service_setitem(db: SQLAlchemy) -> None:

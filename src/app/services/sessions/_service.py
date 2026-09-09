@@ -67,7 +67,10 @@ class SessionService:
                 raise KeyError(key)
             return default
 
-        return session.get(key, default)
+        val = session.get(key, default)
+        if val is _marker:
+            raise KeyError(key)
+        return val
 
     def __getitem__(self, item):
         """Get a value from the user's session by key."""

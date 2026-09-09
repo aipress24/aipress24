@@ -93,3 +93,9 @@ class TestRichSelectGetChoicesForJs:
 class TestRichSelectWidget:
     def test_widget_is_used_by_default(self) -> None:
         assert isinstance(_LanguageForm().lang.widget, RichSelectWidget)
+
+    def test_widget_renders_search_result_limit_unlimited(self, app) -> None:
+        form = _LanguageForm()
+        with app.app_context():
+            rendered = form.lang()
+            assert "searchResultLimit: -1" in str(rendered)

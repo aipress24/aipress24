@@ -20,7 +20,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from app.lib.utils import split_taxonomy_value
+from app.lib.utils import diacritic_sorted, split_taxonomy_value
 from app.services.taxonomies import get_taxonomy
 
 if TYPE_CHECKING:
@@ -46,14 +46,14 @@ FLAT_TAXONOMIES = ("journalisme_fonction",)
 
 def competence_options() -> list[str]:
     """Les 33 compétences, telles quelles — aucune n'est préfixée."""
-    return sorted(_values(COMPETENCE_TAXONOMIES))
+    return diacritic_sorted(_values(COMPETENCE_TAXONOMIES))
 
 
 def fonction_options() -> list[str]:
     """Les 140 fonctions : les familles des trois ontologies qui en ont,
     et les fonctions du journalisme, qui n'en ont pas."""
     families = collapse_to_families(_values(FAMILY_TAXONOMIES))
-    return sorted(families | _values(FLAT_TAXONOMIES))
+    return diacritic_sorted(families | _values(FLAT_TAXONOMIES))
 
 
 def collapse_to_families(values: Iterable[str]) -> set[str]:

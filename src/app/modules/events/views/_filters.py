@@ -14,6 +14,7 @@ from werkzeug.exceptions import BadRequest
 
 from app.enums import MODE_LABELS, PRICING_LABELS
 from app.flask.extensions import db
+from app.lib.utils import diacritic_sorted
 from app.models.lifecycle import PublicationStatus
 from app.modules.events.models import EventPost
 from app.modules.kyc.field_label import country_code_to_country_name
@@ -292,7 +293,7 @@ def _flatten(rows: list[list[str]]) -> list[str]:
     Aucune ligne n'est `None` : la requête écarte les colonnes nulles, et
     `TagList` rend `[]` plutôt que `None`.
     """
-    return sorted({value for row in rows for value in row})
+    return diacritic_sorted({value for row in rows for value in row})
 
 
 def _sorted_like_taxonomy(values: list[str], taxonomy: str | None) -> list[str]:
