@@ -5,6 +5,12 @@
 
 from __future__ import annotations
 
+import unicodedata
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from collections.abc import Iterable
+
 
 def merge_dicts(target: dict, other: dict) -> dict:
     """Recursive dict merge. Inspired by :meth:``dict.update()``, instead of
@@ -67,3 +73,17 @@ def split_taxonomy_value(value: str) -> tuple[str, str]:
     if not separator:
         return "", value.strip()
     return family.strip(), detail.strip()
+
+
+def _diacritic_sort_key(s: str) -> tuple[str, str]:
+    """Sort key with stripped accents so letters with accent
+    can be sorted in alphabetical order.
+    """
+    normalized = unicodedata.normalize("NFKD", s)
+    stripped = "".join(c for c in normalized if not unicodedata.combining(c)).casefold()
+    return (stripped, s)
+
+
+def diacritic_sorted(iterable: Iterable[str], reverse: bool = False) -> list[str]:
+    """Return a sorted list with diacritic aware ordering."""
+    return sorted(iterable, key=_diacritic_sort_key, reverse=reverse)
