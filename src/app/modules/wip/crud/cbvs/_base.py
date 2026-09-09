@@ -8,7 +8,7 @@ import abc
 from collections.abc import Callable
 from datetime import UTC, datetime
 from operator import itemgetter
-from typing import TYPE_CHECKING, cast
+from typing import TYPE_CHECKING, Any, cast
 from zoneinfo import ZoneInfo
 
 from arrow import now
@@ -560,20 +560,28 @@ class BaseWipView(FlaskView, abc.ABC):
         `NotFound` rather than `Forbidden`, so the response does not
         confirm the record exists.
         """
-        repo = self._get_repo()
-        model = repo.get(id)
-        if model is None or self._can_access(model):
+        model = self._fetch(id)
+        if model is None:
             return model
-        raise NotFound
+        user = g.user
+        if not user or user.is_anonymous or not self._can_access(model):
+            raise NotFound
+        return model
 
-    def _can_access(self, model) -> bool:
+    def _fetch(self, id) -> Any:
+        """Load the record. Override for a different id encoding."""
+        return self._get_repo().get(id)
+
+    def _can_access(self, model: Any) -> bool:
         """May the current user reach this record? Owner only, by default.
 
+        Called only for an authenticated user — `_get_model` settles
+        that, and `before_request` redirects anonymous requests before
+        any route runs — so implementations read `g.user` directly.
+
         Mirrors the default list clause. Override to widen — see
-        `SujetsWipView`, `CommandesWipView` and `EventsWipView`, whose
-        lists are wider for reasons of their own.
+        `SujetsWipView`, `CommandesWipView`, `EventsWipView` and
+        `AvisEnqueteWipView`, whose lists are wider for reasons of
+        their own.
         """
-        user = g.user
-        if user is None or user.is_anonymous:
-            return False
-        return getattr(model, "owner_id", None) == user.id
+        return model.owner_id == g.user.id

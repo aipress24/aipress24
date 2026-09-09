@@ -108,10 +108,7 @@ class CommandesWipView(BaseWipView):
         originating sujet and to the rédac chef who accepted it. The
         list says so; the by-id fetch has to agree.
         """
-        user = g.user
-        if user is None or user.is_anonymous:
-            return False
-        return user.id in {model.owner_id, model.commanditaire_id}
+        return g.user.id in {model.owner_id, model.commanditaire_id}
 
     def _post_update_model(self, model: Commande) -> None:
         if model.publisher_id and not can_user_publish_for(g.user, model.publisher_id):

@@ -299,8 +299,6 @@ class SujetsWipView(BaseWipView):
         - the target media's rédac chef when the Sujet is PUBLIC.
         """
         user = g.user
-        if user is None or user.is_anonymous:
-            return False
         if model.owner_id == user.id:
             return True
         return (

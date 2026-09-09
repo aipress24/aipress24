@@ -194,16 +194,9 @@ class CommuniquesWipView(BaseWipView):
 
         return None
 
-    def _get_model(self, id):
-        """Override to handle base62 encoded IDs from URLs.
-
-        The decode is the only difference from the base; the
-        `_can_access` check is the base's and must not be skipped.
-        """
-        model = get_obj(id, self.model_class)
-        if model is None or self._can_access(model):
-            return model
-        raise NotFound
+    def _fetch(self, id):
+        """Communiqué ids reach the URL base62-encoded."""
+        return get_obj(id, self.model_class)
 
     @templated(_COMMUNIQUE_VOIR_TEMPLATE)
     def get(self, id):

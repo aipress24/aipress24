@@ -234,9 +234,10 @@ def _is_organiser(event, user) -> bool:
     Extrait pour que `EventsWipView._can_access` et le garde des
     écrans d'accréditation disent la même chose : une règle écrite
     deux fois est une règle qui finit par diverger.
+
+    `user` est authentifié : les deux appelants s'exécutent après
+    `before_request`, qui renvoie les anonymes vers la connexion.
     """
-    if user is None or user.is_anonymous:
-        return False
     if event.owner_id == user.id:
         return True
     return bool(event.publisher and _has_events_mission_on(user, event.publisher))
