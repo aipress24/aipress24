@@ -62,7 +62,7 @@ Administrators are members too. The ADMIN role is held by member accounts, not b
 | Dramatiq actors | Whatever enqueues them | Scheduled: grouped notification delivery, event reminders, Stripe mirror sync. |
 | `flask` CLI | Operator on the host | Several commands shell out (`db2.py`, `data.py`, `bootstrap.py`). |
 | `.github/workflows/ci.yml`, `tests.yml`, `lint.yml` | Anyone who can open a PR (`on: [push, pull_request]`) | `lint.yml` references `secrets.SLACK_BOT_TOKEN`. No `permissions:` block in any workflow. |
-| ~~`.github/workflows/fly-deploy.yml`~~ | — | Deleted 2026-09-09: Fly is not used, and the workflow held `secrets.FLY_API_TOKEN` on a path nobody watched. **Revoke the secret in GitHub if it was ever created** — deleting the file does not. |
+| ~~`.github/workflows/fly-deploy.yml`~~ | — | **Not an entry point.** The file exists in working copies but is not tracked on any branch (`.gitignore`, « # Not needed »), so GitHub never runs it and no runner ever held `FLY_API_TOKEN` through it. Listed here because a working-tree scan finds it and will find it again. If the secret was ever created in the repository settings it still exists and still needs revoking — a secret does not depend on a workflow to be there. |
 | `/media/<sha256>[.ext]` | Any authenticated member | A content-addressed read of every uploaded file: knowing the hash *is* the access control, and the stored extension used to decide the Content-Type served. |
 | `pyproject.toml` build backend (`pdm-backend`) | Whoever controls a dependency | Runs at install time. |
 

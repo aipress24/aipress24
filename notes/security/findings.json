@@ -62,8 +62,8 @@
       "invariant": "Only code that has been reviewed runs on a runner that holds publishing credentials",
       "evidence": "`uses: superfly/flyctl-actions/setup-flyctl@master` resolves a branch, not a commit, so its content can change under the workflow at any time. The next step passes `FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}`. `lint.yml:17` and `tests.yml:15` have the same shape with `voxmedia/github-action-slack-notify-build@v1` and `secrets.SLACK_BOT_TOKEN`. No workflow declares a `permissions:` block, so each job inherits the repository default token scope.",
       "out_of_model": false,
-      "verdict": "confirmed-in-part",
-      "verification": "Severity reduced from medium. CONFIRMED: `superfly/flyctl-actions/setup-flyctl@master` is a moving branch on the job that receives FLY_API_TOKEN one step later (same job, same runner), and the action's `version:` input additionally defaults to `latest`, so pinning the action alone would not pin the flyctl binary. REFUTED: `voxmedia/...@v1` — that repository is archived, so GitHub rejects tag writes and the ref cannot move. NEEDS INPUT: the missing `permissions:` blocks — the org postdates GitHub's read-only default and fork PRs get a read-only token unconditionally, so the consequence is unproven. Coverage established: no expression injection anywhere (no github.event.* reaches any run:), and no pull_request_target or workflow_run."
+      "verdict": "withdrawn",
+      "verification": "Severity reduced from medium. CONFIRMED: `superfly/flyctl-actions/setup-flyctl@master` is a moving branch on the job that receives FLY_API_TOKEN one step later (same job, same runner), and the action's `version:` input additionally defaults to `latest`, so pinning the action alone would not pin the flyctl binary. REFUTED: `voxmedia/...@v1` — that repository is archived, so GitHub rejects tag writes and the ref cannot move. NEEDS INPUT: the missing `permissions:` blocks — the org postdates GitHub's read-only default and fork PRs get a read-only token unconditionally, so the consequence is unproven. Coverage established: no expression injection anywhere (no github.event.* reaches any run:), and no pull_request_target or workflow_run. WITHDRAWN 2026-09-10: `.github/workflows/fly-deploy.yml` is untracked on every branch and excluded by `.gitignore` (« # Not needed »), so GitHub never runs it. The audit read it from the working tree; `bruce scope` lists pipelines from disk without checking what the repository publishes. The notes on the other three workflows stand."
     },
     {
       "id": "F4",
@@ -97,7 +97,7 @@
   "verification_summary": {
     "candidates": 5,
     "confirmed": 2,
-    "confirmed_in_part": 1,
-    "refuted": 2
+    "refuted": 2,
+    "withdrawn": 1
   }
 }
