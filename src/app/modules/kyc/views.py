@@ -306,7 +306,7 @@ def wizard_page(profile_id: str):
     modify_form = session_service.get("modify_form", False)
     profile = get_survey_profile(profile_id)
     if modify_form and request.method == "GET":
-        form_data = session_service.get("form_raw_results")
+        form_data = session_service.get("form_raw_results", {})
         form = generate_form(profile, form_data, mode_edition=modify_form)
     else:
         form = generate_form(profile, mode_edition=modify_form)
@@ -315,7 +315,7 @@ def wizard_page(profile_id: str):
         # are what tells an obsolete value the member never touched
         # from one they would be picking now, so hand them over before
         # validating.
-        retain_profile_values(form, session_service.get("form_raw_results") or {})
+        retain_profile_values(form, session_service.get("form_raw_results", {}) or {})
 
     if request.method == "GET":
         ctx = {"form": form, "render_field": render_field}
