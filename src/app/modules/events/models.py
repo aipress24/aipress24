@@ -192,8 +192,7 @@ class EventPost(EventPostBase):
     #:
     #: **Déclaré** et non posé au vol : un attribut non annoncé est
     #: invisible au vérificateur de types et n'a pas de propriétaire —
-    #: c'est le monkey-patching que le premier principe de
-    #: `notes/lessons-learned.md` interdit.
+    #: c'est du monkey-patching, auquel on préfère un registre.
     #:
     #: Le défaut `False` est ce que lisent tous les autres chemins de
     #: rendu — le Business Wall d'une organisation, notamment, qui ne

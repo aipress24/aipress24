@@ -12,8 +12,8 @@ faut un serveur de développement avec `UNSECURE=True`.
 D'où ce fichier. Si l'en-tête change et que les sélecteurs ne trouvent
 plus rien, le script ne tombe pas en échec : il rapporte « aucune
 notification » et **passe**. Un test vert qui n'a rien vérifié est pire
-que pas de test — `notes/lessons-learned.md`, « "Status 200" is not
-"rendered correctly" ».
+que pas de test : « Status 200 » ne veut pas dire « rendu
+correctement ».
 
 C'est donc le contrat entre le balisage et le script. S'il casse, c'est
 le script Playwright qu'il faut corriger, pas ce test.

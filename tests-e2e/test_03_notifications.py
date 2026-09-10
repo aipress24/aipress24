@@ -27,8 +27,8 @@ Ce qui est vérifié à chaque clic, et pourquoi :
 - **L'URL finale.** `notifications.mark_read` fait passer la cible par
   `_is_safe_url` et retombe silencieusement sur « / » si elle échoue :
   la notification « ne fait rien » au lieu de tomber en erreur, ce qui
-  se diagnostique encore plus mal. `notes/lessons-learned.md` en fait
-  une règle — « always assert the final URL ».
+  se diagnostique encore plus mal. D'où la règle : toujours vérifier
+  l'URL finale.
 
 Lancement, contre un serveur de développement — la backdoor exige
 `UNSECURE=True`, donc jamais la production :
@@ -37,9 +37,9 @@ Lancement, contre un serveur de développement — la backdoor exige
 
 Ajouter `--headed --video on` pour voir le parcours.
 
-Pas de coupure des sockets HMR ici, contrairement à ce que prescrit
-`notes/lessons-learned.md` (« route.abort() sur `**://localhost:3000/**`
-dans une fixture autouse »). Cette recette **casse l'application** en
+Pas de coupure des sockets HMR ici, contrairement à la recette
+habituelle (`route.abort()` sur `**://localhost:3000/**` dans une
+fixture autouse). Cette recette **casse l'application** en
 mode développement : le même serveur Vite sert `@vite/client` et
 `main.js`, et `main.js` est un module ES qui dépend du client. Coupé,
 `window.Alpine` reste `undefined`, aucun menu déroulant ne s'ouvre, et

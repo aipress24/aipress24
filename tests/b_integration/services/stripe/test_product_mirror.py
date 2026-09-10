@@ -10,7 +10,7 @@ reason — the local half lives in the database.
 The last class is the point of the whole table: `_price_id_for` must
 resolve a price without touching Stripe, because it runs on the article
 render path for every reader who has not bought
-(`notes/lessons-learned.md` §"Never hit the Stripe API at render time").
+— never hit the Stripe API at render time.
 """
 
 from __future__ import annotations

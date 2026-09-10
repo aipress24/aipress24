@@ -10,8 +10,8 @@ d'aller-retour pour un symptôme qui ne dit rien : `get_taxonomy` et
 `get_taxonomy_dual_select` renvoient une liste vide pour un nom inconnu,
 sans un mot, et le gabarit rend une liste déroulante vide.
 
-C'est la règle de `notes/lessons-learned.md` — *« Filtering across two
-datasets requires one canonical key space »* — appliquée aux noms de
+C'est la règle *« filtrer entre deux jeux de données demande un seul
+espace de clés canonique »*, appliquée aux noms de
 taxonomies : le sélecteur en demande un, le bootstrap en charge un
 autre, et rien ne vérifie que les deux ensembles coïncident.
 

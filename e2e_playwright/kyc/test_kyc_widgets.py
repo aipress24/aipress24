@@ -21,7 +21,7 @@ form and a CSRF token, which is exactly what the smoke suite asserts.
 
 Every test fails rather than skips when its target is missing: a green
 run that found no widget would be worse than no test at all
-(`notes/lessons-learned.md`, «"Status 200" is not "rendered correctly"»).
+— "Status 200" is not "rendered correctly".
 
 Run against a dev server::
 

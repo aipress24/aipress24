@@ -135,8 +135,8 @@ def get_current_user_data() -> StdDict:
     SQLAlchemy support, so instance access on a mapped column types as
     `InstrumentedAttribute[T]` rather than `T`; the bindings state what
     is true where a blanket `no-matching-overload` suppression used to
-    silence the whole dict (`notes/lessons-learned.md`, "prefer an
-    annotated local binding to a suppression").
+    silence the whole dict: prefer an annotated local binding to a
+    suppression.
     """
     user = cast("User", g.user)
     org = user.organisation

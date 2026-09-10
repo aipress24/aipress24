@@ -158,8 +158,8 @@ def test_reader_sees_consultation_price_from_the_local_mirror(
 
     This test used to assert the opposite — "reads the consultation
     price live from Stripe (with a 1-hour cache) instead of the DB
-    mirror" — and so pinned the very defect `notes/lessons-learned.md`
-    forbids by name: "any cache window between Stripe's authoritative
+    mirror" — and so pinned the very defect the rule forbids by
+    name: any cache window between Stripe's authoritative
     price and the displayed one is a risk that the user pays an amount
     other than the one shown". The one-hour cache was that window.
 

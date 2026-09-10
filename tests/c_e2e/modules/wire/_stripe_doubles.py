@@ -6,9 +6,8 @@
 
 `MagicMock` answers *anything*, truthily: a test that puts one at the
 Stripe boundary validates correct code and code reading a non-existent
-attribute equally well. `notes/lessons-learned.md` tells that story about
-a guard on `item.publisher.review_required`, which silently took the
-wrong branch.
+attribute equally well. That is how a guard on
+`item.publisher.review_required` silently took the wrong branch.
 
 These doubles carry only the fields production reads. Any other
 attribute raises `AttributeError`, which is exactly the signal we want:

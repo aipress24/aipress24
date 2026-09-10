@@ -556,10 +556,9 @@ def _amount_ht_eur_for(product: PurchaseProduct, post: Post) -> float | None:
 def _amount_ht_eur(price_id: str | None) -> float | None:
     """The displayed pre-tax price, in euros, read from the local mirror.
 
-    Never `stripe.Price.retrieve`: `notes/lessons-learned.md` makes it a
-    rule — "any cache window between Stripe's authoritative price and
-    the displayed one is a risk that the user pays an amount other than
-    the one shown". The `stripe_price` mirror is fed by the
+    Never `stripe.Price.retrieve`: any cache window between Stripe's
+    authoritative price and the displayed one is a risk that the user
+    pays an amount other than the one shown. The `stripe_price` mirror is fed by the
     `price.created/updated/deleted` webhooks, and `flask stripe
     sync-prices` catches it up.
 
@@ -673,8 +672,7 @@ def _price_id_for(product: PurchaseProduct, genre: str = "") -> str:
 
     Reads the local product mirror, never Stripe. This runs on the
     article render path for every reader who hasn't bought, and listing
-    the Stripe catalogue there is what `notes/lessons-learned.md` rules
-    out. The mirror is kept current by the `product.*` webhooks and
+    the Stripe catalogue there is exactly what that forbids. The mirror is kept current by the `product.*` webhooks and
     repaired hourly by `app.actors.stripe_mirrors`.
     """
     return _select_price_id(active_products(), product, genre)
