@@ -115,6 +115,8 @@ connect-src = [
     "https://cdn.userfront.com/",
     "https://api.userfront.com/",
     "https://api.anymod.com",
+    "https://api.stripe.com",
+    "https://checkout.stripe.com",
 ]
 object-src = "'none'"
 script-src = [
@@ -143,10 +145,13 @@ frame-src = [
     "blob:",
     "https://www.google.com/",
     "https://js.stripe.com/",
+    "https://checkout.stripe.com/",
 ]
 base-uri = "'none'"
-form-action = "'self'"
-
+form-action = [
+    "'self'",
+    "https://checkout.stripe.com",
+]
 
 [development]
 #SERVER_NAME = "aipress24.dev:5000"
