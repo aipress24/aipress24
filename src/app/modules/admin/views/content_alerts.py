@@ -11,18 +11,20 @@ from dataclasses import dataclass
 
 import sqlalchemy as sa
 from arrow import now
-from flask import flash, redirect, render_template, url_for
+from flask import flash, redirect, render_template
 from werkzeug.exceptions import NotFound
 
 from app.constants import CONTENT_ALERTS_RETENTION_DAYS, LOCAL_TZ
 from app.flask.extensions import db
 from app.flask.lib.nav import nav
+from app.flask.routing import url_for
+from app.models.base_content import BaseContent
 from app.models.content_alert import ContentAlert
 from app.models.lifecycle import PublicationStatus
 from app.modules.admin import blueprint
 from app.modules.wip.models.comroom.communique import Communique
 from app.modules.wip.models.newsroom.article import Article
-from app.modules.wire.models import ArticlePost, Post, PressReleasePost
+from app.modules.wire.models import ArticlePost, PressReleasePost
 from app.signals import article_unpublished, communique_unpublished
 
 
@@ -52,23 +54,23 @@ def content_alerts():
     alerts = list(db.session.scalars(stmt))
 
     post_ids = {a.post_id for a in alerts if a.post_id}
-    posts_by_id: dict[int, Post] = {}
+    posts_by_id: dict[int, BaseContent] = {}
     if post_ids:
-        post_stmt = sa.select(Post).where(Post.id.in_(post_ids))
+        post_stmt = sa.select(BaseContent).where(BaseContent.id.in_(post_ids))
         posts_by_id = {p.id: p for p in db.session.scalars(post_stmt)}
 
     items: list[AlertViewModel] = []
     for alert in alerts:
         post = posts_by_id.get(alert.post_id)
         post_exists = post is not None
-        if post_exists:
-            post_is_deleted = post.deleted_at is not None
+        post_url = alert.post_url
+        if post is not None:
+            post_is_deleted = getattr(post, "deleted_at", None) is not None
+            if not post_url:
+                with contextlib.suppress(Exception):
+                    post_url = url_for(post, _external=True)
         else:
             post_is_deleted = True
-        post_url = alert.post_url
-        if not post_url and post_exists:
-            with contextlib.suppress(Exception):
-                post_url = url_for(post, _external=True)
 
         created_dt = alert.created_at
         created_at_str = (
@@ -102,7 +104,7 @@ def delete_reported_post(alert_id: int):
         raise NotFound
 
     post_id = alert.post_id
-    post = db.session.get(Post, post_id)
+    post = db.session.get(BaseContent, post_id)
 
     article: Article | None = None
     communique: Communique | None = None
@@ -116,7 +118,8 @@ def delete_reported_post(alert_id: int):
 
     if post is not None:
         post.deleted_at = current_time
-        post.status = PublicationStatus.DRAFT
+        if hasattr(post, "status"):
+            post.status = PublicationStatus.DRAFT
 
     if article is not None:
         article.deleted_at = current_time
@@ -133,6 +136,8 @@ def delete_reported_post(alert_id: int):
 
     db.session.commit()
 
-    title = alert.post_title or (post.title if post else f"#{post_id}")
+    title = alert.post_title or (
+        getattr(post, "title", None) if post else f"#{post_id}"
+    )
     flash(f"Le contenu « {title} » a été supprimé.", "success")
     return redirect(url_for(".content_alerts"))

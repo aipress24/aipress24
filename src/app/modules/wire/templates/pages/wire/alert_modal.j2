@@ -30,8 +30,8 @@
                     </h3>
                     <div class="mt-1">
                         <p class="text-sm text-gray-700"
-                           title="{{ post.title }}">
-                            {{ post.title }}
+                           title="{{ post_title | default(post.title if post.title is defined else '') }}">
+                            {{ post_title | default(post.title if post.title is defined else '') }}
                         </p>
                     </div>
                 </div>
@@ -39,7 +39,7 @@
 
             <form
                 class="mt-4 space-y-4"
-                hx-post="{{ url_for('wire.alert_submit', post_id=post.id) }}"
+                hx-post="{{ submit_url | default(url_for('wire.alert_submit', post_id=post.id)) }}"
                 hx-target="#content-alert-modal"
                 hx-swap="delete"
                 x-data="{

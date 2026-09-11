@@ -17,6 +17,7 @@ import arrow
 from app.models.auth import User
 from app.models.content_alert import ContentAlert
 from app.models.organisation import Organisation
+from app.modules.swork.models import ShortPost
 from app.modules.wip.models.comroom.communique import Communique
 from app.modules.wip.models.newsroom.article import Article
 from app.modules.wire.models import ArticlePost, PressReleasePost
@@ -380,3 +381,54 @@ class TestAdminContentAlerts:
         html = resp.data.decode()
         assert "Article Récent" in html
         assert "Article Ancien" not in html
+
+    def test_content_alerts_list_and_delete_short_post(
+        self, admin_client: FlaskClient, db_session
+    ) -> None:
+        """Test send an alert on a ShortPost and delete it from admin."""
+        reporter = User(email="reporter_sp@example.com", active=True)
+        reporter.first_name = "Alice"
+        reporter.last_name = "Signaleur"
+        author = User(email="author_sp@example.com", active=True)
+        author.first_name = "Bob"
+        author.last_name = "Auteur"
+        db_session.add_all([reporter, author])
+        db_session.flush()
+
+        post = ShortPost(owner=author, content="Message sur le mur")
+        db_session.add(post)
+        db_session.flush()
+
+        alert = ContentAlert(
+            post_id=post.id,
+            post_title="Message sur le mur",
+            post_type="Commentaire (Wall)",
+            post_url=f"/swork/#post-{post.id}",
+            post_author_name=author.full_name,
+            reasons=["Harcèlement ou attaque personnelle"],
+            message="Attaque personnelle sur le mur.",
+            reporter_id=reporter.id,
+            reporter_email=reporter.email,
+            reporter_name=reporter.full_name,
+        )
+        db_session.add(alert)
+        db_session.flush()
+
+        # Check alert listed on admin page
+        res = admin_client.get("/admin/content-alerts")
+        assert res.status_code == 200
+        html = res.data.decode()
+        assert "Commentaire (Wall)" in html
+        assert "Message sur le mur" in html
+
+        # Delete reported post
+        del_res = admin_client.post(
+            f"/admin/content-alerts/{alert.id}/delete-post",
+            follow_redirects=True,
+        )
+        assert del_res.status_code == 200
+
+        db_session.refresh(post)
+        db_session.refresh(alert)
+        assert post.deleted_at is not None
+        assert alert.is_resolved is True

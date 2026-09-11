@@ -35,7 +35,6 @@ from app.flask.routing import url_for
 from app.flask.sqla import get_public_obj
 from app.logging import warn
 from app.models.auth import User
-from app.models.content_alert import ContentAlert
 from app.models.organisation import Organisation
 from app.modules.kyc.field_label import (
     country_code_to_label,
@@ -51,7 +50,8 @@ from app.modules.wire.models import (
 )
 from app.modules.wire.services.recipients import parse_recipient_emails
 from app.modules.wire.views.purchase import _price_id_for
-from app.services.emails.mailers import ContentAlertMail, ShareContentMail
+from app.services.emails.mailers import ShareContentMail
+from app.services.moderation import submit_content_alert
 from app.services.social_graph import SocialUser, adapt
 from app.services.stripe.prices import stripe_price_display
 from app.services.tagging import get_tags
@@ -151,6 +151,7 @@ class ItemDetailView(MethodView):
     def get(self, id: str):
         post = get_public_obj(id, Post)
 
+        view_model: ArticleVM | PressReleaseVM
         match post:
             case ArticlePost():
                 view_model = ArticleVM(post)
@@ -585,6 +586,8 @@ def alert_modal(post_id: str) -> str:
     return render_template(
         "pages/wire/alert_modal.j2",
         post=post,
+        post_title=post.title,
+        submit_url=url_for("wire.alert_submit", post_id=post.id),
         alert_reasons=CONTENT_ALERT_REASONS,
     )
 
@@ -597,73 +600,16 @@ def alert_submit(post_id: str) -> Response:
         msg = "Access denied"
         raise Forbidden(msg)
     post = get_public_obj(post_id, Post)
-    message = request.form.get("message", "").strip()
-    raw_reasons = request.form.getlist("reasons")
-    if not raw_reasons and request.form.get("reasons"):
-        raw_reasons = [request.form.get("reasons", "").strip()]
-    raw_reasons = [r for r in raw_reasons if r]
-
-    reasons: list[str] = []
-    for r in raw_reasons:
-        label = CONTENT_ALERT_REASONS.get(r, r)
-        if label and label not in reasons:
-            reasons.append(label)
-
-    if not reasons:
-        msg = "Veuillez sélectionner au moins un motif de signalement."
-        raise BadRequest(msg)
-
-    if len(reasons) == 1:
-        autre_label = CONTENT_ALERT_REASONS.get("autre")
-        if reasons == [autre_label] and not message:
-            msg = "Veuillez préciser le champ détails."
-            raise BadRequest(msg)
-
-    reason_label = ", ".join(reasons)
-
-    warn(
-        f"Content alert for post {post.id} {post.title!r} "
-        f"by uid {user.id} {user.email!r}: reasons={reasons!r}"
-    )
-
     post_type = "Communiqué" if isinstance(post, PressReleasePost) else "Article"
     post_author_name = post.owner.full_name if post.owner else ""
     post_url = url_for(post, _external=True)
-    try:
-        content_alert = ContentAlert(
-            post_id=post.id,
-            post_title=post.title,
-            post_type=post_type,
-            post_url=post_url,
-            post_author_name=post_author_name,
-            reasons=reasons,
-            message=message,
-            reporter_id=user.id,
-            reporter_email=user.email,
-            reporter_name=user.full_name,
-        )
-        db.session.add(content_alert)
-        db.session.commit()
-    except Exception as exc:
-        db.session.rollback()
-        warn(f"Failed to record content alert in db for post {post_id}: {exc}")
 
-    try:
-        alert_mail = ContentAlertMail(
-            post_id=post.id,
-            post_title=post.title,
-            post_url=post_url,
-            post_type=post_type,
-            post_author_name=post_author_name,
-            reason_label=reason_label,
-            message=message,
-            reporter_email=user.email,
-            reporter_name=user.full_name,
-        )
-        alert_mail.send()
-    except Exception as exc:
-        warn(f"Failed to send content alert email for post {post.id}: {exc}")
-
-    response = make_response("", 200)
-    toast(response, "Signalement envoyé. Merci de votre vigilance.")
-    return response
+    return submit_content_alert(
+        user=user,
+        post_id=post.id,
+        post_title=post.title,
+        post_type=post_type,
+        post_url=post_url,
+        post_author_name=post_author_name,
+        form=request.form,
+    )

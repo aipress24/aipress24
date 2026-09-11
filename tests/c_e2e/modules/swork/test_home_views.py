@@ -7,11 +7,13 @@
 from __future__ import annotations
 
 from typing import TYPE_CHECKING
+from unittest.mock import patch
 
 import pytest
 
 from app.enums import RoleEnum
 from app.models.auth import KYCProfile, Role, User
+from app.models.content_alert import ContentAlert
 from app.modules.swork.models import ShortPost
 from app.services.social_graph import adapt
 from tests.c_e2e.conftest import make_authenticated_client
@@ -227,3 +229,107 @@ class TestNewPostView:
 
         assert response.status_code in (200, 302)
         # Flash message may or may not be visible depending on template rendering
+
+
+class TestSworkContentAlert:
+    """Test content reporting for swork wall posts."""
+
+    def test_alert_modal_anonymous_denied(self, app: Flask) -> None:
+        """Anonymous users cannot open the alert modal."""
+        client = app.test_client()
+        response = client.get("/swork/12345/alert_modal")
+        assert response.status_code in (401, 302)
+
+    def test_alert_modal_renders(
+        self, authenticated_client: FlaskClient, db_session: Session, test_user: User
+    ) -> None:
+        """Test GET /swork/<post_id>/alert_modal renders."""
+        post = ShortPost(owner=test_user, content="Message de test à signaler")
+        db_session.add(post)
+        db_session.commit()
+
+        response = authenticated_client.get(f"/swork/{post.id}/alert_modal")
+        assert response.status_code == 200
+        html = response.data.decode()
+        assert "Signaler ce contenu" in html
+        assert "Message de test à signaler" in html
+        assert f"/swork/{post.id}/alert" in html
+        assert "Motifs du signalement" in html
+        assert "Détails" in html
+
+    def test_alert_modal_404_on_invalid_post(
+        self, authenticated_client: FlaskClient
+    ) -> None:
+        """Non-existent post returns 404."""
+        response = authenticated_client.get("/swork/999999999/alert_modal")
+        assert response.status_code == 404
+
+    def test_alert_submit_validation(
+        self, authenticated_client: FlaskClient, db_session: Session, test_user: User
+    ) -> None:
+        """Test validation on alert submission: missing reasons or missing details for 'autre'."""
+        post = ShortPost(owner=test_user, content="Spam post")
+        db_session.add(post)
+        db_session.commit()
+
+        # No reasons -> 400
+        res = authenticated_client.post(f"/swork/{post.id}/alert", data={})
+        assert res.status_code == 400
+
+        # Only 'autre' but empty message -> 400
+        res = authenticated_client.post(
+            f"/swork/{post.id}/alert", data={"reasons": "autre", "message": ""}
+        )
+        assert res.status_code == 400
+
+    def test_alert_submit_success(
+        self, authenticated_client: FlaskClient, db_session: Session, test_user: User
+    ) -> None:
+        """Test successful alert submission creates ContentAlert and sends email."""
+        post = ShortPost(owner=test_user, content="Contenu haineux ou insultant")
+        db_session.add(post)
+        db_session.commit()
+
+        with patch("app.services.emails.base.EmailMessage") as mock_email:
+            res = authenticated_client.post(
+                f"/swork/{post.id}/alert",
+                data={
+                    "reasons": "alert05",
+                    "message": "Propos inacceptables",
+                },
+            )
+            assert res.status_code == 200
+
+            alert = db_session.query(ContentAlert).filter_by(post_id=post.id).first()
+            assert alert is not None
+            assert alert.post_type == "Commentaire (Wall)"
+            assert alert.post_title == "Contenu haineux ou insultant"
+            assert "Propos haineux ou discriminatoires" in alert.reasons
+            assert alert.message == "Propos inacceptables"
+            assert alert.reporter_email == test_user.email
+            assert f"post-{post.id}" in alert.post_url
+
+            # Verify email sent
+            mock_email.assert_called_once()
+            _, kwargs = mock_email.call_args
+            assert kwargs["to"] == ["contact@aipress24.com"]
+            assert "Signalement de contenu" in kwargs["subject"]
+            assert "Commentaire (Wall)" in kwargs["body"]
+            assert "Contenu haineux ou insultant" in kwargs["body"]
+
+    def test_wall_feed_contains_alert_button(
+        self, authenticated_client: FlaskClient, db_session: Session, test_user: User
+    ) -> None:
+        """Test that posts in /swork/ render with the report icon button."""
+        post = ShortPost(
+            owner=test_user, content="Post sur le mur avec bouton signaler"
+        )
+        db_session.add(post)
+        db_session.commit()
+
+        res = authenticated_client.get("/swork/")
+        assert res.status_code == 200
+        html = res.data.decode()
+        assert f'id="post-{post.id}"' in html
+        assert f'hx-get="/swork/{post.id}/alert_modal"' in html
+        assert "Signaler ce contenu" in html

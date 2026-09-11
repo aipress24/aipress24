@@ -9,7 +9,7 @@ from app.lib.base62 import base62
 from app.models.auth import User
 from app.models.organisation import Organisation
 
-from .models import Group
+from .models import Group, ShortPost
 
 
 @url_for.register
@@ -34,3 +34,8 @@ def url_for_group(org: Group, _ns: str = "swork", **kw) -> str:
     kw["id"] = base62.encode(org.id)
 
     return url_for(name, **kw)
+
+
+@url_for.register
+def url_for_short_post(post: ShortPost, **kw) -> str:
+    return url_for("swork.swork", _anchor=f"post-{post.id}", **kw)
