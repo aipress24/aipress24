@@ -201,7 +201,7 @@ wheels = [
 
 [[package]]
 name = "aipress24-flask"
-version = "2026.9.9.1"
+version = "2026.9.11.1"
 source = { editable = "." }
 dependencies = [
     { name = "advanced-alchemy" },
