@@ -5,6 +5,7 @@
 from __future__ import annotations
 
 from .datetime import DateTimeField
+from .display import DisplayField
 from .foreign_key import OptionalIdField
 from .image import ImageField
 from .price import PriceField
@@ -15,6 +16,7 @@ from .simple_rich_select_multiple import SimpleRichSelectMultipleField
 
 __all__ = [
     "DateTimeField",
+    "DisplayField",
     "ImageField",
     "OptionalIdField",
     "PriceField",

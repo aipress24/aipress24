@@ -434,6 +434,9 @@ class TestCommandeFormShape:
             "date_limite_validite",
             "date_bouclage",
             "date_parution_prevue",
+            # #0353 — affichés, jamais saisis.
+            "addressed_to",
+            "commanditaire",
         }
         assert set(form._fields.keys()) == expected
 
@@ -454,6 +457,23 @@ class TestCommandeFormShape:
             "dates",
         }
 
+    def test_the_metadata_group_names_the_three_roles(self, app: Flask):
+        """#0353 — à qui la commande s'adresse, qui l'a commandée, et
+        pour quel média. L'écran n'en montrait qu'un, sous une étiquette
+        qui promettait le premier et livrait le troisième."""
+        fields = CommandeForm.Meta.groups["metadata"]["fields"]
+
+        assert fields.index("addressed_to") < fields.index("commanditaire")
+        assert fields.index("commanditaire") < fields.index("media_id")
+
+    def test_media_id_is_labelled_for_what_it_holds(self, app: Flask):
+        """Elle porte un média, pas un destinataire — c'est l'étiquette
+        « Commande adressée à » sur cette colonne qui a fait le ticket."""
+        form = _make_commande_form(app, {})
+
+        assert form.media_id.label.text == "Média"
+        assert form.addressed_to.label.text == "Commande adressée à"
+
     def test_dates_group_lists_the_commande_dates(self, app: Flask):
         """`CommandeForm` carries three date-fields in workflow order :
         validity → bouclage → parution. Pin the list to catch silent
@@ -465,10 +485,6 @@ class TestCommandeFormShape:
             "date_parution_prevue",
         ]
 
-    def test_media_id_label_is_commande_adressee_a(self, app: Flask):
-        """The label is not Média but "Commande adressée à"."""
-        form = _make_commande_form(app, {})
-        assert form.media_id.label.text == "Commande adressée à"
 
 
 # ---------------------------------------------------------------------

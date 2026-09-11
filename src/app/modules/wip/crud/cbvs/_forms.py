@@ -11,6 +11,7 @@ from wtforms.fields.simple import StringField, TextAreaField
 from app.enums import MODE_LABELS, PRICING_LABELS, EventMode, EventPricing
 from app.flask.lib.wtforms.fields import (
     DateTimeField,
+    DisplayField,
     OptionalIdField,
     PriceField,
     RichSelectField,
@@ -326,8 +327,20 @@ class CommandeForm(Form):
         render_kw={"width": 6},
         validators=[validators.InputRequired()],
     )
+    # #0353 — trois rôles, trois lignes. L'écran n'en montrait qu'un,
+    # `media_id`, sous l'étiquette « Commande adressée à » : sur une
+    # commande née d'un sujet accepté, le média est celui de la personne
+    # qui accepte, et la directrice lisait « adressée à » suivi du nom
+    # de sa propre agence. Qui écrit et qui commande n'apparaissaient
+    # nulle part.
+    addressed_to = DisplayField("Commande adressée à", render_kw={"width": 6})
+    commanditaire = DisplayField(
+        "Commanditaire",
+        formatter=lambda user: user.full_name if user else "",
+        render_kw={"width": 6},
+    )
     media_id = SimpleRichSelectField(
-        "Commande adressée à",
+        "Média",
         render_kw={"width": 6},
         validators=[validators.InputRequired()],
     )
@@ -361,6 +374,8 @@ class CommandeForm(Form):
                     "section",
                     "topic",
                     "sector",
+                    "addressed_to",
+                    "commanditaire",
                     "media_id",
                     "pays_zip_ville",
                 ],
