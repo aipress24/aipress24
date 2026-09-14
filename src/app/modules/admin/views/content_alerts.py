@@ -104,7 +104,7 @@ def content_alerts():
     )
     alerts = list(db.session.scalars(stmt))
 
-    post_ids = {a.post_id for a in alerts if a.post_id}
+    post_ids = {int(a.post_id) for a in alerts if a.post_id}
     posts_by_id: dict[int, BaseContent] = {}
     if post_ids:
         post_stmt = sa.select(BaseContent).where(BaseContent.id.in_(post_ids))
@@ -113,7 +113,8 @@ def content_alerts():
     # Group alerts by post_id
     grouped_alerts: dict[int, list[ContentAlert]] = {}
     for alert in alerts:
-        grouped_alerts.setdefault(alert.post_id, []).append(alert)
+        post_id = int(alert.post_id)
+        grouped_alerts.setdefault(post_id, []).append(alert)
 
     items = [
         _build_alert_vm(group, posts_by_id.get(post_id))
