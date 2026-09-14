@@ -71,6 +71,15 @@ def new_post():
     return redirect(url_for("swork.swork"))
 
 
+def _shorten_message(post: Post) -> str:
+    short = " ".join(remove_markup(post.content or "").split())
+    if not short:
+        return "Message"
+    if len(short) > 80:
+        return short[:80] + "…"
+    return short
+
+
 @blueprint.route("/<post_id>/alert_modal", methods=["GET"])
 def alert_modal(post_id: str) -> str:
     """HTMX modal for reporting a swork post."""
@@ -79,14 +88,10 @@ def alert_modal(post_id: str) -> str:
         msg = "Access denied"
         raise Forbidden(msg)
     post = get_obj(post_id, Post)
-    clean_text = " ".join(remove_markup(post.content or "").split())
-    display_title = (
-        (clean_text[:100] + "…") if len(clean_text) > 100 else (clean_text or "Message")
-    )
     return render_template(
         "pages/wire/alert_modal.j2",
         post=post,
-        post_title=display_title,
+        post_title=_shorten_message(post),
         submit_url=url_for("swork.alert_submit", post_id=post.id),
         alert_reasons=CONTENT_ALERT_REASONS,
     )
@@ -100,17 +105,13 @@ def alert_submit(post_id: str) -> Response:
         msg = "Access denied"
         raise Forbidden(msg)
     post = get_obj(post_id, Post)
-    clean_text = " ".join(remove_markup(post.content or "").split())
-    display_title = (
-        (clean_text[:100] + "…") if len(clean_text) > 100 else (clean_text or "Message")
-    )
     post_author_name = post.owner.full_name if post.owner else ""
     post_url = url_for(post, _external=True)
 
     return submit_content_alert(
         user=user,
         post_id=post.id,
-        post_title=display_title,
+        post_title=_shorten_message(post),
         post_type="Commentaire (Wall)",
         post_url=post_url,
         post_author_name=post_author_name,
