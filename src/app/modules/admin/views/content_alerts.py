@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import contextlib
 from dataclasses import dataclass
+from typing import NamedTuple
 
 import sqlalchemy as sa
 from arrow import now
@@ -28,6 +29,11 @@ from app.modules.wire.models import ArticlePost, PressReleasePost
 from app.signals import article_unpublished, communique_unpublished
 
 
+class AlertDetail(NamedTuple):
+    alert: ContentAlert
+    created_at_str: str
+
+
 @dataclass
 class AlertViewModel:
     alert: ContentAlert
@@ -35,6 +41,51 @@ class AlertViewModel:
     post_exists: bool
     post_url: str
     created_at_str: str
+    alerts: list[AlertDetail]
+
+
+def _format_datetime(dt: object) -> str:
+    strftime = getattr(dt, "strftime", None)
+    if callable(strftime):
+        return str(strftime("%d/%m/%Y à %H:%M"))
+    return str(dt or "")
+
+
+def _resolve_post_url(group: list[ContentAlert], post: BaseContent | None) -> str:
+    for alert in group:
+        if alert.post_url:
+            return alert.post_url
+    if post is not None:
+        with contextlib.suppress(Exception):
+            return url_for(post, _external=True)
+    return ""
+
+
+def _build_alert_vm(
+    group: list[ContentAlert],
+    post: BaseContent | None,
+) -> AlertViewModel:
+    latest_alert = group[0]
+    post_exists = post is not None
+    if post_exists:
+        post_is_deleted = bool(getattr(post, "deleted_at", None))
+    else:
+        post_is_deleted = True
+    post_url = _resolve_post_url(group, post)
+
+    alert_details = [
+        AlertDetail(alert=a, created_at_str=_format_datetime(a.created_at))
+        for a in group
+    ]
+
+    return AlertViewModel(
+        alert=latest_alert,
+        post_is_deleted=post_is_deleted,
+        post_exists=post_exists,
+        post_url=post_url,
+        created_at_str=_format_datetime(latest_alert.created_at),
+        alerts=alert_details,
+    )
 
 
 @blueprint.route("/content-alerts")
@@ -59,35 +110,15 @@ def content_alerts():
         post_stmt = sa.select(BaseContent).where(BaseContent.id.in_(post_ids))
         posts_by_id = {p.id: p for p in db.session.scalars(post_stmt)}
 
-    items: list[AlertViewModel] = []
+    # Group alerts by post_id
+    grouped_alerts: dict[int, list[ContentAlert]] = {}
     for alert in alerts:
-        post = posts_by_id.get(alert.post_id)
-        post_exists = post is not None
-        post_url = alert.post_url
-        if post is not None:
-            post_is_deleted = getattr(post, "deleted_at", None) is not None
-            if not post_url:
-                with contextlib.suppress(Exception):
-                    post_url = url_for(post, _external=True)
-        else:
-            post_is_deleted = True
+        grouped_alerts.setdefault(alert.post_id, []).append(alert)
 
-        created_dt = alert.created_at
-        created_at_str = (
-            created_dt.strftime("%d/%m/%Y à %H:%M")
-            if hasattr(created_dt, "strftime")
-            else str(created_dt or "")
-        )
-
-        items.append(
-            AlertViewModel(
-                alert=alert,
-                post_is_deleted=post_is_deleted,
-                post_exists=post_exists,
-                post_url=post_url,
-                created_at_str=created_at_str,
-            )
-        )
+    items = [
+        _build_alert_vm(group, posts_by_id.get(post_id))
+        for post_id, group in grouped_alerts.items()
+    ]
 
     return render_template(
         "admin/pages/content_alerts.j2",
@@ -133,6 +164,16 @@ def delete_reported_post(alert_id: int):
     # Mark alert as resolved
     alert.is_resolved = True
     alert.resolved_at = current_time
+
+    # Mark all other alerts for this post as resolved
+    if post_id:
+        stmt = sa.select(ContentAlert).where(
+            ContentAlert.post_id == post_id,
+            ContentAlert.is_resolved.is_(False),
+        )
+        for other_alert in db.session.scalars(stmt):
+            other_alert.is_resolved = True
+            other_alert.resolved_at = current_time
 
     db.session.commit()
 

@@ -22,9 +22,20 @@
                     <div class="bg-white shadow rounded-lg border border-gray-200 overflow-hidden">
                         <dl class="divide-y divide-gray-100 text-sm">
                             <div class="px-4 py-2 sm:px-5 sm:grid sm:grid-cols-4 sm:gap-3 items-center">
-                                <dt class="font-semibold text-gray-600">Date</dt>
-                                <dd class="mt-0.5 text-gray-900 sm:mt-0 sm:col-span-3">
-                                    {{ item.created_at_str }}
+                                <dt class="font-semibold text-gray-600">
+                                    {% if item.alerts|length > 1 %}
+                                        Dernier signalement
+                                    {% else %}
+                                        Date
+                                    {% endif %}
+                                </dt>
+                                <dd class="mt-0.5 text-gray-900 sm:mt-0 sm:col-span-3 flex items-center justify-between">
+                                    <span>{{ item.created_at_str }}</span>
+                                    {% if item.alerts|length > 1 %}
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-red-100 text-red-800">
+                                            {{ item.alerts|length }} signalements
+                                        </span>
+                                    {% endif %}
                                 </dd>
                             </div>
 
@@ -57,29 +68,63 @@
                                 </dd>
                             </div>
 
-                            <div class="px-4 py-2 sm:px-5 sm:grid sm:grid-cols-4 sm:gap-3 items-start">
-                                <dt class="font-semibold text-gray-600 pt-0.5">Motif & Commentaire</dt>
-                                <dd class="mt-0.5 text-gray-900 sm:mt-0 sm:col-span-3 space-y-1">
-                                    {% if alert.reasons %}
-                                        <div>
-                                            {{ alert.reasons | join(', ') }}
-                                        </div>
-                                    {% endif %}
-                                    {% if alert.message %}
-                                        <div class="text-xs text-gray-600 italic whitespace-pre-wrap">
-                                            {{ alert.message }}
-                                        </div>
-                                    {% endif %}
-                                </dd>
-                            </div>
+                            {% if item.alerts|length == 1 %}
+                                <div class="px-4 py-2 sm:px-5 sm:grid sm:grid-cols-4 sm:gap-3 items-start">
+                                    <dt class="font-semibold text-gray-600 pt-0.5">Motif & Commentaire</dt>
+                                    <dd class="mt-0.5 text-gray-900 sm:mt-0 sm:col-span-3 space-y-1">
+                                        {% if alert.reasons %}
+                                            <div>
+                                                {{ alert.reasons | join(', ') }}
+                                            </div>
+                                        {% endif %}
+                                        {% if alert.message %}
+                                            <div class="text-xs text-gray-600 italic whitespace-pre-wrap">
+                                                {{ alert.message }}
+                                            </div>
+                                        {% endif %}
+                                    </dd>
+                                </div>
 
-                            <div class="px-4 py-2 sm:px-5 sm:grid sm:grid-cols-4 sm:gap-3 items-center">
-                                <dt class="font-semibold text-gray-600">Signalé par</dt>
-                                <dd class="mt-0.5 text-gray-900 sm:mt-0 sm:col-span-3">
-                                    <span class="font-medium text-gray-800">{{ alert.reporter_name }}</span>
-                                    <span class="text-xs text-gray-500 font-mono ml-1.5">&lt;{{ alert.reporter_email }}&gt;</span>
-                                </dd>
-                            </div>
+                                <div class="px-4 py-2 sm:px-5 sm:grid sm:grid-cols-4 sm:gap-3 items-center">
+                                    <dt class="font-semibold text-gray-600">Signalé par</dt>
+                                    <dd class="mt-0.5 text-gray-900 sm:mt-0 sm:col-span-3">
+                                        <span class="font-medium text-gray-800">{{ alert.reporter_name }}</span>
+                                        <span class="text-xs text-gray-500 font-mono ml-1.5">&lt;{{ alert.reporter_email }}&gt;</span>
+                                    </dd>
+                                </div>
+                            {% else %}
+                                <div class="px-4 py-3 sm:px-5 sm:grid sm:grid-cols-4 sm:gap-3 items-start">
+                                    <dt class="font-semibold text-gray-600 pt-0.5">
+                                        Signalements reçus ({{ item.alerts|length }})
+                                    </dt>
+                                    <dd class="mt-0.5 text-gray-900 sm:mt-0 sm:col-span-3 space-y-2.5">
+                                        {% for detail in item.alerts %}
+                                            {% set sub_alert = detail.alert %}
+                                            <div class="rounded-md border border-gray-200 bg-gray-50 p-3 space-y-1.5 text-xs">
+                                                <div class="flex flex-wrap items-center justify-between gap-1 text-gray-700">
+                                                    <div>
+                                                        <span class="font-semibold text-gray-900">{{ sub_alert.reporter_name or "(Anonyme)" }}</span>
+                                                        {% if sub_alert.reporter_email %}
+                                                            <span class="text-gray-500 font-mono ml-1">&lt;{{ sub_alert.reporter_email }}&gt;</span>
+                                                        {% endif %}
+                                                    </div>
+                                                    <span class="text-gray-500">{{ detail.created_at_str }}</span>
+                                                </div>
+                                                {% if sub_alert.reasons %}
+                                                    <div class="text-gray-800">
+                                                        <span class="font-medium text-gray-600">Motifs :</span> {{ sub_alert.reasons | join(', ') }}
+                                                    </div>
+                                                {% endif %}
+                                                {% if sub_alert.message %}
+                                                    <div class="text-gray-600 italic bg-white p-2 rounded border border-gray-100 whitespace-pre-wrap">
+                                                        {{ sub_alert.message }}
+                                                    </div>
+                                                {% endif %}
+                                            </div>
+                                        {% endfor %}
+                                    </dd>
+                                </div>
+                            {% endif %}
 
                             <div class="px-4 py-2 sm:px-5 sm:grid sm:grid-cols-4 sm:gap-3 items-center">
                                 <dt class="font-semibold text-gray-600">Statut</dt>
