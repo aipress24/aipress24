@@ -5,7 +5,7 @@
 
         <div>
             <p class="mt-1 text-sm text-gray-500">
-                Liste des contenus signalés par les utilisateurs (articles, communiqués, messages, commentaires).
+                Ccontenus signalés par les utilisateurs (articles, communiqués, messages, commentaires).
             </p>
         </div>
 
@@ -74,12 +74,12 @@
                                     <dd class="mt-0.5 text-gray-900 sm:mt-0 sm:col-span-3 space-y-1">
                                         {% if alert.reasons %}
                                             <div>
-                                                {{ alert.reasons | join(', ') }}
+                                                {{- alert.reasons | join(', ') -}}
                                             </div>
                                         {% endif %}
                                         {% if alert.message %}
                                             <div class="text-xs text-gray-600 italic whitespace-pre-wrap">
-                                                {{ alert.message }}
+                                                {{- alert.message -}}
                                             </div>
                                         {% endif %}
                                     </dd>
@@ -112,12 +112,12 @@
                                                 </div>
                                                 {% if sub_alert.reasons %}
                                                     <div class="text-gray-800">
-                                                        <span class="font-medium text-gray-600">Motifs :</span> {{ sub_alert.reasons | join(', ') }}
+                                                        <span class="font-medium text-gray-600">Motifs :</span> {{- sub_alert.reasons | join(', ') -}}
                                                     </div>
                                                 {% endif %}
                                                 {% if sub_alert.message %}
                                                     <div class="text-gray-600 italic bg-white p-2 rounded border border-gray-100 whitespace-pre-wrap">
-                                                        {{ sub_alert.message }}
+                                                        {{- sub_alert.message -}}
                                                     </div>
                                                 {% endif %}
                                             </div>
