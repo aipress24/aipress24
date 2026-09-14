@@ -19,6 +19,7 @@ from app.modules.events.models import AccreditationStatus, EventPost
 from app.modules.events.services import get_accreditation, is_participant
 from app.modules.events.views._common import EventDetailVM
 from app.modules.events.views.event_detail import EventDetailView
+from app.modules.swork.models import Comment
 from app.services.social_graph import adapt
 
 if TYPE_CHECKING:
@@ -424,3 +425,41 @@ class TestACancelledEventOnTheDetailPage:
             response = view._post_comment(event_post)
 
         assert response.status_code == 409
+
+    def test_event_comments_exclude_deleted_and_render_report_button(
+        self,
+        app: Flask,
+        db_session: Session,
+        event_post: EventPost,
+        viewer_user: User,
+    ) -> None:
+        """Deleted comments should not appear, and signalement button present."""
+        active_comment = Comment(
+            owner=viewer_user,
+            content="Active comment",
+            object_id=f"event:{event_post.id}",
+        )
+        deleted_comment = Comment(
+            owner=viewer_user,
+            content="Deleted comment",
+            object_id=f"event:{event_post.id}",
+            deleted_at=arrow.now().datetime,
+        )
+        db_session.add_all([active_comment, deleted_comment])
+        db_session.flush()
+
+        vm = EventDetailVM(event_post)
+        comments = vm.comments
+        comment_ids = [c.id for c in comments]
+        assert active_comment.id in comment_ids
+        assert deleted_comment.id not in comment_ids
+
+        with app.test_request_context("/"):
+            g.user = viewer_user
+            html = render_template(
+                "pages/event--activity.j2",
+                event=vm,
+            )
+        assert f'id="comment-{active_comment.id}"' in html
+        assert f'hx-get="/wire/comments/{active_comment.id}/alert_modal"' in html
+        assert "Signaler ce contenu" in html

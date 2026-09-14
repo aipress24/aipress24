@@ -7,14 +7,18 @@
 from __future__ import annotations
 
 from typing import TYPE_CHECKING
+from unittest.mock import patch
 
 import arrow
 import pytest
 
 from app.enums import RoleEnum
+from app.lib.base62 import base62
 from app.models.auth import KYCProfile, Role, User
+from app.models.content_alert import ContentAlert
 from app.models.lifecycle import PublicationStatus
 from app.models.organisation import Organisation
+from app.modules.swork.models import Comment
 from app.modules.wire.models import ArticlePost
 from tests.c_e2e.conftest import make_authenticated_client
 
@@ -372,3 +376,151 @@ class TestWireContentShare:
             data={"action": "sort-by", "value": "shares"},
         )
         assert response.status_code == 200
+
+
+class TestWireCommentAlert:
+    """Test content reporting for article comments in wire."""
+
+    def test_comment_alert_modal_anonymous_denied(self, app: Flask) -> None:
+        """Anonymous users cannot access comment alert modal."""
+        client = app.test_client()
+        response = client.get("/wire/comments/123/alert_modal")
+        assert response.status_code in (401, 403, 302)
+
+    def test_comment_alert_modal_renders(
+        self,
+        authenticated_client: FlaskClient,
+        db_session: Session,
+        test_user: User,
+        test_articles: list[ArticlePost],
+    ) -> None:
+        """Test GET /wire/comments/<id>/alert_modal renders with comment text."""
+        article = test_articles[0]
+        comment = Comment(
+            owner=test_user,
+            content="Commentaire inacceptable sur cet article",
+            object_id=f"article:{article.id}",
+        )
+        db_session.add(comment)
+        db_session.commit()
+
+        response = authenticated_client.get(f"/wire/comments/{comment.id}/alert_modal")
+        assert response.status_code == 200
+        html = response.data.decode()
+        assert "Signaler ce contenu" in html
+        assert "Commentaire inacceptable sur cet article" in html
+        assert f"/wire/comments/{comment.id}/alert" in html
+        assert "Motifs du signalement" in html
+        assert "Détails" in html
+
+    def test_comment_alert_modal_404_on_invalid_comment(
+        self,
+        authenticated_client: FlaskClient,
+    ) -> None:
+        """Non-existent comment returns 404."""
+        response = authenticated_client.get("/wire/comments/999999999/alert_modal")
+        assert response.status_code == 404
+
+    def test_comment_alert_submit_validation(
+        self,
+        authenticated_client: FlaskClient,
+        db_session: Session,
+        test_user: User,
+        test_articles: list[ArticlePost],
+    ) -> None:
+        """Test validation on comment alert submission."""
+        article = test_articles[0]
+        comment = Comment(
+            owner=test_user,
+            content="Commentaire spam",
+            object_id=f"article:{article.id}",
+        )
+        db_session.add(comment)
+        db_session.commit()
+
+        # No reasons -> 400
+        res = authenticated_client.post(f"/wire/comments/{comment.id}/alert", data={})
+        assert res.status_code == 400
+
+        # Only 'autre' but empty message -> 400
+        res = authenticated_client.post(
+            f"/wire/comments/{comment.id}/alert",
+            data={"reasons": "autre", "message": ""},
+        )
+        assert res.status_code == 400
+
+    def test_comment_alert_submit_success(
+        self,
+        authenticated_client: FlaskClient,
+        db_session: Session,
+        test_user: User,
+        test_articles: list[ArticlePost],
+    ) -> None:
+        """Test successful comment alert submission creates ContentAlert and sends email."""
+        article = test_articles[0]
+        comment = Comment(
+            owner=test_user,
+            content="Propos haineux dans ce commentaire",
+            object_id=f"article:{article.id}",
+        )
+        db_session.add(comment)
+        db_session.commit()
+
+        with patch("app.services.emails.base.EmailMessage") as mock_email:
+            res = authenticated_client.post(
+                f"/wire/comments/{comment.id}/alert",
+                data={
+                    "reasons": "alert05",
+                    "message": "Commentaire diffamatoire",
+                },
+            )
+            assert res.status_code == 200
+
+            alert = db_session.query(ContentAlert).filter_by(post_id=comment.id).first()
+            assert alert is not None
+            assert alert.post_type == "Commentaire"
+            assert alert.post_title == "Propos haineux dans ce commentaire"
+            assert "Propos haineux ou discriminatoires" in alert.reasons
+            assert alert.message == "Commentaire diffamatoire"
+            assert alert.reporter_email == test_user.email
+            assert f"comment-{comment.id}" in alert.post_url
+
+            # Verify email sent
+            mock_email.assert_called_once()
+            _, kwargs = mock_email.call_args
+            assert kwargs["to"] == ["contact@aipress24.com"]
+            assert "Signalement de contenu" in kwargs["subject"]
+            assert "Commentaire" in kwargs["body"]
+            assert "Propos haineux dans ce commentaire" in kwargs["body"]
+
+    def test_article_comments_excludes_deleted_comment(
+        self,
+        authenticated_client: FlaskClient,
+        db_session: Session,
+        test_user: User,
+        test_articles: list[ArticlePost],
+    ) -> None:
+        """Deleted comments should not appear on the article page."""
+        article = test_articles[0]
+        active_comment = Comment(
+            owner=test_user,
+            content="Commentaire visible",
+            object_id=f"article:{article.id}",
+        )
+        deleted_comment = Comment(
+            owner=test_user,
+            content="Commentaire masque supprime",
+            object_id=f"article:{article.id}",
+            deleted_at=arrow.now().datetime,
+        )
+        db_session.add_all([active_comment, deleted_comment])
+        db_session.commit()
+
+        b62_id = base62.encode(article.id)
+        res = authenticated_client.get(f"/wire/{b62_id}")
+        assert res.status_code == 200
+        html = res.data.decode()
+        assert "Commentaire visible" in html
+        assert "Commentaire masque supprime" not in html
+        assert f'id="comment-{active_comment.id}"' in html
+        assert f'hx-get="/wire/comments/{active_comment.id}/alert_modal"' in html

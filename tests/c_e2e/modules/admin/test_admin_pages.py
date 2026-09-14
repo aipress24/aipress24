@@ -17,7 +17,7 @@ import arrow
 from app.models.auth import User
 from app.models.content_alert import ContentAlert
 from app.models.organisation import Organisation
-from app.modules.swork.models import ShortPost
+from app.modules.swork.models import Comment, ShortPost
 from app.modules.wip.models.comroom.communique import Communique
 from app.modules.wip.models.newsroom.article import Article
 from app.modules.wire.models import ArticlePost, PressReleasePost
@@ -431,4 +431,59 @@ class TestAdminContentAlerts:
         db_session.refresh(post)
         db_session.refresh(alert)
         assert post.deleted_at is not None
+        assert alert.is_resolved is True
+
+    def test_content_alerts_delete_article_comment(
+        self, admin_client: FlaskClient, db_session
+    ) -> None:
+        """Test deleting a reported article comment from admin."""
+        user = User(email="comment_reporter@example.com", active=True)
+        user.first_name = "Marc"
+        user.last_name = "Alerteur"
+        commenter = User(email="troll@example.com", active=True)
+        commenter.first_name = "Bad"
+        commenter.last_name = "Commenter"
+        db_session.add_all([user, commenter])
+        db_session.flush()
+
+        comment = Comment(
+            owner=commenter,
+            content="Spam comment content",
+            object_id="article:1234",
+        )
+        db_session.add(comment)
+        db_session.flush()
+
+        alert = ContentAlert(
+            post_id=comment.id,
+            post_title="Spam comment content",
+            post_type="Commentaire",
+            post_url=f"/wire/abc#comment-{comment.id}",
+            post_author_name=commenter.full_name,
+            reasons=["Spam ou publicité non sollicitée"],
+            message="Spam dans les commentaires.",
+            reporter_id=user.id,
+            reporter_email=user.email,
+            reporter_name=user.full_name,
+        )
+        db_session.add(alert)
+        db_session.flush()
+
+        # Check alert listed on admin page
+        res = admin_client.get("/admin/content-alerts")
+        assert res.status_code == 200
+        html = res.data.decode()
+        assert "Commentaire" in html
+        assert "Spam comment content" in html
+
+        # Delete reported comment
+        del_res = admin_client.post(
+            f"/admin/content-alerts/{alert.id}/delete-post",
+            follow_redirects=True,
+        )
+        assert del_res.status_code == 200
+
+        db_session.refresh(comment)
+        db_session.refresh(alert)
+        assert comment.deleted_at is not None
         assert alert.is_resolved is True
