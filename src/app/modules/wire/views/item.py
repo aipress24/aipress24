@@ -32,7 +32,8 @@ from app.flask.lib.nav import nav
 from app.flask.lib.toaster import toast
 from app.flask.lib.view_model import Wrapper
 from app.flask.routing import url_for
-from app.flask.sqla import get_public_obj
+from app.flask.sqla import get_obj, get_public_obj
+from app.lib.html import remove_markup
 from app.logging import warn
 from app.models.auth import User
 from app.models.organisation import Organisation
@@ -396,7 +397,7 @@ class PostVMMixin(PostMixin):
         object_id = f"{self._comment_prefix}:{post.id}"
         stmt = (
             sa.select(Comment)
-            .where(Comment.object_id == object_id)
+            .where(Comment.object_id == object_id, Comment.deleted_at.is_(None))
             .order_by(Comment.created_at.desc())
             .options(selectinload(Comment.owner))
         )
@@ -611,5 +612,53 @@ def alert_submit(post_id: str) -> Response:
         post_type=post_type,
         post_url=post_url,
         post_author_name=post_author_name,
+        form=request.form,
+    )
+
+
+def _shorten_comment(comment: Comment) -> str:
+    short = " ".join(remove_markup(comment.content or "").split())
+    if not short:
+        return "Commentaire"
+    if len(short) > 80:
+        return short[:80] + "…"
+    return short
+
+
+@blueprint.route("/comments/<comment_id>/alert_modal", methods=["GET"])
+def comment_alert_modal(comment_id: str) -> str:
+    """HTMX modal for reporting a comment."""
+    user = cast(User, g.user)
+    if not user or user.is_anonymous:
+        msg = "Access denied"
+        raise Forbidden(msg)
+    comment = get_obj(comment_id, Comment)
+    return render_template(
+        "pages/wire/alert_modal.j2",
+        post=comment,
+        post_title=_shorten_comment(comment),
+        submit_url=url_for("wire.comment_alert_submit", comment_id=comment.id),
+        alert_reasons=CONTENT_ALERT_REASONS,
+    )
+
+
+@blueprint.route("/comments/<comment_id>/alert", methods=["POST"])
+def comment_alert_submit(comment_id: str) -> Response:
+    """Handle content alert submission."""
+    user = cast(User, g.user)
+    if not user or user.is_anonymous:
+        msg = "Access denied"
+        raise Forbidden(msg)
+    comment = get_obj(comment_id, Comment)
+    comment_author_name = comment.owner.full_name if comment.owner else ""
+    comment_url = url_for(comment, _external=True)
+
+    return submit_content_alert(
+        user=user,
+        post_id=comment.id,
+        post_title=_shorten_comment(comment),
+        post_type="Commentaire",
+        post_url=comment_url,
+        post_author_name=comment_author_name,
         form=request.form,
     )

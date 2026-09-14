@@ -109,7 +109,10 @@ class EventDetailVM(ViewModel):
         event = cast("EventPost", self._model)
         stmt = (
             sa.select(Comment)
-            .where(Comment.object_id == f"event:{event.id}")
+            .where(
+                Comment.object_id == f"event:{event.id}",
+                Comment.deleted_at.is_(None),
+            )
             .options(selectinload(Comment.owner))
             .order_by(Comment.created_at.desc())
         )

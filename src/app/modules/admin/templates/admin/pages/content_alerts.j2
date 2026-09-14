@@ -5,7 +5,7 @@
 
         <div>
             <p class="mt-1 text-sm text-gray-500">
-                Liste des articles et communiqués signalés par les utilisateurs.
+                Liste des contenus signalés par les utilisateurs (articles, communiqués, messages, commentaires).
             </p>
         </div>
 
@@ -99,7 +99,7 @@
                                         <form method="POST" action="{{ url_for('.delete_reported_post', alert_id=alert.id) }}" class="inline">
                                             <button
                                                 type="submit"
-                                                onclick="return confirm('Êtes-vous sûr de vouloir supprimer définitivement cet article ? Cette action est irréversible.');"
+                                                onclick="return confirm('Êtes-vous sûr de vouloir supprimer définitivement ce contenu ? Cette action est irréversible.');"
                                                 class="inline-flex items-center px-3 py-1 border border-transparent text-xs font-medium rounded shadow-sm text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors"
                                             >
                                                 {{ icon("trash-2", type="lucide", class="h-3.5 w-3.5 mr-1") }}
