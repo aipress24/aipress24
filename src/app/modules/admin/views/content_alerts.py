@@ -23,9 +23,10 @@ from app.models.base_content import BaseContent
 from app.models.content_alert import ContentAlert
 from app.models.lifecycle import PublicationStatus
 from app.modules.admin import blueprint
+from app.modules.swork.models import Comment
 from app.modules.wip.models.comroom.communique import Communique
 from app.modules.wip.models.newsroom.article import Article
-from app.modules.wire.models import ArticlePost, PressReleasePost
+from app.modules.wire.models import ArticlePost, Post, PressReleasePost
 from app.signals import article_unpublished, communique_unpublished
 
 
@@ -152,6 +153,8 @@ def delete_reported_post(alert_id: int):
         post.deleted_at = current_time
         if hasattr(post, "status"):
             post.status = PublicationStatus.DRAFT
+        if isinstance(post, Comment):
+            _update_parent_comment_count(post)
 
     if article is not None:
         article.deleted_at = current_time
@@ -183,3 +186,34 @@ def delete_reported_post(alert_id: int):
     )
     flash(f"Le contenu « {title} » a été supprimé.", "success")
     return redirect(url_for(".content_alerts"))
+
+
+def _update_parent_comment_count(comment: Comment) -> None:
+    """Update comment_count on post/event after comment deletion."""
+    if not comment.object_id:
+        return
+    prefix, _, target_id_str = comment.object_id.partition(":")
+    if not target_id_str.isdigit():
+        return
+    target_id = int(target_id_str)
+    parent = None
+    if prefix in ("article", "press-release", "post"):
+        parent = db.session.get(Post, target_id)
+    elif prefix == "event":
+        with contextlib.suppress(Exception):
+            from app.modules.events.models import EventPost
+
+            parent = db.session.get(EventPost, target_id)
+
+    if parent is not None and hasattr(parent, "comment_count"):
+        active_count = (
+            db.session.scalar(
+                sa.select(sa.func.count(Comment.id)).where(
+                    Comment.object_id == comment.object_id,
+                    Comment.deleted_at.is_(None),
+                    Comment.id != comment.id,
+                )
+            )
+            or 0
+        )
+        parent.comment_count = active_count

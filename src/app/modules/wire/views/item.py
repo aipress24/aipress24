@@ -383,11 +383,17 @@ class PostVMMixin(PostMixin):
         # org, each get_tags() re-queried tag_application). Only override
         # what actually differs for a published post.
         extra_attrs = super().extra_attrs()
+        comments = self.get_comments()
+        num_comments = len(comments)
         extra_attrs.update(
             {
                 "age": age,
                 "publisher_type": self.get_publisher_type(),
-                "comments": self.get_comments(),
+                "comments": comments,
+                "replies": num_comments,
+                "num_replies": num_comments,
+                "num_comments": num_comments,
+                "comment_count": num_comments,
             }
         )
         return extra_attrs
@@ -422,6 +428,7 @@ class ArticleVM(PostVMMixin, Wrapper):
     num_replies: int = field(init=False)
     num_views: int = field(init=False)
     num_comments: int = field(init=False)
+    comment_count: int = field(init=False)
 
     summary: str = field(init=False)
     age: int = field(init=False)
@@ -450,6 +457,7 @@ class PressReleaseVM(PostVMMixin, Wrapper):
     num_replies: int = field(init=False)
     num_views: int = field(init=False)
     num_comments: int = field(init=False)
+    comment_count: int = field(init=False)
 
     summary: str = field(init=False)
     age: int = field(init=False)
