@@ -443,22 +443,40 @@ class TestAdminContentAlerts:
         commenter = User(email="troll@example.com", active=True)
         commenter.first_name = "Bad"
         commenter.last_name = "Commenter"
-        db_session.add_all([user, commenter])
+        author = User(email="author@example.com", active=True)
+        author.first_name = "Good"
+        author.last_name = "Author"
+        db_session.add_all([user, commenter, author])
         db_session.flush()
 
-        comment = Comment(
+        post = ArticlePost(
+            title="Article with comments",
+            summary="Summary",
+            content="Content",
+            owner=author,
+            comment_count=2,
+        )
+        db_session.add(post)
+        db_session.flush()
+
+        comment1 = Comment(
             owner=commenter,
             content="Spam comment content",
-            object_id="article:1234",
+            object_id=f"article:{post.id}",
         )
-        db_session.add(comment)
+        comment2 = Comment(
+            owner=author,
+            content="Legit comment content",
+            object_id=f"article:{post.id}",
+        )
+        db_session.add_all([comment1, comment2])
         db_session.flush()
 
         alert = ContentAlert(
-            post_id=comment.id,
+            post_id=comment1.id,
             post_title="Spam comment content",
             post_type="Commentaire",
-            post_url=f"/wire/abc#comment-{comment.id}",
+            post_url=f"/wire/{post.id}#comment-{comment1.id}",
             post_author_name=commenter.full_name,
             reasons=["Spam ou publicité non sollicitée"],
             message="Spam dans les commentaires.",
@@ -483,7 +501,9 @@ class TestAdminContentAlerts:
         )
         assert del_res.status_code == 200
 
-        db_session.refresh(comment)
+        db_session.refresh(comment1)
         db_session.refresh(alert)
-        assert comment.deleted_at is not None
+        db_session.refresh(post)
+        assert comment1.deleted_at is not None
         assert alert.is_resolved is True
+        assert post.comment_count == 1
