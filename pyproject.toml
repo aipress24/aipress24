@@ -14,7 +14,9 @@ requires-python = "<3.15,>=3.12"
 dependencies = [
     "flask<4.0.0,>=3.0.0",
     # Make implicit flask deps explicit
-    "click<8.2",
+    # click<8.2 limitation was a pb with advanced-alchemy prior version
+    # "click<8.2",
+    "click>=8.2,<9",
     "jinja2<4.0.0,>=3.1.3",
     "markupsafe<4.0.0,>=3.0.1",
     "pytz",
@@ -45,8 +47,9 @@ dependencies = [
     # Generic Libs
     "arrow<2.0.0,>=1.3.0",
     "attrs<27,>=26",
-    "boltons<26,>=25",
+    "boltons<27,>=25",
     "pipe<3.0,>=2.1",
+    # python-slugify v9.0.0 is marked as unreleased and change API (2026-09-15)
     "python-slugify<9.0.0,>=8.0.1",
     "toml<1.0.0,>=0.10.2",
     "tomli<3.0.0,>=2.0.1",
@@ -78,16 +81,19 @@ dependencies = [
     "beautifulsoup4<5.0,>=4.12",
     "stripe<16,>=12",
     # Queues
+    # dramatiq-pg implies dramatiq <2.0.0, tenacity v8.5.0 (<9)
     "dramatiq<2.0.0,>=1.15.0",
+    # dramatiq-pg v0.12.0 is most recent version (2026-09-15))
     "dramatiq-pg<1.0.0,>=0.12.0",
     "apscheduler<4.0.0,>=3.10.4",
     # PDF generation
     "weasyprint>=63",
     # Security / auth
     "zxcvbn<5.0.0,>=4.4.28",
-    "bcrypt==4.0.1",
+    # bcrypt no more constrained by passlib (nuw using libpass)
+    "bcrypt>=4.0.1,<5",
     "phonenumbers<10,>=9",
-    "argon2-cffi<24.0.0,>=23.1.0",
+    "argon2-cffi<26.0.0,>=23.1.0",
     "email-validator<3.0.0,>=2.1.1",
     "dnspython<3.0.0,>=2.6.1",
     # Screenshots and blob storage
@@ -110,7 +116,7 @@ dependencies = [
     # Extra
     "ijson>=3.3.0",
     "psutil>=6.1.1",
-    # pinned <0.9 to stay compatible with dramatiq-pg 0.12.0
+    # pinned <9 to stay compatible with dramatiq-pg 0.12.0
     "tenacity>=8.5.0,<9",
     # Pinned to 82 (83 breaks some packages). No longer constrained by
     # pkg_resources: the only consumer was passlib, now replaced by
