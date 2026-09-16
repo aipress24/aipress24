@@ -130,6 +130,7 @@ def content_alerts():
         "admin/pages/content_alerts.j2",
         items=items,
         title="Signalements de contenu",
+        CONTENT_ALERTS_RETENTION_DAYS=CONTENT_ALERTS_RETENTION_DAYS,
     )
 
 
