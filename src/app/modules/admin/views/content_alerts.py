@@ -43,6 +43,7 @@ class AlertViewModel:
     post_url: str
     created_at_str: str
     alerts: list[AlertDetail]
+    is_resolved: bool = False
 
 
 def _format_datetime(dt: object) -> str:
@@ -79,6 +80,8 @@ def _build_alert_vm(
         for a in group
     ]
 
+    is_resolved = all(a.is_resolved for a in group)
+
     return AlertViewModel(
         alert=latest_alert,
         post_is_deleted=post_is_deleted,
@@ -86,6 +89,7 @@ def _build_alert_vm(
         post_url=post_url,
         created_at_str=_format_datetime(latest_alert.created_at),
         alerts=alert_details,
+        is_resolved=is_resolved,
     )
 
 
@@ -127,6 +131,43 @@ def content_alerts():
         items=items,
         title="Signalements de contenu",
     )
+
+
+@blueprint.route("/content-alerts/<int:alert_id>/dismiss", methods=["POST"])
+def dismiss_content_alert(alert_id: int):
+    """Dismiss a content alert (mark resolved without deleting the content)."""
+    alert = db.session.get(ContentAlert, alert_id)
+    if alert is None:
+        raise NotFound
+
+    post_id = alert.post_id
+    current_time = now(LOCAL_TZ)
+
+    # Mark alert as resolved
+    alert.is_resolved = True
+    alert.resolved_at = current_time
+
+    # Mark all other alerts for this post as resolved
+    if post_id:
+        stmt = sa.select(ContentAlert).where(
+            ContentAlert.post_id == post_id,
+            ContentAlert.is_resolved.is_(False),
+        )
+        for other_alert in db.session.scalars(stmt):
+            other_alert.is_resolved = True
+            other_alert.resolved_at = current_time
+
+    db.session.commit()
+
+    post = db.session.get(BaseContent, post_id) if post_id else None
+    title = alert.post_title or (
+        getattr(post, "title", None) if post else f"#{post_id}"
+    )
+    flash(
+        f"Le signalement concernant « {title} » a été classé sans suite.",
+        "success",
+    )
+    return redirect(url_for(".content_alerts"))
 
 
 @blueprint.route("/content-alerts/<int:alert_id>/delete-post", methods=["POST"])

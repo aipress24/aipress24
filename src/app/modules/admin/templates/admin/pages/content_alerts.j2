@@ -5,7 +5,7 @@
 
         <div>
             <p class="mt-1 text-sm text-gray-500">
-                Ccontenus signalés par les utilisateurs (articles, communiqués, messages, commentaires).
+                Contenus signalés par les utilisateurs (articles, communiqués, messages, commentaires).
             </p>
         </div>
 
@@ -130,17 +130,28 @@
                                 <dt class="font-semibold text-gray-600">Statut</dt>
                                 <dd class="mt-0.5 text-gray-900 sm:mt-0 sm:col-span-3">
                                     {% if item.post_is_deleted %}
-                                        Supprimé
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">Supprimé</span>
+                                    {% elif item.is_resolved %}
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-700">En ligne, signalement classé sans suite</span>
                                     {% else %}
-                                        Actif
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-amber-100 text-amber-800">En ligne</span>
                                     {% endif %}
                                 </dd>
                             </div>
 
                             <div class="px-4 py-2 sm:px-5 sm:grid sm:grid-cols-4 sm:gap-3 items-center bg-gray-50/50">
                                 <dt class="font-semibold text-gray-600">Action</dt>
-                                <dd class="mt-0.5 sm:mt-0 sm:col-span-3 flex items-center">
-                                    {% if not item.post_is_deleted %}
+                                <dd class="mt-0.5 sm:mt-0 sm:col-span-3 flex items-center gap-2">
+                                    {% if not item.post_is_deleted and not item.is_resolved %}
+                                        <form method="POST" action="{{ url_for('.dismiss_content_alert', alert_id=alert.id) }}" class="inline">
+                                            <button
+                                                type="submit"
+                                                class="inline-flex items-center px-3 py-1 border border-transparent text-xs font-medium rounded shadow-sm text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors"
+                                            >
+                                                {{ icon("check", type="lucide", class="h-3.5 w-3.5 mr-1") }}
+                                                Classer sans suite
+                                            </button>
+                                        </form>
                                         <form method="POST" action="{{ url_for('.delete_reported_post', alert_id=alert.id) }}" class="inline">
                                             <button
                                                 type="submit"
@@ -151,9 +162,13 @@
                                                 Supprimer
                                             </button>
                                         </form>
-                                    {% else %}
+                                    {% elif item.post_is_deleted %}
                                         <span class="text-xs text-gray-400 italic">
                                             Aucune action disponible (contenu supprimé)
+                                        </span>
+                                    {% else %}
+                                        <span class="text-xs text-gray-400 italic">
+                                            Aucune action disponible (signalement classé sans suite)
                                         </span>
                                     {% endif %}
                                 </dd>
