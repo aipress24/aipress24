@@ -60,7 +60,9 @@ def test_a_normal_post_leaves_the_value_alone():
 
 
 def test_it_renders_no_input_and_escapes_its_value():
-    form = _Form(obj=SimpleNamespace(addressed_to="<script>x</script>", commanditaire=None))
+    form = _Form(
+        obj=SimpleNamespace(addressed_to="<script>x</script>", commanditaire=None)
+    )
 
     html = str(form.addressed_to())
 

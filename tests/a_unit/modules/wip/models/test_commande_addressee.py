@@ -39,17 +39,13 @@ class TestBornFromAnAcceptedSujet:
     `commanditaire_id` (bug #0225)."""
 
     def test_it_names_the_journalist_who_will_write_it(self):
-        commande = _commande(
-            owner_id=1, commanditaire_id=2, owner=_AICHA, media=_TCA
-        )
+        commande = _commande(owner_id=1, commanditaire_id=2, owner=_AICHA, media=_TCA)
 
         assert Commande.addressed_to.fget(commande) == "Aïcha Benmahfoud"
 
     def test_it_does_not_name_the_accepter_s_own_media(self):
         """The defect, stated as a test."""
-        commande = _commande(
-            owner_id=1, commanditaire_id=2, owner=_AICHA, media=_TCA
-        )
+        commande = _commande(owner_id=1, commanditaire_id=2, owner=_AICHA, media=_TCA)
 
         assert Commande.addressed_to.fget(commande) != _TCA.name
 
@@ -59,9 +55,7 @@ class TestCreatedDirectly:
     addressed to the media picked on the form."""
 
     def test_it_names_the_media(self):
-        commande = _commande(
-            owner_id=7, commanditaire_id=7, owner=_AICHA, media=_TCA
-        )
+        commande = _commande(owner_id=7, commanditaire_id=7, owner=_AICHA, media=_TCA)
 
         assert Commande.addressed_to.fget(commande) == _TCA.name
 
