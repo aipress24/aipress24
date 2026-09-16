@@ -20,88 +20,109 @@
                 {% for item in items %}
                     {% set alert = item.alert %}
                     <div class="bg-white shadow rounded-lg border border-gray-200 overflow-hidden">
-                        <dl class="divide-y divide-gray-100 text-sm">
-                            <div class="px-4 py-2 sm:px-5 sm:grid sm:grid-cols-4 sm:gap-3 items-center">
-                                <dt class="font-semibold text-gray-600">
+                        <!-- En-tête : Date & Statut -->
+                        <div class="px-4 py-3 sm:px-5 bg-gray-50 border-b border-gray-200 flex flex-wrap items-center justify-between gap-2 text-sm">
+                            <div class="flex items-center gap-2">
+                                <span class="font-semibold text-gray-700">
                                     {% if item.alerts|length > 1 %}
-                                        Dernier signalement
+                                        Dernier signalement :
                                     {% else %}
-                                        Date
+                                        Date du signalement :
                                     {% endif %}
-                                </dt>
-                                <dd class="mt-0.5 text-gray-900 sm:mt-0 sm:col-span-3 flex items-center justify-between">
-                                    <span>{{ item.created_at_str }}</span>
+                                </span>
+                                <span class="text-gray-900">{{ item.created_at_str }}</span>
+                                {% if item.alerts|length > 1 %}
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-red-100 text-red-800">
+                                        {{ item.alerts|length }} signalements
+                                    </span>
+                                {% endif %}
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <span class="font-semibold text-gray-600 text-xs uppercase tracking-wider">Statut :</span>
+                                {% if item.post_is_deleted %}
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">Supprimé</span>
+                                {% elif item.is_resolved %}
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-700">En ligne, signalement classé sans suite</span>
+                                {% else %}
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-amber-100 text-amber-800">En ligne</span>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="p-4 sm:p-5 space-y-4">
+                            <!-- Sous-bloc 1 : Contenu signalé -->
+                            <div class="rounded-lg border border-gray-200 bg-gray-50/60 p-4">
+                                <h3 class="text-xs font-bold uppercase tracking-wider text-gray-700 mb-3 flex items-center gap-1.5">
+                                    {{ icon("file-text", type="lucide", class="h-4 w-4 text-gray-500") }}
+                                    Contenu signalé
+                                </h3>
+                                <dl class="grid grid-cols-1 sm:grid-cols-4 gap-3 text-sm">
+                                    <dt class="font-semibold text-gray-600">Type de contenu</dt>
+                                    <dd class="sm:col-span-3 text-gray-900 font-medium">
+                                        {{ alert.post_type }}
+                                    </dd>
+
+                                    <dt class="font-semibold text-gray-600">Contenu signalé</dt>
+                                    <dd class="sm:col-span-3 text-gray-900 space-y-1">
+                                        <div class="font-medium">
+                                            {% if item.post_url and not item.post_is_deleted %}
+                                                <a href="{{ item.post_url }}"
+                                                   target="_blank"
+                                                   rel="noopener noreferrer"
+                                                   class="text-blue-600 hover:text-blue-800 hover:underline inline-flex items-center gap-1">
+                                                    <span>{{ alert.post_title or "(Sans titre)" }}</span>
+                                                    {{ icon("external-link", type="lucide", class="h-3.5 w-3.5") }}
+                                                </a>
+                                            {% else %}
+                                                <span class="text-gray-800">{{ alert.post_title or "(Sans titre)" }}</span>
+                                            {% endif %}
+                                        </div>
+                                        <div class="text-xs text-gray-500">
+                                            Auteur : {{ alert.post_author_name or "(Inconnu)" }} <span class="mx-1 text-gray-300">·</span> Post ID : <span class="font-mono">{{ alert.post_id }}</span>
+                                        </div>
+                                    </dd>
+                                </dl>
+                            </div>
+
+                            <!-- Sous-bloc 2 : Le signalement -->
+                            <div class="rounded-lg border border-amber-200/70 bg-amber-50/20 p-4">
+                                <h3 class="text-xs font-bold uppercase tracking-wider text-amber-900 mb-3 flex items-center gap-1.5">
+                                    {{ icon("alert-triangle", type="lucide", class="h-4 w-4 text-amber-600") }}
                                     {% if item.alerts|length > 1 %}
-                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-red-100 text-red-800">
-                                            {{ item.alerts|length }} signalements
-                                        </span>
-                                    {% endif %}
-                                </dd>
-                            </div>
-
-                            <div class="px-4 py-2 sm:px-5 sm:grid sm:grid-cols-4 sm:gap-3 items-center">
-                                <dt class="font-semibold text-gray-600">Type</dt>
-                                <dd class="mt-0.5 text-gray-900 sm:mt-0 sm:col-span-3">
-                                    {{ alert.post_type }}
-                                </dd>
-                            </div>
-
-                            <div class="px-4 py-2 sm:px-5 sm:grid sm:grid-cols-4 sm:gap-3 items-start">
-                                <dt class="font-semibold text-gray-600 pt-0.5">Titre & Lien</dt>
-                                <dd class="mt-0.5 text-gray-900 sm:mt-0 sm:col-span-3 space-y-0.5">
-                                    <div class="font-medium">
-                                        {% if item.post_url and not item.post_is_deleted %}
-                                            <a href="{{ item.post_url }}"
-                                               target="_blank"
-                                               rel="noopener noreferrer"
-                                               class="text-blue-600 hover:text-blue-800 hover:underline inline-flex items-center gap-1">
-                                                <span>{{ alert.post_title or "(Sans titre)" }}</span>
-                                                {{ icon("external-link", type="lucide", class="h-3.5 w-3.5") }}
-                                            </a>
-                                        {% else %}
-                                            <span class="text-gray-800">{{ alert.post_title or "(Sans titre)" }}</span>
-                                        {% endif %}
-                                    </div>
-                                    <div class="text-xs text-gray-500">
-                                        Auteur : {{ alert.post_author_name or "(Inconnu)" }} <span class="mx-1 text-gray-300">·</span> Post ID : <span class="font-mono">{{ alert.post_id }}</span>
-                                    </div>
-                                </dd>
-                            </div>
-
-                            {% if item.alerts|length == 1 %}
-                                <div class="px-4 py-2 sm:px-5 sm:grid sm:grid-cols-4 sm:gap-3 items-start">
-                                    <dt class="font-semibold text-gray-600 pt-0.5">Motif & Commentaire</dt>
-                                    <dd class="mt-0.5 text-gray-900 sm:mt-0 sm:col-span-3 space-y-1">
-                                        {% if alert.reasons %}
-                                            <div>
-                                                {{- alert.reasons | join(', ') -}}
-                                            </div>
-                                        {% endif %}
-                                        {% if alert.message %}
-                                            <div class="text-xs text-gray-600 italic whitespace-pre-wrap">
-                                                {{- alert.message -}}
-                                            </div>
-                                        {% endif %}
-                                    </dd>
-                                </div>
-
-                                <div class="px-4 py-2 sm:px-5 sm:grid sm:grid-cols-4 sm:gap-3 items-center">
-                                    <dt class="font-semibold text-gray-600">Signalé par</dt>
-                                    <dd class="mt-0.5 text-gray-900 sm:mt-0 sm:col-span-3">
-                                        <span class="font-medium text-gray-800">{{ alert.reporter_name }}</span>
-                                        <span class="text-xs text-gray-500 font-mono ml-1.5">&lt;{{ alert.reporter_email }}&gt;</span>
-                                    </dd>
-                                </div>
-                            {% else %}
-                                <div class="px-4 py-3 sm:px-5 sm:grid sm:grid-cols-4 sm:gap-3 items-start">
-                                    <dt class="font-semibold text-gray-600 pt-0.5">
                                         Signalements reçus ({{ item.alerts|length }})
-                                    </dt>
-                                    <dd class="mt-0.5 text-gray-900 sm:mt-0 sm:col-span-3 space-y-2.5">
+                                    {% else %}
+                                        Signalement
+                                    {% endif %}
+                                </h3>
+
+                                {% if item.alerts|length == 1 %}
+                                    <dl class="grid grid-cols-1 sm:grid-cols-4 gap-3 text-sm">
+                                        <dt class="font-semibold text-gray-600">Motif du signaleur</dt>
+                                        <dd class="sm:col-span-3 text-gray-900 space-y-1.5">
+                                            {% if alert.reasons %}
+                                                <div class="font-medium text-gray-900">
+                                                    {{- alert.reasons | join(', ') -}}
+                                                </div>
+                                            {% endif %}
+                                            {% if alert.message %}
+                                                <div class="text-xs text-gray-700 italic bg-white p-2.5 rounded border border-gray-200 whitespace-pre-wrap">
+                                                    {{- alert.message -}}
+                                                </div>
+                                            {% endif %}
+                                        </dd>
+
+                                        <dt class="font-semibold text-gray-600">Signalé par</dt>
+                                        <dd class="sm:col-span-3 text-gray-900">
+                                            <span class="font-medium text-gray-800">{{ alert.reporter_name }}</span>
+                                            <span class="text-xs text-gray-500 font-mono ml-1.5">&lt;{{ alert.reporter_email }}&gt;</span>
+                                        </dd>
+                                    </dl>
+                                {% else %}
+                                    <div class="space-y-2.5">
                                         {% for detail in item.alerts %}
                                             {% set sub_alert = detail.alert %}
-                                            <div class="rounded-md border border-gray-200 bg-gray-50 p-3 space-y-1.5 text-xs">
-                                                <div class="flex flex-wrap items-center justify-between gap-1 text-gray-700">
+                                            <div class="rounded-md border border-gray-200 bg-white p-3 space-y-1.5 text-xs shadow-sm">
+                                                <div class="flex flex-wrap items-center justify-between gap-1 text-gray-700 border-b border-gray-100 pb-1.5">
                                                     <div>
                                                         <span class="font-semibold text-gray-900">{{ sub_alert.reporter_name or "(Anonyme)" }}</span>
                                                         {% if sub_alert.reporter_email %}
@@ -112,68 +133,56 @@
                                                 </div>
                                                 {% if sub_alert.reasons %}
                                                     <div class="text-gray-800">
-                                                        <span class="font-medium text-gray-600">Motifs :</span> {{- sub_alert.reasons | join(', ') -}}
+                                                        <span class="font-medium text-gray-600">Motif du signaleur :</span> {{- sub_alert.reasons | join(', ') -}}
                                                     </div>
                                                 {% endif %}
                                                 {% if sub_alert.message %}
-                                                    <div class="text-gray-600 italic bg-white p-2 rounded border border-gray-100 whitespace-pre-wrap">
+                                                    <div class="text-gray-600 italic bg-gray-50 p-2 rounded border border-gray-200 whitespace-pre-wrap">
                                                         {{- sub_alert.message -}}
                                                     </div>
                                                 {% endif %}
                                             </div>
                                         {% endfor %}
-                                    </dd>
-                                </div>
-                            {% endif %}
-
-                            <div class="px-4 py-2 sm:px-5 sm:grid sm:grid-cols-4 sm:gap-3 items-center">
-                                <dt class="font-semibold text-gray-600">Statut</dt>
-                                <dd class="mt-0.5 text-gray-900 sm:mt-0 sm:col-span-3">
-                                    {% if item.post_is_deleted %}
-                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">Supprimé</span>
-                                    {% elif item.is_resolved %}
-                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-700">En ligne, signalement classé sans suite</span>
-                                    {% else %}
-                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-amber-100 text-amber-800">En ligne</span>
-                                    {% endif %}
-                                </dd>
+                                    </div>
+                                {% endif %}
                             </div>
+                        </div>
 
-                            <div class="px-4 py-2 sm:px-5 sm:grid sm:grid-cols-4 sm:gap-3 items-center bg-gray-50/50">
-                                <dt class="font-semibold text-gray-600">Action</dt>
-                                <dd class="mt-0.5 sm:mt-0 sm:col-span-3 flex items-center gap-2">
-                                    {% if not item.post_is_deleted and not item.is_resolved %}
-                                        <form method="POST" action="{{ url_for('.dismiss_content_alert', alert_id=alert.id) }}" class="inline">
-                                            <button
-                                                type="submit"
-                                                class="inline-flex items-center px-3 py-1 border border-transparent text-xs font-medium rounded shadow-sm text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors"
-                                            >
-                                                {{ icon("check", type="lucide", class="h-3.5 w-3.5 mr-1") }}
-                                                Classer sans suite
-                                            </button>
-                                        </form>
-                                        <form method="POST" action="{{ url_for('.delete_reported_post', alert_id=alert.id) }}" class="inline">
-                                            <button
-                                                type="submit"
-                                                onclick="return confirm('Êtes-vous sûr de vouloir supprimer définitivement ce contenu ? Cette action est irréversible.');"
-                                                class="inline-flex items-center px-3 py-1 border border-transparent text-xs font-medium rounded shadow-sm text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors"
-                                            >
-                                                {{ icon("trash-2", type="lucide", class="h-3.5 w-3.5 mr-1") }}
-                                                Supprimer
-                                            </button>
-                                        </form>
-                                    {% elif item.post_is_deleted %}
-                                        <span class="text-xs text-gray-400 italic">
-                                            Aucune action disponible (contenu supprimé)
-                                        </span>
-                                    {% else %}
-                                        <span class="text-xs text-gray-400 italic">
-                                            Aucune action disponible (signalement classé sans suite)
-                                        </span>
-                                    {% endif %}
-                                </dd>
+                        <!-- buttons -->
+                        <div class="px-4 py-3 sm:px-5 bg-gray-50 border-t border-gray-200 flex items-center justify-between">
+                            <span class="font-semibold text-gray-700 text-sm">Action</span>
+                            <div class="flex items-center gap-2">
+                                {% if not item.post_is_deleted and not item.is_resolved %}
+                                    <form method="POST" action="{{ url_for('.dismiss_content_alert', alert_id=alert.id) }}" class="inline">
+                                        <button
+                                            type="submit"
+                                            class="inline-flex items-center px-3 py-1 border border-transparent text-xs font-medium rounded shadow-sm text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors"
+                                        >
+                                            {{ icon("check", type="lucide", class="h-3.5 w-3.5 mr-1") }}
+                                            Classer sans suite
+                                        </button>
+                                    </form>
+                                    <form method="POST" action="{{ url_for('.delete_reported_post', alert_id=alert.id) }}" class="inline">
+                                        <button
+                                            type="submit"
+                                            onclick="return confirm('Êtes-vous sûr de vouloir supprimer définitivement ce contenu ? Cette action est irréversible.');"
+                                            class="inline-flex items-center px-3 py-1 border border-transparent text-xs font-medium rounded shadow-sm text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors"
+                                        >
+                                            {{ icon("trash-2", type="lucide", class="h-3.5 w-3.5 mr-1") }}
+                                            Supprimer
+                                        </button>
+                                    </form>
+                                {% elif item.post_is_deleted %}
+                                    <span class="text-xs text-gray-400 italic">
+                                        Aucune action disponible (contenu supprimé)
+                                    </span>
+                                {% else %}
+                                    <span class="text-xs text-gray-400 italic">
+                                        Aucune action disponible (signalement classé sans suite)
+                                    </span>
+                                {% endif %}
                             </div>
-                        </dl>
+                        </div>
                     </div>
                 {% endfor %}
             </div>

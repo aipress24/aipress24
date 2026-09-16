@@ -260,6 +260,9 @@ class TestAdminContentAlerts:
         assert "Alice Signaleur" in html
         assert "reporter@example.com" in html
         assert "En ligne" in html
+        assert "Type de contenu" in html
+        assert "Contenu signalé" in html
+        assert "Motif du signaleur" in html
 
         delete_resp = admin_client.post(
             f"/admin/content-alerts/{alert.id}/delete-post",
@@ -560,6 +563,11 @@ class TestAdminContentAlerts:
         html = get_res.data.decode()
         assert "Classer sans suite" in html
         assert "En ligne" in html
+        assert "Type de contenu" in html
+        assert "Contenu signalé" in html
+        assert "Signalements reçus (2)" in html
+        assert "2 signalements" in html
+        assert "Motif du signaleur :" in html
 
         # Dismiss the alert
         dismiss_res = admin_client.post(
