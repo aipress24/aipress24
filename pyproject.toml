@@ -110,7 +110,7 @@ dependencies = [
     # SQLAdmin integration
     "sqladmin<1.0,>=0.20",
     "starlette<2.0,>=1.0",
-    "granian[reload]<2.0,>=1.6",
+    "granian[reload]>=2.7.4,<3",
     "asyncpg<1.0,>=0.30",
     "asgiref<4.0,>=3.8",
     # Extra

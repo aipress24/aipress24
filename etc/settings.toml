@@ -193,3 +193,10 @@ S3_USE_SSL = false
 SERVER_NAME = "aipress24.demo.abilian.com"
 PREFERRED_URL_SCHEME = "https"
 DEBUG_TB_ENABLED = false
+# `[default]` ships UNSECURE = true, which opens /backdoor/<role> (an
+# anonymous GET that logs you in as any role, ADMIN included) and
+# /debug/env (the whole process environment). Saying so here is not
+# enough on its own — a deployment that does not set ENV_FOR_DYNACONF
+# resolves to [development], not to this section — so `create_app`
+# refuses to boot if it ever sees this env with the flag on.
+UNSECURE = false

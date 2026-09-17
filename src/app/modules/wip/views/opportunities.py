@@ -649,6 +649,16 @@ def media_opportunity_post(id: int) -> str | Response:
     if contact is None:
         raise NotFound
 
+    # An invitation is answerable by the expert it was sent to, and by
+    # nobody else. Both read siblings say so — `media_opportunity` and
+    # the HTMX partial — and this handler, the only one that *writes*,
+    # did not: it mutated the state, stored the notes and sent the
+    # acceptance mail under the platform's identity for any id posted
+    # by any signed-in member. `NotFound`, like the HTMX sibling, so the
+    # answer does not confirm the invitation exists.
+    if expert.id != contact.expert_id:
+        raise NotFound
+
     # Bug #0164: a response is only meaningful once the user's org has
     # an active Business Wall. Before this guard, the POST silently
     # mutated the contact and the user came back to find the answer

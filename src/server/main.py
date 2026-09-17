@@ -11,7 +11,6 @@ from starlette.applications import Starlette
 from starlette.config import Config
 from starlette.routing import Mount
 
-from adminapp.main import create_app as create_admin_app
 from app.flask.main import create_app as create_flask_app
 
 config = Config()
@@ -22,6 +21,14 @@ DEBUG = config("FLASK_DEBUG", cast=bool, default=False)
 # imports its own blueprint tree and noticeably increases resident
 # memory; in production (Heroku 512MB dyno) it pushed us into R14.
 POC_ENABLED = config("POC_ENABLED", cast=bool, default=False)
+# The /db/ sqladmin console is built without an authentication backend
+# (`adminapp.admin.create_admin`), and sqladmin reads a missing backend as
+# "already authenticated" — so mounting it served full read/write on users,
+# KYC profiles and editorial content to any anonymous visitor. Off unless
+# asked for, like the POC mount; turning it on is opting into an open door
+# and must be paired with a network-level restriction until it carries its
+# own auth.
+DB_ADMIN_ENABLED = config("DB_ADMIN_ENABLED", cast=bool, default=False)
 WORKERS = config("WEB_CONCURRENCY", cast=int, default=1)
 if DEBUG:
     LOG_LEVEL = LogLevels.debug
@@ -33,13 +40,19 @@ def create_app():
     """Create combined ASGI application with Flask and admin apps.
 
     Returns:
-        Starlette: Combined application with mounted Flask and admin apps,
-        plus the POC app when ``POC_ENABLED`` is set.
+        Starlette: the Flask app, plus the unauthenticated /db/ console
+        when ``DB_ADMIN_ENABLED`` is set and the POC app when
+        ``POC_ENABLED`` is.
     """
     flask_app = WsgiToAsgi(create_flask_app())
-    admin_app = create_admin_app()
 
-    routes = [Mount("/db/", app=admin_app)]
+    routes = []
+    if DB_ADMIN_ENABLED:
+        # Imported here, not at module scope: `adminapp.admin` opens a
+        # database engine on import, which is waste when the mount is off.
+        from adminapp.main import create_app as create_admin_app
+
+        routes.append(Mount("/db/", app=create_admin_app()))
     if POC_ENABLED:
         from poc.app import create_app as create_poc_app
 

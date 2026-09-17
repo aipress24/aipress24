@@ -24,6 +24,7 @@ from flask import (
     url_for,
 )
 from flask_login import current_user
+from flask_security import hash_password
 from flask_sqlalchemy.session import Session
 from flask_wtf import FlaskForm
 from sqlalchemy import func, or_
@@ -480,6 +481,14 @@ def _make_new_kyc_user_record() -> User:
         business_wall=populate_json_field("business_wall", results),
     )
 
+    # The comment here used to read "to be hashed by bcrypt". It never
+    # was: `User.password` is a plain column with no setter and no
+    # listener, so the applicant's chosen password sat in the table in
+    # clear — in every backup and every export — and the account could
+    # not authenticate either, since Flask-Security compares against a
+    # hash. Empty stays empty: hashing "" would mint a hash that the
+    # empty password satisfies.
+    submitted_password = results.get("password", "")
     user = User(
         last_name=results.get("last_name", ""),
         first_name=results.get("first_name", ""),
@@ -490,7 +499,7 @@ def _make_new_kyc_user_record() -> User:
         email=results.get("email", ""),
         email_secours=results.get("email_secours", ""),
         tel_mobile=results.get("tel_mobile", ""),
-        password=results.get("password", ""),  # to be hashed by bcrypt
+        password=hash_password(submitted_password) if submitted_password else None,
         fs_uniquifier=fs_uniquifier,
         is_clone=False,
         # is_cloned=False,

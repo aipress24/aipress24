@@ -193,7 +193,53 @@ def setup_security(app: Flask, db: SQLAlchemy) -> None:
     user_datastore = SQLAlchemySessionUserDatastore(db.session, User, Role)
     security.init_app(app, user_datastore)
     _patch_flask_security_cache_control(app)
+    _refuse_or_announce_unsecure(app)
     _install_password_bypass(app)
+
+
+def _refuse_or_announce_unsecure(app: Flask) -> None:
+    """Refuse `UNSECURE` in the production environment; announce it elsewhere.
+
+    `UNSECURE` opens `/backdoor/<role>` — one anonymous GET that returns
+    an authenticated session for any role, ADMIN included — and
+    `/debug/env`, which prints the process environment: signing key,
+    database URI, payment and mail credentials. It ships `true` in
+    `[default]`, so every environment inherits it unless it says
+    otherwise, and `[production]` now does.
+
+    Two halves, because neither covers the other:
+
+    - a deployment that declares itself production and still carries the
+      flag is a misconfiguration we can catch, so we refuse to start;
+    - a deployment that declares nothing resolves to `[development]`,
+      where the flag is legitimate — nothing in-process can tell that
+      apart from a laptop. So it gets the banner instead, on stderr,
+      which is what turns a silent open door into something visible in
+      the logs of any server that boots this way by mistake.
+    """
+    if not app.config.get("UNSECURE"):
+        return
+
+    env = str(app.config.get("ENV_FOR_DYNACONF", "") or "").lower()
+    if env == "production":
+        msg = (
+            "UNSECURE is set in the production environment. It opens "
+            "/backdoor/<role> (anonymous login as any role, including "
+            "ADMIN) and /debug/env (every process secret). Refusing to "
+            "start rather than serving them."
+        )
+        raise RuntimeError(msg)
+
+    banner = (
+        "UNSECURE is ON: /backdoor/<role> hands an authenticated session "
+        "to anonymous visitors and /debug/env prints every secret this "
+        "process holds. Correct for development; never expose this port."
+    )
+    logger.warning(banner)
+    # stderr as well, for the same reason as ACCEPT_ANY_PASSWORD below:
+    # a switch this wide must not be announced only where logging can
+    # silence it.
+    print(f"\n*** {banner} ***\n", file=sys.stderr, flush=True)
 
 
 def _install_password_bypass(app: Flask) -> None:
