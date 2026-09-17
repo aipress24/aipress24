@@ -4,8 +4,6 @@
 
 from __future__ import annotations
 
-import contextlib
-
 import sqlalchemy as sa
 
 from app.flask.extensions import db
@@ -14,6 +12,7 @@ from app.lib.base62 import base62
 from app.models.comment import Comment
 from app.modules.wip.models.comroom import Communique
 from app.modules.wire.models import ArticlePost, Post, PressReleasePost
+from app.services.comments import resolve_comment_parent
 
 
 # One handler for all: `singledispatch` registers a function under as many
@@ -44,21 +43,7 @@ def _url_for_communique(item: Communique, _ns: str = "wire", **kw: str) -> str:
 
 @url_for.register
 def _url_for_comment(comment: Comment, **kw: str) -> str:
-    if not comment.object_id:
-        return "#NONE"
-    prefix, _, target_id_str = comment.object_id.partition(":")
-    if not target_id_str.isdigit():
-        return "#NONE"
-    target_id = int(target_id_str)
-    if prefix in ("article", "press-release", "post"):
-        post = db.session.get(Post, target_id)
-        if post is not None:
-            return url_for(post, _anchor=f"comment-{comment.id}", **kw)
-    elif prefix == "event":
-        with contextlib.suppress(Exception):
-            from app.modules.events.models import EventPost
-
-            event = db.session.get(EventPost, target_id)
-            if event is not None:
-                return url_for(event, _anchor=f"comment-{comment.id}", **kw)
+    parent = resolve_comment_parent(comment)
+    if parent is not None:
+        return url_for(parent, _anchor=f"comment-{comment.id}", **kw)
     return "#NONE"

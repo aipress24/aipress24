@@ -34,10 +34,10 @@ import pytest
 
 from app.modules.wire.models import ArticlePost, Post, PressReleasePost
 from app.modules.wire.views.item import (
-    _get_comment_object_id,
     build_metadata_list,
     post_type_label,
 )
+from app.services.comments import get_comment_object_id
 
 
 def _stub_post(
@@ -271,23 +271,23 @@ class TestBuildMetadataListOptionalRows:
 
 
 class TestGetCommentObjectId:
-    """`_get_comment_object_id` dispatches on the Post subclass."""
+    """`get_comment_object_id` dispatches on the Post subclass."""
 
     def test_article_post_yields_article_prefix(self):
         post = ArticlePost()
         post.id = 42
-        assert _get_comment_object_id(post) == "article:42"
+        assert get_comment_object_id(post) == "article:42"
 
     def test_press_release_post_yields_press_release_prefix(self):
         post = PressReleasePost()
         post.id = 7
-        assert _get_comment_object_id(post) == "press-release:7"
+        assert get_comment_object_id(post) == "press-release:7"
 
     def test_bare_post_falls_back_to_post_prefix(self):
         # The base `Post` is the catch-all branch of the match.
         post = Post()
         post.id = 99
-        assert _get_comment_object_id(post) == "post:99"
+        assert get_comment_object_id(post) == "post:99"
 
     @pytest.mark.parametrize(
         ("cls", "post_id", "expected"),
@@ -301,11 +301,11 @@ class TestGetCommentObjectId:
     def test_id_round_trips_through_the_match(self, cls, post_id, expected):
         post = cls()
         post.id = post_id
-        assert _get_comment_object_id(post) == expected
+        assert get_comment_object_id(post) == expected
 
     def test_match_is_stable_across_calls(self):
         # Pure function — two calls on the same input return the
         # same string.
         post = ArticlePost()
         post.id = 5
-        assert _get_comment_object_id(post) == _get_comment_object_id(post)
+        assert get_comment_object_id(post) == get_comment_object_id(post)

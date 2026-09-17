@@ -51,6 +51,7 @@ from app.modules.wire.models import (
 )
 from app.modules.wire.services.recipients import parse_recipient_emails
 from app.modules.wire.views.purchase import _price_id_for
+from app.services.comments import get_comment_object_id
 from app.services.emails.mailers import ShareContentMail
 from app.services.moderation import submit_content_alert
 from app.services.social_graph import SocialUser, adapt
@@ -216,7 +217,7 @@ class ItemDetailView(MethodView):
             comment = Comment()
             comment.content = comment_text
             comment.owner = user
-            comment.object_id = _get_comment_object_id(post)
+            comment.object_id = get_comment_object_id(post)
             db.session.add(comment)
             post.comment_count += 1
             db.session.commit()
@@ -287,17 +288,6 @@ def build_metadata_list(
         data.append({"label": "Ville", "value": city_label(post.pays_zip_ville_detail)})
 
     return data
-
-
-def _get_comment_object_id(post: Post) -> str:
-    """Get the comment object_id for a post based on its type."""
-    match post:
-        case ArticlePost():
-            return f"article:{post.id}"
-        case PressReleasePost():
-            return f"press-release:{post.id}"
-        case _:
-            return f"post:{post.id}"
 
 
 # Register the view
