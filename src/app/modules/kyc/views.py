@@ -302,9 +302,17 @@ def _parse_valid_form(form: FlaskForm, profile_id: str) -> None:
 
 @blueprint.route("/wizard/<profile_id>", methods=["GET", "POST"])
 def wizard_page(profile_id: str):
+    _ensure_session_id()
     form_data = None
     session_service = container.get(SessionService)
-    modify_form = session_service.get("modify_form", False)
+
+    # Check if user is allowed to modify the KYC: either already
+    # authenfified user, or in a knwon session (new KYC)
+    session_service.set("profile_id", profile_id)
+    modify_form = (
+        session_service.get("modify_form", False) and current_user.is_authenticated
+    )
+
     profile = get_survey_profile(profile_id)
     if modify_form and request.method == "GET":
         form_data = session_service.get("form_raw_results", {})
@@ -394,6 +402,11 @@ def validation_page():
 
     gcudisabled, gcudisabledmsg = _get_diabled_flag_msg(raw_results)
 
+    if current_user.is_authenticated:
+        previous_url = url_for(".modify_page")
+    else:
+        previous_url = url_for(".wizard_page", profile_id=profile_id)
+
     return render_template(
         "synthesis.html",
         results=results,
@@ -404,6 +417,7 @@ def validation_page():
         images=images,
         gcudisabled=gcudisabled,
         gcudisabledmsg=gcudisabledmsg,
+        previous_url=previous_url,
     )
 
 
@@ -427,6 +441,13 @@ def undone_page():
 
 @blueprint.route("/modify")
 def modify_page():
+    if not current_user.is_authenticated:
+        # Check for non auth users that we are in a known session
+        session_service = container.get(SessionService)
+        profile_id = session_service.get("profile_id", "")
+        if profile_id:
+            return redirect(url_for(".wizard_page", profile_id=profile_id))
+        return redirect(url_for("security.login", next=url_for(".modify_page")))
     session_service = container.get(SessionService)
     session_service.set("modify_form", True)
     return redirect(url_for(".profile_page"))
@@ -488,7 +509,14 @@ def _make_new_kyc_user_record() -> User:
     # not authenticate either, since Flask-Security compares against a
     # hash. Empty stays empty: hashing "" would mint a hash that the
     # empty password satisfies.
-    submitted_password = results.get("password", "")
+    submitted_password = results.get("password", "").strip()
+    submitted_email = results.get("email", "").strip()
+    if not submitted_email:
+        msg = "Email address is required to create a new user account."
+        raise ValueError(msg)
+    if not submitted_password:
+        msg = "Password is required to create a new user account."
+        raise ValueError(msg)
     user = User(
         last_name=results.get("last_name", ""),
         first_name=results.get("first_name", ""),
@@ -496,7 +524,7 @@ def _make_new_kyc_user_record() -> User:
         photo_image_copyright=results.get("photo_image_copyright", ""),
         photo_carte_presse_image=photo_carte_presse_image,
         gender=results.get("civilite", ""),
-        email=results.get("email", ""),
+        email=submitted_email,
         email_secours=results.get("email_secours", ""),
         tel_mobile=results.get("tel_mobile", ""),
         password=hash_password(submitted_password) if submitted_password else None,
