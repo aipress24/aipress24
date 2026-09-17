@@ -11,7 +11,7 @@ import sqlalchemy as sa
 from app.flask.extensions import db
 from app.flask.routing import url_for
 from app.lib.base62 import base62
-from app.modules.swork.models import Comment
+from app.models.comment import Comment
 from app.modules.wip.models.comroom import Communique
 from app.modules.wire.models import ArticlePost, Post, PressReleasePost
 

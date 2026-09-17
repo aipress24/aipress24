@@ -14,12 +14,12 @@ from flask import g, render_template
 
 from app.enums import CommunityEnum, RoleEnum
 from app.models.auth import Role, User
+from app.models.comment import Comment
 from app.models.lifecycle import PublicationStatus
 from app.modules.events.models import AccreditationStatus, EventPost
 from app.modules.events.services import get_accreditation, is_participant
 from app.modules.events.views._common import EventDetailVM
 from app.modules.events.views.event_detail import EventDetailView
-from app.modules.swork.models import Comment
 from app.services.social_graph import adapt
 
 if TYPE_CHECKING:

@@ -19,6 +19,7 @@ from app.flask.lib.nav import nav
 from app.flask.routing import url_for
 from app.flask.sqla import get_public_obj
 from app.models.auth import User
+from app.models.comment import Comment
 from app.modules.events import blueprint
 from app.modules.events.models import AccreditationStatus, EventPost
 from app.modules.events.pricing import price_label
@@ -34,7 +35,6 @@ from app.modules.events.services import (
 )
 from app.modules.events.views._common import EventDetailVM
 from app.modules.kyc.field_label import country_code_to_label, country_zip_code_to_city
-from app.modules.swork.models import Comment
 from app.services.tracking import record_view
 
 

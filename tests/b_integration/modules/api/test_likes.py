@@ -12,8 +12,8 @@ import pytest
 from flask import g
 
 from app.models.auth import User
+from app.models.short_post import ShortPost
 from app.modules.api.likes import toggle_like
-from app.modules.swork.models import ShortPost
 from app.services.social_graph import adapt
 
 if TYPE_CHECKING:

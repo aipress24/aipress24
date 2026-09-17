@@ -20,11 +20,11 @@ from app.flask.extensions import db
 from app.flask.lib.view_model import ViewModel
 from app.flask.sqla import get_multi
 from app.models.auth import User
+from app.models.comment import Comment
 from app.models.lifecycle import PublicationStatus
 from app.modules.events.components.opening_hours import opening_hours
 from app.modules.events.models import EventPost
 from app.modules.events.services import get_participants
-from app.modules.swork.models import Comment
 from app.ui.geoloc import offer_geoloc_label
 
 # =============================================================================

@@ -22,8 +22,8 @@ from app.flask.routing import url_for
 from app.flask.sqla import get_obj
 from app.lib.html import remove_markup
 from app.models.auth import User
+from app.models.short_post import ShortPost as Post
 from app.modules.swork import blueprint
-from app.modules.swork.models import ShortPost as Post
 from app.services.moderation import submit_content_alert
 
 new_post_args = {

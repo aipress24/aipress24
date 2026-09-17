@@ -8,7 +8,7 @@ from flask import g
 
 from app.flask.extensions import db
 from app.flask.sqla import get_obj
-from app.modules.swork.models import ShortPost as Post
+from app.models.short_post import ShortPost as Post
 from app.services.social_graph import SocialUser, adapt
 
 from . import blueprint

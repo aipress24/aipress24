@@ -8,8 +8,9 @@ from app.flask.routing import url_for
 from app.lib.base62 import base62
 from app.models.auth import User
 from app.models.organisation import Organisation
+from app.models.short_post import ShortPost
 
-from .models import Group, ShortPost
+from .models import Group
 
 
 @url_for.register

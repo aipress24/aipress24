@@ -14,7 +14,7 @@ import pytest
 from app.enums import RoleEnum
 from app.models.auth import KYCProfile, Role, User
 from app.models.content_alert import ContentAlert
-from app.modules.swork.models import ShortPost
+from app.models.short_post import ShortPost
 from app.services.social_graph import adapt
 from tests.c_e2e.conftest import make_authenticated_client
 

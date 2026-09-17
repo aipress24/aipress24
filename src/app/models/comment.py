@@ -1,0 +1,27 @@
+# Copyright (c) 2021-2026, Abilian SAS & TCA
+#
+# SPDX-License-Identifier: AGPL-3.0-only
+
+"""Comment model."""
+
+from __future__ import annotations
+
+from typing import ClassVar
+
+from sqlalchemy.orm import Mapped, mapped_column
+
+from app.models.base import Base
+from app.models.base_content import BaseContent
+from app.models.mixins import LifeCycleMixin
+from app.services.html_sanitize import SanitizedHTML
+
+
+class Comment(BaseContent, LifeCycleMixin, Base):
+    __mapper_args__: ClassVar[dict] = {
+        "polymorphic_identity": "comment",
+    }
+
+    content: Mapped[str] = mapped_column(
+        SanitizedHTML, default="", use_existing_column=True
+    )
+    object_id: Mapped[str] = mapped_column(index=True, nullable=True)

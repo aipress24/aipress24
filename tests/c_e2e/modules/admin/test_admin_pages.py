@@ -15,9 +15,10 @@ from typing import TYPE_CHECKING
 import arrow
 
 from app.models.auth import User
+from app.models.comment import Comment
 from app.models.content_alert import ContentAlert
 from app.models.organisation import Organisation
-from app.modules.swork.models import Comment, ShortPost
+from app.models.short_post import ShortPost
 from app.modules.wip.models.comroom.communique import Communique
 from app.modules.wip.models.newsroom.article import Article
 from app.modules.wire.models import ArticlePost, PressReleasePost

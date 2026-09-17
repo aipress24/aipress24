@@ -20,10 +20,10 @@ from app.flask.extensions import db
 from app.flask.lib.nav import nav
 from app.flask.routing import url_for
 from app.models.base_content import BaseContent
+from app.models.comment import Comment
 from app.models.content_alert import ContentAlert
 from app.models.lifecycle import PublicationStatus
 from app.modules.admin import blueprint
-from app.modules.swork.models import Comment
 from app.modules.wip.models.comroom.communique import Communique
 from app.modules.wip.models.newsroom.article import Article
 from app.modules.wire.models import ArticlePost, Post, PressReleasePost

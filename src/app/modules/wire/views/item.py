@@ -36,12 +36,12 @@ from app.flask.sqla import get_obj, get_public_obj
 from app.lib.html import remove_markup
 from app.logging import warn
 from app.models.auth import User
+from app.models.comment import Comment
 from app.models.organisation import Organisation
 from app.modules.kyc.field_label import (
     country_code_to_label,
     country_zip_code_to_city,
 )
-from app.modules.swork.models import Comment
 from app.modules.wire import blueprint
 from app.modules.wire.models import (
     ArticlePost,

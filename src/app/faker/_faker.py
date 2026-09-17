@@ -16,9 +16,10 @@ from mimesis.locales import Locale
 from sqlalchemy.orm import scoped_session
 
 from app.models.base import Base
+from app.models.comment import Comment
 from app.modules.admin.invitations import invite_users
 from app.modules.events.models import Accreditation, AccreditationStatus
-from app.modules.swork.models import Comment, group_members_table
+from app.modules.swork.models import group_members_table
 from app.services.roles import add_role
 from app.services.social_graph import adapt
 
