@@ -25,6 +25,7 @@ from app.models.lifecycle import PublicationStatus
 from app.modules.events.components.opening_hours import opening_hours
 from app.modules.events.models import EventPost
 from app.modules.events.services import get_participants
+from app.services.comments import get_comment_object_id
 from app.ui.geoloc import offer_geoloc_label
 
 # =============================================================================
@@ -110,7 +111,7 @@ class EventDetailVM(ViewModel):
         stmt = (
             sa.select(Comment)
             .where(
-                Comment.object_id == f"event:{event.id}",
+                Comment.object_id == get_comment_object_id(event),
                 Comment.deleted_at.is_(None),
             )
             .options(selectinload(Comment.owner))

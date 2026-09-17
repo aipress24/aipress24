@@ -35,6 +35,7 @@ from app.modules.events.services import (
 )
 from app.modules.events.views._common import EventDetailVM
 from app.modules.kyc.field_label import country_code_to_label, country_zip_code_to_city
+from app.services.comments import get_comment_object_id
 from app.services.tracking import record_view
 
 
@@ -214,7 +215,7 @@ class EventDetailView(MethodView):
             comment = Comment()
             comment.content = comment_text
             comment.owner = user
-            comment.object_id = f"event:{event_obj.id}"
+            comment.object_id = get_comment_object_id(event_obj)
             db.session.add(comment)
             event_obj.comment_count += 1
             flash("Votre commentaire a été posté.")
