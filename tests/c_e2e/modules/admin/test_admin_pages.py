@@ -259,7 +259,10 @@ class TestAdminContentAlerts:
         assert "Ne respecte pas les règles du site." in html
         assert "Alice Signaleur" in html
         assert "reporter@example.com" in html
-        assert "Actif" in html
+        assert "En ligne" in html
+        assert "Type de contenu" in html
+        assert "Contenu signalé" in html
+        assert "Motif du signaleur" in html
 
         delete_resp = admin_client.post(
             f"/admin/content-alerts/{alert.id}/delete-post",
@@ -507,3 +510,91 @@ class TestAdminContentAlerts:
         assert comment1.deleted_at is not None
         assert alert.is_resolved is True
         assert post.comment_count == 1
+
+    def test_content_alerts_dismiss_alert(
+        self, admin_client: FlaskClient, db_session
+    ) -> None:
+        """Test dismissing a content alert without deleting content."""
+        reporter1 = User(email="reporter1_dismiss@example.com", active=True)
+        reporter1.first_name = "Alice"
+        reporter1.last_name = "Un"
+        reporter2 = User(email="reporter2_dismiss@example.com", active=True)
+        reporter2.first_name = "Bob"
+        reporter2.last_name = "Deux"
+        author = User(email="author_dismiss@example.com", active=True)
+        author.first_name = "Charlie"
+        author.last_name = "Auteur"
+        db_session.add_all([reporter1, reporter2, author])
+        db_session.flush()
+
+        post = ShortPost(owner=author, content="Contenu légitime")
+        db_session.add(post)
+        db_session.flush()
+
+        alert1 = ContentAlert(
+            post_id=post.id,
+            post_title="Contenu légitime",
+            post_type="Message",
+            post_url=f"/swork/#post-{post.id}",
+            post_author_name=author.full_name,
+            reasons=["Spam ou contenu trompeur"],
+            message="Je n'aime pas ce message",
+            reporter_id=reporter1.id,
+            reporter_email=reporter1.email,
+            reporter_name=reporter1.full_name,
+        )
+        alert2 = ContentAlert(
+            post_id=post.id,
+            post_title="Contenu légitime",
+            post_type="Message",
+            post_url=f"/swork/#post-{post.id}",
+            post_author_name=author.full_name,
+            reasons=["Autre motif"],
+            message="Moi non plus",
+            reporter_id=reporter2.id,
+            reporter_email=reporter2.email,
+            reporter_name=reporter2.full_name,
+        )
+        db_session.add_all([alert1, alert2])
+        db_session.commit()
+
+        get_res = admin_client.get("/admin/content-alerts")
+        assert get_res.status_code == 200
+        html = get_res.data.decode()
+        assert "Classer sans suite" in html
+        assert "En ligne" in html
+        assert "Type de contenu" in html
+        assert "Contenu signalé" in html
+        assert "Signalements reçus (2)" in html
+        assert "2 signalements" in html
+        assert "Motif du signaleur :" in html
+
+        # Dismiss the alert
+        dismiss_res = admin_client.post(
+            f"/admin/content-alerts/{alert1.id}/dismiss",
+            follow_redirects=True,
+        )
+        assert dismiss_res.status_code == 200
+        dismiss_html = dismiss_res.data.decode()
+        assert "classé sans suite" in dismiss_html
+
+        # Both alerts should be marked resolved
+        db_session.refresh(alert1)
+        db_session.refresh(alert2)
+        db_session.refresh(post)
+        assert alert1.is_resolved is True
+        assert alert1.resolved_at is not None
+        assert alert2.is_resolved is True
+        assert alert2.resolved_at is not None
+
+        assert post.deleted_at is None
+
+        assert "En ligne, signalement classé sans suite" in dismiss_html
+        assert (
+            "Aucune action disponible (signalement classé sans suite)" in dismiss_html
+        )
+
+    def test_content_alerts_dismiss_not_found(self, admin_client: FlaskClient) -> None:
+        """Test dismissing a non-existent alert returns 404."""
+        resp = admin_client.post("/admin/content-alerts/999999/dismiss")
+        assert resp.status_code == 404
