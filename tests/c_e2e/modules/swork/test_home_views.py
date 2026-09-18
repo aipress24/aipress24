@@ -10,7 +10,9 @@ from typing import TYPE_CHECKING
 from unittest.mock import patch
 
 import pytest
+from arrow import now
 
+from app.constants import LOCAL_TZ
 from app.enums import RoleEnum
 from app.models.auth import KYCProfile, Role, User
 from app.models.content_alert import ContentAlert
@@ -81,6 +83,41 @@ def authenticated_client(
     return make_authenticated_client(app, test_user)
 
 
+@pytest.fixture
+def admin_role(db_session: Session) -> Role:
+    """Create an admin role."""
+    role = Role(name=RoleEnum.ADMIN.name, description=RoleEnum.ADMIN.value)
+    db_session.add(role)
+    db_session.commit()
+    return role
+
+
+@pytest.fixture
+def admin_user(db_session: Session, admin_role: Role) -> User:
+    """Create an admin user."""
+    user = User(email="admin_swork_test@example.com")
+    user.first_name = "Admin"
+    user.last_name = "Tester"
+    user.photo = b""
+    user.active = True
+    user.roles.append(admin_role)
+
+    profile = KYCProfile(contact_type="PRESSE")
+    profile.show_contact_details = {}
+    user.profile = profile
+
+    db_session.add(user)
+    db_session.add(profile)
+    db_session.commit()
+    return user
+
+
+@pytest.fixture
+def admin_client(app: Flask, db_session: Session, admin_user: User) -> FlaskClient:
+    """Provide a Flask test client logged in as admin user."""
+    return make_authenticated_client(app, admin_user)
+
+
 class TestSworkHomeView:
     """Test swork home view with posts timeline."""
 
@@ -145,6 +182,21 @@ class TestSworkHomeView:
         assert response.status_code == 200
         # Should NOT see the post since test_user doesn't follow followee_user
         assert b"Hidden from timeline" not in response.data
+
+    def test_swork_home_shows_all_posts_to_admin(
+        self,
+        admin_client: FlaskClient,
+        db_session: Session,
+        followee_user: User,
+    ):
+        """Test swork home shows posts from non-followees to admin."""
+        post = ShortPost(owner=followee_user, content="Post visible to admin only")
+        db_session.add(post)
+        db_session.commit()
+
+        admin_response = admin_client.get("/swork/", follow_redirects=True)
+        assert admin_response.status_code == 200
+        assert b"Post visible to admin only" in admin_response.data
 
 
 class TestNewPostView:
