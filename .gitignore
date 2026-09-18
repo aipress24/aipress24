@@ -75,3 +75,10 @@ docs
 
 # e2e harness: server output, kept out of the terminal
 e2e_playwright/server.log
+
+# Raw output of the Strix security audit (2026-09-16). Not tracked for
+# two reasons: it quotes the credentials it found verbatim — gitleaks
+# refuses the commit, rightly — and it weighs 21 MB of logs and run
+# traces. The findings that matter are in notes/security/report-2026-09-17.md.
+notes/security/strix/
+notes/security/strix.zip
