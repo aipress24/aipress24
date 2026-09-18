@@ -13,7 +13,16 @@ from uuid import UUID
 
 from advanced_alchemy.base import UUIDAuditBase
 from advanced_alchemy.types.file_object import FileObject, StoredObject
-from sqlalchemy import JSON, BigInteger, ForeignKey, String, inspect, orm, select
+from sqlalchemy import (
+    JSON,
+    BigInteger,
+    ForeignKey,
+    String,
+    event,
+    inspect,
+    orm,
+    select,
+)
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.orm.attributes import flag_modified
 
@@ -448,3 +457,55 @@ class BWImage(UUIDAuditBase):
     def is_last(self) -> bool:
         """Check if this is the last image in the gallery."""
         return self.position == len(self.business_wall.bw_images) - 1
+
+
+@event.listens_for(BusinessWall, "before_insert", propagate=True)
+def _carry_visual_identity(_mapper, connection, target: BusinessWall) -> None:
+    """Carry logo and banner over from the organisation's previous wall.
+
+    Re-subscribing creates a new `BusinessWall` row; the reader
+    (`get_organisation_logo_url`) shows the *active* one. So the day a
+    renewal went live, the organisation's page lost its logo with no
+    warning and no way to tell what had happened — the file was still
+    in storage, still referenced by the superseded row, simply no
+    longer the one anybody read.
+
+    Here rather than at the two call sites (`stage3` builds the paid
+    draft directly, `bw_creation` goes through the service), so a third
+    creation path cannot miss it.
+
+    Only fills what the new row leaves empty, so an upload made during
+    the sign-up flow always wins. Both rows then point at the same
+    stored object, which is safe: no path deletes a logo or a banner
+    blob — the gallery's delete works on `BWImage` rows instead.
+    """
+    if target.logo_image is not None and target.cover_image is not None:
+        return
+    if not target.organisation_id:
+        return
+
+    table = BusinessWall.__table__
+    rows = connection.execute(
+        select(
+            table.c.logo_image,
+            table.c.logo_image_copyright,
+            table.c.cover_image,
+            table.c.cover_image_copyright,
+        )
+        .where(table.c.organisation_id == target.organisation_id)
+        .order_by(table.c.updated_at.desc())
+    ).fetchall()
+
+    # Filtered here and not in SQL: the column holds JSON, and "is not
+    # the JSON null" needs a different construct per dialect. The row
+    # count is a handful. `StoredObject` already hands back a
+    # `FileObject`, so the value is assignable as it comes.
+    for logo, logo_copyright, cover, cover_copyright in rows:
+        if target.logo_image is None and logo is not None:
+            target.logo_image = logo
+            target.logo_image_copyright = logo_copyright or ""
+        if target.cover_image is None and cover is not None:
+            target.cover_image = cover
+            target.cover_image_copyright = cover_copyright or ""
+        if target.logo_image is not None and target.cover_image is not None:
+            return
