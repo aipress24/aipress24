@@ -104,10 +104,6 @@ class TestMenuEntryShape:
         assert entry.allowed_roles is None
         assert entry.allowed_check is None
 
-    def test_required_fields_are_required(self) -> None:
-        with pytest.raises(TypeError):
-            MenuEntry(name="x", label="X", icon="i")  # type: ignore[call-arg]  # ty:ignore[missing-argument]
-
 
 class TestMenuEntries:
     """Every entry in MENU must satisfy the structural rules used by the

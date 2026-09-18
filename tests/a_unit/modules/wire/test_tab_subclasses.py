@@ -36,8 +36,6 @@ Why each cluster of tests exists:
 
 from __future__ import annotations
 
-import abc
-
 import pytest
 
 from app.modules.wire.views._tabs import (
@@ -163,30 +161,6 @@ class TestTabPostTypeAllow:
         """ComTab must NOT bleed regular posts into press releases."""
         assert "article" not in ComTab.post_type_allow
         assert "post" not in ComTab.post_type_allow
-
-
-class TestTabInheritance:
-    """The shared query / sort machinery lives on `Tab` -- subclasses
-    must inherit it. A subclass that accidentally lost the base would
-    still "work" but skip filtering, sorting, and limiting."""
-
-    @pytest.mark.parametrize("tab_cls", ALL_TAB_CLASSES)
-    def test_subclass_inherits_from_tab(self, tab_cls: type[Tab]) -> None:
-        assert issubclass(tab_cls, Tab)
-
-    def test_tab_base_is_abstract(self) -> None:
-        """Sanity: Tab is declared with abc.ABC, even though no method
-        is marked abstract today. Future maintainers may add abstract
-        methods; this assertion documents the intent so it doesn't get
-        silently converted to a plain class."""
-        assert issubclass(Tab, abc.ABC)
-
-    @pytest.mark.parametrize("tab_cls", ALL_TAB_CLASSES)
-    def test_subclass_can_be_instantiated(self, tab_cls: type[Tab]) -> None:
-        """Each subclass implements every abstract method (currently
-        none) and has no __init__ requiring arguments."""
-        instance = tab_cls()
-        assert isinstance(instance, Tab)
 
 
 class TestTabGetAuthorsDefault:

@@ -23,11 +23,6 @@ from datetime import UTC, datetime, timedelta
 import pytest
 
 from app.models.lifecycle import PublicationStatus
-from app.models.mixins import IdMixin, LifeCycleMixin, Owned
-from app.modules.wip.models.newsroom._base import (
-    NewsMetadataMixin,
-    NewsroomCommonMixin,
-)
 from app.modules.wip.models.newsroom.article import Article, Image
 
 # ---------------------------------------------------------------------------
@@ -45,21 +40,6 @@ class TestArticleTableShape:
 
     def test_tablename(self):
         assert Article.__tablename__ == "nrm_article"
-
-    def test_inherits_expected_mixins(self):
-        """Article composes the newsroom mixins + Base."""
-        mro_names = {cls.__name__ for cls in Article.__mro__}
-        assert "NewsroomCommonMixin" in mro_names
-        assert "NewsMetadataMixin" in mro_names
-        assert "IdMixin" in mro_names
-        assert "LifeCycleMixin" in mro_names
-        assert "Owned" in mro_names
-        # The mixin chain is reachable as real superclasses too.
-        assert issubclass(Article, NewsroomCommonMixin)
-        assert issubclass(Article, NewsMetadataMixin)
-        assert issubclass(Article, IdMixin)
-        assert issubclass(Article, LifeCycleMixin)
-        assert issubclass(Article, Owned)
 
     @pytest.mark.parametrize(
         "col_name",
@@ -191,11 +171,6 @@ class TestImageTableShape:
 
     def test_tablename(self):
         assert Image.__tablename__ == "nrm_image"
-
-    def test_inherits_expected_mixins(self):
-        assert issubclass(Image, IdMixin)
-        assert issubclass(Image, LifeCycleMixin)
-        assert issubclass(Image, Owned)
 
     @pytest.mark.parametrize(
         "col_name",

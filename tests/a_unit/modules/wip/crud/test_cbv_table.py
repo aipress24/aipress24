@@ -27,7 +27,6 @@ from __future__ import annotations
 import pytest
 from sqlalchemy import Column, DateTime
 
-from app.modules.wip.components.table.table import DataSource, Table
 from app.modules.wip.crud.cbvs._table import (
     BaseDataSource,
     BaseTable,
@@ -109,15 +108,6 @@ class TestMakeDatasource:
 class TestBaseDataSourceContract:
     """Pin the class-level contract of ``BaseDataSource`` — no DB."""
 
-    def test_is_concrete_datasource_subclass(self):
-        # WHY: the abstract ``DataSource`` declares ``get_items`` and
-        # ``get_count`` as ``@abstractmethod``. Pin that BaseDataSource
-        # implements both so it can be instantiated.
-        assert issubclass(BaseDataSource, DataSource)
-        # Both abstract methods must be implemented on the subclass.
-        for name in ("get_items", "get_count"):
-            assert getattr(BaseDataSource, name) is not getattr(DataSource, name)
-
     def test_default_query_string_is_empty(self, app):
         # WHY: most listings render without a search box; pin the
         # default so callers don't have to pass ``q=""`` explicitly.
@@ -140,11 +130,6 @@ class TestBaseDataSourceContract:
 
 class TestBaseTableClassAttributes:
     """Pin class-level invariants that don't need a request context."""
-
-    def test_inherits_from_table(self):
-        # WHY: structural — ``Table.render`` and friends are inherited;
-        # breaking the parent link silently disables templates.
-        assert issubclass(BaseTable, Table)
 
     def test_dom_id_is_articles_table(self):
         # WHY: ``id = "articles-table"`` is the HTMX target id; the

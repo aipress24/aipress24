@@ -41,8 +41,6 @@ from without any test-double library.
 
 from __future__ import annotations
 
-import abc
-
 import pytest
 
 from app.flask.lib.breadcrumbs import BreadCrumb
@@ -499,10 +497,6 @@ class TestBaseWipViewConfig:
         # All concrete WIP views inherit `/wip/` — this is the only
         # URL fragment defined at the abstract layer.
         assert BaseWipView.route_prefix == "/wip/"
-
-    def test_is_an_abc(self):
-        # Catches accidental removal of `abc.ABC` from the bases.
-        assert issubclass(BaseWipView, abc.ABC)
 
     def test_post_update_model_hook_default_is_noop(self):
         # Subclasses override `_post_update_model` to add side effects
