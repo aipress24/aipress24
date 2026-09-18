@@ -45,7 +45,13 @@ class ScreenshotSession:
         self.s3_access_key_id = config["S3_ACCESS_KEY_ID"]
         self.s3_secret_access_key = config["S3_SECRET_ACCESS_KEY"]
         self.s3_bucket_name = config["S3_BUCKET_NAME"]
-        self.s3_url = config["S3_URL"]
+        # `S3_ENDPOINT_URL`, like every other S3 caller. This read
+        # `S3_URL`, a second name for the same thing that no deployment
+        # overrides — so screenshots were written to the endpoint named
+        # in `settings.toml` while the rest of the application read from
+        # the one the environment sets, and nothing stored here was ever
+        # served back.
+        self.s3_url = config["S3_ENDPOINT_URL"]
 
         self.temp_file = tempfile.mkstemp(suffix=".png")
         self.temp_path = Path(self.temp_file[1])

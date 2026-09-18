@@ -72,19 +72,18 @@ MAIL_SERVER = "mail.gandi.net"
 #MAIL_USERNAME = "cab48075-4f3c-407b-95e6-c086b435c16e"
 
 
-#S3_BUCKET_NAME = "aipress24-public"
-#S3_PUBLIC_URL = "https://aipress24-public.s3.fr-par.scw.cloud"
 #
-#S3_REGION_NAME = "fr-par"
-#S3_URL = "https://s3.fr-par.scw.cloud"
 
 #
 # S3
 #
 S3_REGION_NAME = ""
 S3_BUCKET_NAME = "aipress24-images"
-S3_URL = "https://s3.gra.io.cloud.ovh.net/"
-S3_PUBLIC_URL = "https://aipress24-images.s3.gra.io.cloud.ovh.net/"
+# The endpoint has one name, `S3_ENDPOINT_URL`, set per environment —
+# `[development]` below for MinIO, `FLASK_S3_ENDPOINT_URL` in
+# production. `S3_URL` and `S3_PUBLIC_URL` were a second and a third
+# name for it, left on a provider no longer in use; the screenshot job
+# read one of them and wrote where nothing could read back.
 
 
 [default.CONTENT_SECURITY_POLICY]
