@@ -16,6 +16,7 @@ from werkzeug import Response
 from werkzeug.exceptions import Forbidden
 
 from app.constants import CONTENT_ALERT_REASONS
+from app.enums import RoleEnum
 from app.flask.extensions import db
 from app.flask.lib.nav import nav
 from app.flask.routing import url_for
@@ -25,6 +26,7 @@ from app.models.auth import User
 from app.models.short_post import ShortPost as Post
 from app.modules.swork import blueprint
 from app.services.moderation import submit_content_alert
+from app.services.roles import has_role
 
 new_post_args = {
     "message": webargs.fields.Str(load_default=""),
@@ -37,16 +39,15 @@ def swork():
     """Social"""
     from app.services.social_graph import adapt
 
-    followees: list[User] = adapt(g.user).get_followees()
-    followee_ids = {f.id for f in followees}
-    followee_ids.add(g.user.id)
+    stmt = sa.select(Post).where(Post.deleted_at.is_(None))
 
-    stmt = (
-        sa.select(Post)
-        .where(Post.owner_id.in_(followee_ids), Post.deleted_at.is_(None))
-        .order_by(Post.created_at.desc())
-        .limit(20)
-    )
+    if not has_role(g.user, RoleEnum.ADMIN):
+        followees: list[User] = adapt(g.user).get_followees()
+        followee_ids = {f.id for f in followees}
+        followee_ids.add(g.user.id)
+        stmt = stmt.where(Post.owner_id.in_(followee_ids))
+
+    stmt = stmt.order_by(Post.created_at.desc()).limit(20)
     posts = list(db.session.scalars(stmt))
 
     ctx = {
