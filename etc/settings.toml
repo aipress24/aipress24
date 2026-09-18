@@ -199,3 +199,8 @@ DEBUG_TB_ENABLED = false
 # resolves to [development], not to this section — so `create_app`
 # refuses to boot if it ever sees this env with the flag on.
 UNSECURE = false
+# Validates the S3 endpoint's certificate. It was off, which the name
+# hides: `S3_USE_SSL` feeds both the transport and boto's `verify`, so
+# off meant every object travelled over a connection nobody checked.
+# Tested against the production endpoint before being turned on.
+S3_USE_SSL = true

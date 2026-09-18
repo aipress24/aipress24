@@ -142,7 +142,10 @@ def register_s3_storage(app: Flask) -> None:
     secret_key = app.config["S3_SECRET_ACCESS_KEY"]
     bucket_name = app.config["S3_BUCKET_NAME"]
     region_name = app.config.get("S3_REGION_NAME", "fr-paris")
-    use_ssl = app.config.get("S3_USE_SSL", False)
+    # Defaults to on: this flag decides whether the endpoint's
+    # certificate is checked, so the insecure value has to be asked for.
+    # `[development]` asks for it, because MinIO runs on plain http.
+    use_ssl = app.config.get("S3_USE_SSL", True)
 
     client_kwargs = {
         "endpoint_url": endpoint_url,
