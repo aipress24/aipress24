@@ -5,7 +5,6 @@
 from __future__ import annotations
 
 import re
-from abc import abstractmethod
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, Any, ClassVar
 
@@ -21,10 +20,10 @@ from app.models.mixins import Addressable
 class BaseList(WiredComponent):
     """Base class for filterable, searchable list components.
 
-    Subclasses must implement:
-    - get_base_statement(): Return the base SQLAlchemy select statement
-    - search_clause(search): Return a filter clause for search terms
-    - context(): Return template context dict
+    Subclasses must implement `get_base_statement()` and `context()`.
+    Searching is open either way round: implement `search_clause()` and
+    let `apply_search()` below drive it, or override `apply_search()`
+    and ignore `search_clause()` entirely.
     """
 
     search: str = ""
@@ -73,10 +72,14 @@ class BaseList(WiredComponent):
 
         return stmt
 
-    @abstractmethod
     def search_clause(self, search: str) -> ColumnElement[bool]:
-        """Return a SQLAlchemy filter clause for the search term."""
-        ...
+        """Return a SQLAlchemy filter clause for the search term.
+
+        Reached only through `apply_search` above, so a subclass that
+        overrides `apply_search` never implements it — which is why this
+        is a hook and not an abstract method.
+        """
+        raise NotImplementedError
 
     def get_filters(self) -> list[Filter]:
         return []

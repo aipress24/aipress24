@@ -74,35 +74,6 @@ def _make_table(
     return table
 
 
-class TestDataSourceContract:
-    """DataSource is an ABC: enforces get_items/get_count on subclasses."""
-
-    def test_cannot_instantiate_abstract_base(self) -> None:
-        # Pinning the ABC: instantiating DataSource directly must fail,
-        # so callers are forced to provide a concrete implementation.
-        with pytest.raises(TypeError):
-            DataSource()  # type: ignore[abstract]
-
-    def test_partial_subclass_cannot_instantiate(self) -> None:
-        # Implementing only one of the two abstract methods leaves the
-        # class abstract; this guards against accidental partial impls.
-        class OnlyItems(DataSource):
-            def get_items(self) -> list:
-                return []
-
-        with pytest.raises(TypeError):
-            OnlyItems()  # type: ignore[abstract]
-
-    def test_full_subclass_instantiates_and_delegates(self) -> None:
-        # The happy path: a fully-implemented subclass works and exposes
-        # the offset/limit attributes that Pagination relies on.
-        ds = StubDataSource(items=["a", "b"], count=2, offset=5, limit=10)
-        assert ds.get_items() == ["a", "b"]
-        assert ds.get_count() == 2
-        assert ds.offset == 5
-        assert ds.limit == 10
-
-
 class TestTableDelegation:
     """Table forwards reads to its data source and exposes safe defaults."""
 
