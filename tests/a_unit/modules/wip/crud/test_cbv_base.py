@@ -56,6 +56,7 @@ from app.modules.wip.crud.cbvs._base import (
     _sort_org_choices,
     get_name,
 )
+from app.modules.wip.crud.cbvs.commandes import CommandesWipView
 
 # --------------------------------------------------------------------- #
 # Stand-in duck types                                                   #
@@ -519,3 +520,45 @@ class TestBaseWipViewConfig:
         instance = _Concrete.__new__(_Concrete)
         assert instance._extra_view_html(object(), "view") == ""
         assert instance._extra_view_html(None, "edit") == ""
+
+    def test_can_create_default_is_true(self):
+        assert BaseWipView.can_create is True
+
+    def test_commandes_view_disables_can_create(self):
+        assert CommandesWipView.can_create is False
+
+    def test_make_table_sets_empty_new_url_when_can_create_false(self):
+        class _DummyTable:
+            def __init__(self, q: str = "") -> None:
+                self._action_url = ""
+                self._new_url = ""
+
+        class _NoCreate(BaseWipView):
+            can_create = False
+            route_base = "things"
+            table_class = _DummyTable
+
+            def _url_for(self, action):
+                return f"/things/{action}"
+
+        instance = _NoCreate.__new__(_NoCreate)
+        table = instance._make_table()
+        assert table._new_url == ""
+
+    def test_make_table_sets_new_url_when_can_create_true(self):
+        class _DummyTable:
+            def __init__(self, q: str = "") -> None:
+                self._action_url = ""
+                self._new_url = ""
+
+        class _CanCreate(BaseWipView):
+            can_create = True
+            route_base = "things"
+            table_class = _DummyTable
+
+            def _url_for(self, action):
+                return f"/things/{action}"
+
+        instance = _CanCreate.__new__(_CanCreate)
+        table = instance._make_table()
+        assert table._new_url == "/wip/things/new/"

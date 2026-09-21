@@ -124,3 +124,20 @@ class TestBaseTable:
             obj = _Item(id=1, media=None)
 
             assert table.get_media_name(obj) == ""
+
+    def test_table_top_bar_renders_new_button_when_new_url_set(self, app: Flask):
+        """Test table_top_bar renders New button when _new_url is set."""
+        with app.test_request_context():
+            table = BaseTable(Article)
+            table._new_url = "/wip/articles/new/"
+            html = table.render("table_top_bar.j2")
+            assert "/wip/articles/new/" in html
+            assert "New" in html
+
+    def test_table_top_bar_omits_new_button_when_new_url_empty(self, app: Flask):
+        """Test table_top_bar omits New button when _new_url is empty."""
+        with app.test_request_context():
+            table = BaseTable(Article)
+            table._new_url = ""
+            html = table.render("table_top_bar.j2")
+            assert "New" not in html
