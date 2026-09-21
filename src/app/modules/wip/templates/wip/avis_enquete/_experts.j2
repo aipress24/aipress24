@@ -1,48 +1,59 @@
 {% macro expert_table(rows, checked=false, table_class="") %}
   {# One table for both lists. They differed by the rows, the `checked`
      box and one background class — 37 of 38 lines were the same. #}
-  <div class="overflow-x-auto">
-    <table class="dui-table dui-table-zebra border {{ table_class }} w-full">
-      <thead>
-        <tr class="bg-gray-100 text-gray-700">
-          <th class="w-12 text-center"></th>
-          <th>Nom</th>
-          <th>Organisation</th>
-          <th>Titre</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for expert in rows %}
-          {% set organisation = expert.organisation %}
-          <tr class="hover">
-            <th class="text-center">
-              <input name="expert:{{ expert.id }}"
-                     type="checkbox"
-                     {% if checked %}checked{% endif %}
-                     class="dui-checkbox dui-checkbox-sm dui-checkbox-primary"/>
-            </th>
-            <td>
-              <a class="hover:underline font-medium text-gray-900"
-                 href="{{ url_for(expert) }}">
-                {{ expert.name }}
-              </a>
-            </td>
-            <td>
+    <div class="overflow-x-auto">
+        <table class="dui-table dui-table-zebra border {{ table_class }} w-full table-fixed" style="table-layout: fixed; min-width: 750px;">
+            <thead>
+                <tr class="bg-gray-100 text-gray-700">
+                    <th class="w-10 text-center" style="width: 3rem;"></th>
+                    <th class="w-5/12" style="width: 30%;">Nom</th>
+                    <th class="w-3/12" style="width: 25%;">Organisation</th>
+                    <th class="w-4/12" style="width: 45%;">Titre</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for expert in rows %}
+                    {% set organisation = expert.organisation %}
+                    <tr class="hover">
+                        <th class="text-center" style="width: 3rem;">
+                            <input name="expert:{{ expert.id }}"
+                                   type="checkbox"
+                                   {% if checked %}checked{% endif %}
+                                   class="dui-checkbox dui-checkbox-sm dui-checkbox-primary"/>
+                        </th>
+                        <td>
+                            <div class="flex items-center min-w-0">
+                                <a href="{{ url_for(expert) }}" class="h-10 w-10 flex-shrink-0 block">
+                                    {{ profile_image(expert, size=10) }}
+                                </a>
+                                <div class="ml-4 min-w-0">
+                                    <div class="font-medium text-gray-900 truncate">
+                                        <a href="{{ url_for(expert) }}" class="hover:underline">
+                                            {{ expert.full_name }}
+                                        </a>
+                                    </div>
+                                    <div class="text-gray-500 truncate" title="{{ expert.email }}">
+                                        {{ expert.email }}
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
               {# `organisation` is optional — an unaffiliated member has
                  none, and `StrictUndefined` would 500 on the chain. #}
-              {% if organisation %}
-                <a class="hover:underline text-gray-700"
-                   href="{{ url_for(organisation) }}">
-                  {{ organisation.name }}
-                </a>
-              {% endif %}
-            </td>
-            <td class="text-gray-600">{{ expert.job_title }}</td>
-          </tr>
-        {% endfor %}
-      </tbody>
-    </table>
-  </div>
+                            {% if organisation %}
+                                <a class="hover:underline text-gray-700"
+                                   href="{{ url_for(organisation) }}">
+                                    {{ organisation.name }}
+                                </a>
+                            {% endif %}
+                        </td>
+                        <td class="text-gray-600">{{ expert.job_title }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
 {% endmacro %}
 
 

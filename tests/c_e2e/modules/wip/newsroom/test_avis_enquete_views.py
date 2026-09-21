@@ -56,13 +56,22 @@ def expert_role(fresh_db) -> Role:
 def expert_user(fresh_db, test_org: Organisation, expert_role: Role) -> User:
     """Create an expert user."""
     db_session = fresh_db.session
-    expert = User(email="expert@example.com")
+    expert = User(email="expert@example.com", first_name="Expert", last_name="User")
     expert.photo = b""
     expert.active = True
     expert.organisation = test_org
     expert.organisation_id = test_org.id
     expert.roles.append(expert_role)
     db_session.add(expert)
+    db_session.flush()
+
+    profile = KYCProfile(
+        user_id=expert.id,
+        profile_id="profile_expert",
+        profile_community="expert",
+        info_professionnelle={},
+    )
+    db_session.add(profile)
     db_session.commit()
     return expert
 
@@ -393,6 +402,30 @@ class TestJournalistAvisEnqueteViews:
         assert flat_count == 9, (
             f"Expected 9 flat selectors with the .tom-select-it class, got {flat_count}"
         )
+
+    def test_ciblage_selected_experts_displays_avatar_name_and_email(
+        self,
+        logged_in_client: FlaskClient,
+        test_avis_enquete: AvisEnquete,
+        expert_user: User,
+    ):
+        """Selected experts in ciblage show avatar, full name and email."""
+        url = url_for("AvisEnqueteWipView:ciblage", id=test_avis_enquete.id)
+        response = logged_in_client.post(
+            url,
+            data={
+                "action:add": "Valider",
+                f"expert:{expert_user.id}": "on",
+            },
+        )
+        assert response.status_code == 200
+        html = response.data.decode()
+
+        assert "Profils sélectionnés" in html
+        assert expert_user.full_name in html
+        assert expert_user.email in html
+        expert_url = url_for(expert_user)
+        assert f'href="{expert_url}"' in html
 
     def test_view_responses(
         self,

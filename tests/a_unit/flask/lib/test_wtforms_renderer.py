@@ -27,7 +27,7 @@ from typing import TYPE_CHECKING, ClassVar
 from flask import g
 from wtforms import Form, StringField
 
-from app.flask.lib.wtforms.fields import DisplayField, SimpleRichSelectField
+from app.flask.lib.wtforms.fields import SimpleRichSelectField
 from app.flask.lib.wtforms.renderer import FormRenderer
 
 if TYPE_CHECKING:
