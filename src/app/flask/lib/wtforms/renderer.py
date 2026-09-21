@@ -15,6 +15,8 @@ from markupsafe import Markup
 from wtforms.fields.core import Field
 from wtforms.form import Form
 
+from app.flask.lib.wtforms.fields.display import DisplayField
+
 # language=jinja2
 FORM_TEMPLATE = """
 {% if form.errors %}
@@ -282,7 +284,9 @@ class FormRenderer:
         if self.mode == "view":
             if field.name == "media_id":
                 # do display the actual name of the related media
-                if self.model and self.model.media:
+                if self.model and hasattr(self.model, "media_name"):
+                    field_str = self.model.media_name
+                elif self.model and self.model.media:
                     field_str = self.model.media.name
                 else:
                     field_str = ""
@@ -295,6 +299,8 @@ class FormRenderer:
                     field_str = publisher.bw_name or publisher.name or ""
                 else:
                     field_str = ""
+            elif isinstance(field, DisplayField):
+                field_str = field._value()
             else:
                 field_str = self.render_field_value(field.data)
         else:

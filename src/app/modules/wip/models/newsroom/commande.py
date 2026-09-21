@@ -61,6 +61,30 @@ class Commande(
             return self.owner.full_name
         return self.media.name if self.media else ""
 
+    @property
+    def media_name(self) -> str:
+        """Nom du média pour lequel la commande est passée.
+
+        - cas d'un "sujet accepté": "media_id" est le média de celui
+          qui accepte, c'est donc le "media name".
+        - cas d'une création directe: "media" contient l'organisation
+          destinataire (à qui la commande est adressée) dans "addressed_to".
+          Le média commanditaire est donc celui qui passe la commande,
+          "publisher" ou l'organisation du commanditaire.
+        """
+        if self.owner_id != self.commanditaire_id:
+            if self.media:
+                return getattr(self.media, "bw_name", None) or self.media.name or ""
+            return ""
+        org = getattr(self, "publisher", None)
+        if not org and getattr(self, "commanditaire", None):
+            org = self.commanditaire.organisation
+        if org:
+            return getattr(org, "bw_name", None) or org.name or ""
+        if self.media:
+            return getattr(self.media, "bw_name", None) or (self.media.name)
+        return ""
+
     # Workflow: DRAFT → PENDING (validated) → PUBLIC (published)
     # Can also be: REJECTED, ARCHIVED
 
