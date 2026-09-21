@@ -79,6 +79,7 @@ class CommandesWipView(BaseWipView):
 
     route_base = "commandes"
     path = "/wip/commandes/"
+    can_create = False
 
     # UI
     label_main = "Newsroom: commandes"

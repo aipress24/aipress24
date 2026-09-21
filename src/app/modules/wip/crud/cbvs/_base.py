@@ -209,6 +209,7 @@ class BaseWipView(FlaskView, abc.ABC):
     table_id: str
 
     route_prefix = "/wip/"
+    can_create: bool = True
 
     def before_request(self, *_args, **_kwargs) -> Response | None:
         # Redirect unauthenticated users to login
@@ -231,7 +232,7 @@ class BaseWipView(FlaskView, abc.ABC):
         table_factory = cast(Callable[[str], BaseTable], self.table_class)
         table = table_factory(q)
         table._action_url = self._url_for("htmx")
-        table._new_url = f"/wip/{self.route_base}/new/"
+        table._new_url = f"/wip/{self.route_base}/new/" if self.can_create else ""
         return table
 
     # Exposed methods
