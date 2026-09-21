@@ -17,20 +17,32 @@ from types import SimpleNamespace
 from app.modules.wip.models import Commande
 
 
-def _commande(*, owner_id, commanditaire_id, owner=None, media=None) -> SimpleNamespace:
-    """A duck-typed stand-in: `addressed_to` reads four attributes and
-    touches no session."""
+def _commande(
+    *,
+    owner_id,
+    commanditaire_id,
+    owner=None,
+    media=None,
+    publisher=None,
+    commanditaire=None,
+) -> SimpleNamespace:
+    """A duck-typed stand-in: `addressed_to` and `media_name` read
+    attributes and touch no session."""
     stub = SimpleNamespace(
         owner_id=owner_id,
         commanditaire_id=commanditaire_id,
         owner=owner,
         media=media,
+        publisher=publisher,
+        commanditaire=commanditaire,
     )
     return stub
 
 
 _AICHA = SimpleNamespace(full_name="Aïcha Benmahfoud")
 _TCA = SimpleNamespace(name="TECHNO-CHRONIQUEURS ASSOCIÉS")
+_ATS = SimpleNamespace(name="Fake Agence ATS")
+_RIESSER = SimpleNamespace(name="Fake-Info Riesser")
 
 
 class TestBornFromAnAcceptedSujet:
@@ -72,3 +84,46 @@ class TestMissingRelations:
         commande = _commande(owner_id=1, commanditaire_id=2, owner=None, media=_TCA)
 
         assert Commande.addressed_to.fget(commande) == _TCA.name
+
+
+class TestCommandeMediaName:
+    """The media a commande is targeted for.
+
+    On a commande coming from an accepted sujet, `media_id` is the accepter's
+    media (Fake Agence ATS).
+    On a directly created commande, `media_id` stores the recipient media
+    (Fake-Info Riesser), the customer media is the creator's media
+    (`publisher` or `commanditaire.organisation`, ie. Fake Agence ATS).
+    """
+
+    def test_sujet_born_commande_uses_media(self):
+        commande = _commande(
+            owner_id=1,
+            commanditaire_id=2,
+            owner=_AICHA,
+            media=_ATS,
+            publisher=None,
+        )
+        assert Commande.media_name.fget(commande) == "Fake Agence ATS"
+
+    def test_directly_created_commande_uses_publisher(self):
+        commande = _commande(
+            owner_id=7,
+            commanditaire_id=7,
+            owner=_AICHA,
+            media=_RIESSER,
+            publisher=_ATS,
+        )
+        assert Commande.media_name.fget(commande) == "Fake Agence ATS"
+
+    def test_directly_created_commande_uses_commanditaire_org_fallback(self):
+        ramona = SimpleNamespace(full_name="Ramona Dietrisch", organisation=_ATS)
+        commande = _commande(
+            owner_id=7,
+            commanditaire_id=7,
+            owner=ramona,
+            commanditaire=ramona,
+            media=_RIESSER,
+            publisher=None,
+        )
+        assert Commande.media_name.fget(commande) == "Fake Agence ATS"

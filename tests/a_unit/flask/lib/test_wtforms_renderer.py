@@ -27,6 +27,7 @@ from typing import TYPE_CHECKING, ClassVar
 from flask import g
 from wtforms import Form, StringField
 
+from app.flask.lib.wtforms.fields import DisplayField, SimpleRichSelectField
 from app.flask.lib.wtforms.renderer import FormRenderer
 
 if TYPE_CHECKING:
@@ -174,3 +175,27 @@ class TestPublisherTextFollowsModel:
         assert "Commande passée par" in html
         assert "Client Org" in html
         assert "Publié pour le compte de" not in html
+
+    def test_media_id_uses_media_name_if_present(self, app: Flask):
+        """If model defines media_name, media_id in view mode uses it."""
+
+        class _MediaForm(Form):
+            class Meta:
+                groups: ClassVar[dict] = {
+                    "meta": {"label": "Meta", "fields": ["media_id"]}
+                }
+
+            media_id = SimpleRichSelectField("Média")
+
+        stub_model = _StubModel(publisher=None)
+        stub_model.media_id = 42
+        stub_model.media = _StubOrg(name="Recipient Media")
+        stub_model.media_name = "Fake Agence ATS"
+
+        with app.test_request_context("/wip/commandes/1"):
+            form = _MediaForm(obj=stub_model)
+            renderer = FormRenderer(form=form, model=stub_model, mode="view")
+            html = str(renderer.render())
+
+        assert "Fake Agence ATS" in html
+        assert "Recipient Media" not in html

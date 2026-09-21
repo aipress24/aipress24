@@ -10,9 +10,7 @@ from typing import TYPE_CHECKING
 from unittest.mock import patch
 
 import pytest
-from arrow import now
 
-from app.constants import LOCAL_TZ
 from app.enums import RoleEnum
 from app.models.auth import KYCProfile, Role, User
 from app.models.content_alert import ContentAlert
