@@ -147,6 +147,18 @@ class TestSujetPublishLifecycle:
         with pytest.raises(ValueError, match="PUBLIC"):
             sujet.unpublish()
 
+    def test_can_edit_lifecycle(
+        self, db_session: Session, media_org: Organisation, author_user: User
+    ):
+        sujet = _make_sujet(db_session, media_id=media_org.id, owner_id=author_user.id)
+        assert sujet.can_edit() is True
+
+        sujet.publish()
+        assert sujet.can_edit() is True
+
+        sujet.status = PublicationStatus.ARCHIVED
+        assert sujet.can_edit() is False
+
 
 class TestSujetAcceptAction:
     """Ticket #0132 part 3 (Erick, 2026-05-22) : « il manque la fonction
@@ -330,6 +342,20 @@ class TestSujetsTableActions:
         assert "Voir" in labels
         assert "Modifier" in labels
         assert "Supprimer" in labels
+
+    def test_archived_item_hides_modifier_and_depublier(self):
+        table = SujetsTable()
+        item = MagicMock(id=1, status=PublicationStatus.ARCHIVED)
+
+        labels = [a["label"] for a in table.get_actions(item)]
+
+        assert "Voir" in labels
+        assert "Supprimer" in labels
+        assert "Modifier" not in labels
+        assert "Publier" not in labels
+        assert "Dépublier" not in labels
+        assert "Accepter" not in labels
+        assert "Refuser" not in labels
 
     def test_status_column_translates_status(self):
         table = SujetsTable()

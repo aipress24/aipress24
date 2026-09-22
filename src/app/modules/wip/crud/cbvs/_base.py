@@ -206,6 +206,7 @@ class BaseWipView(FlaskView, abc.ABC):
     icon: str
     msg_delete_ok: str
     msg_delete_ko: str
+    msg_cannot_edit: str = "Cet élément ne peut plus être modifié"
     table_id: str
 
     route_prefix = "/wip/"
@@ -255,9 +256,23 @@ class BaseWipView(FlaskView, abc.ABC):
     def new(self) -> dict:
         return self._view_ctx(title=self.label_new)
 
+    def _can_edit(self, model: Any) -> bool:
+        """Return True if user can edit this item.
+
+        Subclasses or models may define a `can_edit()` method returning False
+        (for example when an item is in an archived or terminal status).
+        """
+        can_edit_method = getattr(model, "can_edit", None)
+        if callable(can_edit_method):
+            return bool(can_edit_method())
+        return True
+
     @templated(UPDATE_TEMPLATE)
     def edit(self, id):
         model = self._get_model(id)
+        if not self._can_edit(model):
+            flash(self.msg_cannot_edit, "error")
+            return redirect(self._url_for("get", id=id))
         title = f"{self.label_edit} '{model.title}'"
         return self._view_ctx(model, title=title)
 
@@ -307,15 +322,11 @@ class BaseWipView(FlaskView, abc.ABC):
         if form_data["_action"] == "cancel":
             return redirect(self._url_for("index"))
 
-        form = self.form_class(form_data)
-
-        self._make_media_choices(form)
-
-        if not form.validate():
-            return self._view_ctx(form=form)
-
         if id := request.form.get("id"):
             model = self._get_model(id)
+            if not self._can_edit(model):
+                flash(self.msg_cannot_edit, "error")
+                return redirect(self._url_for("get", id=id))
         else:
             model = self.model_class()
             model.owner = g.user
@@ -324,6 +335,13 @@ class BaseWipView(FlaskView, abc.ABC):
             if media_id_str := request.form.get("media_id"):
                 org_id = int(media_id_str)
                 model.media_id = int(org_id)
+
+        form = self.form_class(form_data)
+
+        self._make_media_choices(form)
+
+        if not form.validate():
+            return self._view_ctx(model=model, form=form)
 
         form.populate_obj(model)
 

@@ -232,11 +232,13 @@ class SujetsTable(BaseTable):
         """
         actions = [
             {"label": "Voir", "url": self.url_for(item)},
-            {"label": "Modifier", "url": self.url_for(item, "edit")},
         ]
+        if item.status != PublicationStatus.ARCHIVED:
+            actions.append({"label": "Modifier", "url": self.url_for(item, "edit")})
+
         if item.status == PublicationStatus.DRAFT:
             actions.append({"label": "Publier", "url": self.url_for(item, "publish")})
-        else:
+        elif item.status == PublicationStatus.PUBLIC:
             actions.append(
                 {"label": "Dépublier", "url": self.url_for(item, "unpublish")}
             )
@@ -287,6 +289,10 @@ class SujetsWipView(BaseWipView):
 
     msg_delete_ok = "Le sujet a été supprimé"
     msg_delete_ko = "Vous n'êtes pas autorisé à supprimer ce sujet"
+    msg_cannot_edit = "Un sujet archivé ne peut plus être modifié"
+
+    def _can_edit(self, model: Sujet) -> bool:
+        return model.can_edit()
 
     def _can_access(self, model: Sujet) -> bool:
         """Per-record visibility gate for Sujet (security VULN-001).

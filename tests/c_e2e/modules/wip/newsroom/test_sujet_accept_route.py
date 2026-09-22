@@ -8,6 +8,7 @@ author)."""
 
 from __future__ import annotations
 
+import json
 from datetime import UTC, datetime, timedelta
 from typing import TYPE_CHECKING
 from unittest.mock import patch
@@ -705,3 +706,84 @@ class TestSujetAcceptSendsMailToAuthor:
         assert mail.accepter_organisation == test_org.name
         assert mail.sujet_title == "Topic title"
         assert "/wip/commandes" in mail.commande_url
+
+
+class TestArchivedSujetCannotBeEdited:
+    """When a sujet is ARCHIVED (after acceptance into a commande or refusal),
+    it must not be editable via edit or post routes."""
+
+    def test_archived_sujet_edit_route_redirects_and_flashes(
+        self,
+        app: Flask,
+        db_session: Session,
+        test_org: Organisation,
+        author_journalist: User,
+    ):
+        sujet = _make_sujet(
+            db_session,
+            owner_id=author_journalist.id,
+            media_id=test_org.id,
+            status=PublicationStatus.ARCHIVED,
+        )
+        db_session.commit()
+
+        client = make_authenticated_client(app, author_journalist)
+        response = client.get(
+            url_for("SujetsWipView:edit", id=sujet.id),
+            follow_redirects=False,
+        )
+        assert response.status_code in (302, 303)
+        assert url_for("SujetsWipView:get", id=sujet.id) in response.headers.get(
+            "Location", ""
+        )
+
+        follow_response = client.get(
+            url_for("SujetsWipView:edit", id=sujet.id),
+            follow_redirects=True,
+        )
+        assert follow_response.status_code == 200
+        body = follow_response.data.decode()
+        toast_line = next(
+            line
+            for line in body.splitlines()
+            if "window.toasts =" in line and not line.strip().startswith("//")
+        )
+        toasts = json.loads(toast_line.split("=", 1)[1].strip().rstrip(";"))
+        assert "Un sujet archivé ne peut plus être modifié" in toasts
+
+    def test_archived_sujet_post_edit_refused(
+        self,
+        app: Flask,
+        db_session: Session,
+        test_org: Organisation,
+        author_journalist: User,
+    ):
+        sujet = _make_sujet(
+            db_session,
+            owner_id=author_journalist.id,
+            media_id=test_org.id,
+            status=PublicationStatus.ARCHIVED,
+        )
+        db_session.commit()
+        sujet_id = sujet.id
+
+        client = make_authenticated_client(app, author_journalist)
+        response = client.post(
+            url_for("SujetsWipView:post"),
+            data={
+                "id": str(sujet.id),
+                "_action": "submit",
+                "titre": "Malicious Modification",
+                "contenu": "Modified content",
+                "media_id": str(test_org.id),
+            },
+            follow_redirects=False,
+        )
+        assert response.status_code in (302, 303)
+        assert url_for("SujetsWipView:get", id=sujet.id) in response.headers.get(
+            "Location", ""
+        )
+
+        db_session.expire_all()
+        sujet_after = db_session.get(Sujet, sujet_id)
+        assert sujet_after.titre == "Topic title"

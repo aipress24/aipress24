@@ -51,6 +51,9 @@ class Sujet(
     # Lifecycle (bug 0132)
     # ------------------------------------------------------------
 
+    def can_edit(self) -> bool:
+        return self.status != PublicationStatus.ARCHIVED
+
     def can_publish(self) -> bool:
         return self.status == PublicationStatus.DRAFT
 
