@@ -527,38 +527,30 @@ class TestBaseWipViewConfig:
     def test_commandes_view_disables_can_create(self):
         assert CommandesWipView.can_create is False
 
-    def test_make_table_sets_empty_new_url_when_can_create_false(self):
+    @pytest.mark.parametrize(
+        ("can_create", "expected_new_url"), [(False, ""), (True, "/wip/things/new/")]
+    )
+    def test_make_table_sets_new_url_only_when_can_create(
+        self, can_create: bool, expected_new_url: str
+    ) -> None:
         class _DummyTable:
             def __init__(self, q: str = "") -> None:
                 self._action_url = ""
                 self._new_url = ""
 
-        class _NoCreate(BaseWipView):
-            can_create = False
+        class _View(BaseWipView):
             route_base = "things"
             table_class = _DummyTable
 
-            def _url_for(self, action):
-                return f"/things/{action}"
+            # Only here to keep `_make_table` off Flask's `url_for`, which
+            # needs a request context. Signature mirrors the base, where
+            # `_action` is underscored so `**kwargs` can carry a route
+            # argument of its own literally named `action`.
+            def _url_for(self, _action="get", **kwargs):
+                return f"/things/{_action}"
 
-        instance = _NoCreate.__new__(_NoCreate)
+        _View.can_create = can_create
+
+        instance = _View.__new__(_View)
         table = instance._make_table()
-        assert table._new_url == ""
-
-    def test_make_table_sets_new_url_when_can_create_true(self):
-        class _DummyTable:
-            def __init__(self, q: str = "") -> None:
-                self._action_url = ""
-                self._new_url = ""
-
-        class _CanCreate(BaseWipView):
-            can_create = True
-            route_base = "things"
-            table_class = _DummyTable
-
-            def _url_for(self, action):
-                return f"/things/{action}"
-
-        instance = _CanCreate.__new__(_CanCreate)
-        table = instance._make_table()
-        assert table._new_url == "/wip/things/new/"
+        assert table._new_url == expected_new_url

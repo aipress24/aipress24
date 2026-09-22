@@ -65,13 +65,17 @@ def test_a_second_wall_inherits_the_first_one_s_logo(
     assert second.logo_image_copyright == "© Agence TCA"
 
 
-def test_an_upload_made_during_sign_up_wins(db_session, test_org, test_user_owner, logo):
+def test_an_upload_made_during_sign_up_wins(
+    db_session, test_org, test_user_owner, logo
+):
     """Inheriting must never overwrite what the new wall already has."""
     first = _wall(db_session, test_org.id, test_user_owner.id)
     first.logo_image = logo
     db_session.flush()
     own = create_file_object(
-        content=b"own logo bytes", original_filename="own.jpg", content_type="image/jpeg"
+        content=b"own logo bytes",
+        original_filename="own.jpg",
+        content_type="image/jpeg",
     )
 
     second = _wall(db_session, test_org.id, test_user_owner.id, logo_image=own)
