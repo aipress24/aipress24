@@ -134,21 +134,24 @@ class Communique(IdMixin, LifeCycleMixin, Owned, Base):
             ValueError: If communique cannot be published or validation fails
         """
         if not self.can_publish():
-            msg = "Cannot publish communique: communique is not in DRAFT status"
+            msg = "Impossible de publier: le communiqué n'a pas le statut DRAFT"
             raise ValueError(msg)
 
         # Validate required fields
         if not self.titre or not self.titre.strip():
-            msg = "Cannot publish communique: titre is required"
+            msg = "Impossible de publier: le communiqué n'a pas de titre"
             raise ValueError(msg)
 
         if not self.contenu or not self.contenu.strip():
-            msg = "Cannot publish communique: contenu is required"
+            msg = "Impossible de publier: le communiqué n'a pas de contenu"
             raise ValueError(msg)
 
         # CRITICAL BUSINESS RULE: Check embargo date
         if self.is_embargoed:
-            msg = f"Cannot publish communique: still under embargo until {self.embargoed_until}"
+            msg = (
+                f"Impossible de publier: communiqué sous embargo "
+                f"jusqu'au {self.embargoed_until}"
+            )
             raise ValueError(msg)
 
         # Update state
@@ -172,7 +175,7 @@ class Communique(IdMixin, LifeCycleMixin, Owned, Base):
             ValueError: If communique cannot be unpublished
         """
         if not self.can_unpublish():
-            msg = "Cannot unpublish communique: communique is not PUBLIC"
+            msg = "Impossible de dépublier: le communique n'est pas PUBLIC"
             raise ValueError(msg)
 
         self.status = PublicationStatus.DRAFT  # type: ignore[assignment]

@@ -87,16 +87,16 @@ class Article(
             ValueError: If article cannot be published or validation fails
         """
         if not self.can_publish():
-            msg = "Cannot publish article: article is not in DRAFT status"
+            msg = "Impossible de publier: l'article n'a pas le statut DRAFT"
             raise ValueError(msg)
 
         # Validate required fields
         if not self.titre or not self.titre.strip():
-            msg = "Cannot publish article: titre is required"
+            msg = "Impossible de publier: l'article n'a pas de titre"
             raise ValueError(msg)
 
         if not self.contenu or not self.contenu.strip():
-            msg = "Cannot publish article: contenu is required"
+            msg = "Impossible de publier: l'article n'a pas de contenu"
             raise ValueError(msg)
 
         # Update state
@@ -120,7 +120,7 @@ class Article(
             ValueError: If article cannot be unpublished
         """
         if not self.can_unpublish():
-            msg = "Cannot unpublish article: article is not PUBLIC"
+            msg = "Impossible de dépublier: l'article n'est pas PUBLIC"
             raise ValueError(msg)
 
         self.status = PublicationStatus.DRAFT  # type: ignore[assignment]

@@ -249,11 +249,11 @@ class Event(IdMixin, LifeCycleMixin, Owned, Base):
             BusinessRuleError: un champ requis manque.
         """
         if not self.titre or not self.titre.strip():
-            msg = "Cannot publish event: titre is required"
+            msg = "Impossible de publier: l'événement n'a pas de titre"
             raise BusinessRuleError(msg)
 
         if not self.contenu or not self.contenu.strip():
-            msg = "Cannot publish event: contenu is required"
+            msg = "Impossible de publier: l'événement n'a pas de contenu"
             raise BusinessRuleError(msg)
 
         # Bug #0172 — un événement sans dates serait silencieusement
@@ -263,7 +263,7 @@ class Event(IdMixin, LifeCycleMixin, Owned, Base):
         # un message clair, plutôt que de le rendre invisible.
         if not self.start_time or not self.end_time:
             msg = (
-                "Cannot publish event: la date de début et la date de "
+                "Impossible de publier: la date de début et la date de "
                 "fin sont obligatoires pour publier un événement."
             )
             raise BusinessRuleError(msg)
@@ -282,7 +282,10 @@ class Event(IdMixin, LifeCycleMixin, Owned, Base):
         if end.tzinfo is None:
             end = end.replace(tzinfo=UTC)
         if end < start:
-            msg = "Cannot publish event: end_time must be after start_time"
+            msg = (
+                "Impossible de publier: la date de fin doit être "
+                "postérieure à la date de début"
+            )
             raise BusinessRuleError(msg)
 
     def publish(self, publisher_id: int | None = None) -> None:
@@ -296,7 +299,7 @@ class Event(IdMixin, LifeCycleMixin, Owned, Base):
             BusinessRuleError: If event cannot be published or validation fails
         """
         if not self.can_publish():
-            msg = "Cannot publish event: event is not in DRAFT status"
+            msg = "Impossible de publier: l'événement n'a pas le statut DRAFT"
             raise BusinessRuleError(msg)
 
         self.check_publishable()
@@ -465,7 +468,7 @@ class Event(IdMixin, LifeCycleMixin, Owned, Base):
             BusinessRuleError: If event cannot be unpublished
         """
         if not self.can_unpublish():
-            msg = "Cannot unpublish event: event is not PUBLIC"
+            msg = "Impossible de dépublier: l'événement n'est pas PUBLIC"
             raise BusinessRuleError(msg)
 
         self.status = PublicationStatus.DRAFT  # type: ignore[assignment]
