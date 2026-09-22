@@ -24,13 +24,17 @@ attributes and avoid touching the DB-bound code paths (``_base_query``,
 
 from __future__ import annotations
 
+from types import SimpleNamespace
+
 import pytest
 from sqlalchemy import Column, DateTime
 
+from app.models.lifecycle import PublicationStatus
 from app.modules.wip.crud.cbvs._table import (
     BaseDataSource,
     BaseTable,
     get_name,
+    get_status_label,
     make_datasource,
 )
 
@@ -288,3 +292,39 @@ class TestMakeDatasourceHook:
             table = BaseTable(_FakeModel, q="")
         assert isinstance(table.data_source, BaseDataSource)
         assert table.data_source.model_class is _FakeModel
+
+
+class TestGetStatusLabel:
+    """Test get_status_label and BaseTable.get_status_label."""
+
+    def test_get_status_label_with_publication_status(self):
+        assert (
+            get_status_label(SimpleNamespace(status=PublicationStatus.ARCHIVED))
+            == "Archivé"
+        )
+        assert (
+            get_status_label(SimpleNamespace(status=PublicationStatus.DRAFT)) == "Draft"
+        )
+        assert (
+            get_status_label(SimpleNamespace(status=PublicationStatus.PUBLIC))
+            == "Publié"
+        )
+
+    def test_get_status_label_with_string(self):
+        assert get_status_label(SimpleNamespace(status="archived")) == "Archivé"
+        assert get_status_label(SimpleNamespace(status="draft")) == "Draft"
+        assert get_status_label(SimpleNamespace(status="public")) == "Publié"
+
+    def test_get_status_label_with_none_or_missing(self):
+        assert get_status_label(SimpleNamespace(status=None)) == ""
+        assert get_status_label(SimpleNamespace()) == ""
+
+    def test_base_table_delegates_get_status_label(self, app):
+        with app.test_request_context():
+            table = BaseTable(_FakeModel, q="")
+            assert (
+                table.get_status_label(
+                    SimpleNamespace(status=PublicationStatus.ARCHIVED)
+                )
+                == "Archivé"
+            )

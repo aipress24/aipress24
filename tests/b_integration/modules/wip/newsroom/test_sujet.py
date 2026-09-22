@@ -199,9 +199,7 @@ class TestSujetAcceptAction:
         assert commande.media_id == media_org.id
         assert commande.genre == "Angle / Analyse"
         assert commande.section == "Actualités / À la une"
-        assert (
-            commande.topic == "Agriculture, alimentation / Agriculture biologique"
-        )
+        assert commande.topic == "Agriculture, alimentation / Agriculture biologique"
         assert (
             commande.sector
             == "Agriculture & alimentation / Agriculture bio, durable & raisonnée"
@@ -332,6 +330,21 @@ class TestSujetsTableActions:
         assert "Voir" in labels
         assert "Modifier" in labels
         assert "Supprimer" in labels
+
+    def test_status_column_translates_status(self):
+        table = SujetsTable()
+        status_col = next(c for c in table.get_columns() if c["name"] == "status")
+        assert "render" in status_col
+        render_fn = status_col["render"]
+
+        archived_item = MagicMock(status=PublicationStatus.ARCHIVED)
+        assert render_fn(archived_item) == "Archivé"
+
+        draft_item = MagicMock(status=PublicationStatus.DRAFT)
+        assert render_fn(draft_item) == "Draft"
+
+        public_item = MagicMock(status=PublicationStatus.PUBLIC)
+        assert render_fn(public_item) == "Publié"
 
 
 class TestSujetFormFields:

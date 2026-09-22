@@ -436,7 +436,7 @@ class TestPublish:
 
     def test_publish_fails_if_not_draft(self):
         stub = _EventStub(status=PublicationStatus.PUBLIC)
-        with pytest.raises(ValueError, match="not in DRAFT status"):
+        with pytest.raises(ValueError, match="DRAFT"):
             Event.publish(stub)
 
     @pytest.mark.parametrize("titre", ["", "   "])
@@ -444,13 +444,13 @@ class TestPublish:
         """Whitespace-only titles must be rejected — they would render
         as an empty card on the public list."""
         stub = _EventStub(titre=titre)
-        with pytest.raises(ValueError, match="titre is required"):
+        with pytest.raises(ValueError, match="titre"):
             Event.publish(stub)
 
     @pytest.mark.parametrize("contenu", ["", "   "])
     def test_publish_fails_on_empty_contenu(self, contenu):
         stub = _EventStub(contenu=contenu)
-        with pytest.raises(ValueError, match="contenu is required"):
+        with pytest.raises(ValueError, match="contenu"):
             Event.publish(stub)
 
     @pytest.mark.parametrize("missing_field", ["start_time", "end_time"])
@@ -467,7 +467,7 @@ class TestPublish:
             start_time=datetime(2026, 6, 1, 12, tzinfo=UTC),
             end_time=datetime(2026, 6, 1, 10, tzinfo=UTC),
         )
-        with pytest.raises(ValueError, match="end_time must be after start_time"):
+        with pytest.raises(ValueError, match="postérieure|after"):
             Event.publish(stub)
 
     def test_publish_tolerates_naive_datetimes_on_event(self):
@@ -495,7 +495,7 @@ class TestUnpublish:
 
     def test_unpublish_fails_if_not_public(self):
         stub = _EventStub(status=PublicationStatus.DRAFT)
-        with pytest.raises(ValueError, match="not PUBLIC"):
+        with pytest.raises(ValueError, match="PUBLIC"):
             Event.unpublish(stub)
 
     def test_unpublish_does_not_clear_published_at(self):

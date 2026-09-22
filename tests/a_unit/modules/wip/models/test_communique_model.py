@@ -349,23 +349,23 @@ class TestPublish:
     )
     def test_publish_raises_when_not_draft(self, status):
         stub = _comm_stub(status=status, titre="t", contenu="c")
-        with pytest.raises(ValueError, match="not in DRAFT"):
+        with pytest.raises(ValueError, match="DRAFT"):
             stub.publish()
 
     @pytest.mark.parametrize("titre", ["", "   ", "\t\n"])
     def test_publish_raises_when_titre_blank(self, titre):
-        with pytest.raises(ValueError, match="titre is required"):
+        with pytest.raises(ValueError, match="titre"):
             _comm_stub(titre=titre, contenu="c").publish()
 
     @pytest.mark.parametrize("contenu", ["", "   ", "\t\n"])
     def test_publish_raises_when_contenu_blank(self, contenu):
-        with pytest.raises(ValueError, match="contenu is required"):
+        with pytest.raises(ValueError, match="contenu"):
             _comm_stub(titre="t", contenu=contenu).publish()
 
     def test_publish_raises_when_under_embargo(self):
         future = datetime.now(UTC) + timedelta(hours=1)
         stub = _comm_stub(titre="t", contenu="c", embargoed_until=future)
-        with pytest.raises(ValueError, match="under embargo"):
+        with pytest.raises(ValueError, match="embargo"):
             stub.publish()
 
     def test_publish_succeeds_when_embargo_expired(self):
@@ -391,7 +391,7 @@ class TestUnpublish:
 
     def test_unpublish_from_non_public_raises(self):
         stub = _comm_stub(status=PublicationStatus.DRAFT)
-        with pytest.raises(ValueError, match="not PUBLIC"):
+        with pytest.raises(ValueError, match="PUBLIC"):
             stub.unpublish()
 
 

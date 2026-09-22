@@ -276,7 +276,7 @@ class TestEventsTemporalValidation:
         self, invalid_time_event: Event
     ):
         """Test that event with end_time before start_time cannot be published."""
-        with pytest.raises(ValueError, match="end_time.*start_time"):
+        with pytest.raises(ValueError, match="postérieure|start_time"):
             invalid_time_event.publish()
 
     def test_can_publish_event_with_valid_times(self, test_event: Event):

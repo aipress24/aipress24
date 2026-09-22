@@ -311,19 +311,19 @@ class TestPublicationWorkflow:
 
     def test_publish_raises_when_not_draft(self):
         stub = _StubArticle(status=PublicationStatus.PUBLIC)
-        with pytest.raises(ValueError, match="not in DRAFT"):
+        with pytest.raises(ValueError, match="DRAFT"):
             _call("publish", stub)
 
     @pytest.mark.parametrize("bad_titre", ["", "   "])
     def test_publish_raises_on_blank_titre(self, bad_titre: str):
         stub = _StubArticle(titre=bad_titre)
-        with pytest.raises(ValueError, match="titre is required"):
+        with pytest.raises(ValueError, match="titre"):
             _call("publish", stub)
 
     @pytest.mark.parametrize("bad_contenu", ["", "   "])
     def test_publish_raises_on_blank_contenu(self, bad_contenu: str):
         stub = _StubArticle(contenu=bad_contenu)
-        with pytest.raises(ValueError, match="contenu is required"):
+        with pytest.raises(ValueError, match="contenu"):
             _call("publish", stub)
 
     def test_can_unpublish_only_when_public(self):
@@ -338,7 +338,7 @@ class TestPublicationWorkflow:
 
     def test_unpublish_raises_when_not_public(self):
         stub = _StubArticle()
-        with pytest.raises(ValueError, match="not PUBLIC"):
+        with pytest.raises(ValueError, match="PUBLIC"):
             _call("unpublish", stub)
 
 

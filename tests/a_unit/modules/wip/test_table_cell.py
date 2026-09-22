@@ -12,6 +12,7 @@ import pytest
 from arrow import Arrow
 from markupsafe import Markup
 
+from app.models.lifecycle import PublicationStatus
 from app.modules.wip.components.table.table import Cell
 
 
@@ -58,6 +59,29 @@ def test_cell_renders_other_types() -> None:
     """Test Cell renders strings directly and other types via str()."""
     assert Cell({"name": "name"}, StubItem(name="Test")).render() == "Test"
     assert Cell({"name": "count"}, StubItem(count=42)).render() == "42"
+
+
+def test_cell_renders_publication_status() -> None:
+    """Test Cell renders PublicationStatus enum members as translated French labels."""
+    assert (
+        Cell({"name": "status"}, StubItem(status=PublicationStatus.ARCHIVED)).render()
+        == "Archivé"
+    )
+    assert (
+        Cell({"name": "status"}, StubItem(status=PublicationStatus.DRAFT)).render()
+        == "Draft"
+    )
+    assert (
+        Cell({"name": "status"}, StubItem(status=PublicationStatus.PUBLIC)).render()
+        == "Publié"
+    )
+
+
+def test_cell_renders_status_from_string() -> None:
+    """Test Cell renders status string values as translated French labels."""
+    assert Cell({"name": "status"}, StubItem(status="archived")).render() == "Archivé"
+    assert Cell({"name": "status"}, StubItem(status="draft")).render() == "Draft"
+    assert Cell({"name": "status"}, StubItem(status="public")).render() == "Publié"
 
 
 def test_cell_uses_custom_render_function() -> None:

@@ -217,5 +217,5 @@ def test_event_temporal_validation(db_session: scoped_session) -> None:
     # BUSINESS RULE: Cannot publish if end_time is before start_time
     event.start_time = arrow.get("2025-12-01 12:00:00").datetime
     event.end_time = arrow.get("2025-12-01 10:00:00").datetime
-    with pytest.raises(ValueError, match="end_time.*start_time"):
+    with pytest.raises(ValueError, match="postérieure|start_time"):
         event.publish()
