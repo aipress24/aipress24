@@ -96,6 +96,7 @@ class AvisEnqueteTable(BaseTable):
             {
                 "name": "status",
                 "label": "Statut",
+                "render": self.get_status_label,
             },
             # Ticket #0195 — JdP counter feeding rémunération journaliste.
             # Surfaced here so the journalist can see how many enquête

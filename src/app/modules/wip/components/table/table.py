@@ -21,6 +21,7 @@ from markupsafe import Markup
 
 from app.flask.routing import url_for
 from app.lib.names import to_snake_case
+from app.models.lifecycle import PublicationStatus
 
 __all__ = []
 
@@ -117,6 +118,12 @@ class Cell:
         value = getattr(self.item, self.column["name"])
         if "render" in self.column:
             return self.column["render"](self.item)
+        if hasattr(value, "label"):
+            return value.label
+        if self.column.get("name") == "status" and isinstance(value, str):
+            parsed = PublicationStatus.from_str(value)
+            if parsed:
+                return parsed.label
         match value:
             case True:
                 return Markup('<i class="fas fa-check text-green-500"></i>')

@@ -200,6 +200,7 @@ class SujetsTable(BaseTable):
             {
                 "name": "status",
                 "label": "Statut",
+                "render": self.get_status_label,
             },
             {
                 "name": "created_at",

@@ -76,6 +76,7 @@ class CommuniquesTable(BaseTable):
             {
                 "name": "status",
                 "label": "Statut",
+                "render": self.get_status_label,
             },
             {
                 "name": "published_at",

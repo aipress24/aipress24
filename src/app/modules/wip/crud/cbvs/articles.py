@@ -153,6 +153,7 @@ class ArticlesTable(BaseTable):
             {
                 "name": "status",
                 "label": "Statut",
+                "render": self.get_status_label,
             },
             {
                 "name": "date_publication_aip24",

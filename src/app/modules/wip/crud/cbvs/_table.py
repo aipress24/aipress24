@@ -14,6 +14,7 @@ from sqlalchemy.orm import Mapped
 from app.flask.extensions import db
 from app.flask.routing import url_for
 from app.models.auth import User
+from app.models.lifecycle import PublicationStatus
 from app.models.mixins import LifeCycleMixin, Owned
 from app.modules.wip.components import DataSource, Table
 
@@ -40,6 +41,21 @@ class WipContentModel(Protocol):
 
 def get_name(obj):
     return obj.name if obj else ""
+
+
+def get_status_label(obj: Any) -> str:
+    """Return the localized label of status."""
+    status = getattr(obj, "status", None)
+    if status is None:
+        return ""
+    if hasattr(status, "label"):
+        return str(status.label)
+    if isinstance(status, str):
+        parsed = PublicationStatus.from_str(status)
+        if parsed:
+            return parsed.label
+        return status
+    return str(status)
 
 
 @define
@@ -150,6 +166,7 @@ class BaseTable(Table):
             {
                 "name": "status",
                 "label": "Statut",
+                "render": self.get_status_label,
             },
             {
                 "name": "created_at",
@@ -160,6 +177,9 @@ class BaseTable(Table):
                 "label": "",
             },
         ]
+
+    def get_status_label(self, obj: Any) -> str:
+        return get_status_label(obj)
 
     def get_actions(self, item):
         return [

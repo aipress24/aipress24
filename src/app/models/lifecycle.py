@@ -19,3 +19,27 @@ class PublicationStatus(StrEnum):
     EXPIRED = auto()
     ARCHIVED = auto()
     DELETED = auto()
+
+    @property
+    def label(self) -> str:
+        labels = {
+            PublicationStatus.DRAFT: "Draft",
+            PublicationStatus.PRIVATE: "Privé",
+            PublicationStatus.PENDING: "En attente",
+            PublicationStatus.PUBLIC: "Publié",
+            PublicationStatus.REJECTED: "Refusé",
+            PublicationStatus.EXPIRED: "Expiré",
+            PublicationStatus.ARCHIVED: "Archivé",
+            PublicationStatus.DELETED: "Supprimé",
+        }
+        return labels.get(self, str(self.value))
+
+    @classmethod
+    def from_str(cls, value: str) -> PublicationStatus | None:
+        if not value:
+            return None
+        try:
+            return cls(value.lower())
+        except (ValueError, KeyError):
+            return None
+
