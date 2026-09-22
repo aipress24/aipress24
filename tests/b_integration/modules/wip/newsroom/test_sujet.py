@@ -166,6 +166,14 @@ class TestSujetAcceptAction:
         sujet = _make_sujet(db_session, media_id=media_org.id, owner_id=author_user.id)
         sujet.titre = "Topic title"
         sujet.contenu = "Topic content"
+        sujet.genre = "Angle / Analyse"
+        sujet.section = "Actualités / À la une"
+        sujet.topic = "Agriculture, alimentation / Agriculture biologique"
+        sujet.sector = (
+            "Agriculture & alimentation / Agriculture bio, durable & raisonnée"
+        )
+        sujet.pays_zip_ville = "France"
+        sujet.pays_zip_ville_detail = "01090 Guéreins"
         sujet.publish()  # → PUBLIC
         db_session.flush()
 
@@ -189,6 +197,17 @@ class TestSujetAcceptAction:
         assert commande.owner_id == author_user.id
         assert commande.commanditaire_id == redac_chef.id
         assert commande.media_id == media_org.id
+        assert commande.genre == "Angle / Analyse"
+        assert commande.section == "Actualités / À la une"
+        assert (
+            commande.topic == "Agriculture, alimentation / Agriculture biologique"
+        )
+        assert (
+            commande.sector
+            == "Agriculture & alimentation / Agriculture bio, durable & raisonnée"
+        )
+        assert commande.pays_zip_ville == "France"
+        assert commande.pays_zip_ville_detail == "01090 Guéreins"
         # (2) Sujet transitioned to ARCHIVED (no longer in « new » list).
         assert sujet.status == PublicationStatus.ARCHIVED
 

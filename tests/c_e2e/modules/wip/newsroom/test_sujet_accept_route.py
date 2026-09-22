@@ -305,6 +305,10 @@ class TestSujetAcceptRoute:
         author: User,
     ):
         sujet = _make_sujet(db_session, owner_id=author.id, media_id=test_org.id)
+        sujet.genre = "Angle / Analyse"
+        sujet.section = "Actualités / À la une"
+        sujet.pays_zip_ville = "France"
+        sujet.pays_zip_ville_detail = "01090 Guéreins"
         db_session.commit()
         sujet_id = sujet.id
 
@@ -335,6 +339,10 @@ class TestSujetAcceptRoute:
         # newsroom); the rédac chef is the commanditaire.
         assert commandes[0].owner_id == author.id
         assert commandes[0].commanditaire_id == redac_chef.id
+        assert commandes[0].genre == "Angle / Analyse"
+        assert commandes[0].section == "Actualités / À la une"
+        assert commandes[0].pays_zip_ville == "France"
+        assert commandes[0].pays_zip_ville_detail == "01090 Guéreins"
 
     def test_accept_route_refuses_non_redac_chef(
         self,

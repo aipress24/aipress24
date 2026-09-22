@@ -22,6 +22,7 @@ from __future__ import annotations
 
 from datetime import UTC, datetime
 from types import SimpleNamespace
+from typing import Any
 
 import pytest
 
@@ -115,6 +116,14 @@ def _sujet_stub(
     brief: str | None = "le brief",
     date_limite_validite: datetime | None = None,
     date_parution_prevue: datetime | None = None,
+    date_bouclage: datetime | None = None,
+    genre: str = "",
+    section: str = "",
+    topic: str = "",
+    sector: str = "",
+    pays_zip_ville: str = "",
+    pays_zip_ville_detail: str = "",
+    **kwargs: Any,
 ):
     """Duck-typed sujet — `build_commande_payload` reads only the
     listed attributes, so a `SimpleNamespace` matches the contract
@@ -127,6 +136,14 @@ def _sujet_stub(
         brief=brief,
         date_limite_validite=date_limite_validite or datetime(2026, 12, 31, tzinfo=UTC),
         date_parution_prevue=date_parution_prevue or datetime(2026, 6, 30, tzinfo=UTC),
+        date_bouclage=date_bouclage or datetime(2026, 6, 30, tzinfo=UTC),
+        genre=genre,
+        section=section,
+        topic=topic,
+        sector=sector,
+        pays_zip_ville=pays_zip_ville,
+        pays_zip_ville_detail=pays_zip_ville_detail,
+        **kwargs,
     )
 
 
@@ -137,6 +154,27 @@ class TestBuildCommandePayload:
 
         assert payload["titre"] == "Mon titre"
         assert payload["contenu"] == "<p>Mon contenu</p>"
+
+    def test_copies_metadata_and_targeting_fields(self):
+        sujet = _sujet_stub(
+            genre="Angle / Analyse",
+            section="Actualités / À la une",
+            topic="Agriculture, alimentation / Agriculture biologique",
+            sector="Agriculture & alimentation / Agriculture bio, durable & raisonnée",
+            pays_zip_ville="France",
+            pays_zip_ville_detail="01090 Guéreins",
+        )
+        payload = build_commande_payload(sujet, accepter_id=7)
+
+        assert payload["genre"] == "Angle / Analyse"
+        assert payload["section"] == "Actualités / À la une"
+        assert payload["topic"] == "Agriculture, alimentation / Agriculture biologique"
+        assert (
+            payload["sector"]
+            == "Agriculture & alimentation / Agriculture bio, durable & raisonnée"
+        )
+        assert payload["pays_zip_ville"] == "France"
+        assert payload["pays_zip_ville_detail"] == "01090 Guéreins"
 
     def test_owner_is_author_commanditaire_is_accepter(self):
         """Bug #0225 — the Commande's owner is the sujet's author (the

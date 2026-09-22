@@ -97,6 +97,8 @@ def build_commande_payload(sujet: Sujet, accepter_id: int) -> dict:
       rédac chef can adjust before publishing. `date_paiement` is left
       unset — it left the form with #0343, and inventing one would put
       a date nobody chose on the commande.
+    - Metadata ("genre", "section", "topic", "sector", "pays_zip_ville",
+     "pays_zip_ville_detail") are copied from the sujet.
     """
     return {
         "owner_id": sujet.owner_id,
@@ -106,9 +108,15 @@ def build_commande_payload(sujet: Sujet, accepter_id: int) -> dict:
         "contenu": sujet.contenu,
         "brief": sujet.brief or "",
         "status": PublicationStatus.DRAFT,
-        "date_limite_validite": sujet.date_limite_validite,
-        "date_parution_prevue": sujet.date_parution_prevue,
-        "date_bouclage": sujet.date_parution_prevue,
+        "date_limite_validite": sujet.date_limite_validite or "",
+        "date_parution_prevue": sujet.date_parution_prevue or "",
+        "date_bouclage": sujet.date_parution_prevue or "",
+        "genre": sujet.genre or "",
+        "section": sujet.section or "",
+        "topic": sujet.topic or "",
+        "sector": sujet.sector or "",
+        "pays_zip_ville": sujet.pays_zip_ville or "",
+        "pays_zip_ville_detail": sujet.pays_zip_ville_detail or "",
     }
 
 
