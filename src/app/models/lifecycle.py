@@ -42,4 +42,3 @@ class PublicationStatus(StrEnum):
             return cls(value.lower())
         except (ValueError, KeyError):
             return None
-
