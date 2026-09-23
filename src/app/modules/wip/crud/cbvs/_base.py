@@ -489,7 +489,11 @@ class BaseWipView(FlaskView, abc.ABC):
         repo = self._get_repo()
         model = self._get_model(id)
 
-        if model.owner != g.user:
+        owner_id = getattr(model, "owner_id", None)
+        user_id = getattr(g.user, "id", None)
+        if (
+            owner_id is not None and user_id is not None and owner_id != user_id
+        ) or model.owner != g.user:
             flash(self.msg_delete_ko)
             return redirect(self._url_for("index"))
 

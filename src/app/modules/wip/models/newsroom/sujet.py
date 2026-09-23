@@ -5,12 +5,16 @@
 from __future__ import annotations
 
 from datetime import datetime
+from typing import TYPE_CHECKING
 
 import sqlalchemy as sa
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.models.base import Base
 from app.models.lifecycle import PublicationStatus
+
+if TYPE_CHECKING:
+    from app.models.auth import User
 
 from ._base import (
     CiblageMixin,
@@ -57,8 +61,21 @@ class Sujet(
     def can_publish(self) -> bool:
         return self.status == PublicationStatus.DRAFT
 
-    def can_unpublish(self) -> bool:
-        return self.status == PublicationStatus.PUBLIC
+    def can_delete(self, user: User | None = None) -> bool:
+        if user is not None:
+            user_id = getattr(user, "id", None)
+            if user_id is not None and user_id != self.owner_id:
+                return False
+        return True
+
+    def can_unpublish(self, user: User | None = None) -> bool:
+        if self.status != PublicationStatus.PUBLIC:
+            return False
+        if user is not None:
+            user_id = getattr(user, "id", None)
+            if user_id is not None and user_id != self.owner_id:
+                return False
+        return True
 
     def publish(self) -> None:
         """Move the sujet from DRAFT to PUBLIC.
@@ -78,8 +95,11 @@ class Sujet(
             raise ValueError(msg)
         self.status = PublicationStatus.PUBLIC  # type: ignore[assignment]
 
-    def unpublish(self) -> None:
-        if not self.can_unpublish():
-            msg = "Impossible de dépublier: le sujet n'est pas PUBLIC"
+    def unpublish(self, user: User | None = None) -> None:
+        if not self.can_unpublish(user):
+            if self.status != PublicationStatus.PUBLIC:
+                msg = "Impossible de dépublier: le sujet n'est pas PUBLIC"
+            else:
+                msg = "Impossible de dépublier: seul le créateur du sujet peut le dépublier"
             raise ValueError(msg)
         self.status = PublicationStatus.DRAFT  # type: ignore[assignment]

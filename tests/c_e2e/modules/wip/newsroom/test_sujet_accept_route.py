@@ -787,3 +787,123 @@ class TestArchivedSujetCannotBeEdited:
         db_session.expire_all()
         sujet_after = db_session.get(Sujet, sujet_id)
         assert sujet_after.titre == "Topic title"
+
+
+class TestSujetUnpublishPermissions:
+    """Only the creator of a sujet can unpublish it."""
+
+    def test_recipient_media_cannot_unpublish(
+        self,
+        app: Flask,
+        db_session: Session,
+        test_org: Organisation,
+        redac_chef: User,
+        author_journalist: User,
+    ):
+        sujet = _make_sujet(
+            db_session,
+            owner_id=author_journalist.id,
+            media_id=test_org.id,
+            status=PublicationStatus.PUBLIC,
+        )
+        db_session.commit()
+        sujet_id = sujet.id
+
+        client = make_authenticated_client(app, redac_chef)
+        response = client.get(
+            url_for("SujetsWipView:unpublish", id=sujet.id),
+            follow_redirects=False,
+        )
+        assert response.status_code in (302, 303)
+        assert url_for("SujetsWipView:get", id=sujet.id) in response.headers.get(
+            "Location", ""
+        )
+
+        follow_response = client.get(
+            url_for("SujetsWipView:unpublish", id=sujet.id),
+            follow_redirects=True,
+        )
+        assert follow_response.status_code == 200
+        body = follow_response.data.decode()
+        toast_line = next(
+            line
+            for line in body.splitlines()
+            if "window.toasts =" in line and not line.strip().startswith("//")
+        )
+        toasts = json.loads(toast_line.split("=", 1)[1].strip().rstrip(";"))
+        assert any("dépublier ce sujet" in t for t in toasts)
+
+        db_session.expire_all()
+        sujet_after = db_session.get(Sujet, sujet_id)
+        assert sujet_after.status == PublicationStatus.PUBLIC
+
+    def test_author_can_unpublish(
+        self,
+        app: Flask,
+        db_session: Session,
+        test_org: Organisation,
+        author_journalist: User,
+    ):
+        sujet = _make_sujet(
+            db_session,
+            owner_id=author_journalist.id,
+            media_id=test_org.id,
+            status=PublicationStatus.PUBLIC,
+        )
+        db_session.commit()
+        sujet_id = sujet.id
+
+        client = make_authenticated_client(app, author_journalist)
+        response = client.get(
+            url_for("SujetsWipView:unpublish", id=sujet.id),
+            follow_redirects=False,
+        )
+        assert response.status_code in (302, 303)
+        assert url_for("SujetsWipView:index") in response.headers.get("Location", "")
+
+        db_session.expire_all()
+        sujet_after = db_session.get(Sujet, sujet_id)
+        assert sujet_after.status == PublicationStatus.DRAFT
+
+    def test_recipient_media_cannot_delete(
+        self,
+        app: Flask,
+        db_session: Session,
+        test_org: Organisation,
+        redac_chef: User,
+        author_journalist: User,
+    ):
+        sujet = _make_sujet(
+            db_session,
+            owner_id=author_journalist.id,
+            media_id=test_org.id,
+            status=PublicationStatus.PUBLIC,
+        )
+        db_session.commit()
+        sujet_id = sujet.id
+
+        client = make_authenticated_client(app, redac_chef)
+        response = client.get(
+            url_for("SujetsWipView:delete", id=sujet.id),
+            follow_redirects=False,
+        )
+        assert response.status_code in (302, 303)
+        assert url_for("SujetsWipView:index") in response.headers.get("Location", "")
+
+        follow_response = client.get(
+            url_for("SujetsWipView:delete", id=sujet.id),
+            follow_redirects=True,
+        )
+        assert follow_response.status_code == 200
+        body = follow_response.data.decode()
+        toast_line = next(
+            line
+            for line in body.splitlines()
+            if "window.toasts =" in line and not line.strip().startswith("//")
+        )
+        toasts = json.loads(toast_line.split("=", 1)[1].strip().rstrip(";"))
+        assert any("pas autorisé à supprimer" in t for t in toasts)
+
+        db_session.expire_all()
+        sujet_after = db_session.get(Sujet, sujet_id)
+        assert sujet_after.deleted_at is None

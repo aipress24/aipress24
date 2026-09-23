@@ -159,6 +159,38 @@ class TestSujetPublishLifecycle:
         sujet.status = PublicationStatus.ARCHIVED
         assert sujet.can_edit() is False
 
+    def test_unpublish_only_by_owner(
+        self, db_session: Session, media_org: Organisation, author_user: User
+    ):
+        sujet = _make_sujet(db_session, media_id=media_org.id, owner_id=author_user.id)
+        sujet.publish()
+
+        other_user = User(
+            email="other@example.com", first_name="Other", last_name="User"
+        )
+        db_session.add(other_user)
+        db_session.flush()
+
+        assert sujet.can_unpublish(author_user) is True
+        assert sujet.can_unpublish(other_user) is False
+
+        with pytest.raises(ValueError, match="seul le créateur"):
+            sujet.unpublish(other_user)
+
+        sujet.unpublish(author_user)
+        assert sujet.status == PublicationStatus.DRAFT
+
+    def test_can_delete_lifecycle(
+        self, db_session: Session, media_org: Organisation, author_user: User
+    ):
+        sujet = _make_sujet(db_session, media_id=media_org.id, owner_id=author_user.id)
+        other_user = User(email="other2@example.com")
+        db_session.add(other_user)
+        db_session.flush()
+
+        assert sujet.can_delete(author_user) is True
+        assert sujet.can_delete(other_user) is False
+
 
 class TestSujetAcceptAction:
     """Ticket #0132 part 3 (Erick, 2026-05-22) : « il manque la fonction
@@ -332,6 +364,45 @@ class TestSujetsTableActions:
 
         assert "Dépublier" in labels
         assert "Publier" not in labels
+
+    def test_public_item_shows_depublier_for_owner(self):
+        table = SujetsTable()
+        item = MagicMock(
+            id=1, owner_id=10, media_id=20, status=PublicationStatus.PUBLIC
+        )
+        g.user = MagicMock(id=10, organisation_id=99)
+
+        labels = [a["label"] for a in table.get_actions(item)]
+
+        assert "Dépublier" in labels
+
+    def test_public_item_hides_depublier_for_recipient_media(self):
+        table = SujetsTable()
+        item = MagicMock(
+            id=1, owner_id=10, media_id=20, status=PublicationStatus.PUBLIC
+        )
+        # Recipient is different from creator
+        g.user = MagicMock(id=20, organisation_id=20)
+
+        labels = [a["label"] for a in table.get_actions(item)]
+
+        assert labels == ["Voir", "Modifier", "Accepter", "Refuser"]
+        assert "Dépublier" not in labels
+        assert "Supprimer" not in labels
+
+    def test_public_item_shows_depublier_when_creator_is_recipient(self):
+        table = SujetsTable()
+        item = MagicMock(
+            id=1, owner_id=10, media_id=20, status=PublicationStatus.PUBLIC
+        )
+        g.user = MagicMock(id=10, organisation_id=20)
+
+        labels = [a["label"] for a in table.get_actions(item)]
+
+        assert "Dépublier" in labels
+        assert "Accepter" in labels
+        assert "Refuser" in labels
+        assert "Supprimer" in labels
 
     def test_core_actions_always_present(self):
         table = SujetsTable()

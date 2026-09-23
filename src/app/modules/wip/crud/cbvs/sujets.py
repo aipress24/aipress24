@@ -236,9 +236,14 @@ class SujetsTable(BaseTable):
         if item.status != PublicationStatus.ARCHIVED:
             actions.append({"label": "Modifier", "url": self.url_for(item, "edit")})
 
+        current_user = getattr(g, "user", None)
+        user_id = getattr(current_user, "id", None)
+        user_org_id = getattr(current_user, "organisation_id", None)
+        is_owner = user_id is None or user_id == getattr(item, "owner_id", None)
+
         if item.status == PublicationStatus.DRAFT:
             actions.append({"label": "Publier", "url": self.url_for(item, "publish")})
-        elif item.status == PublicationStatus.PUBLIC:
+        elif item.status == PublicationStatus.PUBLIC and is_owner:
             actions.append(
                 {"label": "Dépublier", "url": self.url_for(item, "unpublish")}
             )
@@ -249,8 +254,6 @@ class SujetsTable(BaseTable):
         # `g.user` may not be set in some unit tests that call
         # `get_actions` directly without a Flask request context —
         # tolerate that gracefully (the action is then suppressed).
-        current_user = getattr(g, "user", None)
-        user_org_id = getattr(current_user, "organisation_id", None)
         if (
             item.status == PublicationStatus.PUBLIC
             and user_org_id is not None
@@ -260,7 +263,8 @@ class SujetsTable(BaseTable):
             # Ticket #0225 — the rédac chef can also refuse (archives the
             # sujet, no Commande, notifies the author).
             actions.append({"label": "Refuser", "url": self.url_for(item, "refuse")})
-        actions.append({"label": "Supprimer", "url": self.url_for(item, "delete")})
+        if is_owner:
+            actions.append({"label": "Supprimer", "url": self.url_for(item, "delete")})
         return actions
 
 
@@ -423,8 +427,12 @@ class SujetsWipView(BaseWipView):
     def unpublish(self, id):
         repo = self._get_repo()
         sujet = cast("Sujet", self._get_model(id))
+        if sujet.owner_id != g.user.id:
+            flash("Vous n'êtes pas autorisé à dépublier ce sujet", "error")
+            return redirect(self._url_for("get", id=id))
+
         try:
-            sujet.unpublish()
+            sujet.unpublish(g.user)
         except ValueError as e:
             flash(str(e), "error")
             return redirect(self._url_for("get", id=id))
