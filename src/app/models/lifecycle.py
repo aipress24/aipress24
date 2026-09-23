@@ -14,6 +14,7 @@ class PublicationStatus(StrEnum):
     DRAFT = auto()
     PRIVATE = auto()
     PENDING = auto()
+    ACCEPTED = auto()
     PUBLIC = auto()
     REJECTED = auto()
     EXPIRED = auto()
@@ -26,6 +27,7 @@ class PublicationStatus(StrEnum):
             PublicationStatus.DRAFT: "Draft",
             PublicationStatus.PRIVATE: "Privé",
             PublicationStatus.PENDING: "En attente",
+            PublicationStatus.ACCEPTED: "Accepté",
             PublicationStatus.PUBLIC: "Publié",
             PublicationStatus.REJECTED: "Refusé",
             PublicationStatus.EXPIRED: "Expiré",
