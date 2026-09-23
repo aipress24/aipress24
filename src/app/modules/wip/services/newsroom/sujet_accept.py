@@ -10,7 +10,7 @@ Workflow expected by Erick (2026-05-22) :
     list. Rédac chef opens it, clicks « Accepter » → a Commande is
     materialised in NEWSROOM/Commandes (with the sujet's title and
     body, owned by the rédac chef who accepted, media_id pinned to
-    their org). The sujet itself moves to ARCHIVED so it stops
+    their org). The sujet itself moves to ACCEPTED so it stops
     showing up as « new » and the action can't fire twice. The
     author gets a cloche + email notification so they know their
     proposal has been picked up.
@@ -135,7 +135,7 @@ def is_notification_eligible(author: Any) -> bool:
 
 
 def accept_sujet_as_commande(sujet: Sujet, accepter: User) -> Commande:
-    """Materialise a Commande from `sujet`, archive the sujet.
+    """Materialise a Commande from `sujet`, move sujet to ACCEPTED.
 
     Args:
         sujet: the PUBLIC sujet to accept. Must be in PUBLIC status.
@@ -172,13 +172,13 @@ def accept_sujet_as_commande(sujet: Sujet, accepter: User) -> Commande:
     db.session.add(commande)
     db.session.flush()
 
-    sujet.status = PublicationStatus.ARCHIVED  # type: ignore[assignment]
+    sujet.status = PublicationStatus.ACCEPTED  # type: ignore[assignment]
 
     return commande
 
 
 def refuse_sujet(sujet: Sujet, refuser: User) -> None:
-    """Refuse a received sujet — archive it WITHOUT creating a Commande.
+    """Refuse a received sujet — mark it REJECTED without creating a Commande.
 
     Ticket #0225 : the rédac chef may refuse a proposal, not only accept
     it. Same authorization gate as acceptance (VULN-001) : only the rédac
@@ -204,7 +204,7 @@ def refuse_sujet(sujet: Sujet, refuser: User) -> None:
         )
         raise ValueError(msg)
 
-    sujet.status = PublicationStatus.ARCHIVED  # type: ignore[assignment]
+    sujet.status = PublicationStatus.REJECTED  # type: ignore[assignment]
 
 
 def notify_author_of_sujet_acceptance(

@@ -233,7 +233,11 @@ class SujetsTable(BaseTable):
         actions = [
             {"label": "Voir", "url": self.url_for(item)},
         ]
-        if item.status != PublicationStatus.ARCHIVED:
+        if item.status not in (
+            PublicationStatus.ARCHIVED,
+            PublicationStatus.ACCEPTED,
+            PublicationStatus.REJECTED,
+        ):
             actions.append({"label": "Modifier", "url": self.url_for(item, "edit")})
 
         current_user = getattr(g, "user", None)
@@ -293,7 +297,7 @@ class SujetsWipView(BaseWipView):
 
     msg_delete_ok = "Le sujet a été supprimé"
     msg_delete_ko = "Vous n'êtes pas autorisé à supprimer ce sujet"
-    msg_cannot_edit = "Un sujet archivé ne peut plus être modifié"
+    msg_cannot_edit = "Ce sujet ne peut plus être modifié"
 
     def _can_edit(self, model: Sujet) -> bool:
         return model.can_edit()

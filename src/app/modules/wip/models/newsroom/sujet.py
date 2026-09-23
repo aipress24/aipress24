@@ -56,7 +56,11 @@ class Sujet(
     # ------------------------------------------------------------
 
     def can_edit(self) -> bool:
-        return self.status != PublicationStatus.ARCHIVED
+        return self.status not in (
+            PublicationStatus.ARCHIVED,
+            PublicationStatus.ACCEPTED,
+            PublicationStatus.REJECTED,
+        )
 
     def can_publish(self) -> bool:
         return self.status == PublicationStatus.DRAFT
