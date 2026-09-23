@@ -159,6 +159,12 @@ class TestSujetPublishLifecycle:
         sujet.status = PublicationStatus.ARCHIVED
         assert sujet.can_edit() is False
 
+        sujet.status = PublicationStatus.ACCEPTED
+        assert sujet.can_edit() is False
+
+        sujet.status = PublicationStatus.REJECTED
+        assert sujet.can_edit() is False
+
     def test_unpublish_only_by_owner(
         self, db_session: Session, media_org: Organisation, author_user: User
     ):
@@ -250,8 +256,7 @@ class TestSujetAcceptAction:
         )
         assert commande.pays_zip_ville == "France"
         assert commande.pays_zip_ville_detail == "01090 Guéreins"
-        # (2) Sujet transitioned to ARCHIVED (no longer in « new » list).
-        assert sujet.status == PublicationStatus.ARCHIVED
+        assert sujet.status == PublicationStatus.ACCEPTED
 
     def test_accept_refuses_if_not_redac_chef_of_target_media(
         self,
@@ -414,9 +419,17 @@ class TestSujetsTableActions:
         assert "Modifier" in labels
         assert "Supprimer" in labels
 
-    def test_archived_item_hides_modifier_and_depublier(self):
+    @pytest.mark.parametrize(
+        "terminal_status",
+        [
+            PublicationStatus.ARCHIVED,
+            PublicationStatus.ACCEPTED,
+            PublicationStatus.REJECTED,
+        ],
+    )
+    def test_terminal_items_hide_modifier_and_actions(self, terminal_status):
         table = SujetsTable()
-        item = MagicMock(id=1, status=PublicationStatus.ARCHIVED)
+        item = MagicMock(id=1, status=terminal_status)
 
         labels = [a["label"] for a in table.get_actions(item)]
 
@@ -436,6 +449,12 @@ class TestSujetsTableActions:
 
         archived_item = MagicMock(status=PublicationStatus.ARCHIVED)
         assert render_fn(archived_item) == "Archivé"
+
+        accepted_item = MagicMock(status=PublicationStatus.ACCEPTED)
+        assert render_fn(accepted_item) == "Accepté"
+
+        rejected_item = MagicMock(status=PublicationStatus.REJECTED)
+        assert render_fn(rejected_item) == "Refusé"
 
         draft_item = MagicMock(status=PublicationStatus.DRAFT)
         assert render_fn(draft_item) == "Draft"

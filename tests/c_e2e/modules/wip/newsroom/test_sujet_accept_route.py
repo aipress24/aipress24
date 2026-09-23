@@ -263,7 +263,7 @@ class TestSujetRefuseRoute:
 
         db.session.remove()  # simulate teardown — the cloche must be COMMITTED
         sujet_after = db.session.get(Sujet, sujet_id)
-        assert sujet_after.status == PublicationStatus.ARCHIVED
+        assert sujet_after.status == PublicationStatus.REJECTED
         # Refusal must NOT create a Commande.
         assert db.session.query(Commande).filter_by(titre="Topic title").all() == []
         notifs = db.session.query(Notification).filter_by(receiver_id=author_id).all()
@@ -326,9 +326,9 @@ class TestSujetAcceptRoute:
         assert "/wip/commandes" in response.headers.get("Location", "")
 
         db_session.expire_all()
-        # Sujet archived
+        # Sujet accepted
         sujet_after = db_session.get(Sujet, sujet_id)
-        assert sujet_after.status == PublicationStatus.ARCHIVED
+        assert sujet_after.status == PublicationStatus.ACCEPTED
         # A new Commande exists with the sujet's title.
         commandes = (
             db_session.query(Commande)
@@ -708,22 +708,31 @@ class TestSujetAcceptSendsMailToAuthor:
         assert "/wip/commandes" in mail.commande_url
 
 
-class TestArchivedSujetCannotBeEdited:
-    """When a sujet is ARCHIVED (after acceptance into a commande or refusal),
+class TestTerminalSujetCannotBeEdited:
+    """When a sujet is in a terminal status (ARCHIVED, ACCEPTED, REJECTED),
     it must not be editable via edit or post routes."""
 
-    def test_archived_sujet_edit_route_redirects_and_flashes(
+    @pytest.mark.parametrize(
+        "status",
+        [
+            PublicationStatus.ARCHIVED,
+            PublicationStatus.ACCEPTED,
+            PublicationStatus.REJECTED,
+        ],
+    )
+    def test_terminal_sujet_edit_route_redirects_and_flashes(
         self,
         app: Flask,
         db_session: Session,
         test_org: Organisation,
         author_journalist: User,
+        status: PublicationStatus,
     ):
         sujet = _make_sujet(
             db_session,
             owner_id=author_journalist.id,
             media_id=test_org.id,
-            status=PublicationStatus.ARCHIVED,
+            status=status,
         )
         db_session.commit()
 
@@ -749,20 +758,29 @@ class TestArchivedSujetCannotBeEdited:
             if "window.toasts =" in line and not line.strip().startswith("//")
         )
         toasts = json.loads(toast_line.split("=", 1)[1].strip().rstrip(";"))
-        assert "Un sujet archivé ne peut plus être modifié" in toasts
+        assert "Ce sujet ne peut plus être modifié" in toasts
 
-    def test_archived_sujet_post_edit_refused(
+    @pytest.mark.parametrize(
+        "status",
+        [
+            PublicationStatus.ARCHIVED,
+            PublicationStatus.ACCEPTED,
+            PublicationStatus.REJECTED,
+        ],
+    )
+    def test_terminal_sujet_post_edit_refused(
         self,
         app: Flask,
         db_session: Session,
         test_org: Organisation,
         author_journalist: User,
+        status: PublicationStatus,
     ):
         sujet = _make_sujet(
             db_session,
             owner_id=author_journalist.id,
             media_id=test_org.id,
-            status=PublicationStatus.ARCHIVED,
+            status=status,
         )
         db_session.commit()
         sujet_id = sujet.id

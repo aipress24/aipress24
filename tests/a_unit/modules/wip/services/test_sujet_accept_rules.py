@@ -90,6 +90,22 @@ class TestValidateBasicAcceptance:
                 sujet_status=PublicationStatus.ARCHIVED,
             )
 
+    def test_accepted_sujet_cannot_be_accepted_again(self):
+        with pytest.raises(ValueError, match="not in PUBLIC status"):
+            validate_basic_acceptance(
+                accepter_org_id=42,
+                sujet_media_id=42,
+                sujet_status=PublicationStatus.ACCEPTED,
+            )
+
+    def test_rejected_sujet_cannot_be_accepted(self):
+        with pytest.raises(ValueError, match="not in PUBLIC status"):
+            validate_basic_acceptance(
+                accepter_org_id=42,
+                sujet_media_id=42,
+                sujet_status=PublicationStatus.REJECTED,
+            )
+
     def test_org_mismatch_short_circuits_status_check(self):
         """When BOTH preconditions fail, the org-mismatch error wins —
         we want operators to fix the auth shape first (it's a security

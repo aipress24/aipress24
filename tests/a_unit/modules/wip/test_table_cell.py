@@ -68,6 +68,14 @@ def test_cell_renders_publication_status() -> None:
         == "Archivé"
     )
     assert (
+        Cell({"name": "status"}, StubItem(status=PublicationStatus.ACCEPTED)).render()
+        == "Accepté"
+    )
+    assert (
+        Cell({"name": "status"}, StubItem(status=PublicationStatus.REJECTED)).render()
+        == "Refusé"
+    )
+    assert (
         Cell({"name": "status"}, StubItem(status=PublicationStatus.DRAFT)).render()
         == "Draft"
     )
@@ -80,6 +88,8 @@ def test_cell_renders_publication_status() -> None:
 def test_cell_renders_status_from_string() -> None:
     """Test Cell renders status string values as translated French labels."""
     assert Cell({"name": "status"}, StubItem(status="archived")).render() == "Archivé"
+    assert Cell({"name": "status"}, StubItem(status="accepted")).render() == "Accepté"
+    assert Cell({"name": "status"}, StubItem(status="rejected")).render() == "Refusé"
     assert Cell({"name": "status"}, StubItem(status="draft")).render() == "Draft"
     assert Cell({"name": "status"}, StubItem(status="public")).render() == "Publié"
 

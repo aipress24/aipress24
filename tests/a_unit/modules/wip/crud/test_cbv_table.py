@@ -303,6 +303,14 @@ class TestGetStatusLabel:
             == "Archivé"
         )
         assert (
+            get_status_label(SimpleNamespace(status=PublicationStatus.ACCEPTED))
+            == "Accepté"
+        )
+        assert (
+            get_status_label(SimpleNamespace(status=PublicationStatus.REJECTED))
+            == "Refusé"
+        )
+        assert (
             get_status_label(SimpleNamespace(status=PublicationStatus.DRAFT)) == "Draft"
         )
         assert (
@@ -312,6 +320,8 @@ class TestGetStatusLabel:
 
     def test_get_status_label_with_string(self):
         assert get_status_label(SimpleNamespace(status="archived")) == "Archivé"
+        assert get_status_label(SimpleNamespace(status="accepted")) == "Accepté"
+        assert get_status_label(SimpleNamespace(status="rejected")) == "Refusé"
         assert get_status_label(SimpleNamespace(status="draft")) == "Draft"
         assert get_status_label(SimpleNamespace(status="public")) == "Publié"
 
