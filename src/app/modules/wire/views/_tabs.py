@@ -81,11 +81,11 @@ class Tab(abc.ABC):
     def get_posts(self, filter_bar: FilterBar) -> list[Post]:
         stmt = self.get_stmt(filter_bar)
 
-        authors = self.get_authors()
-        # Only filter by author if there are specific authors to filter by
-        # Empty list means "no filter", not "match no one"
-        if authors:
-            author_ids = [f.id for f in authors]
+        # Drained into a list before being tested: `get_authors` returns
+        # an `Iterable`, and a generator is truthy even when it yields
+        # nothing. No authors means "no filter", not "match no one".
+        author_ids = [author.id for author in self.get_authors()]
+        if author_ids:
             stmt = stmt.where(Post.owner_id.in_(author_ids))
 
         posts = get_multi(Post, stmt)

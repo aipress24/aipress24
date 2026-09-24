@@ -269,6 +269,30 @@ class TestComTab:
             assert all(p.type in tab.post_type_allow for p in posts)
 
 
+    def test_empty_generator_authors_do_not_hide_every_post(
+        self,
+        app: Flask,
+        db_session: Session,
+        test_user: User,
+        test_press_releases: list[PressReleasePost],
+    ):
+        """`get_authors` is typed `Iterable`, and a generator is truthy
+        even when it yields nothing. Testing it directly would build an
+        empty id list, filter on it, and empty the tab."""
+
+        class _GeneratorAuthors(ComTab):
+            def get_authors(self):
+                return (author for author in [])
+
+        with app.test_request_context():
+            session["wire:tab"] = "com"
+            g.user = test_user
+
+            posts = _GeneratorAuthors().get_posts(FilterBar("com"))
+
+            assert len(posts) > 0
+
+
 class TestJournalistsTab:
     """Test JournalistsTab functionality."""
 
