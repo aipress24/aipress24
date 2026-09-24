@@ -16,30 +16,6 @@ from app.services.stats._models import StatsRecord
 
 WIDGETS = [
     {
-        "metric": "amount_transactions",
-        "duration": "day",
-        "label": "Transactions (€) / jour",
-        "color": "orange",
-    },
-    {
-        "metric": "amount_transactions",
-        "duration": "week",
-        "label": "Transactions (€) / semaine",
-        "color": "orange",
-    },
-    {
-        "metric": "count_transactions",
-        "duration": "day",
-        "label": "Transactions (#) / jour",
-        "color": "seagreen",
-    },
-    {
-        "metric": "count_transactions",
-        "duration": "week",
-        "label": "Transactions (#) / semaine",
-        "color": "seagreen",
-    },
-    {
         "metric": "count_contents",
         "duration": "day",
         "label": "Contenus créés (#) / jour",

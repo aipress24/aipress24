@@ -15,17 +15,17 @@ class TestWidget:
     def test_widget_id_combines_metric_and_duration(self):
         """Test Widget.id property combines metric and duration."""
         widget = Widget(
-            metric="count_transactions",
+            metric="count_contents",
             duration="day",
             label="Test",
             color="blue",
         )
-        assert widget.id == "count_transactions-day"
+        assert widget.id == "count_contents-day"
 
     def test_widget_get_data_returns_chart_structure(self, db_session):
         """Test Widget.get_data returns chart-compatible structure."""
         widget = Widget(
-            metric="count_transactions",
+            metric="count_contents",
             duration="day",
             label="Test",
             color="blue",
