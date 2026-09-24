@@ -16,6 +16,18 @@ from app.services.stats._models import StatsRecord
 
 WIDGETS = [
     {
+        "metric": "count_articles",
+        "duration": "day",
+        "label": "Articles créés (#) / jour",
+        "color": "seagreen",
+    },
+    {
+        "metric": "count_articles",
+        "duration": "week",
+        "label": "Articles créés (#) / semaine",
+        "color": "seagreen",
+    },
+    {
         "metric": "count_contents",
         "duration": "day",
         "label": "Contenus créés (#) / jour",

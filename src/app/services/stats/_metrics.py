@@ -11,6 +11,7 @@ from sqlalchemy import func, select
 
 from app.flask.extensions import db
 from app.models.content import BaseContent
+from app.modules.wip.models import Article
 
 
 class Metric:
@@ -30,6 +31,22 @@ class ActiveUsers(Metric):
 @register
 class ActiveOrganisations(Metric):
     id = "active_organisations"
+
+
+@register
+class CountArticles(Metric):
+    id = "count_articles"
+
+    def compute(self, start_date, end_date) -> float:
+        start = arrow.get(start_date)
+        end = arrow.get(end_date)
+
+        stmt = (
+            select(func.count())
+            .where(Article.created_at >= start)
+            .where(Article.created_at <= end)
+        )
+        return float(db.session.scalar(stmt) or 0)
 
 
 @register
