@@ -629,58 +629,53 @@ class TestSuggestColleagueRadioAlwaysClickable:
         )
 
 
-class TestOpportunityResponseRequiresActiveBW:
-    """Bug #0164 (Sushanto, 2026-05-20): a user without an active
-    Business Wall could submit a response and have it silently lost
-    (it persisted only once a BW had been created). Block upstream
-    with a clear message instead of dropping the response.
+class TestOpportunityResponseWithoutBWAllowed:
+    """All experts targeted by avis d'enquête can respond,
+    with or without active BW.
     """
 
-    def test_post_without_bw_does_not_persist_response(
+    def test_post_without_bw_persists_response(
         self,
         logged_in_client: FlaskClient,
         test_user: User,
         test_contact: ContactAvisEnquete,
         db_session: Session,
     ):
-        """POSTing a response when the expert's org has no active BW
-        must NOT mutate the contact's status."""
+        """Posting a response when the expert's org has no active BW
+        persists the response cleanly."""
         response = logged_in_client.post(
             f"/wip/opportunities/{test_contact.id}",
             data={
                 "reponse1": "oui",
-                "contribution": "I can help",
+                "contribution": "I can help (no BW)",
             },
             follow_redirects=False,
         )
 
-        # Either a redirect back to the opportunity / opportunities page
-        # or a 200 with the banner — never a silent persistence.
-        assert response.status_code in (200, 302)
+        assert response.status_code == 302
         db_session.refresh(test_contact)
-        assert test_contact.status == StatutAvis.EN_ATTENTE, (
-            "no-BW response must not be silently persisted"
-        )
-        assert test_contact.date_reponse is None
-        assert (test_contact.rdv_notes_expert or "") == ""
+        assert test_contact.status == StatutAvis.ACCEPTE
+        assert test_contact.date_reponse is not None
+        assert test_contact.rdv_notes_expert == "I can help (no BW)"
 
-    def test_get_without_bw_shows_clear_banner_no_form(
+        get_resp = logged_in_client.get(f"/wip/opportunities/{test_contact.id}")
+        assert get_resp.status_code == 200
+        html = get_resp.data.decode()
+        assert "Vous avez répondu:" in html
+        assert "I can help (no BW)" in html
+
+    def test_get_without_bw_shows_response_form(
         self,
         logged_in_client: FlaskClient,
         test_user: User,
         test_contact: ContactAvisEnquete,
     ):
         """GET on an opportunity when expert has no active BW must
-        show a clear « configurez d'abord un Business Wall » message
-        and hide the response form (so the user can't fill it and
-        lose the answer)."""
+        render the response form."""
         response = logged_in_client.get(f"/wip/opportunities/{test_contact.id}")
         assert response.status_code == 200
         html = response.data.decode()
-        assert "Business Wall" in html
-        # The response form (its submit-confirm modal trigger) must NOT
-        # appear when the user lacks a BW.
-        assert "avis-response-form" not in html
+        assert "avis-response-form" in html
 
 
 class TestMediaOpportunityFormUpdateOwnershipGate:

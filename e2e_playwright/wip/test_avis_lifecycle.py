@@ -63,18 +63,12 @@ def _discover_target(
     for a usable lifecycle target, discovered at runtime.
 
     Snowflake ids drift across re-seeds and are also hard-deleted by
-    ``prune_unselected_contacts`` when a journalist re-targets. The
-    expert side also has an implicit prerequisite : the expert's org
-    must have an active Business Wall (bug #0164 short-circuits the
-    response handler otherwise — no acceptance mail is sent).
+    ``prune_unselected_contacts`` when a journalist re-targets.
+    No BW requirement (bug 164 fix no more necessary, fixed at bug)
 
     Strategy : walk PRESS_MEDIA profiles ; for each, list their avis
     via ``/wip/avis-enquete/`` ; for each avis, list the actionable
-    rows on ``/reponses`` (rdv-propose link visible ⇒ ACCEPTE+NO_RDV) ;
-    confirm the candidate expert has a BW by visiting their response
-    form and looking for the « Configurez d'abord votre BW » banner
-    (absent ⇒ BW present ⇒ usable). First quadruple that satisfies all
-    constraints wins. Falls back to ``pytest.skip``.
+    rows on ``/reponses`` (rdv-propose link visible ⇒ ACCEPTE+NO_RDV).
     """
     profile_emails = {p["email"]: p for p in profiles}
     journalists = [p for p in profiles if p["community"] == "PRESS_MEDIA"]
@@ -165,19 +159,9 @@ def _can_drive_lifecycle(
     confirm → cancel lifecycle through ``contact_id`` as ``expert``.
 
     Probes the response form page : it renders ``<form
-    id="avis-response-form"`` only when (a) the contact is not yet
-    answered (``StatutAvis.EN_ATTENTE``) AND (b) the expert's org has
-    an active Business Wall (bug #0164 short-circuits otherwise into
-    the « Configurez d'abord » banner). Both conditions are exactly
+    id="avis-response-form"`` when the contact is not yet
+    answered (``StatutAvis.EN_ATTENTE``). Condition is
     what the test requires for step 1 (oui POST + mail capture).
-
-    Why we don't probe via ``/BW/dashboard`` : that route resolves the
-    BW through ``current_business_wall`` (selected_bw_id + session +
-    org), which can return a BW the expert *manages* (e.g. as a PR
-    partner) even when ``expert.organisation.bw_id`` is None. The
-    response handler however uses ``get_business_wall_for_user``,
-    which strictly walks the expert's own org. Probing the form
-    matches the handler's actual gate.
     """
     try:
         login(expert)
@@ -390,9 +374,7 @@ def test_opportunities_notifications_publication_views(
             expert_id = match["value"]
             break
     if expert is None or not expert_id:
-        pytest.skip(
-            "no CSV profile name matches an entry in the recipient_ids select"
-        )
+        pytest.skip("no CSV profile name matches an entry in the recipient_ids select")
 
     # Send a notification.
     js_post = """async (args) => {
