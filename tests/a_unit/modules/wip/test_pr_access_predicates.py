@@ -24,7 +24,7 @@ from collections.abc import Iterable
 import pytest
 from werkzeug.exceptions import Forbidden
 
-from app.enums import RoleEnum
+from app.enums import BWType, RoleEnum
 from app.modules.bw.bw_activation.models import (
     BWRoleType,
     InvitationStatus,
@@ -56,11 +56,13 @@ class _User:
         roles: Iterable[object] = (),
         is_anonymous: bool = False,
         is_managing_another_bw: bool = False,
+        organisation: object | None = None,
     ) -> None:
         self.id = user_id
         self._roles = {self._key(r) for r in roles}
         self.is_anonymous = is_anonymous
         self.is_managing_another_bw = is_managing_another_bw
+        self.organisation = organisation
 
     @staticmethod
     def _key(role: object) -> str:
@@ -95,15 +97,22 @@ class _Assignment:
         self.permissions = list(permissions)
 
 
+class _Organisation:
+    def __init__(self, *, bw_active: str | None = None) -> None:
+        self.bw_active = bw_active
+
+
 class _BusinessWall:
     def __init__(
         self,
         *,
         owner_id: int = 999,
         role_assignments: Iterable[_Assignment] = (),
+        bw_type: str = BWType.MEDIA.value,
     ) -> None:
         self.owner_id = owner_id
         self.role_assignments = list(role_assignments)
+        self.bw_type = bw_type
 
 
 def _loader(bw: _BusinessWall | None):
@@ -123,6 +132,7 @@ def _bw_with_role(
     role_type: str,
     *,
     owner_id: int = 999,
+    bw_type: str = BWType.MEDIA.value,
     invitation_status: str = InvitationStatus.ACCEPTED.value,
     granted_missions: Iterable[PermissionType] = (),
     denied_missions: Iterable[PermissionType] = (),
@@ -140,6 +150,7 @@ def _bw_with_role(
                 permissions=perms,
             )
         ],
+        bw_type=bw_type,
     )
 
 
