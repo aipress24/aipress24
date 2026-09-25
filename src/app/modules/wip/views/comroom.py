@@ -6,7 +6,7 @@
 
 from __future__ import annotations
 
-from typing import cast
+from typing import Any, cast
 
 from flask import g, render_template
 from werkzeug.exceptions import Forbidden
@@ -14,7 +14,6 @@ from werkzeug.exceptions import Forbidden
 from app.enums import RoleEnum
 from app.flask.lib.nav import nav
 from app.flask.routing import url_for
-from app.models.mixins import Owned
 from app.modules.bw.bw_activation.models import PermissionType
 from app.modules.wip import blueprint
 from app.modules.wip.pr_access import (
@@ -39,14 +38,14 @@ from ._common import count_owned_non_deleted, get_secondary_menu
 def comroom():
     """Com'room"""
     # Lazy import to avoid circular import
-    from app.modules.wip.models import Communique, Sujet
+    from app.modules.wip.models import Communique
 
     user = g.user
     if not user_can_access_comroom(user):
         msg = "Access denied to comroom"
         raise Forbidden(msg)
 
-    main_items = [
+    main_items: list[dict[str, Any]] = [
         {
             "id": "communiques",
             "model_class": Communique,
@@ -54,23 +53,6 @@ def comroom():
             "label": "Communiqués",
             "nickname": "CO",
             "color": "bg-pink-600",
-            "mission": PermissionType.PRESS_RELEASE,
-        },
-        # Bug #0177 (Erick, 2026-06-02) : « il conviendrait de
-        # conserver pour les attachés de presse la fonction Sujets
-        # mais à l'intérieur de Com'room. » The Sujet model + CRUD
-        # live in the Newsroom tree, but the deposit guard now
-        # accepts Comroom-eligible users too. `mission` reuses
-        # PRESS_RELEASE — a PR Agency manager that has been granted
-        # the press-release mission also gets the Sujets tile when
-        # acting for the client BW.
-        {
-            "id": "sujets",
-            "model_class": Sujet,
-            "endpoint": "SujetsWipView:index",
-            "label": "Sujets",
-            "nickname": "SU",
-            "color": "bg-amber-600",
             "mission": PermissionType.PRESS_RELEASE,
         },
     ]
@@ -86,7 +68,7 @@ def comroom():
         items.append(item)
 
     for item in items:
-        model_class: type[Owned] = item["model_class"]  # type: ignore[assignment]
+        model_class = item["model_class"]
         item["count"] = str(count_owned_non_deleted(model_class))
         item["href"] = url_for(item["endpoint"])
 

@@ -11,7 +11,7 @@ from typing import Any
 from flask import g, render_template
 from werkzeug.exceptions import Forbidden
 
-from app.enums import ProfileEnum, RoleEnum
+from app.enums import MEDIA_BW_TYPES, ProfileEnum, RoleEnum
 from app.flask.lib.nav import nav
 from app.flask.routing import url_for
 from app.modules.bw.bw_activation.user_utils import (
@@ -124,9 +124,10 @@ def _allowed_redaction_items(items: list[dict[str, Any]]) -> list[dict[str, Any]
     allow_journalist = _check_article_creation_by_journalist()
     allow_commands = _check_command_creation_by_redac_chief()
     has_bw = _has_active_business_wall()
+    has_media_bw = _has_active_media_business_wall()
 
     items = _filter_articles_items(items, [has_bw, allow_journalist])
-    items = _filter_sujets_items(items, [has_bw, allow_journalist])
+    items = _filter_sujets_items(items, [has_media_bw, allow_journalist])
     items = _filter_avis_enquetes_items(items, [has_bw, allow_journalist])
     items = _filter_commandes_items(items, [has_bw, allow_commands])
     return items
@@ -136,6 +137,16 @@ def _has_active_business_wall() -> bool:
     """True if user has an active Business Wall (own or selected)."""
     bw = get_selected_business_wall_for_user(g.user)
     return bw is not None
+
+
+def _has_active_media_business_wall() -> bool:
+    """True if user has an active Business Wall of type Media, Journalist (micro) or Agency."""
+    bw = get_selected_business_wall_for_user(g.user)
+    if bw is not None:
+        return bw.bw_type in MEDIA_BW_TYPES
+    if g.user.organisation and g.user.organisation.bw_active:
+        return g.user.organisation.bw_active in MEDIA_BW_TYPES
+    return False
 
 
 def _check_article_creation_by_journalist() -> bool:
