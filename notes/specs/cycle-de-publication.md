@@ -2,9 +2,13 @@
 
 ## Spécifications Fonctionnelles Détaillées
 
-**Version**: 1.2
-**Date**: 2026-01-08
-**Statut**: Validé
+**Version**: 1.3
+**Date**: 2026-09-25
+**Statut**: v1.2 validée en janvier ; la v1.3 réaligne le document sur le code, sans nouvelle validation produit.
+
+> Les décisions prises depuis sur le couple Sujet / Commande, et les écarts
+> qui restent entre ce document et le code, sont tenus à jour dans
+> [`cycle-sujet-commande.md`](cycle-sujet-commande.md).
 
 ---
 
@@ -77,7 +81,27 @@ Les permissions sont gérées **au niveau des rôles** (pas individuellement).
 | Valider/Publier Article | ✓ | ✗ | ✗ | ✓ |
 | Envoyer Notification Publication | ✓ | ✗ | ✗ | ✓ |
 
-### 2.4 Visibilité des Avis d'Enquête
+### 2.4 Réception d'un Sujet par un média
+
+Un sujet envoyé à un média n'apparaît pas chez tous ses membres. Décision de
+juin 2026 : « si c'est compliqué d'installer un ciblage, le sujet ne doit alors
+apparaître que chez les rédacteurs en chef. » Seuls eux le voient, et seuls eux
+peuvent l'accepter ou le refuser, ce que la route vérifie et pas seulement le
+menu.
+
+Est rédacteur en chef d'un média qui remplit l'une de ces deux conditions :
+
+- son profil KYC est `PM_DIR`, `PM_DIR_INST` ou `PM_DIR_SYND` (directeur de la
+  rédaction, institutionnel, syndicat) ;
+- ou il détient un rôle `BW_OWNER` ou `BWMi`, invitation acceptée, sur le
+  Business Wall actif du média.
+
+La seconde condition ouvre la porte à qui gère le Business Wall sans porter le
+titre. Un média **sans Business Wall actif** ne compte en revanche que sur les
+trois codes KYC ; si aucun de ses membres n'en porte, il ne reçoit aucun sujet,
+en silence.
+
+### 2.5 Visibilité des Avis d'Enquête
 
 Un expert ne peut voir que les avis d'enquête **qui le concernent directement** (ceux pour lesquels il a été ciblé). Il n'a pas accès à l'ensemble des avis d'enquête du système.
 
@@ -98,11 +122,12 @@ Un **Sujet** est une proposition de thème d'article. Il peut être proposé par
 | `brief` | Text | Résumé/accroche | Non |
 | `contenu` | Text | Description détaillée | Non |
 | `owner_id` | FK User | Auteur du sujet | Oui |
-| `commanditaire_id` | FK User | Commanditaire (si externe) | Non |
-| `media_id` | FK Organisation | Média concerné | Non |
+| `commanditaire_id` | FK User | Commanditaire | Oui |
+| `media_id` | FK Organisation | Média auquel le sujet est envoyé | Oui |
+| `publisher_id` | FK Organisation | Organisation au nom de laquelle on publie | Non |
 | `date_limite_validite` | DateTime | Date limite de validité (indicative) | Non |
 | `date_parution_prevue` | DateTime | Date de parution visée | Non |
-| `status` | String | État du sujet | Oui |
+| `status` | `PublicationStatus` | État du sujet | Oui |
 
 **Note** : Le champ `date_limite_validite` est purement indicatif à ce stade. Le système ne gère pas l'expiration automatique.
 
@@ -113,7 +138,7 @@ Un **Sujet** est une proposition de thème d'article. Il peut être proposé par
 | `genre` | String | Genre journalistique |
 | `section` | String | Section/rubrique |
 | `topic` | String | Thématique |
-| `sector` | List[String] | Secteurs d'activité |
+| `sector` | String | Secteurs d'activité |
 | `geo_localisation` | String | Localisation géographique |
 | `language` | String | Langue |
 
@@ -121,45 +146,46 @@ Un **Sujet** est une proposition de thème d'article. Il peut être proposé par
 
 | Champ | Type | Description |
 |-------|------|-------------|
-| `ciblage_secteur_detailles` | List[String] | Secteurs ciblés |
-| `ciblage_directions_expertise` | List[String] | Domaines d'expertise visés |
-| `ciblage_fonction` | List[String] | Fonctions visées |
-| `ciblage_type_organisation` | List[String] | Types d'organisations |
-| `ciblage_taille_organisation` | List[String] | Tailles d'organisations |
-| `ciblage_geo` | List[String] | Zones géographiques |
+| `ciblage_secteur_detailles` | String | Secteurs ciblés |
+| `ciblage_directions_expertise` | String | Domaines d'expertise visés |
+| `ciblage_types_organisation` | String | Types d'organisations |
+| `ciblage_tailles_organisation` | String | Tailles d'organisations |
+| `ciblage_geolocation` | String | Zones géographiques |
+
+Ce ciblage décrit une **audience**, pas un destinataire : le destinataire d'un
+sujet est le média désigné par `media_id`.
 
 #### États du Sujet
 
+Les états sont ceux de l'énuméré `PublicationStatus`, dont quatre servent au
+sujet. Les transitions sont celles qu'offre le menu :
+
 ```
-┌─────────────┐
-│  BROUILLON  │ ◀──────────────────────────┐
-└──────┬──────┘                            │
-       │ soumettre                         │ refuser/annuler
-       ▼                                   │
-┌─────────────┐     ┌─────────────┐        │
-│ EN_DISCUSSION│ ──▶│   ACCEPTÉ   │────────┤
-└──────┬──────┘     └──────┬──────┘        │
-       │                   │ valider       │
-       │                   ▼               │
-       │            ┌─────────────┐        │
-       │            │   VALIDÉ    │        │
-       │            └──────┬──────┘        │
-       │                   │ publier       │
-       │                   ▼               │
-       │            ┌─────────────┐        │
-       └───────────▶│   PUBLIÉ    │        │
-                    └─────────────┘        │
-                                           │
-┌─────────────┐                            │
-│   REFUSÉ    │ ◀──────────────────────────┤
-└─────────────┘                            │
-                                           │
-┌─────────────┐                            │
-│   ANNULÉ    │ ◀──────────────────────────┘
-└─────────────┘
+┌───────────┐  Envoyer (auteur)   ┌──────────┐
+│   DRAFT   │ ──────────────────▶ │  PUBLIC  │
+│ brouillon │ ◀────────────────── │  envoyé  │
+└───────────┘  Retirer (auteur)   └────┬─────┘
+                                       │
+              Accepter / Refuser, par un rédacteur
+              en chef du média destinataire (§2.4)
+                                       │
+                  ┌────────────────────┴───────────────────┐
+                  ▼                                        ▼
+          ┌────────────────┐                      ┌────────────────┐
+          │    ACCEPTED    │                      │    REJECTED    │
+          │ + Commande     │                      │     refusé     │
+          │   créée        │                      └────────────────┘
+          └────────────────┘
 ```
 
-**Note** : La machine à états n'est pas strictement implémentée dans le code actuel. Le champ `status` est un simple String. L'utilisation d'Enums serait préférable pour améliorer la robustesse.
+Trois états sont terminaux, `ACCEPTED`, `REJECTED` et `ARCHIVED` : le sujet
+n'est plus modifiable. L'auteur est notifié par courriel et par la cloche dans les deux
+issues.
+
+**Écart connu** : les libellés affichés restent ceux d'une publication
+(« Publier », « Dépublier », « Publié ») alors qu'un sujet est envoyé à une
+rédaction. Le renommage en « Envoyer », « Retirer » et « Envoyé » est décidé
+et reste à faire.
 
 ---
 
@@ -176,19 +202,40 @@ Une **Commande** formalise la demande d'écriture d'un article. Elle peut décou
 | `date_bouclage` | DateTime | Date de bouclage (deadline) | Non |
 | `date_parution_prevue` | DateTime | Date de parution prévue | Non |
 | `date_paiement` | DateTime | Date de paiement (non géré) | Non |
-| `status` | String | État de la commande | Oui |
+| `status` | `PublicationStatus` | État de la commande | Oui |
 
 **Note** : Le paiement n'est pas géré dans le système. Le champ `date_paiement` est purement informatif.
 
 #### États de la Commande
 
-Identiques au Sujet :
-- `BROUILLON` → `EN_DISCUSSION` → `ACCEPTÉ` → `VALIDÉ` → `PUBLIÉ`
-- Ou : `REFUSÉ`, `ANNULÉ`
+Une commande naît en `DRAFT`, qu'elle vienne d'un sujet accepté ou d'une
+création directe. Aucune autre transition n'existe aujourd'hui : « Valider »
+et « Annuler » sont décidés et restent à écrire, avec le statut « annulé » qui
+manque à l'énuméré.
+
+#### Qui voit une commande
+
+Elle est visible de deux personnes, celle inscrite dans `owner_id` et celle
+inscrite dans `commanditaire_id`. Ce qu'elles désignent dépend de la naissance de la
+commande ; c'est une source d'erreurs à connaître.
+
+| | Née d'un sujet accepté | Créée directement |
+|---|---|---|
+| `owner_id` | l'auteur du sujet, qui écrira : le **destinataire** | le créateur |
+| `commanditaire_id` | le rédacteur en chef qui accepte | le créateur |
+| `media_id` | le média de ce rédacteur en chef | l'organisation choisie au formulaire |
+
+**Écart connu** : une commande créée directement n'enregistre donc aucun
+destinataire ; personne chez le média visé ne la voit. C'est la cause du
+ticket #0357. Le correctif retenu est de faire nommer un journaliste au
+formulaire et de l'inscrire dans `owner_id`, comme lors de l'acceptation d'un
+sujet.
 
 #### Relation avec le Sujet
 
-Le code actuel ne définit pas de relation FK explicite entre Commande et Sujet. Une Commande peut être créée indépendamment d'un Sujet.
+Le code ne définit pas de relation explicite entre Commande et Sujet. Une
+commande peut exister sans sujet : c'est le cas de la commande directe, dont
+la création reste ouverte à tout journaliste (§2.3).
 
 ---
 
@@ -214,7 +261,7 @@ Un **Avis d'Enquête** permet à un journaliste de solliciter des experts pour o
 | `date_fin_enquete` | DateTime (TZ) | Fin de l'enquête |
 | `date_bouclage` | DateTime | Date de bouclage |
 | `date_parution_prevue` | DateTime | Parution prévue |
-| `status` | String | État de l'avis |
+| `status` | `PublicationStatus` | État de l'avis |
 
 #### États de l'Avis d'Enquête
 
@@ -233,6 +280,11 @@ Un **Avis d'Enquête** permet à un journaliste de solliciter des experts pour o
 │   PUBLIÉ    │  ──▶ Clôture de l'avis
 └─────────────┘
 ```
+
+**À vérifier** : ces trois noms d'état ne sont pas ceux de `PublicationStatus`,
+dont l'avis d'enquête porte le type. La section n'a pas été reprise contre le
+code lors du réalignement de la v1.3, qui n'a couvert que le Sujet et la
+Commande.
 
 ---
 
@@ -258,7 +310,7 @@ Représente la relation entre un Avis d'Enquête et un Expert contacté. Gère l
 | `EN_ATTENTE` | En attente | L'expert n'a pas encore répondu |
 | `ACCEPTE` | Accepté | L'expert accepte de participer |
 | `REFUSE` | Refusé | L'expert décline |
-| `REFUSE_SUGGESTION` | Refusé avec suggestion | L'expert décline mais suggère un autre contact |
+| `REFUSE_SUGGESTION` | Refusé avec suggestion | L'expert décline en suggérant un autre contact |
 
 #### Machine à États - Réponse Expert
 
@@ -408,8 +460,9 @@ même s'il est PUBLIC (is_expired property)
 #### Workflow de Validation
 
 Le **journaliste** est responsable de toutes les transitions d'état :
-- Brouillon → Validé → Publié
-- Pas de validation par un rédacteur en chef requise
+- `DRAFT` ↔ `PUBLIC`, par les actions Publier et Dépublier ; aucun état de
+  validation intermédiaire n'existe
+- aucun rédacteur en chef n'a à valider l'article
 
 #### Expiration des Articles
 
@@ -536,11 +589,15 @@ JOURNALISTE                    SYSTÈME                      EXPERT
     │  1. Crée Sujet             │                            │
     │ ─────────────────────────▶ │                            │
     │                            │                            │
-    │  2. Sujet validé           │                            │
+    │  2. Envoie le Sujet        │                            │
+    │     au média visé          │                            │
     │ ─────────────────────────▶ │                            │
     │                            │                            │
-    │  3. Crée Commande          │                            │
-    │ ─────────────────────────▶ │                            │
+    │  3. Un rédacteur en chef   │                            │
+    │     du média l'accepte :   │                            │
+    │     une Commande est créée │                            │
+    │     et l'auteur notifié    │                            │
+    │ ◀───────────────────────── │                            │
     │                            │                            │
     │  4. Crée Avis d'Enquête    │                            │
     │ ─────────────────────────▶ │                            │
@@ -659,8 +716,9 @@ JOURNALISTE                    SYSTÈME                      EXPERT
 | Aspect | Règle |
 |--------|-------|
 | Validation article | Par le journaliste uniquement |
-| Validation par rédacteur en chef | Non requise |
-| Validation par commanditaire | Non requise |
+| Validation d'un article par un rédacteur en chef | Non requise |
+| Validation d'un article par le commanditaire | Non requise |
+| Acceptation d'un Sujet reçu | Par un rédacteur en chef du média destinataire (§2.4) |
 
 ### 5.6 Règles de Paiement
 
@@ -672,7 +730,7 @@ Le paiement n'est pas géré dans le système. Les champs de date de paiement so
 
 ### 6.1 Principe Général
 
-Une notification est envoyée **à chaque fois qu'une action est attendue** de la part d'une ou plusieurs personnes autres que celle à l'origine de l'action.
+Une notification est envoyée à chaque fois qu'une action est attendue de la part d'une ou plusieurs personnes autres que celle à l'origine de l'action.
 
 ### 6.2 Canaux de Notification
 
@@ -886,6 +944,7 @@ class PublicationStatus(Enum):
 | 1.0 | 2026-01-08 | SF | Création initiale |
 | 1.1 | 2026-01-08 | SF | Intégration des réponses client |
 | 1.2 | 2026-01-08 | SF | Distinction Notification (WIP) vs Justificatif commercial (BIZ) |
+| 1.3 | 2026-09-25 | SF | Réalignement sur le code : états réels du Sujet et de la Commande, `status` typé, colonnes et ciblage corrigés, règle de réception d'un Sujet (§2.4), visibilité d'une Commande (§3.2), scénario 1 rectifié |
 
 ---
 
@@ -896,7 +955,7 @@ class PublicationStatus(Enum):
 3. **Intégrer les notifications in-app** : Créer les entrées dans WORK/OPPORTUNITÉS/Justificatifs
 4. **Implémenter l'envoi d'emails** : Template d'email de notification
 5. **Compléter les tests** : Implémenter les tests listés en section 7
-6. **Améliorer les Enums Sujet/Commande** : Remplacer les String status par des Enums stricts
+6. ~~**Améliorer les Enums Sujet/Commande**~~ : fait, `status` est un `PublicationStatus`
 7. **Documenter les API** : Créer une doc API REST si nécessaire
 
 > **Note** : Le Justificatif Commercial (PDF achetable) sera implémenté dans le module BIZ, pas WIP.

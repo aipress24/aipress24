@@ -184,7 +184,7 @@ Besides the `uv` tool, we use the following tools to maintain the codebase:
 
 We orchestrate these tools using `make`, the standard build tool on Unix-like systems, which provides shortcuts for common tasks based on these tools:
 
-The provided `Makefile` orchestrates various tasks to streamline development, testing, formatting, and maintenance workflows. Here’s a high-level overview of the key functionalities it provides:
+The provided `Makefile` collects the day-to-day development, testing, formatting and maintenance tasks. Here are the main ones:
 
 - **`develop`**: Installs development dependencies, activates pre-commit hooks, and configures Git for rebase workflows by default.
 - **`install-deps`**: Ensures the project's dependencies are synced and up-to-date using `uv sync`.
@@ -231,7 +231,7 @@ ruff format
 ruff . --fix
 ```
 
-(`ruff` last as it may conflict with some of the changes made by `black` and `isort`.)
+(Run `ruff` last, as it may conflict with some of the changes made by `black` and `isort`.)
 
 Or, better yet, use the provided `Makefile` shortcuts:
 
@@ -298,7 +298,7 @@ Aipress24 is built using modern web technologies to ensure scalability, security
 
 - **Frontend**: Developed using HTMX and TailwindCSS for a responsive and interactive user interface.
 - **Backend**: Powered by Python, with a PostgreSQL database for data management.
-- **Search**: Utilizes ElasticSearch for powerful and efficient search capabilities.
+- **Search**: wesh, a Whoosh fork, indexing content and profiles in process.
 - **Storage**: Amazon S3 compatible open-source solutions like Minio or Ceph for object storage.
 - **Security**: Implements best practices for security, including bcrypt for password hashing and proactive monitoring.
 
@@ -342,7 +342,7 @@ For more details, see: <https://doc.aipress24.com/dev/architecture/>
 
 1. **Reputational Performance Index (IRP)**
     - Introduce IRP to measure journalist contributions based on metrics like engagement and content quality.
-    - Provide organization-specific IRP settings to customize evaluation criteria.
+    - Let each organization set its own IRP criteria.
 2. **ActivityPub Integration**
     - Begin pilot integration with ActivityPub to enable federated content sharing across instances.
     - Build connectors for interoperability with Mastodon, Mobilizon, and other platforms.
@@ -402,7 +402,7 @@ For more details, see: <https://doc.aipress24.com/dev/architecture/>
 3. **Advanced Analytics and Reporting**
     - Enable organizations to generate detailed reports on engagement, financial performance, and IRP metrics.
 4. **Full ActivityPub Integration**
-    - Complete integration of ActivityPub for seamless inter-instance and inter-platform content sharing.
+    - Finish the ActivityPub integration, so content can be shared across instances and with other platforms.
 5. **Social Graph and Networking**
     - Build a professional social graph for networking between journalists, PR professionals, and organizations.
     - Add tools for tracking professional connections and collaboration history.
@@ -445,7 +445,7 @@ Here is the REUSE summary as of 2024/06/17:
 - [Flask](https://flask.palletsprojects.com/)
 - [RQ](https://python-rq.org/) -> Actually, replaced by [Dramatiq](https://dramatiq.io)
 - [SQLAlchemy](https://sqlalchemy.org)
-- [wesh](https://github.com/abilian/wesh) (Whoosh fork — full-text search)
+- [wesh](https://github.com/abilian/wesh) (Whoosh fork, full-text search)
 - [Redis](https://redis.io)
 - [PostgreSQL](https://www.postgresql.org)
 
@@ -509,5 +509,4 @@ heroku config:set FLASK_MAIL_DEFAULT_SENDER=YOUR_SENDGRID_EMAIL
 ---
 
 Thank you for your interest in Aipress24! We are excited to have you join our mission to support journalism and
-innovation through open-source technology. If you have any questions or need further assistance, please feel free to
-reach out to us through our community channels.
+innovation through open-source technology. If you have questions or need help, ask us through our community channels.

@@ -17,7 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Mail limiter increased to 20 mails / 7 days
 - CLI: `flask roles list` and `flask users list` commands
 - Unit tests for mailers
-- E2E tests for expert RDV refusal workflow
+- E2E tests for the workflow where an expert declines an RDV
 
 ### Changed
 
