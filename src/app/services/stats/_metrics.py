@@ -11,7 +11,7 @@ from sqlalchemy import func, select
 
 from app.flask.extensions import db
 from app.models.content import BaseContent
-from app.modules.wip.models import Article
+from app.modules.wip.models import Article, Communique, Event, Sujet
 
 
 class Metric:
@@ -45,6 +45,54 @@ class CountArticles(Metric):
             select(func.count())
             .where(Article.created_at >= start)
             .where(Article.created_at <= end)
+        )
+        return float(db.session.scalar(stmt) or 0)
+
+
+@register
+class CountCommuniques(Metric):
+    id = "count_communiques"
+
+    def compute(self, start_date, end_date) -> float:
+        start = arrow.get(start_date)
+        end = arrow.get(end_date)
+
+        stmt = (
+            select(func.count())
+            .where(Communique.created_at >= start)
+            .where(Communique.created_at <= end)
+        )
+        return float(db.session.scalar(stmt) or 0)
+
+
+@register
+class CountEvents(Metric):
+    id = "count_events"
+
+    def compute(self, start_date, end_date) -> float:
+        start = arrow.get(start_date)
+        end = arrow.get(end_date)
+
+        stmt = (
+            select(func.count())
+            .where(Event.created_at >= start)
+            .where(Event.created_at <= end)
+        )
+        return float(db.session.scalar(stmt) or 0)
+
+
+@register
+class CountSujets(Metric):
+    id = "count_sujets"
+
+    def compute(self, start_date, end_date) -> float:
+        start = arrow.get(start_date)
+        end = arrow.get(end_date)
+
+        stmt = (
+            select(func.count())
+            .where(Sujet.created_at >= start)
+            .where(Sujet.created_at <= end)
         )
         return float(db.session.scalar(stmt) or 0)
 
