@@ -109,3 +109,18 @@ def test_all_unparameterized_endpoints(app: Flask, fresh_db: SQLAlchemy) -> None
         print("  -> status code:", res.status_code, f"(in {time.time() - t0:.2f}s)")
 
         assert res.status_code in {302, 200}, f"Request failed on {rule.rule}"
+
+
+def test_login_page_cache_control_is_a_bare_token(
+    app: Flask, fresh_db: SQLAlchemy
+) -> None:
+    """`SECURITY_CACHE_CONTROL = {"private": True}` must reach the wire as
+    `private`. Flask-Security writes it dict-style, which Werkzeug
+    serialises as `private=True` — invalid per RFC 7234. The hook that
+    corrects this is registered on Flask-Security's own blueprint, so a
+    patch looking only at the app-level slot silently does nothing.
+    """
+    res = app.test_client().get(url_for("security.login"))
+
+    assert res.status_code == 200
+    assert res.headers["Cache-Control"] == "private"

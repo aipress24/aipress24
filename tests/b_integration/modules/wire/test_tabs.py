@@ -268,7 +268,6 @@ class TestComTab:
             assert len(posts) > 0
             assert all(p.type in tab.post_type_allow for p in posts)
 
-
     def test_empty_generator_authors_do_not_hide_every_post(
         self,
         app: Flask,

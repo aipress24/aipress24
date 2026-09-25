@@ -4,7 +4,7 @@
 
 [project]
 name = "aipress24-flask"
-version = "2026.9.24.1"
+version = "2026.9.25.1"
 authors = [
     {name = "Abilian SAS", email = "contact@abilian.com"},
     {name = "Techno Chroniqueurs Associés", email = "erick@agencetca.info"},
@@ -30,7 +30,10 @@ dependencies = [
     "flask-login<1.0.0,>=0.6.2",
     "flask-mailman<2.0.0,>=1.0.0",
     "flask-migrate<5.0.0,>=4.0.5",
-    "flask-security-too<6.0.0,>=5.3.3",
+    # 5.9 makes `config_value` / `add_cache_control` private and moves the
+    # cache-control hook onto the security blueprint; the patch in
+    # app/flask/extensions.py uses the public names.
+    "flask-security-too<5.9,>=5.3.3",
     "flask-sqlalchemy<4.0.0,>=3.1.1",
     "flask-super<1.0.0,>=0.2.3",
     "flask-talisman<2.0.0,>=1.1.0",
@@ -61,7 +64,10 @@ dependencies = [
     "requests<3.0.0,>=2.31.0",
     "yarl<2.0.0,>=1.9.4",
     # ORM & Database
-    "sqlalchemy<3.0.0,>=2.0.25",
+    # 2.1 privatises `attributes.ScalarAttributeImpl`, which sqlalchemy-utils
+    # subclasses at import time, so every model module raises. 16 modules take
+    # `ArrowType` from it, so the ceiling lifts when sqlalchemy-utils does.
+    "sqlalchemy<2.1,>=2.0.25",
     "sqlalchemy-utils<1.0.0,>=0.41.1",
     "advanced-alchemy>=1.11,<1.12",
     "psycopg2<3.0.0,>=2.9.9",

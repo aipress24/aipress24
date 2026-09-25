@@ -298,6 +298,10 @@ def _patch_flask_security_cache_control(app: Flask) -> None:
     knows to serialise as bare tokens. Preserves the original's
     registration slot so handler ordering is unchanged; no-ops if the
     upstream hook can't be found (future Flask-Security rewrite).
+
+    Every slot of `after_request_funcs` is searched, not just the
+    app-level one: Flask-Security registers the hook on its own
+    blueprint, so it sits under `"security"`.
     """
     from flask_security.utils import config_value
 
@@ -307,12 +311,12 @@ def _patch_flask_security_cache_control(app: Flask) -> None:
             setattr(resp.cache_control, attr.replace("-", "_"), value)
         return resp
 
-    hooks = app.after_request_funcs.get(None, [])
-    for i, hook in enumerate(hooks):
-        hook_name = getattr(hook, "__name__", "")
-        hook_module = getattr(hook, "__module__", "")
-        if hook_name == "add_cache_control" and hook_module.startswith(
-            "flask_security"
-        ):
-            hooks[i] = clean_add_cache_control
-            return
+    for hooks in app.after_request_funcs.values():
+        for i, hook in enumerate(hooks):
+            hook_name = getattr(hook, "__name__", "")
+            hook_module = getattr(hook, "__module__", "")
+            if hook_name == "add_cache_control" and hook_module.startswith(
+                "flask_security"
+            ):
+                hooks[i] = clean_add_cache_control
+                return
