@@ -1,6 +1,6 @@
 # Changements, semaine 37 2026 (7 – 11 septembre)
 
-46 commits hors fusions, à deux (24 Jérôme, 22 Stéphane), 117 fichiers, une migration. Cinq tickets remontés par les utilisatrices, un audit de sécurité, et le travail d'affichage des sélecteurs qui traîne depuis le changement de taxonomies.
+46 commits hors fusions, 117 fichiers, une migration. Cinq tickets remontés par les utilisatrices, un audit de sécurité, et le travail d'affichage des sélecteurs qui traîne depuis le changement de taxonomies.
 
 ## KYC et inscription
 

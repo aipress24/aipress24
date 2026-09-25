@@ -1,6 +1,6 @@
 # Changements, semaine 38 2026 (11 – 18 septembre)
 
-La semaine compte 23 commits hors fusions, à deux (20 Jérôme, 3 Stéphane), sur 49 fichiers, plus une migration. Elle a porté deux chantiers : le signalement des commentaires, du bouton jusqu'à l'écran de modération ; et les correctifs de l'audit de sécurité de la semaine précédente.
+La semaine compte 23 commits hors fusions, sur 49 fichiers, plus une migration. Elle a porté deux chantiers : le signalement des commentaires, du bouton jusqu'à l'écran de modération ; et les correctifs de l'audit de sécurité de la semaine précédente.
 
 ## Signalement des commentaires
 
