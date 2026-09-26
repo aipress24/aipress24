@@ -25,10 +25,6 @@ from app.modules.bw.bw_activation.user_utils import (
     get_selected_business_wall_for_user,
 )
 from app.modules.wip.models import Sujet, SujetRepository
-from app.modules.wip.pr_access import (
-    user_can_access_comroom,
-    user_can_access_newsroom,
-)
 from app.modules.wip.services.newsroom.sujet_accept import (
     accept_sujet_as_commande,
     notify_author_of_sujet_acceptance,
@@ -38,6 +34,7 @@ from app.modules.wip.services.newsroom.sujet_accept import (
 from app.modules.wip.services.sujet_notifications import (
     notify_media_of_sujet_proposition,
 )
+from app.modules.wip.sujet_access import user_can_access_sujets
 
 from ._base import BaseWipView
 from ._forms import SujetForm
@@ -344,12 +341,10 @@ class SujetsWipView(BaseWipView):
         if resp := super().before_request(*_args, **_kwargs):
             return resp
 
-        # Bug #0177 (Erick, 2026-06-02) : Sujets reste accessible aux
-        # journalistes (via Newsroom) ET aux attachés de presse via
-        # Com'room — Newsroom est exclusivement journalistique mais
-        # le Sujet en tant qu'objet métier reste pertinent pour les
-        # deux communautés.
-        if not (user_can_access_newsroom(g.user) or user_can_access_comroom(g.user)):
+        # Sujets is restricted to members of Media, Journalist (micro) and
+        # News Agency Business Walls (the journalistic branch).
+        # Access is forbidden to PR agencies, transformers and others.
+        if not user_can_access_sujets(g.user):
             raise Forbidden
         return None
 

@@ -28,15 +28,51 @@ WIDGETS = [
         "color": "seagreen",
     },
     {
+        "metric": "count_communiques",
+        "duration": "day",
+        "label": "Communiqués créés (#) / jour",
+        "color": "darkorange",
+    },
+    {
+        "metric": "count_communiques",
+        "duration": "week",
+        "label": "Communiqués créés (#) / semaine",
+        "color": "darkorange",
+    },
+    {
+        "metric": "count_events",
+        "duration": "day",
+        "label": "Événements créés (#) / jour",
+        "color": "mediumpurple",
+    },
+    {
+        "metric": "count_events",
+        "duration": "week",
+        "label": "Événements créés (#) / semaine",
+        "color": "mediumpurple",
+    },
+    {
+        "metric": "count_sujets",
+        "duration": "day",
+        "label": "Sujets créés (#) / jour",
+        "color": "teal",
+    },
+    {
+        "metric": "count_sujets",
+        "duration": "week",
+        "label": "Sujets créés (#) / semaine",
+        "color": "teal",
+    },
+    {
         "metric": "count_contents",
         "duration": "day",
-        "label": "Contenus créés (#) / jour",
+        "label": "Tous contenus créés (#) / jour",
         "color": "steelblue",
     },
     {
         "metric": "count_contents",
         "duration": "week",
-        "label": "Contenus créés (#) / semaine",
+        "label": "Tous contenus créés (#) / semaine",
         "color": "steelblue",
     },
 ]

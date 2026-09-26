@@ -333,6 +333,69 @@ class TestNewsroomContent:
             for term in ["Article", "Sujet", "Commande", "Avis", "enquête", "enquete"]
         )
 
+    def test_newsroom_hides_sujets_for_journalist_with_non_media_bw(
+        self, app: Flask, db_session: Session, journalist_no_bw: User
+    ):
+        """When a journalist selects a non-media BW (e.g. transformers),
+        the Sujets tile must be hidden from the newsroom, while other
+        allowed items remain visible."""
+        other_org = Organisation(name="Transformer Org")
+        db_session.add(other_org)
+        db_session.flush()
+
+        bw = BusinessWall(
+            bw_type="transformers",
+            status=BWStatus.ACTIVE.value,
+            is_free=True,
+            owner_id=journalist_no_bw.id,
+            payer_id=journalist_no_bw.id,
+            organisation_id=other_org.id,
+            name="Transformer BW",
+        )
+        db_session.add(bw)
+        db_session.flush()
+
+        journalist_no_bw.selected_bw_id = bw.id
+        db_session.commit()
+
+        client = make_authenticated_client(app, journalist_no_bw)
+        response = client.get("/wip/newsroom")
+
+        assert response.status_code == 200
+        html = response.data.decode()
+        assert "Sujets" not in html
+        assert "Articles" in html
+
+    def test_sujets_route_forbidden_for_journalist_with_non_media_bw(
+        self, app: Flask, db_session: Session, journalist_no_bw: User
+    ):
+        """When a journalist selects a non-media BW, direct access to /wip/sujets/
+        is forbidden."""
+        other_org = Organisation(name="PR Org")
+        db_session.add(other_org)
+        db_session.flush()
+
+        bw = BusinessWall(
+            bw_type="pr",
+            status=BWStatus.ACTIVE.value,
+            is_free=True,
+            owner_id=journalist_no_bw.id,
+            payer_id=journalist_no_bw.id,
+            organisation_id=other_org.id,
+            name="PR BW",
+        )
+        db_session.add(bw)
+        db_session.flush()
+
+        journalist_no_bw.selected_bw_id = bw.id
+        db_session.commit()
+
+        client = make_authenticated_client(app, journalist_no_bw)
+        response = client.get("/wip/sujets/")
+
+        assert response.status_code == 302
+        assert response.headers.get("X-Access-Denied") == "true"
+
     def test_newsroom_works_for_micro_journalist_owner(
         self, app: Flask, db_session: Session
     ):

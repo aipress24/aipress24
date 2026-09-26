@@ -21,6 +21,7 @@ from app.flask.routing import url_for
 from app.models.auth import KYCProfile, Role, User
 from app.models.lifecycle import PublicationStatus
 from app.models.organisation import Organisation
+from app.modules.bw.bw_activation.models import BusinessWall, BWStatus
 from app.modules.wip.models.newsroom.commande import Commande
 from app.modules.wip.models.newsroom.sujet import Sujet
 from app.services.notifications._models import Notification
@@ -54,6 +55,26 @@ def _make_sujet(
     return sujet
 
 
+def _attach_media_bw(
+    db_session: Session, org: Organisation, owner_id: int
+) -> BusinessWall:
+    bw = BusinessWall(
+        bw_type="media",
+        status=BWStatus.ACTIVE.value,
+        is_free=True,
+        owner_id=owner_id,
+        payer_id=owner_id,
+        organisation_id=org.id,
+        name=f"BW for {org.name}",
+    )
+    db_session.add(bw)
+    db_session.flush()
+    org.bw_id = bw.id
+    org.bw_active = "media"
+    db_session.flush()
+    return bw
+
+
 @pytest.fixture
 def redac_chef(db_session: Session, test_org) -> User:
     """A rédac chef who is a member of the target media's org.
@@ -79,6 +100,8 @@ def redac_chef(db_session: Session, test_org) -> User:
     user.roles.append(role)
     db_session.add(user)
     db_session.flush()
+    if test_org.bw_id is None:
+        _attach_media_bw(db_session, test_org, user.id)
     return user
 
 
@@ -105,12 +128,19 @@ def ordinary_journalist(db_session: Session, test_org) -> User:
     user.roles.append(role)
     db_session.add(user)
     db_session.flush()
+    if test_org.bw_id is None:
+        _attach_media_bw(db_session, test_org, user.id)
     return user
 
 
 @pytest.fixture
 def author(db_session: Session) -> User:
     """The journalist author, in a different organisation."""
+    role = db_session.query(Role).filter_by(name=RoleEnum.PRESS_MEDIA.name).first()
+    if role is None:
+        role = Role(name=RoleEnum.PRESS_MEDIA.name, description="journalist")
+        db_session.add(role)
+        db_session.flush()
     author_org = Organisation(name="Fake-Le Quotient du Médecin")
     db_session.add(author_org)
     db_session.flush()
@@ -122,8 +152,10 @@ def author(db_session: Session) -> User:
     )
     user.organisation = author_org
     user.organisation_id = author_org.id
+    user.roles.append(role)
     db_session.add(user)
     db_session.flush()
+    _attach_media_bw(db_session, author_org, user.id)
     return user
 
 
@@ -151,6 +183,7 @@ def author_journalist(db_session: Session) -> User:
     user.roles.append(role)
     db_session.add(user)
     db_session.flush()
+    _attach_media_bw(db_session, org, user.id)
     return user
 
 
@@ -640,6 +673,8 @@ class TestSujetRedacChefGate:
         third_journalist.organisation_id = third_org.id
         third_journalist.roles.append(role)
         db_session.add(third_journalist)
+        db_session.flush()
+        _attach_media_bw(db_session, third_org, third_journalist.id)
         db_session.commit()
 
         client = make_authenticated_client(app, third_journalist)
