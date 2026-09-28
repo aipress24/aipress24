@@ -12,7 +12,8 @@ reads it.
 
 from __future__ import annotations
 
-from typing import Any, cast
+from collections.abc import Callable
+from typing import cast
 
 from flask import Flask, flash, g, redirect
 from flask_super.registry import register
@@ -25,25 +26,17 @@ from app.enums import RoleEnum
 from app.flask.extensions import db
 from app.models.auth import Role, User
 from app.models.errors import BusinessRuleError
-from app.models.lifecycle import PublicationStatus
 from app.models.repositories import UserRepository
 from app.modules.wip.models import Commande, CommandeRepository
 from app.modules.wip.pr_access import user_can_access_newsroom
-from app.modules.wip.services.newsroom.commande_validation import (
-    notify_destinataire_of_validation,
+from app.modules.wip.services.newsroom.commande_notifications import (
+    notify_destinataire,
 )
 from app.modules.wip.services.pr_notifications import absolute_url_for
 
 from ._base import BaseWipView, assign_publisher
 from ._forms import CommandeForm
 from ._table import BaseDataSource, BaseTable
-
-# The shared status labels say « Accepté », « Annulé »: a commande is
-# « Validée », « Annulée ».
-_STATUS_LABELS = {
-    PublicationStatus.ACCEPTED: "Validée",
-    PublicationStatus.CANCELLED: "Annulée",
-}
 
 
 class CommandeDataSource(BaseDataSource):
@@ -74,8 +67,8 @@ class CommandesTable(BaseTable):
     def _make_datasource(self, model_class: type, q: str) -> BaseDataSource:
         return CommandeDataSource(model_class=model_class, q=q)
 
-    def get_status_label(self, obj: Any) -> str:
-        return _STATUS_LABELS.get(obj.status) or super().get_status_label(obj)
+    def get_status_label(self, obj: Commande) -> str:
+        return obj.status_label
 
     def get_actions(self, item: Commande) -> list[dict]:
         """The destinataire only reads; whoever placed the commande runs it."""
@@ -126,32 +119,29 @@ class CommandesWipView(BaseWipView):
         return None
 
     def validate(self, id):
-        """The commanditaire validates the commande; its destinataire is
-        notified by bell and by mail."""
+        """The commanditaire validates the commande."""
+        return self._change_status(id, Commande.validate, "Commande validée.")
+
+    def cancel(self, id):
+        """The commanditaire cancels the commande."""
+        return self._change_status(id, Commande.cancel, "Commande annulée.")
+
+    def _change_status(
+        self, id, transition: Callable[[Commande], None], done: str
+    ) -> Response:
+        """Run `transition`, then tell the destinataire by bell and by mail."""
         commande = self._get_placed_commande(id)
         try:
-            commande.validate()
+            transition(commande)
         except BusinessRuleError as exc:
             flash(str(exc), "error")
             return redirect(self._url_for("get", id=id))
         db.session.commit()
 
         commande_url = absolute_url_for("CommandesWipView:get", id=commande.id)
-        notify_destinataire_of_validation(commande, g.user, commande_url)
+        notify_destinataire(commande, g.user, commande_url)
         db.session.commit()
-        flash("Commande validée : le journaliste destinataire a été notifié.")
-        return redirect(self._url_for("index"))
-
-    def cancel(self, id):
-        """The commanditaire cancels the commande."""
-        commande = self._get_placed_commande(id)
-        try:
-            commande.cancel()
-        except BusinessRuleError as exc:
-            flash(str(exc), "error")
-            return redirect(self._url_for("get", id=id))
-        db.session.commit()
-        flash("Commande annulée.")
+        flash(done)
         return redirect(self._url_for("index"))
 
     def _get_placed_commande(self, id) -> Commande:

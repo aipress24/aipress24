@@ -209,7 +209,7 @@ Une **Commande** formalise la demande d'écriture d'un article. Elle peut décou
 
 #### États de la Commande
 
-Une commande naît en `DRAFT`, qu'elle vienne d'un sujet accepté ou d'une création directe. Son propriétaire la valide (`DRAFT` → `ACCEPTED`, affiché « Validée »), ce qui notifie son destinataire par mail et par la cloche ; valider exige un destinataire. Il peut l'annuler en brouillon comme validée (→ `CANCELLED`, affiché « Annulée »).
+Une commande naît en `DRAFT`, qu'elle vienne d'un sujet accepté ou d'une création directe. Son propriétaire la valide (`DRAFT` → `ACCEPTED`, affiché « Validée »), ce qui notifie son destinataire par mail et par la cloche ; valider exige un destinataire. Il peut l'annuler en brouillon comme validée (→ `CANCELLED`, affiché « Annulée »), ce qui notifie son destinataire de même.
 
 #### Qui voit une commande
 

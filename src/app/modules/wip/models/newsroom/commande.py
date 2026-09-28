@@ -19,6 +19,13 @@ from app.models.lifecycle import PublicationStatus
 
 from ._base import CiblageMixin, NewsMetadataMixin, NewsroomCommonMixin
 
+# The shared status labels say « Accepté », « Annulé »: a commande is
+# « Validée », « Annulée ».
+_STATUS_LABELS = {
+    PublicationStatus.ACCEPTED: "Validée",
+    PublicationStatus.CANCELLED: "Annulée",
+}
+
 
 class Commande(
     NewsroomCommonMixin,
@@ -57,6 +64,11 @@ class Commande(
         if not self.media:
             return ""
         return self.media.bw_name or self.media.name or ""
+
+    @property
+    def status_label(self) -> str:
+        """Le statut tel qu'on l'affiche."""
+        return _STATUS_LABELS.get(self.status) or self.status.label
 
     def can_validate(self) -> bool:
         return self.status == PublicationStatus.DRAFT

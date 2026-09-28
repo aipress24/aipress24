@@ -5,9 +5,9 @@
 """Ticket #0362 — the life of a commande.
 
 Whoever placed it (its owner, a rédac chef or equivalent) edits,
-validates, cancels and deletes it. Validating notifies its destinataire,
-the journalist who will write it, by bell and by mail. The destinataire
-only reads it.
+validates, cancels and deletes it. Validating or cancelling it notifies
+its destinataire, the journalist who will write it, by bell and by mail.
+The destinataire only reads it.
 """
 
 from __future__ import annotations
@@ -23,7 +23,7 @@ from app.flask.routing import url_for
 from app.models.auth import User
 from app.models.lifecycle import PublicationStatus
 from app.modules.wip.models import Commande
-from app.services.emails import CommandeValidationNotificationMail
+from app.services.emails import CommandeStatusNotificationMail
 from app.services.notifications._models import Notification
 from tests.c_e2e.conftest import make_authenticated_client
 
@@ -48,13 +48,13 @@ def journalist(fresh_db) -> User:
 
 
 @pytest.fixture
-def sent_mails(monkeypatch) -> list[CommandeValidationNotificationMail]:
-    sent: list[CommandeValidationNotificationMail] = []
+def sent_mails(monkeypatch) -> list[CommandeStatusNotificationMail]:
+    sent: list[CommandeStatusNotificationMail] = []
 
-    def record(mail: CommandeValidationNotificationMail) -> None:
+    def record(mail: CommandeStatusNotificationMail) -> None:
         sent.append(mail)
 
-    monkeypatch.setattr(CommandeValidationNotificationMail, "send", record)
+    monkeypatch.setattr(CommandeStatusNotificationMail, "send", record)
     return sent
 
 
@@ -99,7 +99,7 @@ class TestTheOwnerRunsIt:
         test_user: User,
         journalist: User,
         test_org: Organisation,
-        sent_mails: list[CommandeValidationNotificationMail],
+        sent_mails: list[CommandeStatusNotificationMail],
     ) -> None:
         commande = _commande(
             fresh_db, owner=test_user, destinataire=journalist, org=test_org
@@ -121,7 +121,7 @@ class TestTheOwnerRunsIt:
         fresh_db,
         test_user: User,
         test_org: Organisation,
-        sent_mails: list[CommandeValidationNotificationMail],
+        sent_mails: list[CommandeStatusNotificationMail],
     ) -> None:
         commande = _commande(fresh_db, owner=test_user, destinataire=None, org=test_org)
         client = make_authenticated_client(app, test_user)
@@ -131,13 +131,14 @@ class TestTheOwnerRunsIt:
         assert _status_of(commande.id) == PublicationStatus.DRAFT
         assert sent_mails == []
 
-    def test_cancelling(
+    def test_cancelling_notifies_the_destinataire(
         self,
         app: Flask,
         fresh_db,
         test_user: User,
         journalist: User,
         test_org: Organisation,
+        sent_mails: list[CommandeStatusNotificationMail],
     ) -> None:
         commande = _commande(
             fresh_db,
@@ -146,11 +147,31 @@ class TestTheOwnerRunsIt:
             org=test_org,
             status=PublicationStatus.ACCEPTED,
         )
+        journalist_id = journalist.id
         client = make_authenticated_client(app, test_user)
 
         client.get(url_for("CommandesWipView:cancel", id=commande.id))
 
         assert _status_of(commande.id) == PublicationStatus.CANCELLED
+        bells = db.session.query(Notification).filter_by(receiver_id=journalist_id)
+        assert any("annulée" in bell.message for bell in bells)
+        assert [mail.status_label for mail in sent_mails] == ["annulée"]
+
+    def test_cancelling_without_destinataire_tells_nobody(
+        self,
+        app: Flask,
+        fresh_db,
+        test_user: User,
+        test_org: Organisation,
+        sent_mails: list[CommandeStatusNotificationMail],
+    ) -> None:
+        commande = _commande(fresh_db, owner=test_user, destinataire=None, org=test_org)
+        client = make_authenticated_client(app, test_user)
+
+        client.get(url_for("CommandesWipView:cancel", id=commande.id))
+
+        assert _status_of(commande.id) == PublicationStatus.CANCELLED
+        assert sent_mails == []
 
     def test_the_page_names_the_destinataire(
         self,

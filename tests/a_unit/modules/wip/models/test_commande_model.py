@@ -92,6 +92,21 @@ class TestCancel:
             commande.cancel()
 
 
+class TestStatusLabel:
+    @pytest.mark.parametrize(
+        ("status", "label"),
+        [
+            (PublicationStatus.DRAFT, "Draft"),
+            (PublicationStatus.ACCEPTED, "Validée"),
+            (PublicationStatus.CANCELLED, "Annulée"),
+        ],
+    )
+    def test_a_commande_is_validated_or_cancelled(
+        self, status: PublicationStatus, label: str
+    ):
+        assert _commande(status).status_label == label
+
+
 class TestMediaName:
     """The media the commande is placed for: the commanditaire's."""
 

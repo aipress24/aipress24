@@ -231,25 +231,27 @@ class SujetAcceptanceNotificationMail(EmailTemplate):
 
 
 @dataclass(kw_only=True)
-class CommandeValidationNotificationMail(EmailTemplate):
+class CommandeStatusNotificationMail(EmailTemplate):
     """Ticket #0362: tell the destinataire that the commanditaire has
-    validated the commande addressed to them.
+    validated or cancelled the commande addressed to them. The caller sets
+    `subject`.
 
     Args:
-        - validator_full_name: the commanditaire who validated.
-        - validator_organisation: their media's display name.
+        - status_label: « validée » or « annulée ».
+        - commanditaire_full_name: who validated or cancelled it.
+        - commanditaire_organisation: their media's display name.
         - commande_title: title of the commande.
         - commande_url: absolute URL to the commande in
           WORK/NEWSROOM/Commandes.
     """
 
-    # A validated commande engages its destinataire: not switchable off.
+    # A commande engages its destinataire: not switchable off.
     category: ClassVar[NotificationCategory] = NotificationCategory.TRANSACTIONAL
 
-    subject: str = "[Aipress24] Votre commande a été validée"
-    template_html: str = "commande_validation_notification.j2"
-    validator_full_name: str
-    validator_organisation: str
+    template_html: str = "commande_status_notification.j2"
+    status_label: str
+    commanditaire_full_name: str
+    commanditaire_organisation: str
     commande_title: str
     commande_url: str
 

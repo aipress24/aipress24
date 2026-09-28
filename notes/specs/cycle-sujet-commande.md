@@ -14,9 +14,9 @@ _Synthèse SF. Cette version 4 reprend les arbitrages du 2026-09-28 sur la propr
 
 **La commande directe existe ; l'application ne filtre pas qui la passe.** Tout journaliste peut en créer une sans passer par un sujet, conformément à la spécification du cycle de publication, dont la matrice de permissions accorde « Créer Commande » au rôle journaliste et précise que « les permissions sont gérées au niveau des rôles (pas individuellement) ». Celui qui en passe une sans y être habilité commet une faute professionnelle ; l'application n'a pas à l'en empêcher.
 
-**La commande appartient à celui qui la passe.** Son propriétaire (`owner_id`) est le rédacteur en chef, ou assimilé, qui la passe au sein d'un média. Le journaliste qui l'écrira en est le **destinataire** (`destinataire_id`) : il la voit, il ne la modifie pas (arbitrage du 2026-09-28).
+**La commande appartient à celui qui la passe.** Son propriétaire (`owner_id`) est le rédacteur en chef, ou assimilé, qui la passe au sein d'un média. Le journaliste qui l'écrira en est le **destinataire** (`destinataire_id`) : il la voit, il ne la modifie pas (arbitrage du 2026-09-28). Les deux objets vont donc en sens inverse : le sujet s'adresse à un média, la commande à un journaliste nommé. Pour une commande née d'un sujet, ce journaliste est l'auteur du sujet.
 
-**Le rédacteur en chef valide et annule la commande.** « Valider » la fait passer au statut « Validée » et notifie son destinataire par mail et par la cloche ; « Annuler » la met au statut « Annulée ». Seul le propriétaire modifie, valide, annule et supprime la commande. Qu'un journaliste puisse refuser ou annuler une commande reçue reste hors sujet.
+**Le rédacteur en chef valide et annule la commande.** « Valider » la fait passer au statut « Validée » et notifie son destinataire par mail et par la cloche ; « Annuler » la met au statut « Annulée » et le notifie de même. Seul le propriétaire modifie, valide, annule et supprime la commande. Qu'un journaliste puisse refuser ou annuler une commande reçue reste hors sujet.
 
 **Le vocabulaire du sujet change.** « Publier » devient « **Envoyer** » et « Dépublier » devient « **Retirer** », un sujet étant envoyé à une rédaction et non publié. Le statut suit : envoyé, il s'affiche « **Envoyé** ».
 
@@ -45,7 +45,7 @@ La seconde condition couvre en partie la réserve d'Erick selon laquelle « cert
 2. ~~Faire nommer le journaliste destinataire au formulaire de commande~~ : fait, dans une colonne `destinataire_id` et non dans `owner_id` (§4).
 3. **Ouvrir la lecture aux autres rédacteurs en chef du média qui passe la commande**, en liste comme par identifiant, avec la précaution du §4.
 4. ~~Rétablir le bouton « + New »~~ : fait.
-5. ~~Ajouter « Valider » et « Annuler »~~ : fait, avec le statut `CANCELLED` et la notification du destinataire à la validation.
+5. ~~Ajouter « Valider » et « Annuler »~~ : fait, avec le statut `CANCELLED` et la notification du destinataire à la validation comme à l'annulation.
 6. **Renommer « Publier » en « Envoyer » et « Dépublier » en « Retirer »**, et afficher « Envoyé » là où le sujet affiche « Publié ». Renommer les actions ne coûte rien ; le libellé du statut est plus délicat. Envoyer met le sujet en `PUBLIC`. Cet énuméré est partagé avec les articles, les communiqués, les événements et les avis d'enquête, où « Publié » est juste. Il faut donc un libellé propre au sujet, que la table des sujets peut porter seule en redéfinissant le rendu de sa colonne de statut.
 
 ## 4. Qui porte quoi sur une commande : le cas #0357
@@ -80,9 +80,7 @@ Ce point ne relève pas de l'habilitation du §1, qui porte sur l'ancienneté de
 ## 6. Ce qui reste ouvert
 
 1. ~~Le destinataire d'une commande peut-il la modifier ?~~ Non (arbitrage du 2026-09-28).
-2. **Faut-il notifier le destinataire d'une annulation ?** Le ticket ne le demande pas ; rien ne lui est envoyé aujourd'hui.
-3. **« Une fois la Commande exécutée »** (ticket) n'a pas d'état correspondant : aucun lien ne relie une commande à l'article qui l'exécute. Le propriétaire peut supprimer la commande à tout moment.
-4. **Les commandes directes créées avant le 2026-09-28** n'ont pas de destinataire, et leur `media_id` peut porter l'organisation visée plutôt que le média du commanditaire. Leur propriétaire doit nommer un destinataire avant de les valider ; `media_id` n'a pas été repris.
+2. **« Une fois la Commande exécutée »** (ticket) n'a pas d'état correspondant : aucun lien ne relie une commande à l'article qui l'exécute. Le propriétaire peut supprimer la commande à tout moment.
 
 ## 7. Ce qui a été écarté
 
