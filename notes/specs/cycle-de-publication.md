@@ -182,10 +182,7 @@ Trois états sont terminaux, `ACCEPTED`, `REJECTED` et `ARCHIVED` : le sujet
 n'est plus modifiable. L'auteur est notifié par courriel et par la cloche dans les deux
 issues.
 
-**Écart connu** : les libellés affichés restent ceux d'une publication
-(« Publier », « Dépublier », « Publié ») alors qu'un sujet est envoyé à une
-rédaction. Le renommage en « Envoyer », « Retirer » et « Envoyé » est décidé
-et reste à faire.
+Les libellés affichés sont ceux d'un envoi, un sujet étant envoyé à une rédaction et non publié : « Envoyer », « Retirer », et le statut `PUBLIC` s'affiche « Envoyé » dans la table des sujets.
 
 ---
 
@@ -213,7 +210,7 @@ Une commande naît en `DRAFT`, qu'elle vienne d'un sujet accepté ou d'une créa
 
 #### Qui voit une commande
 
-Une commande appartient à celui qui la passe : `owner_id` (égal à `commanditaire_id`) est le rédacteur en chef, ou assimilé, qui la passe au sein d'un média. Le journaliste qui l'écrira en est le destinataire (`destinataire_id`). Tous deux la voient ; seul le propriétaire la modifie, la valide, l'annule ou la supprime.
+Une commande appartient à celui qui la passe : `owner_id` (égal à `commanditaire_id`) est le rédacteur en chef, ou assimilé, qui la passe au sein d'un média. Le journaliste qui l'écrira en est le destinataire (`destinataire_id`). Tous deux la voient, ainsi que les rédacteurs en chef du média pour lequel elle est passée (`media_id`) ; seul le propriétaire la modifie, la valide, l'annule ou la supprime.
 
 | | Née d'un sujet accepté | Créée directement |
 |---|---|---|

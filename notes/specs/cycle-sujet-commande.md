@@ -24,7 +24,7 @@ _Synthèse SF. Cette version 4 reprend les arbitrages du 2026-09-28 sur la propr
 
 ## 2. Fonctionnement actuel de l'application
 
-**Le sujet.** Il se crée en brouillon. Son menu dépend du statut et de qui regarde : l'auteur voit Voir, Modifier, Supprimer, puis Publier en brouillon ou Dépublier une fois publié ; le média destinataire voit Voir, Modifier, Accepter et Refuser. Le destinataire est une organisation : le modèle porte un `media_id` et rien d'autre.
+**Le sujet.** Il se crée en brouillon. Son menu dépend du statut et de qui regarde : l'auteur voit Voir, Modifier, Supprimer, puis Envoyer en brouillon ou Retirer une fois envoyé ; le média destinataire voit Voir, Modifier, Accepter et Refuser. Le destinataire est une organisation : le modèle porte un `media_id` et rien d'autre.
 
 **Qui voit un sujet reçu.** Son auteur, et les rédacteurs en chef du média. La qualification de rédacteur en chef tient à l'une de ces deux conditions :
 
@@ -37,16 +37,16 @@ La seconde condition couvre en partie la réserve d'Erick selon laquelle « cert
 
 **Le passage à la commande.** Accepter crée une commande en brouillon et met le sujet en « accepté » ; refuser le met en « refusé ». Dans les deux cas l'auteur est notifié par mail et par la cloche. Le rédacteur en chef qui accepte devient le propriétaire de la commande, l'auteur du sujet son destinataire, et le média du sujet celui qui la passe (« Commande passée par »). La commande reprend du sujet le titre, le texte, le chapô, les dates et les métadonnées (genre, rubrique, sujet, secteur, lieu).
 
-**La commande.** Son propriétaire voit Voir, Modifier, Valider (en brouillon), Annuler (en brouillon ou validée) et Supprimer ; son destinataire ne voit que Voir, et les routes lui refusent le reste. Une commande se crée aussi directement, par le bouton « + New » : le formulaire demande le journaliste destinataire, choisi parmi les membres journalistes. Valider exige un destinataire. Les statuts s'affichent « Validée » (`ACCEPTED`) et « Annulée » (`CANCELLED`), libellés propres à la table des commandes.
+**La commande.** Son propriétaire voit Voir, Modifier, Valider (en brouillon), Annuler (en brouillon ou validée) et Supprimer ; son destinataire et les autres rédacteurs en chef du média ne voient que Voir, et les routes leur refusent le reste. Une commande se crée aussi directement, par le bouton « + New » : le formulaire demande le journaliste destinataire, choisi parmi les membres journalistes. Valider exige un destinataire. Les statuts s'affichent « Validée » (`ACCEPTED`) et « Annulée » (`CANCELLED`), libellés propres à la table des commandes.
 
 ## 3. Ce qu'il reste à faire
 
 1. ~~Refuser un `publisher_id` non autorisé sur la commande et sur l'avis d'enquête~~ : fait (§5).
 2. ~~Faire nommer le journaliste destinataire au formulaire de commande~~ : fait, dans une colonne `destinataire_id` et non dans `owner_id` (§4).
-3. **Ouvrir la lecture aux autres rédacteurs en chef du média qui passe la commande**, en liste comme par identifiant, avec la précaution du §4.
+3. ~~Ouvrir la lecture aux autres rédacteurs en chef du média qui passe la commande~~ : fait (§4).
 4. ~~Rétablir le bouton « + New »~~ : fait.
 5. ~~Ajouter « Valider » et « Annuler »~~ : fait, avec le statut `CANCELLED` et la notification du destinataire à la validation comme à l'annulation.
-6. **Renommer « Publier » en « Envoyer » et « Dépublier » en « Retirer »**, et afficher « Envoyé » là où le sujet affiche « Publié ». Renommer les actions ne coûte rien ; le libellé du statut est plus délicat. Envoyer met le sujet en `PUBLIC`. Cet énuméré est partagé avec les articles, les communiqués, les événements et les avis d'enquête, où « Publié » est juste. Il faut donc un libellé propre au sujet, que la table des sujets peut porter seule en redéfinissant le rendu de sa colonne de statut.
+6. ~~Renommer « Publier » en « Envoyer » et « Dépublier » en « Retirer », et afficher « Envoyé »~~ : fait. Les routes gardent leurs noms (`publish`, `unpublish`) ; seul l'affichage change, et la table des sujets porte seule le libellé « Envoyé ».
 
 ## 4. Qui porte quoi sur une commande : le cas #0357
 
@@ -57,13 +57,13 @@ La seconde condition couvre en partie la réserve d'Erick selon laquelle « cert
 | `media_id` | le média du sujet, celui du rédacteur en chef | le média choisi au formulaire, par défaut celui du créateur |
 | `publisher_id` (« Commande passée par ») | le média du sujet | l'organisation pour laquelle agit le créateur (§5) |
 
-La commande est visible de son propriétaire et de son destinataire (`Commande.is_visible_to`). La même expression sert à la liste, à la lecture par identifiant et au compteur de la Newsroom.
+La commande est visible de son propriétaire, de son destinataire et des rédacteurs en chef du média pour lequel elle est passée (`media_id`). La même expression (`Commande.is_visible_to`) sert à la liste, à la lecture par identifiant et au compteur de la Newsroom ; la qualité de rédacteur en chef est celle du §2 (`app.modules.wip.redac_chef`).
 
 **Ce qui causait #0357.** Jusqu'au 2026-09-28, `owner_id` portait le journaliste sur la commande née d'un sujet (#0225), et le formulaire de commande directe ne proposait que des organisations, rangées dans `media_id`. Aucune colonne ne portait donc le destinataire d'une commande directe : il n'y avait personne à qui la montrer. `media_id` portait en outre deux sens selon la naissance, ce qui a causé #0353.
 
 **Le correctif retenu diffère de celui de la version 3.** Celle-ci proposait d'inscrire le destinataire dans `owner_id`. L'arbitrage du 2026-09-28 retient l'inverse : le propriétaire est celui qui passe la commande, et le destinataire a sa propre colonne. La migration `5d004245b5f2` a basculé les commandes existantes nées d'un sujet : l'ancien `owner_id` devient `destinataire_id`, le rédacteur en chef devient propriétaire, et `publisher_id` prend la valeur de `media_id`.
 
-**Reste la question des autres rédacteurs en chef du média.** Qu'ils voient les commandes de leur rédaction demande une branche sur `media_id`. La liste et la lecture par identifiant doivent changer **ensemble** : une branche ajoutée d'un seul côté donne une commande qu'on voit dans sa liste sans pouvoir l'ouvrir, ou l'inverse. La modification, elle, est réservée au propriétaire : ouvrir la lecture n'ouvrira pas la modification.
+**Les autres rédacteurs en chef du média lisent ses commandes, sans les modifier.** La modification, la validation, l'annulation et la suppression restent réservées au propriétaire.
 
 ## 5. Deux bugs relevés en chemin
 
@@ -71,7 +71,7 @@ La commande est visible de son propriétaire et de son destinataire (`Commande.i
 
 **Une commande pouvait être attribuée à une organisation qu'on ne représente plus.** Corrigé le 2026-09-28. La version 3 décrivait mal le défaut : « Commande passée par » (`publisher_id`) n'est pas un champ du formulaire, personne ne la choisit. Elle est attribuée au premier enregistrement : l'organisation du Business Wall que l'utilisateur gère, sinon la sienne. `can_user_publish_for` vérifiait la valeur présente *avant* cette attribution, donc rien sur un nouveau document, et son résultat n'était que journalisé. Or le retrait d'un rôle ou d'une délégation (`revoke_user_role`, `revoke_partnership`) ne désélectionne pas le Business Wall : un ancien gestionnaire pouvait signer une commande ou un avis d'enquête au nom d'une organisation qu'il ne représente plus.
 
-Le correctif, `assign_publisher`, vérifie l'organisation qu'il attribue et refuse l'enregistrement si l'utilisateur n'y a pas droit ; une organisation déjà attribuée est conservée. Il sert à la commande et à l'avis d'enquête. Sujet, communiqué et événement gardent leur avertissement à l'enregistrement, leur étape « Publier » refusant déjà une organisation non autorisée.
+Le correctif, `assign_publisher`, vérifie l'organisation qu'il attribue et refuse l'enregistrement si l'utilisateur n'y a pas droit ; une organisation déjà attribuée est conservée. Il sert à la commande et à l'avis d'enquête. Sujet, communiqué et événement gardent leur avertissement à l'enregistrement, leur étape d'envoi ou de publication refusant déjà une organisation non autorisée.
 
 Ce point ne relève pas de l'habilitation du §1, qui porte sur l'ancienneté de quelqu'un dans sa propre rédaction. Il s'agit ici de mettre le nom d'une autre organisation sur un document, ce qu'aucune responsabilité professionnelle ne couvre.
 

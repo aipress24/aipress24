@@ -101,16 +101,17 @@ def count_visible_sujets() -> int:
 
 
 def count_visible_commandes() -> int:
-    """Tile count for « NEWSROOM/Commandes », aligned on the table: the
-    commandes the user placed or received (`Commande.is_visible_to`)."""
+    """Tile count for « NEWSROOM/Commandes », aligned on the table
+    (`Commande.is_visible_to`)."""
     from app.modules.wip.models.newsroom.commande import Commande
+    from app.modules.wip.redac_chef import redac_chef_media_id
 
     db_session = container.get(scoped_session)
     user = container.get(AuthService).get_user()
     stmt = (
         select(func.count())
         .select_from(Commande)
-        .where(Commande.is_visible_to(user.id))
+        .where(Commande.is_visible_to(user.id, redac_chef_media_id(user)))
         .where(Commande.deleted_at.is_(None))
     )
     return db_session.execute(stmt).scalar() or 0

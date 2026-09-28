@@ -89,21 +89,21 @@ class Sujet(
         never received a proposal.
         """
         if not self.can_publish():
-            msg = "Impossible de publier: le sujet n'a pas le statut DRAFT"
+            msg = "Impossible d'envoyer le sujet : il n'est pas en brouillon"
             raise ValueError(msg)
         if not self.titre or not self.titre.strip():
-            msg = "Impossible de publier: le sujet n'a pas de titre"
+            msg = "Impossible d'envoyer le sujet : il n'a pas de titre"
             raise ValueError(msg)
         if not self.contenu or not self.contenu.strip():
-            msg = "Impossible de publier: le sujet n'a pas de contenu"
+            msg = "Impossible d'envoyer le sujet : il n'a pas de contenu"
             raise ValueError(msg)
         self.status = PublicationStatus.PUBLIC  # type: ignore[assignment]
 
     def unpublish(self, user: User | None = None) -> None:
         if not self.can_unpublish(user):
             if self.status != PublicationStatus.PUBLIC:
-                msg = "Impossible de dépublier: le sujet n'est pas PUBLIC"
+                msg = "Impossible de retirer le sujet : il n'a pas été envoyé"
             else:
-                msg = "Impossible de dépublier: seul le créateur du sujet peut le dépublier"
+                msg = "Impossible de retirer le sujet : seul son auteur peut le retirer"
             raise ValueError(msg)
         self.status = PublicationStatus.DRAFT  # type: ignore[assignment]

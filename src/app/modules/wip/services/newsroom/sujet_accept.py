@@ -26,6 +26,7 @@ from app.flask.extensions import db
 from app.logging import report_failure
 from app.models.lifecycle import PublicationStatus
 from app.modules.wip.models.newsroom.commande import Commande
+from app.modules.wip.redac_chef import is_redac_chef_of_org
 from app.services.notifications import NotificationService
 
 if TYPE_CHECKING:
@@ -156,10 +157,7 @@ def accept_sujet_as_commande(sujet: Sujet, accepter: User) -> Commande:
         sujet_status=sujet.status,
     )
 
-    # Lazy import to keep the auth helper out of the cold-start path.
-    from app.modules.wip.crud.cbvs.sujets import _is_redac_chef_of_org
-
-    if not _is_redac_chef_of_org(accepter, sujet.media_id):
+    if not is_redac_chef_of_org(accepter, sujet.media_id):
         msg = (
             "User is not authorized to accept this sujet — only the "
             "rédac chef of the target media may accept (#0132 pt 1)"
@@ -192,10 +190,7 @@ def refuse_sujet(sujet: Sujet, refuser: User) -> None:
         sujet_status=sujet.status,
     )
 
-    # Lazy import to keep the auth helper out of the cold-start path.
-    from app.modules.wip.crud.cbvs.sujets import _is_redac_chef_of_org
-
-    if not _is_redac_chef_of_org(refuser, sujet.media_id):
+    if not is_redac_chef_of_org(refuser, sujet.media_id):
         msg = (
             "User is not authorized to refuse this sujet — only the "
             "rédac chef of the target media may refuse (#0225)"

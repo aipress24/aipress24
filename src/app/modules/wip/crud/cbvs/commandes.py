@@ -6,8 +6,8 @@
 
 A commande belongs to whoever places it (`owner_id`): a rédac chef or
 equivalent within a media. That person edits, validates, cancels and
-deletes it. Its destinataire, the journalist who will write it, only
-reads it.
+deletes it. Its destinataire, the journalist who will write it, and the
+other rédac chefs of the media it is placed for only read it.
 """
 
 from __future__ import annotations
@@ -29,6 +29,7 @@ from app.models.errors import BusinessRuleError
 from app.models.repositories import UserRepository
 from app.modules.wip.models import Commande, CommandeRepository
 from app.modules.wip.pr_access import user_can_access_newsroom
+from app.modules.wip.redac_chef import redac_chef_media_id
 from app.modules.wip.services.newsroom.commande_notifications import (
     notify_destinataire,
 )
@@ -40,12 +41,12 @@ from ._table import BaseDataSource, BaseTable
 
 
 class CommandeDataSource(BaseDataSource):
-    """Lists the commandes the user placed or received."""
+    """Lists the commandes the user may read (`Commande.is_visible_to`)."""
 
     def _base_query(self):
         stmt = (
             select(Commande)
-            .where(Commande.is_visible_to(g.user.id))
+            .where(Commande.is_visible_to(g.user.id, redac_chef_media_id(g.user)))
             .where(Commande.deleted_at.is_(None))
         )
         if self.q:
@@ -71,7 +72,7 @@ class CommandesTable(BaseTable):
         return obj.status_label
 
     def get_actions(self, item: Commande) -> list[dict]:
-        """The destinataire only reads; whoever placed the commande runs it."""
+        """Whoever placed the commande runs it; everyone else only reads it."""
         actions = [{"label": "Voir", "url": self.url_for(item)}]
         if item.owner_id != g.user.id:
             return actions
@@ -152,7 +153,7 @@ class CommandesWipView(BaseWipView):
         return commande
 
     def _can_access(self, model: Commande) -> bool:
-        return model.is_visible_to(g.user.id)
+        return model.is_visible_to(g.user.id, redac_chef_media_id(g.user))
 
     def _can_edit(self, model: Commande) -> bool:
         return model.owner_id == g.user.id

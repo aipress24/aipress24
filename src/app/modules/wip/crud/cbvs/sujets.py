@@ -25,6 +25,7 @@ from app.modules.bw.bw_activation.user_utils import (
     get_selected_business_wall_for_user,
 )
 from app.modules.wip.models import Sujet, SujetRepository
+from app.modules.wip.redac_chef import is_redac_chef_of_org
 from app.modules.wip.services.newsroom.sujet_accept import (
     accept_sujet_as_commande,
     notify_author_of_sujet_acceptance,
@@ -56,59 +57,6 @@ _SUJET_VIEW_TEMPLATE = """
 """
 
 
-_REDAC_CHEF_PROFILES = frozenset({"PM_DIR", "PM_DIR_INST", "PM_DIR_SYND"})
-
-
-def _is_redac_chef_of_org(user, org_id) -> bool:
-    """Bug #0132 pt 1 (Erick, 2026-06-02) : Sujets received by a media
-    must only surface for actual rédacteurs en chef, not for every
-    journalist at the same org.
-
-    A user qualifies as rédac chef if either :
-    - their KYC profile is one of the `PM_DIR*` codes (Directeur de
-      la rédaction, Directeur institutionnel, Directeur syndicat) ;
-    - they hold an ACCEPTED BWMi or BW_OWNER RoleAssignment on the
-      media's active BW (the org-management equivalent).
-    """
-    if user is None or getattr(user, "is_anonymous", False):
-        return False
-    profile = getattr(user, "profile", None)
-    if profile is not None:
-        profile_code = getattr(profile, "profile_code", "") or ""
-        if profile_code in _REDAC_CHEF_PROFILES:
-            return True
-
-    # Lazy imports to keep this module importable without pulling
-    # the full BW activation tree during cold start.
-    from app.modules.bw.bw_activation.models import (
-        BusinessWall,
-        BWRoleType,
-        InvitationStatus,
-    )
-    from app.modules.bw.bw_activation.models.business_wall import BWStatus
-
-    bw = db.session.scalars(
-        select(BusinessWall).where(
-            BusinessWall.organisation_id == org_id,
-            BusinessWall.status == BWStatus.ACTIVE.value,
-        )
-    ).first()
-    if bw is None:
-        return False
-    user_id = getattr(user, "id", None)
-    if user_id is None:
-        return False
-    elevated_roles = {BWRoleType.BWMI.value, BWRoleType.BW_OWNER.value}
-    for assignment in bw.role_assignments:
-        if (
-            assignment.user_id == user_id
-            and assignment.invitation_status == InvitationStatus.ACCEPTED.value
-            and assignment.role_type in elevated_roles
-        ):
-            return True
-    return False
-
-
 @define
 class SujetDataSource(BaseDataSource):
     """Bug 0132: rédacteurs en chef of a target media must see PUBLIC sujets
@@ -132,7 +80,7 @@ class SujetDataSource(BaseDataSource):
             return None
         # Bug #0132 pt 1 — gate the received-Sujet view on a rédac
         # chef qualification.
-        if not _is_redac_chef_of_org(user, org_id):
+        if not is_redac_chef_of_org(user, org_id):
             return None
         M = cast(type[WipContentModel], self.model_class)
         return and_(
@@ -209,6 +157,12 @@ class SujetsTable(BaseTable):
             },
         ]
 
+    def get_status_label(self, obj: Sujet) -> str:
+        """A sujet is sent to a media, not published: « Envoyé »."""
+        if obj.status == PublicationStatus.PUBLIC:
+            return "Envoyé"
+        return super().get_status_label(obj)
+
     def get_owner_name(self, obj):
         owner = getattr(obj, "owner", None)
         if not owner:
@@ -219,8 +173,8 @@ class SujetsTable(BaseTable):
         return SujetDataSource(model_class=model_class, q=q)
 
     def get_actions(self, item):
-        """Bug 0132: surface Publier/Dépublier so journalists can actually
-        send their sujet to the targeted media — without a Publier action,
+        """Bug 0132: surface Envoyer/Retirer so journalists can actually
+        send their sujet to the targeted media — without an Envoyer action,
         the sujet sat as DRAFT and no one ever received it.
 
         Ticket #0132 part 3 : also surface « Accepter » for the rédac
@@ -243,11 +197,9 @@ class SujetsTable(BaseTable):
         is_owner = user_id is None or user_id == getattr(item, "owner_id", None)
 
         if item.status == PublicationStatus.DRAFT:
-            actions.append({"label": "Publier", "url": self.url_for(item, "publish")})
+            actions.append({"label": "Envoyer", "url": self.url_for(item, "publish")})
         elif item.status == PublicationStatus.PUBLIC and is_owner:
-            actions.append(
-                {"label": "Dépublier", "url": self.url_for(item, "unpublish")}
-            )
+            actions.append({"label": "Retirer", "url": self.url_for(item, "unpublish")})
         # Accepter : only on PUBLIC sujets, and only for the rédac chef
         # (member of the target media). The route enforces the same
         # guard server-side ; we just hide the action when it wouldn't
@@ -316,7 +268,7 @@ class SujetsWipView(BaseWipView):
         return (
             model.media_id == user.organisation_id
             and model.status == PublicationStatus.PUBLIC
-            and _is_redac_chef_of_org(user, model.media_id)
+            and is_redac_chef_of_org(user, model.media_id)
         )
 
     def _post_update_model(self, model: Sujet) -> None:
@@ -388,7 +340,7 @@ class SujetsWipView(BaseWipView):
         publisher_id = sujet.publisher_id or g.user.organisation_id or None
         if publisher_id and not can_user_publish_for(g.user, publisher_id):
             flash(
-                "Vous n'êtes pas autorisé à publier pour cette organisation.",
+                "Vous n'êtes pas autorisé à agir pour le compte de cette organisation.",
                 "error",
             )
             return redirect(self._url_for("edit", id=id))
@@ -420,14 +372,14 @@ class SujetsWipView(BaseWipView):
             # rolls it back (mail goes out, bell doesn't). Bug #0225.
             db.session.commit()
 
-        flash("Le sujet a été publié et envoyé au média sélectionné.")
+        flash("Le sujet a été envoyé au média sélectionné.")
         return redirect(self._url_for("index"))
 
     def unpublish(self, id):
         repo = self._get_repo()
         sujet = cast("Sujet", self._get_model(id))
         if sujet.owner_id != g.user.id:
-            flash("Vous n'êtes pas autorisé à dépublier ce sujet", "error")
+            flash("Vous n'êtes pas autorisé à retirer ce sujet", "error")
             return redirect(self._url_for("get", id=id))
 
         try:
@@ -437,7 +389,7 @@ class SujetsWipView(BaseWipView):
             return redirect(self._url_for("get", id=id))
         repo.update(sujet, auto_commit=False)
         db.session.commit()
-        flash("Le sujet a été dépublié")
+        flash("Le sujet a été retiré")
         return redirect(self._url_for("index"))
 
     def accept(self, id):
