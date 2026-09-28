@@ -223,7 +223,7 @@ class TestSujetClochePersistsAcrossTeardown:
             "app.modules.wip.services.sujet_notifications"
             ".SujetPropositionNotificationMail"
         ):
-            resp = client.get(
+            resp = client.post(
                 url_for("SujetsWipView:publish", id=sujet.id),
                 follow_redirects=False,
             )
@@ -252,7 +252,7 @@ class TestSujetClochePersistsAcrossTeardown:
 
         client = make_authenticated_client(app, redac_chef)
         # cloche fires for real ; only the route's e-mail is patched.
-        resp = client.get(
+        resp = client.post(
             url_for("SujetsWipView:accept", id=sujet.id),
             follow_redirects=False,
         )
@@ -288,7 +288,7 @@ class TestSujetRefuseRoute:
         author_id = author.id
 
         client = make_authenticated_client(app, redac_chef)
-        resp = client.get(
+        resp = client.post(
             url_for("SujetsWipView:refuse", id=sujet.id),
             follow_redirects=False,
         )
@@ -319,7 +319,7 @@ class TestSujetRefuseRoute:
         sujet_id = sujet.id
 
         client = make_authenticated_client(app, ordinary_journalist)
-        resp = client.get(
+        resp = client.post(
             url_for("SujetsWipView:refuse", id=sujet.id),
             follow_redirects=False,
         )
@@ -350,7 +350,7 @@ class TestSujetAcceptRoute:
         with patch(
             "app.modules.wip.crud.cbvs.sujets.notify_author_of_sujet_acceptance"
         ):
-            response = client.get(
+            response = client.post(
                 url_for("SujetsWipView:accept", id=sujet.id),
                 follow_redirects=False,
             )
@@ -396,7 +396,7 @@ class TestSujetAcceptRoute:
         sujet_id = sujet.id
 
         client = make_authenticated_client(app, author)
-        response = client.get(
+        response = client.post(
             url_for("SujetsWipView:accept", id=sujet.id),
             follow_redirects=False,
         )
@@ -617,7 +617,7 @@ class TestSujetRedacChefGate:
         with patch(
             "app.modules.wip.crud.cbvs.sujets.notify_author_of_sujet_acceptance"
         ):
-            response = client.get(
+            response = client.post(
                 url_for("SujetsWipView:accept", id=sujet.id),
                 follow_redirects=False,
             )
@@ -728,7 +728,7 @@ class TestSujetAcceptSendsMailToAuthor:
                 fake_send,
             ),
         ):
-            response = client.get(
+            response = client.post(
                 url_for("SujetsWipView:accept", id=sujet.id),
                 follow_redirects=False,
             )
@@ -863,7 +863,7 @@ class TestSujetUnpublishPermissions:
         sujet_id = sujet.id
 
         client = make_authenticated_client(app, redac_chef)
-        response = client.get(
+        response = client.post(
             url_for("SujetsWipView:unpublish", id=sujet.id),
             follow_redirects=False,
         )
@@ -872,7 +872,7 @@ class TestSujetUnpublishPermissions:
             "Location", ""
         )
 
-        follow_response = client.get(
+        follow_response = client.post(
             url_for("SujetsWipView:unpublish", id=sujet.id),
             follow_redirects=True,
         )
@@ -907,7 +907,7 @@ class TestSujetUnpublishPermissions:
         sujet_id = sujet.id
 
         client = make_authenticated_client(app, author_journalist)
-        response = client.get(
+        response = client.post(
             url_for("SujetsWipView:unpublish", id=sujet.id),
             follow_redirects=False,
         )
@@ -936,14 +936,14 @@ class TestSujetUnpublishPermissions:
         sujet_id = sujet.id
 
         client = make_authenticated_client(app, redac_chef)
-        response = client.get(
+        response = client.post(
             url_for("SujetsWipView:delete", id=sujet.id),
             follow_redirects=False,
         )
         assert response.status_code in (302, 303)
         assert url_for("SujetsWipView:index") in response.headers.get("Location", "")
 
-        follow_response = client.get(
+        follow_response = client.post(
             url_for("SujetsWipView:delete", id=sujet.id),
             follow_redirects=True,
         )

@@ -354,7 +354,7 @@ class TestTheDestinataireOnlyReadsIt:
         )
         client = make_authenticated_client(app, test_user)
 
-        client.get(url_for("CommandesWipView:delete", id=commande.id))
+        client.post(url_for("CommandesWipView:delete", id=commande.id))
 
         db.session.remove()
         reloaded = db.session.get(Commande, commande.id)

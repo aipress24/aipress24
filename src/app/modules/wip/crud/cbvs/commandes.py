@@ -94,7 +94,13 @@ class CommandesTable(BaseTable):
                     "method": "post",
                 }
             )
-        actions.append({"label": "Supprimer", "url": self.url_for(item, "delete")})
+        actions.append(
+            {
+                "label": "Supprimer",
+                "url": self.url_for(item, "delete"),
+                "method": "post",
+            }
+        )
         return actions
 
 

@@ -299,13 +299,9 @@ def test_cm2_partnership_communique_publication_notifies_client(
 
         # ───── step 5 : publish + capture client notification mail
         mail_outbox.reset()
-        publish_resp = page.goto(
-            f"{base_url}/wip/communiques/publish/{new_id}/",
-            wait_until="domcontentloaded",
-        )
-        assert publish_resp is not None and publish_resp.status < 400, (
-            f"publish : {publish_resp.status if publish_resp else '?'}"
-        )
+        publish_resp = authed_post(f"{base_url}/wip/communiques/publish/{new_id}/", {})
+        assert publish_resp["status"] < 400, f"publish : {publish_resp}"
+        assert "/auth/login" not in publish_resp["url"], f"publish : {publish_resp}"
 
         # Verify a PRPublicationNotificationMail went to erick.
         notif_captured = mail_outbox.messages()
@@ -329,10 +325,7 @@ def test_cm2_partnership_communique_publication_notifies_client(
         )
 
         # ───── cleanup : unpublish the communiqué
-        page.goto(
-            f"{base_url}/wip/communiques/unpublish/{new_id}/",
-            wait_until="domcontentloaded",
-        )
+        authed_post(f"{base_url}/wip/communiques/unpublish/{new_id}/", {})
     finally:
         # ───── cleanup : journalist revokes partnership
         login(journalist)

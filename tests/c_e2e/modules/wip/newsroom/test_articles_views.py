@@ -211,7 +211,7 @@ class TestArticlesPublish:
     ):
         """Test successfully publishing a draft article."""
         url = url_for("ArticlesWipView:publish", id=test_article.id)
-        response = logged_in_client.get(url, follow_redirects=False)
+        response = logged_in_client.post(url, follow_redirects=False)
 
         # Should redirect to index after successful publish
         assert response.status_code == 302
@@ -238,7 +238,7 @@ class TestArticlesPublish:
         db_session.flush()
 
         url = url_for("ArticlesWipView:publish", id=article.id)
-        response = logged_in_client.get(url, follow_redirects=False)
+        response = logged_in_client.post(url, follow_redirects=False)
 
         # Should redirect back to edit with error
         assert response.status_code == 302
@@ -265,7 +265,7 @@ class TestArticlesPublish:
         db_session.flush()
 
         url = url_for("ArticlesWipView:publish", id=article.id)
-        response = logged_in_client.get(url, follow_redirects=False)
+        response = logged_in_client.post(url, follow_redirects=False)
 
         # Should redirect back to edit with error
         assert response.status_code == 302
@@ -280,7 +280,7 @@ class TestArticlesPublish:
     ):
         """Test that publishing an already published article fails."""
         url = url_for("ArticlesWipView:publish", id=published_article.id)
-        response = logged_in_client.get(url, follow_redirects=False)
+        response = logged_in_client.post(url, follow_redirects=False)
 
         # Should redirect with error
         assert response.status_code == 302
@@ -299,7 +299,7 @@ class TestArticlesUnpublish:
     ):
         """Test successfully unpublishing a published article."""
         url = url_for("ArticlesWipView:unpublish", id=published_article.id)
-        response = logged_in_client.get(url, follow_redirects=False)
+        response = logged_in_client.post(url, follow_redirects=False)
 
         # Should redirect to index after success
         assert response.status_code == 302
@@ -312,7 +312,7 @@ class TestArticlesUnpublish:
     ):
         """Test that unpublishing a draft article fails."""
         url = url_for("ArticlesWipView:unpublish", id=test_article.id)
-        response = logged_in_client.get(url, follow_redirects=False)
+        response = logged_in_client.post(url, follow_redirects=False)
 
         # Should redirect with error
         assert response.status_code == 302
@@ -389,7 +389,7 @@ class TestArticlesDelete:
     ):
         """Test deleting own article redirects."""
         url = url_for("ArticlesWipView:delete", id=test_article.id)
-        response = logged_in_client.get(url, follow_redirects=False)
+        response = logged_in_client.post(url, follow_redirects=False)
         assert response.status_code == 302
 
     def test_delete_article_sets_deleted_at(
@@ -400,7 +400,7 @@ class TestArticlesDelete:
     ):
         """Test delete sets deleted_at timestamp."""
         url = url_for("ArticlesWipView:delete", id=test_article.id)
-        logged_in_client.get(url, follow_redirects=False)
+        logged_in_client.post(url, follow_redirects=False)
         db_session.refresh(test_article)
         assert test_article.deleted_at is not None
 

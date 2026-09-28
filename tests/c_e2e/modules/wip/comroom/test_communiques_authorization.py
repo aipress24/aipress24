@@ -130,7 +130,7 @@ class TestPublishForValidatedClient:
         communique = _draft_communique_for(fresh_db.session, test_user, test_org)
         url = url_for("CommuniquesWipView:publish", id=communique.id)
 
-        response = logged_in_client.get(url, follow_redirects=False)
+        response = logged_in_client.post(url, follow_redirects=False)
 
         assert response.status_code == 302
         fresh_db.session.refresh(communique)
@@ -147,7 +147,7 @@ class TestPublishForValidatedClient:
         communique = _draft_communique_for(fresh_db.session, test_user, client_org)
         url = url_for("CommuniquesWipView:publish", id=communique.id)
 
-        response = logged_in_client.get(url, follow_redirects=False)
+        response = logged_in_client.post(url, follow_redirects=False)
 
         assert response.status_code == 302
         fresh_db.session.refresh(communique)
@@ -165,7 +165,7 @@ class TestPublishForValidatedClient:
         communique = _draft_communique_for(fresh_db.session, test_user, stranger_org)
         url = url_for("CommuniquesWipView:publish", id=communique.id)
 
-        response = logged_in_client.get(url, follow_redirects=False)
+        response = logged_in_client.post(url, follow_redirects=False)
 
         # Rejected -> redirect back to edit page, still DRAFT.
         assert response.status_code == 302
@@ -191,7 +191,7 @@ class TestPublishForValidatedClient:
         communique = _draft_communique_for(fresh_db.session, test_user, client_org)
         url = url_for("CommuniquesWipView:publish", id=communique.id)
 
-        response = logged_in_client.get(url, follow_redirects=False)
+        response = logged_in_client.post(url, follow_redirects=False)
 
         assert response.status_code == 302
         fresh_db.session.refresh(communique)

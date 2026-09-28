@@ -8,6 +8,7 @@ from typing import cast
 
 from attr import define
 from flask import Flask, flash, g, redirect
+from flask_classful import route
 from flask_super.registry import register
 from sqlalchemy import func, select
 from sqlalchemy.orm import selectinload
@@ -179,9 +180,21 @@ class SujetsTable(BaseTable):
         is_owner = user_id is None or user_id == getattr(item, "owner_id", None)
 
         if item.status == PublicationStatus.DRAFT:
-            actions.append({"label": "Envoyer", "url": self.url_for(item, "publish")})
+            actions.append(
+                {
+                    "label": "Envoyer",
+                    "url": self.url_for(item, "publish"),
+                    "method": "post",
+                }
+            )
         elif item.status == PublicationStatus.PUBLIC and is_owner:
-            actions.append({"label": "Retirer", "url": self.url_for(item, "unpublish")})
+            actions.append(
+                {
+                    "label": "Retirer",
+                    "url": self.url_for(item, "unpublish"),
+                    "method": "post",
+                }
+            )
         # Accepter : only on PUBLIC sujets, and only for the rédac chef
         # (member of the target media). The route enforces the same
         # guard server-side ; we just hide the action when it wouldn't
@@ -194,12 +207,30 @@ class SujetsTable(BaseTable):
             and user_org_id is not None
             and user_org_id == item.media_id
         ):
-            actions.append({"label": "Accepter", "url": self.url_for(item, "accept")})
+            actions.append(
+                {
+                    "label": "Accepter",
+                    "url": self.url_for(item, "accept"),
+                    "method": "post",
+                }
+            )
             # Ticket #0225 — the rédac chef can also refuse (archives the
             # sujet, no Commande, notifies the author).
-            actions.append({"label": "Refuser", "url": self.url_for(item, "refuse")})
+            actions.append(
+                {
+                    "label": "Refuser",
+                    "url": self.url_for(item, "refuse"),
+                    "method": "post",
+                }
+            )
         if is_owner:
-            actions.append({"label": "Supprimer", "url": self.url_for(item, "delete")})
+            actions.append(
+                {
+                    "label": "Supprimer",
+                    "url": self.url_for(item, "delete"),
+                    "method": "post",
+                }
+            )
         return actions
 
 
@@ -299,6 +330,7 @@ class SujetsWipView(BaseWipView):
             author=owner,
         )
 
+    @route("/publish/<id>/", methods=["POST"])
     def publish(self, id):
         """Bug 0132: move sujet DRAFT → PUBLIC and notify the target media."""
         repo = self._get_repo()
@@ -342,6 +374,7 @@ class SujetsWipView(BaseWipView):
         flash("Le sujet a été envoyé au média sélectionné.")
         return redirect(self._url_for("index"))
 
+    @route("/unpublish/<id>/", methods=["POST"])
     def unpublish(self, id):
         repo = self._get_repo()
         sujet = cast("Sujet", self._get_model(id))
@@ -359,6 +392,7 @@ class SujetsWipView(BaseWipView):
         flash("Le sujet a été retiré")
         return redirect(self._url_for("index"))
 
+    @route("/accept/<id>/", methods=["POST"])
     def accept(self, id):
         """Bug #0132 part 3 : materialise a Commande from the sujet,
         archive the sujet, notify the author (bell + mail #0132 part
@@ -416,6 +450,7 @@ class SujetsWipView(BaseWipView):
         flash("Sujet accepté : une commande a été créée et l'auteur a été notifié.")
         return redirect(url_for("CommandesWipView:index"))
 
+    @route("/refuse/<id>/", methods=["POST"])
     def refuse(self, id):
         """Ticket #0225 : the rédac chef refuses a received sujet — archive
         it (no Commande) and notify the author (bell)."""

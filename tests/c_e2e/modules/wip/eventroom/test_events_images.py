@@ -111,7 +111,7 @@ class TestEventsPublishWorkflow:
     ):
         """Test publishing an event."""
         url = url_for("EventsWipView:publish", id=event_with_title.id)
-        response = logged_in_client.get(url, follow_redirects=False)
+        response = logged_in_client.post(url, follow_redirects=False)
         assert response.status_code == 302
 
     def test_unpublish_event(
@@ -119,7 +119,7 @@ class TestEventsPublishWorkflow:
     ):
         """Test unpublishing an event."""
         url = url_for("EventsWipView:unpublish", id=published_event.id)
-        response = logged_in_client.get(url, follow_redirects=False)
+        response = logged_in_client.post(url, follow_redirects=False)
         assert response.status_code == 302
 
     def test_unpublish_draft_event(
@@ -127,7 +127,7 @@ class TestEventsPublishWorkflow:
     ):
         """Test that unpublishing a draft fails."""
         url = url_for("EventsWipView:unpublish", id=event_with_title.id)
-        response = logged_in_client.get(url, follow_redirects=False)
+        response = logged_in_client.post(url, follow_redirects=False)
         assert response.status_code == 302
 
 

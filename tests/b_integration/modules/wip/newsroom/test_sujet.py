@@ -363,6 +363,20 @@ class TestSujetsTableActions:
         assert "Envoyer" in labels
         assert "Retirer" not in labels
 
+    def test_state_changing_actions_are_posts(self):
+        table = SujetsTable()
+        item = MagicMock(id=1, owner_id=10, media_id=20, status=PublicationStatus.DRAFT)
+        g.user = MagicMock(id=10, organisation_id=99)
+
+        methods = {a["label"]: a.get("method") for a in table.get_actions(item)}
+
+        assert methods == {
+            "Voir": None,
+            "Modifier": None,
+            "Envoyer": "post",
+            "Supprimer": "post",
+        }
+
     def test_public_item_offers_to_withdraw(self):
         table = SujetsTable()
         item = MagicMock(id=1, status=PublicationStatus.PUBLIC)

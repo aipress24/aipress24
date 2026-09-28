@@ -456,7 +456,7 @@ class TestArticleAccessControl:
         foreign_article: Article,
     ) -> None:
         client = make_authenticated_client(app, test_user)
-        response = client.get(
+        response = client.post(
             url_for("ArticlesWipView:publish", id=foreign_article.id),
             follow_redirects=False,
         )
@@ -469,7 +469,7 @@ class TestArticleAccessControl:
         foreign_article: Article,
     ) -> None:
         client = make_authenticated_client(app, test_user)
-        response = client.get(
+        response = client.post(
             url_for("ArticlesWipView:unpublish", id=foreign_article.id),
             follow_redirects=False,
         )

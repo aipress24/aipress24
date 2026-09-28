@@ -91,7 +91,7 @@ class TestCommuniquesPublish:
     ):
         """Test successfully publishing a draft communique."""
         url = url_for("CommuniquesWipView:publish", id=test_communique.id)
-        response = logged_in_client.get(url, follow_redirects=False)
+        response = logged_in_client.post(url, follow_redirects=False)
         assert response.status_code == 302
 
     def test_publish_embargoed_communique_fails(
@@ -101,7 +101,7 @@ class TestCommuniquesPublish:
     ):
         """Test that publishing an embargoed communique fails."""
         url = url_for("CommuniquesWipView:publish", id=embargoed_communique.id)
-        response = logged_in_client.get(url, follow_redirects=False)
+        response = logged_in_client.post(url, follow_redirects=False)
 
         # Should redirect back with error
         assert response.status_code == 302
@@ -125,7 +125,7 @@ class TestCommuniquesPublish:
         db_session.flush()
 
         url = url_for("CommuniquesWipView:publish", id=communique.id)
-        response = logged_in_client.get(url, follow_redirects=False)
+        response = logged_in_client.post(url, follow_redirects=False)
         assert response.status_code == 302
 
     def test_publish_communique_without_contenu(
@@ -144,7 +144,7 @@ class TestCommuniquesPublish:
         db_session.flush()
 
         url = url_for("CommuniquesWipView:publish", id=communique.id)
-        response = logged_in_client.get(url, follow_redirects=False)
+        response = logged_in_client.post(url, follow_redirects=False)
         assert response.status_code == 302
 
 
@@ -156,7 +156,7 @@ class TestCommuniquesUnpublish:
     ):
         """Test successfully unpublishing a published communique."""
         url = url_for("CommuniquesWipView:unpublish", id=published_communique.id)
-        response = logged_in_client.get(url, follow_redirects=False)
+        response = logged_in_client.post(url, follow_redirects=False)
         assert response.status_code == 302
 
     def test_unpublish_draft_communique(
@@ -164,7 +164,7 @@ class TestCommuniquesUnpublish:
     ):
         """Test that unpublishing a draft communique fails."""
         url = url_for("CommuniquesWipView:unpublish", id=test_communique.id)
-        response = logged_in_client.get(url, follow_redirects=False)
+        response = logged_in_client.post(url, follow_redirects=False)
         assert response.status_code == 302
 
 
@@ -260,7 +260,7 @@ class TestCommuniquesDelete:
     ):
         """Test deleting own communique redirects."""
         url = url_for("CommuniquesWipView:delete", id=test_communique.id)
-        response = logged_in_client.get(url, follow_redirects=False)
+        response = logged_in_client.post(url, follow_redirects=False)
         assert response.status_code == 302
 
 

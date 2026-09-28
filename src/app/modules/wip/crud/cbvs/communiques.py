@@ -109,6 +109,7 @@ class CommuniquesTable(BaseTable):
                 {
                     "label": "Publier",
                     "url": self.url_for(item, "publish"),
+                    "method": "post",
                 }
             )
         else:
@@ -116,12 +117,14 @@ class CommuniquesTable(BaseTable):
                 {
                     "label": "Dépublier",
                     "url": self.url_for(item, "unpublish"),
+                    "method": "post",
                 }
             )
         actions += [
             {
                 "label": "Supprimer",
                 "url": self.url_for(item, "delete"),
+                "method": "post",
             },
         ]
         return actions
@@ -261,6 +264,7 @@ class CommuniquesWipView(BaseWipView):
             "wip/communique/_view_images.j2", post=CommuniqueVM(model)
         )
 
+    @route("/publish/<id>/", methods=["POST"])
     def publish(self, id):
         repo = self._get_repo()
         communique = cast("Communique", self._get_model(id))
@@ -307,6 +311,7 @@ class CommuniquesWipView(BaseWipView):
         flash("Le communiqué a été publié")
         return redirect(self._url_for("index"))
 
+    @route("/unpublish/<id>/", methods=["POST"])
     def unpublish(self, id):
         repo = self._get_repo()
         communique = cast("Communique", self._get_model(id))

@@ -128,6 +128,7 @@ class EventsTable(BaseTable):
             {
                 "label": "Supprimer",
                 "url": self.url_for(item, "delete"),
+                "method": "post",
             },
         ]
         return actions
@@ -196,7 +197,9 @@ def _publication_actions(item, url_for) -> list[dict]:
     # s'applique.
     user = getattr(g, "user", None)
     if item.status == PublicationStatus.PUBLIC:
-        return [{"label": "Dépublier", "url": url_for(item, "unpublish")}]
+        return [
+            {"label": "Dépublier", "url": url_for(item, "unpublish"), "method": "post"}
+        ]
 
     reviews = review_required(item.publisher)
     reviewer = is_reviewer(user, item.publisher) if reviews else False
@@ -208,14 +211,18 @@ def _publication_actions(item, url_for) -> list[dict]:
         if not reviewer:
             return []
         return [
-            {"label": "Valider et publier", "url": url_for(item, "publish")},
+            {
+                "label": "Valider et publier",
+                "url": url_for(item, "publish"),
+                "method": "post",
+            },
             {"label": "Renvoyer à l'auteur", "url": url_for(item, "review")},
         ]
 
     # DRAFT
     if reviews and not reviewer:
         return [{"label": "Soumettre à relecture", "url": url_for(item, "review")}]
-    return [{"label": "Publier", "url": url_for(item, "publish")}]
+    return [{"label": "Publier", "url": url_for(item, "publish"), "method": "post"}]
 
 
 def _accrediter_label(event) -> str:
@@ -464,6 +471,7 @@ class EventsWipView(BaseWipView):
 
         event_updated.send(model)
 
+    @route("/publish/<id>/", methods=["POST"])
     def publish(self, id):
         repo = self._get_repo()
         event = cast("Event", self._get_model(id))
@@ -519,6 +527,7 @@ class EventsWipView(BaseWipView):
         flash("L'événement a été publié")
         return redirect(self._url_for("index"))
 
+    @route("/unpublish/<id>/", methods=["POST"])
     def unpublish(self, id):
         repo = self._get_repo()
         event = cast("Event", self._get_model(id))

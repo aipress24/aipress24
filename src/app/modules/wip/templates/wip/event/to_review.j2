@@ -28,10 +28,12 @@
                class="rounded-md border border-gray-300 bg-white px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50">
               Lire
             </a>
-            <a href="{{ url_for('EventsWipView:publish', id=event.id) }}"
-               class="rounded-md border border-transparent bg-pink-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-pink-700">
-              Valider et publier
-            </a>
+            <form method="post" action="{{ url_for('EventsWipView:publish', id=event.id) }}">
+              <button type="submit"
+                      class="rounded-md border border-transparent bg-pink-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-pink-700">
+                Valider et publier
+              </button>
+            </form>
             <a href="{{ url_for('EventsWipView:review', id=event.id) }}"
                class="rounded-md border border-transparent bg-amber-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-amber-700">
               Renvoyer

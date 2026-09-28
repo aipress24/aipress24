@@ -343,7 +343,7 @@ def test_bug_0325_members_are_shown_by_their_function(
 # ─── #0319 — accréditation : l'organisateur et le refusé ───────────
 
 
-def _publish_own_event(page: Page, base_url: str, authed_get, payload_of) -> dict:
+def _publish_own_event(page: Page, base_url: str, authed_post, payload_of) -> dict:
     """Créer puis publier un événement au nom du membre connecté.
 
     Rend `{"wip_id", "public_id", "title"}`. Les deux identifiants
@@ -380,8 +380,9 @@ def _publish_own_event(page: Page, base_url: str, authed_get, payload_of) -> dic
 
     wip_id = _find_wip_event_id(page, base_url, title)
     assert wip_id, f"événement {title!r} absent de /wip/events/"
-    published = authed_get(f"{base_url}/wip/events/publish/{wip_id}/")
+    published = authed_post(f"{base_url}/wip/events/publish/{wip_id}/", {})
     assert published["status"] < 400, f"publication : {published}"
+    assert "/auth/login" not in published["url"], f"publication : {published}"
 
     public_id = _find_public_event_id(page, base_url, title)
     return {"wip_id": wip_id, "public_id": public_id, "title": title}
@@ -429,7 +430,6 @@ def test_bug_0319_organiser_is_not_offered_accreditation_on_own_event(
     base_url: str,
     profile,
     login,
-    authed_get,
     authed_post,
     event_create_payload,
 ) -> None:
@@ -446,7 +446,7 @@ def test_bug_0319_organiser_is_not_offered_accreditation_on_own_event(
     commentaire.
     """
     login(profile(_PRESS_MEDIA))
-    event = _publish_own_event(page, base_url, authed_get, event_create_payload)
+    event = _publish_own_event(page, base_url, authed_post, event_create_payload)
     public_id = event["public_id"]
     try:
         assert public_id, f"{event['title']!r} publié mais absent de /events/"
@@ -471,8 +471,8 @@ def test_bug_0319_organiser_is_not_offered_accreditation_on_own_event(
             f"l'organisateur peut s'accréditer lui-même par un POST direct : {refus}"
         )
     finally:
-        authed_get(f"{base_url}/wip/events/unpublish/{event['wip_id']}/")
-        authed_get(f"{base_url}/wip/events/{event['wip_id']}/delete")
+        authed_post(f"{base_url}/wip/events/unpublish/{event['wip_id']}/", {})
+        authed_post(f"{base_url}/wip/events/{event['wip_id']}/delete", {})
 
 
 @pytest.mark.mutates_db
@@ -483,7 +483,6 @@ def test_bug_0319_rejected_member_is_told_so(
     profiles,
     profile,
     login,
-    authed_get,
     authed_post,
     event_create_payload,
 ) -> None:
@@ -503,7 +502,7 @@ def test_bug_0319_rejected_member_is_told_so(
     demandeur = candidats[0]
 
     login(organiser)
-    event = _publish_own_event(page, base_url, authed_get, event_create_payload)
+    event = _publish_own_event(page, base_url, authed_post, event_create_payload)
     public_id, wip_id = event["public_id"], event["wip_id"]
     try:
         assert public_id, f"{event['title']!r} publié mais absent de /events/"
@@ -542,5 +541,5 @@ def test_bug_0319_rejected_member_is_told_so(
         )
     finally:
         login(organiser)
-        authed_get(f"{base_url}/wip/events/unpublish/{wip_id}/")
-        authed_get(f"{base_url}/wip/events/{wip_id}/delete")
+        authed_post(f"{base_url}/wip/events/unpublish/{wip_id}/", {})
+        authed_post(f"{base_url}/wip/events/{wip_id}/delete", {})

@@ -12,8 +12,8 @@ flip an existing item's published flag, then flip it back.
 
 Steps for each resource :
 1. Find an item belonging to the test user via its WIP listing.
-2. ``GET /wip/<resource>/publish/<id>/`` — assert <400.
-3. ``GET /wip/<resource>/unpublish/<id>/`` always, in `finally`,
+2. ``POST /wip/<resource>/publish/<id>/`` — assert <400.
+3. ``POST /wip/<resource>/unpublish/<id>/`` always, in `finally`,
    to restore the original state.
 
 Marked `mutates_db` so it auto-skips against the prod target.
@@ -104,6 +104,7 @@ def test_publish_unpublish_toggle(
     base_url: str,
     profile,
     login,
+    authed_post,
     resource: str,
     community: str,
     listing: str,
@@ -122,15 +123,14 @@ def test_publish_unpublish_toggle(
     publish_url = base_url + publish_tmpl.format(id=item_id)
     unpublish_url = base_url + unpublish_tmpl.format(id=item_id)
     try:
-        resp = page.goto(publish_url, wait_until="domcontentloaded")
-        assert resp is not None and resp.status < 400, (
-            f"publish toggle failed for {resource} {item_id}: "
-            f"{resp.status if resp else '?'}"
-        )
+        resp = authed_post(publish_url, {})
+        assert resp["status"] < 400, f"publish failed for {resource} {item_id}: {resp}"
+        assert "/auth/login" not in resp["url"], f"publish logged out: {resp}"
     finally:
         # Always try to revert, even if the assert above fired.
-        revert = page.goto(unpublish_url, wait_until="domcontentloaded")
-        assert revert is not None and revert.status < 400, (
-            f"unpublish (revert) failed for {resource} {item_id}: "
-            f"{revert.status if revert else '?'} — manual cleanup needed"
+        revert = authed_post(unpublish_url, {})
+        assert revert["status"] < 400, (
+            f"unpublish (revert) failed for {resource} {item_id}: {revert} "
+            "— manual cleanup needed"
         )
+        assert "/auth/login" not in revert["url"], f"unpublish logged out: {revert}"

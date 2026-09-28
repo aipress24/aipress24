@@ -494,7 +494,7 @@ class BaseWipView(FlaskView, abc.ABC):
 
         repo.add(model, auto_commit=True)
 
-    @route("/<id>/delete", methods=["GET"])
+    @route("/<id>/delete", methods=["POST"])
     def delete(self, id):
         repo = self._get_repo()
         model = self._get_model(id)

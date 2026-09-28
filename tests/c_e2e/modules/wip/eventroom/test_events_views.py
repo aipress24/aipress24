@@ -107,7 +107,7 @@ class TestEventsPublish:
     ):
         """Test successfully publishing a draft event."""
         url = url_for("EventsWipView:publish", id=test_event.id)
-        response = logged_in_client.get(url, follow_redirects=False)
+        response = logged_in_client.post(url, follow_redirects=False)
         assert response.status_code == 302
 
     def test_publish_event_with_invalid_times(
@@ -118,7 +118,7 @@ class TestEventsPublish:
     ):
         """Test that publishing an event with invalid times fails."""
         url = url_for("EventsWipView:publish", id=invalid_time_event.id)
-        response = logged_in_client.get(url, follow_redirects=False)
+        response = logged_in_client.post(url, follow_redirects=False)
 
         # Should redirect back with error
         assert response.status_code == 302
@@ -144,7 +144,7 @@ class TestEventsPublish:
         db_session.flush()
 
         url = url_for("EventsWipView:publish", id=event.id)
-        response = logged_in_client.get(url, follow_redirects=False)
+        response = logged_in_client.post(url, follow_redirects=False)
         assert response.status_code == 302
 
     def test_publish_event_without_contenu(
@@ -164,7 +164,7 @@ class TestEventsPublish:
         db_session.flush()
 
         url = url_for("EventsWipView:publish", id=event.id)
-        response = logged_in_client.get(url, follow_redirects=False)
+        response = logged_in_client.post(url, follow_redirects=False)
         assert response.status_code == 302
 
     def test_publish_event_without_dates_fails(
@@ -190,7 +190,7 @@ class TestEventsPublish:
         db_session.flush()
 
         url = url_for("EventsWipView:publish", id=event.id)
-        response = logged_in_client.get(url, follow_redirects=False)
+        response = logged_in_client.post(url, follow_redirects=False)
         assert response.status_code == 302
         db_session.refresh(event)
         assert event.status == PublicationStatus.DRAFT, (
@@ -207,7 +207,7 @@ class TestEventsUnpublish:
     ):
         """Test successfully unpublishing a published event."""
         url = url_for("EventsWipView:unpublish", id=published_event.id)
-        response = logged_in_client.get(url, follow_redirects=False)
+        response = logged_in_client.post(url, follow_redirects=False)
         assert response.status_code == 302
 
     def test_unpublish_draft_event(
@@ -215,7 +215,7 @@ class TestEventsUnpublish:
     ):
         """Test that unpublishing a draft event fails."""
         url = url_for("EventsWipView:unpublish", id=test_event.id)
-        response = logged_in_client.get(url, follow_redirects=False)
+        response = logged_in_client.post(url, follow_redirects=False)
         assert response.status_code == 302
 
 
@@ -296,7 +296,7 @@ class TestEventsDelete:
     ):
         """Test deleting own event redirects."""
         url = url_for("EventsWipView:delete", id=test_event.id)
-        response = logged_in_client.get(url, follow_redirects=False)
+        response = logged_in_client.post(url, follow_redirects=False)
         assert response.status_code == 302
 
     def test_delete_event_sets_deleted_at(
@@ -307,7 +307,7 @@ class TestEventsDelete:
     ):
         """Test delete sets deleted_at timestamp."""
         url = url_for("EventsWipView:delete", id=test_event.id)
-        logged_in_client.get(url, follow_redirects=False)
+        logged_in_client.post(url, follow_redirects=False)
         db_session.refresh(test_event)
         assert test_event.deleted_at is not None
 

@@ -16,12 +16,12 @@ Pattern :
 1. Login journalist (PRESS_MEDIA).
 2. Find an existing article owned by the user via /wip/articles/.
 3. Capture its title.
-4. Toggle to PUBLISHED via /wip/articles/publish/<id>/.
+4. Toggle to PUBLISHED via a POST to /wip/articles/publish/<id>/.
 5. Assert title visible on /wire/tab/wall (Wire Wall query
    includes published Posts ordered by published_at desc).
 6. Assert title visible on /swork/profile/ (owner's publication
    listing).
-7. Cleanup : restore to UNPUBLISHED via /wip/articles/unpublish/<id>/.
+7. Cleanup : restore to UNPUBLISHED via a POST to /wip/articles/unpublish/<id>/.
 
 Lifeline : the test is idempotent vis-à-vis the article's pre-test
 state — it always finishes with the article unpublished. If the
@@ -102,6 +102,7 @@ def test_cm1_article_publish_then_visible_on_wire_and_swork(
     base_url: str,
     profile,
     login,
+    authed_post,
 ) -> None:
     """End-to-end CM-1 — publication propagation."""
     p = profile("PRESS_MEDIA")
@@ -120,9 +121,10 @@ def test_cm1_article_publish_then_visible_on_wire_and_swork(
     unpublish_url = f"{base_url}/wip/articles/unpublish/{article_id}/"
     try:
         # Step 1 : publish (idempotent if already published).
-        resp = page.goto(publish_url, wait_until="domcontentloaded")
-        assert resp is not None and resp.status < 400, (
-            f"publish article {article_id} : status={resp.status if resp else '?'}"
+        resp = authed_post(publish_url, {})
+        assert resp["status"] < 400, f"publish article {article_id} : {resp}"
+        assert "/auth/login" not in resp["url"], (
+            f"publish article {article_id} : {resp}"
         )
 
         # Step 2 : assert visible on /wire/tab/wall.
@@ -203,4 +205,4 @@ def test_cm1_article_publish_then_visible_on_wire_and_swork(
         # started, this leaves it unpublished — a one-bit state
         # mutation. Cheap and acceptable for now ; full lossless
         # restore would require querying the original state first.
-        page.goto(unpublish_url, wait_until="domcontentloaded")
+        authed_post(unpublish_url, {})

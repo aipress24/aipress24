@@ -14,7 +14,7 @@ Bugs covered :
 - **#0131** — calendar entries link to ``/events/<id>`` with
   ``HH:MM`` time and a real ``<time datetime>`` attribute.
 - **#0132 (ext)** — sujets list and view both surface the author.
-- **#0132** — sujets table exposes Publier/Dépublier action.
+- **#0132** — sujets table exposes Envoyer/Retirer action.
 - **#0132** — publish-then-unpublish sujet round-trip.
 - **#0132 (parts 2-5)** — Sujet workflow follow-ups (mini-profile
   link, Accepter action, active counter, cloche notif).
@@ -302,7 +302,7 @@ def test_bug_0132_sujet_list_and_view_show_author(
 def test_bug_0132_sujets_table_exposes_publier_action(
     page: Page, base_url: str, profile, login
 ) -> None:
-    """Bug #0132 — SujetsTable must expose a "Publier" action so DRAFT
+    """Bug #0132 — SujetsTable must expose an "Envoyer" action so DRAFT
     sujets can be promoted to PUBLIC and the targeted media is notified.
     Before this fix, only "Voir / Modifier / Supprimer" were exposed and
     sujets sat in DRAFT forever."""
@@ -327,8 +327,8 @@ def test_bug_0132_sujets_table_exposes_publier_action(
     if not has_row:
         pytest.skip("no sujet row in this user's table — seed data")
 
-    assert "Publier" in body or "Dépublier" in body, (
-        "neither Publier nor Dépublier action found on /wip/sujets/ — "
+    assert "Envoyer" in body or "Retirer" in body, (
+        "neither Envoyer nor Retirer action found on /wip/sujets/ — "
         "SujetsTable.get_actions probably reverted to default actions"
     )
 
@@ -341,29 +341,25 @@ def test_bug_0132_publish_sujet_round_trip(
     login,
     authed_post,
 ) -> None:
-    """End-to-end: GET publish on a DRAFT sujet → 200/redirect, then
-    GET unpublish → restored. Restores initial state."""
+    """End-to-end: POST publish on a DRAFT sujet → 200/redirect, then
+    POST unpublish → restored. Restores initial state."""
     p = profile(_PRESS_MEDIA)
     login(p)
     sid = _first_id_in_table(page, f"{base_url}/wip/sujets/", _SUJET_PAT)
     if sid is None:
         pytest.skip("no sujet in seed data")
 
-    publish_resp = page.goto(
-        f"{base_url}/wip/sujets/publish/{sid}/", wait_until="domcontentloaded"
-    )
-    if publish_resp is None or publish_resp.status >= 400:
+    publish_resp = authed_post(f"{base_url}/wip/sujets/publish/{sid}/", {})
+    assert "/auth/login" not in publish_resp["url"], publish_resp
+    if publish_resp["status"] >= 400:
         pytest.skip(
-            f"publish endpoint returned "
-            f"{publish_resp.status if publish_resp else '?'} — sujet "
+            f"publish endpoint returned {publish_resp['status']} — sujet "
             "may not be in DRAFT state or required fields missing"
         )
 
-    unpublish_resp = page.goto(
-        f"{base_url}/wip/sujets/unpublish/{sid}/",
-        wait_until="domcontentloaded",
-    )
-    assert unpublish_resp is not None and unpublish_resp.status < 400
+    unpublish_resp = authed_post(f"{base_url}/wip/sujets/unpublish/{sid}/", {})
+    assert unpublish_resp["status"] < 400, unpublish_resp
+    assert "/auth/login" not in unpublish_resp["url"], unpublish_resp
 
 
 # ─── #0132 (parts 2, 3, 4, 5) ─────────────────────────────────────

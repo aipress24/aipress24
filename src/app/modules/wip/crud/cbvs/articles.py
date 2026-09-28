@@ -201,6 +201,7 @@ class ArticlesTable(BaseTable):
                 {
                     "label": "Publier",
                     "url": self.url_for(item, "publish"),
+                    "method": "post",
                 }
             )
         else:
@@ -208,6 +209,7 @@ class ArticlesTable(BaseTable):
                 {
                     "label": "Dépublier",
                     "url": self.url_for(item, "unpublish"),
+                    "method": "post",
                 }
             )
             # Ticket #0195 — « Justificatif » : notifier les
@@ -224,6 +226,7 @@ class ArticlesTable(BaseTable):
             {
                 "label": "Supprimer",
                 "url": self.url_for(item, "delete"),
+                "method": "post",
             },
         ]
         return actions
@@ -291,6 +294,7 @@ class ArticlesWipView(BaseWipView):
                 model.publisher_id = g.user.organisation_id
         article_updated.send(model)
 
+    @route("/publish/<id>/", methods=["POST"])
     def publish(self, id):
         repo = self._get_repo()
         article = cast("Article", self._get_model(id))
@@ -309,6 +313,7 @@ class ArticlesWipView(BaseWipView):
         flash("L'article a été publié")
         return redirect(self._url_for("index"))
 
+    @route("/unpublish/<id>/", methods=["POST"])
     def unpublish(self, id):
         repo = self._get_repo()
         article = cast("Article", self._get_model(id))

@@ -194,6 +194,7 @@ class BaseTable(Table):
             {
                 "label": "Supprimer",
                 "url": self.url_for(item, "delete"),
+                "method": "post",
             },
         ]
 
