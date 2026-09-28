@@ -254,6 +254,7 @@ def test_bug_0132_sujet_list_and_view_show_author(
     base_url: str,
     profile,
     login,
+    was_denied,
 ) -> None:
     """Bug #0132 extension — La liste des sujets et la vue détaillée
     doivent afficher l'auteur. Le fix ajoute une colonne "Auteur"
@@ -264,7 +265,18 @@ def test_bug_0132_sujet_list_and_view_show_author(
 
     # 1. List view must have "Auteur" column header
     resp = page.goto(f"{base_url}/wip/sujets/", wait_until="domcontentloaded")
-    assert resp is not None and resp.status < 400
+    assert resp is not None
+    if was_denied(resp):
+        # `user_can_access_sujets` wants the PRESS_MEDIA role *and* an
+        # active Business Wall of type media / micro / news_agency. Refused,
+        # the page redirects to `/` with a 2xx, so a status check sees
+        # nothing and the assertions below read the wall instead.
+        pytest.skip(
+            f"{p['email']} cannot reach /wip/sujets/ : the role is not "
+            "enough, their organisation also needs an active Business Wall "
+            "of a journalistic type"
+        )
+    assert resp.status < 400
     body = page.content()
     assert "Auteur" in body, (
         "sujets list table should have 'Auteur' column — bug #0132 extension regression"

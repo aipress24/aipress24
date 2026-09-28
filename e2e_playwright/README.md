@@ -97,9 +97,21 @@ New module dirs (`swork/`, `biz/`, `events/`, `stripe/`, `notifications/`, `pref
 Run a single file manually :
 
 ```bash
-pytest -v --browser chromium --base-url=http://127.0.0.1:5000 \
-    e2e_playwright/common/test_authorization_matrix.py
+pytest -v e2e_playwright/common/test_authorization_matrix.py
 ```
+
+The target defaults to `http://127.0.0.1:5000`, the `make run` dev server, so
+nothing else is needed against it. `E2E_BASE_URL` changes the default and
+`--base-url` overrides both:
+
+```bash
+E2E_BASE_URL=http://127.0.0.1:8899 pytest -v e2e_playwright/kyc/
+pytest -v --base-url=https://aipress24.com e2e_playwright/public/
+```
+
+That server must accept the CSV passwords; `run_e2e.py` gets this by setting
+`FLASK_ACCEPT_ANY_PASSWORD`, and a hand-started server needs
+`FLASK_UNSECURE=1 FLASK_ACCEPT_ANY_PASSWORD=1` to match.
 
 ## Test profiles
 

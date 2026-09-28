@@ -18,3 +18,6 @@ MAX_CONTENT_LENGTH = 32 * 1024 * 1024
 MAX_FORM_MEMORY_SIZE = 12 * 1024 * 1024
 # Duration of the right to read an article after purchase (in days)
 ARTICLE_CONSULTATION_DURATION = 365
+# Publisher's share of editorial sales revenue, per the platform CGV
+# (in percent of the sale amount excl. VAT)
+PUBLISHER_REVENUE_SHARE_PERCENT = 50

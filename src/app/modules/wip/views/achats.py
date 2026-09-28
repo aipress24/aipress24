@@ -16,7 +16,7 @@ from datetime import UTC, datetime
 from io import BytesIO
 from typing import TYPE_CHECKING
 
-from flask import g, render_template, send_file
+from flask import g, render_template, send_file, url_for
 from odsgenerator import odsgenerator
 from sqlalchemy import or_, select
 from sqlalchemy.orm import selectinload
@@ -27,7 +27,11 @@ from app.flask.extensions import db
 from app.flask.lib.nav import nav
 from app.lib.base62 import base62
 from app.modules.wip import blueprint
-from app.modules.wire.models import ArticlePurchase, PurchaseStatus
+from app.modules.wire.models import (
+    ArticlePurchase,
+    PurchaseStatus,
+    purchase_product_label,
+)
 from app.modules.wire.services.purchase_aggregates import (
     get_org_purchase_total,
     get_user_purchase_total,
@@ -37,13 +41,6 @@ from ._common import get_secondary_menu
 
 if TYPE_CHECKING:
     from app.models.auth import User
-
-_PRODUCT_LABELS: dict[str, str] = {
-    "consultation": "Consultation d'article",
-    "justificatif": "Justificatif de publication",
-    "cession": "Cession de droits",
-    "consultation_gift": "Consultation offerte",
-}
 
 MONTH_NAMES_FR: dict[int, str] = {
     1: "Janvier",
@@ -368,11 +365,11 @@ def _format_purchase_row(p: ArticlePurchase, user: User) -> dict:
     return {
         "id": p.id,
         "date": dt,
-        "type_label": _PRODUCT_LABELS.get(str(p.product_type), str(p.product_type)),
+        "type_label": purchase_product_label(p.product_type),
         "post_title": getattr(post, "title", "")
         or getattr(post, "titre", "")
         or "(article)",
-        "post_url": f"/wire/item/{base62.encode(post.id)}" if post else "#",
+        "post_url": url_for("wire.item", id=base62.encode(post.id)) if post else "#",
         "amount_eur": (p.amount_cents or 0) / 100,
         "status": str(p.status),
         "is_paid": p.status == PurchaseStatus.PAID,

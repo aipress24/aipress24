@@ -36,6 +36,7 @@ from app.modules.bw.bw_activation.models.role import (
     RoleAssignment,
 )
 from app.modules.kyc.field_label import country_code_to_country_name
+from app.modules.wire.models import purchase_product_label
 from app.modules.wire.services.purchase_aggregates import (
     PaidPurchaseRow,
     list_paid_purchases,
@@ -1134,13 +1135,6 @@ class SalesLedgerExporter(BaseExporter):
         "stripe_payment_intent_id",
     ]
 
-    _PRODUCT_LABELS: ClassVar[dict[str, str]] = {
-        "consultation": "Consultation",
-        "consultation_gift": "Consultation (cadeau)",
-        "justificatif": "Justificatif",
-        "cession": "Cession de droits",
-    }
-
     @property
     def title(self) -> str:
         assert self.date_now is not None
@@ -1183,7 +1177,7 @@ class SalesLedgerExporter(BaseExporter):
                 dt = getattr(row.paid_at, "datetime", row.paid_at)
                 return as_naive_localtz(dt)
             case "product_type":
-                return self._PRODUCT_LABELS.get(row.product_type, row.product_type)
+                return purchase_product_label(row.product_type)
             case "amount_ht_eur":
                 return row.amount_cents / 100
             case "currency":

@@ -57,7 +57,7 @@ def _absolute_url_for(endpoint: str, **values) -> str:
 
 # Custom list template for articles: adds a discreet reminder banner
 # pointing to the cession-droits policy page, visible only for users
-# whose active BW is of type `media`. The banner is shown at the top
+# who manage an active BW of type `media`. The banner is shown at the top
 # of the newsroom article index — which is the landing page right
 # after publishing an article (the publish handler redirects here).
 # ref: `local-notes/specs/cession-droits-mvp.md` §7.3.
@@ -110,17 +110,27 @@ _ARTICLE_MODIFIER_TEMPLATE = """
 """
 
 
-def _user_has_media_bw() -> bool:
-    """True if the current user's active BW is of type `media`."""
+def _user_manages_media_bw() -> bool:
+    """True if the current user's active BW is of type `media` and they
+    may manage it.
+
+    The banner links to `/BW/rights-policy`, which only BW managers and
+    admins can open: a plain staff journalist must not see a link that
+    answers « Accès non autorisé » (#0366).
+    """
     from app.modules.bw.bw_activation.models.business_wall import BWStatus
     from app.modules.bw.bw_activation.user_utils import current_business_wall
+    from app.modules.bw.bw_activation.utils import is_bw_manager_or_admin
 
     user = g.user
     if not user or user.is_anonymous:
         return False
     bw = current_business_wall(user)
     return (
-        bw is not None and bw.bw_type == "media" and bw.status == BWStatus.ACTIVE.value
+        bw is not None
+        and bw.bw_type == "media"
+        and bw.status == BWStatus.ACTIVE.value
+        and is_bw_manager_or_admin(user, bw)
     )
 
 
@@ -252,7 +262,7 @@ class ArticlesWipView(BaseWipView):
         return {
             "title": self.label_main,
             "table": self._make_table(q),
-            "rights_reminder": _user_has_media_bw(),
+            "rights_reminder": _user_manages_media_bw(),
         }
 
     @templated(_ARTICLE_VOIR_TEMPLATE)

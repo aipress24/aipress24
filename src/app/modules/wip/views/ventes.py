@@ -21,7 +21,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from flask import g, render_template
+from flask import g, render_template, url_for
 from sqlalchemy import select
 from sqlalchemy.orm import selectinload
 from werkzeug.exceptions import Forbidden
@@ -35,12 +35,14 @@ from app.modules.wire.models import (
     ArticlePurchase,
     Post,
     PurchaseStatus,
+    purchase_product_label,
 )
 from app.modules.wire.services.purchase_aggregates import (
     get_media_sales_total,
     get_user_sales_total,
 )
 from app.services.roles import has_role
+from app.settings.constants import PUBLISHER_REVENUE_SHARE_PERCENT
 
 from ._common import get_secondary_menu
 
@@ -52,12 +54,6 @@ if TYPE_CHECKING:
 # should not pull from `crud.cbvs`). The list of qualifying profiles
 # is small and stable — drift would surface in the rédac chef tests.
 _REDAC_CHEF_PROFILES = frozenset({"PM_DIR", "PM_DIR_INST", "PM_DIR_SYND"})
-
-_PRODUCT_LABELS: dict[str, str] = {
-    "consultation": "Consultation d'article",
-    "justificatif": "Justificatif de publication",
-    "cession": "Cession de droits",
-}
 
 
 @blueprint.route("/ventes")
@@ -71,8 +67,10 @@ def ventes():
             title="Mes ventes",
             own_rows=[],
             own_total_eur=0.0,
+            own_share_eur=0.0,
             media_rows=[],
             media_total_eur=0.0,
+            media_share_eur=0.0,
             show_media_section=False,
             menus={"secondary": get_secondary_menu("ventes")},
         )
@@ -98,8 +96,10 @@ def ventes():
         title="Mes ventes",
         own_rows=own_rows,
         own_total_eur=own_total_eur,
+        own_share_eur=publisher_share(own_total_eur),
         media_rows=media_rows,
         media_total_eur=media_total_eur,
+        media_share_eur=publisher_share(media_total_eur),
         show_media_section=show_media,
         menus={"secondary": get_secondary_menu("ventes")},
     )
@@ -142,13 +142,20 @@ def _list_media_sales(media_org_id: int) -> list[dict]:
 
 def _row_dict(p: ArticlePurchase) -> dict:
     post = p.post
+    amount_eur = (p.amount_cents or 0) / 100
     return {
         "id": p.id,
         "date": p.paid_at or p.timestamp,
-        "type_label": _PRODUCT_LABELS.get(str(p.product_type), str(p.product_type)),
+        "type_label": purchase_product_label(p.product_type),
         "post_title": (
             getattr(post, "title", "") or getattr(post, "titre", "") or "(article)"
         ),
-        "post_url": f"/wire/item/{base62.encode(post.id)}" if post else "#",
-        "amount_eur": (p.amount_cents or 0) / 100,
+        "post_url": url_for("wire.item", id=base62.encode(post.id)) if post else "#",
+        "amount_eur": amount_eur,
+        "editor_share_eur": publisher_share(amount_eur),
     }
+
+
+def publisher_share(amount_eur: float) -> float:
+    """The publisher's part of a sale, per the platform CGV (#0364)."""
+    return amount_eur * PUBLISHER_REVENUE_SHARE_PERCENT / 100

@@ -12,6 +12,7 @@ import arrow
 import pytest
 
 from app.flask.routing import url_for
+from app.models.auth import User
 from app.models.lifecycle import PublicationStatus
 from app.modules.bw.bw_activation.models.business_wall import (
     BusinessWall,
@@ -24,7 +25,6 @@ if TYPE_CHECKING:
     from flask.testing import FlaskClient
     from sqlalchemy.orm import Session
 
-    from app.models.auth import User
     from app.models.organisation import Organisation
 
 
@@ -164,6 +164,40 @@ class TestArticlesIndex:
         body = response.data.decode()
         assert "Gérer les modalités" in body
         assert "/BW/rights-policy" in body
+
+    def test_no_rights_reminder_for_media_staff_without_management_role(
+        self,
+        app,
+        db_session: Session,
+        test_user: User,
+        test_org: Organisation,
+        test_article: Article,
+    ):
+        """#0366 — a staff journalist of a media BW they don't manage
+        must not see a link to a page that refuses them."""
+        manager = User(email="bw-manager-0366@example.com", active=True)
+        db_session.add(manager)
+        db_session.commit()
+        bw = BusinessWall(
+            bw_type="media",
+            status=BWStatus.ACTIVE.value,
+            owner_id=manager.id,
+            payer_id=manager.id,
+            organisation_id=test_org.id,
+            name="Test Media BW",
+        )
+        db_session.add(bw)
+        db_session.commit()
+        test_org.bw_id = bw.id
+        test_org.bw_active = "media"
+        db_session.commit()
+
+        client = make_authenticated_client(app, test_user)
+        response = client.get(url_for("ArticlesWipView:index"))
+        assert response.status_code == 200
+        assert "Gérer les modalités" not in response.data.decode()
+        # The link it would have shown is indeed closed to this user.
+        assert client.get("/BW/rights-policy").status_code != 200
 
 
 class TestArticlesPublish:

@@ -31,6 +31,7 @@ from __future__ import annotations
 from datetime import UTC, datetime
 
 import pytest
+from flask import url_for
 
 from app.lib.base62 import base62
 from app.modules.wire.models import Post
@@ -142,10 +143,14 @@ class TestRelativeArticleUrl:
     )
     def test_uses_base62_encoding(self, post_id: int) -> None:
         url = _relative_article_url(post_id)
-        assert url == f"/wire/item/{base62.encode(post_id)}"
+        assert url == f"/wire/{base62.encode(post_id)}"
 
-    def test_starts_with_wire_item_prefix(self) -> None:
-        assert _relative_article_url(7).startswith("/wire/item/")
+    def test_matches_the_live_route(self, app) -> None:
+        """#0365 — the fallback used to point at `/wire/item/<id>`,
+        which no route serves."""
+        with app.test_request_context("/"):
+            expected = url_for("wire.item", id=base62.encode(7))
+        assert _relative_article_url(7) == expected
 
 
 class TestArticleUrl:

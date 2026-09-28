@@ -32,7 +32,7 @@ from collections.abc import Callable
 from pathlib import Path
 
 import pytest
-from playwright.sync_api import Page, expect
+from playwright.sync_api import Page, Response, expect
 
 ROOT = Path(__file__).resolve().parent.parent
 CSV_PATH = ROOT / "local-notes" / "00-ListeDesProfilsDeTests-7.2.csv"
@@ -159,6 +159,29 @@ def pytest_generate_tests(metafunc):
             rows,
             ids=[r["email"] for r in rows],
         )
+
+
+#: Where the suite points when nothing says otherwise: the `make run`
+#: dev server, which the Makefile already treats as the usual target.
+DEFAULT_BASE_URL = "http://127.0.0.1:5000"
+
+
+@pytest.fixture(scope="session")
+def base_url(request) -> str:
+    """The target host: `--base-url`, else `E2E_BASE_URL`, else the dev server.
+
+    This overrides pytest-base-url's own fixture, whose default is empty.
+    An empty value turns every `page.goto(f"{base_url}/…")` into a relative
+    URL that Playwright rejects with "Cannot navigate to invalid URL",
+    naming neither the missing flag nor the cause — so the suite is
+    unusable without a flag nobody remembers. `run_e2e.py` boots a
+    throwaway server on its own port and passes `--base-url`, which wins.
+    """
+    return (
+        request.config.getoption("base_url", default=None)
+        or os.environ.get("E2E_BASE_URL")
+        or DEFAULT_BASE_URL
+    )
 
 
 @pytest.fixture(scope="session")
@@ -769,6 +792,41 @@ def login(page: Page, base_url: str) -> Callable[[dict], None]:
     return _login
 
 
+#: Stamped by `handle_forbidden_error` on the redirect it serves.
+_DENIED_HEADER = "x-access-denied"
+
+#: Still the shape for `/api/`, and for anything that aborts before the
+#: error handler runs.
+FORBIDDEN_STATUSES = {401, 403}
+
+
+def was_denied_response(response: Response) -> bool:
+    """True when the app refused the page, however it said so.
+
+    A `Forbidden` raised by a UI page does not reach the browser as 403 :
+    `app/flask/hooks.py::handle_forbidden_error` flashes it and redirects
+    to `/`, which lands on the wall. So `response.status < 400` holds for
+    a refusal, and any assertion on the page's content then fails as if
+    the feature had regressed. The marker header sits on the 302, not on
+    the page we finally land on, so walk back up the redirect chain.
+    """
+    if response.status in FORBIDDEN_STATUSES:
+        return True
+    request = response.request
+    while request is not None:
+        hop = request.response()
+        if hop is not None and hop.headers.get(_DENIED_HEADER) == "true":
+            return True
+        request = request.redirected_from
+    return False
+
+
+@pytest.fixture
+def was_denied() -> Callable[[Response], bool]:
+    """`was_denied(response)` — see `was_denied_response`."""
+    return was_denied_response
+
+
 @pytest.fixture(autouse=True)
 def _block_db_writes_on_prod(request, base_url):
     """Skip tests marked `mutates_db` when pointed at production."""
@@ -798,7 +856,7 @@ def _profiles_loaded_on_target(base_url, profiles, browser):
     loop" (the plugin's greenlet loop is already running), which used to
     get swallowed as a bogus "Cannot reach" skip for the entire suite.
     """
-    if not base_url or not profiles:
+    if not profiles:
         return
     probe = next((p for p in profiles if p["email"] not in KNOWN_BROKEN), None)
     if probe is None:
@@ -809,7 +867,14 @@ def _profiles_loaded_on_target(base_url, profiles, browser):
         try:
             page.goto(f"{base_url}/auth/login", wait_until="domcontentloaded")
         except Exception as e:
-            pytest.skip(f"Cannot reach {base_url} : {e}")
+            pytest.skip(
+                f"Cannot reach {base_url} : {e}\n"
+                "This suite drives a running app. Either `make test-e2e`, "
+                "which boots its own server and needs nothing up, or start "
+                "one with `make run` and point at it. A hand-started server "
+                "also needs FLASK_UNSECURE=1 FLASK_ACCEPT_ANY_PASSWORD=1 to "
+                "accept the CSV passwords, which `make test-e2e` sets itself."
+            )
         page.fill('input[name="email"]', probe["email"])
         page.fill('input[name="password"]', probe["password"])
         page.click('button[type="submit"], input[type="submit"]')
@@ -817,12 +882,14 @@ def _profiles_loaded_on_target(base_url, profiles, browser):
         if "/auth/login" in page.url:
             pytest.skip(
                 f"Login failed for first CSV profile "
-                f"{probe['email']} on {base_url}. Either point "
-                "`--base-url` at a target where the CSV accounts "
-                "exist (production), or check your local DB has "
-                "them with the original passwords (no recent "
-                "--update with a different "
-                "FLASK_SECURITY_PASSWORD_SALT)."
+                f"{probe['email']} on {base_url}. Three ways out: point "
+                "`--base-url` at a target where the CSV accounts exist "
+                "(production); check your local DB has them with the "
+                "original passwords (no recent --update with a different "
+                "FLASK_SECURITY_PASSWORD_SALT); or boot the server with "
+                "FLASK_UNSECURE=1 FLASK_ACCEPT_ANY_PASSWORD=1, which "
+                "accepts any password for any account and exists for "
+                "exactly this case."
             )
     finally:
         page.close()

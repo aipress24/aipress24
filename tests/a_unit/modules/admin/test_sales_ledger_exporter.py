@@ -38,9 +38,9 @@ class TestSalesLedgerCellValue:
     @pytest.mark.parametrize(
         ("product", "label"),
         [
-            ("consultation", "Consultation"),
-            ("consultation_gift", "Consultation (cadeau)"),
-            ("justificatif", "Justificatif"),
+            ("consultation", "Consultation d'article"),
+            ("consultation_gift", "Consultation offerte"),
+            ("justificatif", "Justificatif de publication"),
             ("cession", "Cession de droits"),
             ("unknown_x", "unknown_x"),  # unknown → passthrough, never a crash
         ],

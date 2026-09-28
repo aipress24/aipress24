@@ -9,6 +9,7 @@ pop-ups will also use."""
 
 from __future__ import annotations
 
+import re
 from datetime import UTC, datetime
 from typing import TYPE_CHECKING
 
@@ -104,6 +105,24 @@ class TestAchatsView:
         # the rendered page — match the unambiguous suffix instead.
         assert "Consultation d" in body and "article" in body
         assert "Justificatif de publication" in body
+
+    def test_article_link_opens_the_article(
+        self,
+        logged_in_client: FlaskClient,
+        db_session: Session,
+        test_user: User,
+        post: ArticlePost,
+    ):
+        """#0365 — same broken `/wire/item/<id>` link as on /wip/ventes."""
+        _add_paid(db_session, user=test_user, post=post, amount_cents=100)
+
+        body = logged_in_client.get("/wip/achats").data.decode()
+        match = re.search(r'href="([^"]+)"[^>]*>Mon enquête sur les pingouins<', body)
+        assert match is not None
+
+        response = logged_in_client.get(match.group(1))
+        assert response.status_code == 200
+        assert "Mon enquête sur les pingouins" in response.data.decode()
 
     def test_cumul_individuel_displayed(
         self,

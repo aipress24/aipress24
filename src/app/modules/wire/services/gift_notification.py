@@ -169,7 +169,7 @@ def _format_gift_message(*, article_title: str, giver_full_name: str) -> str:
 def _relative_article_url(post_id: int) -> str:
     """Pure fallback : URL when `url_for` can't build an external one
     (e.g. no request context, no SERVER_NAME)."""
-    return f"/wire/item/{base62.encode(post_id)}"
+    return f"/wire/{base62.encode(post_id)}"
 
 
 def _article_url(post) -> str:

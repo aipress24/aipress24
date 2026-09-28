@@ -205,6 +205,19 @@ class PurchaseProduct(StrEnum):
     CESSION = auto()
 
 
+PURCHASE_PRODUCT_LABELS: dict[str, str] = {
+    PurchaseProduct.CONSULTATION: "Consultation d'article",
+    PurchaseProduct.CONSULTATION_GIFT: "Consultation offerte",
+    PurchaseProduct.JUSTIFICATIF: "Justificatif de publication",
+    PurchaseProduct.CESSION: "Cession de droits",
+}
+
+
+def purchase_product_label(product: str) -> str:
+    """French label of a purchase product ; an unknown code is shown as is."""
+    return PURCHASE_PRODUCT_LABELS.get(str(product), str(product))
+
+
 class PurchaseStatus(StrEnum):
     PENDING = auto()
     PAID = auto()

@@ -8,6 +8,7 @@ rédac chefs, also surfaces aggregated media-wide sales."""
 
 from __future__ import annotations
 
+import re
 import uuid
 from datetime import UTC, datetime
 from typing import TYPE_CHECKING
@@ -22,6 +23,7 @@ from app.modules.wire.models import (
     PurchaseProduct,
     PurchaseStatus,
 )
+from app.settings.constants import PUBLISHER_REVENUE_SHARE_PERCENT
 
 if TYPE_CHECKING:
     from flask.testing import FlaskClient
@@ -161,6 +163,67 @@ class TestVentesViewBase:
         body = response.data.decode()
         assert "10.00" in body
         assert "88.88" not in body
+
+    def test_shows_publisher_share(
+        self,
+        logged_in_client: FlaskClient,
+        db_session: Session,
+        article_by_test_user: ArticlePost,
+        buyer: User,
+    ):
+        """#0364 — the sale amount is shared with the platform, so the
+        page shows the publisher's part next to it, per sale and in the
+        cumul."""
+        _add_paid(db_session, buyer=buyer, post=article_by_test_user, amount_cents=3000)
+        _add_paid(db_session, buyer=buyer, post=article_by_test_user, amount_cents=50)
+
+        body = logged_in_client.get("/wip/ventes").data.decode()
+
+        assert "Part éditeur" in body
+        share = PUBLISHER_REVENUE_SHARE_PERCENT / 100
+        assert f"{30.00 * share:.2f} €" in body
+        assert f"{0.50 * share:.2f} €" in body
+        assert f"dont part éditeur : {30.50 * share:.2f} € HT" in body
+
+    def test_gift_sale_has_a_readable_label(
+        self,
+        logged_in_client: FlaskClient,
+        db_session: Session,
+        article_by_test_user: ArticlePost,
+        buyer: User,
+    ):
+        """#0364 — a gifted consultation showed its raw product code."""
+        _add_paid(
+            db_session,
+            buyer=buyer,
+            post=article_by_test_user,
+            amount_cents=100,
+            product=PurchaseProduct.CONSULTATION_GIFT,
+        )
+
+        body = logged_in_client.get("/wip/ventes").data.decode()
+
+        assert "Consultation offerte" in body
+        assert "consultation_gift" not in body
+
+    def test_article_link_opens_the_article(
+        self,
+        logged_in_client: FlaskClient,
+        db_session: Session,
+        article_by_test_user: ArticlePost,
+        buyer: User,
+    ):
+        """#0365 — the title used to link to `/wire/item/<id>`, a route
+        that does not exist, so every click ended on a 404."""
+        _add_paid(db_session, buyer=buyer, post=article_by_test_user, amount_cents=100)
+
+        body = logged_in_client.get("/wip/ventes").data.decode()
+        match = re.search(r'href="([^"]+)"[^>]*>Mon enquête<', body)
+        assert match is not None
+
+        response = logged_in_client.get(match.group(1))
+        assert response.status_code == 200
+        assert "Mon enquête" in response.data.decode()
 
 
 class TestVentesViewRedacChef:
