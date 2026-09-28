@@ -12,16 +12,11 @@
     {% else %}
       <ul class="space-y-3">
         {% for p in purchases %}
-          {% set product_label = {
-            "consultation": "Consultation",
-            "justificatif": "Justificatif",
-            "cession": "Cession de droits",
-          }.get(p.product_type.value, p.product_type.value) %}
           <li class="bg-white p-4 rounded-lg shadow border border-gray-100">
             <div class="flex items-start justify-between">
               <div>
                 <div class="text-xs uppercase tracking-wide text-gray-500">
-                  {{ product_label }}
+                  {{ purchase_product_label(p.product_type) }}
                 </div>
                 <div class="text-sm font-medium text-gray-900">
                   {{ p.post.title if p.post else "Article inconnu" }}

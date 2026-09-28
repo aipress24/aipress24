@@ -14,7 +14,11 @@ from flask import g, render_template
 from app.flask.extensions import db
 from app.models.auth import User
 from app.modules.wire import blueprint
-from app.modules.wire.models import ArticlePurchase, PurchaseStatus
+from app.modules.wire.models import (
+    ArticlePurchase,
+    PurchaseStatus,
+    purchase_product_label,
+)
 
 
 @blueprint.route("/me/purchases")
@@ -33,5 +37,6 @@ def me_purchases():
     return render_template(
         "pages/me/purchases.j2",
         purchases=purchases,
+        purchase_product_label=purchase_product_label,
         title="Mes achats",
     )
