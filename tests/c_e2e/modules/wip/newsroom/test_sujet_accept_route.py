@@ -80,7 +80,7 @@ def redac_chef(db_session: Session, test_org) -> User:
     """A rédac chef who is a member of the target media's org.
 
     `profile_code="PM_DIR"` makes them qualify as rédac chef per the
-    `#0132 pt 1` gate in `_is_redac_chef_of_org` — required for the
+    `#0132 pt 1` gate in `is_redac_chef_of_org` — required for the
     visibility-aware Sujet routes to admit them on get/edit/accept.
     """
     role = db_session.query(Role).filter_by(name=RoleEnum.PRESS_MEDIA.name).first()
@@ -884,7 +884,7 @@ class TestSujetUnpublishPermissions:
             if "window.toasts =" in line and not line.strip().startswith("//")
         )
         toasts = json.loads(toast_line.split("=", 1)[1].strip().rstrip(";"))
-        assert any("dépublier ce sujet" in t for t in toasts)
+        assert any("retirer ce sujet" in t for t in toasts)
 
         db_session.expire_all()
         sujet_after = db_session.get(Sujet, sujet_id)
