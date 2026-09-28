@@ -96,7 +96,7 @@ def _make_form(app: Flask, data: dict | None = None) -> ArticleForm:
         ):
             form[name].choices = [
                 (good, good),
-                ("Creative Commons (CC-BY-SA-ND)", "Creative Commons (CC-BY-SA-ND)"),
+                ("Creative Commons (CC BY-ND)", "Creative Commons (CC BY-ND)"),
             ]
         return form
 
@@ -246,7 +246,7 @@ class TestSelectFieldChoices:
         """Each canonical copyright mention must pass."""
         for mention in (
             "Tous droits réservés",
-            "Creative Commons (CC-BY-SA-ND)",
+            "Creative Commons (CC BY-ND)",
         ):
             payload = _baseline_payload()
             payload["copyright"] = mention

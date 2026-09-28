@@ -114,6 +114,9 @@ class Post(NewsMetadataMixin, BaseContent, LifeCycleMixin):
         Integer, default=0, server_default="0", nullable=False
     )
 
+    # Copyright mention, copied from the newsroom article on publication.
+    copyright: Mapped[str] = mapped_column(default="", server_default="")
+
     @orm.declared_attr
     def publisher(cls):
         return orm.relationship(

@@ -44,6 +44,7 @@ from app.modules.wire.models import (
     PurchaseProduct,
     PurchaseStatus,
 )
+from app.modules.wire.services.article_access import is_on_sale
 from app.modules.wire.services.recipients import parse_recipient_emails
 from app.services.stripe.prices import stripe_price_amount
 from app.services.stripe.product_mirror import MirroredProduct, active_products
@@ -127,6 +128,14 @@ _TAXO_GENRE_VALUES = {
 }
 
 
+def _get_post_on_sale(post_id: str, product: PurchaseProduct) -> Post:
+    """The post `product` is bought on ; 404 when it is not for sale."""
+    post = get_obj(post_id, Post)
+    if not is_on_sale(post, product):
+        raise NotFound
+    return post
+
+
 @blueprint.route("/buy_modal/close", methods=["GET"])
 def buy_modal_close() -> str:
     """Empty HTMX response — swapped into `#purchase-modal` to dismiss
@@ -162,7 +171,7 @@ def buy_modal(post_id: str, product: str):
     except ValueError as err:
         raise NotFound from err
 
-    post = get_obj(post_id, Post)
+    post = _get_post_on_sale(post_id, product_type)
 
     # Same eligibility gate as in `buy` so the modal cannot leak the
     # CESSION price to a user who can't actually buy.
@@ -212,7 +221,7 @@ def buy(post_id: str, product: str):
     except ValueError as err:
         raise NotFound from err
 
-    post = get_obj(post_id, Post)
+    post = _get_post_on_sale(post_id, product_type)
     if not current_app.config.get("STRIPE_LIVE_ENABLED"):
         flash("Les achats en ligne ne sont pas encore activés.", "error")
         return redirect(_back_to_post(post))
@@ -315,7 +324,7 @@ def buy_modal_gift(post_id: str):
 
     user = cast(User, g.user)
 
-    post = get_obj(post_id, Post)
+    post = _get_post_on_sale(post_id, PurchaseProduct.CONSULTATION_GIFT)
 
     amount_ht_eur = _amount_ht_eur_for(PurchaseProduct.CONSULTATION_GIFT, post)
 
@@ -353,7 +362,7 @@ def buy_gift(post_id: str):
 
     user = cast(User, g.user)
 
-    post = get_obj(post_id, Post)
+    post = _get_post_on_sale(post_id, PurchaseProduct.CONSULTATION_GIFT)
     if not current_app.config.get("STRIPE_LIVE_ENABLED"):
         flash("Les achats en ligne ne sont pas encore activés.", "error")
         return redirect(_back_to_post(post))

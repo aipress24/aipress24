@@ -22,11 +22,14 @@ from __future__ import annotations
 import pytest
 
 from app.enums import RoleEnum
+from app.modules.wire.models import PurchaseProduct
 from app.modules.wire.services.article_access import (
     _cut_on_word_boundary,
+    is_on_sale,
     truncate_body,
     user_can_read_full,
 )
+from app.settings.vocabularies import COPYRIGHT_CREATIVE_COMMONS
 
 
 class _User:
@@ -41,9 +44,12 @@ class _User:
 class _Post:
     """Duck-typed stand-in for `wire.models.Post`."""
 
-    def __init__(self, *, post_id: int, owner_id: int) -> None:
+    def __init__(
+        self, *, post_id: int, owner_id: int, copyright: str = "Tous droits réservés"
+    ) -> None:
         self.id = post_id
         self.owner_id = owner_id
+        self.copyright = copyright
 
 
 def _never_paid(_user_id: int, _post_id: int) -> bool:
@@ -96,6 +102,27 @@ class TestLaTableDeRegles:
             )
             is False
         )
+
+    def test_creative_commons_unlocks_any_member(self) -> None:
+        post = _Post(post_id=1, owner_id=42, copyright=COPYRIGHT_CREATIVE_COMMONS)
+        user = _User(user_id=7)
+
+        assert (
+            user_can_read_full(
+                user,  # type: ignore[arg-type]
+                post,  # type: ignore[arg-type]
+                role_checker=_no_role,
+                paid_lookup=_never_paid,
+                gift_lookup=_never_gifted,
+            )
+            is True
+        )
+
+    def test_creative_commons_stays_closed_to_anonymous(self) -> None:
+        post = _Post(post_id=1, owner_id=42, copyright=COPYRIGHT_CREATIVE_COMMONS)
+        user = _User(user_id=None, is_anonymous=True)
+
+        assert user_can_read_full(user, post) is False  # type: ignore[arg-type]
 
     def test_author_wins_over_missing_purchases(self) -> None:
         post = _Post(post_id=1, owner_id=7)
@@ -343,3 +370,31 @@ class TestCutOnWordBoundary:
         text = "a bcdefghijklmnop"
         cut = _cut_on_word_boundary(text, 10)
         assert cut == "a bcdefghi"
+
+
+class TestIsOnSale:
+    """A Creative Commons article sells only its publication certificate."""
+
+    @pytest.mark.parametrize("product", list(PurchaseProduct))
+    def test_all_rights_reserved_sells_everything(
+        self, product: PurchaseProduct
+    ) -> None:
+        post = _Post(post_id=1, owner_id=42)
+
+        assert is_on_sale(post, product) is True  # type: ignore[arg-type]
+
+    @pytest.mark.parametrize(
+        ("product", "expected"),
+        [
+            (PurchaseProduct.CONSULTATION, False),
+            (PurchaseProduct.CONSULTATION_GIFT, False),
+            (PurchaseProduct.CESSION, False),
+            (PurchaseProduct.JUSTIFICATIF, True),
+        ],
+    )
+    def test_creative_commons_sells_only_the_certificate(
+        self, product: PurchaseProduct, expected: bool
+    ) -> None:
+        post = _Post(post_id=1, owner_id=42, copyright=COPYRIGHT_CREATIVE_COMMONS)
+
+        assert is_on_sale(post, product) is expected  # type: ignore[arg-type]

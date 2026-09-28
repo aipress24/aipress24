@@ -84,6 +84,7 @@ def get_article_post(article: Article) -> ArticlePost | None:
 
 def update_article_post(post: ArticlePost, article: Article) -> None:
     _update_post_common(post, article)
+    post.copyright = article.copyright
 
     # Article-specific: media_id
     if hasattr(article, "media_id"):

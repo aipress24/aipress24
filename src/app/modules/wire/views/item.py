@@ -78,6 +78,7 @@ def _paywall_context(post: Post, user: User) -> dict:
         get_user_purchase_info,
         has_paid_consultation,
         has_received_consultation_gift,
+        is_on_sale,
         truncate_body,
         user_can_read_full,
     )
@@ -112,7 +113,9 @@ def _paywall_context(post: Post, user: User) -> dict:
         consultation_price_str = stripe_price_display(price_id) if price_id else ""
 
     return {
-        "can_cede": is_eligible_for_cession(user, post),
+        "can_cede": is_on_sale(post, PurchaseProduct.CESSION)
+        and is_eligible_for_cession(user, post),
+        "can_gift": is_on_sale(post, PurchaseProduct.CONSULTATION_GIFT),
         "can_read_full": can_read_full,
         "user_has_paid_consultation": has_paid,
         "user_has_offered_consultation": has_gift,

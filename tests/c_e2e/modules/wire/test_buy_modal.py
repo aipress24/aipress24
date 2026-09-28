@@ -27,6 +27,7 @@ from app.modules.wire.models import (
     PurchaseStatus,
 )
 from app.services.stripe._price_model import StripePrice
+from app.settings.vocabularies import COPYRIGHT_CREATIVE_COMMONS
 from tests.c_e2e.conftest import make_authenticated_client
 
 if TYPE_CHECKING:
@@ -273,3 +274,48 @@ class TestBuyModal:
         response = client.get("/wire/buy_modal/close")
         assert response.status_code == 200
         assert response.data == b""
+
+
+class TestCreativeCommons:
+    """A Creative Commons article is free to read and reproduce: only the
+    publication certificate stays on sale."""
+
+    @pytest.fixture
+    def cc_article(self, db_session: Session, article: ArticlePost) -> ArticlePost:
+        article.copyright = COPYRIGHT_CREATIVE_COMMONS
+        db_session.commit()
+        return article
+
+    def test_free_products_are_not_sold(
+        self, app: Flask, reader: User, cc_article: ArticlePost
+    ):
+        client = make_authenticated_client(app, reader)
+        for product in ("consultation", "consultation_gift", "cession"):
+            modal = client.get(f"/wire/{cc_article.id}/buy_modal/{product}")
+            assert modal.status_code == 404, product
+            buy = client.post(f"/wire/{cc_article.id}/buy/{product}")
+            assert buy.status_code == 404, product
+        assert client.get(f"/wire/{cc_article.id}/buy_modal_gift").status_code == 404
+        assert client.post(f"/wire/{cc_article.id}/buy_gift").status_code == 404
+
+    def test_certificate_stays_on_sale(
+        self, app: Flask, reader: User, cc_article: ArticlePost
+    ):
+        client = make_authenticated_client(app, reader)
+        response = client.get(f"/wire/{cc_article.id}/buy_modal/justificatif")
+        assert response.status_code == 200
+
+    def test_article_page_shows_full_text_and_no_paid_button(
+        self, app: Flask, reader: User, cc_article: ArticlePost
+    ):
+        stripe_live = app.config.get("STRIPE_LIVE_ENABLED")
+        app.config["STRIPE_LIVE_ENABLED"] = True
+        try:
+            client = make_authenticated_client(app, reader)
+            html = client.get(f"/wire/{cc_article.id}").get_data(as_text=True)
+        finally:
+            app.config["STRIPE_LIVE_ENABLED"] = stripe_live
+        assert "<p>Texte.</p>" in html
+        assert "buy_modal/consultation" not in html
+        assert "buy_modal_gift" not in html
+        assert "buy_modal/cession" not in html

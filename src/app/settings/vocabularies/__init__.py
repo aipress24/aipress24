@@ -55,9 +55,13 @@ def get_vocab(name: str) -> list[str]:
 #         JOBS.append(f"{k} / {vv}")
 
 
+# A Creative Commons article is distributed free of charge: no paywall, no
+# gift, no rights sale. The publication certificate stays on sale.
+COPYRIGHT_CREATIVE_COMMONS = "Creative Commons (CC BY-ND)"
+
 COPYRIGHT_MENTIONS = [
     "Tous droits réservés",
-    "Creative Commons (CC-BY-SA-ND)",
+    COPYRIGHT_CREATIVE_COMMONS,
 ]
 
 PRODUCT_TYPES = [

@@ -8,6 +8,7 @@ See `local-notes/specs/article-paywall-mvp.md`. Two pure-ish helpers
 used both from the detail view and the tests:
 
 - `user_can_read_full(user, post)` — paywall verdict.
+- `is_on_sale(post, product)` — whether a product is sold on a post.
 - `truncate_body(html, limit)` — HTML-aware truncation for the
   preview shown to non-buyers.
 
@@ -42,10 +43,20 @@ from app.modules.wire.services.consultation_helpers import (
     purchase_within_duration_clause,
 )
 from app.services.roles import has_role
+from app.settings.vocabularies import COPYRIGHT_CREATIVE_COMMONS
 
 if TYPE_CHECKING:
     from app.models.auth import User
     from app.modules.wire.models import Post
+
+# A Creative Commons licence already grants reading and reproduction.
+_NOT_SOLD_UNDER_CC = frozenset(
+    {
+        PurchaseProduct.CONSULTATION,
+        PurchaseProduct.CONSULTATION_GIFT,
+        PurchaseProduct.CESSION,
+    }
+)
 
 
 def user_can_read_full(
@@ -60,6 +71,7 @@ def user_can_read_full(
 
     Rules:
     - anonymous → no
+    - Creative Commons article → yes
     - author → yes
     - admin → yes
     - owns a PAID consultation purchase on this post → yes
@@ -72,7 +84,7 @@ def user_can_read_full(
     """
     if user is None or user.is_anonymous:
         return False
-    if user.id == post.owner_id:
+    if is_creative_commons(post) or user.id == post.owner_id:
         return True
 
     check_role = role_checker or has_role
@@ -85,6 +97,20 @@ def user_can_read_full(
 
     check_gift = gift_lookup or has_received_consultation_gift
     return check_gift(user.id, post.id)
+
+
+def is_creative_commons(post: Post) -> bool:
+    """Is `post` distributed under the Creative Commons licence?"""
+    return post.copyright == COPYRIGHT_CREATIVE_COMMONS
+
+
+def is_on_sale(post: Post, product: PurchaseProduct) -> bool:
+    """Can `product` be bought on `post`?
+
+    A Creative Commons article is free to read and to reproduce, so only
+    the publication certificate remains on sale.
+    """
+    return not (is_creative_commons(post) and product in _NOT_SOLD_UNDER_CC)
 
 
 def has_paid_consultation(user_id: int, post_id: int) -> bool:

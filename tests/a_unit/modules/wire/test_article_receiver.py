@@ -135,6 +135,7 @@ class TestUpdatePost:
             address="123 Main St",
             pays_zip_ville="75001",
             pays_zip_ville_detail="Paris, France",
+            copyright="Creative Commons (CC BY-ND)",
             date_parution_prevue=arrow.now().datetime,
             date_publication_aip24=arrow.now().datetime,
         )
@@ -148,6 +149,7 @@ class TestUpdatePost:
         update_article_post(post, article)
 
         assert post.title == "Article Title"
+        assert post.copyright == "Creative Commons (CC BY-ND)"
         assert post.summary == "Article Summary"
         assert post.content == "Article Content"
         assert post.publisher_id == publisher.id
