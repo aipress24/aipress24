@@ -524,8 +524,9 @@ class TestBaseWipViewConfig:
     def test_can_create_default_is_true(self):
         assert BaseWipView.can_create is True
 
-    def test_commandes_view_disables_can_create(self):
-        assert CommandesWipView.can_create is False
+    def test_commandes_view_allows_direct_creation(self):
+        """#0362: a commande may be placed without a sujet."""
+        assert CommandesWipView.can_create is True
 
     @pytest.mark.parametrize(
         ("can_create", "expected_new_url"), [(False, ""), (True, "/wip/things/new/")]

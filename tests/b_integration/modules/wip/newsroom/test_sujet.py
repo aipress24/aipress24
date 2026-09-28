@@ -242,11 +242,13 @@ class TestSujetAcceptAction:
         assert isinstance(commande, Commande)
         assert commande.titre == "Topic title"
         assert commande.contenu == "Topic content"
-        # Bug #0225 — owner is the journalist (sujet author) so it shows
-        # in their newsroom; the rédac chef is the commanditaire.
-        assert commande.owner_id == author_user.id
+        # #0362 — the rédac chef who accepts owns the commande; the sujet's
+        # author receives it.
+        assert commande.owner_id == redac_chef.id
         assert commande.commanditaire_id == redac_chef.id
+        assert commande.destinataire_id == author_user.id
         assert commande.media_id == media_org.id
+        assert commande.publisher_id == media_org.id
         assert commande.genre == "Angle / Analyse"
         assert commande.section == "Actualités / À la une"
         assert commande.topic == "Agriculture, alimentation / Agriculture biologique"

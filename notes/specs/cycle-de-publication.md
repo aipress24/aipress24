@@ -202,34 +202,26 @@ Une **Commande** formalise la demande d'écriture d'un article. Elle peut décou
 | `date_bouclage` | DateTime | Date de bouclage (deadline) | Non |
 | `date_parution_prevue` | DateTime | Date de parution prévue | Non |
 | `date_paiement` | DateTime | Date de paiement (non géré) | Non |
+| `destinataire_id` | FK User | Journaliste qui écrira l'article | Pour valider |
 | `status` | `PublicationStatus` | État de la commande | Oui |
 
 **Note** : Le paiement n'est pas géré dans le système. Le champ `date_paiement` est purement informatif.
 
 #### États de la Commande
 
-Une commande naît en `DRAFT`, qu'elle vienne d'un sujet accepté ou d'une
-création directe. Aucune autre transition n'existe aujourd'hui : « Valider »
-et « Annuler » sont décidés et restent à écrire, avec le statut « annulé » qui
-manque à l'énuméré.
+Une commande naît en `DRAFT`, qu'elle vienne d'un sujet accepté ou d'une création directe. Son propriétaire la valide (`DRAFT` → `ACCEPTED`, affiché « Validée »), ce qui notifie son destinataire par mail et par la cloche ; valider exige un destinataire. Il peut l'annuler en brouillon comme validée (→ `CANCELLED`, affiché « Annulée »).
 
 #### Qui voit une commande
 
-Elle est visible de deux personnes, celle inscrite dans `owner_id` et celle
-inscrite dans `commanditaire_id`. Ce qu'elles désignent dépend de la naissance de la
-commande ; c'est une source d'erreurs à connaître.
+Une commande appartient à celui qui la passe : `owner_id` (égal à `commanditaire_id`) est le rédacteur en chef, ou assimilé, qui la passe au sein d'un média. Le journaliste qui l'écrira en est le destinataire (`destinataire_id`). Tous deux la voient ; seul le propriétaire la modifie, la valide, l'annule ou la supprime.
 
 | | Née d'un sujet accepté | Créée directement |
 |---|---|---|
-| `owner_id` | l'auteur du sujet, qui écrira : le **destinataire** | le créateur |
-| `commanditaire_id` | le rédacteur en chef qui accepte | le créateur |
-| `media_id` | le média de ce rédacteur en chef | l'organisation choisie au formulaire |
+| `owner_id` = `commanditaire_id` | le rédacteur en chef qui accepte | le créateur |
+| `destinataire_id` | l'auteur du sujet | le journaliste choisi au formulaire |
+| `media_id` | le média de ce rédacteur en chef | le média choisi au formulaire |
 
-**Écart connu** : une commande créée directement n'enregistre donc aucun
-destinataire ; personne chez le média visé ne la voit. C'est la cause du
-ticket #0357. Le correctif retenu est de faire nommer un journaliste au
-formulaire et de l'inscrire dans `owner_id`, comme lors de l'acceptation d'un
-sujet.
+Détail et historique : [`cycle-sujet-commande.md`](cycle-sujet-commande.md) §4.
 
 #### Relation avec le Sujet
 
@@ -945,6 +937,7 @@ class PublicationStatus(Enum):
 | 1.1 | 2026-01-08 | SF | Intégration des réponses client |
 | 1.2 | 2026-01-08 | SF | Distinction Notification (WIP) vs Justificatif commercial (BIZ) |
 | 1.3 | 2026-09-25 | SF | Réalignement sur le code : états réels du Sujet et de la Commande, `status` typé, colonnes et ciblage corrigés, règle de réception d'un Sujet (§2.4), visibilité d'une Commande (§3.2), scénario 1 rectifié |
+| 1.4 | 2026-09-28 | SF | Commande (§3.2) : le propriétaire est celui qui la passe, colonne `destinataire_id`, validation et annulation |
 
 ---
 

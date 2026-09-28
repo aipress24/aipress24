@@ -192,24 +192,23 @@ class TestBuildCommandePayload:
         assert payload["pays_zip_ville"] == "France"
         assert payload["pays_zip_ville_detail"] == "01090 Guéreins"
 
-    def test_owner_is_author_commanditaire_is_accepter(self):
-        """Bug #0225 — the Commande's owner is the sujet's author (the
-        journalist who will execute it), the commanditaire is the
-        accepter (rédac chef who commissioned it). This is what makes
-        the commande show in BOTH newsrooms (`CommandeDataSource` ORs
-        the two). Before #0225 both were the accepter, so the
-        journalist never saw their accepted sujet."""
+    def test_the_accepter_owns_it_and_the_author_receives_it(self):
+        """#0362 — a commande belongs to whoever places it: the rédac
+        chef who accepts. The sujet's author, who will write it, is its
+        destinataire."""
         payload = build_commande_payload(_sujet_stub(owner_id=3), accepter_id=7)
 
-        assert payload["owner_id"] == 3
+        assert payload["owner_id"] == 7
         assert payload["commanditaire_id"] == 7
+        assert payload["destinataire_id"] == 3
 
-    def test_media_id_mirrors_sujet(self):
-        """The new commande lives in the rédac chef's own newsroom,
-        not somewhere else."""
-        sujet = _sujet_stub(media_id=99)
-        payload = build_commande_payload(sujet, accepter_id=7)
+    def test_it_is_placed_for_the_sujet_s_media(self):
+        """The media the sujet was sent to, the rédac chef's own, is both
+        where the commande lives and who places it."""
+        payload = build_commande_payload(_sujet_stub(media_id=99), accepter_id=7)
+
         assert payload["media_id"] == 99
+        assert payload["publisher_id"] == 99
 
     def test_empty_brief_falls_back_to_empty_string(self):
         """Commande.brief is NOT NULL ; the author may have published

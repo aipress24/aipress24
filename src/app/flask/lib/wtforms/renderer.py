@@ -299,6 +299,12 @@ class FormRenderer:
                     field_str = publisher.bw_name or publisher.name or ""
                 else:
                     field_str = ""
+            elif field.name == "destinataire_id":
+                # #0362: name the journalist a commande is addressed to.
+                destinataire = (
+                    getattr(self.model, "destinataire", None) if self.model else None
+                )
+                field_str = destinataire.full_name if destinataire else ""
             elif isinstance(field, DisplayField):
                 field_str = field._value()
             else:

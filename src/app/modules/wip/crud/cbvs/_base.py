@@ -30,6 +30,7 @@ from app.flask.lib.wtforms.renderer import FormRenderer
 from app.models.errors import BusinessRuleError
 from app.models.organisation import Organisation
 from app.modules.bw.bw_activation.user_utils import (
+    can_user_publish_for,
     get_selected_business_wall_for_user,
 )
 from app.modules.kyc.ontology_loader import get_choices as get_ontology_choices
@@ -339,6 +340,7 @@ class BaseWipView(FlaskView, abc.ABC):
         form = self.form_class(form_data)
 
         self._make_media_choices(form)
+        self._make_extra_choices(form)
 
         if not form.validate():
             return self._view_ctx(model=model, form=form)
@@ -402,6 +404,9 @@ class BaseWipView(FlaskView, abc.ABC):
                 # should be now the first in list
                 form.media_id.data = choices[0][0]
 
+    def _make_extra_choices(self, form) -> None:
+        """Hook for subclasses whose form has choices of its own to fill."""
+
     def _make_country_choices(self, form) -> None:
         if hasattr(form, "pays_zip_ville"):
             form.pays_zip_ville.choices = get_ontology_choices("country_pays")
@@ -415,6 +420,7 @@ class BaseWipView(FlaskView, abc.ABC):
         endpoint = f"{self.__class__.__name__}:post"
 
         self._make_media_choices(form)
+        self._make_extra_choices(form)
         self._make_country_choices(form)
 
         if hasattr(form, "pays_zip_ville"):
@@ -608,3 +614,26 @@ class BaseWipView(FlaskView, abc.ABC):
         their own.
         """
         return model.owner_id == g.user.id
+
+
+def assign_publisher(model: Any) -> None:
+    """Attribute a publisher-less `model` to the organisation the user acts for.
+
+    That is the organisation of the Business Wall they manage, else their
+    own. Refuses an organisation they may not publish for: a selected
+    Business Wall outlives a revoked role. An attribution already on the
+    model is kept, since this save does not make it.
+    """
+    if model.publisher_id:
+        return
+    user = g.user
+    bw = (
+        get_selected_business_wall_for_user(user)
+        if user.is_managing_another_bw
+        else None
+    )
+    publisher_id = bw.organisation_id if bw else user.organisation_id
+    if publisher_id and not can_user_publish_for(user, publisher_id):
+        msg = "Vous n'êtes pas autorisé à agir pour le compte de cette organisation."
+        raise BusinessRuleError(msg)
+    model.publisher_id = publisher_id

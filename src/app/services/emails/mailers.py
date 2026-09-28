@@ -231,6 +231,30 @@ class SujetAcceptanceNotificationMail(EmailTemplate):
 
 
 @dataclass(kw_only=True)
+class CommandeValidationNotificationMail(EmailTemplate):
+    """Ticket #0362: tell the destinataire that the commanditaire has
+    validated the commande addressed to them.
+
+    Args:
+        - validator_full_name: the commanditaire who validated.
+        - validator_organisation: their media's display name.
+        - commande_title: title of the commande.
+        - commande_url: absolute URL to the commande in
+          WORK/NEWSROOM/Commandes.
+    """
+
+    # A validated commande engages its destinataire: not switchable off.
+    category: ClassVar[NotificationCategory] = NotificationCategory.TRANSACTIONAL
+
+    subject: str = "[Aipress24] Votre commande a été validée"
+    template_html: str = "commande_validation_notification.j2"
+    validator_full_name: str
+    validator_organisation: str
+    commande_title: str
+    commande_url: str
+
+
+@dataclass(kw_only=True)
 class MissionApplicationMail(EmailTemplate):
     """Notify a mission emitter that someone has applied to their mission.
 

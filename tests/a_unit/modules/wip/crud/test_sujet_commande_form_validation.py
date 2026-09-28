@@ -311,7 +311,10 @@ _COMMANDE_DATE_FIELDS = [
     "date_parution_prevue",
 ]
 
+_STUB_DESTINATAIRE_ID = 7
+
 _COMMANDE_REQUIRED_FIELDS = [
+    "destinataire_id",
     "genre",
     "section",
     "topic",
@@ -332,6 +335,7 @@ def _commande_baseline() -> dict[str, str]:
         "topic": _STUB_TOPIC,
         "sector": _STUB_SECTOR,
         "media_id": _STUB_MEDIA_ID,
+        "destinataire_id": str(_STUB_DESTINATAIRE_ID),
         "date_limite_validite": _GOOD_DATETIME,
         "date_bouclage": _GOOD_DATETIME,
         "date_parution_prevue": _GOOD_DATETIME,
@@ -343,6 +347,10 @@ def _make_commande_form(app: Flask, data: dict | None = None) -> CommandeForm:
     with app.test_request_context():
         form = CommandeForm(payload)
         _stub_choices(form)
+        form.destinataire_id.choices = [
+            ("", "Choisir un journaliste"),
+            (_STUB_DESTINATAIRE_ID, "Aïcha Benmahfoud"),
+        ]
         return form
 
 
@@ -435,7 +443,7 @@ class TestCommandeFormShape:
             "date_bouclage",
             "date_parution_prevue",
             # #0353 — affichés, jamais saisis.
-            "addressed_to",
+            "destinataire_id",
             "commanditaire",
         }
         assert set(form._fields.keys()) == expected
@@ -463,8 +471,16 @@ class TestCommandeFormShape:
         qui promettait le premier et livrait le troisième."""
         fields = CommandeForm.Meta.groups["metadata"]["fields"]
 
-        assert fields.index("addressed_to") < fields.index("commanditaire")
+        assert fields.index("destinataire_id") < fields.index("commanditaire")
         assert fields.index("commanditaire") < fields.index("media_id")
+
+    def test_destinataire_must_be_a_listed_journalist(self, app: Flask):
+        payload = _commande_baseline()
+        payload["destinataire_id"] = "999"
+        form = _make_commande_form(app, payload)
+
+        assert not form.validate()
+        assert form.destinataire_id.errors
 
     def test_media_id_is_labelled_for_what_it_holds(self, app: Flask):
         """Elle porte un média, pas un destinataire — c'est l'étiquette
@@ -472,7 +488,7 @@ class TestCommandeFormShape:
         form = _make_commande_form(app, {})
 
         assert form.media_id.label.text == "Média"
-        assert form.addressed_to.label.text == "Commande adressée à"
+        assert form.destinataire_id.label.text == "Commande adressée à"
 
     def test_dates_group_lists_the_commande_dates(self, app: Flask):
         """`CommandeForm` carries three date-fields in workflow order :

@@ -201,7 +201,7 @@ class TestTheDefaultsAreSafe:
 
 
 class TestEveryMailerIsClassified:
-    def test_the_thirty_classes_carry_a_known_family(self) -> None:
+    def test_every_class_carries_a_known_family(self) -> None:
         """Le classement du §4.1 couvre tout `mailers.py`, et rien
         d'autre ne s'y glisse."""
         classes = [
@@ -212,12 +212,12 @@ class TestEveryMailerIsClassified:
             and cls is not EmailTemplate
         ]
 
-        assert len(classes) == 30
+        assert len(classes) == 31
         for cls in classes:
             assert isinstance(cls.category, NotificationCategory), cls.__name__
 
     def test_and_the_split_is_the_one_the_spec_announces(self) -> None:
-        """Dix-neuf transactionnels, onze désactivables. Un email qui
+        """Vingt transactionnels, onze désactivables. Un email qui
         change de camp doit passer par une mise à jour de la spec, pas
         par une inattention."""
         counts = Counter(
@@ -228,7 +228,7 @@ class TestEveryMailerIsClassified:
             and cls is not EmailTemplate
         )
 
-        assert counts[NotificationCategory.TRANSACTIONAL] == 19
+        assert counts[NotificationCategory.TRANSACTIONAL] == 20
         assert sum(counts.values()) - counts[NotificationCategory.TRANSACTIONAL] == 11
 
 

@@ -27,12 +27,7 @@ from werkzeug.wrappers import Response as WerkzeugResponse
 from app.flask.lib.htmx import extract_fragment
 from app.flask.lib.templates import templated
 from app.flask.routing import url_for
-from app.logging import warn
 from app.models.lifecycle import PublicationStatus
-from app.modules.bw.bw_activation.user_utils import (
-    can_user_publish_for,
-    get_selected_business_wall_for_user,
-)
 from app.modules.wip.models import (
     AvisEnquete,
     AvisEnqueteRepository,
@@ -57,7 +52,7 @@ from app.modules.wip.services.newsroom.publication_notification_service import (
 from app.modules.wip.services.pr_notifications import absolute_url_for
 from app.services.auth import AuthService
 
-from ._base import BaseWipView
+from ._base import BaseWipView, assign_publisher
 from ._forms import AvisEnqueteForm
 from ._table import BaseDataSource, BaseTable, WipContentModel
 
@@ -267,20 +262,7 @@ class AvisEnqueteWipView(BaseWipView):
         return g.user.id in {contact.journaliste_id, contact.expert_id}
 
     def _post_update_model(self, model: AvisEnquete) -> None:
-        # Validate publisher_id: if the user selected a client org they are
-        # not authorized to publish for, warn but DO NOT silently reset.
-        if model.publisher_id and not can_user_publish_for(g.user, model.publisher_id):
-            warn(
-                f"AvisEnquete {model.id}: user {g.user.id} selected publisher_id="
-                f"{model.publisher_id} but can_user_publish_for is False. "
-            )
-        if not model.publisher_id:
-            if g.user.is_managing_another_bw:
-                bw = get_selected_business_wall_for_user(g.user)
-                if bw:
-                    model.publisher_id = bw.organisation_id
-            if not model.publisher_id and g.user.organisation_id:
-                model.publisher_id = g.user.organisation_id
+        assign_publisher(model)
 
     def _build_opportunity_url(self, contact: ContactAvisEnquete) -> str:
         domain = str(current_app.config.get("SERVER_NAME"))

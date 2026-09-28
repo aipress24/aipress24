@@ -9,10 +9,12 @@ from typing import Any, cast
 
 import sqlalchemy as sa
 from sqlalchemy import orm
+from sqlalchemy.ext.hybrid import hybrid_method
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.models.auth import User
 from app.models.base import Base
+from app.models.errors import BusinessRuleError
 from app.models.lifecycle import PublicationStatus
 
 from ._base import CiblageMixin, NewsMetadataMixin, NewsroomCommonMixin
@@ -26,67 +28,58 @@ class Commande(
 ):
     __tablename__ = "nrm_commande"
 
+    # The owner (`owner_id`, and `commanditaire_id` alike) is whoever places
+    # the commande: a rédac chef or equivalent within a media. The
+    # destinataire is the journalist who will write it.
+    destinataire_id: Mapped[int | None] = mapped_column(
+        sa.BigInteger, sa.ForeignKey(User.id), nullable=True, index=True
+    )
+    destinataire: Mapped[User | None] = orm.relationship(
+        User, foreign_keys=[destinataire_id]
+    )
+
     @orm.declared_attr
     def commanditaire(cls):
-        """Qui a passé la commande.
-
-        La colonne `commanditaire_id` existait sans sa relation, alors
-        que `owner` et `media` ont la leur : tout appelant voulant la
-        personne devait la requêter à la main, et l'écran ne la
-        montrait pas du tout.
-        """
+        """Qui a passé la commande."""
         return orm.relationship(User, foreign_keys=cast(Any, [cls.commanditaire_id]))
 
-    @property
-    def addressed_to(self) -> str:
-        """À qui la commande est adressée, telle qu'on l'affiche.
+    @hybrid_method
+    def is_visible_to(self, user_id: int) -> Any:
+        """Who sees a commande: whoever placed it, and its destinataire.
 
-        Ticket #0353. Deux naissances, deux destinataires :
-
-        - née d'un **sujet accepté**, elle s'adresse au journaliste qui
-          l'a proposé et qui l'écrira. `sujet_accept` le met dans
-          `owner_id` (bug #0225) et met celui qui accepte dans
-          `commanditaire_id` : les deux diffèrent, et c'est la
-          signature de cette naissance ;
-        - **créée directement**, `_base` pose le créateur dans les deux
-          colonnes ; elle s'adresse alors au média choisi au
-          formulaire.
-
-        Sans cette distinction, l'écran affichait `media_id` dans les
-        deux cas — donc, pour un sujet accepté, l'organisation de
-        celui-là même qui accepte : « commande adressée à TCA » lue par
-        la directrice de TCA.
+        One expression for the list query and for the by-id check.
         """
-        if self.owner_id != self.commanditaire_id and self.owner:
-            return self.owner.full_name
-        return self.media.name if self.media else ""
+        return (self.owner_id == user_id) | (self.destinataire_id == user_id)
 
     @property
     def media_name(self) -> str:
-        """Nom du média pour lequel la commande est passée.
-
-        - cas d'un "sujet accepté": "media_id" est le média de celui
-          qui accepte, c'est donc le "media name".
-        - cas d'une création directe: "media" contient l'organisation
-          destinataire (à qui la commande est adressée) dans "addressed_to".
-          Le média commanditaire est donc celui qui passe la commande,
-          "publisher" ou l'organisation du commanditaire.
-        """
-        if self.owner_id != self.commanditaire_id:
-            if self.media:
-                return getattr(self.media, "bw_name", None) or self.media.name or ""
+        """Le média pour lequel la commande est passée : celui du commanditaire."""
+        if not self.media:
             return ""
-        org = getattr(self, "publisher", None)
-        if not org and getattr(self, "commanditaire", None):
-            org = self.commanditaire.organisation
-        if org:
-            return getattr(org, "bw_name", None) or org.name or ""
-        if self.media:
-            return getattr(self.media, "bw_name", None) or (self.media.name)
-        return ""
+        return self.media.bw_name or self.media.name or ""
 
-    # Workflow: DRAFT → PENDING (validated) → PUBLIC (published)
-    # Can also be: REJECTED, ARCHIVED
+    def can_validate(self) -> bool:
+        return self.status == PublicationStatus.DRAFT
+
+    def can_cancel(self) -> bool:
+        return self.status in (PublicationStatus.DRAFT, PublicationStatus.ACCEPTED)
+
+    def validate(self) -> None:
+        """The commanditaire validates a draft: it goes to its destinataire."""
+        if not self.can_validate():
+            msg = "Seule une commande en brouillon peut être validée."
+            raise BusinessRuleError(msg)
+        if self.destinataire_id is None:
+            msg = "Désignez le journaliste destinataire avant de valider la commande."
+            raise BusinessRuleError(msg)
+        self.status = PublicationStatus.ACCEPTED
+
+    def cancel(self) -> None:
+        """The commanditaire cancels a draft or validated commande."""
+        if not self.can_cancel():
+            msg = "Cette commande ne peut plus être annulée."
+            raise BusinessRuleError(msg)
+        self.status = PublicationStatus.CANCELLED
 
     # ------------------------------------------------------------
     # Dates

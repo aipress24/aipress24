@@ -22,6 +22,11 @@ from app.flask.lib.wtforms.fields import (
 from app.modules.kyc.dynform import CountrySelectField
 
 
+def _int_or_none(value: object) -> int | None:
+    """Coerce a picked id; the empty prompt option reads as no choice."""
+    return None if value in ("", None) else int(str(value))
+
+
 def country_and_city_field() -> CountrySelectField:
     """The country + postcode/city pair, declared identically by every
     WIP form.
@@ -327,13 +332,14 @@ class CommandeForm(Form):
         render_kw={"width": 6},
         validators=[validators.InputRequired()],
     )
-    # #0353 — trois rôles, trois lignes. L'écran n'en montrait qu'un,
-    # `media_id`, sous l'étiquette « Commande adressée à » : sur une
-    # commande née d'un sujet accepté, le média est celui de la personne
-    # qui accepte, et la directrice lisait « adressée à » suivi du nom
-    # de sa propre agence. Qui écrit et qui commande n'apparaissaient
-    # nulle part.
-    addressed_to = DisplayField("Commande adressée à", render_kw={"width": 6})
+    # #0353 — trois rôles, trois lignes : qui écrit, qui commande, pour
+    # quel média.
+    destinataire_id = SimpleRichSelectField(
+        "Commande adressée à",
+        coerce=_int_or_none,
+        render_kw={"width": 6},
+        validators=[validators.InputRequired()],
+    )
     commanditaire = DisplayField(
         "Commanditaire",
         formatter=lambda user: user.full_name if user else "",
@@ -374,7 +380,7 @@ class CommandeForm(Form):
                     "section",
                     "topic",
                     "sector",
-                    "addressed_to",
+                    "destinataire_id",
                     "commanditaire",
                     "media_id",
                     "pays_zip_ville",

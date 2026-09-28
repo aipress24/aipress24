@@ -369,10 +369,10 @@ class TestSujetAcceptRoute:
             .all()
         )
         assert len(commandes) == 1
-        # Bug #0225 — owner is the journalist author (so it shows in their
-        # newsroom); the rédac chef is the commanditaire.
-        assert commandes[0].owner_id == author.id
+        # #0362 — the rédac chef owns the commande; the author receives it.
+        assert commandes[0].owner_id == redac_chef.id
         assert commandes[0].commanditaire_id == redac_chef.id
+        assert commandes[0].destinataire_id == author.id
         assert commandes[0].genre == "Angle / Analyse"
         assert commandes[0].section == "Actualités / À la une"
         assert commandes[0].pays_zip_ville == "France"

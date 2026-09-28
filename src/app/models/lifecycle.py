@@ -17,6 +17,7 @@ class PublicationStatus(StrEnum):
     ACCEPTED = auto()
     PUBLIC = auto()
     REJECTED = auto()
+    CANCELLED = auto()
     EXPIRED = auto()
     ARCHIVED = auto()
     DELETED = auto()
@@ -30,6 +31,7 @@ class PublicationStatus(StrEnum):
             PublicationStatus.ACCEPTED: "Accepté",
             PublicationStatus.PUBLIC: "Publié",
             PublicationStatus.REJECTED: "Refusé",
+            PublicationStatus.CANCELLED: "Annulé",
             PublicationStatus.EXPIRED: "Expiré",
             PublicationStatus.ARCHIVED: "Archivé",
             PublicationStatus.DELETED: "Supprimé",

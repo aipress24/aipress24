@@ -20,7 +20,12 @@ from app.modules.bw.bw_activation.user_utils import (
 from app.modules.wip import blueprint
 from app.modules.wip.pr_access import user_can_access_newsroom
 
-from ._common import count_owned_non_deleted, count_visible_sujets, get_secondary_menu
+from ._common import (
+    count_owned_non_deleted,
+    count_visible_commandes,
+    count_visible_sujets,
+    get_secondary_menu,
+)
 
 ALLOW_NEWSROOM_ARTICLE: set[ProfileEnum] = {
     ProfileEnum.PM_DIR,
@@ -101,6 +106,8 @@ def newsroom():
         # (proposed to the user's media), not only owned ones.
         if item["id"] == "sujets":
             item["count"] = str(count_visible_sujets())
+        elif item["id"] == "commandes":
+            item["count"] = str(count_visible_commandes())
         else:
             item["count"] = str(count_owned_non_deleted(model_class))
         if endpoint := item.get("endpoint"):

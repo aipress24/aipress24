@@ -161,15 +161,16 @@ class TestCommuniqueIsolation:
 
 
 class TestCommandeIsolation:
-    """Widened on purpose (#0225): both the journalist who authored the
-    sujet and the rédac chef who accepted it. A third party is still out."""
+    """Widened on purpose (#0362): whoever placed the commande and its
+    destinataire. A third party is still out."""
 
-    def _commande(self, fresh_db, owner_id: int, commanditaire_id: int, org):
+    def _commande(self, fresh_db, owner_id: int, destinataire_id: int, org):
         commande = Commande(
             titre="Commande privée",
             contenu="<p>Brief.</p>",
             owner_id=owner_id,
-            commanditaire_id=commanditaire_id,
+            commanditaire_id=owner_id,
+            destinataire_id=destinataire_id,
             media_id=org.id,
             status=PublicationStatus.DRAFT,
             date_limite_validite=datetime.now(UTC),
@@ -192,11 +193,11 @@ class TestCommandeIsolation:
 
         assert response.status_code in {302, 403, 404}
 
-    def test_the_commanditaire_still_reads_it(
+    def test_the_destinataire_reads_it(
         self, app: Flask, fresh_db, rival: User, test_user: User, test_org
     ) -> None:
         """The widening is the point of the override — pin it, or the
-        next tightening silently breaks bug #0225's fix."""
+        next tightening silently hides the commande from its writer."""
         commande = self._commande(fresh_db, rival.id, test_user.id, test_org)
         client = make_authenticated_client(app, test_user)
 

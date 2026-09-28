@@ -80,30 +80,28 @@ def build_commande_payload(sujet: Sujet, accepter_id: int) -> dict:
     Pure — no DB ; the orchestrator passes the result to
     `Commande(**payload)`. Encodes the business rules :
 
-    - `owner_id` = the sujet's author (the journalist who proposed it
-      and will execute the commande — the « Auteur ») ;
-      `commanditaire_id` = the accepter (the rédac chef who
-      commissioned it). Bug #0225 : the commande must surface in BOTH
-      newsrooms — the journalist sees it as owner, the rédac chef as
-      commanditaire (see `CommandeDataSource`). Before #0225 both were
-      the accepter, so the journalist never saw their accepted sujet.
-    - `media_id` mirrors the sujet's, so the new commande lives in
-      the rédac chef's own newsroom.
+    - `owner_id` = `commanditaire_id` = the accepter: the owner of a
+      commande is whoever places it (the rédac chef) ;
+      `destinataire_id` = the sujet's author, who will write it.
+    - `media_id` mirrors the sujet's: the accepter's own media, which
+      is also the `publisher_id` (« Commande passée par »).
     - `brief` defaults to "" when the author didn't fill one (NOT
       NULL column on Commande).
-    - `status = DRAFT` — the rédac chef tweaks before publishing.
+    - `status = DRAFT` — the rédac chef tweaks it, then validates it.
     - `date_bouclage` defaults to the sujet's `date_parution_prevue`
       so the NOT-NULL column gets a sensible starting point ; the
-      rédac chef can adjust before publishing. `date_paiement` is left
+      rédac chef can adjust it. `date_paiement` is left
       unset — it left the form with #0343, and inventing one would put
       a date nobody chose on the commande.
     - Metadata ("genre", "section", "topic", "sector", "pays_zip_ville",
      "pays_zip_ville_detail") are copied from the sujet.
     """
     return {
-        "owner_id": sujet.owner_id,
-        "media_id": sujet.media_id,
+        "owner_id": accepter_id,
         "commanditaire_id": accepter_id,
+        "destinataire_id": sujet.owner_id,
+        "media_id": sujet.media_id,
+        "publisher_id": sujet.media_id,
         "titre": sujet.titre,
         "contenu": sujet.contenu,
         "brief": sujet.brief or "",
