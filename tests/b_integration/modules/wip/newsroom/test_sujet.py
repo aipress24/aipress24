@@ -9,7 +9,7 @@ proposals stayed in DRAFT forever and the targeted media never received
 anything. This module covers:
 
 - Sujet.publish() / unpublish() lifecycle on the model.
-- SujetsTable.get_actions() exposes "Publier" / "Dépublier" depending on status.
+- SujetsTable.get_actions() exposes "Envoyer" / "Retirer" depending on status.
 - notify_media_of_sujet_proposition() routes the email to the media's BW owner.
 """
 
@@ -109,7 +109,7 @@ class TestSujetPublishLifecycle:
             owner_id=author_user.id,
             status=PublicationStatus.PUBLIC,
         )
-        with pytest.raises(ValueError, match="DRAFT"):
+        with pytest.raises(ValueError, match="pas en brouillon"):
             sujet.publish()
 
     def test_publish_requires_title(
@@ -144,7 +144,7 @@ class TestSujetPublishLifecycle:
         self, db_session: Session, media_org: Organisation, author_user: User
     ):
         sujet = _make_sujet(db_session, media_id=media_org.id, owner_id=author_user.id)
-        with pytest.raises(ValueError, match="PUBLIC"):
+        with pytest.raises(ValueError, match="pas été envoyé"):
             sujet.unpublish()
 
     def test_can_edit_lifecycle(
@@ -180,7 +180,7 @@ class TestSujetPublishLifecycle:
         assert sujet.can_unpublish(author_user) is True
         assert sujet.can_unpublish(other_user) is False
 
-        with pytest.raises(ValueError, match="seul le créateur"):
+        with pytest.raises(ValueError, match="seul son auteur"):
             sujet.unpublish(other_user)
 
         sujet.unpublish(author_user)
@@ -354,25 +354,25 @@ class TestCommandeVisibility:
 
 
 class TestSujetsTableActions:
-    def test_draft_item_shows_publier(self):
+    def test_draft_item_offers_to_send(self):
         table = SujetsTable()
         item = MagicMock(id=1, status=PublicationStatus.DRAFT)
 
         labels = [a["label"] for a in table.get_actions(item)]
 
-        assert "Publier" in labels
-        assert "Dépublier" not in labels
+        assert "Envoyer" in labels
+        assert "Retirer" not in labels
 
-    def test_public_item_shows_depublier(self):
+    def test_public_item_offers_to_withdraw(self):
         table = SujetsTable()
         item = MagicMock(id=1, status=PublicationStatus.PUBLIC)
 
         labels = [a["label"] for a in table.get_actions(item)]
 
-        assert "Dépublier" in labels
-        assert "Publier" not in labels
+        assert "Retirer" in labels
+        assert "Envoyer" not in labels
 
-    def test_public_item_shows_depublier_for_owner(self):
+    def test_public_item_offers_to_withdraw_for_owner(self):
         table = SujetsTable()
         item = MagicMock(
             id=1, owner_id=10, media_id=20, status=PublicationStatus.PUBLIC
@@ -381,9 +381,9 @@ class TestSujetsTableActions:
 
         labels = [a["label"] for a in table.get_actions(item)]
 
-        assert "Dépublier" in labels
+        assert "Retirer" in labels
 
-    def test_public_item_hides_depublier_for_recipient_media(self):
+    def test_public_item_hides_withdraw_for_recipient_media(self):
         table = SujetsTable()
         item = MagicMock(
             id=1, owner_id=10, media_id=20, status=PublicationStatus.PUBLIC
@@ -394,10 +394,10 @@ class TestSujetsTableActions:
         labels = [a["label"] for a in table.get_actions(item)]
 
         assert labels == ["Voir", "Modifier", "Accepter", "Refuser"]
-        assert "Dépublier" not in labels
+        assert "Retirer" not in labels
         assert "Supprimer" not in labels
 
-    def test_public_item_shows_depublier_when_creator_is_recipient(self):
+    def test_public_item_offers_to_withdraw_when_creator_is_recipient(self):
         table = SujetsTable()
         item = MagicMock(
             id=1, owner_id=10, media_id=20, status=PublicationStatus.PUBLIC
@@ -406,7 +406,7 @@ class TestSujetsTableActions:
 
         labels = [a["label"] for a in table.get_actions(item)]
 
-        assert "Dépublier" in labels
+        assert "Retirer" in labels
         assert "Accepter" in labels
         assert "Refuser" in labels
         assert "Supprimer" in labels
@@ -438,8 +438,8 @@ class TestSujetsTableActions:
         assert "Voir" in labels
         assert "Supprimer" in labels
         assert "Modifier" not in labels
-        assert "Publier" not in labels
-        assert "Dépublier" not in labels
+        assert "Envoyer" not in labels
+        assert "Retirer" not in labels
         assert "Accepter" not in labels
         assert "Refuser" not in labels
 
@@ -462,7 +462,7 @@ class TestSujetsTableActions:
         assert render_fn(draft_item) == "Draft"
 
         public_item = MagicMock(status=PublicationStatus.PUBLIC)
-        assert render_fn(public_item) == "Publié"
+        assert render_fn(public_item) == "Envoyé"
 
 
 class TestSujetFormFields:
