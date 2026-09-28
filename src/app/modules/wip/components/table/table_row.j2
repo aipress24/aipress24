@@ -23,8 +23,17 @@
           aria-labelledby="{{ row.id }}-dropdown-button">
         {% for action in row.get_actions() %}
           <li>
-            <a href="{{ action.url }}"
-               class="block py-2 px-4 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">{{ action.label }}</a>
+            {# An action that changes state is a POST: a link on another
+               site cannot trigger it, the session cookie being SameSite=Lax. #}
+            {% if action.get("method") == "post" %}
+              <form method="post" action="{{ action.url }}">
+                <button type="submit"
+                        class="block w-full text-left py-2 px-4 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">{{ action.label }}</button>
+              </form>
+            {% else %}
+              <a href="{{ action.url }}"
+                 class="block py-2 px-4 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">{{ action.label }}</a>
+            {% endif %}
           </li>
         {% endfor %}
       </ul>

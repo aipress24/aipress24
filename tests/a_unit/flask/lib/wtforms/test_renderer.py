@@ -42,11 +42,13 @@ from flask import g
 from markupsafe import Markup
 from wtforms import DateField, DateTimeField, Form, SelectField, StringField
 
+from app.flask.lib.wtforms.fields.rich_select import RichSelectField
 from app.flask.lib.wtforms.renderer import (
     DEFAULT_WIDTH,
     FIELD_CLASS_MAP,
     FormRenderer,
 )
+from app.settings.vocabularies import COPYRIGHT_CREATIVE_COMMONS
 
 if TYPE_CHECKING:
     from flask import Flask
@@ -418,6 +420,20 @@ class TestRenderFieldViewMode:
         assert "Alice" in html
         # In view mode the raw widget is NOT rendered — `field.data` is.
         assert "<input" not in html
+
+    def test_view_mode_rich_select_shows_the_label_of_a_stored_code(self, app: Flask):
+        class _CopyrightForm(Form):
+            copyright = RichSelectField(key="copyright-mention")
+
+        with app.app_context():
+            form = _CopyrightForm()
+            form.copyright.data = COPYRIGHT_CREATIVE_COMMONS
+            renderer = FormRenderer(form=form, mode="view")
+
+            html = renderer.render_field(form.copyright)
+
+        assert "Creative Commons (CC BY-ND)" in html
+        assert COPYRIGHT_CREATIVE_COMMONS not in html
 
     def test_view_mode_media_id_with_model_media_shows_media_name(self, app: Flask):
         with app.app_context():

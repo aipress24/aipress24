@@ -16,6 +16,7 @@ from wtforms.fields.core import Field
 from wtforms.form import Form
 
 from app.flask.lib.wtforms.fields.display import DisplayField
+from app.flask.lib.wtforms.fields.rich_select import RichSelectField
 
 # language=jinja2
 FORM_TEMPLATE = """
@@ -282,33 +283,7 @@ class FormRenderer:
             class_ += " input-error"
 
         if self.mode == "view":
-            if field.name == "media_id":
-                # do display the actual name of the related media
-                if self.model and hasattr(self.model, "media_name"):
-                    field_str = self.model.media_name
-                elif self.model and self.model.media:
-                    field_str = self.model.media.name
-                else:
-                    field_str = ""
-            elif field.name == "publisher_id":
-                # Bug 0129: render publisher org name, not the raw FK id.
-                publisher = (
-                    getattr(self.model, "publisher", None) if self.model else None
-                )
-                if publisher is not None:
-                    field_str = publisher.bw_name or publisher.name or ""
-                else:
-                    field_str = ""
-            elif field.name == "destinataire_id":
-                # #0362: name the journalist a commande is addressed to.
-                destinataire = (
-                    getattr(self.model, "destinataire", None) if self.model else None
-                )
-                field_str = destinataire.full_name if destinataire else ""
-            elif isinstance(field, DisplayField):
-                field_str = field._value()
-            else:
-                field_str = self.render_field_value(field.data)
+            field_str = self._view_value(field)
         else:
             field_str = field(**{"class": class_})
 
@@ -355,6 +330,32 @@ class FormRenderer:
                 group["fields"].append(self.form[field_id])
             groups.append(group)
         return groups
+
+    def _view_value(self, field: Field) -> str:
+        """What `field` reads as in view mode."""
+        model = self.model
+        match field:
+            case Field(name="media_id"):
+                # do display the actual name of the related media
+                if model and hasattr(model, "media_name"):
+                    return model.media_name
+                return model.media.name if model and model.media else ""
+            case Field(name="publisher_id"):
+                # Bug 0129: render publisher org name, not the raw FK id.
+                publisher = getattr(model, "publisher", None)
+                return (publisher.bw_name or publisher.name or "") if publisher else ""
+            case Field(name="destinataire_id"):
+                # #0362: name the journalist a commande is addressed to.
+                destinataire = getattr(model, "destinataire", None)
+                return destinataire.full_name if destinataire else ""
+            case DisplayField():
+                return field._value()
+            case RichSelectField(choices=choices):
+                # A stored code reads as its label.
+                labels = dict(choices or [])
+                return self.render_field_value(labels.get(field.data, field.data))
+            case _:
+                return self.render_field_value(field.data)
 
     def render_field_value(self, value: Any):
         match value:

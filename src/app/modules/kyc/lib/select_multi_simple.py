@@ -77,25 +77,25 @@ class SelectMultiSimpleField(RetainsProfileValues, SelectMultipleField):
 
     @cached_property
     def _taxonomy_map(self) -> dict[str, list[str]]:
+        match self.choices:
+            case list():
+                items = self.choices
+            case dict() as groups:
+                items = [item for group in groups.values() for item in group]
+            case _:
+                items = []
+
         mapping: dict[str, list[str]] = {}
-        raw = self.choices or []
-        if isinstance(raw, list):
-            for item in raw:
-                val = item[0] if isinstance(item, (list, tuple)) else str(item)
-                val_clean = val.strip()
-                mapping.setdefault(val_clean.lower(), []).append(val_clean)
-                if "/" in val_clean:
-                    _, suffix = val_clean.split("/", 1)
-                    mapping.setdefault(suffix.strip().lower(), []).append(val_clean)
-        elif isinstance(raw, dict):
-            for _group, items in raw.items():
-                for item in items:
-                    val = item[0] if isinstance(item, (list, tuple)) else str(item)
-                    val_clean = val.strip()
-                    mapping.setdefault(val_clean.lower(), []).append(val_clean)
-                    if "/" in val_clean:
-                        _, suffix = val_clean.split("/", 1)
-                        mapping.setdefault(suffix.strip().lower(), []).append(val_clean)
+        for item in items:
+            match item:
+                case list() | tuple():
+                    val_clean = item[0].strip()
+                case _:
+                    val_clean = str(item).strip()
+            mapping.setdefault(val_clean.lower(), []).append(val_clean)
+            if "/" in val_clean:
+                _, suffix = val_clean.split("/", 1)
+                mapping.setdefault(suffix.strip().lower(), []).append(val_clean)
         return mapping
 
     def _resolve_values(self) -> list[str]:

@@ -185,10 +185,11 @@ def delete_reported_post(alert_id: int):
     article: Article | None = None
     communique: Communique | None = None
 
-    if isinstance(post, ArticlePost) and post.newsroom_id:
-        article = db.session.get(Article, post.newsroom_id)
-    elif isinstance(post, PressReleasePost) and post.newsroom_id:
-        communique = db.session.get(Communique, post.newsroom_id)
+    match post:
+        case ArticlePost(newsroom_id=int() as newsroom_id):
+            article = db.session.get(Article, newsroom_id)
+        case PressReleasePost(newsroom_id=int() as newsroom_id):
+            communique = db.session.get(Communique, newsroom_id)
 
     current_time = now(LOCAL_TZ)
 

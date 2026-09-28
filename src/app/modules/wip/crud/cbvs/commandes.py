@@ -16,6 +16,7 @@ from collections.abc import Callable
 from typing import cast
 
 from flask import Flask, flash, g, redirect
+from flask_classful import route
 from flask_super.registry import register
 from sqlalchemy import func, select
 from sqlalchemy.orm import selectinload
@@ -78,9 +79,21 @@ class CommandesTable(BaseTable):
             return actions
         actions.append({"label": "Modifier", "url": self.url_for(item, "edit")})
         if item.can_validate():
-            actions.append({"label": "Valider", "url": self.url_for(item, "validate")})
+            actions.append(
+                {
+                    "label": "Valider",
+                    "url": self.url_for(item, "validate"),
+                    "method": "post",
+                }
+            )
         if item.can_cancel():
-            actions.append({"label": "Annuler", "url": self.url_for(item, "cancel")})
+            actions.append(
+                {
+                    "label": "Annuler",
+                    "url": self.url_for(item, "cancel"),
+                    "method": "post",
+                }
+            )
         actions.append({"label": "Supprimer", "url": self.url_for(item, "delete")})
         return actions
 
@@ -119,10 +132,12 @@ class CommandesWipView(BaseWipView):
             raise Forbidden
         return None
 
+    @route("/<id>/validate/", methods=["POST"])
     def validate(self, id):
         """The commanditaire validates the commande."""
         return self._change_status(id, Commande.validate, "Commande validée.")
 
+    @route("/<id>/cancel/", methods=["POST"])
     def cancel(self, id):
         """The commanditaire cancels the commande."""
         return self._change_status(id, Commande.cancel, "Commande annulée.")

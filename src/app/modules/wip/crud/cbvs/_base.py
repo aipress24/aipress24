@@ -405,7 +405,10 @@ class BaseWipView(FlaskView, abc.ABC):
                 form.media_id.data = choices[0][0]
 
     def _make_extra_choices(self, form) -> None:
-        """Hook for subclasses whose form has choices of its own to fill."""
+        """Hook for subclasses whose form has choices of its own to fill.
+
+        Not called in view mode: a view shows the record, not the options.
+        """
 
     def _make_country_choices(self, form) -> None:
         if hasattr(form, "pays_zip_ville"):
@@ -420,7 +423,8 @@ class BaseWipView(FlaskView, abc.ABC):
         endpoint = f"{self.__class__.__name__}:post"
 
         self._make_media_choices(form)
-        self._make_extra_choices(form)
+        if mode != "view":
+            self._make_extra_choices(form)
         self._make_country_choices(form)
 
         if hasattr(form, "pays_zip_ville"):

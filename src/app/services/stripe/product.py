@@ -30,13 +30,14 @@ def fetch_stripe_product_list(
         client = default_client()
 
     for rp in client.list_products(active=active, expand=["data.default_price"]):
-        if isinstance(rp, Product):
-            results.append(rp)
-        elif isinstance(rp, dict):
-            results.append(Product.construct_from(rp, "product"))
-        else:
-            # SimpleNamespace / attribute-like test fixtures
-            results.append(Product.construct_from(vars(rp), "product"))
+        match rp:
+            case Product():
+                results.append(rp)
+            case dict():
+                results.append(Product.construct_from(rp, "product"))
+            case _:
+                # SimpleNamespace / attribute-like test fixtures
+                results.append(Product.construct_from(vars(rp), "product"))
     return results
 
 
@@ -84,16 +85,19 @@ def resolve_product_price(product: Any) -> tuple[str | None, Any]:
 
     price_id: str | None = None
     price_obj: Any = None
-    if isinstance(default_price, dict):
-        price_id = default_price.get("id")
-        price_obj = default_price
-    elif isinstance(default_price, str) and default_price:
-        price_id = default_price
-    elif default_price is not None:
-        # Stripe Price object, SimpleNamespace fixture, or any duck-typed
-        # object exposing `.id`.
-        price_id = getattr(default_price, "id", None)
-        price_obj = default_price
+    match default_price:
+        case None:
+            pass
+        case dict():
+            price_id = default_price.get("id")
+            price_obj = default_price
+        case str() if default_price:
+            price_id = default_price
+        case _:
+            # Stripe Price object, SimpleNamespace fixture, or any duck-typed
+            # object exposing `.id`.
+            price_id = getattr(default_price, "id", None)
+            price_obj = default_price
 
     if price_id:
         if price_obj is not None:

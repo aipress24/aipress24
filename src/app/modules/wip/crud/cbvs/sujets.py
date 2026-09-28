@@ -9,7 +9,7 @@ from typing import cast
 from attr import define
 from flask import Flask, flash, g, redirect
 from flask_super.registry import register
-from sqlalchemy import and_, func, or_, select
+from sqlalchemy import func, select
 from sqlalchemy.orm import selectinload
 from werkzeug import Response
 from werkzeug.exceptions import Forbidden
@@ -25,7 +25,7 @@ from app.modules.bw.bw_activation.user_utils import (
     get_selected_business_wall_for_user,
 )
 from app.modules.wip.models import Sujet, SujetRepository
-from app.modules.wip.redac_chef import is_redac_chef_of_org
+from app.modules.wip.redac_chef import redac_chef_media_id
 from app.modules.wip.services.newsroom.sujet_accept import (
     accept_sujet_as_commande,
     notify_author_of_sujet_acceptance,
@@ -73,27 +73,9 @@ class SujetDataSource(BaseDataSource):
     the proposal, which restores the targeting Nicolas relies on.
     """
 
-    def _media_recipient_clause(self):
-        user: User = g.user
-        org_id = getattr(user, "organisation_id", None)
-        if not org_id:
-            return None
-        # Bug #0132 pt 1 — gate the received-Sujet view on a rédac
-        # chef qualification.
-        if not is_redac_chef_of_org(user, org_id):
-            return None
-        M = cast(type[WipContentModel], self.model_class)
-        return and_(
-            M.media_id == org_id,
-            M.status == PublicationStatus.PUBLIC,
-        )
-
     def _visibility_clause(self):
-        M = cast(type[WipContentModel], self.model_class)
         user: User = g.user
-        own = M.owner_id == user.id
-        media = self._media_recipient_clause()
-        return or_(own, media) if media is not None else own
+        return Sujet.is_visible_to(user.id, redac_chef_media_id(user))
 
     def _base_query(self):
         M = cast(type[WipContentModel], self.model_class)
@@ -252,24 +234,9 @@ class SujetsWipView(BaseWipView):
         return model.can_edit()
 
     def _can_access(self, model: Sujet) -> bool:
-        """Per-record visibility gate for Sujet (security VULN-001).
-
-        The LIST view's `_media_recipient_clause` restricts received
-        Sujets to rédacteurs en chef (#0132 pt 1), so the by-id fetch
-        must say the same thing.
-
-        Authorized viewers :
-        - the Sujet's own owner, regardless of status ;
-        - the target media's rédac chef when the Sujet is PUBLIC.
-        """
-        user = g.user
-        if model.owner_id == user.id:
-            return True
-        return (
-            model.media_id == user.organisation_id
-            and model.status == PublicationStatus.PUBLIC
-            and is_redac_chef_of_org(user, model.media_id)
-        )
+        """Per-record visibility gate for Sujet (security VULN-001): the
+        rule of the list (`Sujet.is_visible_to`)."""
+        return model.is_visible_to(g.user.id, redac_chef_media_id(g.user))
 
     def _post_update_model(self, model: Sujet) -> None:
         # Validate publisher_id: if the user selected a client org they are

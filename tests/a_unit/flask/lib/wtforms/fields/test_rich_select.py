@@ -20,6 +20,7 @@ from app.flask.lib.wtforms.fields.rich_select import (
     RichSelectField,
     RichSelectWidget,
 )
+from app.settings.vocabularies import COPYRIGHT_CREATIVE_COMMONS, COPYRIGHT_MENTIONS
 
 
 class _LanguageForm(Form):
@@ -55,6 +56,22 @@ class TestRichSelectFieldChoices:
         # The two vocabularies have nothing in common — sanity-check
         # that the `key` lookup actually routes per field.
         assert langs.isdisjoint(mentions)
+
+
+class TestCodedVocabulary:
+    """A vocabulary given as a mapping stores the code, shows the label."""
+
+    def test_choices_pair_each_code_with_its_label(self) -> None:
+        choices = _CopyrightForm().mention.choices
+
+        assert choices == list(COPYRIGHT_MENTIONS.items())
+
+    def test_js_choices_carry_the_label(self) -> None:
+        js_choices = _CopyrightForm().mention.get_choices_for_js()
+
+        assert [COPYRIGHT_CREATIVE_COMMONS, "Creative Commons (CC BY-ND)"] in (
+            js_choices
+        )
 
 
 class TestRichSelectGetChoicesForJs:

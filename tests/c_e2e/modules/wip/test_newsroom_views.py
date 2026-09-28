@@ -237,53 +237,41 @@ class TestNewsroomContent:
         used to see 0 because `count_owned_non_deleted(Sujet)` only
         counted sujets they *owned* — sujets *proposed to their
         media* (which is what the table actually shows) didn't count.
-        Align the counter with the SujetDataSource's visibility :
+        Align the counter with the table's visibility :
         own + media-recipient."""
-        # An author from another org publishes a sujet to the rédac
-        # chef's media (test_org).
-        other_org = Organisation(name="Author's Org")
-        db_session.add(other_org)
-        db_session.flush()
-        author = User(
-            email="author-proposing@example.com",
-            first_name="Nicolas",
-            last_name="Mouriou",
-            active=True,
-        )
-        author.organisation = other_org
-        author.organisation_id = other_org.id
-        db_session.add(author)
-        db_session.flush()
-        sujet = Sujet(
-            owner_id=author.id,
-            media_id=test_org.id,
-            commanditaire_id=author.id,
-            titre="Proposed sujet",
-            contenu="Body",
-            status=PublicationStatus.PUBLIC,
-            date_limite_validite=datetime.now(UTC) + timedelta(days=7),
-            date_parution_prevue=datetime.now(UTC) + timedelta(days=14),
-        )
-        db_session.add(sujet)
-        db_session.commit()
+        _received_sujet(db_session, test_org)
 
         client = make_authenticated_client(app, journalist_with_bw)
-        response = client.get("/wip/newsroom")
-        assert response.status_code == 200
-        html = response.data.decode()
-        # The Sujets tile must show ≥ 1 « élément(s) » (the received
-        # sujet). Anchor on the tile label « Sujets » then the count
-        # phrase « N élément(s) » to discriminate against other tiles.
-        tile_match = re.search(
-            r"Sujets\s*</span>\s*<p[^>]*>(\d+) élément",
-            html.replace("\n", " "),
-            re.IGNORECASE | re.DOTALL,
+
+        assert _sujets_tile_count(client) == 1
+
+    def test_sujets_counter_skips_received_sujets_for_staff(
+        self,
+        app: Flask,
+        db_session: Session,
+        journalist_with_bw: User,
+        test_org: Organisation,
+    ):
+        """A received sujet only reaches the media's rédac chefs (#0132
+        pt 1): a staff journalist of that media counts none, as their
+        list shows none."""
+        _received_sujet(db_session, test_org)
+        staff = User(
+            email="staff-journalist@example.com",
+            first_name="Paul",
+            last_name="Staff",
+            active=True,
         )
-        assert tile_match is not None, "Sujets tile not found in the newsroom page"
-        assert int(tile_match.group(1)) >= 1, (
-            f"Sujets counter must include sujets proposed to the user's "
-            f"media (#0132/4) — got {tile_match.group(1)}"
-        )
+        staff.profile = KYCProfile(profile_code="PM_JR_CP_SAL")
+        staff.organisation = test_org
+        staff.organisation_id = test_org.id
+        staff.roles.extend(journalist_with_bw.roles)
+        db_session.add(staff)
+        db_session.commit()
+
+        client = make_authenticated_client(app, staff)
+
+        assert _sujets_tile_count(client) == 0
 
     def test_newsroom_filters_items_without_bw(
         self, app: Flask, journalist_no_bw: User
@@ -451,3 +439,46 @@ class TestNewsroomContent:
         assert "Article" in html
         assert "Sujet" in html
         assert "Avis" in html or "enqu" in html
+
+
+def _received_sujet(db_session: Session, media: Organisation) -> Sujet:
+    """A sujet an author from another org has sent to `media`."""
+    other_org = Organisation(name="Author's Org")
+    db_session.add(other_org)
+    db_session.flush()
+    author = User(
+        email="author-proposing@example.com",
+        first_name="Nicolas",
+        last_name="Mouriou",
+        active=True,
+    )
+    author.organisation = other_org
+    author.organisation_id = other_org.id
+    db_session.add(author)
+    db_session.flush()
+    sujet = Sujet(
+        owner_id=author.id,
+        media_id=media.id,
+        commanditaire_id=author.id,
+        titre="Proposed sujet",
+        contenu="Body",
+        status=PublicationStatus.PUBLIC,
+        date_limite_validite=datetime.now(UTC) + timedelta(days=7),
+        date_parution_prevue=datetime.now(UTC) + timedelta(days=14),
+    )
+    db_session.add(sujet)
+    db_session.commit()
+    return sujet
+
+
+def _sujets_tile_count(client) -> int:
+    """The « N élément(s) » of the Sujets tile on the newsroom page."""
+    response = client.get("/wip/newsroom")
+    assert response.status_code == 200
+    tile_match = re.search(
+        r"Sujets\s*</span>\s*<p[^>]*>(\d+) élément",
+        response.data.decode().replace("\n", " "),
+        re.IGNORECASE | re.DOTALL,
+    )
+    assert tile_match is not None, "Sujets tile not found in the newsroom page"
+    return int(tile_match.group(1))

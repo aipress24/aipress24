@@ -496,35 +496,32 @@ def _collect_managed_data(form: FlaskForm, form_data: dict[str, Any]) -> dict[st
             wt_field = getattr(form, key)
         except AttributeError:
             continue
-        if isinstance(wt_field, CountrySelectField | DualSelectField):
-            # now apply also to second field *_detail, store as a tuple of 2 values
-            managed_data[key] = (value, form_data.get(f"{key}_detail", []))
-        elif isinstance(
-            wt_field,
-            StringField
-            | BooleanField
-            | SelectField
-            | TextAreaField
-            | SelectMultipleField,
-        ):
-            managed_data[key] = value
-        elif isinstance(wt_field, ValidImageField | ValidImageFieldSquare):
-            pass
+        match wt_field:
+            case CountrySelectField() | DualSelectField():
+                # also apply to the second field *_detail: store a pair
+                managed_data[key] = (value, form_data.get(f"{key}_detail", []))
+            case (
+                StringField()
+                | BooleanField()
+                | SelectField()
+                | TextAreaField()
+                | SelectMultipleField()
+            ):
+                managed_data[key] = value
     return managed_data
 
 
 def _fill_managed_data(form: FlaskForm, managed_data: dict[str, Any]) -> None:
     for key, value in managed_data.items():
         wt_field = getattr(form, key)
-        if isinstance(wt_field, CountrySelectField | DualSelectField):
-            # apply also to second field *_detail
-            first, second = value
-            wt_field.data = first
-            wt_field.data2 = second
-        elif isinstance(wt_field, ValidImageField | ValidImageFieldSquare):
-            pass
-        else:
-            wt_field.data = value
+        match wt_field:
+            case CountrySelectField() | DualSelectField():
+                # apply also to second field *_detail
+                wt_field.data, wt_field.data2 = value
+            case ValidImageField() | ValidImageFieldSquare():
+                pass
+            case _:
+                wt_field.data = value
 
 
 def generate_form(

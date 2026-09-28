@@ -13,8 +13,8 @@ Tickets #0193–#0196 :
 Two scopes on the same page :
 - « Mes ventes » — purchases on posts the user authored (`Post.owner_id`).
 - « Ventes du média » — purchases on posts published under the user's
-  media (`Post.publisher_id`). Only shown when the user qualifies as
-  rédac chef (PM_DIR* profile).
+  media (`Post.publisher_id`). Only shown to its rédac chefs
+  (`app.modules.wip.redac_chef`).
 """
 
 from __future__ import annotations
@@ -31,6 +31,7 @@ from app.flask.extensions import db
 from app.flask.lib.nav import nav
 from app.lib.base62 import base62
 from app.modules.wip import blueprint
+from app.modules.wip.redac_chef import redac_chef_media_id
 from app.modules.wire.models import (
     ArticlePurchase,
     Post,
@@ -48,12 +49,6 @@ from ._common import get_secondary_menu
 
 if TYPE_CHECKING:
     pass
-
-# Mirrors `_REDAC_CHEF_PROFILES` in `wip.crud.cbvs.sujets` ; duplicated
-# rather than imported to keep the dependency direction clean (views
-# should not pull from `crud.cbvs`). The list of qualifying profiles
-# is small and stable — drift would surface in the rédac chef tests.
-_REDAC_CHEF_PROFILES = frozenset({"PM_DIR", "PM_DIR_INST", "PM_DIR_SYND"})
 
 
 @blueprint.route("/ventes")
@@ -81,36 +76,26 @@ def ventes():
     if not has_role(user, RoleEnum.PRESS_MEDIA.name):
         raise Forbidden
 
-    own_rows = _list_author_sales(user.id)
-    own_total_eur = get_user_sales_total(user.id) / 100
-
-    show_media = _is_redac_chef(user)
+    own_total_cents = get_user_sales_total(user.id)
+    media_id = redac_chef_media_id(user)
     media_rows: list[dict] = []
-    media_total_eur = 0.0
-    if show_media and user.organisation_id:
-        media_rows = _list_media_sales(user.organisation_id)
-        media_total_eur = get_media_sales_total(user.organisation_id) / 100
+    media_total_cents = 0
+    if media_id is not None:
+        media_rows = _list_media_sales(media_id)
+        media_total_cents = get_media_sales_total(media_id)
 
     return render_template(
         "wip/pages/ventes.j2",
         title="Mes ventes",
-        own_rows=own_rows,
-        own_total_eur=own_total_eur,
-        own_share_eur=publisher_share(own_total_eur),
+        own_rows=_list_author_sales(user.id),
+        own_total_eur=own_total_cents / 100,
+        own_share_eur=publisher_share_cents(own_total_cents) / 100,
         media_rows=media_rows,
-        media_total_eur=media_total_eur,
-        media_share_eur=publisher_share(media_total_eur),
-        show_media_section=show_media,
+        media_total_eur=media_total_cents / 100,
+        media_share_eur=publisher_share_cents(media_total_cents) / 100,
+        show_media_section=media_id is not None,
         menus={"secondary": get_secondary_menu("ventes")},
     )
-
-
-def _is_redac_chef(user) -> bool:
-    profile = getattr(user, "profile", None)
-    if profile is None:
-        return False
-    code = getattr(profile, "profile_code", "") or ""
-    return code in _REDAC_CHEF_PROFILES
 
 
 def _list_author_sales(user_id: int) -> list[dict]:
@@ -142,7 +127,7 @@ def _list_media_sales(media_org_id: int) -> list[dict]:
 
 def _row_dict(p: ArticlePurchase) -> dict:
     post = p.post
-    amount_eur = (p.amount_cents or 0) / 100
+    amount_cents = p.amount_cents or 0
     return {
         "id": p.id,
         "date": p.paid_at or p.timestamp,
@@ -151,11 +136,12 @@ def _row_dict(p: ArticlePurchase) -> dict:
             getattr(post, "title", "") or getattr(post, "titre", "") or "(article)"
         ),
         "post_url": url_for("wire.item", id=base62.encode(post.id)) if post else "#",
-        "amount_eur": amount_eur,
-        "editor_share_eur": publisher_share(amount_eur),
+        "amount_eur": amount_cents / 100,
+        "editor_share_eur": publisher_share_cents(amount_cents) / 100,
     }
 
 
-def publisher_share(amount_eur: float) -> float:
-    """The publisher's part of a sale, per the platform CGV (#0364)."""
-    return amount_eur * PUBLISHER_REVENUE_SHARE_PERCENT / 100
+def publisher_share_cents(amount_cents: int) -> int:
+    """The publisher's part of a sale, per the platform CGV (#0364),
+    rounded to the nearest cent, half up."""
+    return (amount_cents * PUBLISHER_REVENUE_SHARE_PERCENT + 50) // 100

@@ -5,7 +5,6 @@
 from __future__ import annotations
 
 from datetime import datetime
-from typing import Any, cast
 
 import sqlalchemy as sa
 from sqlalchemy import orm
@@ -45,13 +44,14 @@ class Commande(
         User, foreign_keys=[destinataire_id]
     )
 
-    @orm.declared_attr
-    def commanditaire(cls):
-        """Qui a passé la commande."""
-        return orm.relationship(User, foreign_keys=cast(Any, [cls.commanditaire_id]))
+    @property
+    def commanditaire(self) -> User:
+        """Who placed the commande: its owner, which decides the rights.
+        `commanditaire_id` only mirrors `owner_id`."""
+        return self.owner
 
     @hybrid_method
-    def is_visible_to(self, user_id: int, redac_chef_of: int | None = None) -> Any:
+    def is_visible_to(self, user_id: int, redac_chef_of: int | None = None) -> bool:
         """Who sees a commande: whoever placed it, its destinataire, and the
         rédac chefs of the media it is placed for (`redac_chef_of` being
         the media the user is rédac chef of).
@@ -65,25 +65,28 @@ class Commande(
 
     @property
     def media_name(self) -> str:
-        """Le média pour lequel la commande est passée : celui du commanditaire."""
+        """The media the commande is placed for: the commanditaire's."""
         if not self.media:
             return ""
         return self.media.bw_name or self.media.name or ""
 
     @property
     def status_label(self) -> str:
-        """Le statut tel qu'on l'affiche."""
+        """The status as displayed."""
         return _STATUS_LABELS.get(self.status) or self.status.label
 
     def can_validate(self) -> bool:
-        return self.status == PublicationStatus.DRAFT
+        """A draft addressed to someone: the conditions `validate` checks."""
+        return (
+            self.status == PublicationStatus.DRAFT and self.destinataire_id is not None
+        )
 
     def can_cancel(self) -> bool:
         return self.status in (PublicationStatus.DRAFT, PublicationStatus.ACCEPTED)
 
     def validate(self) -> None:
         """The commanditaire validates a draft: it goes to its destinataire."""
-        if not self.can_validate():
+        if self.status != PublicationStatus.DRAFT:
             msg = "Seule une commande en brouillon peut être validée."
             raise BusinessRuleError(msg)
         if self.destinataire_id is None:

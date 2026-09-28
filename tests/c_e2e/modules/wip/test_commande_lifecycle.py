@@ -22,6 +22,7 @@ from app.flask.extensions import db
 from app.flask.routing import url_for
 from app.models.auth import User
 from app.models.lifecycle import PublicationStatus
+from app.modules.wip.crud.cbvs import commandes as commandes_view
 from app.modules.wip.models import Commande
 from app.services.emails import CommandeStatusNotificationMail
 from app.services.notifications._models import Notification
@@ -107,13 +108,35 @@ class TestTheOwnerRunsIt:
         journalist_id, journalist_email = journalist.id, journalist.email
         client = make_authenticated_client(app, test_user)
 
-        response = client.get(url_for("CommandesWipView:validate", id=commande.id))
+        response = client.post(url_for("CommandesWipView:validate", id=commande.id))
 
         assert response.status_code in {302, 303}
         assert _status_of(commande.id) == PublicationStatus.ACCEPTED
         bells = db.session.query(Notification).filter_by(receiver_id=journalist_id)
         assert any("validée" in bell.message for bell in bells)
         assert [mail.recipient for mail in sent_mails] == [journalist_email]
+
+    @pytest.mark.parametrize("action", ["validate", "cancel"])
+    def test_a_link_cannot_change_its_status(
+        self,
+        app: Flask,
+        fresh_db,
+        test_user: User,
+        journalist: User,
+        test_org: Organisation,
+        action: str,
+    ) -> None:
+        """A GET, which a link on another site can trigger with the
+        session, changes nothing: only a POST does."""
+        commande = _commande(
+            fresh_db, owner=test_user, destinataire=journalist, org=test_org
+        )
+        client = make_authenticated_client(app, test_user)
+
+        response = client.get(url_for(f"CommandesWipView:{action}", id=commande.id))
+
+        assert response.status_code == 405
+        assert _status_of(commande.id) == PublicationStatus.DRAFT
 
     def test_a_commande_without_destinataire_stays_a_draft(
         self,
@@ -126,10 +149,25 @@ class TestTheOwnerRunsIt:
         commande = _commande(fresh_db, owner=test_user, destinataire=None, org=test_org)
         client = make_authenticated_client(app, test_user)
 
-        client.get(url_for("CommandesWipView:validate", id=commande.id))
+        client.post(url_for("CommandesWipView:validate", id=commande.id))
 
         assert _status_of(commande.id) == PublicationStatus.DRAFT
         assert sent_mails == []
+
+    def test_the_menu_does_not_offer_to_validate_without_destinataire(
+        self,
+        app: Flask,
+        fresh_db,
+        test_user: User,
+        test_org: Organisation,
+    ) -> None:
+        commande = _commande(fresh_db, owner=test_user, destinataire=None, org=test_org)
+        client = make_authenticated_client(app, test_user)
+
+        html = client.get(url_for("CommandesWipView:index")).get_data(as_text=True)
+
+        assert url_for("CommandesWipView:cancel", id=commande.id) in html
+        assert url_for("CommandesWipView:validate", id=commande.id) not in html
 
     def test_cancelling_notifies_the_destinataire(
         self,
@@ -150,7 +188,7 @@ class TestTheOwnerRunsIt:
         journalist_id = journalist.id
         client = make_authenticated_client(app, test_user)
 
-        client.get(url_for("CommandesWipView:cancel", id=commande.id))
+        client.post(url_for("CommandesWipView:cancel", id=commande.id))
 
         assert _status_of(commande.id) == PublicationStatus.CANCELLED
         bells = db.session.query(Notification).filter_by(receiver_id=journalist_id)
@@ -168,7 +206,7 @@ class TestTheOwnerRunsIt:
         commande = _commande(fresh_db, owner=test_user, destinataire=None, org=test_org)
         client = make_authenticated_client(app, test_user)
 
-        client.get(url_for("CommandesWipView:cancel", id=commande.id))
+        client.post(url_for("CommandesWipView:cancel", id=commande.id))
 
         assert _status_of(commande.id) == PublicationStatus.CANCELLED
         assert sent_mails == []
@@ -192,6 +230,36 @@ class TestTheOwnerRunsIt:
 
         assert "Aïcha Benmahfoud" in html
 
+    def test_only_the_edit_form_loads_the_journalists(
+        self,
+        app: Flask,
+        fresh_db,
+        test_user: User,
+        journalist: User,
+        test_org: Organisation,
+        monkeypatch: pytest.MonkeyPatch,
+    ) -> None:
+        """Reading a commande does not query every journalist of the site."""
+        loads: list[int] = []
+        load_choices = commandes_view._destinataire_choices
+
+        def counting_load() -> list[tuple[int | str, str]]:
+            choices = load_choices()
+            loads.append(len(choices))
+            return choices
+
+        monkeypatch.setattr(commandes_view, "_destinataire_choices", counting_load)
+        commande = _commande(
+            fresh_db, owner=test_user, destinataire=journalist, org=test_org
+        )
+        client = make_authenticated_client(app, test_user)
+
+        client.get(url_for("CommandesWipView:get", id=commande.id))
+        assert loads == []
+
+        client.get(url_for("CommandesWipView:edit", id=commande.id))
+        assert len(loads) == 1
+
     def test_the_menu_offers_the_whole_cycle(
         self,
         app: Flask,
@@ -209,6 +277,9 @@ class TestTheOwnerRunsIt:
 
         for action in ("edit", "validate", "cancel", "delete"):
             assert url_for(f"CommandesWipView:{action}", id=commande.id) in html
+        for action in ("validate", "cancel"):
+            url = url_for(f"CommandesWipView:{action}", id=commande.id)
+            assert f'<form method="post" action="{url}">' in html
 
 
 class TestTheDestinataireOnlyReadsIt:
@@ -248,7 +319,7 @@ class TestTheDestinataireOnlyReadsIt:
         )
         client = make_authenticated_client(app, test_user)
 
-        client.get(url_for(f"CommandesWipView:{action}", id=commande.id))
+        client.post(url_for(f"CommandesWipView:{action}", id=commande.id))
 
         assert _status_of(commande.id) == PublicationStatus.DRAFT
 

@@ -14,6 +14,7 @@ from types import SimpleNamespace
 
 import pytest
 
+from app.models.auth import User
 from app.models.errors import BusinessRuleError
 from app.models.lifecycle import PublicationStatus
 from app.modules.wip.models import Commande
@@ -32,6 +33,14 @@ def _commande(
         destinataire_id=destinataire_id,
         status=status,
     )
+
+
+class TestCommanditaire:
+    def test_it_is_the_owner_whatever_commanditaire_id_says(self):
+        owner = User(first_name="Eliane", last_name="Kan")
+        commande = Commande(owner=owner, commanditaire_id=999)
+
+        assert commande.commanditaire is owner
 
 
 class TestVisibility:
@@ -56,7 +65,8 @@ class TestValidate:
     def test_it_needs_a_destinataire(self):
         commande = _commande(destinataire_id=None)
 
-        with pytest.raises(BusinessRuleError):
+        assert not commande.can_validate()
+        with pytest.raises(BusinessRuleError, match="destinataire"):
             commande.validate()
         assert commande.status == PublicationStatus.DRAFT
 

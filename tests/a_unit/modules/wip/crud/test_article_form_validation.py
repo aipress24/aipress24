@@ -35,6 +35,11 @@ import pytest
 from werkzeug.datastructures import ImmutableMultiDict
 
 from app.modules.wip.crud.cbvs._forms import ArticleForm
+from app.settings.vocabularies import (
+    COPYRIGHT_ALL_RIGHTS_RESERVED,
+    COPYRIGHT_CREATIVE_COMMONS,
+    COPYRIGHT_MENTIONS,
+)
 
 if TYPE_CHECKING:
     from flask import Flask
@@ -49,7 +54,7 @@ _GOOD_GENRE = "Actualité"
 _GOOD_SECTION = "Autres"
 _GOOD_TOPIC = "INFO GÉNÉ / Politique"
 _GOOD_SECTOR = "POLITIQUE / Autres"
-_GOOD_COPYRIGHT = "Tous droits réservés"
+_GOOD_COPYRIGHT = COPYRIGHT_ALL_RIGHTS_RESERVED
 _GOOD_DATE = "2025-01-01T10:30"
 _GOOD_MEDIA_ID = "1"
 
@@ -96,7 +101,7 @@ def _make_form(app: Flask, data: dict | None = None) -> ArticleForm:
         ):
             form[name].choices = [
                 (good, good),
-                ("Creative Commons (CC BY-ND)", "Creative Commons (CC BY-ND)"),
+                (COPYRIGHT_CREATIVE_COMMONS, "Creative Commons (CC BY-ND)"),
             ]
         return form
 
@@ -243,11 +248,8 @@ class TestSelectFieldChoices:
         assert form.copyright.errors
 
     def test_copyright_known_value_accepted(self, app: Flask):
-        """Each canonical copyright mention must pass."""
-        for mention in (
-            "Tous droits réservés",
-            "Creative Commons (CC BY-ND)",
-        ):
+        """Each canonical copyright mention code must pass."""
+        for mention in COPYRIGHT_MENTIONS:
             payload = _baseline_payload()
             payload["copyright"] = mention
             form = _make_form(app, payload)

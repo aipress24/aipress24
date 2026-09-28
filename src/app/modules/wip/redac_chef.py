@@ -22,19 +22,19 @@ def is_redac_chef_of_org(user, org_id) -> bool:
     must only surface for actual rédacteurs en chef, not for every
     journalist at the same org.
 
-    A user qualifies as rédac chef if either :
-    - their KYC profile is one of the `PM_DIR*` codes (Directeur de
-      la rédaction, Directeur institutionnel, Directeur syndicat) ;
+    A user qualifies as rédac chef of `org_id` if either :
+    - they belong to it and their KYC profile is one of the `PM_DIR*`
+      codes (Directeur de la rédaction, Directeur institutionnel,
+      Directeur syndicat) ;
     - they hold an ACCEPTED BWMi or BW_OWNER RoleAssignment on the
       media's active BW (the org-management equivalent).
     """
     if user is None or getattr(user, "is_anonymous", False):
         return False
     profile = getattr(user, "profile", None)
-    if profile is not None:
-        profile_code = getattr(profile, "profile_code", "") or ""
-        if profile_code in _REDAC_CHEF_PROFILES:
-            return True
+    profile_code = getattr(profile, "profile_code", "") or ""
+    if profile_code in _REDAC_CHEF_PROFILES and user.organisation_id == org_id:
+        return True
 
     # Lazy imports to keep this module importable without pulling
     # the full BW activation tree during cold start.

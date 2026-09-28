@@ -51,7 +51,9 @@ def notify_destinataire(
             sender="contact@aipress24.com",
             recipient=destinataire.email,
             sender_mail=commanditaire.email,
-            subject=f"[Aipress24] Une commande qui vous est adressée a été {status_label}",
+            subject=(
+                f"[Aipress24] Une commande qui vous est adressée a été {status_label}"
+            ),
             status_label=status_label,
             commanditaire_full_name=commanditaire.full_name,
             commanditaire_organisation=(org.bw_name or org.name) if org else "",

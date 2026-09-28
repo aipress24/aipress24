@@ -8,6 +8,7 @@ from datetime import datetime
 from typing import TYPE_CHECKING
 
 import sqlalchemy as sa
+from sqlalchemy.ext.hybrid import hybrid_method
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.models.base import Base
@@ -50,6 +51,22 @@ class Sujet(
 
     pays_zip_ville: Mapped[str] = mapped_column(default="")
     pays_zip_ville_detail: Mapped[str] = mapped_column(default="")
+
+    @hybrid_method
+    def is_visible_to(self, user_id: int, redac_chef_of: int | None = None) -> bool:
+        """Who sees a sujet: its author, and once sent, the rédac chefs of
+        the media it is sent to (`redac_chef_of` being the media the user
+        is rédac chef of).
+
+        One expression for the list query, the by-id check and the tile.
+        """
+        own = self.owner_id == user_id
+        if redac_chef_of is None:
+            return own
+        received = (self.media_id == redac_chef_of) & (
+            self.status == PublicationStatus.PUBLIC
+        )
+        return own | received
 
     # ------------------------------------------------------------
     # Lifecycle (bug 0132)

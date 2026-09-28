@@ -179,12 +179,13 @@ def _oui_non(flag: bool) -> str:
 
 
 def _format_list_results(data: list | str | bool, key: str) -> str:
-    if isinstance(data, list):
-        value = ", ".join(data)
-    elif isinstance(data, bool):
-        value = _oui_non(data)
-    else:  # str
-        value = data
+    match data:
+        case list():
+            value = ", ".join(data)
+        case bool():
+            value = _oui_non(data)
+        case _:  # str
+            value = data
     if key == "password":
         # Minimal security
         try:

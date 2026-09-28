@@ -28,7 +28,7 @@ _Synthèse SF. Cette version 4 reprend les arbitrages du 2026-09-28 sur la propr
 
 **Qui voit un sujet reçu.** Son auteur, et les rédacteurs en chef du média. La qualification de rédacteur en chef tient à l'une de ces deux conditions :
 
-- le profil KYC est `PM_DIR`, `PM_DIR_INST` ou `PM_DIR_SYND` (directeur de la rédaction, institutionnel, syndicat) ;
+- la personne appartient au média et son profil KYC est `PM_DIR`, `PM_DIR_INST` ou `PM_DIR_SYND` (directeur de la rédaction, institutionnel, syndicat) ;
 - ou la personne détient un rôle `BW_OWNER` ou `BWMi`, invitation acceptée, sur le Business Wall actif du média.
 
 La seconde condition couvre en partie la réserve d'Erick selon laquelle « certains journalistes ont parfois un rôle de rédacteur en chef sans en avoir le titre » : gérer le Business Wall du média suffit, le titre n'est pas exigé. Un média sans Business Wall actif ne compte en revanche que sur les trois codes KYC.
@@ -94,4 +94,4 @@ Consigné pour que ces points ne se rouvrent pas d'eux-mêmes.
 
 **Toute vérification d'habilitation à passer une commande.** La responsabilité est professionnelle.
 
-**Une remise en ordre reste souhaitable**, sans rapport avec les décisions : le dépôt porte deux définitions concurrentes du rédacteur en chef, celle décrite au §2 et une seconde dans l'écran des ventes, qui ne regarde que le profil KYC, sans le Business Wall ni l'organisation.
+**Une seule définition du rédacteur en chef** (`app.modules.wip.redac_chef`) sert aux sujets, aux commandes et à l'écran des ventes, qui en avait une seconde fondée sur le seul profil KYC.

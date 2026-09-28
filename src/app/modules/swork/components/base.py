@@ -5,6 +5,7 @@
 from __future__ import annotations
 
 import re
+from collections.abc import Callable
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, Any, ClassVar
 
@@ -163,15 +164,15 @@ class Filter:
         if (selector := getattr(self, "selector", None)) is None:
             return
 
-        if callable(selector):
-            values: set[Any] = {selector(obj) for obj in objects}
-            options = sorted(values)
-            self.options = [opt for opt in options if opt]
-        elif isinstance(selector, str):
-            self.options = sorted({getattr(o, selector) for o in objects})
-        else:
-            msg = f"Invalid selector: {selector}"
-            raise TypeError(msg)
+        match selector:
+            case str():
+                self.options = sorted({getattr(o, selector) for o in objects})
+            case Callable():
+                values: set[Any] = {selector(obj) for obj in objects}
+                self.options = [opt for opt in sorted(values) if opt]
+            case _:
+                msg = f"Invalid selector: {selector}"
+                raise TypeError(msg)
 
     def apply(self, stmt: Select, state: dict[str, bool]) -> Select:
         """Apply this filter to the statement. Override in subclasses."""

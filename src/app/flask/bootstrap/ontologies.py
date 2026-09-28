@@ -297,12 +297,13 @@ class BaseConvert:
 
     def read_dict(self) -> None:
         content = self.raw_ontologies[self.ontology_slug]
-        if isinstance(content, dict):
-            self._buffer = content["table"]
-        elif isinstance(content, list):
-            self._buffer = content
-        else:
-            raise TypeError
+        match content:
+            case dict():
+                self._buffer = content["table"]
+            case list():
+                self._buffer = content
+            case _:
+                raise TypeError
         print(f"  read {len(self._buffer)} lines")
 
     @staticmethod

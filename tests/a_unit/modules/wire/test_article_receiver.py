@@ -22,6 +22,7 @@ from app.modules.wire.receivers import (
     on_article_updated,
     update_article_post,
 )
+from app.settings.vocabularies import COPYRIGHT_CREATIVE_COMMONS
 
 if TYPE_CHECKING:
     from flask_sqlalchemy import SQLAlchemy
@@ -135,7 +136,7 @@ class TestUpdatePost:
             address="123 Main St",
             pays_zip_ville="75001",
             pays_zip_ville_detail="Paris, France",
-            copyright="Creative Commons (CC BY-ND)",
+            copyright=COPYRIGHT_CREATIVE_COMMONS,
             date_parution_prevue=arrow.now().datetime,
             date_publication_aip24=arrow.now().datetime,
         )
@@ -149,7 +150,7 @@ class TestUpdatePost:
         update_article_post(post, article)
 
         assert post.title == "Article Title"
-        assert post.copyright == "Creative Commons (CC BY-ND)"
+        assert post.copyright == COPYRIGHT_CREATIVE_COMMONS
         assert post.summary == "Article Summary"
         assert post.content == "Article Content"
         assert post.publisher_id == publisher.id

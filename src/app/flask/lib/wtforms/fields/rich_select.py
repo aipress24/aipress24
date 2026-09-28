@@ -31,12 +31,14 @@ class RichSelectField(SelectField):
         super().__init__(label, validators, choices=self._choices, **kwargs)
 
     def _choices(self):
+        """(value, label) pairs. A vocabulary is either a list of labels,
+        stored as they read, or a mapping of stored codes to labels."""
         values = get_choices(self.key)
+        if isinstance(values, dict):
+            return list(values.items())
         # pyrefly: ignore [not-iterable]
         return [(value, value) for value in values]
 
     def get_choices_for_js(self):
-        values = get_choices(self.key)
         # Ensure string values so JavaScript cannot corrupt large integers.
-        # pyrefly: ignore [not-iterable]
-        return [[str(value), str(value)] for value in values]
+        return [[str(value), str(label)] for value, label in self._choices()]

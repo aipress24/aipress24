@@ -17,6 +17,13 @@ import pytest
 
 from app.models.auth import KYCProfile, User
 from app.models.organisation import Organisation
+from app.modules.bw.bw_activation.models import (
+    BusinessWall,
+    BWRoleType,
+    BWStatus,
+    InvitationStatus,
+    RoleAssignment,
+)
 from app.modules.wire.models import (
     ArticlePost,
     ArticlePurchase,
@@ -259,6 +266,39 @@ class TestVentesViewRedacChef:
         response = logged_in_client.get("/wip/ventes")
         body = response.data.decode()
         assert "rédacteur en chef" in body
+        assert "Cumul des ventes du média" in body
+
+    def test_media_section_visible_for_business_wall_manager(
+        self,
+        logged_in_client: FlaskClient,
+        db_session: Session,
+        test_user: User,
+        test_org: Organisation,
+    ):
+        """The rédac chef of the sujets: managing the media's Business Wall
+        qualifies, without the PM_DIR title."""
+        bw = BusinessWall(
+            bw_type="media",
+            status=BWStatus.ACTIVE.value,
+            is_free=True,
+            owner_id=test_user.id,
+            payer_id=test_user.id,
+            organisation_id=test_org.id,
+        )
+        db_session.add(bw)
+        db_session.flush()
+        db_session.add(
+            RoleAssignment(
+                business_wall_id=bw.id,
+                user_id=test_user.id,
+                role_type=BWRoleType.BW_OWNER.value,
+                invitation_status=InvitationStatus.ACCEPTED.value,
+            )
+        )
+        db_session.commit()
+
+        body = logged_in_client.get("/wip/ventes").data.decode()
+
         assert "Cumul des ventes du média" in body
 
     def test_media_section_aggregates_other_authors(

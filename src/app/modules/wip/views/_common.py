@@ -66,35 +66,17 @@ def count_owned_non_deleted(model_class: type[_OwnedSoftDeletable]) -> int:
 
 
 def count_visible_sujets() -> int:
-    """Tile count for « NEWSROOM/Sujets », aligned on the table's
-    visibility (`SujetDataSource._visibility_clause`).
-
-    Bug #0132 part 4 (Erick, 2026-05-22) : the previous counter only
-    queried `owner_id == user`, so a rédac chef who *receives* sujets
-    proposed to their media saw « 0 » while the list itself showed
-    those rows (own ∨ media_id = my_org AND status == PUBLIC). Match
-    the data source so the tile and the list stay in sync.
-    """
-    from sqlalchemy import or_
-
-    from app.models.lifecycle import PublicationStatus
+    """Tile count for « NEWSROOM/Sujets », aligned on the table
+    (`Sujet.is_visible_to`)."""
     from app.modules.wip.models.newsroom.sujet import Sujet
+    from app.modules.wip.redac_chef import redac_chef_media_id
 
     db_session = container.get(scoped_session)
     user = container.get(AuthService).get_user()
-    org_id = getattr(user, "organisation_id", None)
-
-    visibility = Sujet.owner_id == user.id
-    if org_id:
-        visibility = or_(
-            visibility,
-            (Sujet.media_id == org_id) & (Sujet.status == PublicationStatus.PUBLIC),
-        )
-
     stmt = (
         select(func.count())
         .select_from(Sujet)
-        .where(visibility)
+        .where(Sujet.is_visible_to(user.id, redac_chef_media_id(user)))
         .where(Sujet.deleted_at.is_(None))
     )
     return db_session.execute(stmt).scalar() or 0
