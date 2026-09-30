@@ -51,7 +51,7 @@ import pytest
 
 from app.enums import RoleEnum
 from app.modules.bw.bw_activation.models import BWRoleType, InvitationStatus
-from app.modules.bw.bw_activation.utils import is_bw_manager_or_admin
+from app.modules.bw.bw_activation.utils import is_bw_manager, is_bw_manager_or_admin
 
 
 class _Assignment:
@@ -334,3 +334,46 @@ class TestDefensiveBehaviourTODO:
         `bw is None → False` guard to remember the admin path."""
         admin = _User(user_id=1, roles={RoleEnum.ADMIN.value})
         assert is_bw_manager_or_admin(admin, None) is True  # type: ignore[arg-type]
+
+
+class TestIsBwManager:
+    """Test is_bw_manager() with or without ADMIN role."""
+
+    def test_admin_without_role_returns_false(self):
+        """A site admin who has no management role on this BW is NOT a BW manager."""
+        admin = _User(user_id=42, roles={RoleEnum.ADMIN.value})
+        bw = _BW(
+            owner_id=99,
+            role_assignments=[
+                _Assignment(user_id=10, role_type=BWRoleType.BWMI.value),
+            ],
+        )
+        assert is_bw_manager(admin, bw) is False
+
+    def test_admin_with_manager_role_returns_true(self):
+        """A site admin who ALSO has a manager role on this BW is a BW manager."""
+        admin = _User(user_id=10, roles={RoleEnum.ADMIN.value})
+        bw = _BW(
+            owner_id=99,
+            role_assignments=[
+                _Assignment(user_id=10, role_type=BWRoleType.BWMI.value),
+            ],
+        )
+        assert is_bw_manager(admin, bw) is True
+
+    def test_owner_returns_true(self):
+        """The owner of the BW is a BW manager."""
+        owner = _User(user_id=99)
+        bw = _BW(owner_id=99, role_assignments=[])
+        assert is_bw_manager(owner, bw) is True
+
+    def test_non_manager_member_returns_false(self):
+        """A plain member or random user is NOT a BW manager."""
+        member = _User(user_id=77)
+        bw = _BW(
+            owner_id=99,
+            role_assignments=[
+                _Assignment(user_id=10, role_type=BWRoleType.BWMI.value),
+            ],
+        )
+        assert is_bw_manager(member, bw) is False

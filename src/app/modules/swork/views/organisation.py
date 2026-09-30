@@ -113,9 +113,9 @@ class OrganisationDetailView(MethodView):
         active_bw = get_active_business_wall_for_organisation(org_obj)
         is_bw_manager = False
         if active_bw:
-            from app.modules.bw.bw_activation.utils import is_bw_manager_or_admin
+            from app.modules.bw.bw_activation.utils import is_bw_manager
 
-            is_bw_manager = is_bw_manager_or_admin(soc_user.user, active_bw)
+            is_bw_manager = is_bw_manager(soc_user.user, active_bw)
 
         ctx = {
             "org": vm,
