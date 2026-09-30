@@ -29,7 +29,7 @@
                     Accès non autorisé
                 </h1>
 
-                <p class="text-lg text-gray-600 mb-8 max-w-2xl mx-auto">
+                <p class="text-lg text-gray-600 mb-8 max-w-2xl mx-auto whitespace-pre-line {% if '\n' in error_message %}text-left{% else %}text-center{% endif %}">
                     {{ error_message }}
                 </p>
 

@@ -21,13 +21,14 @@ tableau de bord doit rester accessible.
 
 from __future__ import annotations
 
+import html
 from typing import TYPE_CHECKING
 
 import pytest
-
 from app.enums import ProfileEnum
 from app.models.auth import KYCProfile, User
 from app.models.organisation import Organisation
+
 from tests.c_e2e.conftest import make_authenticated_client
 
 if TYPE_CHECKING:
@@ -173,8 +174,11 @@ class TestOrganisationlessUserIsSentToTheKyc:
 
     def test_told_what_to_do(self, orphan_client: FlaskClient):
         body = orphan_client.get("/BW/", follow_redirects=True).data.decode()
+        unescaped = html.unescape(body)
 
-        assert "Indiquez le nom de votre organisation dans votre profil" in body
+        assert "Un Business Wall est rattaché à une organisation" in unescaped
+        assert "Regardez dans le menu /préférences/invitation si " in unescaped
+        assert "indiquez le nom de votre organisation" in unescaped
 
     def test_offered_a_link_to_the_kyc(self, orphan_client: FlaskClient):
         """An explanation the user cannot act on is the bug we are fixing."""

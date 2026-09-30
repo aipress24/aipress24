@@ -41,9 +41,9 @@ ERR_NO_ORGANISATION = "Aucune organisation trouvée pour le Business Wall."
 # Nothing else in the funnel collects one, so the activation used to die
 # at the payment step with an opaque « aucune organisation » message.
 ERR_ORGANISATION_NOT_DECLARED = (
-    "Un Business Wall est rattaché à une organisation, et la vôtre n'est pas "
-    "renseignée. Indiquez le nom de votre organisation dans votre profil, "
-    "puis revenez activer votre Business Wall."
+    "Un Business Wall est rattaché à une organisation, et la vôtre n'est pas renseignée.\n\n"
+    "- Regardez dans le menu /préférences/invitation si vous êtes invité à rejoindre un Business Wall.\n\n"
+    "- Si ce n'est pas le cas, indiquez le nom de votre organisation dans votre profil, puis revenez activer votre nouveau Business Wall."
 )
 ERR_UNKNOWN_ACTION = "Erreur interne, action inconnue."
 # Ticket 0273 : students reached the « Business Wall for Journalist »
