@@ -299,6 +299,11 @@ class TestSujetFormShape:
         form = _make_sujet_form(app, {})
         assert form.media_id.label.text == "Média destinataire"
 
+    def test_date_parution_prevue_label_is_proposition_end(self, app: Flask):
+        """The last date field in Sujet is the proposal expiration date."""
+        form = _make_sujet_form(app, {})
+        assert form.date_parution_prevue.label.text == "Cette proposition prend fin le:"
+
 
 # ---------------------------------------------------------------------
 # CommandeForm

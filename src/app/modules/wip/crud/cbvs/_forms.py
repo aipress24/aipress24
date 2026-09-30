@@ -274,7 +274,7 @@ class SujetForm(Form):
         validators=[validators.InputRequired()],
     )
     date_parution_prevue = DateTimeField(
-        "Date/heure de parution prévue",
+        "Cette proposition prend fin le:",
         render_kw={"width": 3},
         validators=[validators.InputRequired()],
     )

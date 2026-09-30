@@ -18,6 +18,7 @@ Workflow expected by Erick (2026-05-22) :
 
 from __future__ import annotations
 
+from datetime import UTC, datetime, timedelta
 from typing import TYPE_CHECKING, Any
 
 from svcs.flask import container
@@ -75,7 +76,11 @@ def validate_basic_acceptance(
         raise ValueError(msg)
 
 
-def build_commande_payload(sujet: Sujet, accepter_id: int) -> dict:
+def build_commande_payload(
+    sujet: Sujet,
+    accepter_id: int,
+    date_parution_prevue: datetime | None = None,
+) -> dict:
     """Map a sujet onto the field set for a new Commande row.
 
     Pure — no DB ; the orchestrator passes the result to
@@ -94,10 +99,13 @@ def build_commande_payload(sujet: Sujet, accepter_id: int) -> dict:
       rédac chef can adjust it. `date_paiement` is left
       unset — it left the form with #0343, and inventing one would put
       a date nobody chose on the commande.
+    - `date_parution_prevue` is left unset — the sujet proposal end date
+      is not copied to the commande publication date, which will be
+      entered when editing the commande.
     - Metadata ("genre", "section", "topic", "sector", "pays_zip_ville",
-     "pays_zip_ville_detail") are copied from the sujet.
+      "pays_zip_ville_detail") are copied from the sujet.
     """
-    return {
+    payload = {
         "owner_id": accepter_id,
         "commanditaire_id": accepter_id,
         "destinataire_id": sujet.owner_id,
@@ -108,7 +116,6 @@ def build_commande_payload(sujet: Sujet, accepter_id: int) -> dict:
         "brief": sujet.brief or "",
         "status": PublicationStatus.DRAFT,
         "date_limite_validite": sujet.date_limite_validite or "",
-        "date_parution_prevue": sujet.date_parution_prevue or "",
         "date_bouclage": sujet.date_parution_prevue or "",
         "genre": sujet.genre or "",
         "section": sujet.section or "",
@@ -117,6 +124,9 @@ def build_commande_payload(sujet: Sujet, accepter_id: int) -> dict:
         "pays_zip_ville": sujet.pays_zip_ville or "",
         "pays_zip_ville_detail": sujet.pays_zip_ville_detail or "",
     }
+    if date_parution_prevue is not None:
+        payload["date_parution_prevue"] = date_parution_prevue
+    return payload
 
 
 def is_notification_eligible(author: Any) -> bool:
@@ -133,7 +143,11 @@ def is_notification_eligible(author: Any) -> bool:
 # ── Orchestrators ───────────────────────────────────────────────────
 
 
-def accept_sujet_as_commande(sujet: Sujet, accepter: User) -> Commande:
+def accept_sujet_as_commande(
+    sujet: Sujet,
+    accepter: User,
+    date_parution_prevue: datetime | None = None,
+) -> Commande:
     """Materialise a Commande from `sujet`, move sujet to ACCEPTED.
 
     Args:
@@ -143,6 +157,7 @@ def accept_sujet_as_commande(sujet: Sujet, accepter: User) -> Commande:
             qualify as rédac chef of that organisation (security
             VULN-001 — without the rédac chef check, any ordinary
             journalist at the target media could hijack the sujet).
+        date_parution_prevue: optional publication date for the commande.
 
     Returns:
         the newly-created (and flushed) Commande row.
@@ -164,7 +179,16 @@ def accept_sujet_as_commande(sujet: Sujet, accepter: User) -> Commande:
         )
         raise ValueError(msg)
 
-    commande = Commande(**build_commande_payload(sujet, accepter.id))
+    effective_date = date_parution_prevue or getattr(
+        sujet, "date_parution_prevue", None
+    )
+    if effective_date is None:
+        effective_date = datetime.now(UTC) + timedelta(days=7)
+
+    payload = build_commande_payload(
+        sujet, accepter.id, date_parution_prevue=effective_date
+    )
+    commande = Commande(**payload)
     db.session.add(commande)
     db.session.flush()
 

@@ -26,10 +26,8 @@ from app.modules.bw.bw_activation.user_utils import (
     get_selected_business_wall_for_user,
 )
 from app.modules.wip.models import Sujet, SujetRepository
-from app.modules.wip.redac_chef import redac_chef_media_id
+from app.modules.wip.redac_chef import is_redac_chef_of_org, redac_chef_media_id
 from app.modules.wip.services.newsroom.sujet_accept import (
-    accept_sujet_as_commande,
-    notify_author_of_sujet_acceptance,
     notify_author_of_sujet_refusal,
     refuse_sujet,
 )
@@ -210,8 +208,7 @@ class SujetsTable(BaseTable):
             actions.append(
                 {
                     "label": "Accepter",
-                    "url": self.url_for(item, "accept"),
-                    "method": "post",
+                    "url": url_for("CommandesWipView:new", from_sujet=item.id),
                 }
             )
             # Ticket #0225 — the rédac chef can also refuse (archives the
@@ -394,61 +391,16 @@ class SujetsWipView(BaseWipView):
 
     @route("/accept/<id>/", methods=["POST"])
     def accept(self, id):
-        """Bug #0132 part 3 : materialise a Commande from the sujet,
-        archive the sujet, notify the author (bell + mail #0132 part
-        6)."""
+        """Redirect to Commande creation form pre-filled with this sujet.
+
+        The Commande publication date is required and must be entered by
+        the rédac chef before the Commande is created.
+        """
         sujet = cast("Sujet", self._get_model(id))
-        try:
-            commande = accept_sujet_as_commande(sujet, g.user)
-        except ValueError as e:
-            flash(str(e), "error")
+        if not is_redac_chef_of_org(g.user, sujet.media_id):
+            flash("Vous n'êtes pas autorisé à accepter ce sujet", "error")
             return redirect(self._url_for("get", id=id))
-        db.session.commit()
-
-        author = getattr(sujet, "owner", None)
-        if author is not None:
-            commande_url = _absolute_url_for("CommandesWipView:get", id=commande.id)
-            notify_author_of_sujet_acceptance(
-                author=author,
-                accepter=g.user,
-                sujet_title=sujet.titre,
-                commande_url=commande_url,
-            )
-            # Bug #0132 part 6 (Erick, 2026-06-02) : in addition to
-            # the bell notification, send an email so the journalist
-            # learns about the acceptance even if they don't open
-            # AiPRESS24 right away. Mail failures must not undo the
-            # state change — wrap in try/except.
-            if author.email:
-                try:
-                    accepter_org = getattr(g.user, "organisation", None)
-                    accepter_org_name = (
-                        getattr(accepter_org, "bw_name", None)
-                        or getattr(accepter_org, "name", None)
-                        or ""
-                    )
-                    from app.services.emails import SujetAcceptanceNotificationMail
-
-                    mail = SujetAcceptanceNotificationMail(
-                        sender="contact@aipress24.com",
-                        recipient=author.email,
-                        sender_mail=g.user.email,
-                        accepter_full_name=g.user.full_name,
-                        accepter_organisation=accepter_org_name,
-                        sujet_title=sujet.titre,
-                        commande_url=commande_url,
-                    )
-                    mail.send()
-                except Exception as exc:
-                    report_failure(
-                        f"sujet acceptance mail failed (sujet {sujet.id})", exc
-                    )
-            # Persist the in-app cloche the notify helper added — it only
-            # `repo.add()`s, so without this commit the request teardown
-            # rolls it back (mail goes out, bell doesn't). Bug #0225.
-            db.session.commit()
-        flash("Sujet accepté : une commande a été créée et l'auteur a été notifié.")
-        return redirect(url_for("CommandesWipView:index"))
+        return redirect(url_for("CommandesWipView:new", from_sujet=sujet.id), code=303)
 
     @route("/refuse/<id>/", methods=["POST"])
     def refuse(self, id):

@@ -414,7 +414,14 @@ class BaseWipView(FlaskView, abc.ABC):
         if hasattr(form, "pays_zip_ville"):
             form.pays_zip_ville.choices = get_ontology_choices("country_pays")
 
-    def _view_ctx(self, model=None, form=None, mode="edit", title=""):
+    def _view_ctx(
+        self,
+        model=None,
+        form=None,
+        mode="edit",
+        title="",
+        action_url: str | None = None,
+    ):
         self.update_breadcrumbs(label=title)
 
         if not form:
@@ -459,7 +466,7 @@ class BaseWipView(FlaskView, abc.ABC):
             form,
             model=model,
             mode=mode,
-            action_url=url_for(endpoint),
+            action_url=action_url or url_for(endpoint),
         )
 
         return {

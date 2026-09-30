@@ -25,10 +25,10 @@ import html
 from typing import TYPE_CHECKING
 
 import pytest
+
 from app.enums import ProfileEnum
 from app.models.auth import KYCProfile, User
 from app.models.organisation import Organisation
-
 from tests.c_e2e.conftest import make_authenticated_client
 
 if TYPE_CHECKING:

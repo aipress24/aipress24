@@ -43,7 +43,7 @@ sujet_form = {
             "required": True,
         },
         "date_parution_prevue": {
-            "label": "Date/heure de parution prévue",
+            "label": "Cette proposition prend fin le:",
             "group": "dates",
             "type": "datetime",
             "width": 3,

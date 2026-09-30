@@ -55,6 +55,41 @@ def _make_sujet(
     return sujet
 
 
+def _submit_commande_from_sujet(client, sujet, test_org, author, **overrides):
+    data = {
+        "_action": "submit",
+        "titre": overrides.get("titre", sujet.titre),
+        "contenu": overrides.get("contenu", sujet.contenu),
+        "genre": overrides.get("genre", "Angle / Analyse"),
+        "section": overrides.get("section", "Actualités / À la une"),
+        "topic": overrides.get(
+            "topic", "Agriculture, alimentation / Agriculture biologique"
+        ),
+        "sector": overrides.get(
+            "sector",
+            "Agriculture & alimentation / Agriculture bio, durable & raisonnée",
+        ),
+        "media_id": str(overrides.get("media_id", test_org.id)),
+        "destinataire_id": str(overrides.get("destinataire_id", author.id)),
+        "pays_zip_ville": overrides.get("pays_zip_ville", "France"),
+        "pays_zip_ville_detail": overrides.get(
+            "pays_zip_ville_detail", "01090 Guéreins"
+        ),
+        "date_limite_validite": overrides.get(
+            "date_limite_validite", "2026-12-31 00:00:00"
+        ),
+        "date_bouclage": overrides.get("date_bouclage", "2027-01-31 00:00:00"),
+        "date_parution_prevue": overrides.get(
+            "date_parution_prevue", "2027-02-15 00:00:00"
+        ),
+    }
+    return client.post(
+        url_for("CommandesWipView:post", from_sujet=sujet.id),
+        data=data,
+        follow_redirects=False,
+    )
+
+
 def _attach_media_bw(
     db_session: Session, org: Organisation, owner_id: int
 ) -> BusinessWall:
@@ -252,10 +287,7 @@ class TestSujetClochePersistsAcrossTeardown:
 
         client = make_authenticated_client(app, redac_chef)
         # cloche fires for real ; only the route's e-mail is patched.
-        resp = client.post(
-            url_for("SujetsWipView:accept", id=sujet.id),
-            follow_redirects=False,
-        )
+        resp = _submit_commande_from_sujet(client, sujet, test_org, author)
         assert resp.status_code in (302, 303)
 
         db.session.remove()  # simulate request teardown
@@ -347,12 +379,36 @@ class TestSujetAcceptRoute:
         sujet_id = sujet.id
 
         client = make_authenticated_client(app, redac_chef)
+
+        # "accept" now redirects to new commande form
+        resp_accept = client.post(
+            url_for("SujetsWipView:accept", id=sujet.id),
+            follow_redirects=False,
+        )
+        assert resp_accept.status_code == 303
+        assert f"/wip/commandes/new/?from_sujet={sujet_id}" in resp_accept.headers.get(
+            "Location", ""
+        )
+
+        # Opening the new form renders pre-filled form
+        resp_new = client.get(
+            url_for("CommandesWipView:new", from_sujet=sujet.id),
+            follow_redirects=False,
+        )
+        assert resp_new.status_code == 200
+        assert "Accepter le sujet et créer la commande" in resp_new.data.decode()
+
+        # Submitting the pre-filled form with date_parution_prevue creates
+        # commande and finally archives sujet
         with patch(
-            "app.modules.wip.crud.cbvs.sujets.notify_author_of_sujet_acceptance"
+            "app.modules.wip.crud.cbvs.commandes.notify_author_of_sujet_acceptance"
         ):
-            response = client.post(
-                url_for("SujetsWipView:accept", id=sujet.id),
-                follow_redirects=False,
+            response = _submit_commande_from_sujet(
+                client,
+                sujet,
+                test_org,
+                author,
+                date_parution_prevue="2027-02-15 00:00:00",
             )
 
         assert response.status_code in (302, 303)
@@ -377,6 +433,35 @@ class TestSujetAcceptRoute:
         assert commandes[0].section == "Actualités / À la une"
         assert commandes[0].pays_zip_ville == "France"
         assert commandes[0].pays_zip_ville_detail == "01090 Guéreins"
+        assert commandes[0].date_parution_prevue is not None
+
+    def test_accept_form_requires_date_parution_prevue(
+        self,
+        app: Flask,
+        db_session: Session,
+        test_org: Organisation,
+        redac_chef: User,
+        author: User,
+    ):
+        """Entering date_parution_prevue is mandatory."""
+        sujet = _make_sujet(db_session, owner_id=author.id, media_id=test_org.id)
+        db_session.commit()
+        sujet_id = sujet.id
+
+        client = make_authenticated_client(app, redac_chef)
+        response = _submit_commande_from_sujet(
+            client,
+            sujet,
+            test_org,
+            author,
+            date_parution_prevue="",
+        )
+        assert response.status_code == 200
+
+        db_session.expire_all()
+        sujet_after = db_session.get(Sujet, sujet_id)
+        assert sujet_after.status == PublicationStatus.PUBLIC
+        assert db_session.query(Commande).filter_by(media_id=test_org.id).all() == []
 
     def test_accept_route_refuses_non_redac_chef(
         self,
@@ -404,6 +489,13 @@ class TestSujetAcceptRoute:
         # Route either denies upstream (403) or downstream (302 with
         # flash error). What matters : the sujet state stays PUBLIC.
         assert response.status_code in (302, 303, 403)
+
+        # Also cannot access new form or post to CommandesWipView:post with from_sujet
+        resp_new = client.get(
+            url_for("CommandesWipView:new", from_sujet=sujet.id),
+            follow_redirects=False,
+        )
+        assert resp_new.status_code in (302, 303, 403)
 
         db_session.expire_all()
         sujet_after = db_session.get(Sujet, sujet_id)
@@ -614,15 +706,15 @@ class TestSujetRedacChefGate:
         sujet_id = sujet.id
 
         client = make_authenticated_client(app, ordinary_journalist)
-        with patch(
-            "app.modules.wip.crud.cbvs.sujets.notify_author_of_sujet_acceptance"
-        ):
-            response = client.post(
-                url_for("SujetsWipView:accept", id=sujet.id),
-                follow_redirects=False,
-            )
+        response = client.post(
+            url_for("SujetsWipView:accept", id=sujet.id),
+            follow_redirects=False,
+        )
 
         assert response.status_code in (302, 303, 403, 404)
+
+        resp_post = _submit_commande_from_sujet(client, sujet, test_org, author)
+        assert resp_post.status_code in (302, 303, 403, 404)
 
         db_session.expire_all()
         sujet_after = db_session.get(Sujet, sujet_id)
@@ -722,16 +814,15 @@ class TestSujetAcceptSendsMailToAuthor:
 
         client = make_authenticated_client(app, redac_chef)
         with (
-            patch("app.modules.wip.crud.cbvs.sujets.notify_author_of_sujet_acceptance"),
+            patch(
+                "app.modules.wip.crud.cbvs.commandes.notify_author_of_sujet_acceptance"
+            ),
             patch(
                 "app.services.emails.SujetAcceptanceNotificationMail.send",
                 fake_send,
             ),
         ):
-            response = client.post(
-                url_for("SujetsWipView:accept", id=sujet.id),
-                follow_redirects=False,
-            )
+            response = _submit_commande_from_sujet(client, sujet, test_org, author)
 
         assert response.status_code in (302, 303)
         assert len(sent) == 1, "exactly one acceptance mail must be sent"

@@ -235,7 +235,15 @@ class TestBuildCommandePayload:
         sujet = _sujet_stub(date_limite_validite=deadline, date_parution_prevue=publish)
         payload = build_commande_payload(sujet, accepter_id=7)
         assert payload["date_limite_validite"] == deadline
-        assert payload["date_parution_prevue"] == publish
+        assert "date_parution_prevue" not in payload
+
+    def test_publication_date_left_unset_for_redac_chef(self):
+        """The proposal end date is not copied to the commande publication
+        date, the rédac chef will fill date_parution_prevue in the commande."""
+        publish = datetime(2026, 2, 15, tzinfo=UTC)
+        sujet = _sujet_stub(date_parution_prevue=publish)
+        payload = build_commande_payload(sujet, accepter_id=7)
+        assert "date_parution_prevue" not in payload
 
     def test_bouclage_defaults_to_publication_date(self):
         """`date_bouclage` is NOT NULL, so it defaults to the
