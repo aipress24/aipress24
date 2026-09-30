@@ -12,7 +12,8 @@ from __future__ import annotations
 import uuid
 from typing import TYPE_CHECKING
 
-from app.models.auth import User
+from app.enums import RoleEnum
+from app.models.auth import Role, User
 from app.models.organisation import Organisation
 from app.modules.bw.bw_activation.models import BWStatus
 from tests.c_e2e.conftest import make_authenticated_client
@@ -69,7 +70,7 @@ class TestDashboard:
         assert response.status_code == 302
 
     def test_displays_dashboard_when_owner_accesses(self, app: Flask, fresh_db):
-        """Dashboard displays when BW owner accesses it."""
+        """Dashboard displays when BW owner accesses it without admin banner."""
         data = create_bw_test_data(fresh_db)
         client = make_authenticated_client(app, data["media_owner"])
 
@@ -77,6 +78,63 @@ class TestDashboard:
         response = client.get("/BW/dashboard")
 
         assert response.status_code == 200
+        assert b"en tant qu'administrateur du site" not in response.data
+
+    def test_admin_accesses_dashboard_with_admin_banner(self, app: Flask, fresh_db):
+        """A site admin who is not BW manager sees the admin warning banner."""
+        data = create_bw_test_data(fresh_db)
+        admin_user = User(
+            email=f"admin_{uuid.uuid4().hex[:8]}@example.com",
+            first_name="Admin",
+            last_name="Site",
+            active=True,
+        )
+        admin_role = (
+            fresh_db.session.query(Role).filter_by(name=RoleEnum.ADMIN.name).first()
+        )
+        if not admin_role:
+            admin_role = Role(name=RoleEnum.ADMIN.name)
+            fresh_db.session.add(admin_role)
+            fresh_db.session.flush()
+        admin_user.roles.append(admin_role)
+        admin_user.organisation = data["media_org"]
+        admin_user.organisation_id = data["media_org"].id
+        fresh_db.session.add(admin_user)
+        fresh_db.session.commit()
+
+        client = make_authenticated_client(app, admin_user)
+        response = client.get("/BW/dashboard")
+
+        assert response.status_code == 200
+        assert "en tant qu'administrateur du site" in response.data.decode()
+
+    def test_admin_accesses_edit_config_with_admin_banner(self, app: Flask, fresh_db):
+        """A site admin who is not BW manager sees the admin warning banner on edit-config."""
+        data = create_bw_test_data(fresh_db)
+        admin_user = User(
+            email=f"admin_{uuid.uuid4().hex[:8]}@example.com",
+            first_name="Admin",
+            last_name="Site",
+            active=True,
+        )
+        admin_role = (
+            fresh_db.session.query(Role).filter_by(name=RoleEnum.ADMIN.name).first()
+        )
+        if not admin_role:
+            admin_role = Role(name=RoleEnum.ADMIN.name)
+            fresh_db.session.add(admin_role)
+            fresh_db.session.flush()
+        admin_user.roles.append(admin_role)
+        admin_user.organisation = data["media_org"]
+        admin_user.organisation_id = data["media_org"].id
+        fresh_db.session.add(admin_user)
+        fresh_db.session.commit()
+
+        client = make_authenticated_client(app, admin_user)
+        response = client.get("/BW/edit-config")
+
+        assert response.status_code == 200
+        assert "en tant qu'administrateur du site" in response.data.decode()
 
     def test_redirects_non_manager_to_not_authorized(self, app: Flask, fresh_db):
         """Dashboard redirects to not_authorized if user is not BW manager."""

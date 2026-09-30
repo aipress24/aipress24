@@ -377,7 +377,7 @@ class TestOrgEndpoint:
         db_session: Session,
         test_organisation: Organisation,
     ):
-        """Site admin who is a member of an organisation but not BW manager 
+        """Site admin who is a member of an organisation but not BW manager
         sees 'Vous êtes membre...' and not 'Vous êtes manager...'."""
         admin_user = User(
             email="admin_member@example.com",
@@ -385,11 +385,7 @@ class TestOrgEndpoint:
             last_name="Member",
             active=True,
         )
-        admin_role = (
-            db_session.query(Role)
-            .filter_by(name=RoleEnum.ADMIN.name)
-            .first()
-        )
+        admin_role = db_session.query(Role).filter_by(name=RoleEnum.ADMIN.name).first()
         if not admin_role:
             admin_role = Role(name=RoleEnum.ADMIN.name)
             db_session.add(admin_role)

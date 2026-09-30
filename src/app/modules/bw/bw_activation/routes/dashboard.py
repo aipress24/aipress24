@@ -29,6 +29,7 @@ from app.modules.bw.bw_activation.user_utils import (
 from app.modules.bw.bw_activation.utils import (
     ERR_NOT_MANAGER,
     fill_session,
+    is_bw_manager,
     is_bw_manager_or_admin,
 )
 from app.services.taxonomies import get_full_taxonomy
@@ -55,6 +56,13 @@ def _bw_user_role_label(user: User, current_bw: BusinessWall | None) -> str:
                 )
                 break
     return user_role_label
+
+
+def _is_admin_override(bw: BusinessWall, user: User) -> bool:
+    """Return True if the user can manage the BW without
+    beeing manager, as a Site ADMIN.
+    """
+    return bool(bw and is_bw_manager_or_admin(user, bw) and not is_bw_manager(user, bw))
 
 
 @bp.route("/dashboard")
@@ -90,6 +98,7 @@ def dashboard():
     ]
 
     user_role_label = _bw_user_role_label(user, current_bw)
+    is_admin_override = _is_admin_override(current_bw, user)
 
     return render_template(
         "bw_activation/dashboard.html",
@@ -98,6 +107,7 @@ def dashboard():
         current_bw=current_bw,
         active_manageable=active_manageable,
         user_role_label=user_role_label,
+        is_admin_override=is_admin_override,
     )
 
 
@@ -202,6 +212,7 @@ def edit_config():
     )
 
     show_success_modal = session.pop("subscription_change_success", False)
+    is_admin_override = _is_admin_override(current_bw, user)
 
     return render_template(
         "bw_activation/edit_config.html",
@@ -212,6 +223,7 @@ def edit_config():
         subscription_message=subscription_message,
         subscription_show_change=subscription_show_change,
         show_success_modal=show_success_modal,
+        is_admin_override=is_admin_override,
     )
 
 
