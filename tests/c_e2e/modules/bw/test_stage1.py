@@ -14,8 +14,8 @@ import uuid
 from datetime import UTC, datetime
 from typing import TYPE_CHECKING
 
-from app.enums import ProfileEnum
-from app.models.auth import KYCProfile, User
+from app.enums import ProfileEnum, RoleEnum
+from app.models.auth import KYCProfile, Role, User
 from app.models.organisation import Organisation
 from tests.c_e2e.conftest import make_authenticated_client
 from tests.c_e2e.modules.bw.conftest import create_bw_test_data
@@ -255,15 +255,65 @@ class TestConfirmSubscription:
         assert response.status_code == 302
         assert "not-authorized" in response.location
 
-    def test_manager_can_access_when_org_bw_active(self, app: Flask, fresh_db):
-        """The BW Owner must still reach confirm-subscription on an
-        active BW (counterpart of the #0157 guard)."""
+    def test_manager_redirected_to_dashboard_when_org_bw_active(
+        self, app: Flask, fresh_db
+    ):
+        """When an org already has an active BW, its owner/manager cannot
+        recreate a BW: GET /confirm-subscription redirects to the dashboard."""
         data = create_bw_test_data(fresh_db)
 
         client = make_authenticated_client(app, data["media_owner"])
         response = client.get("/BW/confirm-subscription", follow_redirects=False)
 
-        assert response.status_code == 200
+        assert response.status_code == 302
+        assert "dashboard" in response.location
+
+    def test_admin_redirected_to_dashboard_when_org_bw_active(
+        self, app: Flask, fresh_db
+    ):
+        """When an org already has an active BW, an admin cannot recreate
+        a BW: GET /confirm-subscription redirects to the dashboard."""
+        data = create_bw_test_data(fresh_db)
+
+        admin_role = (
+            fresh_db.session.query(Role)
+            .filter_by(name=RoleEnum.ADMIN.name)
+            .first()
+        )
+        if not admin_role:
+            admin_role = Role(name=RoleEnum.ADMIN.name)
+            fresh_db.session.add(admin_role)
+            fresh_db.session.flush()
+
+        admin_user = User(
+            email=f"admin_{uuid.uuid4().hex[:8]}@example.com",
+            first_name="Admin",
+            last_name="User",
+            active=True,
+        )
+        admin_user.organisation = data["media_org"]
+        admin_user.organisation_id = data["media_org"].id
+        admin_user.roles.append(admin_role)
+        fresh_db.session.add(admin_user)
+        fresh_db.session.commit()
+
+        client = make_authenticated_client(app, admin_user)
+        response = client.get("/BW/confirm-subscription", follow_redirects=False)
+
+        assert response.status_code == 302
+        assert "dashboard" in response.location
+
+    def test_cannot_select_subscription_when_org_bw_active(
+        self, app: Flask, fresh_db
+    ):
+        """Cannot select a subscription type when org already has an active BW."""
+        data = create_bw_test_data(fresh_db)
+
+        client = make_authenticated_client(app, data["media_owner"])
+        response = client.post("/BW/select-subscription/media", follow_redirects=False)
+
+        assert response.status_code == 302
+        assert "dashboard" in response.location
 
 
 # -----------------------------------------------------------------------------

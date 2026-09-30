@@ -27,6 +27,7 @@ import pytest
 
 from app.enums import ProfileEnum
 from app.models.auth import KYCProfile, User
+from app.models.organisation import Organisation
 from tests.c_e2e.conftest import make_authenticated_client
 
 if TYPE_CHECKING:
@@ -56,6 +57,32 @@ def _make_user(
         )
     )
     db_session.flush()
+    return user
+
+
+def _make_user_with_org(
+    db_session: Session,
+    *,
+    email: str,
+    first_name: str,
+    last_name: str,
+    profile_code: ProfileEnum,
+    org_name: str = "Test Org",
+) -> User:
+    """A logged-in-able user with a KYC profile and a fresh organisation (no BW)."""
+    org = Organisation(name=org_name)
+    db_session.add(org)
+    db_session.flush()
+    user = _make_user(
+        db_session,
+        email=email,
+        first_name=first_name,
+        last_name=last_name,
+        profile_code=profile_code,
+    )
+    user.organisation = org
+    user.organisation_id = org.id
+    db_session.commit()
     return user
 
 
@@ -103,10 +130,19 @@ class TestStudentsCannotOpenABusinessWall:
         assert "/BW/not-authorized" in response.headers["Location"]
 
     def test_a_professional_still_reaches_the_funnel(
-        self, authenticated_owner_client: FlaskClient
+        self, app: Flask, db, db_session: Session
     ):
         """The gate must not catch legitimate profiles."""
-        response = authenticated_owner_client.get("/BW/confirm-subscription")
+        pro = _make_user_with_org(
+            db_session,
+            email="pro@example.com",
+            first_name="Pro",
+            last_name="User",
+            profile_code=ProfileEnum.PM_DIR,
+            org_name="Pro Org",
+        )
+        client = make_authenticated_client(app, pro)
+        response = client.get("/BW/confirm-subscription")
 
         assert response.status_code == 200
 
@@ -160,8 +196,17 @@ class TestOrganisationlessUserIsSentToTheKyc:
         assert "/BW/not-authorized" in response.headers["Location"]
 
     def test_a_user_with_an_organisation_still_reaches_the_funnel(
-        self, authenticated_owner_client: FlaskClient
+        self, app: Flask, db, db_session: Session
     ):
-        response = authenticated_owner_client.get("/BW/confirm-subscription")
+        user = _make_user_with_org(
+            db_session,
+            email="withorg@example.com",
+            first_name="With",
+            last_name="Org",
+            profile_code=ProfileEnum.PM_JR_ME,
+            org_name="Martine Org",
+        )
+        client = make_authenticated_client(app, user)
+        response = client.get("/BW/confirm-subscription")
 
         assert response.status_code == 200

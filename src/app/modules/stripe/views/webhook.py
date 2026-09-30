@@ -740,6 +740,18 @@ def _activate_bw_from_checkout(
     if bw.organisation_id:
         org = db.session.get(Organisation, bw.organisation_id)
         if org:
+            from app.modules.bw.bw_activation.user_utils import (
+                get_active_business_wall_for_organisation,
+            )
+
+            active_bw = get_active_business_wall_for_organisation(org)
+            if active_bw is not None and active_bw.id != bw.id:
+                # fix bug #0370, do not create duplicate BW
+                warning(
+                    f"Webhook: organisation {org.id} already has active BW {active_bw.id}, "
+                    f"refusing to overwrite with duplicate BW {bw.id}"
+                )
+                return
             org.bw_id = bw.id
             org.bw_active = bw.bw_type
             # Sync the BW display name.
