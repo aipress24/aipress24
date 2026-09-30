@@ -51,6 +51,7 @@ from app.modules.bw.bw_activation.models import (
 from app.modules.bw.bw_activation.user_utils import (
     current_business_wall,
     find_finalizable_bw_for_user,
+    get_active_business_wall_for_organisation,
 )
 from app.modules.bw.bw_activation.utils import (
     ERR_NO_ORGANISATION,
@@ -571,14 +572,6 @@ def checkout(bw_type: str):
         flash("Ce type de Business Wall n'existe pas.", "danger")
         return redirect(url_for("bw_activation.index"))
 
-    draft_bw = _get_or_create_draft_bw_for_checkout(g.user, bw_type)
-    if draft_bw is None:
-        # should never fail
-        user_id = getattr(g.user, "id", None)
-        warn(f"checkout: failed to get or create draft BW for user {user_id}")
-        session["error"] = ERR_NO_ORGANISATION
-        return redirect(url_for("bw_activation.not_authorized"))
-
     # Avant le premier appel Stripe, et `allowed_bw_product_list` en est
     # un : le retour de `load_stripe_api_key` était ignoré et la clé
     # chargée après coup, si bien qu'une instance non configurée
@@ -592,6 +585,18 @@ def checkout(bw_type: str):
             "danger",
         )
         return redirect(url_for("bw_activation.payment", bw_type=bw_type))
+
+    draft_bw = _get_or_create_draft_bw_for_checkout(g.user, bw_type)
+    if draft_bw is None:
+        user_id = getattr(g.user, "id", None)
+        warn(f"checkout: failed to get or create draft BW for user {user_id}")
+        org = getattr(g.user, "organisation", None)
+        if org and get_active_business_wall_for_organisation(org) is not None:
+            # fix bug #0370, do not create duplicate BW
+            flash("Votre organisation possède déjà un Business Wall actif.", "danger")
+            return redirect(url_for("bw_activation.dashboard"))
+        session["error"] = ERR_NO_ORGANISATION
+        return redirect(url_for("bw_activation.not_authorized"))
 
     allowed_products = allowed_bw_product_list(bw_type)
     if not allowed_products:
@@ -788,6 +793,14 @@ def _get_or_create_draft_bw_for_checkout(
         warn("payment: user has no organisation, cannot draft BW for checkout")
         return None
 
+    if get_active_business_wall_for_organisation(org) is not None:
+        # fix bug #0370, do not create duplicate BW
+        warn(
+            f"payment: organisation {org.id} already has an active BW, "
+            "refusing to draft a new one."
+        )
+        return None
+
     existing = (
         db.session.query(BusinessWall)
         .filter(BusinessWall.organisation_id == org.id)
@@ -845,6 +858,16 @@ def simulate_payment(bw_type: str):
 
     if bw_type not in BW_TYPES:
         return redirect(url_for("bw_activation.index"))
+
+    user = cast("User", g.user)
+    if user.organisation and get_active_business_wall_for_organisation(
+        user.organisation
+    ):
+        warn(
+            f"simulate_payment: organisation {user.organisation.id} already has active BW"
+        )
+        flash("Votre organisation possède déjà un Business Wall actif.", "danger")
+        return redirect(url_for("bw_activation.dashboard"))
 
     if session.get("pricing_value"):
         session["bw_activated"] = True

@@ -30,6 +30,7 @@ from app.modules.bw.bw_activation.models.role import (
 from app.modules.bw.bw_activation.models.subscription import SubscriptionStatus
 
 from .config import BW_TYPES, taille_orga_for_employee_count
+from .user_utils import get_active_business_wall_for_organisation
 
 StdDict = dict[str, str | int | float | bool | datetime | None]
 
@@ -235,6 +236,13 @@ def _create_bw_record(session: MutableMapping, *, want_free: bool) -> bool:
         # (`stage1._check_organisation_declared`) and points them at the
         # KYC, which is the only place an organisation name is collected.
         warn("BW creation: user has no organisation, refusing to invent one")
+        return False
+
+    if get_active_business_wall_for_organisation(org) is not None:
+        warn(
+            f"BW creation: Org {org.id} has already an active Business Wall, "
+            "refusing to create a duplicate"
+        )
         return False
 
     now = datetime.now(UTC)

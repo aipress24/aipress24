@@ -98,3 +98,25 @@ def test_choisir_une_offre_avant_est_annonce(
 
     assert response.status_code in (301, 302, 303)
     assert any("choisir d'abord" in m for m in _flashes(authenticated_owner_client))
+
+
+def test_checkout_refuse_si_organisation_a_deja_un_bw_actif(
+    authenticated_owner_client: FlaskClient,
+    app,
+    monkeypatch,
+) -> None:
+    """Un utilisateur dont l'organisation a déjà un BW actif ne peut pas
+    lancer un checkout pour en créer un second."""
+    monkeypatch.setattr(
+        "app.modules.bw.bw_activation.routes.stage3.load_stripe_api_key",
+        lambda: True,
+    )
+
+    response = authenticated_owner_client.post(
+        "/BW/checkout/media", follow_redirects=False
+    )
+
+    assert response.status_code in (301, 302, 303)
+    assert "dashboard" in response.headers["Location"]
+    messages = _flashes(authenticated_owner_client)
+    assert any("possède déjà un Business Wall actif" in m for m in messages), messages

@@ -58,6 +58,21 @@ ERR_WRONG_VALIDATION_LINK = "Lien de validation erroné."
 ERR_INVITATION_NOT_FOUND = "Invitation non trouvée."
 
 
+def is_bw_manager(user: User, bw: BusinessWall) -> bool:
+    """Check if user has management rights on the BusinessWall.
+
+    If the user is ADMIN, but not manager, it returns False.
+
+    Args:
+        user: The User to check
+        bw: The BusinessWall instance
+
+    Returns:
+        True if user is a manager of the BW (owner / BWMi / BWMe)
+    """
+    return user.id in bw_managers_ids(bw)
+
+
 def is_bw_manager_or_admin(user: User, bw: BusinessWall) -> bool:
     """Check if user has management rights on the BW or is an admin.
 
@@ -70,7 +85,7 @@ def is_bw_manager_or_admin(user: User, bw: BusinessWall) -> bool:
     """
     if user.has_role(RoleEnum.ADMIN):
         return True
-    return user.id in bw_managers_ids(bw)
+    return is_bw_manager(user, bw)
 
 
 #: The activation funnel's session state, at the value each key takes

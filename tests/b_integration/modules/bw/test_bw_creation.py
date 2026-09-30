@@ -229,6 +229,22 @@ class TestCreateNewFreeBwRecordFull:
         assert isinstance(role.accepted_at, datetime)
         assert bw.is_free is True
 
+    def test_refuse_when_organisation_already_has_active_bw(
+        self,
+        db_session: scoped_session,
+        set_current_user: User,
+    ) -> None:
+        """Cannot create a BW if the user's organisation already has an active BW."""
+        session_data = {"bw_activated": True, "bw_type": "media"}
+        assert create_new_free_bw_record(session_data) is True
+        db_session.flush()
+
+        session_data2 = {"bw_activated": True, "bw_type": "media"}
+        assert create_new_free_bw_record(session_data2) is False
+
+        bw_repo = BusinessWallRepository(session=db_session)
+        assert len(bw_repo.list()) == 1
+
 
 class TestCreateNewPaidBwRecord:
     """Tests for create_new_paid_bw_record function."""
@@ -396,3 +412,19 @@ class TestCreateNewPaidBwRecordFull:
         assert isinstance(sub.started_at, datetime)
         assert isinstance(role.accepted_at, datetime)
         assert bw.is_free is False
+
+    def test_refuse_when_organisation_already_has_active_bw(
+        self,
+        db_session: scoped_session,
+        set_current_user: User,
+    ) -> None:
+        """Cant recreate a second BW if the user's organisation already has an active BW."""
+        session_data = {"bw_activated": True, "bw_type": "pr"}
+        assert create_new_paid_bw_record(session_data) is True
+        db_session.flush()
+
+        session_data2 = {"bw_activated": True, "bw_type": "pr"}
+        assert create_new_paid_bw_record(session_data2) is False
+
+        bw_repo = BusinessWallRepository(session=db_session)
+        assert len(bw_repo.list()) == 1

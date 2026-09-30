@@ -62,22 +62,22 @@ def is_valid_bw_type(bw_type: str) -> bool:
 
 
 def _check_active_bw_manager(user: User) -> Response | None:
-    """Bug #0157: forbid reconfiguring an already-ACTIVE BW unless the
-    user manages it.
+    """Forbid entering the activation funnel if the organisation already has
+    an active BW. Correction of Bug #0157 and #0117, that was still
+    present with bug #0370.
 
-    `get_business_wall_for_user` only returns the org's BW when it is
-    ACTIVE. If such a BW exists and the user is not a manager (owner /
-    BWMi / BWMe) nor an admin, they must not re-enter the activation /
-    reconfiguration wizard — a BW PR Manager interne (BWPRi) could
-    otherwise restart the BW. When no active BW exists the wizard stays
-    open (bug #0117: org members / standalone profiles may still create
-    one).
+    An organisation can have only one active BW. If such a BW exists:
+    - If user is a manager (owner / BWMi / BWMe) or an admin, redirect to
+      its dashboard.
+    - If user lacks rights, redirect to not-authorized.
 
     Returns:
-        Redirect to not-authorized if the user lacks rights, else None.
+        Redirect response if organisation has an active BW, else None.
     """
     active_bw = get_business_wall_for_user(user)
-    if active_bw is not None and not is_bw_manager_or_admin(user, active_bw):
+    if active_bw is not None:
+        if is_bw_manager_or_admin(user, active_bw):
+            return redirect(url_for("bw_activation.dashboard"))
         session["error"] = ERR_NOT_MANAGER
         return redirect(url_for("bw_activation.not_authorized"))
     return None
@@ -182,6 +182,11 @@ def index():
         # No manageable BW — check if org has an active BW but user lacks rights
         org_bw = get_business_wall_for_user(user)
         if org_bw and org_bw.status == BWStatus.ACTIVE.value:
+            if is_bw_manager_or_admin(user, org_bw):
+                fill_session(org_bw)
+                # bug #0370, do not recreate the BW. If BW exists go to the
+                # existing dashboard
+                return redirect(url_for("bw_activation.dashboard"))
             # Bug #0117: user belongs to an org with a BW but is not a manager.
             # Instead of blocking with "not authorized", redirect to the
             # activation flow so they can request/accept a role invitation.
@@ -216,7 +221,8 @@ def confirm_subscription():
     if error_response := _check_organisation_declared(user):
         return error_response
 
-    # Bug #0157: an active BW can only be reconfigured by its managers.
+    # Forbid re-creating if the organisation already has an active BW
+    # fix bug #0370, upon fix of #0157
     if error_response := _check_active_bw_manager(user):
         return error_response
 
@@ -251,6 +257,10 @@ def select_subscription(bw_type: str):
     if error_response := _check_organisation_declared(user):
         return error_response
 
+    if error_response := _check_active_bw_manager(user):
+        # fix bug #0370
+        return error_response
+
     if not is_valid_bw_type(bw_type):
         return redirect(url_for("bw_activation.confirm_subscription"))
 
@@ -268,6 +278,10 @@ def activation_choice():
 
     # Check user has a valid (non-deleted) organisation
     if error_response := _check_valid_organisation(user):
+        return error_response
+
+    if error_response := _check_active_bw_manager(user):
+        # fix bug #0370
         return error_response
 
     if not session.get("bw_type_confirmed"):

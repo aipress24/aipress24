@@ -15,7 +15,8 @@ import arrow
 import pytest
 from flask import Flask, g
 
-from app.models.auth import KYCProfile, User
+from app.enums import RoleEnum
+from app.models.auth import KYCProfile, Role, User
 from app.models.lifecycle import PublicationStatus
 from app.models.organisation import Organisation
 from app.modules.bw.bw_activation.models import BusinessWall
@@ -39,6 +40,7 @@ from app.modules.swork.views.organisation import (
     OrgPublicationsTab,
     OrgVM,
 )
+from app.modules.wip.models.newsroom.article import Image  # noqa: F401
 from app.modules.wire.models import (
     ArticlePost,
     ArticlePurchase,
@@ -46,6 +48,7 @@ from app.modules.wire.models import (
     PurchaseProduct,
     PurchaseStatus,
 )
+from tests.c_e2e.conftest import make_authenticated_client
 
 if TYPE_CHECKING:
     from flask.testing import FlaskClient
@@ -367,6 +370,101 @@ class TestOrgEndpoint:
             f"/swork/organisations/{test_organisation.id}"
         )
         assert response.status_code in (200, 302)
+
+    def test_admin_member_sees_member_banner_not_manager(
+        self,
+        app: Flask,
+        db_session: Session,
+        test_organisation: Organisation,
+    ):
+        """Site admin who is a member of an organisation but not BW manager
+        sees 'Vous êtes membre...' and not 'Vous êtes manager...'."""
+        admin_user = User(
+            email="admin_member@example.com",
+            first_name="Admin",
+            last_name="Member",
+            active=True,
+        )
+        admin_role = db_session.query(Role).filter_by(name=RoleEnum.ADMIN.name).first()
+        if not admin_role:
+            admin_role = Role(name=RoleEnum.ADMIN.name)
+            db_session.add(admin_role)
+            db_session.flush()
+
+        admin_user.roles.append(admin_role)
+        admin_user.organisation = test_organisation
+        admin_user.organisation_id = test_organisation.id
+        db_session.add(admin_user)
+        db_session.flush()
+
+        other_user = User(
+            email="other_bw_owner@example.com",
+            first_name="Other",
+            last_name="Owner",
+            active=True,
+        )
+        db_session.add(other_user)
+        db_session.flush()
+
+        bw = BusinessWall(
+            bw_type="media",
+            status=BWStatus.ACTIVE.value,
+            owner_id=other_user.id,
+            payer_id=other_user.id,
+            organisation_id=test_organisation.id,
+            name=test_organisation.name,
+        )
+        db_session.add(bw)
+        db_session.flush()
+        test_organisation.bw_id = bw.id
+        test_organisation.bw_active = "media"
+        db_session.commit()
+
+        client = make_authenticated_client(app, admin_user)
+        response = client.get(f"/swork/organisations/{test_organisation.id}")
+        assert response.status_code == 200
+        body = response.data.decode()
+        assert "Vous êtes membre de cette organisation" in body
+        assert "Vous êtes manager du Business Wall de cette organisation" not in body
+
+    def test_actual_manager_sees_manager_banner(
+        self,
+        app: Flask,
+        db_session: Session,
+        test_organisation: Organisation,
+    ):
+        """Actual BW owner sees the manager banner."""
+        owner = User(
+            email="real_owner@example.com",
+            first_name="Real",
+            last_name="Owner",
+            active=True,
+        )
+        owner.organisation = test_organisation
+        owner.organisation_id = test_organisation.id
+        db_session.add(owner)
+        db_session.flush()
+
+        bw = BusinessWall(
+            bw_type="media",
+            status=BWStatus.ACTIVE.value,
+            owner_id=owner.id,
+            payer_id=owner.id,
+            organisation_id=test_organisation.id,
+            name=test_organisation.name,
+        )
+        db_session.add(bw)
+        db_session.flush()
+        test_organisation.bw_id = bw.id
+        test_organisation.bw_active = "media"
+        db_session.commit()
+
+        client = make_authenticated_client(app, owner)
+        response = client.get(f"/swork/organisations/{test_organisation.id}")
+        assert response.status_code == 200
+        body = response.data.decode()
+        assert "Vous êtes manager du Business Wall de cette organisation" in body
+        assert "Vous êtes membre de cette organisation" not in body
 
 
 # =============================================================================
