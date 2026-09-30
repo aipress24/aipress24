@@ -276,9 +276,7 @@ class TestConfirmSubscription:
         data = create_bw_test_data(fresh_db)
 
         admin_role = (
-            fresh_db.session.query(Role)
-            .filter_by(name=RoleEnum.ADMIN.name)
-            .first()
+            fresh_db.session.query(Role).filter_by(name=RoleEnum.ADMIN.name).first()
         )
         if not admin_role:
             admin_role = Role(name=RoleEnum.ADMIN.name)
@@ -303,9 +301,7 @@ class TestConfirmSubscription:
         assert response.status_code == 302
         assert "dashboard" in response.location
 
-    def test_cannot_select_subscription_when_org_bw_active(
-        self, app: Flask, fresh_db
-    ):
+    def test_cannot_select_subscription_when_org_bw_active(self, app: Flask, fresh_db):
         """Cannot select a subscription type when org already has an active BW."""
         data = create_bw_test_data(fresh_db)
 
