@@ -23,6 +23,7 @@ is therefore a signed-in member throughout this module.
 from __future__ import annotations
 
 import unicodedata
+from datetime import UTC, datetime
 from typing import cast
 
 import sqlalchemy as sa
@@ -34,7 +35,7 @@ from werkzeug.exceptions import Forbidden, NotFound
 from app.flask.extensions import db
 from app.flask.sqla import get_obj
 from app.lib.base62 import base62
-from app.logging import warn
+from app.logging import report_failure, warn
 from app.models.auth import User
 from app.modules.wire import blueprint
 from app.modules.wire.models import (
@@ -44,7 +45,8 @@ from app.modules.wire.models import (
     PurchaseProduct,
     PurchaseStatus,
 )
-from app.modules.wire.services.article_access import is_on_sale
+from app.modules.wire.services.article_access import is_creative_commons, is_on_sale
+from app.modules.wire.services.gift_notification import notify_gift_beneficiaries
 from app.modules.wire.services.recipients import parse_recipient_emails
 from app.services.stripe.prices import stripe_price_amount
 from app.services.stripe.product_mirror import MirroredProduct, active_products
@@ -342,6 +344,7 @@ def buy_modal_gift(post_id: str):
         org_cumul_eur=get_org_purchase_total(user.organisation_id) / 100,
         stripe_live=bool(current_app.config.get("STRIPE_LIVE_ENABLED")),
         article_consultation_duration=ARTICLE_CONSULTATION_DURATION,
+        is_creative_commons=is_creative_commons(post),
     )
 
 
@@ -363,7 +366,8 @@ def buy_gift(post_id: str):
     user = cast(User, g.user)
 
     post = _get_post_on_sale(post_id, PurchaseProduct.CONSULTATION_GIFT)
-    if not current_app.config.get("STRIPE_LIVE_ENABLED"):
+    is_cc = is_creative_commons(post)
+    if not is_cc and not current_app.config.get("STRIPE_LIVE_ENABLED"):
         flash("Les achats en ligne ne sont pas encore activés.", "error")
         return redirect(_back_to_post(post))
 
@@ -441,6 +445,39 @@ def buy_gift(post_id: str):
             "Aucun destinataire éligible : ils possèdent déjà un accès à cet article.",
             "error",
         )
+        return redirect(_back_to_post(post))
+
+    if is_cc:
+        purchase = ArticlePurchase(
+            post_id=post.id,
+            owner_id=user.id,
+            product_type=PurchaseProduct.CONSULTATION_GIFT,
+            status=PurchaseStatus.PAID,
+            amount_cents=0,
+            currency="EUR",
+            paid_at=datetime.now(UTC),
+        )
+        db.session.add(purchase)
+        db.session.flush()
+        for uid in eligible_ids:
+            db.session.add(
+                ArticlePurchaseGift(
+                    purchase_id=purchase.id,
+                    beneficiary_user_id=uid,
+                )
+            )
+        db.session.commit()
+
+        try:
+            notify_gift_beneficiaries(purchase.id)
+        except Exception as e:
+            report_failure(
+                f"consultation_gift: notify_gift_beneficiaries failed "
+                f"(purchase {purchase.id})",
+                e,
+            )
+
+        flash("La consultation offerte a été envoyée.")
         return redirect(_back_to_post(post))
 
     quantity = len(eligible_ids)
@@ -557,6 +594,8 @@ def _amount_ht_eur_for(product: PurchaseProduct, post: Post) -> float | None:
     flag, as before. Only the **amount lookup** changed source — the
     local mirror instead of one `Price.retrieve` per render.
     """
+    if is_creative_commons(post) and product == PurchaseProduct.CONSULTATION_GIFT:
+        return 0.0
     if not current_app.config.get("STRIPE_LIVE_ENABLED"):
         return None
     return _amount_ht_eur(_price_id_for(product, genre=post.genre))

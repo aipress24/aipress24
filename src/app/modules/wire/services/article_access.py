@@ -53,7 +53,6 @@ if TYPE_CHECKING:
 _NOT_SOLD_UNDER_CC = frozenset(
     {
         PurchaseProduct.CONSULTATION,
-        PurchaseProduct.CONSULTATION_GIFT,
         PurchaseProduct.CESSION,
     }
 )
@@ -108,7 +107,7 @@ def is_on_sale(post: Post, product: PurchaseProduct) -> bool:
     """Can `product` be bought on `post`?
 
     A Creative Commons article is free to read and to reproduce, so only
-    the publication certificate remains on sale.
+    the publication certificate and consultation gifts remain on sale.
     """
     return not (is_creative_commons(post) and product in _NOT_SOLD_UNDER_CC)
 
