@@ -114,6 +114,31 @@ class CommandesTable(BaseTable):
         return actions
 
 
+# Surface the step-nav bar on the Voir / Modifier pages.
+# language=jinja2
+_COMMANDE_VOIR_TEMPLATE = """
+{% extends "wip/layout/_base.j2" %}
+{% from "wip/_step_nav_simple.j2" import step_nav_simple %}
+{% block body_content %}
+  {{ step_nav_simple(commande, "CommandesWipView", "voir", "commandes", can_edit) }}
+  {{ form_rendered|safe }}
+  {{ extra_view_html|safe }}
+  {{ step_nav_simple(commande, "CommandesWipView", "voir", "commandes", can_edit) }}
+{% endblock %}
+"""
+
+# language=jinja2
+_COMMANDE_MODIFIER_TEMPLATE = """
+{% extends "wip/layout/_base.j2" %}
+{% from "wip/_step_nav_simple.j2" import step_nav_simple %}
+{% block body_content %}
+  {{ step_nav_simple(commande, "CommandesWipView", "modifier", "commandes") }}
+  {{ form_rendered|safe }}
+  {{ step_nav_simple(commande, "CommandesWipView", "modifier", "commandes") }}
+{% endblock %}
+"""
+
+
 class CommandesWipView(BaseWipView):
     name = "commandes"
 
@@ -147,6 +172,28 @@ class CommandesWipView(BaseWipView):
         if not user_can_access_newsroom(g.user):
             raise Forbidden
         return None
+
+    @templated(_COMMANDE_VOIR_TEMPLATE)
+    def get(self, id):
+        """Step « Voir » — wrapped with the step-nav bar."""
+        model = self._get_model(id)
+        title = f"{self.label_view} '{model.title}'"
+        ctx = self._view_ctx(model, title=title, mode="view")
+        ctx["commande"] = model
+        ctx["can_edit"] = self._can_edit(model)
+        return ctx
+
+    @templated(_COMMANDE_MODIFIER_TEMPLATE)
+    def edit(self, id):
+        """Step « Modifier » — wrapped with the step-nav bar."""
+        model = self._get_model(id)
+        if not self._can_edit(model):
+            flash(self.msg_cannot_edit, "error")
+            return redirect(self._url_for("get", id=id))
+        title = f"{self.label_edit} '{model.title}'"
+        ctx = self._view_ctx(model, title=title)
+        ctx["commande"] = model
+        return ctx
 
     @templated(UPDATE_TEMPLATE)
     def new(self) -> dict | Response:

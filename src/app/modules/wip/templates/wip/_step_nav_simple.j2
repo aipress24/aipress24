@@ -18,31 +18,31 @@
     list_label    — short module label used in the « Retourner à la
                     liste des … » link (e.g. "articles")
 #}
-{% macro step_nav_simple(model, view_name, current, list_label) %}
-  <div class="my-4 flex items-center justify-between gap-x-4 border-t border-b py-3">
-    <div class="flex items-center gap-x-4">
-      <a
-        href="{{ url_for(view_name ~ ':index') }}"
-        class="text-sm font-semibold leading-6 text-gray-900 hover:text-gray-700"
-      >
-        ← Retourner à la liste des {{ list_label }}
-      </a>
-      {% if current == "modifier" and model and model.id %}
-        <a
-          href="{{ url_for(view_name ~ ':get', id=model.id) }}"
-          class="text-sm font-semibold leading-6 text-gray-900 hover:text-gray-700"
-        >
-          ← Étape précédente : Voir
-        </a>
-      {% endif %}
+{% macro step_nav_simple(model, view_name, current, list_label, can_edit=none) %}
+    <div class="my-4 flex items-center justify-between gap-x-4 border-t border-b py-3">
+        <div class="flex items-center gap-x-4">
+            <a
+                href="{{ url_for(view_name ~ ':index') }}"
+                class="text-sm font-semibold leading-6 text-gray-900 hover:text-gray-700"
+            >
+                ← Retourner à la liste des {{ list_label }}
+            </a>
+            {% if current == "modifier" and model and model.id %}
+                <a
+                    href="{{ url_for(view_name ~ ':get', id=model.id) }}"
+                    class="text-sm font-semibold leading-6 text-gray-900 hover:text-gray-700"
+                >
+                    ← Étape précédente : Voir
+                </a>
+            {% endif %}
+        </div>
+        {% if current == "voir" and model and model.id and (can_edit is not defined or can_edit is none or can_edit) %}
+            <a
+                href="{{ url_for(view_name ~ ':edit', id=model.id) }}"
+                class="rounded-md bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-blue-700"
+            >
+                Étape suivante : Modifier →
+            </a>
+        {% endif %}
     </div>
-    {% if current == "voir" and model and model.id %}
-      <a
-        href="{{ url_for(view_name ~ ':edit', id=model.id) }}"
-        class="rounded-md bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-blue-700"
-      >
-        Étape suivante : Modifier →
-      </a>
-    {% endif %}
-  </div>
 {% endmacro %}

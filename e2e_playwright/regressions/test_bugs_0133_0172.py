@@ -161,6 +161,7 @@ def test_bug_0154_step_nav_extended_to_articles_communiques_events() -> None:
         ("crud/cbvs/articles.py", "ArticlesWipView"),
         ("crud/cbvs/communiques.py", "CommuniquesWipView"),
         ("crud/cbvs/events.py", "EventsWipView"),
+        ("crud/cbvs/commandes.py", "CommandesWipView"),
     ):
         cbv = src / cbv_path
         assert cbv.exists()

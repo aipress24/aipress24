@@ -374,3 +374,70 @@ class TestDirectCreation:
         assert "/wip/commandes/new/" in index
         assert "Commande adressée à" in form
         assert 'name="destinataire_id"' in form
+
+
+class TestCommandesStepNav:
+    def test_voir_step_nav_for_owner(
+        self,
+        app: Flask,
+        fresh_db,
+        test_user: User,
+        journalist: User,
+        test_org: Organisation,
+    ) -> None:
+        commande = _commande(
+            fresh_db, owner=test_user, destinataire=journalist, org=test_org
+        )
+        client = make_authenticated_client(app, test_user)
+
+        html = client.get(url_for("CommandesWipView:get", id=commande.id)).get_data(
+            as_text=True
+        )
+
+        assert html.count("Retourner à la liste des commandes") == 2
+        assert html.count("Étape suivante : Modifier") == 2
+        assert url_for("CommandesWipView:index") in html
+        assert url_for("CommandesWipView:edit", id=commande.id) in html
+
+    def test_voir_step_nav_for_destinataire(
+        self,
+        app: Flask,
+        fresh_db,
+        test_user: User,
+        journalist: User,
+        test_org: Organisation,
+    ) -> None:
+        commande = _commande(
+            fresh_db, owner=journalist, destinataire=test_user, org=test_org
+        )
+        client = make_authenticated_client(app, test_user)
+
+        html = client.get(url_for("CommandesWipView:get", id=commande.id)).get_data(
+            as_text=True
+        )
+
+        assert html.count("Retourner à la liste des commandes") == 2
+        assert "Étape suivante : Modifier" not in html
+        assert url_for("CommandesWipView:index") in html
+
+    def test_modifier_step_nav(
+        self,
+        app: Flask,
+        fresh_db,
+        test_user: User,
+        journalist: User,
+        test_org: Organisation,
+    ) -> None:
+        commande = _commande(
+            fresh_db, owner=test_user, destinataire=journalist, org=test_org
+        )
+        client = make_authenticated_client(app, test_user)
+
+        html = client.get(url_for("CommandesWipView:edit", id=commande.id)).get_data(
+            as_text=True
+        )
+
+        assert html.count("Retourner à la liste des commandes") == 2
+        assert html.count("Étape précédente : Voir") == 2
+        assert url_for("CommandesWipView:index") in html
+        assert url_for("CommandesWipView:get", id=commande.id) in html
