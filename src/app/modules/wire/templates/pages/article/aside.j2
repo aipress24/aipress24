@@ -29,10 +29,10 @@
             </button>
         {% endif %}
 
-      {# Ticket #0194 #0367— Droit de consultation offerte. Shown when the paywall
-         is live, even to a reader who already has access, or if the
+      {# Ticket #0194 — Droit de consultation offerte. Shown when the paywall
+         is live, even to a reader who already has access, unless the
          article is free (Creative Commons). #}
-        {% if (config.get("STRIPE_LIVE_ENABLED") or is_creative_commons) and can_gift %}
+        {% if config.get("STRIPE_LIVE_ENABLED") and can_gift %}
             <button type="button"
                     class="{{ btn_class }}"
                     title="Offrir cet article à d'autres membres d'AiPRESS24"

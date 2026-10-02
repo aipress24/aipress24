@@ -78,7 +78,6 @@ def _paywall_context(post: Post, user: User) -> dict:
         get_user_purchase_info,
         has_paid_consultation,
         has_received_consultation_gift,
-        is_creative_commons,
         is_on_sale,
         truncate_body,
         user_can_read_full,
@@ -125,7 +124,6 @@ def _paywall_context(post: Post, user: User) -> dict:
         "body_preview": body_preview,
         "consultation_price_str": consultation_price_str,
         "has_justificatif_invitation": _has_justificatif_invitation(post, user),
-        "is_creative_commons": is_creative_commons(post),
     }
 
 

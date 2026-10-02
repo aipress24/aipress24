@@ -8,7 +8,6 @@ Checkout session with quantity=N."""
 
 from __future__ import annotations
 
-import json
 import uuid
 from datetime import UTC, datetime
 from typing import TYPE_CHECKING
@@ -29,7 +28,6 @@ from app.modules.wire.models import (
     PurchaseProduct,
     PurchaseStatus,
 )
-from app.settings.vocabularies import COPYRIGHT_CREATIVE_COMMONS
 from tests.c_e2e.conftest import make_authenticated_client
 from tests.c_e2e.modules.wire._stripe_doubles import (
     CheckoutSession,
@@ -631,89 +629,3 @@ class TestBuyGiftStripeFailure:
             == 0
         )
         assert db_session.query(ArticlePurchaseGift).count() == 0
-
-
-class TestCreativeCommonsGiftRoute:
-    @pytest.fixture
-    def cc_article(self, db_session: Session, article: ArticlePost) -> ArticlePost:
-        article.copyright = COPYRIGHT_CREATIVE_COMMONS
-        db_session.commit()
-        return article
-
-    def test_cc_gift_succeeds_without_stripe(
-        self,
-        app: Flask,
-        db_session: Session,
-        buyer: User,
-        cc_article: ArticlePost,
-        alice: User,
-    ):
-        """Creative Commons consultation gift is free and does not require Stripe live."""
-        client = make_authenticated_client(app, buyer)
-        app.config["STRIPE_LIVE_ENABLED"] = False
-
-        response = client.post(
-            f"/wire/{cc_article.id}/buy_gift",
-            data={"beneficiary_user_id": [str(alice.id)]},
-            follow_redirects=True,
-        )
-        assert response.status_code == 200
-
-        purchase = (
-            db_session.query(ArticlePurchase)
-            .filter_by(
-                owner_id=buyer.id,
-                post_id=cc_article.id,
-                product_type=PurchaseProduct.CONSULTATION_GIFT,
-            )
-            .one()
-        )
-        assert purchase.status == PurchaseStatus.PAID
-        assert purchase.amount_cents == 0
-        assert purchase.paid_at is not None
-
-        gift = (
-            db_session.query(ArticlePurchaseGift)
-            .filter_by(purchase_id=purchase.id)
-            .one()
-        )
-        assert gift.beneficiary_user_id == alice.id
-        assert gift.notified_at is not None
-
-        line = next(
-            raw
-            for raw in response.data.decode().splitlines()
-            if "window.toasts =" in raw and not raw.strip().startswith("//")
-        )
-        toasts = json.loads(line.split("=", 1)[1].strip().rstrip(";"))
-        assert "La consultation offerte a été envoyée." in toasts
-
-    def test_cc_gift_via_email(
-        self,
-        app: Flask,
-        db_session: Session,
-        buyer: User,
-        cc_article: ArticlePost,
-        alice: User,
-    ):
-        client = make_authenticated_client(app, buyer)
-        app.config["STRIPE_LIVE_ENABLED"] = False
-
-        response = client.post(
-            f"/wire/{cc_article.id}/buy_gift",
-            data={"beneficiary_email": alice.email},
-            follow_redirects=True,
-        )
-        assert response.status_code == 200
-
-        purchase = (
-            db_session.query(ArticlePurchase)
-            .filter_by(
-                owner_id=buyer.id,
-                post_id=cc_article.id,
-                product_type=PurchaseProduct.CONSULTATION_GIFT,
-            )
-            .one()
-        )
-        assert purchase.status == PurchaseStatus.PAID
-        assert purchase.amount_cents == 0

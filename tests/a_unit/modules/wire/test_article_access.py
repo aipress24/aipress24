@@ -373,7 +373,7 @@ class TestCutOnWordBoundary:
 
 
 class TestIsOnSale:
-    """A Creative Commons article sells its publication certificate and consultation gifts."""
+    """A Creative Commons article sells only its publication certificate."""
 
     @pytest.mark.parametrize("product", list(PurchaseProduct))
     def test_all_rights_reserved_sells_everything(
@@ -387,12 +387,12 @@ class TestIsOnSale:
         ("product", "expected"),
         [
             (PurchaseProduct.CONSULTATION, False),
-            (PurchaseProduct.CONSULTATION_GIFT, True),
+            (PurchaseProduct.CONSULTATION_GIFT, False),
             (PurchaseProduct.CESSION, False),
             (PurchaseProduct.JUSTIFICATIF, True),
         ],
     )
-    def test_creative_commons_sells_certificate_and_gift(
+    def test_creative_commons_sells_only_the_certificate(
         self, product: PurchaseProduct, expected: bool
     ) -> None:
         post = _Post(post_id=1, owner_id=42, copyright=COPYRIGHT_CREATIVE_COMMONS)

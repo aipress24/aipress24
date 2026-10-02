@@ -278,7 +278,7 @@ class TestBuyModal:
 
 class TestCreativeCommons:
     """A Creative Commons article is free to read and reproduce: only the
-    publication certificate and consultation gift stay on sale."""
+    publication certificate stays on sale."""
 
     @pytest.fixture
     def cc_article(self, db_session: Session, article: ArticlePost) -> ArticlePost:
@@ -290,20 +290,13 @@ class TestCreativeCommons:
         self, app: Flask, reader: User, cc_article: ArticlePost
     ):
         client = make_authenticated_client(app, reader)
-        for product in ("consultation", "cession"):
+        for product in ("consultation", "consultation_gift", "cession"):
             modal = client.get(f"/wire/{cc_article.id}/buy_modal/{product}")
             assert modal.status_code == 404, product
             buy = client.post(f"/wire/{cc_article.id}/buy/{product}")
             assert buy.status_code == 404, product
-
-    def test_consultation_gift_modal_is_free(
-        self, app: Flask, reader: User, cc_article: ArticlePost
-    ):
-        client = make_authenticated_client(app, reader)
-        res = client.get(f"/wire/{cc_article.id}/buy_modal_gift")
-        assert res.status_code == 200
-        html = res.get_data(as_text=True)
-        assert "0.00 €" in html
+        assert client.get(f"/wire/{cc_article.id}/buy_modal_gift").status_code == 404
+        assert client.post(f"/wire/{cc_article.id}/buy_gift").status_code == 404
 
     def test_certificate_stays_on_sale(
         self, app: Flask, reader: User, cc_article: ArticlePost
@@ -312,7 +305,7 @@ class TestCreativeCommons:
         response = client.get(f"/wire/{cc_article.id}/buy_modal/justificatif")
         assert response.status_code == 200
 
-    def test_article_page_shows_full_text_and_gift_button(
+    def test_article_page_shows_full_text_and_no_paid_button(
         self, app: Flask, reader: User, cc_article: ArticlePost
     ):
         stripe_live = app.config.get("STRIPE_LIVE_ENABLED")
@@ -324,5 +317,5 @@ class TestCreativeCommons:
             app.config["STRIPE_LIVE_ENABLED"] = stripe_live
         assert "<p>Texte.</p>" in html
         assert "buy_modal/consultation" not in html
-        assert "buy_modal_gift" in html
+        assert "buy_modal_gift" not in html
         assert "buy_modal/cession" not in html
