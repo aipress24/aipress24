@@ -69,7 +69,7 @@ class TestCodedVocabulary:
     def test_js_choices_carry_the_label(self) -> None:
         js_choices = _CopyrightForm().mention.get_choices_for_js()
 
-        assert [COPYRIGHT_CREATIVE_COMMONS, "Creative Commons (CC BY-ND)"] in (
+        assert [COPYRIGHT_CREATIVE_COMMONS, "Creative Commons (CC BY-NC-ND 4.0)"] in (
             js_choices
         )
 

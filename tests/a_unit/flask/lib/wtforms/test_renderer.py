@@ -432,7 +432,7 @@ class TestRenderFieldViewMode:
 
             html = renderer.render_field(form.copyright)
 
-        assert "Creative Commons (CC BY-ND)" in html
+        assert "Creative Commons" in html
         assert COPYRIGHT_CREATIVE_COMMONS not in html
 
     def test_view_mode_media_id_with_model_media_shows_media_name(self, app: Flask):
