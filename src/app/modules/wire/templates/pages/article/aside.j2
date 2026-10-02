@@ -180,8 +180,12 @@
         <div>
             <h3 class="text-sm font-medium text-gray-500">{{ metadata.label }}</h3>
 
-            <a href="{{ url_for(".wire") }}"
-               class="text-sm font-medium hover:underline">{{ metadata.value }}</a>
+            {% if metadata.label == "Copyright" %}
+                <p class="text-sm font-medium text-gray-900">{{ metadata.value }}</p>
+            {% else %}
+                <a href="{{ url_for(".wire") }}"
+                   class="text-sm font-medium hover:underline">{{ metadata.value }}</a>
+            {% endif %}
         </div>
     {% endfor %}
 </div>

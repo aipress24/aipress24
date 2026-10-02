@@ -184,6 +184,47 @@ class TestArticleMetadata:
             assert "Ville" not in labels
             assert "Adresse" not in labels
 
+    def test_copyright_default_on_article(
+        self, app: Flask, db_session: Session, article_with_geoloc: ArticlePost
+    ) -> None:
+        view = ItemDetailView()
+        with app.test_request_context():
+            metadata = view._get_metadata_list(article_with_geoloc)
+            labels = [m["label"] for m in metadata]
+            assert "Copyright" in labels
+            copyright_entry = next(m for m in metadata if m["label"] == "Copyright")
+            assert copyright_entry["value"] == "Tous droits réservés"
+            assert labels[-1] == "Copyright"
+
+    def test_copyright_creative_commons_on_article(
+        self, app: Flask, db_session: Session, post_owner: User
+    ) -> None:
+        post = ArticlePost(
+            owner=post_owner,
+            title="Article CC",
+            content="x",
+            summary="",
+            genre="g",
+            sector="s",
+            topic="t",
+            section="r",
+            copyright="cc-by-nd",
+        )
+        db_session.add(post)
+        db_session.flush()
+
+        view = ItemDetailView()
+        with app.test_request_context():
+            metadata = view._get_metadata_list(post)
+            labels = [m["label"] for m in metadata]
+            assert "Copyright" in labels
+            copyright_entry = next(m for m in metadata if m["label"] == "Copyright")
+            assert copyright_entry["value"] == (
+                "Licence Creative Commons CC BY-NC-ND 4.0 : consultation et partage gratuits ; "
+                "citer l'auteur et l'éditeur, ne pas le modifier, pas d'utilisation commerciale"
+            )
+            assert labels[-1] == "Copyright"
+
 
 class TestPressReleaseMetadata:
     def test_country_label_present_when_pays_set(
@@ -198,3 +239,15 @@ class TestPressReleaseMetadata:
             labels = [m["label"] for m in metadata]
             assert "Pays" in labels
             assert "Ville" in labels
+
+    def test_copyright_omitted_on_press_release(
+        self,
+        app: Flask,
+        db_session: Session,
+        press_release_with_geoloc: PressReleasePost,
+    ) -> None:
+        view = ItemDetailView()
+        with app.test_request_context():
+            metadata = view._get_metadata_list(press_release_with_geoloc)
+            labels = [m["label"] for m in metadata]
+            assert "Copyright" not in labels

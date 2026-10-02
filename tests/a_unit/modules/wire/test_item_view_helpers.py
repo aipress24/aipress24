@@ -34,7 +34,10 @@ import pytest
 
 from app.modules.wire.models import ArticlePost, Post, PressReleasePost
 from app.modules.wire.views.item import (
+    COPYRIGHT_TEXT_ALL_RIGHTS_RESERVED,
+    COPYRIGHT_TEXT_CREATIVE_COMMONS,
     build_metadata_list,
+    copyright_label,
     post_type_label,
 )
 from app.services.comments import get_comment_object_id
@@ -50,6 +53,7 @@ def _stub_post(
     address: str = "",
     pays_zip_ville: str = "",
     pays_zip_ville_detail: str = "",
+    copyright: str = "",
 ) -> SimpleNamespace:
     """Duck-typed Post stand-in.
 
@@ -66,6 +70,7 @@ def _stub_post(
         address=address,
         pays_zip_ville=pays_zip_ville,
         pays_zip_ville_detail=pays_zip_ville_detail,
+        copyright=copyright,
     )
 
 
@@ -126,10 +131,31 @@ class TestPostTypeLabel:
         assert post_type_label("article") == "Article"
 
 
-class TestBuildMetadataListCore:
-    """Core five rows are always present, in deterministic order."""
+class TestCopyrightLabel:
+    """`copyright_label` maps copyright to its display notice."""
 
-    def test_minimal_post_has_five_core_rows(self):
+    def test_creative_commons_key(self):
+        assert copyright_label("cc-by-nd") == COPYRIGHT_TEXT_CREATIVE_COMMONS
+
+    def test_creative_commons_label(self):
+        assert copyright_label("Creative Commons") == COPYRIGHT_TEXT_CREATIVE_COMMONS
+
+    @pytest.mark.parametrize(
+        "val",
+        [
+            "Tous droits réservés",
+            "",
+            None,
+        ],
+    )
+    def test_all_rights_reserved_fallback(self, val):
+        assert copyright_label(val) == COPYRIGHT_TEXT_ALL_RIGHTS_RESERVED
+
+
+class TestBuildMetadataListCore:
+    """Core rows are always present in deterministic order."""
+
+    def test_minimal_article_has_six_core_rows(self):
         post = _stub_post(type="article")
         data = build_metadata_list(post)
         assert _labels(data) == [
@@ -138,7 +164,26 @@ class TestBuildMetadataListCore:
             "Rubrique",
             "Sujet",
             "Secteur d'activité",
+            "Copyright",
         ]
+        assert _value(data, "Copyright") == COPYRIGHT_TEXT_ALL_RIGHTS_RESERVED
+
+    def test_minimal_press_release_has_five_core_rows(self):
+        post = _stub_post(type="press_release")
+        data = build_metadata_list(post)
+        assert _labels(data) == [
+            "Type",
+            "Genre",
+            "Rubrique",
+            "Sujet",
+            "Secteur d'activité",
+        ]
+        assert "Copyright" not in _labels(data)
+
+    def test_article_with_creative_commons_copyright(self):
+        post = _stub_post(type="article", copyright="cc-by-nd")
+        data = build_metadata_list(post)
+        assert _value(data, "Copyright") == COPYRIGHT_TEXT_CREATIVE_COMMONS
 
     def test_blank_optional_fields_render_as_na(self):
         post = _stub_post(type="article")

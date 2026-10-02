@@ -58,6 +58,7 @@ from app.services.social_graph import SocialUser, adapt
 from app.services.stripe.prices import stripe_price_display
 from app.services.tagging import get_tags
 from app.services.tracking import record_view
+from app.settings.vocabularies import COPYRIGHT_CREATIVE_COMMONS
 
 
 def _paywall_context(post: Post, user: User) -> dict:
@@ -262,6 +263,28 @@ def post_type_label(type_str: str | None) -> str:
     return _POST_TYPE_LABELS.get(type_str, "Non classé")
 
 
+COPYRIGHT_TEXT_CREATIVE_COMMONS = (
+    "Licence Creative Commons CC BY-NC-ND 4.0 : consultation et partage "
+    "gratuits ; citer l'auteur et l'éditeur, ne pas le modifier, pas "
+    "d'utilisation commerciale"
+)
+COPYRIGHT_TEXT_ALL_RIGHTS_RESERVED = "Tous droits réservés"
+
+
+def copyright_label(copyright_val: str | None) -> str:
+    """Map copyright value to its display notice."""
+    if not copyright_val:
+        return COPYRIGHT_TEXT_ALL_RIGHTS_RESERVED
+    val = copyright_val.strip().lower()
+    if (
+        val == COPYRIGHT_CREATIVE_COMMONS
+        or "cc-by-nd" in val
+        or "creative commons" in val
+    ):
+        return COPYRIGHT_TEXT_CREATIVE_COMMONS
+    return COPYRIGHT_TEXT_ALL_RIGHTS_RESERVED
+
+
 def build_metadata_list(
     post,
     *,
@@ -289,6 +312,14 @@ def build_metadata_list(
         data.append({"label": "Pays", "value": country_label(post.pays_zip_ville)})
     if post.pays_zip_ville_detail:
         data.append({"label": "Ville", "value": city_label(post.pays_zip_ville_detail)})
+
+    if getattr(post, "type", None) == "article" or isinstance(post, ArticlePost):
+        data.append(
+            {
+                "label": "Copyright",
+                "value": copyright_label(getattr(post, "copyright", None)),
+            }
+        )
 
     return data
 

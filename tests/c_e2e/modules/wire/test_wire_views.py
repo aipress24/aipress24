@@ -6,6 +6,7 @@
 
 from __future__ import annotations
 
+import html
 from typing import TYPE_CHECKING
 from unittest.mock import patch
 
@@ -524,3 +525,51 @@ class TestWireCommentAlert:
         assert "Commentaire masque supprime" not in html
         assert f'id="comment-{active_comment.id}"' in html
         assert f'hx-get="/wire/comments/{active_comment.id}/alert_modal"' in html
+
+    def test_article_view_displays_copyright_default(
+        self,
+        authenticated_client: FlaskClient,
+        test_articles: list[ArticlePost],
+    ) -> None:
+        """Article without explicit copyright."""
+        article = test_articles[0]
+        b62_id = base62.encode(article.id)
+        res = authenticated_client.get(f"/wire/{b62_id}")
+        assert res.status_code == 200
+        html = res.data.decode()
+        assert "Copyright" in html
+        assert "Tous droits réservés" in html
+
+    def test_article_view_displays_copyright_creative_commons(
+        self,
+        authenticated_client: FlaskClient,
+        db_session: Session,
+        test_user: User,
+        test_org: Organisation,
+    ) -> None:
+        """Article with CC copyright displays full CC notice."""
+        cc_article = ArticlePost(
+            title="Article CC BY-NC-ND",
+            content="Content CC",
+            status=PublicationStatus.PUBLIC,
+            publisher=test_org,
+            owner=test_user,
+            published_at=arrow.now(),
+            sector="tech",
+            topic="news",
+            copyright="cc-by-nd",
+        )
+        db_session.add(cc_article)
+        db_session.commit()
+
+        b62_id = base62.encode(cc_article.id)
+        res = authenticated_client.get(f"/wire/{b62_id}")
+        assert res.status_code == 200
+        html_text = res.data.decode()
+        assert "Copyright" in html_text
+        expected_cc = (
+            "Licence Creative Commons CC BY-NC-ND 4.0 : consultation et partage gratuits ; "
+            "citer l'auteur et l'éditeur, ne pas le modifier, pas d'utilisation commerciale"
+        )
+        unescaped = html.unescape(html_text)
+        assert expected_cc in unescaped
