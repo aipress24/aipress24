@@ -65,6 +65,32 @@ def _remove_user_profile_organisation(user: User) -> None:
     user.profile = new_profile
 
 
+def _remove_role_assignment_organisation(user: User) -> None:
+    previous_org = user.organisation
+    if not previous_org:
+        return
+    from app.modules.bw.bw_activation.models import BusinessWall, RoleAssignment
+    from app.modules.bw.bw_activation.models.role import EXTERNAL_ROLES
+
+    db_session = db.session
+
+    bw_ids = list(
+        db_session.scalars(
+            select(BusinessWall.id).where(
+                BusinessWall.organisation_id == previous_org.id
+            )
+        )
+    )
+    if bw_ids:
+        db_session.execute(
+            db.delete(RoleAssignment).where(
+                RoleAssignment.user_id == user.id,
+                RoleAssignment.business_wall_id.in_(bw_ids),
+                RoleAssignment.role_type.notin_(EXTERNAL_ROLES),
+            )
+        )
+
+
 def _set_user_organisation_id(user: User, org_id: int) -> None:
     user.organisation_id = org_id
 
@@ -155,6 +181,7 @@ def set_user_organisation(user: User, organisation: Organisation) -> str:
     _remove_user_organisation(user)
     _remove_user_profile_organisation(user)
     _set_user_organisation_id(user, organisation.id)
+    user.organisation = organisation
     _set_user_profile_organisation(user, organisation)
     _mark_user_as_modified(user)
     db_session.merge(user)
@@ -276,6 +303,7 @@ def remove_user_organisation(user: User) -> str:
     if error := _check_bw_owner_removal(user):
         return error
 
+    _remove_role_assignment_organisation(user)
     _remove_user_organisation(user)
     _remove_user_profile_organisation(user)
     _mark_user_as_modified(user)
@@ -300,6 +328,7 @@ def set_user_organisation_from_ids(user_id: int, org_id: int) -> str:
     _remove_user_organisation(user)
     _remove_user_profile_organisation(user)
     _set_user_organisation_id(user, organisation.id)
+    user.organisation = organisation
     _set_user_profile_organisation(user, organisation)
     _mark_user_as_modified(user)
     db_session.merge(user)
