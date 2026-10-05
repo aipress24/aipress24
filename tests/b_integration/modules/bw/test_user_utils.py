@@ -12,7 +12,12 @@ from unittest import mock
 from app.enums import BWType
 from app.models.auth import KYCProfile, User
 from app.models.organisation import Organisation
-from app.modules.bw.bw_activation.models import Partnership, PartnershipStatus
+from app.modules.bw.bw_activation.models import (
+    InvitationStatus,
+    Partnership,
+    PartnershipStatus,
+    RoleAssignment,
+)
 from app.modules.bw.bw_activation.models.business_wall import BusinessWall, BWStatus
 from app.modules.bw.bw_activation.user_utils import (
     _fonctions_disponibles_for_bw,
@@ -446,6 +451,38 @@ class TestGetBusinessWallForUser:
         result = get_business_wall_for_user(test_user_with_profile)
 
         assert result is None
+
+    def test_returns_bw_when_user_has_no_organisation_but_has_accepted_role(
+        self,
+        db_session: Session,
+        test_org: Organisation,
+        test_user_owner: User,
+        test_user_no_org: User,
+    ):
+        """Should return BW when user has no organisation but has accepted role on active BW."""
+        bw = BusinessWall(
+            bw_type=str(BWType.MEDIA.value),
+            status=BWStatus.ACTIVE.value,
+            owner_id=test_user_owner.id,
+            payer_id=test_user_owner.id,
+            organisation_id=test_org.id,
+        )
+        db_session.add(bw)
+        db_session.flush()
+
+        ra = RoleAssignment(
+            business_wall_id=bw.id,
+            user_id=test_user_no_org.id,
+            role_type="",
+            invitation_status=InvitationStatus.ACCEPTED.value,
+        )
+        db_session.add(ra)
+        db_session.flush()
+
+        result = get_business_wall_for_user(test_user_no_org)
+
+        assert result is not None
+        assert result.id == bw.id
 
 
 class TestGuessBestBwType:

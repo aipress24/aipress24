@@ -114,28 +114,34 @@ class UserVM(ViewModel):
 
     def extra_attrs(self):
         from app.modules.bw.bw_activation.user_utils import (
-            get_active_business_wall_for_organisation,
+            get_business_wall_for_user,
         )
         from app.services.social_graph import adapt
 
         user = self.user
 
-        # Resolve the active Business Wall for the organisation so the
+        # Resolve the active Business Wall for the organisation/user so the
         # member page can display and link to the BW when one exists.
         org = user.organisation
-        active_bw = None
-        if org is not None:
-            active_bw = get_active_business_wall_for_organisation(org)
+        active_bw = get_business_wall_for_user(user)
+        # Fix for existing data where Organisation may not be
+        # updated by joining a BW
+        if org is None and active_bw is not None:
+            org = active_bw.get_organisation()
+
+        org_name = ""
+        if active_bw and active_bw.name:
+            org_name = active_bw.name
+        elif org and org.name:
+            org_name = org.name
+        else:
+            org_name = user.organisation_name
 
         return {
             "name": user.full_name,
             "fonction": user.fonction,
-            "organisation_name": (
-                active_bw.name
-                if active_bw and active_bw.name
-                else user.organisation_name
-            ),
-            "organisation_url": url_for(user.organisation),
+            "organisation_name": org_name,
+            "organisation_url": url_for(org) if org else None,
             "image_url": user.photo_image_signed_url(),
             "is_following": adapt(g.user).is_following(user),
             "banner_url": self.get_banner_url(),

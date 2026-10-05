@@ -15,6 +15,12 @@ from app.constants import LABEL_COMPTE_DESACTIVE
 from app.models.auth import KYCProfile, Role, User
 from app.models.organisation import Organisation
 from app.modules.admin.views.show_user import ShowUserView
+from app.modules.bw.bw_activation.models import (
+    BusinessWall,
+    BWStatus,
+    InvitationStatus,
+    RoleAssignment,
+)
 
 if TYPE_CHECKING:
     from flask import Flask
@@ -190,3 +196,47 @@ class TestRevokeAdmin:
             view._revoke_admin(admin_user)
 
         assert admin_user.has_role("ADMIN")
+
+
+class TestRemoveOrganisationRoles:
+    """Tests for role cleanup when removing organisation."""
+
+    def test_remove_organisation_cleans_internal_role_assignments(
+        self,
+        app: Flask,
+        db_session: Session,
+        user_with_org: User,
+        organisation: Organisation,
+    ):
+        """Removing user from organisation removes internal BW role assignments."""
+        bw = BusinessWall(
+            bw_type="leaders_experts",
+            status=BWStatus.ACTIVE.value,
+            owner_id=user_with_org.id + 999,
+            payer_id=user_with_org.id + 999,
+            organisation_id=organisation.id,
+        )
+        db_session.add(bw)
+        db_session.flush()
+
+        ra = RoleAssignment(
+            business_wall_id=bw.id,
+            user_id=user_with_org.id,
+            role_type="",
+            invitation_status=InvitationStatus.ACCEPTED.value,
+        )
+        db_session.add(ra)
+        db_session.flush()
+
+        view = ShowUserView()
+        with app.test_request_context():
+            view._remove_organisation(user_with_org)
+
+        db_session.flush()
+        assert user_with_org.organisation_id is None
+        remaining = (
+            db_session.query(RoleAssignment)
+            .filter_by(user_id=user_with_org.id, business_wall_id=bw.id)
+            .first()
+        )
+        assert remaining is None

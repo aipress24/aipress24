@@ -34,7 +34,6 @@ from app.modules.bw.bw_activation.models import (
     RoleAssignment,
 )
 from app.modules.bw.bw_activation.user_utils import (
-    get_active_business_wall_for_organisation,
     get_business_wall_for_user,
 )
 from app.modules.kyc.views import admin_info_context
@@ -52,10 +51,12 @@ class ShowUserView(MethodView):
     def get(self, uid: str):
         user = cast(User, get_obj(uid, User))
         org = user.organisation
-        if org:
-            active_bw = get_active_business_wall_for_organisation(org)
-        else:
-            active_bw = None
+        active_bw = get_business_wall_for_user(user)
+
+        # This to fix bogus data, should not happen
+        # for user now joining a BW
+        if org is None and active_bw:
+            org = active_bw.get_organisation()
 
         # --- Autorisations ---
         owned_bws = self._get_owned_bws(user)
