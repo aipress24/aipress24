@@ -15,6 +15,7 @@ from sqlalchemy import select
 
 from app.flask.extensions import db
 from app.logging import warn
+from app.modules.admin.utils import set_user_organisation
 from app.modules.bw.bw_activation import bp
 from app.modules.bw.bw_activation.bw_invitation import (
     BW_ROLE_TYPE_LABEL,
@@ -112,6 +113,12 @@ def confirm_role_invitation(bw_id: UUID, role_type: str, user_id: int):
                 role_assignment.invitation_status = InvitationStatus.ACCEPTED.value
                 role_assignment.accepted_at = datetime.now(UTC)
                 warn(f"User {user_id} accepted role {role_type} for BW {bw_name!r}")
+
+                # Attach internal member to BW's organisation if not already attached
+                if role_type not in (BWRoleType.BWME.value, BWRoleType.BWPRE.value):
+                    bw_org = business_wall.get_organisation()
+                    if bw_org and current_user.organisation_id != bw_org.id:
+                        set_user_organisation(current_user, bw_org)
 
                 # Apply BW missions to PR users when they accept
                 if role_type in (BWRoleType.BWPRI.value, BWRoleType.BWPRE.value):
