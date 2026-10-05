@@ -457,6 +457,8 @@ def _render_avis_opportunites_tab():
             selectinload(ContactAvisEnquete.journaliste).selectinload(
                 User.organisation
             ),
+            selectinload(ContactAvisEnquete.journaliste).selectinload(User.profile),
+            selectinload(ContactAvisEnquete.journaliste).selectinload(User.roles),
         )
     )
     contacts = list(db.session.scalars(stmt))

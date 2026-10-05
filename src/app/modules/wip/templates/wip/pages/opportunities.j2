@@ -17,10 +17,26 @@
                 {% for contact in contacts %}
                     {% set organisation=contact.journaliste.organisation %}
                     <tr>
-                        <td><a href="{{ url_for(contact.journaliste) }}"
-                               class="underline">
-                            {{ contact.journaliste.name }}
-                        </a></td>
+                        <td>
+                            <div class="flex items-center space-x-3 min-w-0">
+                                <a href="{{ url_for(contact.journaliste) }}" class="h-10 w-10 flex-shrink-0 block">
+                                    {{ profile_image(contact.journaliste, size=10) }}
+                                </a>
+                                <div class="min-w-0">
+                                    <div class="font-medium text-gray-900 truncate">
+                                        <a href="{{ url_for(contact.journaliste) }}"
+                                           class="underline hover:no-underline">
+                                            {{ contact.journaliste.name }}
+                                        </a>
+                                    </div>
+                                    {% if contact.journaliste.fonction %}
+                                        <div class="text-xs text-gray-500 truncate" title="{{ contact.journaliste.fonction }}">
+                                            {{ contact.journaliste.fonction }}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </td>
                         <td>
                             {% if organisation %}
                                 <a href="{{ url_for(organisation) }}"

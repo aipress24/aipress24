@@ -152,6 +152,27 @@ class TestOpportunitiesListPage:
         # Should show the enquete title
         assert "Test Enquête" in html
 
+    def test_opportunities_page_shows_journalist_portrait_and_function(
+        self,
+        logged_in_client: FlaskClient,
+        test_user: User,
+        test_contact: ContactAvisEnquete,
+        db_session: Session,
+    ):
+        """Test opportunities avis tab displays journalist portrait and fonction."""
+        journalist = test_contact.journaliste
+        journalist.profile.match_making = {
+            "fonctions_journalisme": ["Rédacteur en chef"]
+        }
+        db_session.commit()
+
+        response = logged_in_client.get("/wip/opportunities?tab=avis")
+        assert response.status_code == 200
+        html = response.data.decode()
+        assert "Jane Journalist" in html
+        assert "Rédacteur en chef" in html
+        assert 'alt="profile image"' in html
+
     def test_opportunities_page_empty_when_no_contacts(
         self, logged_in_client: FlaskClient, test_user: User
     ):
