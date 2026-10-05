@@ -28,6 +28,7 @@ from app.modules.bw.bw_activation.models import (
     RoleAssignment,
 )
 from app.modules.bw.bw_activation.models.business_wall import BWStatus, BWType
+from app.modules.bw.bw_activation.models.role import EXTERNAL_ROLES
 from app.modules.bw.bw_activation.utils import DASHBOARD_ACCESS_ROLES
 
 # Loose dict shape used to carry KYC-shaped data from the view layer
@@ -409,11 +410,45 @@ def get_organisation_cover_image_url(org: Organisation) -> str:
 
 
 def get_business_wall_for_user(user: User) -> BusinessWall | None:
-    """Get the active BusinessWall for a user (via their organisation)."""
+    """Get the active BusinessWall for a user.
+
+    Checks added to fix bogus data when current organisation of the user
+    was not updated when joining a BW.
+
+    Checks:
+     - Active BW for user's organisation (if user.organisation is set).
+     - Active BW owned by the user.
+     - Active BW where the user has an accepted role assignment.
+    """
     org = user.organisation
-    if not org:
-        return None
-    return get_active_business_wall_for_organisation(org)
+    if org:
+        bw = get_active_business_wall_for_organisation(org)
+        if bw:
+            return bw
+
+    # Check if user is owner of an active BW
+    stmt_owner = (
+        select(BusinessWall)
+        .where(BusinessWall.owner_id == user.id)
+        .where(BusinessWall.status == BWStatus.ACTIVE.value)
+    )
+    bw_owner = db.session.execute(stmt_owner).scalars().first()
+    if bw_owner:
+        return bw_owner
+
+    # Check if user has an accepted role assignment on an active BW
+    stmt_role = (
+        select(BusinessWall)
+        .join(RoleAssignment, RoleAssignment.business_wall_id == BusinessWall.id)
+        .where(RoleAssignment.user_id == user.id)
+        .where(RoleAssignment.invitation_status == InvitationStatus.ACCEPTED.value)
+        .where(BusinessWall.status == BWStatus.ACTIVE.value)
+        .order_by(
+            RoleAssignment.role_type.in_(EXTERNAL_ROLES),
+            RoleAssignment.created_at.desc(),
+        )
+    )
+    return db.session.execute(stmt_role).scalars().first()
 
 
 def get_selected_business_wall_for_user(user: User) -> BusinessWall | None:
