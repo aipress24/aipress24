@@ -38,7 +38,7 @@ from app.settings.constants import MAX_IMAGE_SIZE
 
 if TYPE_CHECKING:
     from app.models.auth import User
-
+    from app.modules.bw.bw_activation.models import BusinessWall
 
 # --- Pure helpers (Pattern A) ---------------------------------------------
 #
@@ -130,10 +130,11 @@ def configure_content():
         return redirect(url_for("bw_activation.index"))
 
     user = cast("User", g.user)
-    business_wall = current_business_wall(user)
-    if not business_wall:
+    current_bw: BusinessWall | None = current_business_wall(user)
+    if current_bw is None:
         session["error"] = ERR_BW_NOT_FOUND
         return redirect(url_for("bw_activation.not_authorized"))
+    business_wall: BusinessWall = current_bw
     fill_session(business_wall)
     if not is_bw_manager_or_admin(user, business_wall):
         session["error"] = ERR_NOT_MANAGER
@@ -145,7 +146,7 @@ def configure_content():
     return _render_content_form(business_wall)
 
 
-def _handle_content_post(business_wall):
+def _handle_content_post(business_wall: BusinessWall):
     """Apply the submitted content form, then move on to the gallery.
 
     The mandatory fields are checked *first*. They used to be checked
@@ -177,7 +178,7 @@ def _handle_content_post(business_wall):
     return redirect(url_for("bw_activation.configure_gallery"))
 
 
-def _apply_name(business_wall, name: str) -> bool:
+def _apply_name(business_wall: BusinessWall, name: str) -> bool:
     """Set the BW name, keeping `org.bw_name` in step with it."""
     business_wall.name = name
     org = business_wall.get_organisation()
@@ -187,18 +188,20 @@ def _apply_name(business_wall, name: str) -> bool:
     return True
 
 
-def _apply_images(business_wall) -> bool:
+def _apply_images(business_wall: BusinessWall) -> bool:
     """Logo and bandeau, from either a file input or a data URL.
 
     One call each where the two were the same twenty-two lines twice,
     differing by the form field, the model attribute and two messages.
     """
-    logo = _store_bw_image(business_wall, "logo_image", "logo", "Logo")
+    logo = _store_bw_image(business_wall, "logo_image", "logo_image", "Logo")
     bandeau = _store_bw_image(business_wall, "cover_image", "bandeau_image", "Bandeau")
     return logo or bandeau
 
 
-def _store_bw_image(business_wall, attribute: str, field: str, label: str) -> bool:
+def _store_bw_image(
+    business_wall: BusinessWall, attribute: str, field: str, label: str
+) -> bool:
     """Save one uploaded image onto `business_wall.<attribute>`.
 
     Returns whether anything changed. The failure message shown to the
@@ -207,7 +210,7 @@ def _store_bw_image(business_wall, attribute: str, field: str, label: str) -> bo
     l'upload du logo: NoSuchBucket ».
     """
     result = extract_image_from_request(
-        file_storage=request.files.get(field),
+        file_storage=request.files.get(f"{field}_file") or request.files.get(field),
         data_url=request.form.get(field),
         orig_filename=request.form.get(f"{field}_filename") or None,
     )
@@ -227,7 +230,7 @@ def _store_bw_image(business_wall, attribute: str, field: str, label: str) -> bo
         )
         # Save the file to S3 storage (required before assigning to model)
         saved_file_obj = file_obj.save()
-    except OSError as e:
+    except (OSError, Exception) as e:
         warn(f"Error uploading {label.lower()}: {e}")
         flash(f"{label} : l'envoi de l'image a échoué.", "error")
         return False
@@ -239,7 +242,7 @@ def _store_bw_image(business_wall, attribute: str, field: str, label: str) -> bo
     return True
 
 
-def _apply_text_fields(business_wall, form) -> bool:
+def _apply_text_fields(business_wall: BusinessWall, form) -> bool:
     """Write every supplied `_TEXT_FIELDS` value. Blanks leave the row."""
     modified = False
     for field in _TEXT_FIELDS:
@@ -250,7 +253,7 @@ def _apply_text_fields(business_wall, form) -> bool:
     return modified
 
 
-def _apply_list_fields(business_wall, form) -> bool:
+def _apply_list_fields(business_wall: BusinessWall, form) -> bool:
     """Write every supplied multi-select."""
     modified = False
     for field in _LIST_FIELDS:
@@ -261,7 +264,7 @@ def _apply_list_fields(business_wall, form) -> bool:
     return modified
 
 
-def _apply_dual_fields(business_wall, form) -> bool:
+def _apply_dual_fields(business_wall: BusinessWall, form) -> bool:
     """Write each parent list together with its `_detail` companion."""
     modified = False
     for field in _DUAL_FIELDS:
@@ -274,7 +277,7 @@ def _apply_dual_fields(business_wall, form) -> bool:
     return modified
 
 
-def _apply_type_organisation(business_wall, form) -> bool:
+def _apply_type_organisation(business_wall: BusinessWall, form) -> bool:
     """A dual select whose parent arrives as a single value, not a list."""
     type_orga = form.get("type_organisation")
     if not type_orga:
@@ -286,7 +289,7 @@ def _apply_type_organisation(business_wall, form) -> bool:
     return True
 
 
-def _apply_presentation(business_wall, form) -> bool:
+def _apply_presentation(business_wall: BusinessWall, form) -> bool:
     """The one text field a user may legitimately clear."""
     presentation = form.get("presentation", "").strip()
     if presentation == business_wall.presentation:
@@ -295,7 +298,7 @@ def _apply_presentation(business_wall, form) -> bool:
     return True
 
 
-def _apply_location(business_wall, form) -> bool:
+def _apply_location(business_wall: BusinessWall, form) -> bool:
     """Country + postcode/city, with the derived columns refreshed."""
     pays_zip_ville = form.get("pays_zip_ville", "").strip()
     if not pays_zip_ville:
@@ -306,7 +309,7 @@ def _apply_location(business_wall, form) -> bool:
     return True
 
 
-def _apply_payer_identity(business_wall, form) -> bool:
+def _apply_payer_identity(business_wall: BusinessWall, form) -> bool:
     """Who pays: the BW owner, or a separately-named billing contact."""
     payer_is_owner = coerce_payer_is_owner(form.get("payer_is_owner"))
     modified = business_wall.payer_is_owner != payer_is_owner
@@ -320,7 +323,7 @@ def _apply_payer_identity(business_wall, form) -> bool:
     return modified
 
 
-def _render_content_form(business_wall):
+def _render_content_form(business_wall: BusinessWall):
     """The GET side: the ontologies every dropdown on the page needs."""
     bw_type = session["bw_type"]
 
