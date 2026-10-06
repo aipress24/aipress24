@@ -105,17 +105,24 @@ class TestEnumValues:
         assert member.value == expected
 
     @pytest.mark.parametrize(
-        ("member", "expected"),
+        ("member", "expected_value", "expected_label"),
         [
-            (StatutAvis.EN_ATTENTE, "en_attente"),
-            (StatutAvis.ACCEPTE, "accepte"),
-            (StatutAvis.ACCEPTE_RELATION_PRESSE, "accepte_relation_presse"),
-            (StatutAvis.REFUSE, "refuse"),
-            (StatutAvis.REFUSE_SUGGESTION, "refuse_suggestion"),
+            (StatutAvis.EN_ATTENTE, "en_attente", "En attente"),
+            (StatutAvis.ACCEPTE, "accepte", "Accepté"),
+            (
+                StatutAvis.ACCEPTE_RELATION_PRESSE,
+                "accepte_relation_presse",
+                "Accepté, relation presse",
+            ),
+            (StatutAvis.REFUSE, "refuse", "Refusé"),
+            (StatutAvis.REFUSE_SUGGESTION, "refuse_suggestion", "Refusé, suggestion"),
         ],
     )
-    def test_statut_avis_values(self, member: StatutAvis, expected: str) -> None:
-        assert member.value == expected
+    def test_statut_avis_values_and_labels(
+        self, member: StatutAvis, expected_value: str, expected_label: str
+    ) -> None:
+        assert member.value == expected_value
+        assert member.label == expected_label
 
     @pytest.mark.parametrize(
         ("member", "expected_value", "expected_label"),

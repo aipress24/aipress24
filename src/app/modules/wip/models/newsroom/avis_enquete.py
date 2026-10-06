@@ -37,6 +37,16 @@ class StatutAvis(StrEnum):
     REFUSE = auto()  # converted to "refuse"
     REFUSE_SUGGESTION = auto()  # converted to "refuse_suggestion"
 
+    @property
+    def label(self) -> str:
+        return {
+            StatutAvis.EN_ATTENTE: "En attente",
+            StatutAvis.ACCEPTE: "Accepté",
+            StatutAvis.ACCEPTE_RELATION_PRESSE: "Accepté, relation presse",
+            StatutAvis.REFUSE: "Refusé",
+            StatutAvis.REFUSE_SUGGESTION: "Refusé, suggestion",
+        }.get(self, str(self.value))
+
 
 class RDVType(StrEnum):
     """Type de rendez-vous."""

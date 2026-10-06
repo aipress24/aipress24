@@ -440,6 +440,36 @@ class TestJournalistAvisEnqueteViews:
         # Check response contains expert email
         assert b"expert@example.com" in response.data or b"expert" in response.data
 
+    def test_reponses_page_displays_accepted_with_pr_status(
+        self,
+        logged_in_client: FlaskClient,
+        test_avis_enquete: AvisEnquete,
+        fresh_db,
+        test_user: User,
+        expert_user: User,
+    ):
+        """Ticket #0075 / debug : a contact with ACCEPTE_RELATION_PRESSE
+        must display 'Accepté, relation presse' and the press officer email,
+        not fallback to 'En attente'."""
+        db_session = fresh_db.session
+        contact = ContactAvisEnquete(
+            avis_enquete_id=test_avis_enquete.id,
+            journaliste_id=test_user.id,
+            expert_id=expert_user.id,
+            status=StatutAvis.ACCEPTE_RELATION_PRESSE,
+            date_reponse=datetime.now(UTC),
+            email_relation_presse="pr-officer@example.com",
+        )
+        db_session.add(contact)
+        db_session.commit()
+
+        url = url_for("AvisEnqueteWipView:reponses", id=test_avis_enquete.id)
+        response = logged_in_client.get(url)
+        assert response.status_code == 200
+        html = response.data.decode()
+        assert "Accepté, relation presse" in html
+        assert "pr-officer@example.com" in html
+
     def test_propose_rdv_form_loads(
         self,
         logged_in_client: FlaskClient,
