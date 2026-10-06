@@ -209,11 +209,15 @@ class TestRemoveOrganisationRoles:
         organisation: Organisation,
     ):
         """Removing user from organisation removes internal BW role assignments."""
+        # Owned by someone else: a BW owner cannot be removed from the org.
+        owner = User(email="bw-owner@example.com", active=True)
+        db_session.add(owner)
+        db_session.flush()
         bw = BusinessWall(
             bw_type="leaders_experts",
             status=BWStatus.ACTIVE.value,
-            owner_id=user_with_org.id + 999,
-            payer_id=user_with_org.id + 999,
+            owner_id=owner.id,
+            payer_id=owner.id,
             organisation_id=organisation.id,
         )
         db_session.add(bw)
