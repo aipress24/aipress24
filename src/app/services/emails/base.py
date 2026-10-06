@@ -112,7 +112,9 @@ class EmailTemplate:
                 f"Mail success: {self.__class__.__name__} {self.logged_informations}"
             )
             return True
-        except SMTPException as e:
-            msg = f"Mail error: (SMTP error {e}), {self.logged_informations}"
+        except (SMTPException, OSError) as e:
+            msg = (
+                f"Mail error: ({e.__class__.__name__}: {e}), {self.logged_informations}"
+            )
             logger.error(msg)
             return False

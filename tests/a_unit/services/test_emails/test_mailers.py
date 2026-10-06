@@ -4,6 +4,7 @@
 #
 from __future__ import annotations
 
+from smtplib import SMTPException
 from unittest.mock import patch
 
 from app.services.emails.mailers import (
@@ -327,3 +328,50 @@ def test_share_content_mail():
         assert "Some news" in kwargs["body"]
         assert "https://aipress24.com/wire/123" in kwargs["body"]
         assert "sharer@example.com" in kwargs["body"]
+
+
+def test_email_template_send_catches_oserror():
+    with patch("app.services.emails.base.EmailMessage") as mock_email_message:
+        mock_instance = mock_email_message.return_value
+        mock_instance.send.side_effect = ConnectionRefusedError(
+            "[Errno 61] Connection refused"
+        )
+
+        mail = BWInvitationMail(
+            sender="contact@aipress24.com",
+            recipient="test@example.com",
+            sender_mail="sender@example.com",
+            sender_full_name="John Doe",
+            bw_name="Test BW",
+        )
+        assert mail.send() is False
+
+
+def test_email_template_send_catches_timeout_error():
+    with patch("app.services.emails.base.EmailMessage") as mock_email_message:
+        mock_instance = mock_email_message.return_value
+        mock_instance.send.side_effect = TimeoutError("Connection timed out")
+
+        mail = BWInvitationMail(
+            sender="contact@aipress24.com",
+            recipient="test@example.com",
+            sender_mail="sender@example.com",
+            sender_full_name="John Doe",
+            bw_name="Test BW",
+        )
+        assert mail.send() is False
+
+
+def test_email_template_send_catches_smtp_exception():
+    with patch("app.services.emails.base.EmailMessage") as mock_email_message:
+        mock_instance = mock_email_message.return_value
+        mock_instance.send.side_effect = SMTPException("SMTP server disconnected")
+
+        mail = BWInvitationMail(
+            sender="contact@aipress24.com",
+            recipient="test@example.com",
+            sender_mail="sender@example.com",
+            sender_full_name="John Doe",
+            bw_name="Test BW",
+        )
+        assert mail.send() is False
