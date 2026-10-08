@@ -586,20 +586,20 @@ def media_opportunity(id: int):
 def send_avis_enquete_acceptance_email(
     contact: ContactAvisEnquete,
     response: str,
-) -> None:
-    """
-    Send notification emails to journalist about an Avis d'Enquête
+) -> bool:
+    """Send notification emails to journalist about an Avis d'Enquête
     acceptance of the contacted expert.
 
     Args:
-        contact: ContactAvisEnquete
-        expert: User responding
-        response: either "oui", "oui_relation_presse", "non", "non-mais"
-        notes: response notes of the expert
+        contact: Contact responding to the avis.
+        response: either "oui", "oui_relation_presse", "non", "non-mais".
+
+    Returns:
+        True if the email was sent successfully, False otherwise.
     """
     expert = cast(User, current_user)
     if expert.is_anonymous:
-        return
+        return False
     sender_mail = expert.email
     sender_full_name = expert.full_name
 
@@ -618,7 +618,7 @@ def send_avis_enquete_acceptance_email(
         response=response,
         notes=notes,
     )
-    notification_mail.send()
+    return bool(notification_mail.send())
 
 
 def _redirect_opportunity_response(target_url: str) -> Response:
@@ -753,9 +753,13 @@ def media_opportunity_post(id: int) -> str | Response:
             contact.status = StatutAvis.REFUSE_SUGGESTION  # type: ignore[assignment]
             contact.rdv_notes_expert = f"Suggéré: {colleague_user.full_name}"
 
-        send_avis_enquete_acceptance_email(contact, reponse)
-
         repo.session.commit()
+
+        mail_sent = send_avis_enquete_acceptance_email(contact, reponse)
+        if not mail_sent:
+            warn(
+                f"Notification email for contact {contact.id} (reponse={reponse!r}) was not sent"
+            )
 
     return _redirect_opportunity_response(url_for("wip.opportunities"))
 

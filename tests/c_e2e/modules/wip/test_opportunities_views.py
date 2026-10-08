@@ -42,6 +42,7 @@ from app.modules.wip.models.newsroom.avis_enquete import (
 from app.modules.wip.services.newsroom.justificatif_notification import (
     notify_avis_participants_of_justificatif,
 )
+from app.modules.wip.views import opportunities as opp_module
 from app.modules.wip.views.opportunities import MediaOpportunity
 from app.modules.wire.models import (
     ArticlePost,
@@ -403,6 +404,34 @@ class TestOpportunityResponse:
 
         db_session.refresh(test_contact)
         assert test_contact.status == StatutAvis.ACCEPTE_RELATION_PRESSE
+
+    def test_accept_persists_even_when_email_fails(
+        self,
+        logged_in_client: FlaskClient,
+        test_contact: ContactAvisEnquete,
+        active_bw,
+        db_session: Session,
+        monkeypatch: pytest.MonkeyPatch,
+    ):
+        """Order of operations check : commit must happen before sending
+        acceptance email. Even if the email fails, the response is committed."""
+        monkeypatch.setattr(
+            opp_module,
+            "send_avis_enquete_acceptance_email",
+            lambda *args, **kwargs: False,
+        )
+
+        response = logged_in_client.post(
+            f"/wip/opportunities/{test_contact.id}",
+            data={
+                "reponse1": "oui_relation_presse",
+                "contribution": "Contact my PR team",
+            },
+        )
+        assert response.status_code == 302
+        db_session.refresh(test_contact)
+        assert test_contact.status == StatutAvis.ACCEPTE_RELATION_PRESSE
+        assert test_contact.rdv_notes_expert == "Contact my PR team"
 
     def test_accept_with_press_relation_picks_user_chosen_email(
         self,
