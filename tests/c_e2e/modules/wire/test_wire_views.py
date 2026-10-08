@@ -345,6 +345,33 @@ class TestWireContentShare:
         assert "Partager cette publication" in html
         assert post.title in html
 
+    def test_share_submit_persists_share_count_before_email(
+        self,
+        authenticated_client: FlaskClient,
+        db_session: Session,
+        test_articles: list[ArticlePost],
+    ):
+        """Order of operations check : share_count must be incremented and committed
+        before sending emails. Even if email dispatch fails, share_count is committed."""
+        post = test_articles[0]
+        initial_count = post.share_count
+        emails = ["share1@example.com", "share2@example.com"]
+
+        with patch(
+            "app.modules.wire.views.item.ShareContentMail.send",
+            side_effect=Exception("SMTP down"),
+        ):
+            response = authenticated_client.post(
+                f"/wire/{post.id}/share",
+                data={"recipient_emails": "share1@example.com\nshare2@example.com"},
+            )
+
+        assert response.status_code == 200
+        db_session.expire_all()
+        refreshed = db_session.get(ArticlePost, post.id)
+        assert refreshed is not None
+        assert refreshed.share_count == initial_count + len(emails)
+
     def test_post_share_count_column(
         self,
         authenticated_client: FlaskClient,

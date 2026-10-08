@@ -27,6 +27,7 @@ from werkzeug.wrappers import Response as WerkzeugResponse
 from app.flask.lib.htmx import extract_fragment
 from app.flask.lib.templates import templated
 from app.flask.routing import url_for
+from app.logging import report_failure
 from app.models.lifecycle import PublicationStatus
 from app.modules.wip.models import (
     AvisEnquete,
@@ -348,11 +349,11 @@ class AvisEnqueteWipView(BaseWipView):
                     )
                     urls = self._build_opportunities_urls(contacts)
                     avis_service.notify_experts(model, new_experts, urls)
+                    avis_service.record_notifications(new_experts, model)
+                    avis_service.commit()
                     avis_service.send_avis_enquete_emails(
                         model, new_experts, urls, sender
                     )
-                    avis_service.record_notifications(new_experts, model)
-                    avis_service.commit()
                     if nb_new_experts > 1:
                         msg = f"Avis d'enquête envoyé aux {len(new_experts)} contacts sélectionnés"
                     else:
@@ -550,8 +551,11 @@ class AvisEnqueteWipView(BaseWipView):
 
         try:
             contact.confirm_rdv()
-            service.send_rdv_confirmed_email(contact)
             service.commit()
+            try:
+                service.send_rdv_confirmed_email(contact)
+            except Exception as exc:
+                report_failure(f"rdv_confirm: email failed (contact {contact.id})", exc)
             flash("Le RDV a été confirmé", "success")
         except ValueError as e:
             flash(str(e), "error")
@@ -581,17 +585,20 @@ class AvisEnqueteWipView(BaseWipView):
             return self._htmx_redirect("rdv_details", id=id, contact_id=contact.id)
 
         try:
-            # Send email *before* cancelling : `cancel_rdv` resets
-            # `date_rdv` to None, and the email functions early-out
-            # when `date_rdv is None` (the cancellation notice
-            # quotes the cancelled date) — so swapping these would
-            # silently skip the email.
-            if user_is_journalist:
-                service.send_rdv_cancelled_by_journalist_email(contact)
-            else:
-                service.send_rdv_cancelled_by_expert_email(contact)
+            date_rdv = contact.date_rdv
             service.cancel_rdv(contact.id)
             service.commit()
+            try:
+                if user_is_journalist:
+                    service.send_rdv_cancelled_by_journalist_email(
+                        contact, date_rdv=date_rdv
+                    )
+                else:
+                    service.send_rdv_cancelled_by_expert_email(
+                        contact, date_rdv=date_rdv
+                    )
+            except Exception as exc:
+                report_failure(f"rdv_cancel: email failed (contact {contact.id})", exc)
             flash("Le RDV a été annulé", "success")
         except ValueError as e:
             flash(str(e), "error")

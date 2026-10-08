@@ -594,10 +594,10 @@ def share_submit(post_id: str) -> Response:
 
     post = get_public_obj(post_id, Post)
 
-    _send_shared_content_mail(post, user, emails)
-
     post.share_count += len(emails)
     db.session.commit()
+
+    _send_shared_content_mail(post, user, emails)
 
     inner_html = (
         f'<span id="shares-{post.id}" class="font-medium text-gray-900" '

@@ -12,6 +12,7 @@ from __future__ import annotations
 
 from datetime import UTC, datetime, timedelta
 from typing import TYPE_CHECKING
+from unittest.mock import patch
 
 import arrow
 import pytest
@@ -577,6 +578,31 @@ class TestRdvStatusTransitions:
 
         assert response.status_code == 302
 
+        fresh_db.session.refresh(contact_with_rdv_confirmed)
+        assert contact_with_rdv_confirmed.rdv_status == RDVStatus.NO_RDV
+
+    def test_cancel_persists_even_when_email_fails(
+        self,
+        fresh_db,
+        logged_in_client: FlaskClient,
+        test_avis_enquete: AvisEnquete,
+        contact_with_rdv_confirmed: ContactAvisEnquete,
+    ):
+        """Order of operations check : commit must happen before sending
+        cancellation email. Even if email fails, cancellation is committed."""
+        url = url_for(
+            "AvisEnqueteWipView:rdv_cancel",
+            id=test_avis_enquete.id,
+            contact_id=contact_with_rdv_confirmed.id,
+        )
+
+        with patch(
+            "app.modules.wip.services.newsroom.avis_enquete_service.AvisEnqueteService.send_rdv_cancelled_by_journalist_email",
+            side_effect=Exception("SMTP error"),
+        ):
+            response = logged_in_client.post(url, follow_redirects=False)
+
+        assert response.status_code == 302
         fresh_db.session.refresh(contact_with_rdv_confirmed)
         assert contact_with_rdv_confirmed.rdv_status == RDVStatus.NO_RDV
 

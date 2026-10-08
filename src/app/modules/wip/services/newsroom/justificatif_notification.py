@@ -188,6 +188,7 @@ def notify_avis_participants_of_justificatif(
 
     media_name = _journalist_media_name(journalist)
     notified = 0
+    recipients_to_email: list[User] = []
     for user_id in filtered_ids:
         recipient = db.session.get(User, user_id)
         if recipient is None:
@@ -215,21 +216,7 @@ def notify_avis_participants_of_justificatif(
         )
 
         if recipient.email:
-            try:
-                _send_email(
-                    recipient=recipient,
-                    article=article,
-                    avis_enquete=avis_enquete,
-                    journalist=journalist,
-                    media_name=media_name,
-                    article_url=article_url,
-                )
-            except Exception as exc:
-                report_failure(
-                    f"justificatif_invitation: email failed "
-                    f"(article {article.id}, user {user_id})",
-                    exc,
-                )
+            recipients_to_email.append(recipient)
 
         notified += 1
 
@@ -242,6 +229,23 @@ def notify_avis_participants_of_justificatif(
             avis_enquete.justificatif_notifications_count, notified
         )
         db.session.flush()
+
+    for recipient in recipients_to_email:
+        try:
+            _send_email(
+                recipient=recipient,
+                article=article,
+                avis_enquete=avis_enquete,
+                journalist=journalist,
+                media_name=media_name,
+                article_url=article_url,
+            )
+        except Exception as exc:
+            report_failure(
+                f"justificatif_invitation: email failed "
+                f"(article {article.id}, user {recipient.id})",
+                exc,
+            )
 
     return notified
 

@@ -381,6 +381,7 @@ class CommandesWipView(BaseWipView):
                 sujet_title=sujet.titre,
                 commande_url=commande_url,
             )
+            db.session.commit()
             if author.email:
                 try:
                     accepter_org = getattr(g.user, "organisation", None)
@@ -405,7 +406,6 @@ class CommandesWipView(BaseWipView):
                     report_failure(
                         f"sujet acceptance mail failed (sujet {sujet.id})", exc
                     )
-            db.session.commit()
 
         flash("Sujet accepté : la commande a été créée et l'auteur notifié.")
         return redirect(self._url_for("index"))

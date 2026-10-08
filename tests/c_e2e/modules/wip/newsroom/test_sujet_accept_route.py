@@ -833,6 +833,39 @@ class TestSujetAcceptSendsMailToAuthor:
         assert mail.sujet_title == "Topic title"
         assert "/wip/commandes" in mail.commande_url
 
+    def test_acceptance_persists_even_when_email_fails(
+        self,
+        app: Flask,
+        db_session: Session,
+        test_org: Organisation,
+        author: User,
+        redac_chef: User,
+    ) -> None:
+        """Order of operations check : DB commit must precede sending email.
+        Even if the SMTP transport fails, the created commande is persisted."""
+        sujet = _make_sujet(
+            db_session,
+            owner_id=author.id,
+            media_id=test_org.id,
+            status=PublicationStatus.PUBLIC,
+        )
+        client = make_authenticated_client(app, redac_chef)
+        with patch(
+            "app.services.emails.SujetAcceptanceNotificationMail.send",
+            side_effect=Exception("SMTP failure"),
+        ):
+            response = _submit_commande_from_sujet(client, sujet, test_org, author)
+
+        assert response.status_code in (302, 303)
+        created_commande = (
+            db_session.query(Commande)
+            .filter_by(media_id=test_org.id, titre=sujet.titre)
+            .first()
+        )
+        assert created_commande is not None
+        db_session.refresh(sujet)
+        assert sujet.status == PublicationStatus.ACCEPTED
+
 
 class TestTerminalSujetCannotBeEdited:
     """When a sujet is in a terminal status (ARCHIVED, ACCEPTED, REJECTED),

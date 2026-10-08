@@ -317,9 +317,8 @@ class AvisEnqueteService:
             rdv_address=data.rdv_address,
             rdv_notes=data.rdv_notes,
         )
-        self._db_session.flush()
-
         self.notify_rdv_proposed(contact, notification_url)
+        self._db_session.flush()
         self.send_rdv_proposed_email(contact)
 
         return contact
@@ -343,9 +342,8 @@ class AvisEnqueteService:
             selected_slot=data.selected_slot,
             expert_notes=data.expert_notes,
         )
-        self._db_session.flush()
-
         self.notify_rdv_accepted(contact, notification_url)
+        self._db_session.flush()
         self.send_rdv_accepted_email(contact)
 
         return contact
@@ -364,9 +362,8 @@ class AvisEnqueteService:
         contact = self._get_contact_or_raise(contact_id)
 
         contact.refuse_rdv()
-        self._db_session.flush()
-
         self.notify_rdv_refused(contact, notification_url)
+        self._db_session.flush()
         self.send_rdv_refused_email(contact)
 
         return contact
@@ -440,12 +437,14 @@ class AvisEnqueteService:
     def send_rdv_cancelled_by_journalist_email(
         self,
         contact: ContactAvisEnquete,
+        date_rdv: datetime | None = None,
     ) -> None:
         """
         Send notification email to expert of RDV cancellation by journalist.
 
         Args:
             contact: the ContactAvisEnquete containing RDV informations.
+            date_rdv: optional datetime of the cancelled RDV (if already reset on contact).
         """
         journaliste = contact.journaliste
         if journaliste.is_anonymous:
@@ -456,10 +455,11 @@ class AvisEnqueteService:
 
         recipient = contact.expert.email
         title = contact.avis_enquete.titre
-        if contact.date_rdv is None:
+        target_date = date_rdv if date_rdv is not None else contact.date_rdv
+        if target_date is None:
             # Should never happen
             return
-        date_rdv = _format_rdv_datetime(contact.date_rdv)
+        date_rdv_str = _format_rdv_datetime(target_date)
 
         notification_mail = ContactAvisEnqueteRDVCancelledJournalistMail(
             sender="contact@aipress24.com",
@@ -468,19 +468,21 @@ class AvisEnqueteService:
             sender_full_name=sender_full_name,
             sender_job=sender_job,
             title=title,
-            date_rdv=date_rdv,
+            date_rdv=date_rdv_str,
         )
         notification_mail.send()
 
     def send_rdv_cancelled_by_expert_email(
         self,
         contact: ContactAvisEnquete,
+        date_rdv: datetime | None = None,
     ) -> None:
         """
         Send notification email to journalist of RDV cancellation by expert.
 
         Args:
             contact: the ContactAvisEnquete containing RDV informations.
+            date_rdv: optional datetime of the cancelled RDV (if already reset on contact).
         """
         expert = contact.expert
         if expert.is_anonymous:
@@ -490,10 +492,11 @@ class AvisEnqueteService:
 
         recipient = contact.journaliste.email
         title = contact.avis_enquete.titre
-        if contact.date_rdv is None:
+        target_date = date_rdv if date_rdv is not None else contact.date_rdv
+        if target_date is None:
             # Should never happen
             return
-        date_rdv = _format_rdv_datetime(contact.date_rdv)
+        date_rdv_str = _format_rdv_datetime(target_date)
 
         notification_mail = ContactAvisEnqueteRDVCancelledExpertMail(
             sender="contact@aipress24.com",
@@ -501,7 +504,7 @@ class AvisEnqueteService:
             sender_mail=sender_mail,
             sender_full_name=sender_full_name,
             title=title,
-            date_rdv=date_rdv,
+            date_rdv=date_rdv_str,
         )
         notification_mail.send()
 
