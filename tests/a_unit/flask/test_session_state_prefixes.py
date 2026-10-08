@@ -17,7 +17,13 @@ from __future__ import annotations
 import re
 from pathlib import Path
 
-from app.flask.hooks import _PER_USER_SESSION_KEY_PREFIXES
+from flask import session
+
+from app.flask.hooks import (
+    _PER_USER_SESSION_EXACT_KEYS,
+    _PER_USER_SESSION_KEY_PREFIXES,
+    _clear_per_user_session_state,
+)
 
 SRC = Path(__file__).resolve().parents[3] / "src" / "app"
 
@@ -39,6 +45,34 @@ def _prefixes_used_in_source() -> set[str]:
 
 def test_newsroom_state_is_cleared_at_login():
     assert "newsroom:" in _PER_USER_SESSION_KEY_PREFIXES
+
+
+def test_bw_state_is_cleared_at_login():
+    assert "bw:" in _PER_USER_SESSION_KEY_PREFIXES
+    assert "bw_" in _PER_USER_SESSION_KEY_PREFIXES
+    assert "suggested_bw_type" in _PER_USER_SESSION_EXACT_KEYS
+    assert "contacts_confirmed" in _PER_USER_SESSION_EXACT_KEYS
+
+
+def test_clear_per_user_session_state_drops_bw_and_module_keys(app):
+    with app.test_request_context():
+        session["bw_id"] = "11111111-1111-1111-1111-111111111111"
+        session["bw_type"] = "pr"
+        session["bw_activated"] = True
+        session["suggested_bw_type"] = "media"
+        session["events:state"] = "filtered"
+        session["wire:tab"] = "my_tab"
+        session["unrelated_system_key"] = "keep_me"
+
+        _clear_per_user_session_state(app)
+
+        assert "bw_id" not in session
+        assert "bw_type" not in session
+        assert "bw_activated" not in session
+        assert "suggested_bw_type" not in session
+        assert "events:state" not in session
+        assert "wire:tab" not in session
+        assert session.get("unrelated_system_key") == "keep_me"
 
 
 def test_every_module_prefix_that_stores_state_is_cleared():

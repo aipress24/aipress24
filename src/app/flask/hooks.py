@@ -21,7 +21,7 @@ from flask import (
 from flask.typing import ResponseReturnValue
 from flask_login import current_user
 from flask_security.core import AnonymousUser
-from flask_security.signals import user_authenticated
+from flask_security.signals import user_authenticated, user_unauthenticated
 from svcs.flask import container
 from werkzeug import Response
 from werkzeug.exceptions import (
@@ -61,7 +61,22 @@ _PER_USER_SESSION_KEY_PREFIXES: tuple[str, ...] = (
     # on someone else's criteria shows them nobody, with no visible
     # cause. Same defect as #0118, one module later.
     "newsroom:",
+    "bw:",
+    "bw_",
 )
+
+# Other kys from the Business Wall without the `bw_` bound to user session
+_PER_USER_SESSION_EXACT_KEYS: set[str] = {
+    "suggested_bw_type",
+    "contacts_confirmed",
+    "pricing_value",
+    "cgv_accepted",
+    "subscription_change_success",
+    "missions",
+    "error",
+    "error_action_label",
+    "error_action_url",
+}
 
 
 def register_hooks(app: Flask) -> None:
@@ -74,22 +89,27 @@ def register_hooks(app: Flask) -> None:
     app.errorhandler(NotFound)(handle_not_found_error)
     app.errorhandler(InternalServerError)(handle_internal_error)
     user_authenticated.connect(_clear_per_user_session_state, app)
+    user_unauthenticated.connect(_clear_per_user_session_state, app)
 
     # app.after_request(dump_session)
     # template_rendered.connect_via(app)(log_template_info)
 
 
 def _clear_per_user_session_state(_sender, **_kwargs) -> None:
-    """Drop all `<module>:<key>` session entries on login.
+    """Drop all `<module>:<key>` and Business Wall session entries
+    on login and logout.
 
     Flask-Security keeps the same browser session cookie when one
     user logs out and another logs in (only the auth identifiers
     are rotated). Without this hook, UI state stored under module
-    prefixes (e.g. `events:state`, `wire:tab`) would leak between
-    users sharing a browser.
+    prefixes (e.g. `events:state`, `wire:tab`) and BW state would
+    leak between users sharing a browser.
     """
     for key in list(session.keys()):
-        if key.startswith(_PER_USER_SESSION_KEY_PREFIXES):
+        if (
+            key.startswith(_PER_USER_SESSION_KEY_PREFIXES)
+            or key in _PER_USER_SESSION_EXACT_KEYS
+        ):
             session.pop(key, None)
 
 
