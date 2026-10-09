@@ -36,6 +36,7 @@ class StatutAvis(StrEnum):
     ACCEPTE_RELATION_PRESSE = auto()  # converted to "accepte_relation_presse"
     REFUSE = auto()  # converted to "refuse"
     REFUSE_SUGGESTION = auto()  # converted to "refuse_suggestion"
+    DECLINE = auto()  # converted to "decline" (proposition refusée par le journaliste)
 
     @property
     def label(self) -> str:
@@ -45,6 +46,7 @@ class StatutAvis(StrEnum):
             StatutAvis.ACCEPTE_RELATION_PRESSE: "Accepté, relation presse",
             StatutAvis.REFUSE: "Refusé",
             StatutAvis.REFUSE_SUGGESTION: "Refusé, suggestion",
+            StatutAvis.DECLINE: "Proposition refusée",
         }.get(self, str(self.value))
 
 
@@ -454,8 +456,22 @@ class ContactAvisEnquete(IdMixin, Base):
             and self.rdv_status == RDVStatus.NO_RDV
         )
 
+    def can_decline_proposition(self) -> bool:
+        """Check if the journalist can decline this contact's proposition."""
+        return self.can_propose_rdv()
+
+    def decline_proposition(self) -> None:
+        """Decline expert's proposition (by journalist)."""
+        if not self.can_decline_proposition():
+            msg = "Cannot decline proposition: contact has not accepted or already has a RDV"
+            raise ValueError(msg)
+        self.status = StatutAvis.DECLINE  # type: ignore[assignment]
+
     def get_rdv_summary(self) -> str:
         """Get human-readable RDV summary for display."""
+        if self.status == StatutAvis.DECLINE:
+            return "Proposition refusée"
+
         if not self.has_rdv:
             return "Pas de rendez-vous"
 
