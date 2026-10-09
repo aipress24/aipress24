@@ -1,12 +1,12 @@
 <div x-data="validImageCropper({
-    maxImageSize: {{ field.max_image_size }},
-    preloadedImageUrl: '{{ field.get_image_url() or "" }}',
-    preloadFilesize: {{ field.preload_filesize }},
-    aspectRatio: {{ field.aspect_ratio if field.aspect_ratio else 'null' }},
-    autoCropArea: {{ field.auto_crop_area }},
-    maxOutputWidth: {{ field.max_output_width }},
-    maxOutputHeight: {{ field.max_output_height }}
-})">
+             maxImageSize: {{ field.max_image_size }},
+             preloadedImageUrl: '{{ field.get_image_url() or "" }}',
+             preloadFilesize: {{ field.preload_filesize }},
+             aspectRatio: {{ field.aspect_ratio if field.aspect_ratio else 'null' }},
+             autoCropArea: {{ field.auto_crop_area }},
+             maxOutputWidth: {{ field.max_output_width }},
+             maxOutputHeight: {{ field.max_output_height }}
+             })">
     <template x-if="imagePreloaded && !imgsrc && !imageValidated">
         <div>
             <p class="my-0 mx-0 text-gray-900 text-sm">Image actuelle&nbsp;:</p>
@@ -79,114 +79,130 @@
 </div>
 
 <script>
-if (typeof validImageCropper === 'undefined') {
-    window.validImageCropper = function(config) {
-        return {
-            imagePreloaded: config.preloadFilesize > 0,
-            preloaded_image_url: config.preloadedImageUrl,
-            imgsrc: null,
-            cropper: null,
-            imageError: '',
-            image: {
-                size: null,
-                dimension: null,
-            },
-            imageValidated: false,
-            validatedImageUrl: null,
-            cropperConfig: config,
+    if (typeof validImageCropper === 'undefined') {
+        window.validImageCropper = function(config) {
+            return {
+                imagePreloaded: config.preloadFilesize > 0,
+                preloaded_image_url: config.preloadedImageUrl,
+                imgsrc: null,
+                cropper: null,
+                imageError: '',
+                fileMimeType: '',
+                originalFilename: '',
+                image: {
+                    size: null,
+                    dimension: null,
+                },
+                imageValidated: false,
+                validatedImageUrl: null,
+                cropperConfig: config,
 
-            fileChosen(event) {
-                this.imageError = '';
-                this.imgsrc = null;
-                this.imageValidated = false;
-                if (this.cropper) {
-                    this.cropper.destroy();
-                    this.cropper = null;
-                }
-
-                const file = event.target.files[0];
-                if (!file) return;
-                if (file.type.indexOf('image/') !== 0) {
-                    this.imageError = 'Le fichier doit être une image.';
-                    return;
-                }
-
-                this.image.size = Math.floor(file.size / 1024);
-                if (this.image.size > config.maxImageSize) {
-                    this.imageError = `L'image est trop grande (${this.image.size}KB, max ${config.maxImageSize}KB)`;
-                    return;
-                }
-
-                const reader = new FileReader();
-                reader.onload = (e) => {
-                    this.imgsrc = e.target.result;
-                };
-                reader.readAsDataURL(file);
-            },
-
-            initCropper() {
-                this.$nextTick(() => {
-                    if (this.cropper) this.cropper.destroy();
-                    const image = this.$refs.cropperImage;
-
-                    const cropperOptions = {
-                        viewMode: 2,
-                        autoCropArea: config.autoCropArea,
-                        responsive: true,
-                        background: true,
-                        ready: () => {
-                            this.imageValidated = false;
-                            this.$refs.croppedData.value = '';
-                        },
-                        cropend: () => {
-                            this.imageValidated = false;
-                        }
-                    };
-
-                    if (config.aspectRatio !== null) {
-                        cropperOptions.aspectRatio = config.aspectRatio;
+                fileChosen(event) {
+                    this.imageError = '';
+                    this.imgsrc = null;
+                    this.imageValidated = false;
+                    if (this.cropper) {
+                        this.cropper.destroy();
+                        this.cropper = null;
                     }
 
-                    this.cropper = new Cropper(image, cropperOptions);
+                    const file = event.target.files[0];
+                    if (!file) return;
+                    if (file.type.indexOf('image/') !== 0) {
+                        this.imageError = 'Le fichier doit être une image.';
+                        return;
+                    }
+
+                    this.fileMimeType = file.type || '';
+                    this.originalFilename = file.name || '';
+                    this.image.size = Math.floor(file.size / 1024);
+                    if (this.image.size > config.maxImageSize) {
+                        this.imageError = `L'image est trop grande (${this.image.size}KB, max ${config.maxImageSize}KB)`;
+                        return;
+                    }
+
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        this.imgsrc = e.target.result;
+                    };
+                    reader.readAsDataURL(file);
+                },
+
+                initCropper() {
+                    this.$nextTick(() => {
+                        if (this.cropper) this.cropper.destroy();
+                        const image = this.$refs.cropperImage;
+
+                        const cropperOptions = {
+                            viewMode: 2,
+                            autoCropArea: config.autoCropArea,
+                            responsive: true,
+                            background: true,
+                            ready: () => {
+                                this.imageValidated = false;
+                                this.$refs.croppedData.value = '';
+                            },
+                            cropend: () => {
+                                this.imageValidated = false;
+                            }
+                        };
+
+                        if (config.aspectRatio !== null) {
+                            cropperOptions.aspectRatio = config.aspectRatio;
+                        }
+
+                        this.cropper = new Cropper(image, cropperOptions);
 
                     // Also update when image is loaded/dimensions ready
-                    const img = new Image();
-                    img.onload = () => {
-                        this.image.dimension = `(${img.width}x${img.height})`;
-                    };
-                    img.src = this.imgsrc;
-                });
-            },
+                        const img = new Image();
+                        img.onload = () => {
+                            this.image.dimension = `(${img.width}x${img.height})`;
+                        };
+                        img.src = this.imgsrc;
+                    });
+                },
 
-            validateCrop() {
-                if (!this.cropper) return;
-                const canvas = this.cropper.getCroppedCanvas({
-                    maxWidth: config.maxOutputWidth,
-                    maxHeight: config.maxOutputHeight,
-                });
-                if (canvas) {
-                    this.validatedImageUrl = canvas.toDataURL('image/jpeg', 0.9);
-                    this.$refs.croppedData.value = this.validatedImageUrl;
-                    this.imageValidated = true;
+                validateCrop() {
+                    if (!this.cropper) return;
+                    const getUrl = window.getCroppedDataURL || function(cr, opts, f) {
+                        const isPng = f && (f === 'image/png' || (typeof f === 'string' && f.toLowerCase().endsWith('.png')) || (f.name && f.name.toLowerCase().endsWith('.png')));
+                        const cv = cr.getCroppedCanvas(Object.assign({
+                            fillColor: isPng ? 'transparent' : '#ffffff',
+                            imageSmoothingEnabled: true,
+                            imageSmoothingQuality: 'high',
+                        }, opts));
+                        return cv ? (isPng ? cv.toDataURL('image/png') : cv.toDataURL('image/jpeg', 0.9)) : null;
+                    };
+                    const dataUrl = getUrl(this.cropper, {
+                        maxWidth: config.maxOutputWidth,
+                        maxHeight: config.maxOutputHeight,
+                    }, this.fileMimeType || this.originalFilename);
+
+                    if (dataUrl) {
+                        this.validatedImageUrl = dataUrl;
+                        this.$refs.croppedData.value = this.validatedImageUrl;
+                        this.imageValidated = true;
+                        if (this.cropper) {
+                            this.cropper.destroy();
+                            this.cropper = null;
+                        }
+                    }
+                },
+
+                resetImage() {
+                    this.imgsrc = null;
+                    this.fileMimeType = '';
+                    this.originalFilename = '';
+                    this.imageValidated = false;
+                    this.validatedImageUrl = null;
+                    this.$refs.croppedData.value = '';
+                    this.$refs.myFile.value = '';
                     if (this.cropper) {
                         this.cropper.destroy();
                         this.cropper = null;
                     }
                 }
-            },
-
-            resetImage() {
-                this.imgsrc = null;
-                this.imageValidated = false;
-                this.validatedImageUrl = null;
-                this.$refs.croppedData.value = '';
-                this.$refs.myFile.value = '';
-                if (this.cropper) {
-                    this.cropper.destroy();
-                    this.cropper = null;
-                }
             }
         }
     }
-}
 </script>

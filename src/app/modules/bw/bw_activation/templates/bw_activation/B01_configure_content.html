@@ -1289,8 +1289,9 @@
                         return;
                     }
 
-                    // Store original filename
+                    // Store original filename and mime type
                     this.originalFilename = file.name;
+                    this.fileMimeType = file.type || '';
                     this.$refs.imageFilename.value = file.name;
 
                     const reader = new FileReader();
@@ -1323,12 +1324,22 @@
 
                 validateCrop() {
                     if (!this.cropper) return;
-                    const canvas = this.cropper.getCroppedCanvas({
+                    const getUrl = window.getCroppedDataURL || function(cr, opts, f) {
+                        const isPng = f && (f === 'image/png' || (typeof f === 'string' && f.toLowerCase().endsWith('.png')) || (f.name && f.name.toLowerCase().endsWith('.png')));
+                        const cv = cr.getCroppedCanvas(Object.assign({
+                            fillColor: isPng ? 'transparent' : '#ffffff',
+                            imageSmoothingEnabled: true,
+                            imageSmoothingQuality: 'high',
+                        }, opts));
+                        return cv ? (isPng ? cv.toDataURL('image/png') : cv.toDataURL('image/jpeg', 0.9)) : null;
+                    };
+                    const dataUrl = getUrl(this.cropper, {
                         width: 1200,
                         height: 300,
-                    });
-                    if (canvas) {
-                        this.validatedImageUrl = canvas.toDataURL('image/jpeg', 0.9);
+                    }, this.fileMimeType || this.originalFilename);
+
+                    if (dataUrl) {
+                        this.validatedImageUrl = dataUrl;
                         this.$refs.croppedData.value = this.validatedImageUrl;
                         this.imageValidated = true;
                         // Destroy cropper to free resources
@@ -1344,6 +1355,7 @@
                     this.imageValidated = false;
                     this.validatedImageUrl = null;
                     this.originalFilename = null;
+                    this.fileMimeType = null;
                     this.$refs.croppedData.value = '';
                     this.$refs.imageFilename.value = '';
                     this.$refs.bandeauFile.value = '';
@@ -1395,8 +1407,9 @@
                         return;
                     }
 
-                    // Store original filename
+                    // Store original filename and mime type
                     this.originalFilename = file.name;
+                    this.fileMimeType = file.type || '';
                     this.$refs.imageFilename.value = file.name;
 
                     const reader = new FileReader();
@@ -1428,12 +1441,22 @@
 
                 validateCrop() {
                     if (!this.cropper) return;
-                    const canvas = this.cropper.getCroppedCanvas({
+                    const getUrl = window.getCroppedDataURL || function(cr, opts, f) {
+                        const isPng = f && (f === 'image/png' || (typeof f === 'string' && f.toLowerCase().endsWith('.png')) || (f.name && f.name.toLowerCase().endsWith('.png')));
+                        const cv = cr.getCroppedCanvas(Object.assign({
+                            fillColor: isPng ? 'transparent' : '#ffffff',
+                            imageSmoothingEnabled: true,
+                            imageSmoothingQuality: 'high',
+                        }, opts));
+                        return cv ? (isPng ? cv.toDataURL('image/png') : cv.toDataURL('image/jpeg', 0.9)) : null;
+                    };
+                    const dataUrl = getUrl(this.cropper, {
                         maxWidth: 800,
                         maxHeight: 800,
-                    });
-                    if (canvas) {
-                        this.validatedImageUrl = canvas.toDataURL('image/jpeg', 0.9);
+                    }, this.fileMimeType || this.originalFilename);
+
+                    if (dataUrl) {
+                        this.validatedImageUrl = dataUrl;
                         this.$refs.croppedData.value = this.validatedImageUrl;
                         this.imageValidated = true;
                         // Destroy cropper to free resources
@@ -1449,6 +1472,7 @@
                     this.imageValidated = false;
                     this.validatedImageUrl = null;
                     this.originalFilename = null;
+                    this.fileMimeType = null;
                     this.$refs.croppedData.value = '';
                     this.$refs.imageFilename.value = '';
                     this.$refs.logoFile.value = '';

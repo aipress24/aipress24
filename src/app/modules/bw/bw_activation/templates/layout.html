@@ -1,72 +1,73 @@
 <!DOCTYPE html>
 <html lang="fr" data-theme="abilian">
-<head prefix="og: https://ogp.me/ns#">
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Business Wall Activation POC{% endblock %}</title>
+    <head prefix="og: https://ogp.me/ns#">
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>{% block title %}Business Wall Activation POC{% endblock %}</title>
 
+        <!-- tom-select -->
+        <link rel="stylesheet" href="/kyc/static/css/tom-select.css" />
+        <script src="/static/js/tom-select.complete.min.js"></script>
 
-    <!-- tom-select -->
-    <link rel="stylesheet" href="/kyc/static/css/tom-select.css" />
-    <script src="/static/js/tom-select.complete.min.js"></script>
+        <!-- Favicons -->
+        <link rel="icon" href="/static/icon/aipress24-favicon.png" />
+        <link rel="shortcut icon" href="/static/icon/aipress24-favicon.png" />
 
-    <!-- Favicons -->
-    <link rel="icon" href="/static/icon/aipress24-favicon.png" />
-    <link rel="shortcut icon" href="/static/icon/aipress24-favicon.png" />
+        <!-- Alpine Plugins -->
+        <script
+            defer
+            src="https://unpkg.com/@alpinejs/focus@3.x.x/dist/cdn.min.js"></script>
 
-    <!-- Alpine Plugins -->
-    <script
-      defer
-      src="https://unpkg.com/@alpinejs/focus@3.x.x/dist/cdn.min.js"></script>
+        <script
+            defer
+            src="https://unpkg.com/@colinaut/alpinejs-plugin-simple-validate@1/dist/alpine.validate.min.js"></script>
 
-    <script
-      defer
-      src="https://unpkg.com/@colinaut/alpinejs-plugin-simple-validate@1/dist/alpine.validate.min.js"></script>
-
-    <!-- Alpine Core -->
-    <script
-      defer
-      src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
-    <script defer src="https://unpkg.com/hyperscript.org@0.9.4"></script>
-    {% block style %}{% endblock %}
-    <script>
-      window.data = {};
-      window.toasts = {{ get_flashed_messages(with_categories=true) | tojson }};
-    </script>
-    {{ vite_tags() }}
-    <script src="https://cdn.tailwindcss.com"></script>
-    {# Bug 0238: the Play CDN defaults to darkMode:'media' (OS-driven), which
-       lit up the Flowbite `dark:*` variants on the "Gérer les rôles internes"
-       modals as an illegible dark slate. Align it with the project build
-       (vite/tailwind.config.js → darkMode:'class') so `dark:*` only applies
-       under a `.dark` ancestor (never set here) — everything renders light. #}
-    <script>tailwind.config = { darkMode: "class" };</script>
-</head>
-<body class="bg-gray-100 min-h-screen h-full min-h-screen">
-    {% include '_header.html' %}
-    <div class="container mx-auto px-4 py-8">
-        {% with messages = get_flashed_messages(with_categories=true) %}
-            {% if messages %}
-                <div class="mb-6 space-y-2">
-                    {% for category, message in messages %}
-                        <div class="p-4 rounded-md {% if category in ['error', 'danger'] %}bg-red-50 border-l-4 border-red-500 text-red-700{% elif category == 'warning' %}bg-yellow-50 border-l-4 border-yellow-500 text-yellow-700{% else %}bg-green-50 border-l-4 border-green-500 text-green-700{% endif %}">
-                            {{ message }}
-                        </div>
-                    {% endfor %}
-                </div>
-            {% endif %}
-        {% endwith %}
-        {% block breadcrumb %}{% endblock %}
-        {# « Retour vers la plateforme » : visible top + bottom on
-           every BW activation/management page. Ref: bugs #0109,
-           #0111, #0114 — testers were lost in the BW tunnel with
-           no obvious way back to the public site. #}
-        {% include 'bw_activation/_back_to_platform.html' %}
-        <main>
-            {% block content %}{% endblock %}
-        </main>
-        {% include 'bw_activation/_back_to_platform.html' %}
-    </div>
-    {% include '_footer.html' %}
-</body>
+        <!-- Alpine Core -->
+        <script
+            defer
+            src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+        <script defer src="https://unpkg.com/hyperscript.org@0.9.4"></script>
+        {% block style %}{% endblock %}
+        <script>
+            window.data = {};
+            window.toasts = {{ get_flashed_messages(with_categories=true) | tojson }};
+        </script>
+        {{ vite_tags() }}
+        {# cropper utils to keep transparency of png images #}
+        <script src="/static/js/cropper_utils.js"></script>
+        <script src="https://cdn.tailwindcss.com"></script>
+        {# Bug 0238: the Play CDN defaults to darkMode:'media' (OS-driven), which
+           lit up the Flowbite `dark:*` variants on the "Gérer les rôles internes"
+           modals as an illegible dark slate. Align it with the project build
+           (vite/tailwind.config.js → darkMode:'class') so `dark:*` only applies
+           under a `.dark` ancestor (never set here) — everything renders light. #}
+        <script>tailwind.config = { darkMode: "class" };</script>
+    </head>
+    <body class="bg-gray-100 min-h-screen h-full min-h-screen">
+        {% include '_header.html' %}
+        <div class="container mx-auto px-4 py-8">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    <div class="mb-6 space-y-2">
+                        {% for category, message in messages %}
+                            <div class="p-4 rounded-md {% if category in ['error', 'danger'] %}bg-red-50 border-l-4 border-red-500 text-red-700{% elif category == 'warning' %}bg-yellow-50 border-l-4 border-yellow-500 text-yellow-700{% else %}bg-green-50 border-l-4 border-green-500 text-green-700{% endif %}">
+                                {{ message }}
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            {% endwith %}
+            {% block breadcrumb %}{% endblock %}
+            {# « Retour vers la plateforme » : visible top + bottom on
+               every BW activation/management page. Ref: bugs #0109,
+               #0111, #0114 — testers were lost in the BW tunnel with
+               no obvious way back to the public site. #}
+            {% include 'bw_activation/_back_to_platform.html' %}
+            <main>
+                {% block content %}{% endblock %}
+            </main>
+            {% include 'bw_activation/_back_to_platform.html' %}
+        </div>
+        {% include '_footer.html' %}
+    </body>
 </html>

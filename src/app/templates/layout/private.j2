@@ -1,69 +1,72 @@
 <!DOCTYPE html>
 <html lang="en" data-theme="abilian">
-<head prefix="og: https://ogp.me/ns#">
-  <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>{{ title }} - AiPRESS24</title>
+    <head prefix="og: https://ogp.me/ns#">
+        <meta charset="UTF-8"/>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+        <title>{{ title }} - AiPRESS24</title>
 
 
-  <!-- tom-select -->
-  <link rel="stylesheet" href="/kyc/static/css/tom-select.css"/>
-  <script src="/static/js/tom-select.complete.min.js"></script>
+        <!-- tom-select -->
+        <link rel="stylesheet" href="/kyc/static/css/tom-select.css"/>
+        <script src="/static/js/tom-select.complete.min.js"></script>
 
-  <script defer src="https://unpkg.com/hyperscript.org@0.9.4"></script>
+        <script defer src="https://unpkg.com/hyperscript.org@0.9.4"></script>
 
-  <!-- <script>
-    //window.data = {};
-    //window.toasts = [];
-  </script> -->
+        <!-- <script>
+        //window.data = {};
+        //window.toasts = [];
+        </script> -->
 
-  <!-- Alpine & Plugins -->
-  <script
-      defer
-      src="https://unpkg.com/@alpinejs/focus@3.x.x/dist/cdn.min.js"></script>
-  <script
-      defer
-      src="https://unpkg.com/@colinaut/alpinejs-plugin-simple-validate@1/dist/alpine.validate.min.js"></script>
+        <!-- Alpine & Plugins -->
+        <script
+            defer
+            src="https://unpkg.com/@alpinejs/focus@3.x.x/dist/cdn.min.js"></script>
+        <script
+            defer
+            src="https://unpkg.com/@colinaut/alpinejs-plugin-simple-validate@1/dist/alpine.validate.min.js"></script>
 
-  <!-- Favicons -->
-  <link rel="icon" href="/static/icon/aipress24-favicon.png"/>
-  <link rel="shortcut icon" href="/static/icon/aipress24-favicon.png"/>
+        <!-- Favicons -->
+        <link rel="icon" href="/static/icon/aipress24-favicon.png"/>
+        <link rel="shortcut icon" href="/static/icon/aipress24-favicon.png"/>
 
-  <script
-      src="https://cdn.jsdelivr.net/npm/ag-grid-community/dist/ag-grid-community.min.js"></script>
+        <script
+            src="https://cdn.jsdelivr.net/npm/ag-grid-community/dist/ag-grid-community.min.js"></script>
 
-  <script>
-    window.data = {{ json_data | tojson }};
-    window.toasts = {{ get_flashed_messages() | tojson }};
-  </script>
+        <script>
+            window.data = {{ json_data | tojson }};
+            window.toasts = {{ get_flashed_messages() | tojson }};
+        </script>
 
-  {{ vite_tags() }}
+        {{ vite_tags() }}
 
-  <!--
+        {# cropper utils to keep transparency of png images #}
+        <script src="/static/js/cropper_utils.js"></script>
 
-  request.url: {{ request.url }}
-  request.scheme: {{ request.scheme }}
-  request.host: {{ request.host }}
-  request.path: {{ request.path }}
+        <!--
 
-  -->
+        request.url: {{ request.url }}
+        request.scheme: {{ request.scheme }}
+        request.host: {{ request.host }}
+        request.path: {{ request.path }}
 
-</head>
+        -->
 
-<body id="body" class="bg-gray-100 min-h-screen h-full min-h-screen">
+    </head>
 
-{{ component("page-header") }}
+    <body id="body" class="bg-gray-100 min-h-screen h-full min-h-screen">
 
-{% block content %}
-  {{ content|safe }}
-{% endblock %}
+        {{ component("page-header") }}
 
-{% include "fragments/footer.j2" %}
+        {% block content %}
+            {{ content|safe }}
+        {% endblock %}
 
-{% include "fragments/toaster.j2" %}
-{% include "fragments/stats.j2" %}
-{% include "fragments/end.j2" %}
+        {% include "fragments/footer.j2" %}
 
-{{ pagebar_html() | safe }}
-</body>
+        {% include "fragments/toaster.j2" %}
+        {% include "fragments/stats.j2" %}
+        {% include "fragments/end.j2" %}
+
+        {{ pagebar_html() | safe }}
+    </body>
 </html>

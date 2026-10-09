@@ -1,219 +1,231 @@
 {% extends "pages/preferences/_base.j2" %} {% block main %}
-<h2>Image de présentation</h2>
+    <h2>Image de présentation</h2>
 
-<div
-    class="pt-2"
-    x-data="bannerCropper()"
->
-    <form
-        id="bannerForm"
-        class="divide-y divide-gray-200 lg:col-span-9"
-        action=""
-        method="POST"
-        enctype="multipart/form-data"
-        @submit.prevent="submitForm"
+    <div
+        class="pt-2"
+        x-data="bannerCropper()"
     >
-        <div class="mb-4">
-            <div class="font-semibold mb-1">Image actuelle</div>
-            <div
-                id="currentImageWrapper"
-                class="p-2 flex items-center justify-center min-h-[120px]"
-            >
-                {% if current_image_url and current_image_url != 'None' %}
-                <img
-                    id="currentImage"
-                    src="{{ current_image_url }}"
-                    alt="Image de présentation actuelle"
-                    class="h-32 w-full object-cover lg:h-48 max-w-full max-h-[200px]"
-                    style="max-height: 250px"
-                />
-                {% else %}
-                <p class="text-gray-500">Aucune image.</p>
-                {% endif %}
-            </div>
-        </div>
-
-        <div
-            class="mb-4 pt-2"
-            id="newImageBlock"
-            x-show="imageUrl"
-            style="display: none"
+        <form
+            id="bannerForm"
+            class="divide-y divide-gray-200 lg:col-span-9"
+            action=""
+            method="POST"
+            enctype="multipart/form-data"
+            @submit.prevent="submitForm"
         >
-            <div class="font-semibold mb-1">
-                Recadrer la nouvelle image (Ratio 4:1)
+            <div class="mb-4">
+                <div class="font-semibold mb-1">Image actuelle</div>
+                <div
+                    id="currentImageWrapper"
+                    class="p-2 flex items-center justify-center min-h-[120px]"
+                >
+                    {% if current_image_url and current_image_url != 'None' %}
+                        <img
+                            id="currentImage"
+                            src="{{ current_image_url }}"
+                            alt="Image de présentation actuelle"
+                            class="h-32 w-full object-cover lg:h-48 max-w-full max-h-[200px]"
+                            style="max-height: 250px"
+                        />
+                    {% else %}
+                        <p class="text-gray-500">Aucune image.</p>
+                    {% endif %}
+                </div>
             </div>
+
             <div
-                id="newImageContainer"
-                class="bg-gray-100 rounded-lg overflow-hidden w-full"
-                style="height: 400px"
+                class="mb-4 pt-2"
+                id="newImageBlock"
+                x-show="imageUrl"
+                style="display: none"
             >
-                <img
-                    id="newImagePreview"
-                    :src="imageUrl"
-                    class="block w-full"
-                    @load="initCropper"
+                <div class="font-semibold mb-1">
+                    Recadrer la nouvelle image (Ratio 4:1)
+                </div>
+                <div
+                    id="newImageContainer"
+                    class="bg-gray-100 rounded-lg overflow-hidden w-full"
+                    style="height: 400px"
+                >
+                    <img
+                        id="newImagePreview"
+                        :src="imageUrl"
+                        class="block w-full"
+                        @load="initCropper"
+                    />
+                </div>
+            </div>
+
+            <div class="pt-2">
+                <div class="mb-2 font-semibold">Charger une nouvelle image</div>
+                <input
+                    type="file"
+                    id="image"
+                    name="image"
+                    accept=".png,.jpeg,.jpg,image/png,image/jpeg"
+                    class="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 focus:outline-none"
+                    @change="fileChosen"
+                />
+                <p class="mt-1 text-sm text-gray-500">
+                    Ratio de l'image environ 4&nbsp;/&nbsp;1. Format PNG, JPG, JPEG
+                    (Max 4MB)
+                </p>
+            </div>
+
+            <div class="pt-4">
+                <div class="mb-2 font-semibold">Mention de copyright</div>
+                <input
+                    type="text"
+                    id="copyright"
+                    name="copyright"
+                    value="{{ copyright }}"
+                    class="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-sky-500 focus:border-sky-500 p-2.5"
                 />
             </div>
-        </div>
 
-        <div class="pt-2">
-            <div class="mb-2 font-semibold">Charger une nouvelle image</div>
-            <input
-                type="file"
-                id="image"
-                name="image"
-                accept=".png,.jpeg,.jpg,image/png,image/jpeg"
-                class="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 focus:outline-none"
-                @change="fileChosen"
-            />
-            <p class="mt-1 text-sm text-gray-500">
-                Ratio de l'image environ 4&nbsp;/&nbsp;1. Format PNG, JPG, JPEG
-                (Max 4MB)
-            </p>
-        </div>
+            <div class="mt-4 py-4 px-4 flex justify-end sm:px-6">
+                <button
+                    type="button"
+                    @click="window.location.reload()"
+                    class="bg-white border border-gray-300 rounded-md shadow-sm py-2 px-4 inline-flex justify-center text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-sky-500"
+                >
+                    Annuler
+                </button>
+                <button
+                    type="submit"
+                    class="ml-5 bg-sky-700 border border-transparent rounded-md shadow-sm py-2 px-4 inline-flex justify-center text-sm font-medium text-white hover:bg-sky-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-sky-500"
+                >
+                    Valider
+                </button>
+            </div>
+        </form>
+    </div>
 
-        <div class="pt-4">
-            <div class="mb-2 font-semibold">Mention de copyright</div>
-            <input
-                type="text"
-                id="copyright"
-                name="copyright"
-                value="{{ copyright }}"
-                class="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-sky-500 focus:border-sky-500 p-2.5"
-            />
-        </div>
+    <script>
+        function bannerCropper() {
+            return {
+                imageUrl: "",
+                cropper: null,
 
-        <div class="mt-4 py-4 px-4 flex justify-end sm:px-6">
-            <button
-                type="button"
-                @click="window.location.reload()"
-                class="bg-white border border-gray-300 rounded-md shadow-sm py-2 px-4 inline-flex justify-center text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-sky-500"
-            >
-                Annuler
-            </button>
-            <button
-                type="submit"
-                class="ml-5 bg-sky-700 border border-transparent rounded-md shadow-sm py-2 px-4 inline-flex justify-center text-sm font-medium text-white hover:bg-sky-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-sky-500"
-            >
-                Valider
-            </button>
-        </div>
-    </form>
-</div>
-
-<script>
-    function bannerCropper() {
-        return {
-            imageUrl: "",
-            cropper: null,
-
-            fileChosen(event) {
-                const file = event.target.files[0];
-                if (!file) {
-                    this.imageUrl = "";
-                    if (this.cropper) {
-                        this.cropper.destroy();
-                        this.cropper = null;
-                    }
-                    return;
-                }
-
-                const reader = new FileReader();
-                reader.onload = (e) => {
-                    this.imageUrl = e.target.result;
-                };
-                reader.readAsDataURL(file);
-            },
-
-            initCropper() {
-                this.$nextTick(() => {
-                    if (this.cropper) {
-                        this.cropper.destroy();
+                fileChosen(event) {
+                    const file = event.target.files[0];
+                    if (!file) {
+                        this.imageUrl = "";
+                        if (this.cropper) {
+                            this.cropper.destroy();
+                            this.cropper = null;
+                        }
+                        return;
                     }
 
-                    const image = document.getElementById("newImagePreview");
-                    this.cropper = new Cropper(image, {
-                        aspectRatio: 4 / 1,
-                        viewMode: 2, // The canvas should not be smaller than the container
-                        autoCropArea: 1,
-                        responsive: true,
-                        dragMode: "move",
-                        guides: true,
-                        center: true,
-                        highlight: false,
-                        cropBoxMovable: true,
-                        cropBoxResizable: true,
-                        background: true, // Show the checkerboard
-                    });
-                });
-            },
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        this.imageUrl = e.target.result;
+                    };
+                    reader.readAsDataURL(file);
+                },
 
-            async submitForm() {
-                const copyright = document.getElementById("copyright").value;
-                const imageInput = document.getElementById("image");
-                const hasNewImage = imageInput.files && imageInput.files.length > 0;
-
-                if (!hasNewImage || !this.cropper) {
-                    document.getElementById("bannerForm").submit();
-                    return;
-                }
-
-                // Get cropped canvas
-                const canvas = this.cropper.getCroppedCanvas({
-                    width: 1200, // Reasonable width for a banner
-                    height: 300,
-                    imageSmoothingEnabled: true,
-                    imageSmoothingQuality: "high",
-                });
-
-                if (!canvas) {
-                    alert("Erreur lors du recadrage de l'image.");
-                    return;
-                }
-
-                canvas.toBlob(
-                    (blob) => {
-                        const formData = new FormData();
-                        formData.append("image", blob, "banner.jpg");
-                        formData.append("submit", "save");
-                        formData.append("copyright", copyright);
-
-                        // CSRF token handling
-                        const headers = {
-                            "X-Requested-With": "XMLHttpRequest",
-                        };
-                        const csrfTokenTag = document.querySelector(
-                            'meta[name="csrf-token"]'
-                        );
-                        if (csrfTokenTag) {
-                            headers["X-CSRF-TOKEN"] =
-                                csrfTokenTag.getAttribute("content");
+                initCropper() {
+                    this.$nextTick(() => {
+                        if (this.cropper) {
+                            this.cropper.destroy();
                         }
 
-                        fetch("", {
-                            method: "POST",
-                            body: formData,
-                            headers: headers,
-                        })
-                            .then((response) => {
-                                if (response.ok) {
-                                    window.location.reload();
-                                } else {
-                                    alert(
-                                        "Erreur lors de l'enregistrement de l'image."
-                                    );
-                                }
+                        const image = document.getElementById("newImagePreview");
+                        this.cropper = new Cropper(image, {
+                            aspectRatio: 4 / 1,
+                            viewMode: 2, // The canvas should not be smaller than the container
+                            autoCropArea: 1,
+                            responsive: true,
+                            dragMode: "move",
+                            guides: true,
+                            center: true,
+                            highlight: false,
+                            cropBoxMovable: true,
+                            cropBoxResizable: true,
+                            background: true, // Show the checkerboard
+                        });
+                    });
+                },
+
+                async submitForm() {
+                    const copyright = document.getElementById("copyright").value;
+                    const imageInput = document.getElementById("image");
+                    const hasNewImage = imageInput.files && imageInput.files.length > 0;
+
+                    if (!hasNewImage || !this.cropper) {
+                        document.getElementById("bannerForm").submit();
+                        return;
+                    }
+
+                    const file = imageInput.files[0];
+                    const isPng = file && (file.type === 'image/png' || file.name.toLowerCase().endsWith('.png'));
+                    const filename = isPng ? "banner.png" : "banner.jpg";
+
+                    const getBlob = window.getCroppedBlob || function(cr, opts, f, cb) {
+                        const isP = f && (f === 'image/png' || (typeof f === 'string' && f.toLowerCase().endsWith('.png')) || (f.name && f.name.toLowerCase().endsWith('.png')));
+                        const cv = cr.getCroppedCanvas(Object.assign({
+                            fillColor: isP ? 'transparent' : '#ffffff',
+                            imageSmoothingEnabled: true,
+                            imageSmoothingQuality: 'high',
+                        }, opts));
+                        if (!cv) { if (cb) cb(null); return; }
+                        cv.toBlob(cb, isP ? 'image/png' : 'image/jpeg', isP ? undefined : 0.9);
+                    };
+
+                    getBlob(
+                        this.cropper,
+                        {
+                            width: 1200,
+                            height: 300,
+                        },
+                        file,
+                        (blob) => {
+                            if (!blob) {
+                                alert("Erreur lors du recadrage de l'image.");
+                                return;
+                            }
+                            const formData = new FormData();
+                            formData.append("image", blob, filename);
+                            formData.append("submit", "save");
+                            formData.append("copyright", copyright);
+
+                        // CSRF token handling
+                            const headers = {
+                                "X-Requested-With": "XMLHttpRequest",
+                            };
+                            const csrfTokenTag = document.querySelector(
+                                'meta[name="csrf-token"]'
+                            );
+                            if (csrfTokenTag) {
+                                headers["X-CSRF-TOKEN"] =
+                                    csrfTokenTag.getAttribute("content");
+                            }
+
+                            fetch("", {
+                                method: "POST",
+                                body: formData,
+                                headers: headers,
                             })
-                            .catch((error) => {
-                                console.error("Error:", error);
-                                alert("Une erreur est survenue.");
-                            });
-                    },
-                    "image/jpeg",
-                    0.9
-                );
-            },
-        };
-    }
-</script>
+                                .then((response) => {
+                                    if (response.ok) {
+                                        window.location.reload();
+                                    } else {
+                                        alert(
+                                            "Erreur lors de l'enregistrement de l'image."
+                                        );
+                                    }
+                                })
+                                .catch((error) => {
+                                    console.error("Error:", error);
+                                    alert("Une erreur est survenue.");
+                                });
+                        },
+                        "image/jpeg",
+                        0.9
+                    );
+                },
+            };
+        }
+    </script>
 {% endblock %}
