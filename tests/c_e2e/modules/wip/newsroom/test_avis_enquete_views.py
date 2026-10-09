@@ -470,6 +470,114 @@ class TestJournalistAvisEnqueteViews:
         assert "Accepté, relation presse" in html
         assert "pr-officer@example.com" in html
 
+    def test_reponses_page_displays_contribution_and_decline_button(
+        self,
+        logged_in_client: FlaskClient,
+        test_avis_enquete: AvisEnquete,
+        fresh_db,
+        test_user: User,
+        expert_user: User,
+    ):
+        """Contribution text and Refuser la proposition button displayed."""
+        db_session = fresh_db.session
+        contact = ContactAvisEnquete(
+            avis_enquete_id=test_avis_enquete.id,
+            journaliste_id=test_user.id,
+            expert_id=expert_user.id,
+            status=StatutAvis.ACCEPTE,
+            date_reponse=datetime.now(UTC),
+            rdv_notes_expert="Je peux intervenir sur le domaine IA.",
+        )
+        db_session.add(contact)
+        db_session.commit()
+
+        url = url_for("AvisEnqueteWipView:reponses", id=test_avis_enquete.id)
+        response = logged_in_client.get(url)
+        assert response.status_code == 200
+        html = response.data.decode()
+        assert "Je peux intervenir sur le domaine IA." in html
+        assert "Refuser la proposition" in html
+        assert "Proposer un RDV" in html
+
+    def test_decline_and_reopen_proposition_workflow(
+        self,
+        logged_in_client: FlaskClient,
+        test_avis_enquete: AvisEnquete,
+        fresh_db,
+        test_user: User,
+        expert_user: User,
+    ):
+        """Journalist can decline an accepted proposition and then reopen it."""
+        db_session = fresh_db.session
+        contact = ContactAvisEnquete(
+            avis_enquete_id=test_avis_enquete.id,
+            journaliste_id=test_user.id,
+            expert_id=expert_user.id,
+            status=StatutAvis.ACCEPTE,
+            date_reponse=datetime.now(UTC),
+            rdv_notes_expert="Proposition d'expertise",
+        )
+        db_session.add(contact)
+        db_session.commit()
+
+        decline_url = url_for(
+            "AvisEnqueteWipView:decline_proposition",
+            id=test_avis_enquete.id,
+            contact_id=contact.id,
+        )
+        resp = logged_in_client.post(decline_url)
+        assert resp.status_code in (302, 303)
+        fresh_db.session.refresh(contact)
+        assert contact.status == StatutAvis.DECLINE
+
+        reponses_url = url_for("AvisEnqueteWipView:reponses", id=test_avis_enquete.id)
+        resp = logged_in_client.get(reponses_url)
+        html = resp.data.decode()
+        assert "Proposition refusée" in html
+        assert "Rétablir" in html
+
+        # Reopen
+        reopen_url = url_for(
+            "AvisEnqueteWipView:reopen_proposition",
+            id=test_avis_enquete.id,
+            contact_id=contact.id,
+        )
+        resp = logged_in_client.post(reopen_url)
+        assert resp.status_code in (302, 303)
+        fresh_db.session.refresh(contact)
+        assert contact.status == StatutAvis.ACCEPTE
+
+    def test_rdv_propose_page_displays_expert_contribution(
+        self,
+        logged_in_client: FlaskClient,
+        test_avis_enquete: AvisEnquete,
+        fresh_db,
+        test_user: User,
+        expert_user: User,
+    ):
+        """The rdv_propose page shows the expert contribution note in a banner."""
+        db_session = fresh_db.session
+        contact = ContactAvisEnquete(
+            avis_enquete_id=test_avis_enquete.id,
+            journaliste_id=test_user.id,
+            expert_id=expert_user.id,
+            status=StatutAvis.ACCEPTE,
+            date_reponse=datetime.now(UTC),
+            rdv_notes_expert="Voici ma contribution.",
+        )
+        db_session.add(contact)
+        db_session.commit()
+
+        url = url_for(
+            "AvisEnqueteWipView:rdv_propose",
+            id=test_avis_enquete.id,
+            contact_id=contact.id,
+        )
+        response = logged_in_client.get(url)
+        assert response.status_code == 200
+        html = response.data.decode()
+        assert "Voici ma contribution." in html
+
     def test_propose_rdv_form_loads(
         self,
         logged_in_client: FlaskClient,

@@ -111,6 +111,7 @@ class TestIsEligibleContact:
             (StatutAvis.EN_ATTENTE, False),
             (StatutAvis.REFUSE, False),
             (StatutAvis.REFUSE_SUGGESTION, False),
+            (StatutAvis.DECLINE, False),
         ],
     )
     def test_predicate_matches_accepted_statuses(

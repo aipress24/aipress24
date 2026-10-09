@@ -212,9 +212,24 @@ class TestFormDefaultsFromStatus:
             "suggestion": "ask Alice",
         }
 
+    def test_decline_prefills_contribution(self) -> None:
+        out = _form_defaults_from_status("decline", "my notes")
+        assert out == {
+            "reponse1": "oui",
+            "contribution": "my notes",
+            "refusal_reason": "",
+            "suggestion": "",
+        }
+
     @pytest.mark.parametrize(
         "status",
-        ["accepte", "accepte_relation_presse", "refuse", "refuse_suggestion"],
+        [
+            "accepte",
+            "accepte_relation_presse",
+            "refuse",
+            "refuse_suggestion",
+            "decline",
+        ],
     )
     def test_empty_notes_keep_all_prefills_empty(self, status: str) -> None:
         # Empty notes should keep the text fields empty but still set

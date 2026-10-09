@@ -116,6 +116,7 @@ class TestEnumValues:
             ),
             (StatutAvis.REFUSE, "refuse", "Refusé"),
             (StatutAvis.REFUSE_SUGGESTION, "refuse_suggestion", "Refusé, suggestion"),
+            (StatutAvis.DECLINE, "decline", "Proposition refusée"),
         ],
     )
     def test_statut_avis_values_and_labels(
@@ -376,6 +377,44 @@ class TestStatusFlags:
     )
     def test_is_not_declined_when_not_refused(self, status: StatutAvis) -> None:
         assert _make_contact(status=status).is_declined_opportunity is False
+
+
+class TestDeclineAndReopenProposition:
+    def test_can_decline_when_accepted_and_no_rdv(self) -> None:
+        contact = _make_contact(status=StatutAvis.ACCEPTE, rdv_status=RDVStatus.NO_RDV)
+        assert contact.can_decline_proposition() is True
+
+    def test_decline_proposition_changes_status(self) -> None:
+        contact = _make_contact(status=StatutAvis.ACCEPTE, rdv_status=RDVStatus.NO_RDV)
+        contact.decline_proposition()
+        assert contact.status == StatutAvis.DECLINE
+        assert contact.can_propose_rdv() is False
+        assert contact.get_rdv_summary() == "Proposition refusée"
+
+    def test_decline_fails_if_rdv_already_proposed(self) -> None:
+        contact = _make_contact(
+            status=StatutAvis.ACCEPTE, rdv_status=RDVStatus.PROPOSED
+        )
+        assert contact.can_decline_proposition() is False
+        with pytest.raises(ValueError, match="Cannot decline proposition"):
+            contact.decline_proposition()
+
+    def test_reopen_proposition_restores_accepted_status(self) -> None:
+        contact = _make_contact(status=StatutAvis.DECLINE, rdv_status=RDVStatus.NO_RDV)
+        assert contact.can_reopen_proposition() is True
+        contact.reopen_proposition()
+        assert contact.status == StatutAvis.ACCEPTE
+        assert contact.can_propose_rdv() is True
+
+    def test_reopen_proposition_restores_accepted_pr_when_pr_email(self) -> None:
+        contact = _make_contact(
+            status=StatutAvis.DECLINE,
+            rdv_status=RDVStatus.NO_RDV,
+            email_relation_presse="pr@example.com",
+        )
+        contact.reopen_proposition()
+        assert contact.status == StatutAvis.ACCEPTE_RELATION_PRESSE
+        assert contact.can_propose_rdv() is True
 
     def test_is_rdv_requested_when_accepted_without_rdv(self) -> None:
         contact = _make_contact(status=StatutAvis.ACCEPTE, rdv_status=RDVStatus.NO_RDV)
