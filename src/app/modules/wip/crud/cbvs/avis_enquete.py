@@ -605,6 +605,50 @@ class AvisEnqueteWipView(BaseWipView):
 
         return self._htmx_redirect("reponses", id=id)
 
+    @route("/<id>/decline-proposition/<contact_id>", methods=["POST"])
+    def decline_proposition(self, id, contact_id):
+        model = self._get_model(id)
+        service = AvisEnqueteService()
+
+        contact = service.get_contact_for_avis(int(contact_id), model.id)
+        if not contact:
+            flash("Contact introuvable", "error")
+            return self._htmx_redirect("reponses", id=id)
+
+        try:
+            service.decline_proposition(contact.id)
+            service.commit()
+            flash(
+                f"La proposition de {contact.expert.full_name} a été refusée",
+                "success",
+            )
+        except ValueError as e:
+            flash(str(e), "error")
+
+        return self._htmx_redirect("reponses", id=id)
+
+    @route("/<id>/reopen-proposition/<contact_id>", methods=["POST"])
+    def reopen_proposition(self, id, contact_id):
+        model = self._get_model(id)
+        service = AvisEnqueteService()
+
+        contact = service.get_contact_for_avis(int(contact_id), model.id)
+        if not contact:
+            flash("Contact introuvable", "error")
+            return self._htmx_redirect("reponses", id=id)
+
+        try:
+            service.reopen_proposition(contact.id)
+            service.commit()
+            flash(
+                f"La proposition de {contact.expert.full_name} a été rétablie",
+                "success",
+            )
+        except ValueError as e:
+            flash(str(e), "error")
+
+        return self._htmx_redirect("reponses", id=id)
+
     @route("/<id>/rdv-propose/<contact_id>", methods=["GET", "POST"])
     def rdv_propose(self, id, contact_id):
         model = self._get_model(id)

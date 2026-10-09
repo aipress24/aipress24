@@ -50,6 +50,12 @@
                 {% elif form_state.suggestion and form_state.reponse1 == "non-mais" %}
                     <p>Votre suggestion: {{ form_state.suggestion | default("aucune suggestion.", true) }}</p>
                 {% endif %}
+
+                {% if contact.status.value == "decline" %}
+                    <p class="mt-2 text-sm text-gray-600 italic">
+                        La rédaction a pris connaissance de votre retour et a choisi de ne pas donner suite pour cette enquête.
+                    </p>
+                {% endif %}
             </div>
 
         {% else %}

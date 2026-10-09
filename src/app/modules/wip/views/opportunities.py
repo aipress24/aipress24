@@ -72,6 +72,7 @@ _STATUS_TO_FORM_FIELD: dict[str, tuple[str, str]] = {
     "accepte_relation_presse": ("oui_relation_presse", "contribution"),
     "refuse": ("non", "refusal_reason"),
     "refuse_suggestion": ("non-mais", "suggestion"),
+    "decline": ("oui", "contribution"),
 }
 
 

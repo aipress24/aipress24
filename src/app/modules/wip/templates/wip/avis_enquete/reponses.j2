@@ -15,129 +15,163 @@
             </div>
         </div>
 
-        <div class="mt-8 flow-root">
-            <div class="-mx-4 -my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
-                <div class="inline-block min-w-full py-2 align-middle sm:px-6 lg:px-8">
-                    {% if responses %}
-                        <table class="min-w-full divide-y divide-gray-300">
-                            <thead>
-                                <tr>
-                                    <th scope="col" class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-0">
-                                        Contact
-                                    </th>
-                                    <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
-                                        Statut
-                                    </th>
-                                    <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
-                                        Date de réponse
-                                    </th>
-                                    <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
-                                        RDV
-                                    </th>
-                                </tr>
-                            </thead>
-                            <tbody class="divide-y divide-gray-200">
-                                {% for response in responses %}
-                                    {# data-contact-id : inert metadata
-                                       so e2e tests (esp. lifecycle
-                                       discovery) can locate a row by
-                                       contact id even when its status
-                                       renders no actionable link. #}
-                                    <tr data-contact-id="{{ response.id }}">
-                                        <td class="whitespace-nowrap py-4 pl-4 pr-3 text-sm sm:pl-0">
-                                            <div class="flex items-center">
-                                                <a href="{{ url_for(response.expert) }}" class="h-10 w-10 flex-shrink-0 block">
-                                                    {{ profile_image(response.expert, size=10) }}
-                                                </a>
-                                                <div class="ml-4">
-                                                    <div class="font-medium text-gray-900">
-                                                        <a href="{{ url_for(response.expert) }}" class="hover:underline">
-                                                            {{ response.expert.full_name }}
-                                                        </a>
-                                                    </div>
-                                                    <div class="text-gray-500">
-                                                        {{ response.expert.email }}
-                                                    </div>
-                                                    {% if response.suggested_by_user %}
-                                                        <div class="text-xs text-gray-400">
-                                                            (Suggéré par {{ response.suggested_by_user.full_name }})
-                                                        </div>
-                                                    {% endif %}
-                                                </div>
-                                            </div>
-                                        </td>
-                                        <td class="whitespace-nowrap px-3 py-4 text-sm">
-                                            {% if response.rdv_status == RDVStatus.CONFIRMED %}
-                                                <span class="inline-flex rounded-full bg-blue-100 px-2 text-xs font-semibold leading-5 text-blue-800">
-                                                    Confirmé
-                                                </span>
-                                            {% elif response.status == StatutAvis.ACCEPTE %}
-                                                <span class="inline-flex rounded-full bg-green-100 px-2 text-xs font-semibold leading-5 text-green-800">
-                                                    Accepté
-                                                </span>
-                                            {% elif response.status == StatutAvis.ACCEPTE_RELATION_PRESSE %}
-                                                <span class="inline-flex rounded-full bg-green-100 px-2 text-xs font-semibold leading-5 text-green-800">
-                                                    Accepté, relation presse
-                                                </span>
-                                                {% if response.email_relation_presse %}
-                                                    <div class="text-xs text-gray-500 mt-1">
-                                                        {{ response.email_relation_presse }}
-                                                    </div>
-                                                {% endif %}
-                                            {% elif response.status == StatutAvis.REFUSE %}
-                                                <span class="inline-flex rounded-full bg-red-100 px-2 text-xs font-semibold leading-5 text-red-800">
-                                                    Refusé
-                                                </span>
-                                            {% elif response.status == StatutAvis.REFUSE_SUGGESTION %}
-                                                <span class="inline-flex rounded-full bg-orange-100 px-2 text-xs font-semibold leading-5 text-orange-800">
-                                                    Refusé, suggestion
-                                                </span>
-                                            {% else %}
-                                                <span class="inline-flex rounded-full bg-yellow-100 px-2 text-xs font-semibold leading-5 text-yellow-800">
-                                                    En attente
+        <div class="mt-8">
+            {% if responses %}
+                <div class="space-y-4">
+                    {% for response in responses %}
+                        {# data-contact-id : inert metadata
+                           so e2e tests (esp. lifecycle
+                           discovery) can locate a block by
+                           contact id even when its status
+                           renders no actionable link. #}
+                        <div class="bg-white rounded-lg border border-gray-200 shadow-xs p-5 transition hover:border-gray-300" data-contact-id="{{ response.id }}">
+                            <!-- Ligne 1 : Contact & Actions -->
+                            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pb-3 border-b border-gray-100">
+                                <div class="flex items-center gap-3">
+                                    <a href="{{ url_for(response.expert) }}" class="h-10 w-10 flex-shrink-0 block">
+                                        {{ profile_image(response.expert, size=10) }}
+                                    </a>
+                                    <div>
+                                        <div class="flex items-center gap-2">
+                                            <span class="text-xs font-semibold uppercase tracking-wider text-gray-500">Contact :</span>
+                                            <a href="{{ url_for(response.expert) }}" class="text-base font-semibold text-gray-900 hover:text-indigo-600 hover:underline">
+                                                {{ response.expert.full_name }}
+                                            </a>
+                                        </div>
+                                        <div class="text-sm text-gray-500 flex items-center gap-2 flex-wrap">
+                                            <span>{{ response.expert.email }}</span>
+                                            {% if response.suggested_by_user %}
+                                                <span class="text-xs text-gray-400">
+                                                    (Suggéré par {{ response.suggested_by_user.full_name }})
                                                 </span>
                                             {% endif %}
-                                        </td>
-                                        <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                                            {% if response.date_reponse %}
-                                                {{ response.date_reponse.strftime('%d/%m/%Y %H:%M') }}
-                                            {% else %}
-                                                -
-                                            {% endif %}
-                                        </td>
-                                        <td class="relative whitespace-nowrap py-4 pl-3 pr-4 text-sm font-medium sm:pr-0">
-                                            {{ response.get_rdv_summary() }}
-                                            {% if response.can_propose_rdv() %}
-                                                <div>
-                                                    <a
-                                                        href="{{ url_for('AvisEnqueteWipView:rdv_propose', id=model.id, contact_id=response.id) }}"
-                                                        class="text-indigo-600 hover:text-indigo-900"
-                                                    >
-                                                        Proposer un RDV
-                                                    </a>
-                                                </div>
-                                            {% elif response.has_rdv %}
-                                                <div>
-                                                    <a
-                                                        href="{{ url_for('AvisEnqueteWipView:rdv', id=model.id) }}"
-                                                        class="text-indigo-600 hover:text-indigo-900"
-                                                    >
-                                                        Voir le RDV
-                                                    </a>
-                                                </div>
-                                            {% endif %}
-                                        </td>
-                                    </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    {% else %}
-                        <div class="text-center py-12">
-                            <p class="text-sm text-gray-500">Aucune réponse pour le moment</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="flex items-center gap-2 flex-shrink-0">
+                                    {% if response.can_propose_rdv() %}
+                                        <a
+                                            href="{{ url_for('AvisEnqueteWipView:rdv_propose', id=model.id, contact_id=response.id) }}"
+                                            class="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 shadow-xs"
+                                        >
+                                            Proposer un RDV
+                                        </a>
+                                        <form
+                                            method="POST"
+                                            action="{{ url_for('AvisEnqueteWipView:decline_proposition', id=model.id, contact_id=response.id) }}"
+                                            onsubmit="return confirm('Êtes-vous sûr de vouloir refuser cette proposition ?');"
+                                            class="inline"
+                                        >
+                                            <button
+                                                type="submit"
+                                                class="inline-flex items-center px-3 py-1.5 border border-gray-300 text-xs font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 hover:text-red-600 shadow-xs cursor-pointer"
+                                            >
+                                                Refuser la proposition
+                                            </button>
+                                        </form>
+                                    {% elif response.can_reopen_proposition() %}
+                                        <div class="flex items-center gap-2">
+                                            <span class="text-xs text-gray-500">Proposition refusée</span>
+                                            <form
+                                                method="POST"
+                                                action="{{ url_for('AvisEnqueteWipView:reopen_proposition', id=model.id, contact_id=response.id) }}"
+                                                class="inline"
+                                            >
+                                                <button
+                                                    type="submit"
+                                                    class="inline-flex items-center px-2.5 py-1 border border-indigo-300 text-xs font-medium rounded-md text-indigo-700 bg-indigo-50 hover:bg-indigo-100 shadow-xs cursor-pointer"
+                                                >
+                                                    Rétablir
+                                                </button>
+                                            </form>
+                                        </div>
+                                    {% elif response.has_rdv %}
+                                        <a
+                                            href="{{ url_for('AvisEnqueteWipView:rdv', id=model.id) }}"
+                                            class="inline-flex items-center px-3 py-1.5 border border-indigo-200 text-xs font-medium rounded-md text-indigo-700 bg-indigo-50 hover:bg-indigo-100 shadow-xs"
+                                        >
+                                            Voir le RDV
+                                        </a>
+                                    {% endif %}
+                                </div>
+                            </div>
+
+                            <!-- Ligne 2 : Statut -->
+                            <div class="py-2.5 flex flex-wrap items-center gap-x-4 gap-y-2 border-b border-gray-100 text-sm">
+                                <div class="flex items-center gap-2">
+                                    <span class="text-xs font-semibold uppercase tracking-wider text-gray-500">Statut :</span>
+                                    {% if response.rdv_status == RDVStatus.CONFIRMED %}
+                                        <span class="inline-flex items-center rounded-full bg-blue-100 px-2.5 py-0.5 text-xs font-medium text-blue-800">
+                                            Confirmé
+                                        </span>
+                                    {% elif response.status == StatutAvis.ACCEPTE %}
+                                        <span class="inline-flex items-center rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-800">
+                                            Accepté
+                                        </span>
+                                    {% elif response.status == StatutAvis.ACCEPTE_RELATION_PRESSE %}
+                                        <span class="inline-flex items-center rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-800">
+                                            Accepté, relation presse
+                                        </span>
+                                        {% if response.email_relation_presse %}
+                                            <span class="text-xs text-gray-500">
+                                                ({{ response.email_relation_presse }})
+                                            </span>
+                                        {% endif %}
+                                    {% elif response.status == StatutAvis.DECLINE %}
+                                        <span class="inline-flex items-center rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-medium text-gray-800">
+                                            Proposition refusée
+                                        </span>
+                                    {% elif response.status == StatutAvis.REFUSE %}
+                                        <span class="inline-flex items-center rounded-full bg-red-100 px-2.5 py-0.5 text-xs font-medium text-red-800">
+                                            Refusé
+                                        </span>
+                                    {% elif response.status == StatutAvis.REFUSE_SUGGESTION %}
+                                        <span class="inline-flex items-center rounded-full bg-orange-100 px-2.5 py-0.5 text-xs font-medium text-orange-800">
+                                            Refusé, suggestion
+                                        </span>
+                                    {% else %}
+                                        <span class="inline-flex items-center rounded-full bg-yellow-100 px-2.5 py-0.5 text-xs font-medium text-yellow-800">
+                                            En attente
+                                        </span>
+                                    {% endif %}
+                                </div>
+
+                                {% if response.date_reponse %}
+                                    <span class="text-xs text-gray-500">
+                                        • Répondu le {{ response.date_reponse.strftime('%d/%m/%Y à %H:%M') }}
+                                    </span>
+                                {% endif %}
+
+                                {% if response.get_rdv_summary() %}
+                                    <span class="text-xs text-gray-500">
+                                        • <span class="font-medium text-gray-600">RDV :</span> {{ response.get_rdv_summary() }}
+                                    </span>
+                                {% endif %}
+                            </div>
+
+                            <!-- Ligne 3 : Réponse -->
+                            <div class="pt-3 text-sm">
+                                <div class="text-xs font-semibold uppercase tracking-wider text-gray-500 mb-1.5">Réponse :</div>
+                                {% if response.rdv_notes_expert %}
+                                    <div class="p-3.5 rounded-lg bg-gray-50 border border-gray-200 text-gray-800 whitespace-pre-line leading-relaxed text-sm">
+                                        {{ response.rdv_notes_expert }}
+                                    </div>
+                                {% elif response.status in [StatutAvis.ACCEPTE, StatutAvis.ACCEPTE_RELATION_PRESSE] %}
+                                    <p class="text-xs text-gray-400 italic">Aucune note de contribution saisie.</p>
+                                {% elif response.status == StatutAvis.EN_ATTENTE %}
+                                    <p class="text-xs text-gray-400 italic">En attente de réponse du contact.</p>
+                                {% else %}
+                                    <p class="text-xs text-gray-400 italic">-</p>
+                                {% endif %}
+                            </div>
                         </div>
-                    {% endif %}
+                    {% endfor %}
                 </div>
-            </div>
+            {% else %}
+                <div class="text-center py-12 bg-white rounded-lg border border-gray-200">
+                    <p class="text-sm text-gray-500">Aucune réponse pour le moment</p>
+                </div>
+            {% endif %}
         </div>
         {{ step_nav(model, "reponses") }}
     </div>

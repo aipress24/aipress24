@@ -1223,3 +1223,17 @@ class AvisEnqueteService:
             date_rdv=date_rdv,
         )
         notification_mail.send()
+
+    def decline_proposition(self, contact_id: int) -> ContactAvisEnquete:
+        """Decline expert proposition by journalist."""
+        contact = self._contact_repo.get(contact_id)
+        contact.decline_proposition()
+        self._db_session.flush()
+        return contact
+
+    def reopen_proposition(self, contact_id: int) -> ContactAvisEnquete:
+        """Reopen a previously declined proposition by journalist."""
+        contact = self._contact_repo.get(contact_id)
+        contact.reopen_proposition()
+        self._db_session.flush()
+        return contact

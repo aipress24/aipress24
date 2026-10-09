@@ -467,6 +467,22 @@ class ContactAvisEnquete(IdMixin, Base):
             raise ValueError(msg)
         self.status = StatutAvis.DECLINE  # type: ignore[assignment]
 
+    def can_reopen_proposition(self) -> bool:
+        """Check if the journalist can reopen a declined proposition."""
+        return bool(
+            self.status == StatutAvis.DECLINE and self.rdv_status == RDVStatus.NO_RDV
+        )
+
+    def reopen_proposition(self) -> None:
+        """Reopen a previously declined proposition."""
+        if not self.can_reopen_proposition():
+            msg = "Cannot reopen proposition"
+            raise ValueError(msg)
+        if self.email_relation_presse:
+            self.status = StatutAvis.ACCEPTE_RELATION_PRESSE  # type: ignore[assignment]
+        else:
+            self.status = StatutAvis.ACCEPTE  # type: ignore[assignment]
+
     def get_rdv_summary(self) -> str:
         """Get human-readable RDV summary for display."""
         if self.status == StatutAvis.DECLINE:
