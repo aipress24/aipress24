@@ -24,8 +24,8 @@ depends_on = None
 def upgrade() -> None:
     bind = op.get_bind()
     if bind.dialect.name == "postgresql":
+        # The column stores the member's name, as for the other values.
         op.execute("ALTER TYPE statutavis ADD VALUE IF NOT EXISTS 'DECLINE'")
-        op.execute("ALTER TYPE statutavis ADD VALUE IF NOT EXISTS 'decline'")
 
 
 def downgrade() -> None:

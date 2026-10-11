@@ -58,6 +58,8 @@ from ._forms import AvisEnqueteForm
 from ._table import BaseDataSource, BaseTable, WipContentModel
 
 if TYPE_CHECKING:
+    from collections.abc import Callable
+
     from app.models.auth import User
     from app.modules.wip.models import ContactAvisEnquete
 
@@ -551,11 +553,9 @@ class AvisEnqueteWipView(BaseWipView):
 
         try:
             contact.confirm_rdv()
-            service.commit()
-            try:
-                service.send_rdv_confirmed_email(contact)
-            except Exception as exc:
-                report_failure(f"rdv_confirm: email failed (contact {contact.id})", exc)
+            _commit_then_email(
+                service, lambda: service.send_rdv_confirmed_email(contact), contact
+            )
             flash("Le RDV a été confirmé", "success")
         except ValueError as e:
             flash(str(e), "error")
@@ -585,20 +585,18 @@ class AvisEnqueteWipView(BaseWipView):
             return self._htmx_redirect("rdv_details", id=id, contact_id=contact.id)
 
         try:
+            # Read before cancelling: `cancel_rdv` resets it, and the mail
+            # quotes the cancelled date.
             date_rdv = contact.date_rdv
             service.cancel_rdv(contact.id)
-            service.commit()
-            try:
-                if user_is_journalist:
-                    service.send_rdv_cancelled_by_journalist_email(
-                        contact, date_rdv=date_rdv
-                    )
-                else:
-                    service.send_rdv_cancelled_by_expert_email(
-                        contact, date_rdv=date_rdv
-                    )
-            except Exception as exc:
-                report_failure(f"rdv_cancel: email failed (contact {contact.id})", exc)
+            send = (
+                service.send_rdv_cancelled_by_journalist_email
+                if user_is_journalist
+                else service.send_rdv_cancelled_by_expert_email
+            )
+            _commit_then_email(
+                service, lambda: send(contact, date_rdv=date_rdv), contact
+            )
             flash("Le RDV a été annulé", "success")
         except ValueError as e:
             flash(str(e), "error")
@@ -607,28 +605,24 @@ class AvisEnqueteWipView(BaseWipView):
 
     @route("/<id>/decline-proposition/<contact_id>", methods=["POST"])
     def decline_proposition(self, id, contact_id):
-        model = self._get_model(id)
-        service = AvisEnqueteService()
-
-        contact = service.get_contact_for_avis(int(contact_id), model.id)
-        if not contact:
-            flash("Contact introuvable", "error")
-            return self._htmx_redirect("reponses", id=id)
-
-        try:
-            service.decline_proposition(contact.id)
-            service.commit()
-            flash(
-                f"La proposition de {contact.expert.full_name} a été refusée",
-                "success",
-            )
-        except ValueError as e:
-            flash(str(e), "error")
-
-        return self._htmx_redirect("reponses", id=id)
+        return self._change_proposition(
+            id, contact_id, AvisEnqueteService.decline_proposition, "refusée"
+        )
 
     @route("/<id>/reopen-proposition/<contact_id>", methods=["POST"])
     def reopen_proposition(self, id, contact_id):
+        return self._change_proposition(
+            id, contact_id, AvisEnqueteService.reopen_proposition, "rétablie"
+        )
+
+    def _change_proposition(
+        self,
+        id,
+        contact_id,
+        transition: Callable[[AvisEnqueteService, ContactAvisEnquete], None],
+        done: str,
+    ):
+        """Decline or reopen an expert's proposition, by the journalist."""
         model = self._get_model(id)
         service = AvisEnqueteService()
 
@@ -638,10 +632,10 @@ class AvisEnqueteWipView(BaseWipView):
             return self._htmx_redirect("reponses", id=id)
 
         try:
-            service.reopen_proposition(contact.id)
+            transition(service, contact)
             service.commit()
             flash(
-                f"La proposition de {contact.expert.full_name} a été rétablie",
+                f"La proposition de {contact.expert.full_name} a été {done}",
                 "success",
             )
         except ValueError as e:
@@ -674,8 +668,10 @@ class AvisEnqueteWipView(BaseWipView):
                     id=model.id,
                     contact_id=contact.id,
                 )
-                service.propose_rdv(int(contact_id), data, notification_url)
-                service.commit()
+                proposed = service.propose_rdv(int(contact_id), data, notification_url)
+                _commit_then_email(
+                    service, lambda: service.send_rdv_proposed_email(proposed), proposed
+                )
             except ValueError as e:
                 flash(str(e), "error")
                 return self._htmx_redirect("rdv_propose", id=id, contact_id=contact_id)
@@ -768,8 +764,12 @@ class AvisEnqueteWipView(BaseWipView):
                         notification_url = url_for(
                             "AvisEnqueteWipView:reponses", id=model.id
                         )
-                        service.refuse_rdv(int(contact_id), notification_url)
-                        service.commit()
+                        refused = service.refuse_rdv(int(contact_id), notification_url)
+                        _commit_then_email(
+                            service,
+                            lambda: service.send_rdv_refused_email(refused),
+                            refused,
+                        )
                     except ValueError as e:
                         flash(str(e), "error")
                         return self._htmx_redirect(
@@ -800,8 +800,14 @@ class AvisEnqueteWipView(BaseWipView):
                             notification_url = url_for(
                                 "AvisEnqueteWipView:reponses", id=model.id
                             )
-                            service.refuse_rdv(int(contact_id), notification_url)
-                            service.commit()
+                            refused = service.refuse_rdv(
+                                int(contact_id), notification_url
+                            )
+                            _commit_then_email(
+                                service,
+                                lambda: service.send_rdv_refused_email(refused),
+                                refused,
+                            )
                         except ValueError as e:
                             flash(str(e), "error")
                             return self._htmx_redirect(
@@ -821,8 +827,14 @@ class AvisEnqueteWipView(BaseWipView):
                         notification_url = url_for(
                             "AvisEnqueteWipView:reponses", id=model.id
                         )
-                        service.accept_rdv(int(contact_id), data, notification_url)
-                        service.commit()
+                        accepted = service.accept_rdv(
+                            int(contact_id), data, notification_url
+                        )
+                        _commit_then_email(
+                            service,
+                            lambda: service.send_rdv_accepted_email(accepted),
+                            accepted,
+                        )
                     except ValueError as e:
                         flash(str(e), "error")
                         return self._htmx_redirect(
@@ -899,3 +911,20 @@ def _opportunities_url_builder(_notif) -> str:
 @register
 def register_on_app(app: Flask) -> None:
     AvisEnqueteWipView.register(app)
+
+
+def _commit_then_email(
+    service: AvisEnqueteService,
+    send_email: Callable[[], object],
+    contact: ContactAvisEnquete,
+) -> None:
+    """Commit the RDV change, then mail the other party.
+
+    The mail goes out only once the change is saved. A failed mail is
+    reported, not raised: the change stands.
+    """
+    service.commit()
+    try:
+        send_email()
+    except Exception as exc:
+        report_failure(f"RDV email failed (contact {contact.id})", exc)

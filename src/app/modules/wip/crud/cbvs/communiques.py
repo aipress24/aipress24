@@ -351,10 +351,13 @@ class CommuniquesWipView(BaseWipView):
 
         ctx = {
             "title": title,
-            "communique": communique,
+            "content": communique,
+            "view": "CommuniquesWipView",
+            "id_param": "communique_id",
+            "back_label": "Retour aux communiqués",
         }
 
-        html = render_template("wip/communique/images.j2", **ctx)
+        html = render_template("wip/_images.j2", **ctx)
         return html
 
     def _add_image(self, communique: Communique):

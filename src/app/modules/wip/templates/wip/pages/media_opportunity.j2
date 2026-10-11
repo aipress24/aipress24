@@ -51,7 +51,7 @@
                     <p>Votre suggestion: {{ form_state.suggestion | default("aucune suggestion.", true) }}</p>
                 {% endif %}
 
-                {% if contact.status.value == "decline" %}
+                {% if contact.is_declined %}
                     <p class="mt-2 text-sm text-gray-600 italic">
                         La rédaction a pris connaissance de votre retour et a choisi de ne pas donner suite pour cette enquête.
                     </p>

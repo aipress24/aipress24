@@ -34,6 +34,7 @@ from app.modules.wip.services.newsroom.justificatif_notification import (
     list_avis_contacts,
     list_journalist_avis_enquetes,
     notify_avis_participants_of_justificatif,
+    send_justificatif_emails,
 )
 from app.modules.wire.models import ArticlePost
 from app.services.notifications import NotificationService
@@ -44,6 +45,17 @@ if TYPE_CHECKING:
 
 def _email() -> str:
     return f"jn_{uuid.uuid4().hex[:6]}@example.com"
+
+
+def _notify_and_mail(**kwargs) -> int:
+    """The view's sequence: notify, (commit), then mail. Returns the
+    number of participants notified."""
+    recipient_user_ids = kwargs.pop("recipient_user_ids")
+    recipients = notify_avis_participants_of_justificatif(
+        recipient_user_ids=recipient_user_ids, **kwargs
+    )
+    send_justificatif_emails(recipients, **kwargs)
+    return len(recipients)
 
 
 @pytest.fixture
@@ -173,7 +185,7 @@ class TestNotifyAvisParticipantsOfJustificatif:
         expert_b: User,
     ):
         with app.test_request_context("/"):
-            notified = notify_avis_participants_of_justificatif(
+            notified = _notify_and_mail(
                 article=article,
                 avis_enquete=avis,
                 recipient_user_ids=[expert_a.id, expert_b.id],
@@ -216,7 +228,7 @@ class TestNotifyAvisParticipantsOfJustificatif:
                 side_effect=_capture_email,
             ),
         ):
-            notify_avis_participants_of_justificatif(
+            _notify_and_mail(
                 article=article,
                 avis_enquete=avis,
                 recipient_user_ids=[expert_a.id],
@@ -235,6 +247,46 @@ class TestNotifyAvisParticipantsOfJustificatif:
         # html2text pipeline ; match the unambiguous prefix instead.
         assert "Article tir" in body and "enqu" in body
         assert "https://example.com/wire/item/x" in body
+
+    def test_notifying_sends_no_mail_before_the_commit(
+        self,
+        app,
+        avis: AvisEnquete,
+        article: ArticlePost,
+        journalist: User,
+        expert_a: User,
+    ):
+        """The mail announces a saved invitation: the view mails only
+        after its commit, through `send_justificatif_emails`."""
+        captured: list[dict] = []
+
+        class _Stub:
+            content_subtype = ""
+
+            def send(self):
+                return None
+
+        def _capture_email(*_args, **kwargs):
+            captured.append(dict(kwargs))
+            return _Stub()
+
+        with (
+            app.test_request_context("/"),
+            patch(
+                "app.services.emails.base.EmailMessage",
+                side_effect=_capture_email,
+            ),
+        ):
+            recipients = notify_avis_participants_of_justificatif(
+                article=article,
+                avis_enquete=avis,
+                recipient_user_ids=[expert_a.id],
+                journalist=journalist,
+                article_url="https://example.com/x",
+            )
+
+        assert recipients == [expert_a]
+        assert captured == []
 
     def test_smtp_failure_does_not_block_other_recipients(
         self,
@@ -256,7 +308,7 @@ class TestNotifyAvisParticipantsOfJustificatif:
             ),
             patch("app.logging.sentry_sdk.capture_exception") as mock_capture,
         ):
-            notified = notify_avis_participants_of_justificatif(
+            notified = _notify_and_mail(
                 article=article,
                 avis_enquete=avis,
                 recipient_user_ids=[expert_a.id, expert_b.id],
@@ -282,7 +334,7 @@ class TestNotifyAvisParticipantsOfJustificatif:
         journalist: User,
     ):
         with app.test_request_context("/"):
-            notified = notify_avis_participants_of_justificatif(
+            notified = _notify_and_mail(
                 article=article,
                 avis_enquete=avis,
                 recipient_user_ids=[],
@@ -308,7 +360,7 @@ class TestNotifyAvisParticipantsOfJustificatif:
         assert avis.justificatif_notifications_count == 0
 
         with app.test_request_context("/"):
-            notify_avis_participants_of_justificatif(
+            _notify_and_mail(
                 article=article,
                 avis_enquete=avis,
                 recipient_user_ids=[expert_a.id, expert_b.id],
@@ -332,14 +384,14 @@ class TestNotifyAvisParticipantsOfJustificatif:
         """Two successive notify calls (e.g. journalist notifies more
         people in a second round) accumulate on the same counter."""
         with app.test_request_context("/"):
-            notify_avis_participants_of_justificatif(
+            _notify_and_mail(
                 article=article,
                 avis_enquete=avis,
                 recipient_user_ids=[expert_a.id],
                 journalist=journalist,
                 article_url="https://example.com/x",
             )
-            notify_avis_participants_of_justificatif(
+            _notify_and_mail(
                 article=article,
                 avis_enquete=avis,
                 recipient_user_ids=[expert_b.id],
@@ -363,7 +415,7 @@ class TestNotifyAvisParticipantsOfJustificatif:
         rémunération and a phantom notification would inflate the
         pay-out."""
         with app.test_request_context("/"):
-            notified = notify_avis_participants_of_justificatif(
+            notified = _notify_and_mail(
                 article=article,
                 avis_enquete=avis,
                 recipient_user_ids=[99_999_999],
@@ -390,7 +442,7 @@ class TestNotifyAvisParticipantsOfJustificatif:
         can query them without grepping Notification.message."""
 
         with app.test_request_context("/"):
-            notify_avis_participants_of_justificatif(
+            _notify_and_mail(
                 article=article,
                 avis_enquete=avis,
                 recipient_user_ids=[expert_a.id, expert_b.id],
@@ -477,7 +529,7 @@ class TestRenderJustificatifsTab:
         yields rows whose article ids resolve to the right title."""
 
         with app.test_request_context("/"):
-            notify_avis_participants_of_justificatif(
+            _notify_and_mail(
                 article=wip_article,
                 avis_enquete=avis,
                 recipient_user_ids=[expert_a.id],
@@ -571,14 +623,14 @@ class TestNotifyIsIdempotent:
                 side_effect=self._capture_mails(captured),
             ),
         ):
-            first = notify_avis_participants_of_justificatif(
+            first = _notify_and_mail(
                 article=article,
                 avis_enquete=avis,
                 recipient_user_ids=[expert_a.id, expert_b.id],
                 journalist=journalist,
                 article_url="https://example.com/x",
             )
-            second = notify_avis_participants_of_justificatif(
+            second = _notify_and_mail(
                 article=article,
                 avis_enquete=avis,
                 recipient_user_ids=[expert_a.id, expert_b.id],
@@ -619,7 +671,7 @@ class TestNotifyIsIdempotent:
                 side_effect=self._capture_mails(captured),
             ),
         ):
-            notified = notify_avis_participants_of_justificatif(
+            notified = _notify_and_mail(
                 article=article,
                 avis_enquete=avis,
                 recipient_user_ids=[expert_a.id] * 10,
@@ -670,14 +722,14 @@ class TestNotifyIsIdempotent:
         db_session.flush()
 
         with app.test_request_context("/"):
-            notify_avis_participants_of_justificatif(
+            _notify_and_mail(
                 article=article,
                 avis_enquete=avis,
                 recipient_user_ids=[expert_a.id],
                 journalist=journalist,
                 article_url="https://example.com/x",
             )
-            second = notify_avis_participants_of_justificatif(
+            second = _notify_and_mail(
                 article=article,
                 avis_enquete=other_avis,
                 recipient_user_ids=[expert_a.id],

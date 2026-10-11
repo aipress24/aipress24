@@ -65,7 +65,7 @@ _PER_USER_SESSION_KEY_PREFIXES: tuple[str, ...] = (
     "bw_",
 )
 
-# Other kys from the Business Wall without the `bw_` bound to user session
+# Other keys from the Business Wall without the `bw_` bound to user session
 _PER_USER_SESSION_EXACT_KEYS: set[str] = {
     "suggested_bw_type",
     "contacts_confirmed",

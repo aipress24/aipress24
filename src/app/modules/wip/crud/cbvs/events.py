@@ -857,10 +857,13 @@ class EventsWipView(BaseWipView):
 
         ctx = {
             "title": title,
-            "event": event,
+            "content": event,
+            "view": "EventsWipView",
+            "id_param": "event_id",
+            "back_label": "Retour aux événements",
         }
 
-        html = render_template("wip/event/images.j2", **ctx)
+        html = render_template("wip/_images.j2", **ctx)
         return html
 
     def _add_image(self, event: Event):

@@ -463,9 +463,17 @@ class ContactAvisEnquete(IdMixin, Base):
     def decline_proposition(self) -> None:
         """Decline expert's proposition (by journalist)."""
         if not self.can_decline_proposition():
-            msg = "Cannot decline proposition: contact has not accepted or already has a RDV"
+            msg = (
+                "Impossible de refuser cette proposition : l'expert ne l'a pas "
+                "acceptée, ou un rendez-vous existe déjà."
+            )
             raise ValueError(msg)
         self.status = StatutAvis.DECLINE  # type: ignore[assignment]
+
+    @property
+    def is_declined(self) -> bool:
+        """The journalist has declined the expert's proposition."""
+        return self.status == StatutAvis.DECLINE
 
     def can_reopen_proposition(self) -> bool:
         """Check if the journalist can reopen a declined proposition."""
@@ -476,7 +484,7 @@ class ContactAvisEnquete(IdMixin, Base):
     def reopen_proposition(self) -> None:
         """Reopen a previously declined proposition."""
         if not self.can_reopen_proposition():
-            msg = "Cannot reopen proposition"
+            msg = "Impossible de rétablir cette proposition."
             raise ValueError(msg)
         if self.email_relation_presse:
             self.status = StatutAvis.ACCEPTE_RELATION_PRESSE  # type: ignore[assignment]

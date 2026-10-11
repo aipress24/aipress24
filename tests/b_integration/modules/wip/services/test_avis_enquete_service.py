@@ -967,11 +967,14 @@ class TestRDVMailRecipients:
             side_effect=factory,
         ):
             service.propose_rdv(contact.id, data, "/wip/opportunities/42")
+            service.send_rdv_proposed_email(contact)  # the view mails after commit
             # #0077: after a refusal, a new proposal must e-mail the
             # expert again. The domain refuses propose-while-PROPOSED,
             # so we go via the refuse path between calls.
             service.refuse_rdv(contact.id, "/wip/reponses/42")
+            service.send_rdv_refused_email(contact)  # the view mails after commit
             service.propose_rdv(contact.id, data, "/wip/opportunities/42")
+            service.send_rdv_proposed_email(contact)  # the view mails after commit
 
         # 3 mails: propose -> expert, refuse -> journalist, re-propose -> expert.
         assert len(captured) == 3
@@ -1011,7 +1014,9 @@ class TestRDVMailRecipients:
             side_effect=factory,
         ):
             service.propose_rdv(contact.id, propose_data, "/wip/opportunities/42")
+            service.send_rdv_proposed_email(contact)  # the view mails after commit
             service.refuse_rdv(contact.id, "/wip/reponses/42")
+            service.send_rdv_refused_email(contact)  # the view mails after commit
 
         # Two mails total: propose (to expert) + refuse (to journalist).
         assert len(captured) == 2
@@ -1219,6 +1224,7 @@ class TestRDVTypeFormattingInEmail:
             side_effect=factory,
         ):
             service.propose_rdv(contact.id, propose_data, "/wip/opportunities/42")
+            service.send_rdv_proposed_email(contact)  # the view mails after commit
 
         assert len(captured) == 1
         body = captured[0]["body"]

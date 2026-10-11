@@ -152,19 +152,19 @@ def notify_avis_participants_of_justificatif(
     recipient_user_ids: list[int],
     journalist: User,
     article_url: str,
-) -> int:
-    """Send mail + in-app cloche to each recipient. Returns the number
-    of recipients actually notified — the caller's list minus the
-    duplicates, the ids that aren't contacts of this avis, the users
-    that couldn't be loaded, and (ticket #0316) anyone already
-    invited for this (article, avis).
+) -> list[User]:
+    """Record an invitation and post the in-app cloche for each
+    recipient. Returns the recipients actually notified — the caller's
+    list minus the duplicates, the ids that aren't contacts of this
+    avis, the users that couldn't be loaded, and (ticket #0316) anyone
+    already invited for this (article, avis).
 
-    Failures of either side-effect are reported to Sentry via
-    `report_failure` but never abort the whole batch — a flaky SMTP
-    must not prevent the rest of the participants from being notified.
+    The caller commits, then mails them with `send_justificatif_emails`:
+    a mail must not announce an invitation the commit could still undo.
+    A failed cloche is reported to Sentry, never raised.
     """
     if not recipient_user_ids:
-        return 0
+        return []
 
     # Filter recipient ids against the avis's actual contacts
     # (`ContactAvisEnquete.expert_id`). The form input is client-side,
@@ -184,11 +184,9 @@ def notify_avis_participants_of_justificatif(
     )
     filtered_ids = filter_allowed_recipients(recipient_user_ids, allowed_ids)
     if not filtered_ids:
-        return 0
+        return []
 
-    media_name = _journalist_media_name(journalist)
-    notified = 0
-    recipients_to_email: list[User] = []
+    notified: list[User] = []
     for user_id in filtered_ids:
         recipient = db.session.get(User, user_id)
         if recipient is None:
@@ -215,10 +213,7 @@ def notify_avis_participants_of_justificatif(
             )
         )
 
-        if recipient.email:
-            recipients_to_email.append(recipient)
-
-        notified += 1
+        notified.append(recipient)
 
     # Ticket #0195 — increment the enquête's JdP counter by the number
     # of participants actually notified. Downstream rémunération is
@@ -226,11 +221,31 @@ def notify_avis_participants_of_justificatif(
     # real user (unknown id) doesn't count.
     if notified:
         avis_enquete.justificatif_notifications_count = next_notification_count(
-            avis_enquete.justificatif_notifications_count, notified
+            avis_enquete.justificatif_notifications_count, len(notified)
         )
         db.session.flush()
 
-    for recipient in recipients_to_email:
+    return notified
+
+
+def send_justificatif_emails(
+    recipients: list[User],
+    *,
+    article: ArticlePost,
+    avis_enquete: AvisEnquete,
+    journalist: User,
+    article_url: str,
+) -> None:
+    """Mail each notified recipient, once their invitation is committed.
+
+    A failed mail is reported to Sentry but never aborts the batch: a
+    flaky SMTP must not prevent the rest of the participants from being
+    mailed.
+    """
+    media_name = _journalist_media_name(journalist)
+    for recipient in recipients:
+        if not recipient.email:
+            continue
         try:
             _send_email(
                 recipient=recipient,
@@ -246,8 +261,6 @@ def notify_avis_participants_of_justificatif(
                 f"(article {article.id}, user {recipient.id})",
                 exc,
             )
-
-    return notified
 
 
 def _journalist_media_name(journalist: User) -> str:

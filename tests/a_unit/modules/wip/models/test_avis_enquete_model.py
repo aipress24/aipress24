@@ -388,6 +388,7 @@ class TestDeclineAndReopenProposition:
         contact = _make_contact(status=StatutAvis.ACCEPTE, rdv_status=RDVStatus.NO_RDV)
         contact.decline_proposition()
         assert contact.status == StatutAvis.DECLINE
+        assert contact.is_declined
         assert contact.can_propose_rdv() is False
         assert contact.get_rdv_summary() == "Proposition refusée"
 
@@ -396,7 +397,7 @@ class TestDeclineAndReopenProposition:
             status=StatutAvis.ACCEPTE, rdv_status=RDVStatus.PROPOSED
         )
         assert contact.can_decline_proposition() is False
-        with pytest.raises(ValueError, match="Cannot decline proposition"):
+        with pytest.raises(ValueError, match="Impossible de refuser cette proposition"):
             contact.decline_proposition()
 
     def test_reopen_proposition_restores_accepted_status(self) -> None:

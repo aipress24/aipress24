@@ -1,3 +1,6 @@
+{# Image editor shared by articles, communiqués and events. Context:
+   `content` (the item), `view` (its WIP view name), `id_param` (the id
+   argument of its image routes) and `back_label`. #}
 {% extends "wip/layout/_base.j2" %}
 
 {% block body_class %}bg-gray-50{% endblock %}
@@ -9,7 +12,7 @@
     <h2 class="aui-title">Images</h2>
 
     <div class="mb-8 space-y-4">
-        {% for image in communique.sorted_images %}
+        {% for image in content.sorted_images %}
             {% if image.is_last %}
                 <div id="last_image"></div>
             {% endif %}
@@ -31,7 +34,7 @@
 {#            <button class="dui-btn dui-btn-primary">Modifier</button>#}
 
                         <button
-                            hx-post="{{ url_for('CommuniquesWipView:delete_image', communique_id=communique.id, image_id=image.id) }}"
+                            hx-post="{{ url_for(view ~ ':delete_image', image_id=image.id, **{id_param: content.id}) }}"
                             hx-target="body"
                             hx-confirm="Etes-vous sûr de vouloir supprimer cette image?"
                             class="dui-btn dui-btn-warning"
@@ -40,7 +43,7 @@
 
                         {% if not image.is_first %}
                             <button
-                                hx-post="{{ url_for('CommuniquesWipView:move_image', communique_id=communique.id, image_id=image.id, direction="up") }}"
+                                hx-post="{{ url_for(view ~ ':move_image', image_id=image.id, direction="up", **{id_param: content.id}) }}"
                                 hx-vals='{"direction": "up"}'
                                 hx-target="body"
                                 class="dui-btn dui-btn-square"
@@ -51,7 +54,7 @@
 
                         {% if not image.is_last %}
                             <button
-                                hx-post="{{ url_for('CommuniquesWipView:move_image', communique_id=communique.id, image_id=image.id, direction="down") }}"
+                                hx-post="{{ url_for(view ~ ':move_image', image_id=image.id, direction="down", **{id_param: content.id}) }}"
                                 hx-vals='{"direction": "down"}'
                                 hx-target="body"
                                 class="dui-btn dui-btn-square"
@@ -66,7 +69,7 @@
         {% endfor %}
     </div>
 
-    <form action="" method="post" enctype="multipart/form-data" x-data="communiqueImageCropper()">
+    <form action="" method="post" enctype="multipart/form-data" x-data="imageCropper()">
         <div class="border-y border-gray-900/10 pb-12">
             <h2 class="aui-title mt-6">Ajouter une image</h2>
 
@@ -153,12 +156,12 @@
                 name="_action" value="cancel"
                 type="submit"
                 class="rounded-md bg-green-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-green-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-green-600"
-            >Retour aux communiqués</button>
+            >{{ back_label }}</button>
         </div>
     </form>
 
     <script>
-        function communiqueImageCropper() {
+        function imageCropper() {
             return {
                 imgsrc: null,
                 cropper: null,

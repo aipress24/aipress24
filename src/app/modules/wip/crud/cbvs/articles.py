@@ -401,6 +401,7 @@ class ArticlesWipView(BaseWipView):
             list_avis_contacts,
             list_journalist_avis_enquetes,
             notify_avis_participants_of_justificatif,
+            send_justificatif_emails,
         )
 
         # Only the article's author gets here: `_get_model` refuses a
@@ -448,20 +449,28 @@ class ArticlesWipView(BaseWipView):
             )
             post_id = article_post.id if article_post is not None else article.id
 
-            notified = notify_avis_participants_of_justificatif(
+            article_url = _absolute_url_for("wire.item", id=base62.encode(post_id))
+            recipients = notify_avis_participants_of_justificatif(
                 article=article,
                 avis_enquete=avis,
                 recipient_user_ids=recipient_ids,
                 journalist=user,
-                article_url=_absolute_url_for("wire.item", id=base62.encode(post_id)),
+                article_url=article_url,
             )
-            # Commit before redirect. The service only flushes the
-            # counter increment + in-app notifications ; without this
-            # commit, the request teardown (`session.remove()`) rolls
-            # everything back. The flash would claim success while the
-            # DB stayed unchanged — breaking the journalist's
-            # rémunération calc which feeds off this counter.
+            # Commit, then mail. The service only flushes the counter
+            # increment + in-app notifications ; without this commit,
+            # the request teardown (`session.remove()`) rolls everything
+            # back — and the mails would announce invitations that were
+            # never saved.
             db.session.commit()
+            send_justificatif_emails(
+                recipients,
+                article=article,
+                avis_enquete=avis,
+                journalist=user,
+                article_url=article_url,
+            )
+            notified = len(recipients)
             flash(
                 f"{notified} participant(s) notifié(s) du justificatif.",
                 "success",
@@ -516,10 +525,13 @@ class ArticlesWipView(BaseWipView):
 
         ctx = {
             "title": title,
-            "article": article,
+            "content": article,
+            "view": "ArticlesWipView",
+            "id_param": "article_id",
+            "back_label": "Retour aux articles",
         }
 
-        html = render_template("wip/article/images.j2", **ctx)
+        html = render_template("wip/_images.j2", **ctx)
         return html
 
     def _add_image(self, article: Article):

@@ -288,12 +288,10 @@ class AvisEnqueteService:
         notification_url: str,
     ) -> ContactAvisEnquete:
         """
-        Propose a RDV to an expert (state change + notification + email).
+        Propose a RDV to an expert (state change + in-app notification).
 
-        Bug #0147: previously the caller had to make four coordinated calls
-        (propose, notify, email, commit) and if any was forgotten the
-        recipient silently received nothing. The service now performs all
-        three side-effects in one call. Caller still commits at the end.
+        The caller commits, then sends `send_rdv_proposed_email`: a mail
+        must not announce a change the commit could still undo.
 
         Args:
             contact_id: ID of the ContactAvisEnquete
@@ -319,7 +317,6 @@ class AvisEnqueteService:
         )
         self.notify_rdv_proposed(contact, notification_url)
         self._db_session.flush()
-        self.send_rdv_proposed_email(contact)
 
         return contact
 
@@ -330,11 +327,9 @@ class AvisEnqueteService:
         notification_url: str,
     ) -> ContactAvisEnquete:
         """
-        Accept a proposed RDV slot (state + notification + email).
+        Accept a proposed RDV slot (state + in-app notification).
 
-        Bug #0147: side-effects (notify + email) are now coupled with the
-        state change so the journalist always learns about the acceptance.
-        Caller commits at the end.
+        The caller commits, then sends `send_rdv_accepted_email`.
         """
         contact = self._get_contact_or_raise(contact_id)
 
@@ -344,7 +339,6 @@ class AvisEnqueteService:
         )
         self.notify_rdv_accepted(contact, notification_url)
         self._db_session.flush()
-        self.send_rdv_accepted_email(contact)
 
         return contact
 
@@ -354,17 +348,15 @@ class AvisEnqueteService:
         notification_url: str,
     ) -> ContactAvisEnquete:
         """
-        Refuse all proposed RDV slots (state + notification + email).
+        Refuse all proposed RDV slots (state + in-app notification).
 
-        Bug #0147: side-effects are coupled with the state change so the
-        journalist always learns about the refusal. Caller commits.
+        The caller commits, then sends `send_rdv_refused_email`.
         """
         contact = self._get_contact_or_raise(contact_id)
 
         contact.refuse_rdv()
         self.notify_rdv_refused(contact, notification_url)
         self._db_session.flush()
-        self.send_rdv_refused_email(contact)
 
         return contact
 
@@ -1224,16 +1216,12 @@ class AvisEnqueteService:
         )
         notification_mail.send()
 
-    def decline_proposition(self, contact_id: int) -> ContactAvisEnquete:
+    def decline_proposition(self, contact: ContactAvisEnquete) -> None:
         """Decline expert proposition by journalist."""
-        contact = self._contact_repo.get(contact_id)
         contact.decline_proposition()
         self._db_session.flush()
-        return contact
 
-    def reopen_proposition(self, contact_id: int) -> ContactAvisEnquete:
+    def reopen_proposition(self, contact: ContactAvisEnquete) -> None:
         """Reopen a previously declined proposition by journalist."""
-        contact = self._contact_repo.get(contact_id)
         contact.reopen_proposition()
         self._db_session.flush()
-        return contact

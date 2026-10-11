@@ -156,7 +156,7 @@ class TestNotifyForm:
             "app.modules.wip.services.newsroom.justificatif_notification"
             ".notify_avis_participants_of_justificatif"
         ) as mock_notify:
-            mock_notify.return_value = 1
+            mock_notify.return_value = []
             response = client.post(
                 url_for("ArticlesWipView:notify", id=published_article.id),
                 data={
