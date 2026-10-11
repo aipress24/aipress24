@@ -55,6 +55,7 @@
                        name="recipient_user_id"
                        value="{{ c.user_id }}"
                        class="rounded border-gray-300 text-pink-600 focus:ring-pink-500">
+                {% if c.user %}{{ profile_image(c.user, size=8) }}{% endif %}
                 <span class="text-sm text-gray-900">{{ c.full_name }}</span>
                 {% if c.email %}
                   <span class="text-xs text-gray-500">({{ c.email }})</span>

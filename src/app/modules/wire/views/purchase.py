@@ -97,6 +97,7 @@ _PRODUCT_TAXONOMY_FILTERS: dict[PurchaseProduct, dict[str, str]] = {
 # genre values. Identical for every product...
 _FRENCH_TO_TAXO_GENRE = {
     "actualite": "news",
+    "news": "news",
     "enquete": "survey",
     "exclusivite": "exclu",
     "interview": "itw",
@@ -596,7 +597,8 @@ def _post_genre_to_taxo(product: PurchaseProduct, genre: str) -> str | None:
 
     Returns `None` when the input is empty.
     """
-    genre = genre.strip()
+    # A taxonomy value may carry its category: « GENRES / Enquête ».
+    genre = genre.rsplit("/", 1)[-1].strip()
     if not genre:
         return None
     if genre in _TAXO_GENRE_VALUES:

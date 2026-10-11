@@ -380,6 +380,7 @@ def list_avis_contacts(avis_enquete_id: int) -> list[dict]:
     return [
         {
             "user_id": c.expert_id,
+            "user": c.expert,
             "full_name": getattr(c.expert, "full_name", "—")
             if c.expert is not None
             else "—",

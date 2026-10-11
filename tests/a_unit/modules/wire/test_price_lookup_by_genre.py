@@ -32,7 +32,7 @@ from __future__ import annotations
 import pytest
 
 from app.modules.wire.models import PurchaseProduct
-from app.modules.wire.views.purchase import _select_price_id
+from app.modules.wire.views.purchase import _post_genre_to_taxo, _select_price_id
 from app.services.stripe.product_mirror import MirroredProduct
 
 # ---------------------------------------------------------------------------
@@ -316,3 +316,18 @@ class TestSelectPriceIdByGenre:
         ]
         result = _select_price_id(products, PurchaseProduct.CONSULTATION, genre=genre)
         assert result == "p_generic"
+
+
+@pytest.mark.parametrize(
+    ("genre", "taxo"),
+    [
+        ("GENRES / Enquête", "survey"),
+        ("GENRES / Actualité", "news"),
+        ("News", "news"),
+        ("Interview", "itw"),
+        ("Angle / Prospective", None),
+    ],
+)
+def test_genre_label_maps_to_its_stripe_genre(genre: str, taxo: str | None) -> None:
+    """#0374: a taxonomy value may carry its category before a slash."""
+    assert _post_genre_to_taxo(PurchaseProduct.CONSULTATION, genre) == taxo

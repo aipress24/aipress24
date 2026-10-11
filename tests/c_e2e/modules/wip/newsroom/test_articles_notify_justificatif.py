@@ -141,6 +141,9 @@ class TestNotifyForm:
         assert response.status_code == 200
         body = response.data.decode()
         assert expert.full_name in body
+        # #0389: each participant comes with their profile thumbnail.
+        recipients = body.split('id="recipients-section"', 1)[1].split("</fieldset>")[0]
+        assert "<img" in recipients
 
     def test_post_triggers_notifications(
         self,
