@@ -11,6 +11,7 @@ from typing import TYPE_CHECKING
 import pytest
 
 from app.models.auth import User
+from tests.c_e2e.conftest import make_authenticated_client
 
 if TYPE_CHECKING:
     from flask import Flask
@@ -23,6 +24,7 @@ def test_user(db_session: Session) -> User:
     """Create a test user for swork tests."""
     user = User(email="swork_views_test@example.com")
     user.photo = b""
+    user.active = True
     db_session.add(user)
     db_session.flush()
     return user
@@ -33,19 +35,7 @@ def authenticated_client(
     app: Flask, db_session: Session, test_user: User
 ) -> FlaskClient:
     """Provide a Flask test client logged in as test user."""
-    client = app.test_client()
-
-    with client.session_transaction() as sess:
-        sess["_user_id"] = str(test_user.id)
-        sess["_fresh"] = True
-        sess["_permanent"] = True
-        sess["_id"] = (
-            str(test_user.fs_uniquifier)
-            if hasattr(test_user, "fs_uniquifier")
-            else str(test_user.id)
-        )
-
-    return client
+    return make_authenticated_client(app, test_user)
 
 
 class TestSworkHomeView:
@@ -100,7 +90,65 @@ class TestParrainagesView:
     ):
         """Test parrainages page is accessible."""
         response = authenticated_client.get("/swork/parrainages/")
-        assert response.status_code in (200, 302)
+        assert response.status_code == 200
+
+        response_canonical = authenticated_client.get("/swork/parrainage/")
+        assert response_canonical.status_code == 200
+        html = response_canonical.get_data(as_text=True)
+        assert "Parrainage" in html
+        assert "Et si vous aidiez vos amis à profiter d’AiPRESS24" in html
+        assert 'name="emails"' in html
+        assert "Envoyer" in html
+        assert "Annuler" in html
+
+    def test_parrainage_post_empty_rejected(
+        self, authenticated_client: FlaskClient, db_session: Session
+    ):
+        """Test submitting empty form returns 400."""
+        response = authenticated_client.post(
+            "/swork/parrainage/",
+            data={"emails": "   "},
+        )
+        assert response.status_code == 400
+        html = response.get_data(as_text=True)
+        assert "Veuillez saisir au moins une adresse email." in html
+
+    def test_parrainage_post_invalid_email_rejected(
+        self, authenticated_client: FlaskClient, db_session: Session
+    ):
+        """Test submitting invalid email format returns 400 with error."""
+        response = authenticated_client.post(
+            "/swork/parrainage/",
+            data={"emails": "good@example.com, bad-email-format"},
+        )
+        assert response.status_code == 400
+        html = response.get_data(as_text=True)
+        assert "bad-email-format" in html
+
+    def test_parrainage_post_limit_exceeded(
+        self, authenticated_client: FlaskClient, db_session: Session
+    ):
+        """Test submitting more than 50 emails returns 400 with limit error."""
+        emails = ", ".join(f"user{i}@example.com" for i in range(51))
+        response = authenticated_client.post(
+            "/swork/parrainage/",
+            data={"emails": emails},
+        )
+        assert response.status_code == 400
+        html = response.get_data(as_text=True)
+        assert "50 par semaine au maximum" in html
+
+    def test_parrainage_post_success(
+        self, authenticated_client: FlaskClient, db_session: Session
+    ):
+        """Test valid emails submission redirects to swork.parrainage."""
+        emails = "friend1@example.com, friend2@example.org"
+        response = authenticated_client.post(
+            "/swork/parrainage/",
+            data={"emails": emails},
+        )
+        assert response.status_code == 302
+        assert response.headers["Location"].endswith("/swork/parrainage/")
 
 
 class TestNavigationIntegration:

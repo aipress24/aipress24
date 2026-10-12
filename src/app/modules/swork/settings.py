@@ -14,6 +14,11 @@ SWORK_MENU = [
         "icon": "bars-4",
     },
     {
+        "endpoint": "swork.parrainage",
+        "label": "Parrainage",
+        "icon": "heart",
+    },
+    {
         "endpoint": "swork.members",
         "label": "Membres",
         "icon": "users",
@@ -23,9 +28,4 @@ SWORK_MENU = [
         "label": "Organisations",
         "icon": "building-office",
     },
-    # {
-    #     "endpoint": "swork.parrainages",
-    #     "label": "Parrainages",
-    #     "icon": "heart",
-    # },
 ]

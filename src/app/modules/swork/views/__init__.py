@@ -13,6 +13,7 @@ from . import (
     lists,
     member,
     organisation,
+    parrainage,
 )
 
 __all__ = [
@@ -22,4 +23,5 @@ __all__ = [
     "lists",
     "member",
     "organisation",
+    "parrainage",
 ]

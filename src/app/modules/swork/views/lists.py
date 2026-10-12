@@ -37,10 +37,3 @@ def organisations():
 def groups():
     """Groupes"""
     return render_template("pages/groups.j2", title="Groupes")
-
-
-@blueprint.route("/parrainages/")
-@nav(parent="swork", icon="heart")
-def parrainages():
-    """Parrainages"""
-    return render_template("pages/members.j2", title="Parrainages")
