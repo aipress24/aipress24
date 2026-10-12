@@ -25,7 +25,8 @@
                             {% for contact in contacts_with_rdv %}
                                 <tr>
                                     <td class="py-2 px-4 border-b">
-                                        <a href="{{ url_for(contact.expert) }}" class="text-primary-700 hover:underline">
+                                        <a href="{{ url_for(contact.expert) }}" class="flex items-center gap-3 text-primary-700 hover:underline">
+                                            <span class="h-8 w-8 flex-shrink-0">{{ profile_image(contact.expert, size=8) }}</span>
                                             {{ contact.expert.full_name }}
                                         </a>
                                     </td>

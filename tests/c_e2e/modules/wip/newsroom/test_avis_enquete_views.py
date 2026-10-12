@@ -626,6 +626,19 @@ class TestJournalistAvisEnqueteViews:
         expert_profile_url = url_for(contact_with_rdv_proposed.expert)
         assert f'href="{expert_profile_url}"' in html
 
+    def test_rdv_management_shows_expert_thumbnail(
+        self,
+        logged_in_client: FlaskClient,
+        test_avis_enquete: AvisEnquete,
+        contact_with_rdv_proposed: ContactAvisEnquete,
+    ):
+        """The RDV table shows each expert's profile thumbnail."""
+        url = url_for("AvisEnqueteWipView:rdv", id=test_avis_enquete.id)
+        response = logged_in_client.get(url)
+        assert response.status_code == 200
+        table_body = response.data.decode().split("<tbody", 1)[1]
+        assert "<img" in table_body.split("</tbody>", 1)[0]
+
     def test_rdv_details_links_journaliste_and_expert_to_profiles(
         self,
         logged_in_client: FlaskClient,
