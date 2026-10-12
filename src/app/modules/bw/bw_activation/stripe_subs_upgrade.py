@@ -12,7 +12,10 @@ import stripe
 
 from app.flask.extensions import db
 from app.logging import warn
-from app.modules.bw.bw_activation.bw_product import evaluate_subscription
+from app.modules.bw.bw_activation.bw_product import (
+    _get_key,
+    evaluate_subscription,
+)
 from app.services.stripe.product import resolve_product_price
 from app.services.stripe.utils import load_stripe_api_key
 
@@ -53,13 +56,6 @@ def _find_item_to_replace(stripe_sub: Any) -> str | None:
     if not data:
         return None
     return _get_key(data[0], "id")
-
-
-def _get_key(obj: Any, key: str) -> Any:
-    """Read `key` off a Stripe object or a plain dict."""
-    if isinstance(obj, dict):
-        return obj.get(key)
-    return getattr(obj, key, None)
 
 
 def change_bw_subscription_tier(

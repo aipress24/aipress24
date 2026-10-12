@@ -47,12 +47,21 @@ def _current_stripe_product(stripe_subscription_id: str) -> Product | None:
         warn(f"Cannot read Stripe subscription {stripe_subscription_id!r}: {e}")
         return None
 
-    items = stripe_sub.get("items")
-    data = items.get("data") if items else None
+    items = _get_key(stripe_sub, "items")
+    data = _get_key(items, "data") if items is not None else None
     if not data:
         return None
-    plan = data[0].get("plan")
-    return plan.get("product") if plan else None
+    plan = _get_key(data[0], "plan")
+    return _get_key(plan, "product") if plan is not None else None
+
+
+def _get_key(obj: Any, key: str) -> Any:
+    """Read "key" from a Stripe object or a plain dict (Stripe object are no more dicts)."""
+    if obj is None:
+        return None
+    if isinstance(obj, dict):
+        return obj.get(key)
+    return getattr(obj, key, None)
 
 
 def allowed_bw_product_list(bw_type: str) -> list[Product]:
@@ -267,7 +276,7 @@ def evaluate_subscription(
     }
 
 
-def _product_id(product: Product) -> str:
+def _product_id(product: Any) -> str:
     """Return the id of a Stripe product or product-like dict."""
     if isinstance(product, dict):
         return str(product.get("id", ""))
@@ -303,7 +312,7 @@ def select_product_for_quantity(products: list[Product], quantity: int) -> Produ
         meta = coerce_metadata(raw_metadata)
         max_str = meta.get("maximum") or meta.get("Maximum") or meta.get("MAXIMUM")
         try:
-            max_val = int(max_str)
+            max_val: float = float(int(str(max_str)))
         except (ValueError, TypeError):
             max_val = float("inf")
         parsed_products.append((max_val, p))
