@@ -6,6 +6,9 @@
 
 from __future__ import annotations
 
+import arrow
+
+from app.models.parrainage_email_log import ParrainageEmailLog
 from app.modules.swork.settings import SWORK_MENU
 from app.modules.swork.views.parrainage import parse_and_validate_emails
 
@@ -59,8 +62,28 @@ class TestParrainageEmailParsing:
         assert invalid == []
 
 
+class TestParrainageEmailLogModel:
+    """Test ParrainageEmailLog model schema and attributes."""
+
+    def test_model_table_name(self):
+        assert ParrainageEmailLog.__tablename__ == "parrainage_email_log"
+
+    def test_model_instantiation(self):
+        now = arrow.utcnow()
+        log = ParrainageEmailLog(
+            user_id=123,
+            recipient_email="friend@example.com",
+            sent_at=now,
+        )
+        assert log.user_id == 123
+        assert log.recipient_email == "friend@example.com"
+        assert log.sent_at == now
+        assert "123" in repr(log)
+        assert "friend@example.com" in repr(log)
+
+
 class TestSworkMenuConfiguration:
-    """Test swork menu."""
+    """Test swork menu endpoints."""
 
     def test_parrainage_positioned_above_members(self):
         endpoints = [item["endpoint"] for item in SWORK_MENU]

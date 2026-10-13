@@ -8,9 +8,11 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+import arrow
 import pytest
 
 from app.models.auth import User
+from app.models.parrainage_email_log import ParrainageEmailLog
 from tests.c_e2e.conftest import make_authenticated_client
 
 if TYPE_CHECKING:
@@ -139,9 +141,12 @@ class TestParrainagesView:
         assert "50 par semaine au maximum" in html
 
     def test_parrainage_post_success(
-        self, authenticated_client: FlaskClient, db_session: Session
+        self,
+        authenticated_client: FlaskClient,
+        db_session: Session,
+        test_user: User,
     ):
-        """Test valid emails submission redirects to swork.parrainage."""
+        """Test valid emails submission records in ParrainageEmailLog and redirects."""
         emails = "friend1@example.com, friend2@example.org"
         response = authenticated_client.post(
             "/swork/parrainage/",
@@ -149,6 +154,78 @@ class TestParrainagesView:
         )
         assert response.status_code == 302
         assert response.headers["Location"].endswith("/swork/parrainage/")
+
+        logs = (
+            db_session.query(ParrainageEmailLog).filter_by(user_id=test_user.id).all()
+        )
+        assert len(logs) == 2
+        recipients = {log.recipient_email for log in logs}
+        assert recipients == {"friend1@example.com", "friend2@example.org"}
+
+    def test_parrainage_cumulative_quota(
+        self,
+        authenticated_client: FlaskClient,
+        db_session: Session,
+        test_user: User,
+    ):
+        """Test that past sent emails count towards the weekly 50 limit."""
+        # Pre-seed 45 emails sent 2 days ago
+        two_days_ago = arrow.utcnow().shift(days=-2)
+        for i in range(45):
+            log = ParrainageEmailLog(
+                user_id=test_user.id,
+                recipient_email=f"prior{i}@example.com",
+                sent_at=two_days_ago,
+            )
+            db_session.add(log)
+        db_session.commit()
+
+        response = authenticated_client.post(
+            "/swork/parrainage/",
+            data={"emails": ", ".join(f"new{i}@example.com" for i in range(6))},
+        )
+        assert response.status_code == 400
+        html = response.get_data(as_text=True)
+        assert "50 par semaine au maximum" in html
+
+        # Sending 5 emails succeeds
+        response = authenticated_client.post(
+            "/swork/parrainage/",
+            data={"emails": ", ".join(f"new{i}@example.com" for i in range(5))},
+        )
+        assert response.status_code == 302
+
+        response = authenticated_client.post(
+            "/swork/parrainage/",
+            data={"emails": "one_more@example.com"},
+        )
+        assert response.status_code == 400
+        html = response.get_data(as_text=True)
+        assert "50 par semaine au maximum" in html
+
+    def test_parrainage_old_logs_excluded_from_quota(
+        self,
+        authenticated_client: FlaskClient,
+        db_session: Session,
+        test_user: User,
+    ):
+        """Test that emails sent more than 7 days ago do not count against current quota."""
+        ten_days_ago = arrow.utcnow().shift(days=-10)
+        for i in range(50):
+            log = ParrainageEmailLog(
+                user_id=test_user.id,
+                recipient_email=f"old{i}@example.com",
+                sent_at=ten_days_ago,
+            )
+            db_session.add(log)
+        db_session.commit()
+
+        # User should still have all 50 slots available
+        response = authenticated_client.post(
+            "/swork/parrainage/",
+            data={"emails": "new_friend@example.com"},
+        )
+        assert response.status_code == 302
 
 
 class TestNavigationIntegration:
