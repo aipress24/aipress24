@@ -383,8 +383,10 @@ def test_parrainage_mail():
         mail = ParrainageMail(
             sender="contact@aipress24.com",
             recipient="invited@example.com",
+            subject="Alice Dupont t’invite à rejoindre AiPRESS24",
             sender_mail="inviter@example.com",
             sender_full_name="Alice Dupont",
+            sender_first_name="Alice",
         )
         assert mail.send() is True
 
@@ -392,7 +394,13 @@ def test_parrainage_mail():
         _args, kwargs = mock_email_message.call_args
         assert kwargs["to"] == ["invited@example.com"]
         assert kwargs["from_email"] == "contact@aipress24.com"
-        assert kwargs["subject"] == "[AiPRESS24] Invitation à rejoindre AiPRESS24"
-        assert "Alice Dupont" in kwargs["body"]
+        assert kwargs["subject"] == "Alice Dupont t’invite à rejoindre AiPRESS24"
+        assert (
+            "Partage ton expertise, développe ton réseau et saisis de nouvelles opportunités !"
+            in kwargs["body"]
+        )
+        assert "Alice" in kwargs["body"]
+        assert "Créons et partageons la valeur de l’info" in kwargs["body"]
+        assert "Je rejoins AiPRESS24" in kwargs["body"]
         assert "inviter@example.com" in kwargs["body"]
         assert "https://aipress24.com" in kwargs["body"]

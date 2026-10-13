@@ -90,13 +90,21 @@ def send_parrainage_emails(sender: User, recipient_emails: list[str]) -> None:
     """Send parrainage invitation emails to recipient emails."""
     sender_mail = sender.email or ""
     sender_full_name = (sender.full_name or "").strip() or sender_mail
+    sender_first_name = (sender.first_name or "").strip() or sender_full_name.split()[0]
+    subject = (
+        f"{sender_full_name} t’invite à rejoindre AiPRESS24"
+        if sender_full_name
+        else "Invitation à rejoindre AiPRESS24"
+    )
 
     for email in recipient_emails:
         mail = ParrainageMail(
             sender="contact@aipress24.com",
             recipient=email,
+            subject=subject,
             sender_mail=sender_mail,
             sender_full_name=sender_full_name,
+            sender_first_name=sender_first_name,
         )
         mail.send()
 

@@ -111,6 +111,7 @@ class TestSendParrainageEmails:
         user = MagicMock()
         user.email = "sender@example.com"
         user.full_name = "Sender Name"
+        user.first_name = "Sender"
 
         with patch(
             "app.modules.swork.views.parrainage.ParrainageMail"
@@ -124,6 +125,11 @@ class TestSendParrainageEmails:
             assert mock_instance.send.call_count == 2
             first_call_kwargs = mock_mail_cls.call_args_list[0].kwargs
             assert first_call_kwargs["recipient"] == "friend1@example.com"
+            assert (
+                first_call_kwargs["subject"]
+                == "Sender Name t’invite à rejoindre AiPRESS24"
+            )
             assert first_call_kwargs["sender_mail"] == "sender@example.com"
             assert first_call_kwargs["sender_full_name"] == "Sender Name"
+            assert first_call_kwargs["sender_first_name"] == "Sender"
             assert first_call_kwargs["sender"] == "contact@aipress24.com"

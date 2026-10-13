@@ -929,6 +929,7 @@ class ParrainageMail(EmailTemplate):
         - recipient: mail of recipient.
         - sender_mail: user.email (user sending invitation), informative.
         - sender_full_name: user.full_name (user sending invitation), informative.
+        - sender_first_name: user.first_name (user sending invitation), informative.
         - url: URL to join or register on AiPRESS24.
 
     Usage:
@@ -937,12 +938,13 @@ class ParrainageMail(EmailTemplate):
             recipient=mail,
             sender_mail=sender_mail,
             sender_full_name=sender_full_name,
+            sender_first_name=sender_first_name,
         )
         parrainage_mail.send()
     """
 
-    subject: str = "[AiPRESS24] Invitation à rejoindre AiPRESS24"
+    subject: str = "Invitation à rejoindre AiPRESS24"
     template_html: str = "parrainage_invitation.j2"
     sender_full_name: str
+    sender_first_name: str = ""
     url: str = "https://aipress24.com"
-
