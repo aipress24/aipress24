@@ -16,6 +16,7 @@ from sqlalchemy.sql.elements import ColumnElement
 from app.models.auth import Role, User
 from app.models.email_log import EmailLog
 from app.models.organisation import Organisation
+from app.models.parrainage_email_log import ParrainageEmailLog
 from app.services.repositories import Repository
 
 
@@ -100,3 +101,8 @@ class OrganisationRepository(Repository[Organisation]):
 @service
 class EmailLogRepository(Repository[EmailLog]):
     model_type = EmailLog
+
+
+@service
+class ParrainageEmailLogRepository(Repository[ParrainageEmailLog]):
+    model_type = ParrainageEmailLog

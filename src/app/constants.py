@@ -94,6 +94,11 @@ EMAILS_MAX_SENT_LAST_PERIOD = 200
 # clean the mail log table of mail older than 90 days:
 EMAILS_LOG_STORAGE_CUTOFF = 90
 
+# Constants for parrainage email service
+PARRAINAGE_MAX_EMAILS_PER_WEEK = 50
+PARRAINAGE_PERIOD_DAYS = 7
+
+
 WEBHOOK_TEST_CUSTOMER_EMAIL = "admin-webhook-test@example.com"
 WEBHOOK_TEST_WAIT_TIMEOUT = 60
 

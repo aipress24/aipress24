@@ -4,10 +4,13 @@
 
 from __future__ import annotations
 
+from app.models.parrainage_email_log import ParrainageEmailLog
+
 from .groups import Group, group_exclusions_table, group_members_table
 
 __all__ = [
     "Group",
+    "ParrainageEmailLog",
     "group_exclusions_table",
     "group_members_table",
 ]

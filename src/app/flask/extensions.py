@@ -48,6 +48,7 @@ def import_all_models():
     import app.models.lifecycle
     import app.models.meta
     import app.models.organisation
+    import app.models.parrainage_email_log
     import app.models.web
     import app.modules.biz.models
     import app.modules.bw.bw_activation.models
@@ -76,6 +77,7 @@ def import_all_models():
     assert app.models.lifecycle
     assert app.models.meta
     assert app.models.organisation
+    assert app.models.parrainage_email_log
     assert app.models.web
     assert app.services.zip_codes._models
 

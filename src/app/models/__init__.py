@@ -5,10 +5,12 @@ from __future__ import annotations
 
 from .auth import User
 from .comment import Comment
+from .parrainage_email_log import ParrainageEmailLog
 from .short_post import ShortPost
 
 __all__ = [
     "Comment",
+    "ParrainageEmailLog",
     "ShortPost",
     "User",
 ]
