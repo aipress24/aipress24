@@ -20,14 +20,13 @@ from app.models.auth import User
 from app.models.lifecycle import PublicationStatus
 from app.modules.swork.models import Group, group_members_table
 
-# Relationships a member CARD reads (job_title → profile, organisation_name →
-# organisation, community badge → roles). Eager-loaded so a list of follower /
-# followee cards doesn't issue a query per card.
-_CARD_LOAD_OPTIONS = (
-    selectinload(User.profile),
-    selectinload(User.organisation),
-    selectinload(User.roles),
-)
+
+def _card_load_options():
+    return (
+        selectinload(User.profile),
+        selectinload(User.organisation),
+        selectinload(User.roles),
+    )
 
 # Lazy imports to avoid circular import
 # from app.services.social_graph import adapt
@@ -180,7 +179,7 @@ class UserVM(ViewModel):
         from app.services.social_graph import adapt
 
         followers: list[User] = adapt(self.user).get_followers(
-            order_by=-User.karma, limit=limit, options=_CARD_LOAD_OPTIONS
+            order_by=-User.karma, limit=limit, options=_card_load_options()
         )
         # Light cards, NOT recursive UserVMs : a follower card reads only plain
         # User fields (name / job_title / org / photo), so wrapping each in a
@@ -193,7 +192,7 @@ class UserVM(ViewModel):
         from app.services.social_graph import adapt
 
         followees: list[User] = adapt(self.user).get_followees(
-            order_by=-User.karma, limit=limit, options=_CARD_LOAD_OPTIONS
+            order_by=-User.karma, limit=limit, options=_card_load_options()
         )
         return FollowerCardVM.from_many(followees)
 
