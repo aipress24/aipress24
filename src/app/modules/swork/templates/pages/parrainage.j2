@@ -89,6 +89,94 @@
                     </button>
                 </div>
             </form>
+
+            <div class="my-12 space-y-4 text-gray-700 leading-relaxed mb-8">
+                <p>
+                    Les amis que vous parrainez vont recevoir par e-mail le
+                    message ci-dessous&nbsp;:
+                </p>
+                <div
+                    id="mail-content"
+                    class="my-6 p-6 sm:p-8 bg-blue-50 border border-blue-200 rounded-lg shadow-sm space-y-4 text-gray-800"
+                >
+                    {%- set AIPRESS24 -%}
+                        <strong>A<span style="color:#E30613">i</span>PRESS24</strong>
+                    {%- endset -%}
+
+                    <p>
+                        <strong>
+                            Partage ton expertise, développe ton réseau et saisis de nouvelles opportunités !
+                        </strong>
+                    </p>
+
+                    <p>
+                        Bonjour,
+                    </p>
+
+                    <p>
+                        Je voudrais t’inviter à me rejoindre sur {{ AIPRESS24 }}, pour créer et
+                        partager la valeur de l’info
+                    </p>
+
+                    <p>
+                        Ayant pour devise «&nbsp;Créons et partageons la valeur de l’info&nbsp;»,
+                        {{ AIPRESS24 }} retisse un lien de confiance entre les journalistes et
+                        toutes les parties prenantes à la fabrique de l’info&nbsp;: Journalistes,
+                        des Communicants (professionnels des relations presse), des Leaders
+                        (dirigeants, politiques), des Experts (artistes, avocats, médecins,
+                        ingénieurs, financiers...), Transformers (innovateurs) des Academics
+                        (chercheurs, professeurs, étudiants).
+                    </p>
+
+                    <p>
+                        <strong>En adhérant GRATUITEMENT à {{ AIPRESS24 }}, tu vas&nbsp;:</strong>
+                    </p>
+                    <ul style="margin: 0 0 16px 20px; padding: 0;">
+                        <li style="margin-bottom: 6px;">
+                            <strong>Accroître ta visibilité</strong> et valoriser ton expertise
+                            auprès de ton écosystème professionnel,
+                        </li>
+                        <li style="margin-bottom: 6px;">
+                            <strong>Gagner en efficacité opérationnelle</strong> pour t’informer,
+                            trouver les bons interlocuteurs, échanger et collaborer avec les
+                            professionnels des médias, des relations presse et des innovateurs
+                        </li>
+                        <li style="margin-bottom: 6px;">
+                            <strong>Développer ton réseau</strong> et saisir de nouvelles
+                            opportunités de missions, de partenariats et d’affaires.
+                        </li>
+                    </ul>
+
+                    <p>
+                        Pour rejoindre ce réseau, il te suffit de cliquer ici&nbsp;:
+                    </p>
+
+                    <p style="margin: 20px 0;">
+                        <a
+                            href=""
+                            style="display:inline-block;padding:12px 24px;background-color:#4F46E5;color:#FFFFFF;text-decoration:none;border-radius:6px;font-weight:600">
+                            Je rejoins AiPRESS24
+                        </a>
+                    </p>
+
+                    <p>
+                        Au plaisir de t’y retrouver très vite&nbsp;!
+                    </p>
+
+                    <p>
+                        [votre prénom]
+                    </p>
+
+                    <p style="font-style: italic; color: #4B5563; margin-top: 24px;">
+                        {{ AIPRESS24 }}&nbsp;: créons et partageons la valeur de l’info&nbsp;!
+                    </p>
+
+                    <p style="font-size:12px;color:#6B7280;margin-top:24px;border-top:1px solid #E5E7EB;padding-top:12px;">
+                        Envoyé par [votre email] via le site aipress24.com.
+                    </p>
+                </div>
+
+            </div>
         </main>
 
         <aside class="hidden xl:block xl:col-span-3 my-8">
