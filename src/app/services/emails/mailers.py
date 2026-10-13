@@ -918,3 +918,31 @@ class EventReminderMail(EmailTemplate):
     # `TypeError` à l'envoi — perdant tout le lot après que le registre
     # l'a déjà marqué envoyé.
     access_details: str = ""
+
+
+@dataclass(kw_only=True)
+class ParrainageMail(EmailTemplate):
+    """Create a mail for parrainage / friend invitation.
+
+    Args:
+        - sender: mail of actual sender, usually "contact@aipress24.com".
+        - recipient: mail of recipient.
+        - sender_mail: user.email (user sending invitation), informative.
+        - sender_full_name: user.full_name (user sending invitation), informative.
+        - url: URL to join or register on AiPRESS24.
+
+    Usage:
+        parrainage_mail = ParrainageMail(
+            sender="contact@aipress24.com",
+            recipient=mail,
+            sender_mail=sender_mail,
+            sender_full_name=sender_full_name,
+        )
+        parrainage_mail.send()
+    """
+
+    subject: str = "[AiPRESS24] Invitation à rejoindre AiPRESS24"
+    template_html: str = "parrainage_invitation.j2"
+    sender_full_name: str
+    url: str = "https://aipress24.com"
+

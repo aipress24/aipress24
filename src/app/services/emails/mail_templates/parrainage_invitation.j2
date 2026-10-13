@@ -1,0 +1,21 @@
+{# Styled AiPRESS24 wordmark: bold, with a red lowercase "i". Inline
+   styles for email-client compatibility. #}
+{%- set AIPRESS24 -%}
+    <strong>A<span style="color:#E30613">i</span>PRESS24</strong>
+{%- endset -%}
+<p>
+    Bonjour,
+</p>
+
+<p>
+    {{ sender_full_name }} vous invite à rejoindre {{ AIPRESS24 }}.
+</p>
+
+<p>
+    Pour vous inscrire gratuitement sur AiPRESS24, cliquez sur ce lien:
+    <a href="{{ url }}">Inscription sur Aipress.com</a>
+</p>
+
+<p>
+    Envoyé par {{ sender_mail }} via le site aipress24.com.
+</p>

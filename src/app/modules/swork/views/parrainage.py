@@ -26,6 +26,7 @@ from app.flask.routing import url_for
 from app.models.auth import User
 from app.models.parrainage_email_log import ParrainageEmailLog
 from app.modules.swork import blueprint
+from app.services.emails import ParrainageMail
 
 MAX_INVITATIONS = PARRAINAGE_MAX_EMAILS_PER_WEEK
 
@@ -83,6 +84,21 @@ def record_parrainage_emails(user_id: int, recipient_emails: list[str]) -> None:
         )
         db.session.add(log_entry)
     db.session.commit()
+
+
+def send_parrainage_emails(sender: User, recipient_emails: list[str]) -> None:
+    """Send parrainage invitation emails to recipient emails."""
+    sender_mail = sender.email or ""
+    sender_full_name = (sender.full_name or "").strip() or sender_mail
+
+    for email in recipient_emails:
+        mail = ParrainageMail(
+            sender="contact@aipress24.com",
+            recipient=email,
+            sender_mail=sender_mail,
+            sender_full_name=sender_full_name,
+        )
+        mail.send()
 
 
 class ParrainageView(MethodView):
@@ -174,9 +190,7 @@ class ParrainageView(MethodView):
         if user_id:
             record_parrainage_emails(user_id, valid_emails)
 
-        #
-        # TODO send emails
-        #
+        send_parrainage_emails(user, valid_emails)
 
         count = len(valid_emails)
         flash(

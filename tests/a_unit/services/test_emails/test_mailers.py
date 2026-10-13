@@ -18,6 +18,7 @@ from app.services.emails.mailers import (
     ContactAvisEnqueteRDVConfirmationMail,
     ContactAvisEnqueteRDVProposalMail,
     ContentAlertMail,
+    ParrainageMail,
     ShareContentMail,
 )
 
@@ -375,3 +376,23 @@ def test_email_template_send_catches_smtp_exception():
             bw_name="Test BW",
         )
         assert mail.send() is False
+
+
+def test_parrainage_mail():
+    with patch("app.services.emails.base.EmailMessage") as mock_email_message:
+        mail = ParrainageMail(
+            sender="contact@aipress24.com",
+            recipient="invited@example.com",
+            sender_mail="inviter@example.com",
+            sender_full_name="Alice Dupont",
+        )
+        assert mail.send() is True
+
+        mock_email_message.assert_called_once()
+        _args, kwargs = mock_email_message.call_args
+        assert kwargs["to"] == ["invited@example.com"]
+        assert kwargs["from_email"] == "contact@aipress24.com"
+        assert kwargs["subject"] == "[AiPRESS24] Invitation à rejoindre AiPRESS24"
+        assert "Alice Dupont" in kwargs["body"]
+        assert "inviter@example.com" in kwargs["body"]
+        assert "https://aipress24.com" in kwargs["body"]

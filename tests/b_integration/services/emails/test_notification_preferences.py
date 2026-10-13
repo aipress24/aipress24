@@ -212,12 +212,12 @@ class TestEveryMailerIsClassified:
             and cls is not EmailTemplate
         ]
 
-        assert len(classes) == 31
+        assert len(classes) == 32
         for cls in classes:
             assert isinstance(cls.category, NotificationCategory), cls.__name__
 
     def test_and_the_split_is_the_one_the_spec_announces(self) -> None:
-        """Vingt transactionnels, onze désactivables. Un email qui
+        """Vingt-et-un transactionnels, onze désactivables. Un email qui
         change de camp doit passer par une mise à jour de la spec, pas
         par une inattention."""
         counts = Counter(
@@ -228,7 +228,7 @@ class TestEveryMailerIsClassified:
             and cls is not EmailTemplate
         )
 
-        assert counts[NotificationCategory.TRANSACTIONAL] == 20
+        assert counts[NotificationCategory.TRANSACTIONAL] == 21
         assert sum(counts.values()) - counts[NotificationCategory.TRANSACTIONAL] == 11
 
 
