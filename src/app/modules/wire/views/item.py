@@ -340,6 +340,7 @@ class PostMixin:
     """Mixin for common post attributes."""
 
     if TYPE_CHECKING:
+
         @property
         def _model(self) -> Post: ...
         @property
@@ -395,6 +396,7 @@ class PostVMMixin(PostMixin):
     """
 
     if TYPE_CHECKING:
+
         @property
         def _comment_prefix(self) -> str: ...
 
