@@ -340,8 +340,10 @@ class PostMixin:
     """Mixin for common post attributes."""
 
     if TYPE_CHECKING:
-        _model: Post
-        publisher: Organisation
+        @property
+        def _model(self) -> Post: ...
+        @property
+        def publisher(self) -> Organisation: ...
 
     def extra_attrs(self):
         post = self._model
@@ -392,7 +394,9 @@ class PostVMMixin(PostMixin):
     - _comment_prefix: Prefix for comment object_id (e.g., "article", "press-release")
     """
 
-    _comment_prefix: str
+    if TYPE_CHECKING:
+        @property
+        def _comment_prefix(self) -> str: ...
 
     def extra_attrs(self) -> dict:
         post = self._model
