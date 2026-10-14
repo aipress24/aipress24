@@ -28,6 +28,7 @@ def _card_load_options():
         selectinload(User.roles),
     )
 
+
 # Lazy imports to avoid circular import
 # from app.services.social_graph import adapt
 # from app.modules.wire.models import ArticlePost
