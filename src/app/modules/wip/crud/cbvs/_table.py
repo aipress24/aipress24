@@ -119,7 +119,7 @@ def make_datasource(model_class: type, q: str) -> BaseDataSource:
 class BaseTable(Table):
     id = "articles-table"
     q: str
-    data_source: BaseDataSource
+    data_source: BaseDataSource  # ty:ignore[invalid-mutable-override]
     #: Set by the CBV layer (`_make_table`) for the HTMX table template.
     _action_url: str = ""
     _new_url: str = ""
@@ -147,7 +147,7 @@ class BaseTable(Table):
     # descriptors (class-level), but ty's attrs interaction
     # mis-classifies the override as an instance variable. Safe to
     # ignore — runtime semantics are property-over-property.
-    def columns(self):  # ty:ignore[invalid-attribute-override]
+    def columns(self):  # ty:ignore[invalid-property-type-override]
         return self.get_columns()
 
     def get_columns(self):
