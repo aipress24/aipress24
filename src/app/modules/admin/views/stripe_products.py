@@ -103,7 +103,7 @@ def _run_tax_simulation(products: list[Product]) -> dict[str, dict[str, Any]]:
         )
         assert calculation.id is not None
         lines = stripe.tax.Calculation.list_line_items(
-            calculation=calculation.id, expand=["data.tax_breakdown"]
+            calculation.id, expand=["data.tax_breakdown"]
         )
         return {
             item.reference: {
