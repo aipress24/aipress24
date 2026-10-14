@@ -124,8 +124,8 @@ class User(LifeCycleMixin, Addressable, UserMixin, Base):
     current_login_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), nullable=True
     )
-    last_login_ip: Mapped[str] = mapped_column(default="", nullable=True)
-    current_login_ip: Mapped[str] = mapped_column(default="")
+    last_login_ip: Mapped[str | None] = mapped_column(default="", nullable=True)
+    current_login_ip: Mapped[str | None] = mapped_column(default="", nullable=False)
     login_count: Mapped[int] = mapped_column(sa.Integer, default=0)
     # Flask Security
     active: Mapped[bool] = mapped_column(default=False)
@@ -409,7 +409,9 @@ class Role(Base, RoleMixin):
 
     id: Mapped[int] = mapped_column(primary_key=True)
     name: Mapped[str] = mapped_column(sa.String(80), unique=True)
-    description: Mapped[str] = mapped_column(sa.String(255), default="")
+    description: Mapped[str | None] = mapped_column(
+        sa.String(255), default="", nullable=False
+    )
 
     def __repr__(self) -> str:
         return f"<Role {self.name}>"
