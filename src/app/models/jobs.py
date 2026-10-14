@@ -27,7 +27,7 @@ Employer -- OrganisationPage
 
 from __future__ import annotations
 
-import datetime
+import datetime as dt
 
 import arrow
 import sqlalchemy as sa
@@ -75,7 +75,7 @@ class JobPost(IdMixin, LifeCycleMixin, Owned, Base):
             self.slug = slugify(self.title)
 
     @property
-    def date(self) -> datetime.date:
+    def date(self) -> dt.date:
         """Get the creation date of the job post."""
         return self.created_at.date()
         # date = self.created_at
@@ -100,7 +100,7 @@ class CV(IdMixin, LifeCycleMixin, Owned, Base):
     location: Mapped[str]
 
     @property
-    def date(self) -> datetime.date:
+    def date(self) -> dt.date:
         """Get the creation date of the CV."""
         return self.created_at.date()
         # created_at: Arrow = cast(Arrow, self.created_at)

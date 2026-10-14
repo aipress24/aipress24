@@ -4,7 +4,7 @@
 
 from __future__ import annotations
 
-import datetime
+import datetime as dt
 
 import sqlalchemy as sa
 from sqlalchemy.orm import Mapped, mapped_column
@@ -19,6 +19,6 @@ class ReputationRecord(Base):
     user_id: Mapped[int] = mapped_column(
         sa.ForeignKey(User.id, onupdate="CASCADE", ondelete="CASCADE"), primary_key=True
     )
-    date: Mapped[datetime.date] = mapped_column(primary_key=True)
+    date: Mapped[dt.date] = mapped_column(primary_key=True)
     value: Mapped[float]
     details: Mapped[dict] = mapped_column(sa.JSON, default=dict)

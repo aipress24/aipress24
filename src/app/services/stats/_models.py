@@ -4,7 +4,7 @@
 
 from __future__ import annotations
 
-import datetime
+import datetime as dt
 
 from sqlalchemy.orm import Mapped, mapped_column
 
@@ -15,7 +15,7 @@ from app.models.mixins import IdMixin
 class StatsRecord(IdMixin, Base):
     __tablename__ = "sta_record"
 
-    date: Mapped[datetime.date] = mapped_column(primary_key=True)
+    date: Mapped[dt.date] = mapped_column(primary_key=True)
     duration: Mapped[str] = mapped_column(default="day", primary_key=True)
     key: Mapped[str] = mapped_column(primary_key=True)
     value: Mapped[float]

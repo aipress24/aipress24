@@ -12,7 +12,7 @@
 # - The date/datetime/time constructors produce friendlier error messages.
 from __future__ import annotations
 
-import datetime
+import datetime as dt
 import re
 
 date_re = re.compile(r"(?P<year>\d{4})-(?P<month>\d{1,2})-(?P<day>\d{1,2})$")
@@ -71,13 +71,13 @@ postgres_interval_re = re.compile(
 
 def get_fixed_timezone(offset):
     """Return a tzinfo instance with a fixed offset from UTC."""
-    if isinstance(offset, datetime.timedelta):
+    if isinstance(offset, dt.timedelta):
         offset = int(offset.total_seconds()) // 60
     sign = "-" if offset < 0 else "+"
     h, m = divmod(abs(offset), 60)
     hhmm = f"{h:02d}{m:02d}"
     name = sign + hhmm
-    return datetime.timezone(datetime.timedelta(minutes=offset), name)
+    return dt.timezone(dt.timedelta(minutes=offset), name)
 
 
 def parse_date(value):
@@ -87,11 +87,11 @@ def parse_date(value):
     date. Return None if the input isn't well formatted.
     """
     try:
-        return datetime.date.fromisoformat(value)
+        return dt.date.fromisoformat(value)
     except ValueError:
         if match := date_re.match(value):
             kw = {k: int(v) for k, v in match.groupdict().items()}
-            return datetime.date(**kw)
+            return dt.date(**kw)
 
 
 def parse_time(value):
@@ -108,7 +108,7 @@ def parse_time(value):
         # returns a time with a tzinfo component, if possible. However, there
         # are no circumstances where aware datetime.time objects make sense, so
         # remove the time zone offset.
-        return datetime.time.fromisoformat(value).replace(tzinfo=None)
+        return dt.time.fromisoformat(value).replace(tzinfo=None)
     except ValueError:
         if match := time_re.match(value):
             kw = match.groupdict()
@@ -118,7 +118,7 @@ def parse_time(value):
             time_kw: dict[str, int] = {
                 k: int(v) for k, v in kw.items() if v is not None
             }
-            return datetime.time(
+            return dt.time(
                 hour=time_kw["hour"],
                 minute=time_kw["minute"],
                 second=time_kw.get("second", 0),
@@ -136,14 +136,14 @@ def parse_datetime(value):
     datetime. Return None if the input isn't well formatted.
     """
     try:
-        return datetime.datetime.fromisoformat(value)
+        return dt.datetime.fromisoformat(value)
     except ValueError:
         if match := datetime_re.match(value):
             kw = match.groupdict()
             kw["microsecond"] = kw["microsecond"] and kw["microsecond"].ljust(6, "0")
             tzinfo = kw.pop("tzinfo")
             if tzinfo == "Z":
-                tzinfo = datetime.UTC
+                tzinfo = dt.UTC
             elif tzinfo is not None:
                 offset_mins = int(tzinfo[-2:]) if len(tzinfo) > 3 else 0
                 offset = 60 * int(tzinfo[1:3]) + offset_mins
@@ -151,10 +151,10 @@ def parse_datetime(value):
                     offset = -offset
                 tzinfo = get_fixed_timezone(offset)
             kw = {k: int(v) for k, v in kw.items() if v is not None}
-            return datetime.datetime(**kw, tzinfo=tzinfo)
+            return dt.datetime(**kw, tzinfo=tzinfo)
 
 
-def parse_duration(value) -> datetime.timedelta | None:
+def parse_duration(value) -> dt.timedelta | None:
     """Parse a duration string and return a datetime.timedelta.
 
     The preferred format for durations in Django is '%d %H:%M:%S.%f'.
@@ -173,9 +173,9 @@ def parse_duration(value) -> datetime.timedelta | None:
         if kw.get("microseconds"):
             kw["microseconds"] = kw["microseconds"].ljust(6, "0")
         kw = {k: float(v.replace(",", ".")) for k, v in kw.items() if v is not None}
-        days = datetime.timedelta(kw.pop("days", 0.0) or 0.0)
+        days = dt.timedelta(kw.pop("days", 0.0) or 0.0)
         if match.re == iso8601_duration_re:
             days *= sign
-        return days + sign * datetime.timedelta(**kw)
+        return days + sign * dt.timedelta(**kw)
 
     return None

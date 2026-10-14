@@ -6,7 +6,7 @@
 
 from __future__ import annotations
 
-import datetime
+import datetime as dt
 from typing import cast
 
 import arrow
@@ -237,7 +237,7 @@ class Calendar:
         events: list[EventPost],
         start_date: Arrow,
         end_date: Arrow,
-        today: datetime.date,
+        today: dt.date,
         *,
         include_details: bool = False,
     ) -> list[dict]:

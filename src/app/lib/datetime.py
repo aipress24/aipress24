@@ -5,7 +5,7 @@
 
 from __future__ import annotations
 
-import datetime
+import datetime as dt
 
 from pytz import UnknownTimeZoneError, timezone, utc
 from pytz.tzinfo import DstTzInfo
@@ -35,7 +35,7 @@ def convert_dates_to_utc(dates):
 def as_timestamp(dtime_at=None):
     if not dtime_at:
         dtime_at = datetime_or_now()
-    return int((dtime_at - datetime.datetime(1970, 1, 1, tzinfo=utc)).total_seconds())
+    return int((dtime_at - dt.datetime(1970, 1, 1, tzinfo=utc)).total_seconds())
 
 
 def datetime_or_now(dtime_at=None):
@@ -45,9 +45,9 @@ def datetime_or_now(dtime_at=None):
         if not as_datetime:
             as_date = parse_date(dtime_at)
             if as_date:
-                as_datetime = datetime.datetime.combine(as_date, datetime.time.min)
+                as_datetime = dt.datetime.combine(as_date, dt.time.min)
     if not as_datetime:
-        as_datetime = datetime.datetime.now(tz=utc)
+        as_datetime = dt.datetime.now(tz=utc)
     if as_datetime.tzinfo is None:
         as_datetime = as_datetime.replace(tzinfo=utc)
     return as_datetime
@@ -55,7 +55,7 @@ def datetime_or_now(dtime_at=None):
 
 def datetime_to_utctimestamp(dtime_at, epoch=None):
     if epoch is None:
-        epoch = datetime.datetime(1970, 1, 1, tzinfo=utc)
+        epoch = dt.datetime(1970, 1, 1, tzinfo=utc)
     if dtime_at is None:
         dtime_at = epoch
     diff = dtime_at - epoch
@@ -66,7 +66,7 @@ def start_of_day(dtime_at=None):
     """Returns the local (user timezone) start of day, that's, time 00:00:00
     for a given datetime."""
     dtime_at = datetime_or_now(dtime_at)
-    start = datetime.datetime(dtime_at.year, dtime_at.month, dtime_at.day)  # noqa: DTZ001
+    start = dt.datetime(dtime_at.year, dtime_at.month, dtime_at.day)  # noqa: DTZ001
     tz_str = get_current_timezone()
     tz_ob = parse_tz(tz_str)
     if tz_ob:
@@ -77,4 +77,4 @@ def start_of_day(dtime_at=None):
 
 
 def utctimestamp_to_datetime(timestamp):
-    return datetime_or_now(datetime.datetime.fromtimestamp(timestamp, tz=utc))
+    return datetime_or_now(dt.datetime.fromtimestamp(timestamp, tz=utc))

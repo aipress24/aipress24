@@ -6,7 +6,7 @@
 
 from __future__ import annotations
 
-import datetime
+import datetime as dt
 from typing import TYPE_CHECKING
 from zoneinfo import ZoneInfo
 
@@ -453,12 +453,8 @@ class TestOnUpdateEvent:
         """When event is a datetime.datetime for start_time,
         on_update_event does not crash on .to(LOCAL_TZ)."""
         # Event has a python datetime (not Arrow)
-        test_event.start_time = datetime.datetime(
-            2026, 10, 1, 10, 0, tzinfo=ZoneInfo("UTC")
-        )
-        test_event.end_time = datetime.datetime(
-            2026, 10, 1, 18, 0, tzinfo=ZoneInfo("UTC")
-        )
+        test_event.start_time = dt.datetime(2026, 10, 1, 10, 0, tzinfo=ZoneInfo("UTC"))
+        test_event.end_time = dt.datetime(2026, 10, 1, 18, 0, tzinfo=ZoneInfo("UTC"))
         db_session.flush()
 
         # Create published post
@@ -499,9 +495,7 @@ class TestOnUpdateEvent:
             owner=test_user,
             status=PublicationStatus.PUBLIC,
         )
-        post.start_datetime = datetime.datetime(
-            2026, 11, 15, 14, 0, tzinfo=ZoneInfo("UTC")
-        )
+        post.start_datetime = dt.datetime(2026, 11, 15, 14, 0, tzinfo=ZoneInfo("UTC"))
         db_session.add(post)
         db_session.flush()
 
