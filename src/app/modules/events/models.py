@@ -173,7 +173,7 @@ class EventPostBase(
     # only for compatibility with BaseContent:
     location: Mapped[str] = mapped_column(default="", info={"group": "location"})
 
-    class Meta:
+    class Meta(BaseContent.Meta):  # ty:ignore[invalid-attribute-override]
         groups: ClassVar[dict] = {
             "dates": ["start_datetime", "end_datetime"],
             "metadata": ["genre", "category", "language", "sector"],

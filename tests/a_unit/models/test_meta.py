@@ -17,7 +17,7 @@ class B(A):
 
 
 class C(A):
-    class Meta:
+    class Meta(A.Meta):  # ty:ignore[invalid-attribute-override]
         test = 2
 
 
