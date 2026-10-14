@@ -85,7 +85,7 @@ dependencies = [
     # Full text search
     "wesh>=3.0.0,<4",
     "beautifulsoup4<5.0,>=4.12",
-    "stripe<16,>=12",
+    "stripe>=16.0.0,<17",  # use with API version "2026-08-26.dahlia"
     # Queues
     # dramatiq-pg implies dramatiq <2.0.0, tenacity v8.5.0 (<9)
     "dramatiq<2.0.0,>=1.15.0",
