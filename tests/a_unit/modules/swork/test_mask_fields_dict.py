@@ -270,7 +270,12 @@ class TestMemberTabs:
 
     @pytest.mark.parametrize(
         "tab_id",
-        ["profile", "publications", "press-book", "groups"],
+        [
+            "profile",
+            "publications",
+            "press-book",
+            # "groups",
+        ],
     )
     def test_canonical_tab_present(self, tab_id):
         """A handful of canonical tab ids referenced from templates +

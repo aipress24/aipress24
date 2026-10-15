@@ -207,14 +207,14 @@ class TestMemberPageConstants:
 
     def test_tabs_structure(self):
         """Test MEMBER_TABS has expected structure."""
-        assert len(MEMBER_TABS) == 7
+        assert len(MEMBER_TABS) == 5
         tab_ids = [t["id"] for t in MEMBER_TABS]
         assert "profile" in tab_ids
         # Ticket #0195 — Press Book tab added.
         assert "press-book" in tab_ids
         assert "publications" in tab_ids
-        assert "activities" in tab_ids
-        assert "groups" in tab_ids
+        # assert "activities" in tab_ids
+        # assert "groups" in tab_ids
         assert "followees" in tab_ids
         assert "followers" in tab_ids
 

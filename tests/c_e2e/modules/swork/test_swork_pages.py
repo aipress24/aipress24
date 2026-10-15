@@ -363,15 +363,15 @@ class TestMemberTabs:
     def test_tabs_structure(self):
         """Test MEMBER_TABS constant has correct structure."""
         assert isinstance(MEMBER_TABS, list)
-        # 7 tabs since #0195 added « Press Book ».
-        assert len(MEMBER_TABS) == 7
+        # 5 tabs since activities and groups are commented out.
+        assert len(MEMBER_TABS) == 5
 
         tab_ids = [t["id"] for t in MEMBER_TABS]
         assert "profile" in tab_ids
         assert "publications" in tab_ids
         assert "press-book" in tab_ids
-        assert "activities" in tab_ids
-        assert "groups" in tab_ids
+        # assert "activities" in tab_ids
+        # assert "groups" in tab_ids
         assert "followees" in tab_ids
         assert "followers" in tab_ids
 

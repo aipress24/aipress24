@@ -46,8 +46,8 @@ MEMBER_TABS = [
     # owns a PAID JUSTIFICATIF (« l'article va figurer à la rubrique
     # « Press Book » sur votre Profil »).
     {"id": "press-book", "label": "Press Book"},
-    {"id": "activities", "label": "Activités"},
-    {"id": "groups", "label": "Groupes"},
+    # {"id": "activities", "label": "Activités"},
+    # {"id": "groups", "label": "Groupes"},
     {"id": "followees", "label": "Abonnements"},
     {"id": "followers", "label": "Abonnés"},
 ]
