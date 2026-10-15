@@ -2,44 +2,46 @@
 
 <!-- Description list -->
 <div class="py-6 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-  <div>
-    <h2 class="text-xl font-medium mb-2">Profil</h2>
+    <div>
+        <h2 class="text-xl font-medium mb-2">Profil</h2>
 
-    <div class="space-y-3">
-      {% if False %}
-      <div>
-        <p>debug mail/phone visibility:</p>
-        <p>{{masked_story}}</p>
-      </div>
-      {% endif %}
-      {% for group in kycgroups %}
-        <h3 class="font-medium pt-2 pb-1">{{ group.label }}</h3>
-
-        <dl class="grid grid-cols-1 gap-y-6">
-          {% for idx in group.ids %}
-            {% set value=results[idx] %}
-            {% if value %}
-              <div>
-                <dt class="text-sm font-medium text-gray-500">
-                  {{ labels[idx] }}
-                </dt>
-
-                <dd>
-                  {% if idx in urls %}
-                    <img class="mt-1 max-w-32 max-h-32"
-                         src="{{ urls[idx] }}" alt=""/>
-                  {% else %}
-                    <div class="mt-1 text-sm text-gray-900">
-                      {{ results[idx] }}
-                    </div>
-                  {% endif %}
-                </dd>
-              </div>
+        <div class="space-y-4">
+            {% if False %}
+                <div>
+                    <p>debug mail/phone visibility:</p>
+                    <p>{{masked_story}}</p>
+                </div>
             {% endif %}
-          {% endfor %}
-        </dl>
-      {% endfor %}
-      <hr>
+            {% for group in kycgroups %}
+                <div class="space-y-3">
+                    <h3 class="font-medium text-gray-900 pt-2 pb-1">{{ group.label }}</h3>
+
+                    <dl class="grid grid-cols-1 gap-y-3 ml-2 sm:ml-3">
+                        {% for idx in group.ids %}
+                            {% set value=results[idx] %}
+                            {% if value %}
+                                <div>
+                                    <dt class="text-sm font-medium text-gray-500">
+                                        {{ labels[idx] }}
+                                    </dt>
+
+                                    <dd class="ml-2">
+                                        {% if idx in urls %}
+                                            <img class="mt-1 max-w-32 max-h-32"
+                                                 src="{{ urls[idx] }}" alt=""/>
+                                        {% else %}
+                                            <div class="mt-1 text-sm text-gray-900">
+                                                {{ results[idx] }}
+                                            </div>
+                                        {% endif %}
+                                    </dd>
+                                </div>
+                            {% endif %}
+                        {% endfor %}
+                    </dl>
+                </div>
+            {% endfor %}
+            <hr>
+        </div>
     </div>
-  </div>
 </div>
