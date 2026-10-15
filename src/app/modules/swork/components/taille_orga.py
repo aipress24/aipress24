@@ -75,8 +75,8 @@ class TailleOrgaFilter(Filter):
         `.get` rather than `state[...]`: `state` is posted by the form
         and can be shorter than `options`, so indexing it would raise.
         """
-        codes: list[str | FilterOption] = []
-        for i in range(len(state)):
-            if state.get(str(i)):
-                codes.append(cast("FilterOption", self.options[i]).code)
-        return codes
+        return [
+            cast("FilterOption", self.options[i]).code
+            for i in range(len(state))
+            if state.get(str(i))
+        ]

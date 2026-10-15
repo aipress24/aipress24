@@ -242,11 +242,11 @@ def parse_expert_ids_from_form(form_keys: Iterable[str]) -> list[int]:
     toggle multiple experts in a single submit. Non-numeric suffixes
     raise — that's an input-shape bug worth surfacing, not a silent
     drop."""
-    out: list[int] = []
-    for key in form_keys:
-        if isinstance(key, str) and key.startswith("expert:"):
-            out.append(int(key.split(":", 1)[1]))
-    return out
+    return [
+        int(key.split(":", 1)[1])
+        for key in form_keys
+        if isinstance(key, str) and key.startswith("expert:")
+    ]
 
 
 def build_sections_from_selectors(

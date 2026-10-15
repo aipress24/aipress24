@@ -52,8 +52,4 @@ def nb_ptage_art(user: User) -> int:
 
 def export_functions() -> dict[str, Callable]:
     function_type = type(lambda: None)
-    namespace = {}
-    for k, v in list(globals().items()):
-        if isinstance(v, function_type):
-            namespace[k] = v
-    return namespace
+    return {k: v for k, v in list(globals().items()) if isinstance(v, function_type)}

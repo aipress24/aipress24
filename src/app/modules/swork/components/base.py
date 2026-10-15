@@ -179,11 +179,7 @@ class Filter:
         raise NotImplementedError
 
     def active_options(self, state: dict[str, bool]) -> list[str | FilterOption]:
-        options: list[str | FilterOption] = []
-        for i in range(len(state)):
-            if state[str(i)]:
-                options.append(self.options[i])
-        return options
+        return [self.options[i] for i in range(len(state)) if state[str(i)]]
 
 
 class FilterByCity(Filter):

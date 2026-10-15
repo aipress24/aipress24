@@ -271,23 +271,17 @@ class Calendar:
                 # Bug 0131: format `time` as HH:MM (was rendering HH:MM:SS via
                 # str(datetime.time)), and surface `id` + ISO datetime so the
                 # template can build a real link and a valid <time datetime>.
-                day_events = []
-                for event in events:
-                    if (
-                        event.start_datetime
-                        and event.start_datetime.date() == day.date()
-                    ):
-                        day_events.append(
-                            {
-                                "id": event.id,
-                                "title": event.title,
-                                "time": event.start_datetime.format("HH:mm"),
-                                "datetime": event.start_datetime.format(
-                                    "YYYY-MM-DDTHH:mm"
-                                ),
-                            }
-                        )
-                cell["events"] = day_events
+                cell["events"] = [
+                    {
+                        "id": event.id,
+                        "title": event.title,
+                        "time": event.start_datetime.format("HH:mm"),
+                        "datetime": event.start_datetime.format("YYYY-MM-DDTHH:mm"),
+                    }
+                    for event in events
+                    if event.start_datetime
+                    and event.start_datetime.date() == day.date()
+                ]
             else:
                 # Count events that SPAN this day (for sidebar)
                 num_events = 0

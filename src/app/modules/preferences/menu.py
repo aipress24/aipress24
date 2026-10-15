@@ -32,15 +32,13 @@ def make_menu(current_name: str):
     Returns:
         List of menu entry dicts with href, current, label, icon, name
     """
-    menu = []
-    for entry in MENU:
-        menu.append(
-            {
-                "name": entry.name,
-                "label": entry.label,
-                "icon": entry.icon,
-                "href": url_for(entry.endpoint),
-                "current": current_name == entry.name,
-            }
-        )
-    return menu
+    return [
+        {
+            "name": entry.name,
+            "label": entry.label,
+            "icon": entry.icon,
+            "href": url_for(entry.endpoint),
+            "current": current_name == entry.name,
+        }
+        for entry in MENU
+    ]

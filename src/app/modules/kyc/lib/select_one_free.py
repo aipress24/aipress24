@@ -26,10 +26,7 @@ def convert_to_tom_optgroups_js(choices: list | dict) -> list:
     if isinstance(choices, list):
         return []
     if isinstance(choices, dict):
-        optgroups = []
-        for group in choices:
-            optgroups.append({"value": group, "label": group})
-        return optgroups
+        return [{"value": group, "label": group} for group in choices]
     msg = "choices must be a list or a dict"
     raise TypeError(msg)
 
