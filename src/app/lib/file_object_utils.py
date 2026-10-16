@@ -36,23 +36,34 @@ def media_url(file_object: FileObject | None) -> str:
     return _PLACEHOLDER_IMAGE_URL
 
 
-# The extension is what `/media` hands to `mimetypes.guess_type`, so it
-# decides the Content-Type the browser is told to trust. An uploader who
-# names their file `.svg` or `.html` gets `image/svg+xml` or `text/html`
-# served from this application's own origin — script execution against
-# the viewer's session. An allowlist, not a denylist: `.html` is as
-# scriptable as `.svg` and a denylist would have to guess the whole set.
+# The extension decides the Content-Type `/media` serves the file with,
+# so it decides what the browser is told to trust. An uploader who names
+# their file `.svg` or `.html` would otherwise get `image/svg+xml` or
+# `text/html` served from this application's own origin — script
+# execution against the viewer's session. An allowlist, not a denylist:
+# `.html` is as scriptable as `.svg` and a denylist would have to guess
+# the whole set. The types are spelled out rather than taken from
+# `mimetypes`, whose table depends on the host (`/etc/mime.types`).
 # Anything unrecognised is stored without an extension, which `/media`
 # then serves as `application/octet-stream`.
-SAFE_SUFFIXES = frozenset(
-    {".jpg", ".jpeg", ".png", ".gif", ".webp", ".avif", ".pdf", ".ods", ".csv", ".txt"}
-)
+SAFE_TYPES = {
+    ".jpg": "image/jpeg",
+    ".jpeg": "image/jpeg",
+    ".png": "image/png",
+    ".gif": "image/gif",
+    ".webp": "image/webp",
+    ".avif": "image/avif",
+    ".pdf": "application/pdf",
+    ".ods": "application/vnd.oasis.opendocument.spreadsheet",
+    ".csv": "text/csv",
+    ".txt": "text/plain",
+}
 
 
 def safe_suffix(filename: str) -> str:
     """The file's extension, if it is one we are willing to serve back."""
     suffix = Path(filename).suffix.lower()
-    return suffix if suffix in SAFE_SUFFIXES else ""
+    return suffix if suffix in SAFE_TYPES else ""
 
 
 def create_file_object(

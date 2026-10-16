@@ -2,23 +2,19 @@
 #
 # SPDX-License-Identifier: AGPL-3.0-only
 
-"""The stored extension decides what `/media` serves — audit finding 2.
+"""The stored extension decides what `/media` serves.
 
-`create_file_object` used the uploader's own suffix verbatim, and
-`/media/<name>` derives the Content-Type from it with
-`mimetypes.guess_type`. A member who named their upload `.svg` or
-`.html` therefore chose the type their file would be served as, from
+`/media/<name>` derives the Content-Type from the stored suffix. Were the
+uploader's own suffix kept verbatim, a member who named their upload
+`.svg` or `.html` would choose the type their file is served as, from
 this application's origin, under the viewer's session.
 """
 
 from __future__ import annotations
 
-import mimetypes
-
 import pytest
 
-from app.lib.file_object_utils import SAFE_SUFFIXES, safe_suffix
-from app.modules.media.views import SERVABLE_TYPES
+from app.lib.file_object_utils import SAFE_TYPES, safe_suffix
 
 
 @pytest.mark.parametrize(
@@ -38,17 +34,8 @@ def test_an_unknown_extension_is_dropped_rather_than_guessed():
     assert safe_suffix("noextension") == ""
 
 
-def test_no_allowed_extension_maps_to_an_executable_type():
-    """The two lists have to agree: an extension we keep must map to a
-    type `/media` is willing to name, and none of those may be one a
-    browser executes."""
-    for suffix in SAFE_SUFFIXES:
-        guessed, _ = mimetypes.guess_type(f"{'a' * 64}{suffix}")
-        assert guessed in SERVABLE_TYPES, f"{suffix} -> {guessed}"
-
-
 @pytest.mark.parametrize(
     "bad", ["text/html", "image/svg+xml", "application/xhtml+xml", "text/xml"]
 )
-def test_media_refuses_to_name_an_executable_type(bad):
-    assert bad not in SERVABLE_TYPES
+def test_no_allowed_extension_maps_to_an_executable_type(bad):
+    assert bad not in SAFE_TYPES.values()

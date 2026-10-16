@@ -93,13 +93,24 @@ class TestServe:
         assert response.data == TINY_PNG
         assert response.mimetype == "image/png"
 
-    def test_guesses_mime_from_extension(
-        self, client: FlaskClient, local_media_backend: Path
+    @pytest.mark.parametrize(
+        ("ext", "mimetype"),
+        [
+            ("txt", "text/plain"),
+            ("webp", "image/webp"),
+            ("WEBP", "image/webp"),
+            ("ods", "application/vnd.oasis.opendocument.spreadsheet"),
+            ("svg", "application/octet-stream"),
+            ("html", "application/octet-stream"),
+        ],
+    )
+    def test_type_comes_from_the_allowlist_not_the_host(
+        self, client: FlaskClient, local_media_backend: Path, ext, mimetype
     ):
-        storage_name = _put(local_media_backend, b"hello", ext="txt")
+        storage_name = _put(local_media_backend, b"hello", ext=ext)
         response = client.get(f"/media/{storage_name}")
         assert response.status_code == 200
-        assert response.mimetype == "text/plain"
+        assert response.mimetype == mimetype
 
     def test_unknown_hash_returns_404(
         self, client: FlaskClient, local_media_backend: Path

@@ -4,14 +4,16 @@
 
 from __future__ import annotations
 
-import mimetypes
 import re
 from io import BytesIO
+from pathlib import Path
 
 from advanced_alchemy.types.file_object import storages
 from flask import send_file
 from werkzeug.exceptions import NotFound
 from werkzeug.wrappers import Response
+
+from app.lib.file_object_utils import SAFE_TYPES
 
 from . import blueprint
 
@@ -22,22 +24,6 @@ _STORAGE_NAME_RE = re.compile(r"^[0-9a-f]{64}(?:\.[A-Za-z0-9]{1,10})?$")
 
 # One year; the content at a given hash is immutable by construction.
 _MAX_AGE = 31_536_000
-
-# Types this endpoint will name. Anything else falls back to
-# `application/octet-stream`, which no browser executes.
-SERVABLE_TYPES = frozenset(
-    {
-        "image/jpeg",
-        "image/png",
-        "image/gif",
-        "image/webp",
-        "image/avif",
-        "application/pdf",
-        "text/csv",
-        "text/plain",
-        "application/vnd.oasis.opendocument.spreadsheet",
-    }
-)
 
 
 @blueprint.route("/<string:storage_name>")
@@ -52,17 +38,15 @@ def serve(storage_name: str) -> Response:
         raise NotFound from err
 
     # Second lock, for the files stored before `safe_suffix` existed:
-    # a name is not allowed to talk this endpoint into serving active
-    # content. `guess_type` on a `.svg` or `.html` name returns a type
-    # the browser will execute, on this origin, under the viewer's
-    # session — so an unrecognised type is served as bytes, not as
-    # something to run.
-    guessed, _ = mimetypes.guess_type(storage_name)
-    mimetype = guessed if guessed in SERVABLE_TYPES else None
+    # a `.svg` or `.html` name must not talk this endpoint into serving
+    # a type the browser will execute, on this origin, under the
+    # viewer's session. Anything outside the allowlist is served as bytes.
+    suffix = Path(storage_name).suffix.lower()
+    mimetype = SAFE_TYPES.get(suffix, "application/octet-stream")
     sha256 = storage_name.split(".", 1)[0]
     response = send_file(
         BytesIO(content),
-        mimetype=mimetype or "application/octet-stream",
+        mimetype=mimetype,
         download_name=storage_name,
         etag=sha256,
         max_age=_MAX_AGE,
