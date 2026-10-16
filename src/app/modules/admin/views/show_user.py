@@ -16,7 +16,7 @@ from loguru import logger
 from sqlalchemy import func, select
 
 from app.constants import BW_ROLE_TYPE_LABEL, LABEL_COMPTE_DESACTIVE, LOCAL_TZ
-from app.enums import RoleEnum
+from app.enums import BWStatus, RoleEnum
 from app.flask.extensions import db
 from app.flask.lib.nav import nav
 from app.flask.sqla import get_obj
@@ -27,7 +27,6 @@ from app.modules.admin import blueprint
 from app.modules.admin.utils import gc_organisation, remove_user_organisation
 from app.modules.bw.bw_activation.models import (
     BusinessWall,
-    BWStatus,
     Partnership,
     PartnershipStatus,
     RoleAssignment,

@@ -14,6 +14,7 @@ from flask.views import MethodView
 from sqlalchemy import delete, func, or_, select
 
 from app.constants import BW_ROLE_TYPE_LABEL
+from app.enums import BWStatus
 from app.flask.extensions import db
 from app.flask.routing import url_for
 from app.flask.sqla import get_obj
@@ -33,7 +34,6 @@ from app.modules.bw.bw_activation.models import (
     PartnershipStatus,
     RoleAssignment,
 )
-from app.modules.bw.bw_activation.models.business_wall import BWStatus
 from app.modules.preferences import blueprint
 
 # ── Pure helpers ──────────────────────────────────────────────────────

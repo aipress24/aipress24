@@ -22,11 +22,12 @@ from sqlalchemy import case, desc, false, nulls_last, select, true
 from werkzeug.exceptions import NotFound
 
 from app.constants import BW_TRIGGER_LABEL, LABEL_INSCRIPTION_VALIDEE, LOCAL_TZ
+from app.enums import BWStatus
 from app.flask.extensions import db
 from app.models.auth import KYCProfile, User
 from app.models.organisation import Organisation
 from app.modules.admin import blueprint
-from app.modules.bw.bw_activation.models.business_wall import BusinessWall, BWStatus
+from app.modules.bw.bw_activation.models.business_wall import BusinessWall
 from app.modules.bw.bw_activation.models.partnership import (
     PartnershipStatus,
 )

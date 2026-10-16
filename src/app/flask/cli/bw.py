@@ -19,9 +19,9 @@ from flask_super.cli import group
 from loguru import logger
 from sqlalchemy import select
 
+from app.enums import BWStatus
 from app.flask.extensions import db
 from app.modules.bw.bw_activation.models import (
-    BWStatus,
     Subscription,
     SubscriptionStatus,
 )

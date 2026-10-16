@@ -12,6 +12,7 @@ from attr import define
 from sqlalchemy import func, select
 from sqlalchemy.exc import NoInspectionAvailable
 
+from app.enums import BWStatus
 from app.flask.extensions import db
 from app.flask.lib.view_model import ViewModel
 from app.models.auth import User
@@ -106,8 +107,6 @@ class OrgVM(ViewModel):
         Only active BWs block organisation deletion; suspended, cancelled or
         draft BWs are considered inactive and do not prevent cleanup of the Org.
         """
-        from app.modules.bw.bw_activation.models.business_wall import BWStatus
-
         try:
             stmt = (
                 select(func.count())
@@ -121,8 +120,6 @@ class OrgVM(ViewModel):
 
     def get_inactive_business_wall(self) -> BusinessWall | None:
         """Return the most recent non-active BW linked to this organisation."""
-        from app.modules.bw.bw_activation.models.business_wall import BWStatus
-
         try:
             stmt = (
                 select(BusinessWall)

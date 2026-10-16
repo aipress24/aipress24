@@ -23,12 +23,12 @@ from __future__ import annotations
 
 import pytest
 
+from app.enums import BWStatus
 from app.modules.bw.bw_activation.models import (
     BWRoleType,
     InvitationStatus,
     PermissionType,
 )
-from app.modules.bw.bw_activation.models.business_wall import BWStatus
 from app.modules.bw.bw_activation.models.partnership import PartnershipStatus
 from app.modules.bw.bw_activation.models.subscription import (
     PricingTier,

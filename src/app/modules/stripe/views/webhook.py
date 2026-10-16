@@ -20,8 +20,7 @@ from stripe import SignatureVerificationError
 
 from app.actors.justificatif import generate_justificatif
 from app.constants import WEBHOOK_TEST_CUSTOMER_EMAIL
-
-# from app.enums import BWTypeEnum, ProfileEnum
+from app.enums import BWStatus, BWType
 from app.flask.extensions import db
 from app.models.auth import User
 from app.models.organisation import Organisation
@@ -31,11 +30,9 @@ from app.modules.bw.bw_activation.bw_cancellation import close_business_wall_loc
 from app.modules.bw.bw_activation.bw_creation import ensure_bw_owner_role
 from app.modules.bw.bw_activation.models import (
     BusinessWall,
-    BWStatus,
     Subscription,
     SubscriptionStatus,
 )
-from app.modules.bw.bw_activation.models.business_wall import BWType
 from app.modules.bw.bw_activation.payment_notifications import notify_bw_payment_failed
 from app.modules.bw.bw_activation.subscription_lifecycle import (
     clear_past_due,

@@ -9,11 +9,12 @@ from __future__ import annotations
 from flask import url_for as url_for_orig
 from sqlalchemy import Select, func, or_, select
 
+from app.enums import BWStatus
 from app.flask.extensions import db
 from app.flask.routing import url_for
 from app.models.organisation import Organisation
 from app.modules.admin.table import Column, ColumnSpec, GenericOrgDataSource, Table
-from app.modules.bw.bw_activation.models.business_wall import BusinessWall, BWStatus
+from app.modules.bw.bw_activation.models.business_wall import BusinessWall
 from app.ui.labels import LABELS_BW_TYPE_V2
 
 TABLE_COLUMNS: list[ColumnSpec] = [

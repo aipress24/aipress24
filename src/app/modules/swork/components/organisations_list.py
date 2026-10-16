@@ -14,12 +14,12 @@ from sqlalchemy import cast as sqla_cast, func, or_, select
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.sql import Select
 
+from app.enums import BWStatus
 from app.flask.extensions import db
 from app.flask.lib.view_model import ViewModel
 from app.flask.routing import url_for
 from app.models.organisation import Organisation
 from app.modules.bw.bw_activation.models import BusinessWall
-from app.modules.bw.bw_activation.models.business_wall import BWStatus
 from app.modules.bw.bw_activation.user_utils import (
     get_active_business_wall_for_organisation,
     get_organisation_logo_url,

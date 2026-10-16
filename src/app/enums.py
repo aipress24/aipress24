@@ -199,6 +199,15 @@ class OrganisationTypeEnum(StrEnum):
 #     ACADEMICS = "Business Wall for Academics"
 
 
+class BWStatus(StrEnum):
+    """Business Wall status."""
+
+    DRAFT = "draft"
+    ACTIVE = "active"
+    SUSPENDED = "suspended"
+    CANCELLED = "cancelled"
+
+
 class BWType(StrEnum):
     """Business Wall types."""
 

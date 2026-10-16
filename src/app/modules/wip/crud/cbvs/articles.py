@@ -118,7 +118,7 @@ def _user_manages_media_bw() -> bool:
     admins can open: a plain staff journalist must not see a link that
     answers « Accès non autorisé » (#0366).
     """
-    from app.modules.bw.bw_activation.models.business_wall import BWStatus
+    from app.enums import BWStatus
     from app.modules.bw.bw_activation.user_utils import current_business_wall
     from app.modules.bw.bw_activation.utils import is_bw_manager_or_admin
 

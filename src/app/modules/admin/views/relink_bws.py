@@ -11,13 +11,13 @@ from uuid import UUID
 from flask import flash, redirect, render_template, request, url_for
 from sqlalchemy import select
 
+from app.enums import BWStatus
 from app.flask.extensions import db
 from app.logging import warn
 from app.models.auth import User
 from app.models.organisation import Organisation
 from app.modules.admin import blueprint
 from app.modules.bw.bw_activation.models import BusinessWall, Partnership
-from app.modules.bw.bw_activation.models.business_wall import BWStatus
 from app.modules.bw.bw_activation.models.role import (
     BWRoleType,
     InvitationStatus,
