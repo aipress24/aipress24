@@ -226,8 +226,8 @@ The workflow uses Flask session to maintain state:
 The blueprint auto-registers routes when imported:
 
 ```python
-from poc.blueprints.bw_activation import bp
-from poc.app import create_app
+from app.flask.main import create_app
+from app.modules.bw.bw_activation import bp
 
 app = create_app()
 routes = [r for r in app.url_map.iter_rules() if "bw_activation" in r.endpoint]

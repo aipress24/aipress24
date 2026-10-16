@@ -135,7 +135,7 @@ All models inherit from `UUIDAuditBase` which provides:
 Each model has a corresponding repository class extending `SQLAlchemySyncRepository`:
 
 ```python
-from poc.blueprints.bw_activation.models import (
+from app.modules.bw.bw_activation.models import (
     BusinessWall,
     BusinessWallRepository,
 )
@@ -159,7 +159,7 @@ bws = repo.list(status="active")
 Service classes extend `SQLAlchemySyncRepositoryService` with `FlaskServiceMixin`:
 
 ```python
-from poc.blueprints.bw_activation.models import BusinessWallService
+from app.modules.bw.bw_activation.models import BusinessWallService
 
 # Usage (services auto-wire with Flask app)
 service = BusinessWallService()
@@ -177,7 +177,7 @@ service.delete(bw.id)
 ### Creating a Business Wall
 
 ```python
-from poc.blueprints.bw_activation.models import (
+from app.modules.bw.bw_activation.models import (
     BusinessWall,
     BusinessWallService,
 )
@@ -207,7 +207,7 @@ bw = service.create(
 )
 
 # Add subscription
-from poc.blueprints.bw_activation.models import SubscriptionService
+from app.modules.bw.bw_activation.models import SubscriptionService
 
 sub_service = SubscriptionService()
 subscription = sub_service.create(
@@ -225,7 +225,7 @@ subscription = sub_service.create(
 ### Assigning Roles and Permissions
 
 ```python
-from poc.blueprints.bw_activation.models import (
+from app.modules.bw.bw_activation.models import (
     RoleAssignmentService,
     RolePermissionService,
 )
@@ -256,7 +256,7 @@ for perm_type in ["press_release", "events", "missions"]:
 ### Managing PR Agency Partnerships
 
 ```python
-from poc.blueprints.bw_activation.models import PartnershipService
+from app.modules.bw.bw_activation.models import PartnershipService
 
 partnership_service = PartnershipService()
 
@@ -284,7 +284,7 @@ partnership_service.update(
 ### Configuring Content
 
 ```python
-from poc.blueprints.bw_activation.models import BWContentService
+from app.modules.bw.bw_activation.models import BWContentService
 from advanced_alchemy.types.file_object import FileObject
 
 content_service = BWContentService()
@@ -332,8 +332,8 @@ content = content_service.create(
 All enum types are defined as `str` enums for easy JSON serialization:
 
 ```python
-from poc.blueprints.bw_activation.models.business_wall import BWType, BWStatus
-from poc.blueprints.bw_activation.models.role import BWRoleType, PermissionType
+from app.modules.bw.bw_activation.models.business_wall import BWType, BWStatus
+from app.modules.bw.bw_activation.models.role import BWRoleType, PermissionType
 
 # Usage
 bw_type = BWType.MEDIA.value  # "media"
@@ -399,7 +399,7 @@ Models are designed to be testable with factories:
 
 ```python
 import pytest
-from poc.blueprints.bw_activation.models import BusinessWall
+from app.modules.bw.bw_activation.models import BusinessWall
 
 
 @pytest.fixture

@@ -127,10 +127,6 @@ run-prod:
 	honcho -f Procfile start web worker scheduler
 
 
-## Run POC server
-run-poc:
-	flask --app poc.app --debug run --reload
-
 
 ## Run server under gunicorn
 run-gunicorn:

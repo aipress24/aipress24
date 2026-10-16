@@ -24,14 +24,14 @@ def _mounted_paths(monkeypatch, **flags) -> set[str]:
 
 
 def test_db_admin_is_absent_by_default(monkeypatch):
-    paths = _mounted_paths(monkeypatch, DB_ADMIN_ENABLED=False, POC_ENABLED=False)
+    paths = _mounted_paths(monkeypatch, DB_ADMIN_ENABLED=False)
 
     assert not any(p.startswith("/db") for p in paths), paths
 
 
 def test_the_flask_app_is_still_served(monkeypatch):
     # Starlette normalises `Mount("/")` to the empty path.
-    paths = _mounted_paths(monkeypatch, DB_ADMIN_ENABLED=False, POC_ENABLED=False)
+    paths = _mounted_paths(monkeypatch, DB_ADMIN_ENABLED=False)
 
     assert "" in paths
 
