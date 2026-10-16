@@ -8,7 +8,7 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from time import time
-from typing import Any, ClassVar, cast
+from typing import TYPE_CHECKING, Any, ClassVar, cast
 
 from attr import define, frozen
 from flask import Response, g, make_response, render_template, request
@@ -26,7 +26,6 @@ from app.logging import warn
 from app.models.auth import User
 from app.models.lifecycle import PublicationStatus
 from app.models.organisation import Organisation
-from app.modules.bw.bw_activation.models.business_wall import BusinessWall
 from app.modules.bw.bw_activation.models.role import RoleAssignment
 from app.modules.bw.bw_activation.user_utils import (
     get_active_business_wall_for_organisation,
@@ -40,6 +39,10 @@ from app.modules.kyc.field_label import (
 )
 from app.modules.swork import blueprint
 from app.modules.wire.models import ArticlePost, PressReleasePost
+
+if TYPE_CHECKING:
+    from app.modules.bw.bw_activation.models.business_wall import BusinessWall
+
 
 BW_ROLE_DISPLAY_LABELS: dict[str, str] = {
     BWRoleType.BWMI.value: "BW manager interne",
