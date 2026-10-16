@@ -32,7 +32,7 @@ packages:
 
 tasks:
     - setup: |
-          sudo pip install --break-system-packages -U uv nox
+          sudo pip install --break-system-packages -U uv
           cd aipress24
           uv sync --frozen
 
