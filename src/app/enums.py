@@ -110,6 +110,21 @@ PRICING_LABELS: dict[EventPricing, str] = {
 }
 
 
+class AccreditationStatus(StrEnum):
+    """État d'une demande d'accréditation à un événement.
+
+    `WITHDRAWN` est un retrait par le membre — annulation de sa demande
+    ou désinscription ; `REJECTED` est une décision de l'organisateur.
+    Les deux sont distincts parce qu'ils ne se re-demandent pas de la
+    même façon (RG-03, RG-13).
+    """
+
+    REQUESTED = auto()
+    ACCEPTED = auto()
+    REJECTED = auto()
+    WITHDRAWN = auto()
+
+
 class NotificationCategory(StrEnum):
     """La famille d'un email, qui décide s'il est désactivable.
 

@@ -15,13 +15,13 @@ import arrow
 import sqlalchemy as sa
 
 from app.constants import LOCAL_TZ
+from app.enums import AccreditationStatus
 from app.logging import report_failure
 from app.models.lifecycle import PublicationStatus
 from app.services.notifications import Notification
 
 from .models import (
     Accreditation,
-    AccreditationStatus,
     EventPost,
     NotificationKind,
     NotificationSent,

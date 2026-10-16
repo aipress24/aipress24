@@ -15,10 +15,11 @@ from flask_sqlalchemy.session import Session
 from mimesis.locales import Locale
 from sqlalchemy.orm import scoped_session
 
+from app.enums import AccreditationStatus
 from app.models.base import Base
 from app.models.comment import Comment
 from app.modules.admin.invitations import invite_users
-from app.modules.events.models import Accreditation, AccreditationStatus
+from app.modules.events.models import Accreditation
 from app.modules.swork.models import group_members_table
 from app.services.roles import add_role
 from app.services.social_graph import adapt

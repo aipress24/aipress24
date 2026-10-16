@@ -16,7 +16,7 @@ from sqlalchemy import (
 from sqlalchemy.orm import Mapped, declared_attr, mapped_column
 from sqlalchemy_utils import ArrowType
 
-from app.enums import EventMode, EventPricing
+from app.enums import AccreditationStatus, EventMode, EventPricing
 from app.models.auth import User
 from app.models.base import Base
 from app.models.content.base import BaseContent
@@ -232,19 +232,7 @@ class EventPost(EventPostBase):
     ville: Mapped[str] = mapped_column(default="", index=True)
 
 
-class AccreditationStatus(StrEnum):
-    """État d'une demande d'accréditation à un événement.
-
-    `WITHDRAWN` est un retrait par le membre — annulation de sa demande
-    ou désinscription ; `REJECTED` est une décision de l'organisateur.
-    Les deux sont distincts parce qu'ils ne se re-demandent pas de la
-    même façon (RG-03, RG-13).
-    """
-
-    REQUESTED = auto()
-    ACCEPTED = auto()
-    REJECTED = auto()
-    WITHDRAWN = auto()
+# AccreditationStatus is now imported from app.enums
 
 
 class NotificationKind(StrEnum):

@@ -22,7 +22,7 @@ from sqlalchemy.orm import Session
 from werkzeug.exceptions import Forbidden, NotFound
 from werkzeug.wrappers import Response
 
-from app.enums import CommunityEnum
+from app.enums import AccreditationStatus, CommunityEnum
 from app.flask.extensions import db
 from app.flask.lib.templates import templated
 from app.flask.routing import url_for
@@ -317,7 +317,7 @@ def _count_accreditations(event, status_name: str) -> int:
     l'écran de ciblage (déjà accrédités), qui rappelle qu'un changement
     d'audience ne déaccrédite personne.
     """
-    from app.modules.events.models import Accreditation, AccreditationStatus
+    from app.modules.events.models import Accreditation
 
     post = _event_post_of(event)
     if post is None:
@@ -796,7 +796,6 @@ class EventsWipView(BaseWipView):
         (RG-13) ; c'est la seule sortie de `REJECTED`, et elle
         n'appartient qu'à l'organisateur.
         """
-        from app.modules.events.models import AccreditationStatus
         from app.modules.events.services import (
             accept_accreditations,
             get_accreditations_by_status,

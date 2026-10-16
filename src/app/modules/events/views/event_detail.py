@@ -13,7 +13,7 @@ from flask import flash, g, make_response, redirect, render_template, request
 from flask.views import MethodView
 from werkzeug import Response
 
-from app.enums import MODE_LABELS
+from app.enums import MODE_LABELS, AccreditationStatus
 from app.flask.extensions import db
 from app.flask.lib.nav import nav
 from app.flask.routing import url_for
@@ -21,7 +21,7 @@ from app.flask.sqla import get_public_obj
 from app.models.auth import User
 from app.models.comment import Comment
 from app.modules.events import blueprint
-from app.modules.events.models import AccreditationStatus, EventPost
+from app.modules.events.models import EventPost
 from app.modules.events.pricing import price_label
 from app.modules.events.services import (
     AccreditationClosedError,

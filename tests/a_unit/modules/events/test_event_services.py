@@ -11,11 +11,14 @@ from typing import TYPE_CHECKING
 import pytest
 from typeguard import TypeCheckError
 
-from app.enums import CommunityEnum, RoleEnum
+from app.enums import (
+    AccreditationStatus,
+    CommunityEnum,
+    RoleEnum,
+)
 from app.models.auth import User
 from app.modules.events.models import (
     Accreditation,
-    AccreditationStatus,
     EventPost,
 )
 from app.modules.events.services import (
