@@ -12,7 +12,7 @@ from attr import define
 from sqlalchemy import func, select
 from sqlalchemy.exc import NoInspectionAvailable
 
-from app.enums import BWStatus
+from app.enums import BWStatus, InvitationStatus
 from app.flask.extensions import db
 from app.flask.lib.view_model import ViewModel
 from app.models.auth import User
@@ -39,10 +39,7 @@ class OrgVM(ViewModel):
         bw_members = []
         bw_pending_invitations = []
         if active_bw:
-            from app.modules.bw.bw_activation.models.role import (
-                InvitationStatus,
-                RoleAssignment,
-            )
+            from app.modules.bw.bw_activation.models.role import RoleAssignment
 
             # Fetch members
             bw_members_ids = list(

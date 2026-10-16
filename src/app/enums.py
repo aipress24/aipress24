@@ -233,6 +233,28 @@ MEDIA_BW_TYPES: frozenset[str] = frozenset(
 )
 
 
+class BWRoleType(StrEnum):
+    """Business Wall role types (RBAC)."""
+
+    BW_OWNER = "BW_OWNER"  # Business Wall Owner
+    BWMI = "BWMi"  # Business Wall Manager (internal)
+    BWPRI = "BWPRi"  # PR Manager (internal)
+    BWME = "BWMe"  # Business Wall Manager (external)
+    BWPRE = "BWPRe"  # PR Manager (external)
+
+
+EXTERNAL_ROLES: set[str] = {BWRoleType.BWME.value, BWRoleType.BWPRE.value}
+
+
+class InvitationStatus(StrEnum):
+    """Invitation status for role assignments."""
+
+    PENDING = "pending"
+    ACCEPTED = "accepted"
+    REJECTED = "rejected"
+    EXPIRED = "expired"
+
+
 class ProfileEnum(Enum):
     """User profile enumeration with 33 different profiles."""
 

@@ -11,18 +11,14 @@ from uuid import UUID
 from flask import flash, redirect, render_template, request, url_for
 from sqlalchemy import select
 
-from app.enums import BWStatus
+from app.enums import BWRoleType, BWStatus, InvitationStatus
 from app.flask.extensions import db
 from app.logging import warn
 from app.models.auth import User
 from app.models.organisation import Organisation
 from app.modules.admin import blueprint
 from app.modules.bw.bw_activation.models import BusinessWall, Partnership
-from app.modules.bw.bw_activation.models.role import (
-    BWRoleType,
-    InvitationStatus,
-    RoleAssignment,
-)
+from app.modules.bw.bw_activation.models.role import RoleAssignment
 
 
 def _canonical_org_for_bw(bw: BusinessWall) -> Organisation:

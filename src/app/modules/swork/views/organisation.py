@@ -16,7 +16,7 @@ from flask.views import MethodView
 from sqlalchemy import and_, func, or_, select
 from sqlalchemy.orm import selectinload
 
-from app.enums import MEDIA_BW_TYPES
+from app.enums import MEDIA_BW_TYPES, BWRoleType, InvitationStatus
 from app.flask.extensions import db
 from app.flask.lib.nav import nav
 from app.flask.lib.toaster import toast
@@ -27,11 +27,7 @@ from app.models.auth import User
 from app.models.lifecycle import PublicationStatus
 from app.models.organisation import Organisation
 from app.modules.bw.bw_activation.models.business_wall import BusinessWall
-from app.modules.bw.bw_activation.models.role import (
-    BWRoleType,
-    InvitationStatus,
-    RoleAssignment,
-)
+from app.modules.bw.bw_activation.models.role import RoleAssignment
 from app.modules.bw.bw_activation.user_utils import (
     get_active_business_wall_for_organisation,
     get_organisation_cover_image_url,
@@ -683,10 +679,6 @@ class OrgVM(ViewModel):
         bw = self.bw
         if bw is None:
             return []
-        from app.modules.bw.bw_activation.models.role import (
-            InvitationStatus,
-            RoleAssignment,
-        )
 
         stmt = (
             select(User)

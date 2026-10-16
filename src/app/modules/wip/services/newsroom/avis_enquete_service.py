@@ -736,12 +736,9 @@ class AvisEnqueteService:
         to the legacy ``email_relation_presse`` profile field so the
         form still surfaces *something* sensible.
         """
+        from app.enums import BWRoleType, InvitationStatus
         from app.models.auth import User as UserModel
-        from app.modules.bw.bw_activation.models import (
-            BWRoleType,
-            InvitationStatus,
-            PartnershipStatus,
-        )
+        from app.modules.bw.bw_activation.models import PartnershipStatus
         from app.modules.bw.bw_activation.user_utils import (
             get_active_business_wall_for_organisation,
         )

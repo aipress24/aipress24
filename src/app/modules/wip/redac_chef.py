@@ -38,12 +38,8 @@ def is_redac_chef_of_org(user, org_id) -> bool:
 
     # Lazy imports to keep this module importable without pulling
     # the full BW activation tree during cold start.
-    from app.enums import BWStatus
-    from app.modules.bw.bw_activation.models import (
-        BusinessWall,
-        BWRoleType,
-        InvitationStatus,
-    )
+    from app.enums import BWRoleType, BWStatus, InvitationStatus
+    from app.modules.bw.bw_activation.models import BusinessWall
 
     bw = db.session.scalars(
         select(BusinessWall).where(

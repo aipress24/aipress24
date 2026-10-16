@@ -24,10 +24,10 @@ from typing import TYPE_CHECKING
 import sqlalchemy as sa
 from flask import g
 
+from app.enums import InvitationStatus
 from app.flask.extensions import db
 from app.models.auth import User
 from app.modules.bw.bw_activation.models.role import (
-    InvitationStatus,
     PermissionType,
     RoleAssignment,
     RolePermission,

@@ -16,30 +16,10 @@ from advanced_alchemy.types import GUID
 from sqlalchemy import BigInteger, ForeignKey, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
+from app.enums import EXTERNAL_ROLES, BWRoleType, InvitationStatus  # noqa: F401
+
 if TYPE_CHECKING:
     from .business_wall import BusinessWall
-
-
-class BWRoleType(StrEnum):
-    """Business Wall role types (RBAC)."""
-
-    BW_OWNER = "BW_OWNER"  # Business Wall Owner
-    BWMI = "BWMi"  # Business Wall Manager (internal)
-    BWPRI = "BWPRi"  # PR Manager (internal)
-    BWME = "BWMe"  # Business Wall Manager (external)
-    BWPRE = "BWPRe"  # PR Manager (external)
-
-
-EXTERNAL_ROLES = {BWRoleType.BWME.value, BWRoleType.BWPRE.value}
-
-
-class InvitationStatus(StrEnum):
-    """Invitation status for role assignments."""
-
-    PENDING = "pending"
-    ACCEPTED = "accepted"
-    REJECTED = "rejected"
-    EXPIRED = "expired"
 
 
 class PermissionType(StrEnum):

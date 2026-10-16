@@ -6,13 +6,13 @@ from __future__ import annotations
 
 from sqlalchemy import func, or_, select
 
+from app.enums import InvitationStatus
 from app.flask.extensions import db
 from app.models.auth import User
 from app.models.invitation import Invitation
 from app.models.organisation import Organisation
 from app.modules.bw.bw_activation.models import (
     BusinessWall,
-    InvitationStatus,
     RoleAssignment,
 )
 

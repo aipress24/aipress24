@@ -22,7 +22,7 @@ from sqlalchemy import case, desc, false, nulls_last, select, true
 from werkzeug.exceptions import NotFound
 
 from app.constants import BW_TRIGGER_LABEL, LABEL_INSCRIPTION_VALIDEE, LOCAL_TZ
-from app.enums import BWStatus
+from app.enums import BWRoleType, BWStatus, InvitationStatus
 from app.flask.extensions import db
 from app.models.auth import KYCProfile, User
 from app.models.organisation import Organisation
@@ -31,11 +31,7 @@ from app.modules.bw.bw_activation.models.business_wall import BusinessWall
 from app.modules.bw.bw_activation.models.partnership import (
     PartnershipStatus,
 )
-from app.modules.bw.bw_activation.models.role import (
-    BWRoleType,
-    InvitationStatus,
-    RoleAssignment,
-)
+from app.modules.bw.bw_activation.models.role import RoleAssignment
 from app.modules.kyc.field_label import country_code_to_country_name
 from app.modules.wire.models import purchase_product_label
 from app.modules.wire.services.purchase_aggregates import (

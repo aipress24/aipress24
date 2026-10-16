@@ -69,8 +69,8 @@ def _remove_role_assignment_organisation(user: User) -> None:
     previous_org = user.organisation
     if not previous_org:
         return
+    from app.enums import EXTERNAL_ROLES
     from app.modules.bw.bw_activation.models import BusinessWall, RoleAssignment
-    from app.modules.bw.bw_activation.models.role import EXTERNAL_ROLES
 
     db_session = db.session
 

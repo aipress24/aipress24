@@ -22,6 +22,7 @@ from flask import Response, flash, g, redirect, render_template, request, url_fo
 from flask.views import MethodView
 from sqlalchemy import select
 
+from app.enums import BWRoleType, InvitationStatus
 from app.flask.extensions import db
 from app.flask.lib.nav import nav
 from app.flask.sqla import get_obj
@@ -44,14 +45,8 @@ from app.modules.admin.views._show_org import OrgVM
 from app.modules.bw.bw_activation.bw_cancellation import (
     cancel_business_wall_from_app,
 )
-from app.modules.bw.bw_activation.models import (
-    BusinessWall,
-)
-from app.modules.bw.bw_activation.models.role import (
-    BWRoleType,
-    InvitationStatus,
-    RoleAssignment,
-)
+from app.modules.bw.bw_activation.models import BusinessWall
+from app.modules.bw.bw_activation.models.role import RoleAssignment
 from app.modules.bw.bw_activation.user_utils import (
     get_active_business_wall_for_organisation,
 )

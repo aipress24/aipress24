@@ -20,12 +20,8 @@ from typing import TYPE_CHECKING
 
 from werkzeug.exceptions import Forbidden
 
-from app.enums import RoleEnum
-from app.modules.bw.bw_activation.models import (
-    BWRoleType,
-    InvitationStatus,
-    PermissionType,
-)
+from app.enums import BWRoleType, InvitationStatus, RoleEnum
+from app.modules.bw.bw_activation.models import PermissionType
 from app.modules.bw.bw_activation.user_utils import (
     get_selected_business_wall_for_user,
 )
