@@ -39,6 +39,21 @@ class CommunityEnum(StrEnum):
     ACADEMICS = "Academics"
 
 
+COMMUNITY_TO_ROLE: dict[CommunityEnum, RoleEnum] = {
+    CommunityEnum.PRESS_MEDIA: RoleEnum.PRESS_MEDIA,
+    CommunityEnum.COMMUNICANTS: RoleEnum.PRESS_RELATIONS,
+    CommunityEnum.LEADERS_EXPERTS: RoleEnum.EXPERT,
+    CommunityEnum.TRANSFORMERS: RoleEnum.TRANSFORMER,
+    CommunityEnum.ACADEMICS: RoleEnum.ACADEMIC,
+}
+
+# Roles that are "community" roles. A user should have AT MOST ONE of these at
+# any time, matching their current KYC profile's community.
+COMMUNITY_ROLE_NAMES: frozenset[str] = frozenset(
+    role.name for role in COMMUNITY_TO_ROLE.values()
+)
+
+
 class EventMode(StrEnum):
     """Mode de participation à un événement — `MOD-01` à `MOD-06`.
 

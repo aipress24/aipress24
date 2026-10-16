@@ -18,11 +18,10 @@ from __future__ import annotations
 import arrow
 import sqlalchemy as sa
 
-from app.enums import RoleEnum
+from app.enums import COMMUNITY_TO_ROLE, RoleEnum
 from app.flask.extensions import db
 from app.models.auth import User
 from app.models.lifecycle import PublicationStatus
-from app.modules.kyc.community_role import COMMUNITY_TO_ROLE
 
 from .models import Accreditation, AccreditationStatus, EventPost
 from .notifications import (

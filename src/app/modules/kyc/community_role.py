@@ -4,24 +4,8 @@
 
 from __future__ import annotations
 
-from app.enums import CommunityEnum, RoleEnum
+from app.enums import COMMUNITY_ROLE_NAMES, COMMUNITY_TO_ROLE, CommunityEnum
 from app.models.auth import Role, User
-
-COMMUNITY_TO_ROLE = {
-    CommunityEnum.PRESS_MEDIA: RoleEnum.PRESS_MEDIA,
-    CommunityEnum.COMMUNICANTS: RoleEnum.PRESS_RELATIONS,
-    CommunityEnum.LEADERS_EXPERTS: RoleEnum.EXPERT,
-    CommunityEnum.TRANSFORMERS: RoleEnum.TRANSFORMER,
-    CommunityEnum.ACADEMICS: RoleEnum.ACADEMIC,
-}
-
-# Roles that are "community" roles in the sense above. A user should
-# have AT MOST ONE of these at any time, matching their current KYC
-# profile's community. Other roles (ADMIN, LEADER, ...) are
-# orthogonal and are not touched by this module.
-COMMUNITY_ROLE_NAMES: frozenset[str] = frozenset(
-    role.name for role in COMMUNITY_TO_ROLE.values()
-)
 
 
 def community_to_role_name(community: str | CommunityEnum) -> str:
