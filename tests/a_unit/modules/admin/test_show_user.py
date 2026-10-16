@@ -11,8 +11,8 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 
+from app.constants import BW_ROLE_TYPE_LABEL
 from app.enums import OrganisationTypeEnum, RoleEnum
-from app.modules.bw.bw_activation.bw_invitation import BW_ROLE_TYPE_LABEL
 
 
 @dataclass

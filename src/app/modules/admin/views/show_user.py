@@ -15,7 +15,7 @@ from flask_login import current_user
 from loguru import logger
 from sqlalchemy import func, select
 
-from app.constants import LABEL_COMPTE_DESACTIVE, LOCAL_TZ
+from app.constants import BW_ROLE_TYPE_LABEL, LABEL_COMPTE_DESACTIVE, LOCAL_TZ
 from app.enums import RoleEnum
 from app.flask.extensions import db
 from app.flask.lib.nav import nav
@@ -25,7 +25,6 @@ from app.models.invitation import Invitation
 from app.models.organisation import Organisation
 from app.modules.admin import blueprint
 from app.modules.admin.utils import gc_organisation, remove_user_organisation
-from app.modules.bw.bw_activation.bw_invitation import BW_ROLE_TYPE_LABEL
 from app.modules.bw.bw_activation.models import (
     BusinessWall,
     BWStatus,

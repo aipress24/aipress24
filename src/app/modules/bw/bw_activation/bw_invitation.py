@@ -17,6 +17,7 @@ from flask import flash, g, url_for
 from svcs.flask import container
 from werkzeug.exceptions import NotFound
 
+from app.constants import BW_ROLE_TYPE_LABEL
 from app.flask.extensions import db
 from app.flask.sqla import get_obj
 from app.logging import report_failure, warn
@@ -40,15 +41,6 @@ from app.services.emails import (
     BWRoleInvitationMail,
 )
 from app.services.notifications import NotificationService
-
-BW_ROLE_TYPE_LABEL: dict[str, str] = {
-    "": "Membre",
-    "BW_OWNER": "Business Wall Owner",
-    "BWMi": "Business Wall Manager (internal)",
-    "BWPRi": "PR Manager (internal)",
-    "BWMe": "Business Wall Manager (external)",
-    "BWPRe": "PR Manager (external)",
-}
 
 
 class InvitationOutcomeCode(StrEnum):
