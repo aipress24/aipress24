@@ -101,13 +101,13 @@ def send_claimed_mails(mails: list[dict]) -> int:
 
 def _payload(pending: PendingNotification) -> dict:
     """Détacher ce dont l'envoi a besoin avant de supprimer la ligne."""
+    mail_kwargs: dict = pending.mail_kwargs
     return {
         "receiver_id": pending.receiver_id,
         "message": pending.message,
         "url": pending.url,
         "mail_template": pending.mail_template,
-        # pyrefly: ignore [no-matching-overload]
-        "mail_kwargs": dict(pending.mail_kwargs or {}),
+        "mail_kwargs": dict(mail_kwargs),
     }
 
 
