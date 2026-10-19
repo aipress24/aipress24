@@ -5,11 +5,11 @@
 
 from __future__ import annotations
 
-from svcs.flask import container
-
+# from svcs.flask import container
 from app.dramatiq.scheduler import crontab
 from app.services import reputation
-from app.services.emails import EmailService
+
+# from app.services.emails import EmailService
 
 
 @crontab("0 * * * *")
@@ -20,5 +20,5 @@ def update_reputations() -> None:
     reputation.update_reputations(add_noise=True)
     print("... done")
 
-    email_service = container.get(EmailService)
-    email_service.send_system_email("Reputations updated")
+    # email_service = container.get(EmailService)
+    # email_service.send_system_email("Reputations updated")
