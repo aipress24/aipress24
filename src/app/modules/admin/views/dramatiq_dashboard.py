@@ -5,13 +5,13 @@
 """Admin dashboard for the Dramatiq queue.
 
 Read-only view backed by the `dramatiq.queue` table that
-dramatiq-pg manages in the application database. No Redis or
+dramatiq-postgres manages in the application database. No Redis or
 RabbitMQ involved — the data lives next to the rest of the app, so
 we can read it via the same SQLAlchemy session.
 
 Three sections are exposed:
 
-1. Per-queue counts by state (queued / consumed / rejected / done)
+1. Per-queue counts by state (queued / consumed / rejected)
 2. List of registered actors (from the live broker), grouped by
    their target queue.
 3. Most recent messages (latest mtime first) with their state and
@@ -63,7 +63,7 @@ def _schema_present() -> bool:
     """
     bind = db.session.get_bind()
     if bind.dialect.name != "postgresql":
-        # dramatiq-pg is Postgres-only; under SQLite/other test
+        # dramatiq-postgres is Postgres-only; under SQLite/other test
         # backends the schema is by definition absent.
         return False
     row = db.session.execute(
@@ -79,7 +79,7 @@ def _queue_state_counts() -> list[dict[str, Any]]:
     """One row per (queue_name, state), with count + last-update time.
 
     Sorted by queue name, then by state in our preferred display
-    order (queued first, done last) so the most actionable state
+    order (queued first, rejected last) so the most actionable state
     appears at the top of each group.
     """
     if not _schema_present():
@@ -95,12 +95,11 @@ def _queue_state_counts() -> list[dict[str, Any]]:
             FROM dramatiq.queue
             GROUP BY queue_name, state
             ORDER BY queue_name,
-                     CASE state
+                     CASE state::text
                        WHEN 'queued'   THEN 0
                        WHEN 'consumed' THEN 1
                        WHEN 'rejected' THEN 2
-                       WHEN 'done'     THEN 3
-                       ELSE 4
+                       ELSE 3
                      END
             """
         )

@@ -10,7 +10,7 @@ from urllib.parse import urlparse, urlunparse
 
 import dramatiq
 from dramatiq.brokers.stub import StubBroker
-from dramatiq_pg import PostgresBroker, generate_init_sql
+from dramatiq_postgres import PostgresBroker, generate_init_sql
 from loguru import logger
 
 from app.flask.main import create_app
@@ -24,7 +24,7 @@ def init_dramatiq(app) -> None:
     """Initialize Dramatiq with a Postgres broker and Flask app context.
 
     The queue lives in the same database as the app (under the
-    ``dramatiq`` schema, managed by ``dramatiq-pg``). No Redis needed.
+    ``dramatiq`` schema, managed by ``dramatiq-postgres``). No Redis needed.
 
     Under ``TESTING`` we wire a ``StubBroker`` instead — messages stay
     in memory and tests don't need a worker. Tests that need to assert
@@ -79,7 +79,8 @@ _BOOTSTRAP_LOCK_ID = 0xDEAD_DD11_BB55  # arbitrary 64-bit constant
 
 
 def _ensure_dramatiq_schema(broker: PostgresBroker) -> None:
-    """Run dramatiq-pg's init SQL once if the schema isn't there yet.
+    """Run dramatiq-postgres's init SQL once if the schema isn't there yet,
+    or migrate if legacy dramatiq-pg schema is detected.
 
     The generated DDL is not idempotent (``CREATE TYPE`` has no
     ``IF NOT EXISTS`` clause, and ``CREATE SCHEMA IF NOT EXISTS``
@@ -96,40 +97,61 @@ def _ensure_dramatiq_schema(broker: PostgresBroker) -> None:
     permission error and log a clear pointer rather than crashing
     every command that boots the app:
 
-        psql -d <DB> -c "$(python -c 'from dramatiq_pg import generate_init_sql; print(generate_init_sql())')"
+        psql -d <DB> -c "DROP SCHEMA IF EXISTS dramatiq CASCADE;"
+        dramatiq-postgres -d <DB_URL> init
     """
-    import psycopg2.errors
+    import psycopg.errors
 
-    conn = broker.pool.getconn()
-    try:
-        with conn.cursor() as cur:
-            cur.execute("SELECT pg_advisory_xact_lock(%s)", (_BOOTSTRAP_LOCK_ID,))
-            cur.execute(
-                """
-                SELECT 1
-                FROM information_schema.tables
-                WHERE table_schema = 'dramatiq' AND table_name = 'queue'
-                """
-            )
-            if cur.fetchone():
-                logger.debug("dramatiq schema already present")
-                conn.commit()
-                return
-            logger.info("Creating dramatiq schema")
+    with broker.pool.connection() as conn, conn.cursor() as cur:
+        cur.execute("SELECT pg_advisory_xact_lock(%s)", (_BOOTSTRAP_LOCK_ID,))
+        # Check if the modern dramatiq-postgres queue exists with available_at column
+        cur.execute(
+            """
+            SELECT 1
+            FROM information_schema.columns
+            WHERE table_schema = 'dramatiq'
+              AND table_name = 'queue'
+              AND column_name = 'available_at'
+            """
+        )
+        if cur.fetchone():
+            logger.debug("dramatiq schema already present and up to date")
+            conn.commit()
+            return
+
+        # If a legacy dramatiq-pg queue table is present, drop it before re-initializing
+        cur.execute(
+            """
+            SELECT 1
+            FROM information_schema.tables
+            WHERE table_schema = 'dramatiq' AND table_name = 'queue'
+            """
+        )
+        if cur.fetchone():
+            logger.info("Migrating legacy dramatiq-pg schema to dramatiq-postgres")
             try:
-                cur.execute(generate_init_sql())
-                conn.commit()
-            except psycopg2.errors.InsufficientPrivilege:
+                cur.execute("DROP SCHEMA dramatiq CASCADE")
+            except psycopg.errors.InsufficientPrivilege:
                 conn.rollback()
                 logger.error(
-                    "dramatiq schema is missing and the current DB user "
-                    "lacks DDL privileges to create it. Provision it once "
-                    "by running, as a DB admin:\n"
-                    '  psql -d <DB> -c "$(python -c '
-                    "'from dramatiq_pg import generate_init_sql; "
-                    "print(generate_init_sql())')\"\n"
-                    "Until then, jobs sent via .send() will fail at "
-                    "enqueue time."
+                    "Legacy dramatiq schema detected but current DB user lacks privileges.\n"
+                    "Run as admin:\n"
+                    "  psql -d <DB> -c 'DROP SCHEMA IF EXISTS dramatiq CASCADE;'\n"
+                    "  dramatiq-postgres -d <DB_URL> init"
                 )
-    finally:
-        broker.pool.putconn(conn)
+                return
+
+        logger.info("Creating dramatiq-postgres schema")
+        try:
+            cur.execute(generate_init_sql())
+            conn.commit()
+        except psycopg.errors.InsufficientPrivilege:
+            conn.rollback()
+            logger.error(
+                "dramatiq schema is missing and the current DB user "
+                "lacks DDL privileges to create it. Provision it once "
+                "by running, as a DB admin:\n"
+                "  dramatiq-postgres -d <DB_URL> init\n"
+                "Until then, jobs sent via .send() will fail at "
+                "enqueue time."
+            )

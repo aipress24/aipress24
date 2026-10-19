@@ -71,6 +71,7 @@ dependencies = [
     "sqlalchemy-utils<1.0.0,>=0.41.1",
     "advanced-alchemy>=1.11,<1.12",
     "psycopg2<3.0.0,>=2.9.9",
+    "psycopg[binary,pool]>=3.2.0,<4",
     #
     "python-iso639>=2026",
     # use gunicorn 26
@@ -87,10 +88,8 @@ dependencies = [
     "beautifulsoup4<5.0,>=4.12",
     "stripe>=16.0.0,<17",  # use with API version "2026-09-30.endive" declared in main.py
     # Queues
-    # dramatiq-pg implies dramatiq <2.0.0, tenacity v8.5.0 (<9)
-    "dramatiq<2.0.0,>=1.15.0",
-    # dramatiq-pg v0.12.0 is most recent version (2026-09-15))
-    "dramatiq-pg<1.0.0,>=0.12.0",
+    "dramatiq>=2.0.0,<3",
+    "dramatiq-postgres>=1.4.0,<2",
     "apscheduler<4.0.0,>=3.10.4",
     # PDF generation
     "weasyprint>=63",
@@ -122,8 +121,7 @@ dependencies = [
     # Extra
     "ijson>=3.3.0",
     "psutil>=6.1.1",
-    # pinned <9 to stay compatible with dramatiq-pg 0.12.0
-    "tenacity>=8.5.0,<9",
+    "tenacity>=8.5.0,<10",
     # Pinned to 82 (83 breaks some packages). No longer constrained by
     # pkg_resources: the only consumer was passlib, now replaced by
     # libpass (a maintained passlib fork without pkg_resources).
