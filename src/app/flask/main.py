@@ -340,18 +340,17 @@ def register_stripe(app: Flask) -> None:
     """Configure Stripe API key, choose explicit API version.
 
     Note:
-        - API version "2026-08-26.dahlia" is compatible with
+        - API version "2026-09-30.endive" is compatible with
           Stripe v16.0.0.
-        - Using API "2026-09-30.endive" would require to change
-            'payment_method_types=["card"]' to
-            'allowed_payment_method_types=["card"]'
+        - In API "2026-09-30.endive", 'allowed_payment_method_types=["card"]'
+          replaces 'payment_method_types=["card"]'.
         - For any change, check that the Stripe dashboard configuration
-          use same API version.
+          uses the same API version.
 
     Args:
         app: Flask application instance.
     """
-    stripe.api_version = "2026-08-26.dahlia"
+    stripe.api_version = "2026-09-30.endive"
     stripe.api_key = app.config.get("STRIPE_API_KEY")
 
 

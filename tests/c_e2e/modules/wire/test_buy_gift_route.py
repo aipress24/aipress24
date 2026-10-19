@@ -189,7 +189,7 @@ class TestBuyGiftFlow:
         assert kwargs["metadata"]["beneficiary_count"] == "2"
         assert kwargs["metadata"]["purchase_id"] == str(purchase.id)
         # Ticket #0214: card pinned so Stripe doesn't funnel into Link.
-        assert kwargs["payment_method_types"] == ["card"]
+        assert kwargs["allowed_payment_method_types"] == ["card"]
 
     def test_filters_out_recipients_who_already_have_access(
         self,
@@ -409,7 +409,7 @@ class TestBuyRoute:
             app.config["STRIPE_LIVE_ENABLED"] = False
 
         assert response.status_code == 303
-        assert mock_create.call_args.kwargs["payment_method_types"] == ["card"]
+        assert mock_create.call_args.kwargs["allowed_payment_method_types"] == ["card"]
 
     def test_stripe_error_redirects_and_drops_pending_purchase(
         self, app: Flask, db_session: Session, buyer: User, article: ArticlePost

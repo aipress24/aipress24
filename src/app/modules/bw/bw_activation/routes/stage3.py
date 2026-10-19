@@ -514,6 +514,7 @@ def _create_stripe_checkout_session(
                 f"Stripe payment_method error ({err_msg}), retrying without payment_method_types..."
             )
             no_pm_kwargs = dict(checkout_kwargs)
+            no_pm_kwargs.pop("allowed_payment_method_types", None)
             no_pm_kwargs.pop("payment_method_types", None)
             return stripe.checkout.Session.create(**no_pm_kwargs)
 
@@ -656,7 +657,7 @@ def checkout(bw_type: str):
         "metadata": _build_checkout_metadata(draft_bw.id, bw_type, g.user.id),
         "automatic_tax": {"enabled": True},
         # Ticket #0214: pin card (no Link / SMS dead-end).
-        "payment_method_types": ["card"],
+        "allowed_payment_method_types": ["card"],
     }
 
     # Keep existing customer ID when known, fall back to the payer's email

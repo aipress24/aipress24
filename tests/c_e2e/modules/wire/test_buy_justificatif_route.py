@@ -143,7 +143,7 @@ class TestBuyJustificatifFlow:
         assert kwargs["metadata"]["product_type"] == "justificatif"
         assert kwargs["metadata"]["purchase_id"] == str(purchase.id)
         # Ticket #0214 — card pinned so Stripe doesn't funnel into Link.
-        assert kwargs["payment_method_types"] == ["card"]
+        assert kwargs["allowed_payment_method_types"] == ["card"]
 
     def test_paid_webhook_marks_paid_triggers_pdf_and_press_book(
         self, app: Flask, db_session: Session, buyer: User, article: ArticlePost

@@ -293,7 +293,7 @@ def buy(post_id: str, product: str):
             automatic_tax={"enabled": True},
             # Ticket #0214: pin card so Stripe doesn't auto-present Link,
             # whose SMS confirmation we can't deliver (no SMS backend).
-            payment_method_types=["card"],  # pyrefly: ignore [unexpected-keyword]
+            allowed_payment_method_types=["card"],
         )
     except StripeError as exc:
         warn(f"buy: Stripe Checkout creation failed: {exc}")
@@ -507,7 +507,7 @@ def buy_gift(post_id: str):
             },
             automatic_tax={"enabled": True},
             # Ticket #0214: pin card (no Link / SMS dead-end).
-            payment_method_types=["card"],  # pyrefly: ignore [unexpected-keyword]
+            allowed_payment_method_types=["card"],
         )
     except StripeError as exc:
         warn(f"buy_gift: Stripe Checkout creation failed: {exc}")
