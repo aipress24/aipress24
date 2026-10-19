@@ -511,11 +511,11 @@ def _create_stripe_checkout_session(
         # Recovery Payment method types incompatible
         if "payment_method" in err_msg.lower():
             warn(
-                f"Stripe payment_method error ({err_msg}), retrying without payment_method_types..."
+                f"Stripe payment_method error ({err_msg}), "
+                "retrying without allowed_payment_method_types..."
             )
             no_pm_kwargs = dict(checkout_kwargs)
             no_pm_kwargs.pop("allowed_payment_method_types", None)
-            no_pm_kwargs.pop("payment_method_types", None)
             return stripe.checkout.Session.create(**no_pm_kwargs)
 
         raise
