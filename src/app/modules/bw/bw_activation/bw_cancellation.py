@@ -17,13 +17,13 @@ from datetime import UTC, datetime
 from typing import TYPE_CHECKING
 from uuid import UUID
 
+from app.enums import BWStatus
 from app.flask.extensions import db
 from app.models.auth import User
 from app.models.invitation import Invitation
 from app.models.organisation import Organisation
 from app.modules.bw.bw_activation.models import (
     BusinessWall,
-    BWStatus,
     Partnership,
     SubscriptionStatus,
 )

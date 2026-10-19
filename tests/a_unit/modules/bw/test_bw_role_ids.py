@@ -29,7 +29,7 @@ Two non-obvious behaviours pinned here :
 
 from __future__ import annotations
 
-from app.modules.bw.bw_activation.models import BWRoleType, InvitationStatus
+from app.enums import BWRoleType, InvitationStatus
 from app.modules.bw.bw_activation.utils import (
     bw_managers_ids,
     bw_pr_managers_ids,

@@ -12,7 +12,7 @@ from uuid import uuid4
 from arrow import now as arrow_now
 
 from app.constants import LOCAL_TZ
-from app.enums import RoleEnum
+from app.enums import BWStatus, RoleEnum
 from app.models.auth import KYCProfile, Role, User
 from app.models.organisation import Organisation
 from app.modules.admin.utils import (
@@ -26,7 +26,7 @@ from app.modules.admin.utils import (
     set_user_organisation,
     toggle_org_active,
 )
-from app.modules.bw.bw_activation.models import BusinessWall, BWStatus
+from app.modules.bw.bw_activation.models import BusinessWall
 
 if TYPE_CHECKING:
     from flask_sqlalchemy import SQLAlchemy

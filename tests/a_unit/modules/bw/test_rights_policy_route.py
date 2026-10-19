@@ -31,7 +31,7 @@ from __future__ import annotations
 
 import pytest
 
-from app.modules.bw.bw_activation.models.business_wall import BWStatus
+from app.enums import BWStatus
 from app.modules.bw.bw_activation.routes.rights_policy import (
     _VALID_OPTIONS,
     ALLOWED_BW_TYPES,

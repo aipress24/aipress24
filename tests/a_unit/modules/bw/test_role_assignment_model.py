@@ -35,9 +35,8 @@ import pytest
 from advanced_alchemy.base import UUIDAuditBase
 from sqlalchemy import inspect as sa_inspect
 
+from app.enums import BWRoleType, InvitationStatus
 from app.modules.bw.bw_activation.models.role import (
-    BWRoleType,
-    InvitationStatus,
     PermissionType,
     RoleAssignment,
     RolePermission,

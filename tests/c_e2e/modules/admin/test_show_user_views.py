@@ -12,14 +12,10 @@ from typing import TYPE_CHECKING
 
 import pytest
 
+from app.enums import BWStatus, InvitationStatus
 from app.models.auth import KYCProfile, User
 from app.models.organisation import Organisation
-from app.modules.bw.bw_activation.models import (
-    BusinessWall,
-    BWStatus,
-    InvitationStatus,
-    RoleAssignment,
-)
+from app.modules.bw.bw_activation.models import BusinessWall, RoleAssignment
 
 if TYPE_CHECKING:
     from flask.testing import FlaskClient

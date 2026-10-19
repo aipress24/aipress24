@@ -13,12 +13,9 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+from app.enums import BWRoleType, InvitationStatus
 from app.models.auth import User
-from app.modules.bw.bw_activation.models import (
-    BWRoleType,
-    InvitationStatus,
-    RoleAssignment,
-)
+from app.modules.bw.bw_activation.models import RoleAssignment
 
 if TYPE_CHECKING:
     from flask.testing import FlaskClient

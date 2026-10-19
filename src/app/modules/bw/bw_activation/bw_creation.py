@@ -14,19 +14,15 @@ from flask import g
 from sqlalchemy import select as sa_select
 from svcs.flask import container
 
+from app.enums import BWRoleType, BWStatus, InvitationStatus
 from app.flask.extensions import db
 from app.logging import warn
 from app.modules.bw.bw_activation.models import (
     BusinessWallService,
-    BWStatus,
     RoleAssignmentService,
     SubscriptionService,
 )
-from app.modules.bw.bw_activation.models.role import (
-    BWRoleType,
-    InvitationStatus,
-    RoleAssignment,
-)
+from app.modules.bw.bw_activation.models.role import RoleAssignment
 from app.modules.bw.bw_activation.models.subscription import SubscriptionStatus
 
 from .config import BW_TYPES, taille_orga_for_employee_count

@@ -258,7 +258,19 @@ class BWRoleType(StrEnum):
     BWPRE = "BWPRe"  # PR Manager (external)
 
 
-EXTERNAL_ROLES: set[str] = {BWRoleType.BWME.value, BWRoleType.BWPRE.value}
+# Keyed by the stored `role_type`; a plain member has none ("").
+BW_ROLE_TYPE_LABEL: dict[str, str] = {
+    "": "Membre",
+    BWRoleType.BW_OWNER.value: "Business Wall Owner",
+    BWRoleType.BWMI.value: "Business Wall Manager (internal)",
+    BWRoleType.BWPRI.value: "PR Manager (internal)",
+    BWRoleType.BWME.value: "Business Wall Manager (external)",
+    BWRoleType.BWPRE.value: "PR Manager (external)",
+}
+
+EXTERNAL_ROLES: frozenset[str] = frozenset(
+    {BWRoleType.BWME.value, BWRoleType.BWPRE.value}
+)
 
 
 class InvitationStatus(StrEnum):

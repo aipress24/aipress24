@@ -31,12 +31,12 @@ from dataclasses import dataclass, field
 
 import pytest
 
+from app.enums import BWRoleType
 from app.modules.bw.bw_activation.bw_invitation import (
     InvitationOutcome,
     InvitationOutcomeCode,
     invite_role_by_email,
 )
-from app.modules.bw.bw_activation.models import BWRoleType
 
 #: The roles the admin UI can invite to by address.
 INVITABLE_ROLES = [BWRoleType.BWMI, BWRoleType.BWPRI]

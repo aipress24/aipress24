@@ -11,13 +11,11 @@ from typing import TYPE_CHECKING
 import arrow
 import pytest
 
+from app.enums import BWStatus
 from app.flask.routing import url_for
 from app.models.auth import User
 from app.models.lifecycle import PublicationStatus
-from app.modules.bw.bw_activation.models.business_wall import (
-    BusinessWall,
-    BWStatus,
-)
+from app.modules.bw.bw_activation.models.business_wall import BusinessWall
 from app.modules.wip.models.newsroom.article import Article
 from tests.c_e2e.conftest import make_authenticated_client
 

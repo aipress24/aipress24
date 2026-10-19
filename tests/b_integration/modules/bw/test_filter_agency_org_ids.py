@@ -13,10 +13,11 @@ from typing import TYPE_CHECKING
 
 from sqlalchemy import event
 
+from app.enums import BWStatus
 from app.flask.extensions import db
 from app.models.auth import User
 from app.models.organisation import Organisation
-from app.modules.bw.bw_activation.models import BusinessWall, BWStatus
+from app.modules.bw.bw_activation.models import BusinessWall
 from app.modules.bw.bw_activation.user_utils import filter_agency_org_ids
 
 if TYPE_CHECKING:

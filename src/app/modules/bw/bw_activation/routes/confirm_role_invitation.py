@@ -13,6 +13,7 @@ from uuid import UUID
 from flask import g, redirect, render_template, request, session, url_for
 from sqlalchemy import select
 
+from app.enums import BWRoleType, InvitationStatus
 from app.flask.extensions import db
 from app.logging import warn
 from app.modules.admin.utils import set_user_organisation
@@ -21,12 +22,7 @@ from app.modules.bw.bw_activation.bw_invitation import (
     BW_ROLE_TYPE_LABEL,
     apply_bw_missions_to_pr_user,
 )
-from app.modules.bw.bw_activation.models import (
-    BusinessWall,
-    BWRoleType,
-    InvitationStatus,
-    RoleAssignment,
-)
+from app.modules.bw.bw_activation.models import BusinessWall, RoleAssignment
 from app.modules.bw.bw_activation.utils import (
     ERR_BW_NOT_FOUND,
     ERR_INVITATION_NOT_FOUND,

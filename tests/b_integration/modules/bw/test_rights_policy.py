@@ -11,13 +11,11 @@ from typing import TYPE_CHECKING
 
 import pytest
 
+from app.enums import BWStatus
 from app.models.auth import User
 from app.models.lifecycle import PublicationStatus
 from app.models.organisation import Organisation
-from app.modules.bw.bw_activation.models.business_wall import (
-    BusinessWall,
-    BWStatus,
-)
+from app.modules.bw.bw_activation.models.business_wall import BusinessWall
 from app.modules.bw.bw_activation.rights_policy import (
     DEFAULT_POLICY,
     get_policy,

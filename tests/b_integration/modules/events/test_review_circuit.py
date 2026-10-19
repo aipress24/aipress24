@@ -21,13 +21,12 @@ import pytest
 from svcs.flask import container
 
 from app.constants import LOCAL_TZ
+from app.enums import BWRoleType, BWStatus, InvitationStatus
 from app.models.auth import User
 from app.models.lifecycle import PublicationStatus
 from app.models.organisation import Organisation
-from app.modules.bw.bw_activation.models.business_wall import BusinessWall, BWStatus
+from app.modules.bw.bw_activation.models.business_wall import BusinessWall
 from app.modules.bw.bw_activation.models.role import (
-    BWRoleType,
-    InvitationStatus,
     PermissionType,
     RoleAssignment,
     RolePermission,

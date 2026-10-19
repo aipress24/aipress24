@@ -49,8 +49,7 @@ from __future__ import annotations
 
 import pytest
 
-from app.enums import RoleEnum
-from app.modules.bw.bw_activation.models import BWRoleType, InvitationStatus
+from app.enums import BWRoleType, InvitationStatus, RoleEnum
 from app.modules.bw.bw_activation.utils import is_bw_manager, is_bw_manager_or_admin
 
 

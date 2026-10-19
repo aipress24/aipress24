@@ -14,7 +14,7 @@ from typing import TYPE_CHECKING
 import pytest
 from sqlalchemy import event
 
-from app.enums import RoleEnum
+from app.enums import BWRoleType, BWStatus, InvitationStatus, RoleEnum
 from app.flask.extensions import db
 from app.lib.base62 import base62
 from app.models.auth import KYCProfile, Role, User
@@ -26,13 +26,7 @@ from app.modules.biz.models import (
     MissionStatus,
     OfferApplication,
 )
-from app.modules.bw.bw_activation.models import (
-    BusinessWall,
-    BWRoleType,
-    InvitationStatus,
-    RoleAssignment,
-)
-from app.modules.bw.bw_activation.models.business_wall import BWStatus
+from app.modules.bw.bw_activation.models import BusinessWall, RoleAssignment
 from app.modules.wip.models.newsroom.article import Article
 from app.modules.wip.models.newsroom.avis_enquete import (
     AvisEnquete,

@@ -12,6 +12,7 @@ from flask import flash, g, redirect, render_template, request, session, url_for
 from werkzeug import Response
 from werkzeug.exceptions import NotFound
 
+from app.enums import BWRoleType, InvitationStatus
 from app.flask.extensions import db
 from app.flask.sqla import get_obj
 from app.logging import warn
@@ -23,10 +24,6 @@ from app.modules.bw.bw_activation.bw_invitation import (
     revoke_user_role,
 )
 from app.modules.bw.bw_activation.config import BW_TYPES
-from app.modules.bw.bw_activation.models import (
-    BWRoleType,
-    InvitationStatus,
-)
 from app.modules.bw.bw_activation.user_utils import current_business_wall
 from app.modules.bw.bw_activation.utils import (
     ERR_BW_NOT_FOUND,

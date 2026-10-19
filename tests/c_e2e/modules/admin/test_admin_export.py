@@ -13,7 +13,7 @@ from uuid import uuid4
 import pytest
 from arrow import Arrow
 
-from app.enums import RoleEnum
+from app.enums import BWStatus, RoleEnum
 from app.flask.routing import url_for
 from app.models.auth import KYCProfile, Role, User
 from app.models.organisation import Organisation
@@ -27,7 +27,7 @@ from app.modules.admin.views._export import (
     SalesLedgerExporter,
     UsersExporter,
 )
-from app.modules.bw.bw_activation.models import BusinessWall, BWStatus
+from app.modules.bw.bw_activation.models import BusinessWall
 from app.modules.wire.models import (
     ArticlePost,
     ArticlePurchase,

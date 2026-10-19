@@ -15,12 +15,9 @@ from typing import TYPE_CHECKING, Any
 
 import sqlalchemy as sa
 
-from app.enums import BWType
+from app.enums import BWStatus, BWType
 from app.flask.extensions import db
-from app.modules.bw.bw_activation.models.business_wall import (
-    BusinessWall,
-    BWStatus,
-)
+from app.modules.bw.bw_activation.models.business_wall import BusinessWall
 
 if TYPE_CHECKING:
     from app.models.auth import User

@@ -14,17 +14,15 @@ import arrow
 import pytest
 from svcs.flask import container
 
+from app.enums import BWRoleType, BWStatus, InvitationStatus
 from app.models.auth import KYCProfile, User
 from app.models.organisation import Organisation
 from app.modules.bw.bw_activation.models import (
     BusinessWall,
-    BWRoleType,
-    InvitationStatus,
     Partnership,
     PartnershipStatus,
     RoleAssignment,
 )
-from app.modules.bw.bw_activation.models.business_wall import BWStatus
 from app.modules.wip.models import (
     AvisEnquete,
     ContactAvisEnquete,

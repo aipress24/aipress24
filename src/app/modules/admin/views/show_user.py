@@ -15,8 +15,8 @@ from flask_login import current_user
 from loguru import logger
 from sqlalchemy import func, select
 
-from app.constants import BW_ROLE_TYPE_LABEL, LABEL_COMPTE_DESACTIVE, LOCAL_TZ
-from app.enums import BWStatus, RoleEnum
+from app.constants import LABEL_COMPTE_DESACTIVE, LOCAL_TZ
+from app.enums import BW_ROLE_TYPE_LABEL, BWStatus, RoleEnum
 from app.flask.extensions import db
 from app.flask.lib.nav import nav
 from app.flask.sqla import get_obj

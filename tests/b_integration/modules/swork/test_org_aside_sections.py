@@ -14,6 +14,7 @@ from typing import TYPE_CHECKING
 
 from flask import g, render_template, url_for
 
+from app.enums import BWRoleType, BWStatus, InvitationStatus
 from app.models.auth import User
 from app.models.lifecycle import PublicationStatus
 from app.models.organisation import Organisation
@@ -25,13 +26,7 @@ from app.modules.biz.models._offers import (
     ProjectOffer,
 )
 from app.modules.bw.bw_activation.bw_invitation import revoke_user_role
-from app.modules.bw.bw_activation.models import (
-    BusinessWall,
-    BWRoleType,
-    InvitationStatus,
-    RoleAssignment,
-)
-from app.modules.bw.bw_activation.models.business_wall import BWStatus
+from app.modules.bw.bw_activation.models import BusinessWall, RoleAssignment
 from app.modules.events.models import (
     Accreditation,
     AccreditationStatus,

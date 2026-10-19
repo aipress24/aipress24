@@ -12,6 +12,7 @@ from unittest.mock import patch
 
 import pytest
 
+from app.enums import BWRoleType, InvitationStatus
 from app.models.auth import User
 from app.models.organisation import Organisation
 from app.modules.bw.bw_activation.bw_invitation import (
@@ -27,11 +28,7 @@ from app.modules.bw.bw_activation.models import (
     RoleAssignment,
     RolePermission,
 )
-from app.modules.bw.bw_activation.models.role import (
-    BWRoleType,
-    InvitationStatus,
-    PermissionType,
-)
+from app.modules.bw.bw_activation.models.role import PermissionType
 
 if TYPE_CHECKING:
     from flask.ctx import AppContext

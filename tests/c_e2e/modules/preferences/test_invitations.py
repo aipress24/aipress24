@@ -17,19 +17,17 @@ import pytest
 from arrow import now
 from sqlalchemy import select
 
-from app.enums import RoleEnum
+from app.enums import BWStatus, InvitationStatus, RoleEnum
 from app.models.auth import KYCProfile, Role, User
 from app.models.invitation import Invitation
 from app.models.organisation import Organisation
 from app.modules.admin.invitations import add_invited_users
 from app.modules.bw.bw_activation.models import (
     BusinessWall,
-    InvitationStatus,
     Partnership,
     PartnershipStatus,
     RoleAssignment,
 )
-from app.modules.bw.bw_activation.models.business_wall import BWStatus
 from app.modules.preferences.views.invitations import InvitationsView
 from tests.c_e2e.conftest import make_authenticated_client
 

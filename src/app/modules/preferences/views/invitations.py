@@ -13,8 +13,7 @@ from flask import Response, flash, g, redirect, render_template, request
 from flask.views import MethodView
 from sqlalchemy import delete, func, or_, select
 
-from app.constants import BW_ROLE_TYPE_LABEL
-from app.enums import BWStatus, InvitationStatus
+from app.enums import BW_ROLE_TYPE_LABEL, BWStatus, InvitationStatus
 from app.flask.extensions import db
 from app.flask.routing import url_for
 from app.flask.sqla import get_obj

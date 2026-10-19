@@ -16,13 +16,13 @@ from typing import TYPE_CHECKING
 
 import pytest
 
+from app.enums import BWStatus
 from app.flask.routing import url_for
 from app.models.auth import User
 from app.models.lifecycle import PublicationStatus
 from app.models.organisation import Organisation
 from app.modules.bw.bw_activation.models import (
     BusinessWall,
-    BWStatus,
     Partnership,
     PartnershipStatus,
 )

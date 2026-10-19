@@ -21,15 +21,11 @@ from uuid import uuid4
 
 from arrow import now
 
+from app.enums import BWRoleType, InvitationStatus
 from app.models.auth import KYCProfile, User
 from app.models.invitation import Invitation
 from app.models.organisation import Organisation
-from app.modules.bw.bw_activation.models import (
-    BusinessWall,
-    BWRoleType,
-    InvitationStatus,
-    RoleAssignment,
-)
+from app.modules.bw.bw_activation.models import BusinessWall, RoleAssignment
 from app.modules.kyc.organisation_utils import (
     _find_kyc_organisation_name,
     find_inviting_organisations,

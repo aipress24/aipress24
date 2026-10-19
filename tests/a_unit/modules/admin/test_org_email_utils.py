@@ -9,11 +9,11 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 from uuid import uuid4
 
-from app.enums import RoleEnum
+from app.enums import BWStatus, RoleEnum
 from app.models.auth import KYCProfile, Role, User
 from app.models.organisation import Organisation
 from app.modules.admin.org_email_utils import change_members_emails
-from app.modules.bw.bw_activation.models import BusinessWall, BWStatus
+from app.modules.bw.bw_activation.models import BusinessWall
 
 if TYPE_CHECKING:
     from flask_sqlalchemy import SQLAlchemy

@@ -15,13 +15,13 @@ from unittest.mock import patch
 
 import pytest
 
-from app.enums import RoleEnum
+from app.enums import BWStatus, RoleEnum
 from app.flask.extensions import db
 from app.flask.routing import url_for
 from app.models.auth import KYCProfile, Role, User
 from app.models.lifecycle import PublicationStatus
 from app.models.organisation import Organisation
-from app.modules.bw.bw_activation.models import BusinessWall, BWStatus
+from app.modules.bw.bw_activation.models import BusinessWall
 from app.modules.wip.models.newsroom.commande import Commande
 from app.modules.wip.models.newsroom.sujet import Sujet
 from app.services.notifications._models import Notification

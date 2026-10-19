@@ -12,14 +12,10 @@ from uuid import UUID
 from flask import g, redirect, render_template, session, url_for
 from sqlalchemy import select
 
+from app.enums import BWRoleType, BWStatus, InvitationStatus
 from app.flask.extensions import db
 from app.modules.bw.bw_activation import bp
-from app.modules.bw.bw_activation.models import (
-    BusinessWall,
-    BWRoleType,
-    InvitationStatus,
-)
-from app.modules.bw.bw_activation.models.business_wall import BWStatus
+from app.modules.bw.bw_activation.models import BusinessWall
 from app.modules.bw.bw_activation.user_utils import (
     get_manageable_business_walls_for_user,
     get_user_rights_on_bw,

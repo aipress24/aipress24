@@ -27,7 +27,7 @@ from flask.testing import FlaskClient
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from app.enums import RoleEnum
+from app.enums import BWRoleType, InvitationStatus, RoleEnum
 from app.models.auth import Role, User
 from app.models.lifecycle import PublicationStatus
 from app.models.organisation import Organisation
@@ -36,8 +36,6 @@ from app.modules.api_v1.security import ALL_SCOPES, Scope, generate_token
 from app.modules.biz.models import MissionOffer
 from app.modules.bw.bw_activation.models.business_wall import BusinessWall
 from app.modules.bw.bw_activation.models.role import (
-    BWRoleType,
-    InvitationStatus,
     PermissionType,
     RoleAssignment,
     RolePermission,

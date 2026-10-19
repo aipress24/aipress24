@@ -12,14 +12,11 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from app.enums import RoleEnum
+from app.enums import BWStatus, RoleEnum
 from app.models.auth import Role, User
 from app.models.lifecycle import PublicationStatus
 from app.models.organisation import Organisation
-from app.modules.bw.bw_activation.models.business_wall import (
-    BusinessWall,
-    BWStatus,
-)
+from app.modules.bw.bw_activation.models.business_wall import BusinessWall
 from app.modules.wire.models import ArticlePost
 from tests.c_e2e.conftest import make_authenticated_client
 

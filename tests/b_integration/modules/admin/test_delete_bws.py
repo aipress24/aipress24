@@ -8,6 +8,7 @@ from __future__ import annotations
 
 from unittest.mock import MagicMock, patch
 
+from app.enums import BWStatus
 from app.models.auth import User
 from app.models.organisation import Organisation
 from app.modules.admin.views.delete_bws import (
@@ -15,7 +16,6 @@ from app.modules.admin.views.delete_bws import (
     _remove_all_bw,
 )
 from app.modules.bw.bw_activation.models import BusinessWall
-from app.modules.bw.bw_activation.models.business_wall import BWStatus
 from app.modules.bw.bw_activation.models.subscription import Subscription
 
 

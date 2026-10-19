@@ -9,15 +9,10 @@ from __future__ import annotations
 import uuid
 from typing import TYPE_CHECKING
 
+from app.enums import BWRoleType, BWStatus, InvitationStatus
 from app.models.auth import KYCProfile, User
 from app.models.organisation import Organisation
-from app.modules.bw.bw_activation.models import (
-    BusinessWall,
-    BWRoleType,
-    BWStatus,
-    InvitationStatus,
-    RoleAssignment,
-)
+from app.modules.bw.bw_activation.models import BusinessWall, RoleAssignment
 from app.modules.wip.redac_chef import is_redac_chef_of_org, redac_chef_media_id
 
 if TYPE_CHECKING:

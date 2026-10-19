@@ -25,10 +25,11 @@ from flask import g
 from werkzeug.exceptions import Forbidden, NotFound
 
 from app.constants import LOCAL_TZ
+from app.enums import BWStatus
 from app.models.auth import User
 from app.models.lifecycle import PublicationStatus
 from app.models.organisation import Organisation
-from app.modules.bw.bw_activation.models.business_wall import BusinessWall, BWStatus
+from app.modules.bw.bw_activation.models.business_wall import BusinessWall
 from app.modules.wip.crud.cbvs.events import EventsWipView
 from app.modules.wip.models.eventroom import Event
 from tests.c_e2e.conftest import make_authenticated_client

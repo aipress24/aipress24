@@ -25,6 +25,7 @@ from sqlalchemy.orm import scoped_session
 from stripe import InvalidRequestError, StripeError
 from svcs.flask import container
 
+from app.enums import BWStatus
 from app.flask.extensions import db
 from app.logging import report_failure, warn
 from app.modules.admin.org_email_utils import change_members_emails
@@ -44,7 +45,6 @@ from app.modules.bw.bw_activation.config import (
 )
 from app.modules.bw.bw_activation.models import (
     BusinessWall,
-    BWStatus,
     Subscription,
     SubscriptionStatus,
 )

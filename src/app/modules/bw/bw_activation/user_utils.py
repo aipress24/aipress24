@@ -14,21 +14,21 @@ from flask import g, session
 from sqlalchemy import inspect, select
 from sqlalchemy.exc import NoInspectionAvailable
 
-from app.enums import ProfileEnum
+from app.enums import (
+    BW_ROLE_TYPE_LABEL,
+    EXTERNAL_ROLES,
+    BWRoleType,
+    BWStatus,
+    BWType,
+    InvitationStatus,
+    ProfileEnum,
+)
 from app.flask.extensions import db
 from app.logging import warn
 from app.models.auth import BW_TYPE_FONCTION_SOURCES, KYCProfile
 from app.modules.admin.utils import Organisation
-from app.modules.bw.bw_activation.bw_invitation import BW_ROLE_TYPE_LABEL
 from app.modules.bw.bw_activation.config import DEPRECATED_BW_TYPES
-from app.modules.bw.bw_activation.models import (
-    BusinessWall,
-    BWRoleType,
-    InvitationStatus,
-    RoleAssignment,
-)
-from app.modules.bw.bw_activation.models.business_wall import BWStatus, BWType
-from app.modules.bw.bw_activation.models.role import EXTERNAL_ROLES
+from app.modules.bw.bw_activation.models import BusinessWall, RoleAssignment
 from app.modules.bw.bw_activation.utils import DASHBOARD_ACCESS_ROLES
 
 # Loose dict shape used to carry KYC-shaped data from the view layer

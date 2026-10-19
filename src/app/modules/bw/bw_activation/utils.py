@@ -13,7 +13,7 @@ from flask import g, session
 from sqlalchemy.exc import SQLAlchemyError
 from svcs.flask import container
 
-from app.enums import RoleEnum
+from app.enums import BWRoleType, BWStatus, BWType, InvitationStatus, RoleEnum
 from app.flask.extensions import db
 from app.flask.sqla import get_obj
 from app.logging import warn
@@ -21,10 +21,6 @@ from app.models.auth import User
 from app.modules.bw.bw_activation.models import (
     BusinessWall,
     BusinessWallService,
-    BWRoleType,
-    BWStatus,
-    BWType,
-    InvitationStatus,
     PartnershipStatus,
     PermissionType,
 )

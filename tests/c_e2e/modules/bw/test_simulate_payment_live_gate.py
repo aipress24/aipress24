@@ -13,7 +13,8 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from app.modules.bw.bw_activation.models import BusinessWall, BWStatus
+from app.enums import BWStatus
+from app.modules.bw.bw_activation.models import BusinessWall
 from tests.c_e2e.conftest import make_authenticated_client
 
 if TYPE_CHECKING:

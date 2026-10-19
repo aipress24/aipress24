@@ -24,12 +24,8 @@ from collections.abc import Iterable
 import pytest
 from werkzeug.exceptions import Forbidden
 
-from app.enums import BWType, RoleEnum
-from app.modules.bw.bw_activation.models import (
-    BWRoleType,
-    InvitationStatus,
-    PermissionType,
-)
+from app.enums import BWRoleType, BWType, InvitationStatus, RoleEnum
+from app.modules.bw.bw_activation.models import PermissionType
 from app.modules.wip.pr_access import (
     COMROOM_COMMUNITY_ROLES,
     EVENTROOM_COMMUNITY_ROLES,

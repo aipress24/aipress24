@@ -46,15 +46,6 @@ BW_TRIGGER_LABEL = {
     "trigger_academics_entrepreneur": "Trigger Entrepreneurs academics",
 }
 
-BW_ROLE_TYPE_LABEL: dict[str, str] = {
-    "": "Membre",
-    "BW_OWNER": "Business Wall Owner",
-    "BWMi": "Business Wall Manager (internal)",
-    "BWPRi": "PR Manager (internal)",
-    "BWMe": "Business Wall Manager (external)",
-    "BWPRe": "PR Manager (external)",
-}
-
 # The "open to all employees" comment below means that we decided to loosely
 # the possibility to any employee of an organisation to create the relevant
 # BW. So the only remaining empty profil is for students.

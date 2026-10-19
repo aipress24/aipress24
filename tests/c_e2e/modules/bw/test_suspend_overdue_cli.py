@@ -12,16 +12,15 @@ from datetime import UTC, datetime, timedelta
 
 from click.testing import CliRunner
 
+from app.enums import BWStatus, BWType
 from app.flask.cli.bw import suspend_overdue
 from app.models.auth import User
 from app.models.organisation import Organisation
 from app.modules.bw.bw_activation.models import (
     BusinessWall,
-    BWStatus,
     Subscription,
     SubscriptionStatus,
 )
-from app.modules.bw.bw_activation.models.business_wall import BWType
 
 
 def _make_bw_with_past_due_sub(session, *, days_overdue: int, email: str):

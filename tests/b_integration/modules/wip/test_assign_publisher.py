@@ -14,16 +14,11 @@ from typing import TYPE_CHECKING
 import pytest
 from flask import g
 
+from app.enums import BWRoleType, BWStatus, InvitationStatus
 from app.models.auth import User
 from app.models.errors import BusinessRuleError
 from app.models.organisation import Organisation
-from app.modules.bw.bw_activation.models import (
-    BusinessWall,
-    BWRoleType,
-    BWStatus,
-    InvitationStatus,
-    RoleAssignment,
-)
+from app.modules.bw.bw_activation.models import BusinessWall, RoleAssignment
 from app.modules.wip.crud.cbvs._base import assign_publisher
 
 if TYPE_CHECKING:

@@ -11,9 +11,9 @@ from typing import TYPE_CHECKING, cast
 from flask import current_app, g, redirect, render_template, session, url_for
 from werkzeug.wrappers import Response
 
+from app.enums import BWStatus
 from app.modules.bw.bw_activation import bp
 from app.modules.bw.bw_activation.config import BW_TYPES, DEPRECATED_BW_TYPES
-from app.modules.bw.bw_activation.models.business_wall import BWStatus
 from app.modules.bw.bw_activation.user_utils import (
     can_activate_business_wall,
     current_business_wall,

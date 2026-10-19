@@ -29,6 +29,7 @@ from typing import Any
 
 import pytest
 
+from app.enums import BWRoleType, BWStatus, InvitationStatus
 from app.modules.bw.bw_activation.bw_creation import (
     build_bw_payload,
     build_owner_role_payload,
@@ -38,11 +39,6 @@ from app.modules.bw.bw_activation.bw_creation import (
     select_bw_type,
 )
 from app.modules.bw.bw_activation.config import BW_TYPES
-from app.modules.bw.bw_activation.models import BWStatus
-from app.modules.bw.bw_activation.models.role import (
-    BWRoleType,
-    InvitationStatus,
-)
 from app.modules.bw.bw_activation.models.subscription import SubscriptionStatus
 
 # ---------------------------------------------------------------------------

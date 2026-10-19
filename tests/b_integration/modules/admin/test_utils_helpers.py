@@ -24,6 +24,7 @@ from typing import TYPE_CHECKING
 
 import pytest
 
+from app.enums import BWStatus
 from app.models.auth import KYCProfile, User
 from app.models.organisation import Organisation
 from app.modules.admin.utils import (
@@ -37,7 +38,7 @@ from app.modules.admin.utils import (
     set_user_organisation_from_ids,
     toggle_org_active,
 )
-from app.modules.bw.bw_activation.models import BusinessWall, BWStatus
+from app.modules.bw.bw_activation.models import BusinessWall
 
 if TYPE_CHECKING:
     from sqlalchemy.orm import Session

@@ -14,8 +14,8 @@ import uuid
 from datetime import UTC, datetime
 from typing import TYPE_CHECKING
 
+from app.enums import BWRoleType
 from app.modules.bw.bw_activation.models import (
-    BWRoleType,
     Partnership,
     PartnershipStatus,
     RoleAssignment,

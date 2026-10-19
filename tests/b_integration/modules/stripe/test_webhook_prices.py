@@ -11,13 +11,10 @@ from __future__ import annotations
 from types import SimpleNamespace
 from typing import TYPE_CHECKING
 
+from app.enums import BWStatus, BWType
 from app.models.auth import User
 from app.models.organisation import Organisation
-from app.modules.bw.bw_activation.models import (
-    BusinessWall,
-    BWStatus,
-)
-from app.modules.bw.bw_activation.models.business_wall import BWType
+from app.modules.bw.bw_activation.models import BusinessWall
 from app.modules.stripe.views.webhook import (
     _activate_bw_from_checkout,
     on_price_created,

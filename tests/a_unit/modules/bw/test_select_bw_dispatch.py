@@ -33,10 +33,7 @@ from dataclasses import dataclass
 
 import pytest
 
-from app.modules.bw.bw_activation.models import (
-    BWRoleType,
-    InvitationStatus,
-)
+from app.enums import BWRoleType, InvitationStatus
 from app.modules.bw.bw_activation.routes.select_bw import (
     _MANAGEMENT_ROLES,
     _PR_ROLES,

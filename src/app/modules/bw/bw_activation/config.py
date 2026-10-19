@@ -12,7 +12,7 @@ from __future__ import annotations
 
 from typing import NotRequired, TypedDict
 
-from .models import BWType
+from app.enums import BWType
 
 
 class BWTypeConfig(TypedDict):

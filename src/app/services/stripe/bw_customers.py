@@ -10,9 +10,9 @@ from uuid import UUID
 
 from sqlalchemy import func, select
 
+from app.enums import BWType
 from app.flask.extensions import db
 from app.modules.bw.bw_activation.models import BusinessWall, Partnership
-from app.modules.bw.bw_activation.models.business_wall import BWType
 
 _ACTIVE_PARTNERSHIP_STATUSES = {"accepted", "active"}
 

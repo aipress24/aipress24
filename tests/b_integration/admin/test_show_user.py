@@ -12,15 +12,11 @@ import pytest
 from flask_security import login_user
 
 from app.constants import LABEL_COMPTE_DESACTIVE
+from app.enums import BWStatus, InvitationStatus
 from app.models.auth import KYCProfile, Role, User
 from app.models.organisation import Organisation
 from app.modules.admin.views.show_user import ShowUserView
-from app.modules.bw.bw_activation.models import (
-    BusinessWall,
-    BWStatus,
-    InvitationStatus,
-    RoleAssignment,
-)
+from app.modules.bw.bw_activation.models import BusinessWall, RoleAssignment
 
 if TYPE_CHECKING:
     from flask import Flask

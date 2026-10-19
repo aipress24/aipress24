@@ -232,9 +232,6 @@ class EventPost(EventPostBase):
     ville: Mapped[str] = mapped_column(default="", index=True)
 
 
-# AccreditationStatus is now imported from app.enums
-
-
 class NotificationKind(StrEnum):
     """Ce dont un membre a déjà été prévenu, pour un événement donné."""
 

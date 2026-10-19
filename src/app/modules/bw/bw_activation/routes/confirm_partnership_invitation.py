@@ -13,6 +13,7 @@ from flask import g, redirect, render_template, request, session, url_for
 from sqlalchemy import select
 from svcs.flask import container
 
+from app.enums import BWRoleType, InvitationStatus
 from app.flask.extensions import db
 from app.logging import warn
 from app.modules.bw.bw_activation import bp
@@ -20,8 +21,6 @@ from app.modules.bw.bw_activation.bw_invitation import apply_bw_missions_to_pr_u
 from app.modules.bw.bw_activation.models import (
     BusinessWall,
     BusinessWallService,
-    BWRoleType,
-    InvitationStatus,
     Partnership,
     PartnershipStatus,
     RoleAssignment,

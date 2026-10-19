@@ -18,15 +18,14 @@ from uuid import uuid4
 import pytest
 from sqlalchemy.orm import Session
 
+from app.enums import BWStatus, BWType
 from app.models.auth import User
 from app.models.organisation import Organisation
 from app.modules.bw.bw_activation.models import (
     BusinessWall,
-    BWStatus,
     Partnership,
     PartnershipStatus,
 )
-from app.modules.bw.bw_activation.models.business_wall import BWType
 from app.services.stripe.bw_customers import count_pr_bw_customers
 
 

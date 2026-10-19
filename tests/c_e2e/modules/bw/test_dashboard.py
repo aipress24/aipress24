@@ -12,10 +12,9 @@ from __future__ import annotations
 import uuid
 from typing import TYPE_CHECKING
 
-from app.enums import RoleEnum
+from app.enums import BWStatus, RoleEnum
 from app.models.auth import Role, User
 from app.models.organisation import Organisation
-from app.modules.bw.bw_activation.models import BWStatus
 from tests.c_e2e.conftest import make_authenticated_client
 from tests.c_e2e.modules.bw.conftest import create_bw_test_data
 

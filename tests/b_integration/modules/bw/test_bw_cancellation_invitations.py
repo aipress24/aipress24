@@ -12,19 +12,14 @@ from unittest.mock import patch
 
 from sqlalchemy import select
 
+from app.enums import EXTERNAL_ROLES, BWRoleType, BWStatus, InvitationStatus
 from app.models.auth import KYCProfile, User
 from app.models.invitation import Invitation
 from app.models.organisation import Organisation
 from app.modules.admin.invitations import add_invited_users
 from app.modules.admin.org_email_utils import change_invitations_emails
 from app.modules.bw.bw_activation.bw_cancellation import close_business_wall_locally
-from app.modules.bw.bw_activation.models import (
-    EXTERNAL_ROLES,
-    BusinessWall,
-    BWStatus,
-    RoleAssignment,
-)
-from app.modules.bw.bw_activation.models.role import BWRoleType, InvitationStatus
+from app.modules.bw.bw_activation.models import BusinessWall, RoleAssignment
 from app.modules.preferences.views.invitations import InvitationsView
 
 if TYPE_CHECKING:

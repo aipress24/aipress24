@@ -14,7 +14,8 @@ from __future__ import annotations
 
 from datetime import datetime, timedelta
 
-from app.modules.bw.bw_activation.models import BWStatus, SubscriptionStatus
+from app.enums import BWStatus
+from app.modules.bw.bw_activation.models import SubscriptionStatus
 
 # Days a subscription may stay PAST_DUE before its BW is suspended. The
 # window covers Stripe's own dunning retries so we never suspend a BW that

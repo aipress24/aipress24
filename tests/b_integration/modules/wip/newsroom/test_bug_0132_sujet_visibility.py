@@ -21,16 +21,11 @@ from typing import TYPE_CHECKING
 import pytest
 from flask import g
 
+from app.enums import BWRoleType, BWStatus, InvitationStatus
 from app.models.auth import KYCProfile, User
 from app.models.lifecycle import PublicationStatus
 from app.models.organisation import Organisation
-from app.modules.bw.bw_activation.models import (
-    BusinessWall,
-    BWRoleType,
-    InvitationStatus,
-    RoleAssignment,
-)
-from app.modules.bw.bw_activation.models.business_wall import BWStatus
+from app.modules.bw.bw_activation.models import BusinessWall, RoleAssignment
 from app.modules.wip.crud.cbvs.sujets import SujetDataSource
 from app.modules.wip.models.newsroom.sujet import Sujet
 

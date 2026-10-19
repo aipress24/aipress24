@@ -15,7 +15,9 @@ from collections.abc import Sequence
 from advanced_alchemy.filters import LimitOffset, OrderBy
 from advanced_alchemy.repository import SQLAlchemySyncRepository
 
-from .business_wall import BusinessWall, BWStatus
+from app.enums import BWStatus
+
+from .business_wall import BusinessWall
 from .content import BWContent
 from .partnership import Partnership
 from .role import RoleAssignment, RolePermission

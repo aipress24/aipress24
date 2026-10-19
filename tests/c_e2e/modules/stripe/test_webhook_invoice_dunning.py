@@ -14,15 +14,14 @@ from typing import TYPE_CHECKING
 
 import pytest
 
+from app.enums import BWStatus, BWType
 from app.models.auth import User
 from app.models.organisation import Organisation
 from app.modules.bw.bw_activation.models import (
     BusinessWall,
-    BWStatus,
     Subscription,
     SubscriptionStatus,
 )
-from app.modules.bw.bw_activation.models.business_wall import BWType
 from app.modules.stripe.views.webhook import (
     _maybe_suspend_on_unpaid,
     on_invoice_payment_failed,

@@ -29,6 +29,7 @@ from typing import TYPE_CHECKING
 import pytest
 from arrow import Arrow
 
+from app.enums import BWStatus
 from app.models.auth import User
 from app.models.organisation import Organisation
 from app.modules.bw.bw_activation.models import (
@@ -36,7 +37,6 @@ from app.modules.bw.bw_activation.models import (
     Subscription,
     SubscriptionStatus,
 )
-from app.modules.bw.bw_activation.models.business_wall import BWStatus
 from app.modules.wire.models import (
     ArticlePost,
     ArticlePurchase,

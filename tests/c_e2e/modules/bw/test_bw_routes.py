@@ -16,14 +16,11 @@ import pytest
 from flask import Flask, session
 from flask_security import login_user
 
-from app.enums import ProfileEnum
+from app.enums import BWRoleType, BWStatus, InvitationStatus, ProfileEnum
 from app.models.auth import KYCProfile, User
 from app.models.organisation import Organisation
 from app.modules.bw.bw_activation.models import (
     BusinessWall,
-    BWRoleType,
-    BWStatus,
-    InvitationStatus,
     RoleAssignment,
     Subscription,
     SubscriptionStatus,

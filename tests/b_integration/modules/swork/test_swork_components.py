@@ -12,12 +12,11 @@ import pytest
 from sqlalchemy import event, false, select, true
 from sqlalchemy.orm import Session, selectinload
 
-from app.enums import OrganisationTypeEnum, RoleEnum
+from app.enums import BWStatus, OrganisationTypeEnum, RoleEnum
 from app.flask.extensions import db
 from app.models.auth import KYCProfile, Role, User
 from app.models.organisation import Organisation
 from app.modules.bw.bw_activation.models import BusinessWall
-from app.modules.bw.bw_activation.models.business_wall import BWStatus
 from app.modules.swork.components.base import (
     BaseList,
     Filter,

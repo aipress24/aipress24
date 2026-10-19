@@ -11,8 +11,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 
-from app.constants import BW_ROLE_TYPE_LABEL
-from app.enums import OrganisationTypeEnum, RoleEnum
+from app.enums import BW_ROLE_TYPE_LABEL, OrganisationTypeEnum, RoleEnum
 
 
 @dataclass

@@ -16,7 +16,7 @@ from advanced_alchemy.types import GUID
 from sqlalchemy import BigInteger, ForeignKey, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from app.enums import EXTERNAL_ROLES, BWRoleType, InvitationStatus  # noqa: F401
+from app.enums import InvitationStatus
 
 if TYPE_CHECKING:
     from .business_wall import BusinessWall

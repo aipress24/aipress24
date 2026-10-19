@@ -13,11 +13,11 @@ from unittest.mock import patch
 
 import pytest
 
+from app.enums import BWStatus
 from app.models.auth import User
 from app.models.organisation import Organisation
 from app.modules.bw.bw_activation.models import (
     BusinessWall,
-    BWStatus,
     Partnership,
     PartnershipStatus,
 )

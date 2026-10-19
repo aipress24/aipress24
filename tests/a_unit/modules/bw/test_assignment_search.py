@@ -25,12 +25,12 @@ double-invite a user to a role they already hold.
 
 from __future__ import annotations
 
+from app.enums import BWRoleType, InvitationStatus
 from app.modules.bw.bw_activation.bw_invitation import (
     InvitationOutcomeCode,
     classify_existing_assignment,
     find_existing_assignment,
 )
-from app.modules.bw.bw_activation.models import BWRoleType, InvitationStatus
 
 
 class _Assignment:

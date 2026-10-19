@@ -26,8 +26,7 @@ from __future__ import annotations
 
 import pytest
 
-from app.enums import ProfileEnum
-from app.modules.bw.bw_activation.models import BWType
+from app.enums import BWType, ProfileEnum
 from app.modules.bw.bw_activation.user_utils import (
     PROFILE_CODE_TO_BW2_TYPE,
     guess_best_bw_type,

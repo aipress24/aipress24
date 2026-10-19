@@ -40,6 +40,7 @@ from dataclasses import dataclass, field
 
 import pytest
 
+from app.enums import BWRoleType, InvitationStatus
 from app.modules.bw.bw_activation.bw_invitation import (
     InvitationOutcomeCode,
     InviteAction,
@@ -48,7 +49,6 @@ from app.modules.bw.bw_activation.bw_invitation import (
     find_existing_assignment,
     select_non_member_assignments,
 )
-from app.modules.bw.bw_activation.models import BWRoleType, InvitationStatus
 
 
 @dataclass

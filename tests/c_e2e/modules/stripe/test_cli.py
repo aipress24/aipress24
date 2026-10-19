@@ -12,14 +12,11 @@ from unittest.mock import patch
 
 from click.testing import CliRunner
 
+from app.enums import BWStatus
 from app.flask.cli.stripe import reconcile, simulate_checkout
 from app.models.auth import User
 from app.models.organisation import Organisation
-from app.modules.bw.bw_activation.models import (
-    BusinessWall,
-    BWStatus,
-    Subscription,
-)
+from app.modules.bw.bw_activation.models import BusinessWall, Subscription
 
 
 def _mk_bw_draft(session) -> BusinessWall:

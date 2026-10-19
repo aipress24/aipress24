@@ -15,15 +15,10 @@ from typing import TYPE_CHECKING
 
 import pytest
 
+from app.enums import BWRoleType, BWStatus, InvitationStatus
 from app.models.auth import KYCProfile, User
 from app.models.organisation import Organisation
-from app.modules.bw.bw_activation.models import (
-    BusinessWall,
-    BWRoleType,
-    BWStatus,
-    InvitationStatus,
-    RoleAssignment,
-)
+from app.modules.bw.bw_activation.models import BusinessWall, RoleAssignment
 from app.modules.wire.models import (
     ArticlePost,
     ArticlePurchase,

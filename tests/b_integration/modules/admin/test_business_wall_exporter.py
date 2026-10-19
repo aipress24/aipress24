@@ -6,10 +6,11 @@
 
 from __future__ import annotations
 
+from app.enums import BWStatus
 from app.models.auth import User
 from app.models.organisation import Organisation
 from app.modules.admin.views._export import BusinessWallExporter
-from app.modules.bw.bw_activation.models import BusinessWall, BWStatus
+from app.modules.bw.bw_activation.models import BusinessWall
 from app.modules.kyc.field_label import country_code_to_country_name
 from app.modules.kyc.ontology_loader import get_ontology_content
 from app.services.zip_codes import CountryEntry

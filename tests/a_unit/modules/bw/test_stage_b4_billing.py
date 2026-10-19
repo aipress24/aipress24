@@ -41,11 +41,11 @@ from types import SimpleNamespace
 
 import pytest
 
+from app.enums import BWRoleType, InvitationStatus
 from app.modules.bw.bw_activation.bw_invitation import (
     InvitationOutcome,
     InvitationOutcomeCode,
 )
-from app.modules.bw.bw_activation.models import BWRoleType, InvitationStatus
 from app.modules.bw.bw_activation.routes.billing_portal import (
     _resolve_stripe_customer_id,
 )

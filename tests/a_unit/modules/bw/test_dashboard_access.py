@@ -20,7 +20,7 @@ updating the related tests gets caught.
 
 from __future__ import annotations
 
-from app.modules.bw.bw_activation.models import BWRoleType
+from app.enums import BWRoleType
 from app.modules.bw.bw_activation.utils import (
     DASHBOARD_ACCESS_ROLES,
     can_access_bw_dashboard,

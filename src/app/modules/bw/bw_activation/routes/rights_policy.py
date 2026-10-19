@@ -19,9 +19,10 @@ from flask import flash, g, redirect, render_template, request, url_for
 from sqlalchemy import select
 from werkzeug.exceptions import Forbidden, NotFound
 
+from app.enums import BWStatus
 from app.flask.extensions import db
 from app.modules.bw.bw_activation import bp
-from app.modules.bw.bw_activation.models.business_wall import BusinessWall, BWStatus
+from app.modules.bw.bw_activation.models.business_wall import BusinessWall
 from app.modules.bw.bw_activation.rights_policy import get_policy
 from app.modules.bw.bw_activation.user_utils import current_business_wall
 from app.modules.bw.bw_activation.utils import is_bw_manager_or_admin

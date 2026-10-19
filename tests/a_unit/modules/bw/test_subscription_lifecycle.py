@@ -9,7 +9,8 @@ from __future__ import annotations
 
 from datetime import UTC, datetime, timedelta
 
-from app.modules.bw.bw_activation.models import BWStatus, SubscriptionStatus
+from app.enums import BWStatus
+from app.modules.bw.bw_activation.models import SubscriptionStatus
 from app.modules.bw.bw_activation.subscription_lifecycle import (
     SUBSCRIPTION_GRACE_DAYS,
     clear_past_due,

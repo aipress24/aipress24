@@ -12,6 +12,7 @@ from flask import g, redirect, render_template, request, session, url_for
 from sqlalchemy import select
 from werkzeug import Response
 
+from app.enums import EXTERNAL_ROLES, InvitationStatus
 from app.flask.extensions import db
 from app.flask.sqla import get_obj
 from app.models.auth import User
@@ -19,11 +20,7 @@ from app.modules.admin.org_email_utils import change_members_emails
 from app.modules.bw.bw_activation import bp
 from app.modules.bw.bw_activation.bw_invitation import ensure_roles_membership
 from app.modules.bw.bw_activation.config import BW_TYPES
-from app.modules.bw.bw_activation.models.role import (
-    EXTERNAL_ROLES,
-    InvitationStatus,
-    RoleAssignment,
-)
+from app.modules.bw.bw_activation.models.role import RoleAssignment
 from app.modules.bw.bw_activation.user_utils import current_business_wall
 from app.modules.bw.bw_activation.utils import (
     ERR_BW_NOT_FOUND,

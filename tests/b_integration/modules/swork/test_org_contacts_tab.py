@@ -10,15 +10,10 @@ import uuid
 from datetime import UTC, datetime
 from typing import TYPE_CHECKING
 
+from app.enums import BWRoleType, BWStatus, InvitationStatus
 from app.models.auth import KYCProfile, User
 from app.models.organisation import Organisation
-from app.modules.bw.bw_activation.models import (
-    BusinessWall,
-    BWRoleType,
-    InvitationStatus,
-    RoleAssignment,
-)
-from app.modules.bw.bw_activation.models.business_wall import BWStatus
+from app.modules.bw.bw_activation.models import BusinessWall, RoleAssignment
 from app.modules.swork.views.organisation import (
     OrgMemberVM,
     OrgVM,

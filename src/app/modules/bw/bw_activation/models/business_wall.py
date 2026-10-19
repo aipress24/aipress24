@@ -25,7 +25,7 @@ from sqlalchemy import (
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.orm.attributes import flag_modified
 
-from app.enums import BWStatus, BWType  # noqa: F401
+from app.enums import BWStatus
 from app.lib.file_object_utils import deserialize_file_object, media_url
 from app.lib.geoloc import parse_pays_zip_ville
 from app.logging import warn
@@ -37,9 +37,6 @@ if TYPE_CHECKING:
     from .partnership import Partnership
     from .role import RoleAssignment
     from .subscription import Subscription
-
-
-# BWType and BWStatus are now imported from app.enums
 
 
 class BusinessWall(UUIDAuditBase):

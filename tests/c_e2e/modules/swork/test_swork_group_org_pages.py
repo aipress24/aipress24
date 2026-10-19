@@ -15,12 +15,11 @@ import arrow
 import pytest
 from flask import Flask, g
 
-from app.enums import RoleEnum
+from app.enums import BWStatus, RoleEnum
 from app.models.auth import KYCProfile, Role, User
 from app.models.lifecycle import PublicationStatus
 from app.models.organisation import Organisation
 from app.modules.bw.bw_activation.models import BusinessWall
-from app.modules.bw.bw_activation.models.business_wall import BWStatus
 from app.modules.events.models import EventPost
 from app.modules.swork.models import Group
 from app.modules.swork.views._common import (

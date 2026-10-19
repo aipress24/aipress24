@@ -9,16 +9,15 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 from unittest import mock
 
-from app.enums import BWType
+from app.enums import BWStatus, BWType, InvitationStatus
 from app.models.auth import KYCProfile, User
 from app.models.organisation import Organisation
 from app.modules.bw.bw_activation.models import (
-    InvitationStatus,
     Partnership,
     PartnershipStatus,
     RoleAssignment,
 )
-from app.modules.bw.bw_activation.models.business_wall import BusinessWall, BWStatus
+from app.modules.bw.bw_activation.models.business_wall import BusinessWall
 from app.modules.bw.bw_activation.user_utils import (
     _fonctions_disponibles_for_bw,
     get_active_business_wall_for_organisation,

@@ -21,7 +21,7 @@ activation flow re-checks BW type at subscription time anyway.
 
 from __future__ import annotations
 
-from app.modules.bw.bw_activation.models import BWType
+from app.enums import BWType
 from app.modules.stripe.views.webhook import _get_bw_type_from_product
 
 

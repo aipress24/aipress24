@@ -37,9 +37,8 @@ import inspect
 import pytest
 from flask import Flask
 
+from app.enums import BW_ROLE_TYPE_LABEL, BWRoleType, InvitationStatus
 from app.modules.bw.bw_activation import bp
-from app.modules.bw.bw_activation.bw_invitation import BW_ROLE_TYPE_LABEL
-from app.modules.bw.bw_activation.models import BWRoleType, InvitationStatus
 from app.modules.bw.bw_activation.routes import (
     confirm_role_invitation as route_module,
 )

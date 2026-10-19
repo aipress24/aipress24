@@ -20,12 +20,12 @@ The contract this test pins :
 
 from __future__ import annotations
 
+from app.enums import BWType
 from app.modules.bw.bw_activation.bw_invitation import (
     _FAILURE_MESSAGES,
     InvitationOutcomeCode,
 )
 from app.modules.bw.bw_activation.config import BWTYPE_ALLOWED_PRODUCTS
-from app.modules.bw.bw_activation.models import BWType
 
 
 class TestBwtypeAllowedProducts:

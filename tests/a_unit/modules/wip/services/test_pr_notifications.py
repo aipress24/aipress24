@@ -13,12 +13,10 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 from unittest.mock import patch
 
+from app.enums import BWStatus
 from app.models.auth import User
 from app.models.organisation import Organisation
-from app.modules.bw.bw_activation.models.business_wall import (
-    BusinessWall,
-    BWStatus,
-)
+from app.modules.bw.bw_activation.models.business_wall import BusinessWall
 from app.modules.wip.services.pr_notifications import (
     _pick_bw_owner_email,
     notify_client_of_pr_publication,

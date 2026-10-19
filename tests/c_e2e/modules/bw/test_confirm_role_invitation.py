@@ -14,11 +14,8 @@ import uuid
 from datetime import UTC, datetime
 from typing import TYPE_CHECKING
 
-from app.modules.bw.bw_activation.models import (
-    BWRoleType,
-    InvitationStatus,
-    RoleAssignment,
-)
+from app.enums import BWRoleType, InvitationStatus
+from app.modules.bw.bw_activation.models import RoleAssignment
 from tests.c_e2e.conftest import make_authenticated_client
 from tests.c_e2e.modules.bw.conftest import create_bw_test_data
 

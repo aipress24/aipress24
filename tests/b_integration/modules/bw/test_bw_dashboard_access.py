@@ -23,13 +23,10 @@ from typing import TYPE_CHECKING
 
 import pytest
 
+from app.enums import BWRoleType, InvitationStatus
 from app.models.auth import User
 from app.models.organisation import Organisation
 from app.modules.bw.bw_activation.models import BusinessWall, RoleAssignment
-from app.modules.bw.bw_activation.models.role import (
-    BWRoleType,
-    InvitationStatus,
-)
 from app.modules.bw.bw_activation.utils import is_bw_manager_or_admin
 
 if TYPE_CHECKING:

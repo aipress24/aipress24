@@ -17,7 +17,7 @@ from flask import flash, g, url_for
 from svcs.flask import container
 from werkzeug.exceptions import NotFound
 
-from app.constants import BW_ROLE_TYPE_LABEL
+from app.enums import BW_ROLE_TYPE_LABEL, BWRoleType, InvitationStatus
 from app.flask.extensions import db
 from app.flask.sqla import get_obj
 from app.logging import report_failure, warn
@@ -26,8 +26,6 @@ from app.modules.admin.utils import get_user_per_email
 from app.modules.bw.bw_activation.models import (
     BusinessWall,
     BusinessWallService,
-    BWRoleType,
-    InvitationStatus,
     Partnership,
     PartnershipStatus,
     PermissionType,

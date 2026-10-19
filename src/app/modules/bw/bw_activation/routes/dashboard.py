@@ -11,16 +11,14 @@ from typing import TYPE_CHECKING, cast
 from flask import flash, g, redirect, render_template, request, session, url_for
 from wtforms import BooleanField, Form, SelectField, StringField, validators
 
+from app.enums import BW_ROLE_TYPE_LABEL, BWStatus, InvitationStatus
 from app.flask.extensions import db
 from app.modules.bw.bw_activation import bp
 from app.modules.bw.bw_activation.bw_cancellation import (
     cancel_business_wall_from_app,
 )
-from app.modules.bw.bw_activation.bw_invitation import BW_ROLE_TYPE_LABEL
 from app.modules.bw.bw_activation.bw_product import evaluate_subscription
 from app.modules.bw.bw_activation.config import BW_TYPES
-from app.modules.bw.bw_activation.models import InvitationStatus
-from app.modules.bw.bw_activation.models.business_wall import BWStatus
 from app.modules.bw.bw_activation.stripe_subs_upgrade import change_bw_subscription_tier
 from app.modules.bw.bw_activation.user_utils import (
     current_business_wall,

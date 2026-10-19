@@ -14,13 +14,11 @@ from typing import TYPE_CHECKING
 import arrow
 import pytest
 
+from app.enums import InvitationStatus
 from app.models.auth import User
 from app.models.organisation import Organisation
 from app.modules.bw.bw_activation.models.business_wall import BusinessWall
-from app.modules.bw.bw_activation.models.role import (
-    InvitationStatus,
-    RoleAssignment,
-)
+from app.modules.bw.bw_activation.models.role import RoleAssignment
 from app.modules.wire.models import (
     ArticlePost,
     ArticlePurchase,

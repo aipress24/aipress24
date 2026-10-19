@@ -10,11 +10,12 @@ from typing import TYPE_CHECKING
 
 import pytest
 
+from app.enums import BWStatus
 from app.models.auth import KYCProfile, User
 from app.models.organisation import Organisation
 from app.modules.admin.org_email_utils import set_user_organisation
 from app.modules.admin.views.show_org import OrgVM
-from app.modules.bw.bw_activation.models import BusinessWall, BWStatus
+from app.modules.bw.bw_activation.models import BusinessWall
 
 if TYPE_CHECKING:
     from flask import Flask

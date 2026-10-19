@@ -29,8 +29,7 @@ from __future__ import annotations
 
 from types import SimpleNamespace
 
-from app.modules.bw.bw_activation.models import InvitationStatus
-from app.modules.bw.bw_activation.models.role import BWRoleType
+from app.enums import BWRoleType, InvitationStatus
 from app.modules.bw.bw_activation.user_utils import get_user_rights_on_bw
 
 

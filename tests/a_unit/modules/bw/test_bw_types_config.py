@@ -24,8 +24,8 @@ from __future__ import annotations
 
 import pytest
 
+from app.enums import BWType
 from app.modules.bw.bw_activation.config import BW_TYPES
-from app.modules.bw.bw_activation.models import BWType
 
 
 class TestBWTypesShape:

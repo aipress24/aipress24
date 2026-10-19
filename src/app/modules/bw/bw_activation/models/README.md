@@ -332,8 +332,8 @@ content = content_service.create(
 All enum types are defined as `str` enums for easy JSON serialization:
 
 ```python
-from app.modules.bw.bw_activation.models.business_wall import BWType, BWStatus
-from app.modules.bw.bw_activation.models.role import BWRoleType, PermissionType
+from app.enums import BWRoleType, BWStatus, BWType
+from app.modules.bw.bw_activation.models.role import PermissionType
 
 # Usage
 bw_type = BWType.MEDIA.value  # "media"

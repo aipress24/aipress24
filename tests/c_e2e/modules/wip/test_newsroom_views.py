@@ -12,11 +12,11 @@ from typing import TYPE_CHECKING
 
 import pytest
 
-from app.enums import ProfileEnum, RoleEnum
+from app.enums import BWStatus, ProfileEnum, RoleEnum
 from app.models.auth import KYCProfile, Role, User
 from app.models.lifecycle import PublicationStatus
 from app.models.organisation import Organisation
-from app.modules.bw.bw_activation.models import BusinessWall, BWStatus
+from app.modules.bw.bw_activation.models import BusinessWall
 from app.modules.wip.models.newsroom.sujet import Sujet
 
 if TYPE_CHECKING:

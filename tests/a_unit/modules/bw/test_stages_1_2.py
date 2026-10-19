@@ -33,8 +33,8 @@ from dataclasses import dataclass
 
 import pytest
 
+from app.enums import BWStatus, BWType
 from app.modules.bw.bw_activation.config import BW_TYPES, DEPRECATED_BW_TYPES
-from app.modules.bw.bw_activation.models.business_wall import BWStatus, BWType
 from app.modules.bw.bw_activation.routes.stage1 import (
     filter_active_manageable,
     is_valid_bw_type,

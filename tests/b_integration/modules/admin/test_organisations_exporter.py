@@ -6,10 +6,11 @@
 
 from __future__ import annotations
 
+from app.enums import BWStatus
 from app.models.auth import User
 from app.models.organisation import Organisation
 from app.modules.admin.views._export import MixedBWOrgExporter, OrganisationsExporter
-from app.modules.bw.bw_activation.models import BusinessWall, BWStatus
+from app.modules.bw.bw_activation.models import BusinessWall
 
 
 def test_organisations_exporter_includes_all_orgs_bw_first(db_session) -> None:

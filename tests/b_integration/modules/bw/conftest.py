@@ -17,16 +17,10 @@ from unittest.mock import patch
 
 import pytest
 
-from app.enums import ProfileEnum
+from app.enums import BWRoleType, BWStatus, InvitationStatus, ProfileEnum
 from app.models.auth import KYCProfile, User
 from app.models.organisation import Organisation
-from app.modules.bw.bw_activation.models import (
-    BusinessWall,
-    BWRoleType,
-    BWStatus,
-    InvitationStatus,
-    RoleAssignment,
-)
+from app.modules.bw.bw_activation.models import BusinessWall, RoleAssignment
 
 if TYPE_CHECKING:
     from sqlalchemy.orm import Session

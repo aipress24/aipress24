@@ -11,7 +11,7 @@ from uuid import uuid4
 
 import pytest
 
-from app.enums import RoleEnum
+from app.enums import BWStatus, RoleEnum
 from app.models.auth import KYCProfile, Role, User
 from app.models.invitation import Invitation
 from app.models.organisation import Organisation
@@ -19,7 +19,7 @@ from app.modules.admin.org_email_utils import (
     change_invitations_emails,
     change_members_emails,
 )
-from app.modules.bw.bw_activation.models import BusinessWall, BWStatus
+from app.modules.bw.bw_activation.models import BusinessWall
 
 if TYPE_CHECKING:
     from sqlalchemy.orm import Session
