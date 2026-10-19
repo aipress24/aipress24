@@ -352,6 +352,7 @@ class FormRenderer:
                 return field._value()
             case RichSelectField(choices=choices):
                 # A stored code reads as its label.
+                # pyrefly: ignore [no-matching-overload]
                 labels = dict(choices or [])
                 return self.render_field_value(labels.get(field.data, field.data))
             case _:

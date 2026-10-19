@@ -106,6 +106,7 @@ def _payload(pending: PendingNotification) -> dict:
         "message": pending.message,
         "url": pending.url,
         "mail_template": pending.mail_template,
+        # pyrefly: ignore [no-matching-overload]
         "mail_kwargs": dict(pending.mail_kwargs or {}),
     }
 
