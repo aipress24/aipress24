@@ -69,7 +69,6 @@ dependencies = [
     "sqlalchemy<2.1,>=2.0.25",
     "sqlalchemy-utils<1.0.0,>=0.41.1",
     "advanced-alchemy>=1.11,<1.13",
-    "psycopg2<3.0.0,>=2.9.9",
     "psycopg[binary,pool]>=3.2.0,<4",
     #
     "python-iso639>=2026",
@@ -285,7 +284,7 @@ DEP002 = [
     # Used (implicitely) by Flask (I think)
     'python-dotenv',
     # Used (implicitely) by SQLA
-    'psycopg2',
+    'psycopg',
     "asyncpg",
     #
     'python-iso639',

@@ -4,7 +4,7 @@ import subprocess
 import sys
 
 env = dict(**os.environ)
-env["TEST_DATABASE_URI"] = "postgresql://localhost/aipress24_test"
+env["TEST_DATABASE_URI"] = "postgresql+psycopg://localhost/aipress24_test"
 
 
 def sh(cmd) -> int:

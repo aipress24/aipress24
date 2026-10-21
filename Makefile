@@ -17,7 +17,7 @@ test-sqlite:
 	pytest tests
 
 test-postgres:
-	pytest tests --db-url="postgresql://localhost/aipress24_test"
+	pytest tests --db-url="postgresql+psycopg://localhost/aipress24_test"
 
 ## Run tests with coverage
 test-with-coverage:

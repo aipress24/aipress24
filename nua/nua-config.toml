@@ -64,7 +64,7 @@ DB_HOST = { from="database", key="hostname" }
 DB_DATABASE = { from="database", key="POSTGRES_DB" }
 DB_USER = { from="database", key="POSTGRES_USER" }
 DB_PASSWORD = { from="database", key="POSTGRES_PASSWORD" }
-FLASK_SQLALCHEMY_DATABASE_URI = "postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}/{DB_DATABASE}"
+FLASK_SQLALCHEMY_DATABASE_URI = "postgresql+psycopg://{DB_USER}:{DB_PASSWORD}@{DB_HOST}/{DB_DATABASE}"
 
 
 [[resource]]

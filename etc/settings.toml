@@ -165,7 +165,7 @@ DB.HOST = "localhost"
 DB.DATABASE = "aipress24"
 DB.USER = ""
 DB.PASSWORD = ""
-DB.URI = "@format postgresql://{this.DB.USER}:{this.DB.PASSWORD}@{this.DB.HOST}/{this.DB.DATABASE}"
+DB.URI = "@format postgresql+psycopg://{this.DB.USER}:{this.DB.PASSWORD}@{this.DB.HOST}/{this.DB.DATABASE}"
 
 SECRET_KEY = "PhTYwoqiuweOljl9AmQPqM"
 

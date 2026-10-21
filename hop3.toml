@@ -22,7 +22,7 @@ license = "AGPL-3.0-only"
 # automatically, and the frontend is served from the committed vite/dist — so no
 # explicit before-build and no Node toolchain are needed.
 builder = "local"
-# Build-time system packages: compilers + headers for psycopg2 (libpq-dev),
+# Build-time system packages: compilers + headers for libpq (libpq-dev),
 # python-magic (libmagic-dev) and WeasyPrint (Pango/Cairo/HarfBuzz); git because
 # uv.lock pins a git dependency. (Mirrors nua/nua-config.toml.)
 packages = [
@@ -48,7 +48,7 @@ before-run = ["sh scripts/hop3-before-run.sh"]
 # (where etc/settings.toml, migrations/ and wsgi.py live).
 start = "gunicorn -b 0.0.0.0:$PORT -w 2 'app.flask.main:create_app()'"
 start-timeout = 180
-# Runtime shared libraries (psycopg2, python-magic, WeasyPrint PDF rendering).
+# Runtime shared libraries (psycopg, python-magic, WeasyPrint PDF rendering).
 # `git` is needed by `flask bootstrap` (blank/CI seed clones the reference-data
 # repo); harmless for real deploys.
 packages = [

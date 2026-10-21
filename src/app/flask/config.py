@@ -91,16 +91,33 @@ def get_db_url(app):
     """
     # Explicit local Flask config takes precedence over PaaS defaults.
     database_url = os.environ.get("FLASK_SQLALCHEMY_DATABASE_URI", "")
-    # Heroku
+    if not database_url:
+        database_url = os.environ.get("SQLALCHEMY_DATABASE_URI", "")
     if not database_url:
         database_url = os.environ.get("DATABASE_URL", "")
     # Clever Cloud
     if not database_url:
         database_url = os.environ.get("POSTGRESQL_ADDON_URI", "")
-    # if not database_url and app.config.get("DB"):
-    #     database_url = app.config["DB"]["URI"]
-    if database_url.startswith("postgres:"):
-        database_url = database_url.replace("postgres:", "postgresql:")
+    if not database_url and hasattr(app, "config"):
+        database_url = app.config.get("SQLALCHEMY_DATABASE_URI", "")
+
+    # Force database_url to replace psycopg2 by psycopg(v3) :
+    # If database_url contains only "postgres://", SQLA will understand to
+    # use the psycopg2 driver, so we need to explicitely set the value
+    # "postgresql+psycopg://"
+
+    psycopg3 = "postgresql+psycopg:"
+
+    if database_url.startswith("postgres://"):
+        database_url = database_url.replace("postgres://", f"{psycopg3}//", 1)
+    elif database_url.startswith("postgres:"):
+        database_url = database_url.replace("postgres:", psycopg3, 1)
+    elif database_url.startswith("postgresql+psycopg2://"):
+        database_url = database_url.replace(
+            "postgresql+psycopg2://", f"{psycopg3}//", 1
+        )
+    elif database_url.startswith("postgresql://"):
+        database_url = database_url.replace("postgresql://", f"{psycopg3}//", 1)
     return database_url
 
 

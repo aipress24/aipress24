@@ -65,8 +65,9 @@ def setup_broker():
 
 
 def _normalise_pg_url(url: str) -> str:
-    """Strip SQLAlchemy driver suffixes (``postgresql+psycopg2://``)
-    that psycopg2 doesn't understand. Pass anything else through.
+    """Strip SQLAlchemy driver suffixes (``postgresql+psycopg://``)
+    that standard PostgreSQL connection doesn't understand.
+    Pass anything else through.
     """
     parts = urlparse(url)
     if "+" in parts.scheme:
