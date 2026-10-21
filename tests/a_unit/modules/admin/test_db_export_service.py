@@ -252,9 +252,9 @@ class TestIsPostgresqlDatabase:
         url = URL.create(drivername="postgresql", database="test")
         assert is_postgresql_database(url) is True
 
-    def test_postgresql_psycopg2_driver(self):
-        """Test detection of PostgreSQL with psycopg2 driver."""
-        url = URL.create(drivername="postgresql+psycopg2", database="test")
+    def test_postgresql_psycopg_v3_driver(self):
+        """Test detection of PostgreSQL with psycopg (v3) driver."""
+        url = URL.create(drivername="postgresql+psycopg", database="test")
         assert is_postgresql_database(url) is True
 
     def test_sqlite_driver(self):

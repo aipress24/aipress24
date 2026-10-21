@@ -109,10 +109,10 @@ class TestCreateExportResponse:
                 create_export_response(url, StubExportService)
             assert "500" in str(exc_info.value) or exc_info.value.code == 500
 
-    def test_export_with_psycopg2_driver(self, app: Flask):
-        """Test export works with postgresql+psycopg2 driver."""
+    def test_export_with_psycopg_v3_driver(self, app: Flask):
+        """Test export works with postgresql+psycopg v3 driver."""
         url = URL.create(
-            drivername="postgresql+psycopg2",
+            drivername="postgresql+psycopg",
             host="localhost",
             database="testdb",
         )

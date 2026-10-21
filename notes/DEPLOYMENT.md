@@ -10,7 +10,7 @@ You will need to set the following environment variables:
 
 #### Mandatory variables
 
-- `DATABASE_URL`: set by the plafform, or to set manually if you are managing the connection to the database yourself.
+- `DATABASE_URL`: set by the platform, or set manually (format: `postgresql+psycopg://...`).  For postgresql, the use of the "postgresql+psycopg:" format is enforced since we use psycopg v3 in place of psycopg2
 - `DRAMATIC_REDIS_URL`: needed for the Dramatiq task queue. Should be set to the same value as `REDISCLOUD_URL` (FIXME: this should be done automatically).
 - `FLASK_RQ_REDIS_URL`: same remark as for `DRAMATIC_REDIS_URL`.
 - `REDISCLOUD_URL`: see above.
