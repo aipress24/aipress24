@@ -609,8 +609,16 @@ class BaseWipView(FlaskView, abc.ABC):
         return model
 
     def _fetch(self, id) -> Any:
-        """Load the record. Override for a different id encoding."""
-        return self._get_repo().get(id)
+        """Load the record. Override for a different id encoding.
+
+        The id reaches the view as the URL's string, and psycopg 3 binds
+        it as text, which PostgreSQL will not compare with a bigint key.
+        """
+        try:
+            pk = int(id)
+        except ValueError:
+            raise NotFound from None
+        return self._get_repo().get(pk)
 
     def _can_access(self, model: Any) -> bool:
         """May the current user reach this record? Owner only, by default.
