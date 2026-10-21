@@ -22,7 +22,7 @@ from typing import TYPE_CHECKING
 import pytest
 import stripe
 
-from app.modules.wire.models import PurchaseProduct
+from app.enums import PurchaseProduct
 from app.modules.wire.views import purchase
 from app.modules.wire.views.purchase import _price_id_for
 from app.services.stripe._price_model import StripePrice

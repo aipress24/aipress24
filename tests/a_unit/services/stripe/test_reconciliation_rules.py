@@ -21,8 +21,8 @@ from __future__ import annotations
 
 from types import SimpleNamespace
 
+from app.enums import PurchaseStatus
 from app.modules.bw.bw_activation.models import SubscriptionStatus
-from app.modules.wire.models import PurchaseStatus
 from app.services.stripe.reconciliation import (
     CustomerDrift,
     Drift,

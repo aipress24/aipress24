@@ -11,14 +11,11 @@ from typing import cast
 import sqlalchemy as sa
 from flask import g, render_template
 
+from app.enums import PurchaseStatus, purchase_product_label
 from app.flask.extensions import db
 from app.models.auth import User
 from app.modules.wire import blueprint
-from app.modules.wire.models import (
-    ArticlePurchase,
-    PurchaseStatus,
-    purchase_product_label,
-)
+from app.modules.wire.models import ArticlePurchase
 
 
 @blueprint.route("/me/purchases")

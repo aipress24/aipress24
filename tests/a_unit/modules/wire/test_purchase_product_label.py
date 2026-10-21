@@ -9,7 +9,7 @@ from __future__ import annotations
 
 import pytest
 
-from app.modules.wire.models import PurchaseProduct, purchase_product_label
+from app.enums import PurchaseProduct, purchase_product_label
 
 
 @pytest.mark.parametrize("product", list(PurchaseProduct))

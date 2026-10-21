@@ -15,12 +15,12 @@ from unittest.mock import patch
 
 from click.testing import CliRunner
 
+from app.enums import PurchaseProduct
 from app.flask.cli.stripe import (
     _JUSTIFICATIF_PRODUCT_METADATA,
     _find_justificatif_product,
     create_justificatif_product,
 )
-from app.modules.wire.models import PurchaseProduct
 from app.modules.wire.views.purchase import _PRODUCT_TAXONOMY_FILTERS
 
 

@@ -318,3 +318,43 @@ class ProfileEnum(Enum):
     AC_DOC = "AC_DOC"
     AC_ST = "AC_ST"
     AC_ST_ENT = "AC_ST_ENT"
+
+
+class PurchaseProduct(StrEnum):
+    """Kinds of article-level one-off purchases.
+
+    Matches the four buy actions on the article page (wire aside):
+    - `consultation` : read-access to an otherwise truncated article.
+    - `consultation_gift` : pay to grant `consultation` to N other
+      members (ticket #0194 — « Consultation d'article offerte »).
+      The N beneficiaries are stored in `ArticlePurchaseGift` rows
+      attached to the parent purchase ; each can read the article
+      in full.
+    - `justificatif` : official PDF proof of publication.
+    - `cession` : reproduction licence for another media.
+    """
+
+    CONSULTATION = auto()
+    CONSULTATION_GIFT = auto()
+    JUSTIFICATIF = auto()
+    CESSION = auto()
+
+
+PURCHASE_PRODUCT_LABELS: dict[str, str] = {
+    PurchaseProduct.CONSULTATION: "Consultation d'article",
+    PurchaseProduct.CONSULTATION_GIFT: "Consultation offerte",
+    PurchaseProduct.JUSTIFICATIF: "Justificatif de publication",
+    PurchaseProduct.CESSION: "Cession de droits",
+}
+
+
+def purchase_product_label(product: str) -> str:
+    """French label of a purchase product ; an unknown code is shown as is."""
+    return PURCHASE_PRODUCT_LABELS.get(str(product), str(product))
+
+
+class PurchaseStatus(StrEnum):
+    PENDING = auto()
+    PAID = auto()
+    FAILED = auto()
+    REFUNDED = auto()

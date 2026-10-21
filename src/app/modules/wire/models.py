@@ -14,6 +14,10 @@ from sqlalchemy import JSON, BigInteger, Enum, ForeignKey, Integer, orm
 from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy_utils import ArrowType
 
+from app.enums import (
+    PurchaseProduct,
+    PurchaseStatus,
+)
 from app.models.base import Base
 from app.models.base_content import BaseContent
 from app.models.lifecycle import PublicationStatus
@@ -186,46 +190,7 @@ class PressReleasePost(Post, Taggable):
 # --------------------------------------------------------------------------
 # Article-level one-off purchases (consultation / justif / cession de droits)
 # --------------------------------------------------------------------------
-
-
-class PurchaseProduct(StrEnum):
-    """Kinds of article-level one-off purchases.
-
-    Matches the four buy actions on the article page (wire aside):
-    - `consultation` : read-access to an otherwise truncated article.
-    - `consultation_gift` : pay to grant `consultation` to N other
-      members (ticket #0194 — « Consultation d'article offerte »).
-      The N beneficiaries are stored in `ArticlePurchaseGift` rows
-      attached to the parent purchase ; each can read the article
-      in full.
-    - `justificatif` : official PDF proof of publication.
-    - `cession` : reproduction licence for another media.
-    """
-
-    CONSULTATION = auto()
-    CONSULTATION_GIFT = auto()
-    JUSTIFICATIF = auto()
-    CESSION = auto()
-
-
-PURCHASE_PRODUCT_LABELS: dict[str, str] = {
-    PurchaseProduct.CONSULTATION: "Consultation d'article",
-    PurchaseProduct.CONSULTATION_GIFT: "Consultation offerte",
-    PurchaseProduct.JUSTIFICATIF: "Justificatif de publication",
-    PurchaseProduct.CESSION: "Cession de droits",
-}
-
-
-def purchase_product_label(product: str) -> str:
-    """French label of a purchase product ; an unknown code is shown as is."""
-    return PURCHASE_PRODUCT_LABELS.get(str(product), str(product))
-
-
-class PurchaseStatus(StrEnum):
-    PENDING = auto()
-    PAID = auto()
-    FAILED = auto()
-    REFUNDED = auto()
+# PurchaseProduct and PurchaseStatus are now imported from app.enums
 
 
 class ArticlePurchase(IdMixin, Owned, Timestamped, Base):

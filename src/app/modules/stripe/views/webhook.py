@@ -20,7 +20,7 @@ from stripe import SignatureVerificationError
 
 from app.actors.justificatif import generate_justificatif
 from app.constants import WEBHOOK_TEST_CUSTOMER_EMAIL
-from app.enums import BWStatus, BWType
+from app.enums import BWStatus, BWType, PurchaseProduct, PurchaseStatus
 from app.flask.extensions import db
 from app.models.auth import User
 from app.models.organisation import Organisation
@@ -40,7 +40,7 @@ from app.modules.bw.bw_activation.subscription_lifecycle import (
     mark_past_due,
 )
 from app.modules.stripe import blueprint
-from app.modules.wire.models import ArticlePurchase, PurchaseProduct, PurchaseStatus
+from app.modules.wire.models import ArticlePurchase
 from app.services.stripe.customers import mirror_customer_to_org
 from app.services.stripe.prices import upsert_price_from_event
 from app.services.stripe.product_mirror import upsert_product_from_event

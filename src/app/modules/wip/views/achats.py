@@ -22,16 +22,12 @@ from sqlalchemy import or_, select
 from sqlalchemy.orm import selectinload
 from werkzeug.exceptions import Forbidden
 
-from app.enums import RoleEnum
+from app.enums import PurchaseStatus, RoleEnum, purchase_product_label
 from app.flask.extensions import db
 from app.flask.lib.nav import nav
 from app.lib.base62 import base62
 from app.modules.wip import blueprint
-from app.modules.wire.models import (
-    ArticlePurchase,
-    PurchaseStatus,
-    purchase_product_label,
-)
+from app.modules.wire.models import ArticlePurchase
 from app.modules.wire.services.purchase_aggregates import (
     get_org_purchase_total,
     get_user_purchase_total,

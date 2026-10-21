@@ -22,6 +22,7 @@ from datetime import UTC, datetime, timedelta
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
+from app.enums import PurchaseStatus
 from app.flask.extensions import db
 from app.logging import warn
 from app.models.organisation import Organisation
@@ -29,7 +30,7 @@ from app.modules.bw.bw_activation.models import (
     Subscription,
     SubscriptionStatus,
 )
-from app.modules.wire.models import ArticlePurchase, PurchaseStatus
+from app.modules.wire.models import ArticlePurchase
 from app.services.stripe._client import StripeClient, default_client
 from app.services.stripe.utils import load_stripe_api_key
 

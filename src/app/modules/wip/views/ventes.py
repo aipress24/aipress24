@@ -26,7 +26,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import selectinload
 from werkzeug.exceptions import Forbidden
 
-from app.enums import RoleEnum
+from app.enums import PurchaseStatus, RoleEnum, purchase_product_label
 from app.flask.extensions import db
 from app.flask.lib.nav import nav
 from app.lib.base62 import base62
@@ -35,8 +35,6 @@ from app.modules.wip.redac_chef import redac_chef_media_id
 from app.modules.wire.models import (
     ArticlePurchase,
     Post,
-    PurchaseStatus,
-    purchase_product_label,
 )
 from app.modules.wire.services.purchase_aggregates import (
     get_media_sales_total,

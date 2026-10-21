@@ -113,14 +113,11 @@ def _count_consultations_offertes(user: User) -> int:
 
 
 def _count_justificatifs(user: User) -> int:
+    from app.enums import PurchaseProduct, PurchaseStatus
     from app.modules.wip.models.newsroom.justificatif_invitation import (
         JustificatifInvitation,
     )
-    from app.modules.wire.models import (
-        ArticlePurchase,
-        PurchaseProduct,
-        PurchaseStatus,
-    )
+    from app.modules.wire.models import ArticlePurchase
 
     paid_stmt = select(func.count(ArticlePurchase.id)).where(
         ArticlePurchase.owner_id == user.id,
@@ -327,13 +324,12 @@ def _render_justificatifs_tab():
     the current user, plus their completed JdP purchases."""
     from sqlalchemy import select as sa_select
 
+    from app.enums import PurchaseProduct, PurchaseStatus
     from app.lib.base62 import base62
     from app.modules.wire.models import (
         ArticlePost,
         ArticlePurchase,
         Post,
-        PurchaseProduct,
-        PurchaseStatus,
     )
 
     user = cast(User, g.user)
