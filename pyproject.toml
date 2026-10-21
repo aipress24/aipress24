@@ -52,8 +52,7 @@ dependencies = [
     "attrs<27,>=26",
     "boltons<27,>=25",
     "pipe<3.0,>=2.1",
-    # python-slugify v9.0.0 is marked as unreleased and change API (2026-09-15)
-    "python-slugify<9.0.0,>=8.0.1",
+    "python-slugify<10.0.0,>=8.0.1",
     "toml<1.0.0,>=0.10.2",
     "tomli<3.0.0,>=2.0.1",
     "loguru<1.0.0,>=0.7.2",
@@ -69,7 +68,7 @@ dependencies = [
     # `ArrowType` from it, so the ceiling lifts when sqlalchemy-utils does.
     "sqlalchemy<2.1,>=2.0.25",
     "sqlalchemy-utils<1.0.0,>=0.41.1",
-    "advanced-alchemy>=1.11,<1.12",
+    "advanced-alchemy>=1.11,<1.13",
     "psycopg2<3.0.0,>=2.9.9",
     "psycopg[binary,pool]>=3.2.0,<4",
     #
@@ -82,7 +81,7 @@ dependencies = [
     "rich<16,>=15",
     "cleez<1.0.0,>=0.1.11",
     # Images
-    "pillow<13,>=12",
+    "pillow<14,>=12",
     # Full text search
     "wesh>=3.0.0,<4",
     "beautifulsoup4<5.0,>=4.12",
