@@ -56,6 +56,12 @@
     {% include "fragments/dropdown-notifications.j2" %}
   {% endcall %}
 
+  <a href="https://doc.aipress24.com/fr/aide/" target="_blank" rel="noopener"
+     class="bg-white p-2 rounded-full text-gray-400 hover:text-gray-500 tooltip tooltip-bottom"
+     data-tip="Aide">
+    {{ icon("lifebuoy", type="outline", class="h-6 w-6") }}
+  </a>
+
   {% if g.user.has_role("admin") %}
     <a href="/admin/" class="bg-white p-2 rounded-full text-gray-400 hover:text-gray-500 tooltip tooltip-bottom"
        data-tip="Admin">

@@ -44,8 +44,12 @@ FOOTER_MENU = [
         "label": "Documentation",
         "items": [
             {
-                "label": "Guide utlisateur",
+                "label": "Guide utilisateur",
                 "url": "https://doc.aipress24.com/user/fr/",
+            },
+            {
+                "label": "FAQ",
+                "url": "https://doc.aipress24.com/fr/aide/faq/",
             },
             {
                 "label": "Politique de confidentialité",
