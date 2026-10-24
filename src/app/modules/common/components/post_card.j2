@@ -27,7 +27,7 @@
    loaded the newsroom article + every image blob per card (N+1). #}
 <a href="{{ url_for(post) }}">
     <img
-        class="w-full min-h-64 object-cover text-neutral-600"
+        class="w-full aspect-[4/3] object-cover object-top text-neutral-600"
         src="{{ post.image_url }}"
         alt="{{ post.title }}"
         loading="lazy"
@@ -121,7 +121,7 @@
 
 <!-- social items -->
 
-<div class="px-4 py-3 flex justify-between space-x-8">
+<div class="mt-auto px-4 py-3 flex justify-between space-x-8">
     <div class="flex space-x-4">
         <span class="inline-flex items-center text-sm">
             <button

@@ -9,7 +9,7 @@
     <ul role="list" class="grid gap-6 grid-cols-1 md:grid-cols-2">
       <!-- was class="bg-white rounded-lg shadow" -->
       {% for post in posts %}
-        <li class="bg-white rounded shadow">
+        <li class="bg-white rounded shadow flex flex-col">
           {{ component("post-card", post._model, class_="bg-gray-100") }}
         </li>
       {% endfor %}
