@@ -18,8 +18,9 @@ SESSION_TYPE = "filesystem"
 # Security
 #
 
-# set to false when going live
-UNSECURE = true
+# `UNSECURE` (off unless `FLASK_UNSECURE=true`) opens /backdoor/<role> and
+# /debug/*. `create_app` refuses it outside debug or testing mode.
+UNSECURE = false
 
 SECURITY_URL_PREFIX = "/auth"
 SECURITY_REGISTERABLE = false
@@ -192,16 +193,9 @@ S3_USE_SSL = false
 
 
 [production]
-SERVER_NAME = "aipress24.demo.abilian.com"
+SERVER_NAME = "aipress24.com"
 PREFERRED_URL_SCHEME = "https"
 DEBUG_TB_ENABLED = false
-# `[default]` ships UNSECURE = true, which opens /backdoor/<role> (an
-# anonymous GET that logs you in as any role, ADMIN included) and
-# /debug/env (the whole process environment). Saying so here is not
-# enough on its own — a deployment that does not set ENV_FOR_DYNACONF
-# resolves to [development], not to this section — so `create_app`
-# refuses to boot if it ever sees this env with the flag on.
-UNSECURE = false
 # Validates the S3 endpoint's certificate. It was off, which the name
 # hides: `S3_USE_SSL` feeds both the transport and boto's `verify`, so
 # off meant every object travelled over a connection nobody checked.

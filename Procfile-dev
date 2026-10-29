@@ -1,4 +1,4 @@
 vite: flask vite start
-backend: flask --debug run --reload
+backend: FLASK_UNSECURE=true flask --debug run --reload
 worker: flask queue worker --threads 2
 scheduler: flask queue scheduler

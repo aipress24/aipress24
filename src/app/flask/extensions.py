@@ -203,32 +203,25 @@ def setup_security(app: Flask, db: SQLAlchemy) -> None:
 
 
 def _refuse_or_announce_unsecure(app: Flask) -> None:
-    """Refuse `UNSECURE` in the production environment; announce it elsewhere.
+    """Refuse `UNSECURE` outside debug or testing mode; announce it there.
 
     `UNSECURE` opens `/backdoor/<role>` — one anonymous GET that returns
     an authenticated session for any role, ADMIN included — and
     `/debug/env`, which prints the process environment: signing key,
-    database URI, payment and mail credentials. It ships `true` in
-    `[default]`, so every environment inherits it unless it says
-    otherwise, and `[production]` now does.
+    database URI, payment and mail credentials.
 
-    Two halves, because neither covers the other:
-
-    - a deployment that declares itself production and still carries the
-      flag is a misconfiguration we can catch, so we refuse to start;
-    - a deployment that declares nothing resolves to `[development]`,
-      where the flag is legitimate — nothing in-process can tell that
-      apart from a laptop. So it gets the banner instead, on stderr,
-      which is what turns a silent open door into something visible in
-      the logs of any server that boots this way by mistake.
+    The check keys on debug/testing, not on the Dynaconf environment: a
+    deployment that sets no `ENV_FOR_DYNACONF` resolves to
+    `[development]`, which is indistinguishable from a laptop by name.
+    Production runs gunicorn without debug; `flask --debug run` and the
+    test config are the only legitimate users of the flag.
     """
     if not app.config.get("UNSECURE"):
         return
 
-    env = str(app.config.get("ENV_FOR_DYNACONF", "") or "").lower()
-    if env == "production":
+    if not (app.debug or app.testing):
         msg = (
-            "UNSECURE is set in the production environment. It opens "
+            "UNSECURE is set outside debug and testing mode. It opens "
             "/backdoor/<role> (anonymous login as any role, including "
             "ADMIN) and /debug/env (every process secret). Refusing to "
             "start rather than serving them."
