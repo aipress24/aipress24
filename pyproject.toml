@@ -121,10 +121,6 @@ dependencies = [
     "ijson>=3.3.0",
     "psutil>=6.1.1",
     "tenacity>=8.5.0,<10",
-    # Pinned to 82 (83 breaks some packages). No longer constrained by
-    # pkg_resources: the only consumer was passlib, now replaced by
-    # libpass (a maintained passlib fork without pkg_resources).
-    "setuptools>=82,<83",
     "pyyaml>=6.0.3",
     "schedule>=1.2.2",
     "pyexcel>=0.7.3",
