@@ -69,7 +69,9 @@ dependencies = [
     "sqlalchemy<2.1,>=2.0.25",
     "sqlalchemy-utils<1.0.0,>=0.41.1",
     "advanced-alchemy>=1.11,<1.13",
-    "psycopg[binary,pool]>=3.2.0,<4",
+    # [c], not [binary]: built against libpq, which SlapOS can do (no sdist for
+    # psycopg-binary).
+    "psycopg[c,pool]>=3.2.0,<4",
     #
     "python-iso639>=2026",
     # use gunicorn 26
@@ -113,7 +115,6 @@ dependencies = [
     # SQLAdmin integration
     "sqladmin<1.0,>=0.20",
     "starlette<2.0,>=1.0",
-    "granian[reload]>=2.7.4,<3",
     "asyncpg<1.0,>=0.30",
     "asgiref<4.0,>=3.8",
     # Extra
@@ -141,6 +142,14 @@ dependencies = [
     "flask-smorest<1.0,>=0.47.0",
 ]
 description = ""
+
+[project.optional-dependencies]
+# `python -m server` and the admin app's server (Procfile: `uv sync --extra
+# server`). Not a default dependency: granian and watchfiles are Rust, built with
+# maturin, which a SlapOS build would need for nothing (it runs gunicorn).
+server = [
+    "granian[reload]>=2.7.4,<3",
+]
 
 [dependency-groups]
 dev = [
