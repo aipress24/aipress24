@@ -149,6 +149,8 @@ server = [
 
 [dependency-groups]
 dev = [
+    # The production server (granian), which tests/a_unit/server imports
+    "aipress24-flask[server]",
     # Pinned for now
     "ruff",
     # Used to run a development server

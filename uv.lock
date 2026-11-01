@@ -303,6 +303,7 @@ server = [
 [package.dev-dependencies]
 dev = [
     { name = "abilian-devtools" },
+    { name = "aipress24-flask", extra = ["server"] },
     { name = "auto-type-annotate" },
     { name = "behave" },
     { name = "buildstr" },
@@ -466,6 +467,7 @@ provides-extras = ["server"]
 [package.metadata.requires-dev]
 dev = [
     { name = "abilian-devtools", specifier = ">=0.7,<1.0" },
+    { name = "aipress24-flask", extras = ["server"] },
     { name = "auto-type-annotate", specifier = ">=1.1.2" },
     { name = "behave" },
     { name = "buildstr", specifier = ">=0.1.1,<1.0.0" },
