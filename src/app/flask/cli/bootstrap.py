@@ -11,6 +11,7 @@ from pathlib import Path
 
 from flask import current_app
 from flask.cli import with_appcontext
+from flask_security import hash_password
 from flask_super.cli import command
 from rich import print
 from svcs.flask import container
@@ -22,7 +23,8 @@ from app.flask.bootstrap import (
     import_zip_codes,
 )
 from app.flask.extensions import db
-from app.models.auth import Role
+from app.models.auth import KYCProfile, Role, User
+from app.models.organisation import Organisation
 from app.models.repositories import RoleRepository
 from app.modules.kyc.ontology_loader import clear_ontology_cache
 from app.services.promotions import PromotionService
@@ -75,6 +77,7 @@ def fetch_bootstrap_data() -> None:
 def bootstrap() -> None:
     bootstrap_roles()
     bootstrap_promotions()
+    bootstrap_admin()
 
     t0 = time.time()
     import_taxonomies()
@@ -116,4 +119,44 @@ def bootstrap_promotions() -> None:
 
         promo_service.store_promotion(slug=slug, title=title, body=BOX_BODY)
 
+    db.session.commit()
+
+
+def bootstrap_admin() -> None:
+    """The first admin of an empty instance, from `BOOTSTRAP_ADMIN_EMAIL` and
+    `BOOTSTRAP_ADMIN_PASSWORD` (`FLASK_BOOTSTRAP_ADMIN_*` in the environment).
+
+    Nothing without an email. Once the user exists it is left alone: its
+    password is changed in the app, not here.
+    """
+    email = current_app.config.get("BOOTSTRAP_ADMIN_EMAIL")
+    if not email:
+        return
+    if db.session.query(User).filter_by(email=email).first():
+        print(f"Admin {email} already exists, skipping creation.")
+        return
+    # Dynaconf parses environment values: "123456" would arrive as an int.
+    password = current_app.config["BOOTSTRAP_ADMIN_PASSWORD"]
+    if not isinstance(password, str):
+        msg = "BOOTSTRAP_ADMIN_PASSWORD must be a string: prefix it with '@str '"
+        raise TypeError(msg)
+
+    print(f"Creating admin {email}...")
+    repo = container.get(RoleRepository)
+    org = Organisation(name="AIPress24")
+    org.active = True
+    # PRESS_MEDIA as well: templates pick the user's community from it.
+    user = User(email=email, first_name="Admin", last_name="AIPress24", active=True)
+    user.photo = b""
+    user.password = hash_password(password)
+    user.organisation = org
+    user.roles += [
+        repo.get_by_name(RoleEnum.ADMIN.name),
+        repo.get_by_name(RoleEnum.PRESS_MEDIA.name),
+    ]
+    db.session.add(
+        KYCProfile(
+            user=user, profile_id="P001", profile_label="Administrator", match_making={}
+        )
+    )
     db.session.commit()
