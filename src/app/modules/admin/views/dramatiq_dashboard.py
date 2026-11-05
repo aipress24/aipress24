@@ -165,7 +165,12 @@ def _registered_actors() -> list[dict[str, Any]]:
                 "name": name,
                 "queue": getattr(actor, "queue_name", "default"),
                 "priority": getattr(actor, "priority", 0),
-                "options": getattr(actor, "options", {}),
+                # A callable option, such as `retry_when`, shows as its name:
+                # the template renders options as JSON.
+                "options": {
+                    key: getattr(value, "__name__", value)
+                    for key, value in getattr(actor, "options", {}).items()
+                },
             }
         )
     out.sort(key=lambda a: (a["queue"], a["name"]))
