@@ -51,3 +51,12 @@ def test_worker_passes_options_through(argv) -> None:
         "-v",
         "-v",
     ]
+
+
+def test_worker_does_not_inherit_the_cli_silence(argv, monkeypatch) -> None:
+    """Under this variable `init_logging` drops logs and Sentry."""
+    monkeypatch.setenv("FLASK_RUN_FROM_CLI", "true")
+
+    worker.callback(verbose=0, processes=1, threads=1, queues=None)
+
+    assert "FLASK_RUN_FROM_CLI" not in os.environ
