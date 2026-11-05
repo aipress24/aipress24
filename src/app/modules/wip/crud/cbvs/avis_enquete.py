@@ -357,9 +357,9 @@ class AvisEnqueteWipView(BaseWipView):
                         model, new_experts, urls, sender
                     )
                     if nb_new_experts > 1:
-                        msg = f"Avis d'enquête envoyé aux {len(new_experts)} contacts sélectionnés"
+                        msg = f"Avis d'enquête en cours d'envoi aux {len(new_experts)} contacts sélectionnés"
                     else:
-                        msg = "Avis d'enquête envoyé au contact sélectionné"
+                        msg = "Avis d'enquête en cours d'envoi au contact sélectionné"
                     flash(msg, "success")
                 elif removed_contacts:
                     avis_service.commit()

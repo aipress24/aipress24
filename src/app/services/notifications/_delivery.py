@@ -86,7 +86,7 @@ def claim_due_notifications(
 
 
 def send_claimed_mails(mails: list[dict]) -> int:
-    """Envoyer les emails d'un lot déjà validé. Renvoie le nombre parti.
+    """Confier les emails d'un lot déjà validé. Renvoie le nombre accepté.
 
     À n'appeler qu'après le `commit` : c'est ce qui rend la perte
     possible mais le doublon impossible. Pour un changement de date
@@ -127,14 +127,10 @@ def _claim(session: Session, pending: PendingNotification) -> bool:
 def _send_mail(payload: dict) -> bool:
     """Construire et envoyer l'email décrit par l'appelant.
 
-    L'échec est remonté, pas propagé : la cloche est déjà posée et
-    validée, et perdre le reste du lot parce que SMTP a hoqueté serait
-    pire.
-
     Un nom de gabarit inconnu est en revanche une **erreur de
     programmation** — un renommage de classe non répercuté aux lignes
     en attente — et non un aléa d'exploitation. Il est signalé comme
-    tel, pour ne pas se perdre parmi les hoquets SMTP.
+    tel : la ligne d'attente ne sera jamais envoyée.
     """
     name = payload["mail_template"]
     from app.services import emails
@@ -148,7 +144,7 @@ def _send_mail(payload: dict) -> bool:
         )
         return False
 
-    # No `except`: `EmailTemplate.send()` already catches `SMTPException`
-    # and returns a bool, so anything raised here is a programming error
-    # — wrong kwargs, missing template — and must surface.
+    # No `except`: `send()` only queues the mail, and the worker handles
+    # SMTP failures. Anything raised here is a programming error (wrong
+    # kwargs) and must surface.
     return mailer(**payload["mail_kwargs"]).send()

@@ -13,8 +13,11 @@ from .lazy_actor import LazyActor
 _actor_registry: set[LazyActor] = set()
 
 
-def job():
+def job(**options):
     """Decorator to register a function as a Dramatiq job.
+
+    Args:
+        **options: Dramatiq actor options, such as `retry_when`.
 
     Returns:
         Decorator function that wraps the target function.
@@ -22,7 +25,7 @@ def job():
 
     def decorator(func):
         logger.debug("Registering cron job: {}", func.__name__)
-        actor = LazyActor(func)
+        actor = LazyActor(func, **options)
         _actor_registry.add(actor)
         return actor
 

@@ -4,11 +4,13 @@
 
 from __future__ import annotations
 
+import json
 from dataclasses import dataclass, field, fields
 from importlib import resources as rso
-from smtplib import SMTPException
 from typing import ClassVar
 
+import dramatiq
+from dramatiq.brokers.stub import StubBroker
 from flask import render_template_string
 from flask_mailman import EmailMessage
 from loguru import logger
@@ -18,7 +20,11 @@ from app.enums import NotificationCategory
 
 from . import mail_templates
 from ._preferences import recipient_wants
-from .email_limiter import count_recipient_mails, is_email_sending_allowed
+from .email_limiter import (
+    _mail_debug_active,
+    count_recipient_mails,
+    is_email_sending_allowed,
+)
 
 
 @dataclass(kw_only=True)
@@ -78,6 +84,11 @@ class EmailTemplate:
         raise ValueError(msg)
 
     def send(self) -> bool:
+        """Hand this mail over for delivery. `False` if none will happen.
+
+        `True` means accepted, not delivered: the worker sends it and
+        retries while SMTP fails (`app.actors.emails`).
+        """
         if not recipient_wants(self.recipient, self.category):
             # PRF-05 — pas un incident : un réglage respecté. Journalisé
             # en `info`, et `False` parce que rien n'est parti — un
@@ -88,17 +99,35 @@ class EmailTemplate:
             )
             return False
 
-        if self.bypass_quota or is_email_sending_allowed(self.recipient):
-            result = self._send_mail()
-            if result:
-                count_recipient_mails(self.recipient)
-        else:
+        if _delivers_inline():
+            return self._deliver_inline()
+
+        from app.actors.emails import deliver_mail
+
+        deliver_mail.send(self.__class__.__name__, self.ctx)
+        return True
+
+    def deliver(self) -> bool:
+        """Send now. `False` over quota; raises `OSError` if SMTP fails."""
+        if not (self.bypass_quota or is_email_sending_allowed(self.recipient)):
             msg = f"Mail quota exceeded for recipient: {self.recipient!r}"
             logger.error(msg)
-            result = False
-        return result
+            return False
 
-    def _send_mail(self) -> bool:
+        self._send_mail()
+        count_recipient_mails(self.recipient)
+        return True
+
+    def _deliver_inline(self) -> bool:
+        # Through JSON like a queued mail, so that an argument the broker
+        # could not carry fails here too, under the test suite.
+        mail = type(self)(**json.loads(json.dumps(self.ctx)))
+        try:
+            return mail.deliver()
+        except OSError:
+            return False
+
+    def _send_mail(self) -> None:
         message = EmailMessage(
             subject=self.subject,
             body=self.render(),
@@ -108,13 +137,21 @@ class EmailTemplate:
         message.content_subtype = "html"
         try:
             message.send()
-            logger.info(
-                f"Mail success: {self.__class__.__name__} {self.logged_informations}"
-            )
-            return True
-        except (SMTPException, OSError) as e:
+        except OSError as e:  # SMTPException is an OSError too
             msg = (
                 f"Mail error: ({e.__class__.__name__}: {e}), {self.logged_informations}"
             )
             logger.error(msg)
-            return False
+            raise
+        logger.info(
+            f"Mail success: {self.__class__.__name__} {self.logged_informations}"
+        )
+
+
+def _delivers_inline() -> bool:
+    """Whether this process must send by itself instead of queueing.
+
+    No worker reads a stub broker, and `MailDebug` keeps its outbox in the
+    memory of the process that sends.
+    """
+    return isinstance(dramatiq.get_broker(), StubBroker) or _mail_debug_active()
