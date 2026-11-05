@@ -156,7 +156,7 @@ class TestVentesViewBase:
                     owner_id=buyer.id,
                     product_type=PurchaseProduct.CONSULTATION,
                     status=status,
-                    amount_cents=8888,
+                    amount_cents=7654321,
                 )
             )
         db_session.commit()
@@ -164,7 +164,7 @@ class TestVentesViewBase:
         response = logged_in_client.get("/wip/ventes")
         body = response.data.decode()
         assert "10.00" in body
-        assert "88.88" not in body
+        assert "76543.21" not in body
 
     def test_shows_publisher_share(
         self,
