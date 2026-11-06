@@ -323,20 +323,30 @@ class TestOpportunitesTabsConstant:
 
 
 class TestSendAvisEnqueteAcceptanceEmail:
-    """Test `send_avis_enquete_acceptance_email` returns boolean."""
+    """Test who `send_avis_enquete_acceptance_email` sends a mail for."""
 
-    def test_anonymous_user_returns_false(
-        self, monkeypatch: pytest.MonkeyPatch
+    @pytest.fixture
+    def mail_cls(self, monkeypatch: pytest.MonkeyPatch) -> MagicMock:
+        mail_cls = MagicMock()
+        monkeypatch.setattr(
+            "app.modules.wip.views.opportunities.ContactAvisEnqueteAcceptanceMail",
+            mail_cls,
+        )
+        return mail_cls
+
+    def test_anonymous_user_sends_nothing(
+        self, monkeypatch: pytest.MonkeyPatch, mail_cls: MagicMock
     ) -> None:
         anon = MagicMock()
         anon.is_anonymous = True
         monkeypatch.setattr("app.modules.wip.views.opportunities.current_user", anon)
 
-        contact = MagicMock()
-        assert send_avis_enquete_acceptance_email(contact, "oui") is False
+        send_avis_enquete_acceptance_email(MagicMock(), "oui")
 
-    def test_authenticated_user_returns_mail_send_result(
-        self, monkeypatch: pytest.MonkeyPatch
+        mail_cls.assert_not_called()
+
+    def test_authenticated_user_mails_the_journalist(
+        self, monkeypatch: pytest.MonkeyPatch, mail_cls: MagicMock
     ) -> None:
         user = MagicMock()
         user.is_anonymous = False
@@ -349,22 +359,7 @@ class TestSendAvisEnqueteAcceptanceEmail:
         contact.avis_enquete.titre = "Avis Title"
         contact.rdv_notes_expert = "Some notes"
 
-        with monkeypatch.context() as m:
-            mock_mail_cls = MagicMock()
-            mock_mail_inst = mock_mail_cls.return_value
-            mock_mail_inst.send.return_value = True
-            m.setattr(
-                "app.modules.wip.views.opportunities.ContactAvisEnqueteAcceptanceMail",
-                mock_mail_cls,
-            )
-            assert send_avis_enquete_acceptance_email(contact, "oui") is True
+        send_avis_enquete_acceptance_email(contact, "oui")
 
-        with monkeypatch.context() as m:
-            mock_mail_cls = MagicMock()
-            mock_mail_inst = mock_mail_cls.return_value
-            mock_mail_inst.send.return_value = False
-            m.setattr(
-                "app.modules.wip.views.opportunities.ContactAvisEnqueteAcceptanceMail",
-                mock_mail_cls,
-            )
-            assert send_avis_enquete_acceptance_email(contact, "oui") is False
+        assert mail_cls.call_args.kwargs["recipient"] == "journo@example.com"
+        mail_cls.return_value.send.assert_called_once()

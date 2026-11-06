@@ -583,20 +583,17 @@ def media_opportunity(id: int):
 def send_avis_enquete_acceptance_email(
     contact: ContactAvisEnquete,
     response: str,
-) -> bool:
+) -> None:
     """Send notification emails to journalist about an Avis d'Enquête
     acceptance of the contacted expert.
 
     Args:
         contact: Contact responding to the avis.
         response: either "oui", "oui_relation_presse", "non", "non-mais".
-
-    Returns:
-        True if the email was sent successfully, False otherwise.
     """
     expert = cast(User, current_user)
     if expert.is_anonymous:
-        return False
+        return
     sender_mail = expert.email
     sender_full_name = expert.full_name
 
@@ -615,7 +612,7 @@ def send_avis_enquete_acceptance_email(
         response=response,
         notes=notes,
     )
-    return bool(notification_mail.send())
+    notification_mail.send()
 
 
 def _redirect_opportunity_response(target_url: str) -> Response:
@@ -752,11 +749,7 @@ def media_opportunity_post(id: int) -> str | Response:
 
         repo.session.commit()
 
-        mail_sent = send_avis_enquete_acceptance_email(contact, reponse)
-        if not mail_sent:
-            warn(
-                f"Notification email for contact {contact.id} (reponse={reponse!r}) was not sent"
-            )
+        send_avis_enquete_acceptance_email(contact, reponse)
 
     return _redirect_opportunity_response(url_for("wip.opportunities"))
 

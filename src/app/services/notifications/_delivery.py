@@ -88,9 +88,11 @@ def claim_due_notifications(
 def send_claimed_mails(mails: list[dict]) -> int:
     """Confier les emails d'un lot déjà validé. Renvoie le nombre accepté.
 
-    À n'appeler qu'après le `commit` : c'est ce qui rend la perte
-    possible mais le doublon impossible. Pour un changement de date
-    annoncé à tous les accrédités, l'inondation est le pire des deux.
+    À n'appeler qu'après le `commit` : un lot entier ne peut alors plus
+    repartir, et pour un changement de date annoncé à tous les accrédités,
+    l'inondation serait le pire des cas. Seul un mail en cours d'envoi
+    peut encore partir deux fois : SMTP l'accepte puis expire, ou le
+    worker meurt avant d'acquitter.
     """
     sent = 0
     for payload in mails:
@@ -125,9 +127,9 @@ def _claim(session: Session, pending: PendingNotification) -> bool:
 
 
 def _send_mail(payload: dict) -> bool:
-    """Construire et envoyer l'email décrit par l'appelant.
+    """Construire l'email décrit par l'appelant et le confier à la file.
 
-    Un nom de gabarit inconnu est en revanche une **erreur de
+    Un nom de gabarit inconnu est une **erreur de
     programmation** — un renommage de classe non répercuté aux lignes
     en attente — et non un aléa d'exploitation. Il est signalé comme
     tel : la ligne d'attente ne sera jamais envoyée.

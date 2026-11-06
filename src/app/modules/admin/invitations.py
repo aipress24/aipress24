@@ -8,7 +8,6 @@ from typing import cast
 from uuid import UUID
 
 from flask_login import current_user
-from loguru import logger
 from sqlalchemy import func, select
 from svcs.flask import container
 
@@ -121,14 +120,7 @@ def send_invitation_mails(mails: list[str], org_id: int) -> None:
             sender_full_name=sender_full_name,
             bw_name=bw_name,
         )
-        sent = invit_mail.send()
-        if not sent:
-            logger.warning(
-                "BW invitation email NOT sent",
-                recipient=mail,
-                org_id=org_id,
-                sender=sender_mail,
-            )
+        invit_mail.send()
 
 
 def cancel_invitation_users(mails: str | list[str], org_id: int) -> None:

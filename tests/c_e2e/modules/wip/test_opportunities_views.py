@@ -412,7 +412,7 @@ class TestOpportunityResponse:
         monkeypatch.setattr(
             opp_module,
             "send_avis_enquete_acceptance_email",
-            lambda *args, **kwargs: False,
+            lambda *args, **kwargs: None,
         )
 
         response = logged_in_client.post(
