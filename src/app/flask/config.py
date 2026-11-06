@@ -6,6 +6,8 @@
 from __future__ import annotations
 
 import os
+import sys
+from pathlib import Path
 
 from dynaconf import Dynaconf
 from flask import Flask
@@ -44,12 +46,20 @@ def init_logging(app: Flask) -> None:
     Args:
         app: Flask application instance.
     """
-    run_from_cli = app.config.get("RUN_FROM_CLI")
-    if run_from_cli and not app.debug:
-        # Disable logging output in CLI mode
+    if is_quiet_command(sys.argv) and not app.debug:
         logger.configure(handlers=[])
     else:
         init_sentry(app)
+
+
+def is_quiet_command(argv: list[str]) -> bool:
+    """Whether this process is a one-shot `flask` command: no logs, no Sentry.
+
+    Decided from `argv` because `FLASK_RUN_FROM_CLI` cannot tell services
+    apart: the scheduler is a `flask` command, and the worker inherits the
+    variable when `flask queue worker` execs into `python -m dramatiq`.
+    """
+    return Path(argv[0]).name == "flask" and argv[-2:] != ["queue", "scheduler"]
 
 
 def configure_app(app, config) -> None:

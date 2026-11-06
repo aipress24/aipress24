@@ -109,11 +109,6 @@ def worker(verbose, processes, threads, queues) -> None:
     # point: the console script is ``dramatiq.__main__:main``, and the
     # argparse ``prog`` is hardcoded to "dramatiq", so usage output is
     # identical too.
-    #
-    # The ``flask`` command sets FLASK_RUN_FROM_CLI, and `init_logging` turns
-    # that into no logs and no Sentry. A worker is a long-lived service, not
-    # a one-shot command: without its logs, a failed job leaves no trace.
-    os.environ.pop("FLASK_RUN_FROM_CLI", None)
     os.execv(sys.executable, args)  # noqa: S606
 
 
