@@ -5,6 +5,8 @@
 
 from __future__ import annotations
 
+from typing import Any
+
 import dramatiq
 from loguru import logger
 
@@ -13,7 +15,7 @@ from .lazy_actor import LazyActor
 _actor_registry: set[LazyActor] = set()
 
 
-def job(**options):
+def job(**options: Any):
     """Decorator to register a function as a Dramatiq job.
 
     Args:

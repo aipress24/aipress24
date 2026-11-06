@@ -10,6 +10,7 @@ Provides database lifecycle management and fixtures for both SQLite and PostgreS
 
 from __future__ import annotations
 
+import json
 from contextlib import suppress
 from typing import TYPE_CHECKING
 from urllib.parse import urlparse
@@ -22,6 +23,7 @@ from sqlalchemy.pool import StaticPool
 from app.flask.extensions import db as _db
 from app.flask.lib.n_plus_one_detector import get_query_stats
 from app.flask.main import create_app
+from app.services.emails.base import EmailTemplate
 
 if TYPE_CHECKING:
     from collections.abc import Generator
@@ -199,6 +201,22 @@ def app(db_url: str, n_plus_one_enabled: bool, n_plus_one_strict: bool):
 #: `app` fixture is session-scoped, so a plain `app.config[k] = v` in
 #: one test is still in force for every test that follows it.
 _PER_TEST_CONFIG_KEYS = ("STRIPE_SECRET_KEY", "STRIPE_LIVE_ENABLED")
+
+
+@pytest.fixture(autouse=True)
+def _mail_arguments_go_through_json(monkeypatch):
+    """Give mail arguments the JSON trip they take through the production queue.
+
+    Tests send inline, so an argument the broker cannot encode (a date, a
+    model) would otherwise only fail in production, as a 500 on the send.
+    """
+    send = EmailTemplate.send
+
+    def send_through_json(self: EmailTemplate) -> bool:
+        self.ctx = json.loads(json.dumps(self.ctx))
+        return send(self)
+
+    monkeypatch.setattr(EmailTemplate, "send", send_through_json)
 
 
 @pytest.fixture(autouse=True)

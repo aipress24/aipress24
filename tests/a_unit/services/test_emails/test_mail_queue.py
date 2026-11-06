@@ -7,11 +7,14 @@
 from __future__ import annotations
 
 from smtplib import SMTPAuthenticationError
+from typing import TYPE_CHECKING
 
 import dramatiq
 import pytest
 import sqlalchemy as sa
 from dramatiq.brokers.stub import StubBroker
+from loguru import logger
+from sqlalchemy.exc import OperationalError
 
 from app.actors.emails import (
     MAX_RETRIES,
@@ -26,6 +29,9 @@ from app.services import emails
 from app.services.emails import base
 from app.services.emails.base import EmailTemplate
 from app.services.emails.mailers import ParrainageMail
+
+if TYPE_CHECKING:
+    from collections.abc import Iterator
 
 RECIPIENT = "queued@example.com"
 KWARGS = {
@@ -61,7 +67,7 @@ def smtp(monkeypatch) -> type[StubEmailMessage]:
 
 
 @pytest.fixture
-def queueing(monkeypatch) -> StubBroker:
+def queueing(monkeypatch) -> Iterator[StubBroker]:
     """The production path, on the stub broker the test app already has."""
     monkeypatch.setattr(base, "_delivers_inline", lambda: False)
     broker = dramatiq.get_broker()
@@ -81,11 +87,11 @@ def forget_log_rows():
 
 
 def _logged() -> int:
-    return db.session.scalar(
+    return db.session.execute(
         sa.select(sa.func.count())
         .select_from(EmailLog)
         .where(EmailLog.recipient_email == RECIPIENT)
-    )
+    ).scalar_one()
 
 
 def test_send_queues_instead_of_contacting_smtp(smtp, queueing) -> None:
@@ -125,16 +131,29 @@ def test_over_quota_gives_up_without_retry(smtp, app_context) -> None:
     assert smtp.sent == []
 
 
-def test_inline_delivery_swallows_smtp_failure(smtp, app_context) -> None:
-    """No worker to retry under a stub broker: the caller just gets `False`."""
+def test_inline_delivery_lets_smtp_failure_reach_the_caller(smtp, app_context) -> None:
+    """No worker to retry under a stub broker."""
     smtp.error = OSError("network unreachable")
 
-    assert ParrainageMail(**KWARGS).send() is False
+    with pytest.raises(OSError, match="network unreachable"):
+        ParrainageMail(**KWARGS).send()
 
 
-def test_inline_delivery_refuses_what_the_broker_could_not_carry(
+def test_a_failed_attempt_logs_below_the_level_sentry_captures(
     smtp, app_context
 ) -> None:
+    smtp.error = OSError("network unreachable")
+    errors = []
+    sink = logger.add(errors.append, level="ERROR")
+
+    with pytest.raises(OSError, match="network unreachable"):
+        ParrainageMail(**KWARGS).deliver()
+
+    logger.remove(sink)
+    assert errors == []
+
+
+def test_the_suite_refuses_what_the_queue_could_not_carry(smtp, app_context) -> None:
     with pytest.raises(TypeError):
         ParrainageMail(**{**KWARGS, "sender_full_name": object()}).send()
 
@@ -144,15 +163,22 @@ def test_inline_delivery_refuses_what_the_broker_could_not_carry(
     [
         (0, SMTPAuthenticationError(535, b"bad key"), True),
         (0, TimeoutError(), True),
+        (0, OperationalError("SELECT 1", {}, Exception("gone")), True),
         (MAX_RETRIES - 1, OSError(), True),
         (MAX_RETRIES, OSError(), False),
         (0, TypeError("wrong kwargs"), False),
     ],
 )
-def test_only_smtp_and_network_failures_are_retried(
-    retries, exception, expected
-) -> None:
+def test_only_transient_failures_are_retried(retries, exception, expected) -> None:
     assert should_retry(retries, exception) is expected
+
+
+def test_only_the_first_failure_raises_the_alarm(capsys) -> None:
+    should_retry(0, OSError("smtp is down"))
+    assert "smtp is down" in capsys.readouterr().err
+
+    should_retry(1, OSError("smtp is down"))
+    assert capsys.readouterr().err == ""
 
 
 def test_actor_options_reach_the_broker() -> None:

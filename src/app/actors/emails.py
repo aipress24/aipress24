@@ -2,9 +2,11 @@
 #
 # SPDX-License-Identifier: AGPL-3.0-only
 
-"""Dramatiq actors: mail delivery, retried while SMTP fails."""
+"""Dramatiq actors: mail delivery, retried while SMTP or the database fails."""
 
 from __future__ import annotations
+
+from sqlalchemy.exc import OperationalError
 
 from app.dramatiq.job import job
 from app.flask.extensions import db
@@ -15,10 +17,23 @@ MAX_RETRIES = 30
 MIN_BACKOFF_MS = 60_000
 MAX_BACKOFF_MS = 3_600_000
 
+#: Failures that pass with time. A database error just after the SMTP send
+#: makes the retry send a duplicate, which is better than losing a mail.
+TRANSIENT_ERRORS = (OSError, OperationalError)
+
 
 def should_retry(retries: int, exception: BaseException) -> bool:
-    """Retry SMTP and network failures. Anything else is a programming error."""
-    return isinstance(exception, OSError) and retries < MAX_RETRIES
+    """Retry transient failures, and raise the alarm on a mail's first one.
+
+    Later attempts stay quiet: an outage would otherwise send Sentry one
+    event per mail per attempt. Other errors do not pass with time, and
+    `report_undelivered_mail` reports them at once.
+    """
+    if not isinstance(exception, TRANSIENT_ERRORS):
+        return False
+    if retries == 0:
+        report_failure("Mail delivery failing, will retry", exception)
+    return retries < MAX_RETRIES
 
 
 @job(
@@ -41,7 +56,6 @@ def report_undelivered_mail(message: dict, retry_info: dict) -> None:
     """Tell a person that a mail was given up on, since its sender cannot know."""
     mailer_name, mailer_kwargs = message["args"]
     last_error = message["options"]["traceback"].strip().splitlines()[-1]
-    # The address goes to the log, not to Sentry.
     report_failure(
         f"Mail abandoned after {retry_info['retries']} retries, "
         f"to {mailer_kwargs['recipient']!r} ({last_error})",

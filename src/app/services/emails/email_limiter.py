@@ -26,7 +26,7 @@ def is_email_sending_allowed(recipient_email: str) -> bool:
         EMAILS_PERIOD_DAYS -> 7 days
     ."""
 
-    if _mail_debug_active():
+    if mail_debug_active():
         # E2e tests run dozens of sends per recipient ; the quota
         # would block them on the second go.
         return True
@@ -54,7 +54,7 @@ def count_recipient_mails(recipient_email: str) -> None:
 
     Also clean the back log."""
 
-    if _mail_debug_active():
+    if mail_debug_active():
         # In debug mode no real mail leaves the process, so we
         # don't pollute the quota log.
         return
@@ -80,7 +80,7 @@ def count_recipient_mails(recipient_email: str) -> None:
     db_session.flush()
 
 
-def _mail_debug_active() -> bool:
+def mail_debug_active() -> bool:
     """Local import to avoid a circular dep at module load."""
     from app.flask.mail_debug import is_active
 

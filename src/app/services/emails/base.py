@@ -4,7 +4,6 @@
 
 from __future__ import annotations
 
-import json
 from dataclasses import dataclass, field, fields
 from importlib import resources as rso
 from typing import ClassVar
@@ -21,9 +20,9 @@ from app.enums import NotificationCategory
 from . import mail_templates
 from ._preferences import recipient_wants
 from .email_limiter import (
-    _mail_debug_active,
     count_recipient_mails,
     is_email_sending_allowed,
+    mail_debug_active,
 )
 
 
@@ -87,7 +86,8 @@ class EmailTemplate:
         """Hand this mail over for delivery. `False` if none will happen.
 
         `True` means accepted, not delivered: the worker sends it and
-        retries while SMTP fails (`app.actors.emails`).
+        retries while SMTP fails (`app.actors.emails`). Without a worker
+        (see `_delivers_inline`), an SMTP failure reaches the caller.
         """
         if not recipient_wants(self.recipient, self.category):
             # PRF-05 — pas un incident : un réglage respecté. Journalisé
@@ -100,7 +100,7 @@ class EmailTemplate:
             return False
 
         if _delivers_inline():
-            return self._deliver_inline()
+            return self.deliver()
 
         from app.actors.emails import deliver_mail
 
@@ -118,15 +118,6 @@ class EmailTemplate:
         count_recipient_mails(self.recipient)
         return True
 
-    def _deliver_inline(self) -> bool:
-        # Through JSON like a queued mail, so that an argument the broker
-        # could not carry fails here too, under the test suite.
-        mail = type(self)(**json.loads(json.dumps(self.ctx)))
-        try:
-            return mail.deliver()
-        except OSError:
-            return False
-
     def _send_mail(self) -> None:
         message = EmailMessage(
             subject=self.subject,
@@ -141,7 +132,9 @@ class EmailTemplate:
             msg = (
                 f"Mail error: ({e.__class__.__name__}: {e}), {self.logged_informations}"
             )
-            logger.error(msg)
+            # Not `error`, which loguru sends to Sentry: the actor decides
+            # when a failed attempt deserves an alarm.
+            logger.warning(msg)
             raise
         logger.info(
             f"Mail success: {self.__class__.__name__} {self.logged_informations}"
@@ -154,4 +147,4 @@ def _delivers_inline() -> bool:
     No worker reads a stub broker, and `MailDebug` keeps its outbox in the
     memory of the process that sends.
     """
-    return isinstance(dramatiq.get_broker(), StubBroker) or _mail_debug_active()
+    return isinstance(dramatiq.get_broker(), StubBroker) or mail_debug_active()
