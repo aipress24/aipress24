@@ -104,6 +104,7 @@ WEBHOOK_TEST_WAIT_TIMEOUT = 60
 
 CONTENT_ALERTS_RETENTION_DAYS = 90
 CONTENT_ALERT_REASONS = {
+    "alert00": "Contenu à caractère publicitaire ou commercial",
     "alert01": "Propos sexistes",
     "alert02": "Propos racistes ou xénophobes",
     "alert03": "Propos antisémites",
