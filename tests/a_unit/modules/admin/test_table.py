@@ -51,6 +51,25 @@ class TestColumn:
 class TestTable:
     """Test suite for Table class."""
 
+    def test_render_escapes_cells_and_search_but_keeps_markup(self) -> None:
+        """Member-written names and the reflected search box are data."""
+
+        class NameTable(Table):
+            searching = '"><i>searched</i>'
+
+            def compose(self):
+                yield Column(name="name", label="Name")
+
+        records = [{"name": "<i>name</i>", "show": "/show"}]
+
+        html = NameTable(records=records).render()
+
+        assert "<i>name</i>" not in html
+        assert "&lt;i&gt;name&lt;/i&gt;" in html
+        assert "<i>searched</i>" not in html
+        assert "<svg" in html
+        assert '<div class="relative overflow-x-auto' in html
+
     def test_render_cell_with_renderer(self) -> None:
         """Test render_cell uses custom renderer if available."""
 

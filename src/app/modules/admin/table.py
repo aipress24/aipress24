@@ -16,7 +16,7 @@ from typing import Any, TypedDict
 import webargs
 from attr import define
 from flask import request, url_for as url_for_orig
-from jinja2 import Environment, FileSystemLoader, select_autoescape
+from jinja2 import Environment, FileSystemLoader
 from markupsafe import Markup
 from sqlalchemy import Select, false, func, nulls_last, or_, select
 from webargs.flaskparser import parser
@@ -80,7 +80,7 @@ class Table:
     @property
     def template(self):
         loader = FileSystemLoader(str(Path(__file__).parent))
-        env = Environment(loader=loader, autoescape=select_autoescape())
+        env = Environment(loader=loader, autoescape=True)
         return env.get_template("table.html.j2")
 
     def render_cell(self, record: dict[str, Any], column: Column) -> str:

@@ -8,7 +8,7 @@ from __future__ import annotations
 from pathlib import Path
 
 from attr import frozen
-from jinja2 import Environment, FileSystemLoader, select_autoescape
+from jinja2 import Environment, FileSystemLoader
 
 from app.ui.macros.icon import icon
 
@@ -40,7 +40,7 @@ class Table:
     def template(self):
         """Get the Jinja2 template for rendering the table."""
         loader = FileSystemLoader(str(Path(__file__).parent))
-        env = Environment(loader=loader, autoescape=select_autoescape())
+        env = Environment(loader=loader, autoescape=True)
         return env.get_template("table.html.j2")
 
     def render_cell(self, row, column: Column):

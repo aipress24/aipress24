@@ -83,6 +83,28 @@ class TestAdminNewUsersPage:
         response = admin_client.get("/admin/new_users?search=test")
         assert response.status_code == 200
 
+    def test_applicant_name_is_escaped(
+        self, admin_client: FlaskClient, db_session
+    ) -> None:
+        """A name typed at sign-up reaches this page before anyone reviews it."""
+        applicant = User(
+            email="applicant@example.com",
+            first_name="<i>applicant</i>",
+            last_name="Doe",
+            active=False,
+            submited_at=arrow.utcnow(),
+        )
+        applicant.photo = b""
+        db_session.add(applicant)
+        db_session.flush()
+
+        response = admin_client.get("/admin/new_users")
+
+        assert response.status_code == 200
+        body = response.data.decode()
+        assert "&lt;i&gt;applicant&lt;/i&gt;" in body
+        assert "<i>applicant</i>" not in body
+
 
 class TestAdminModifUsersPage:
     """Integration tests for admin modif users page."""
