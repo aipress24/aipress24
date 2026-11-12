@@ -206,7 +206,7 @@ class CommandesWipView(BaseWipView):
                 return redirect(self._url_for("index"))
 
             sujet = db.session.get(Sujet, sujet_id)
-            if not sujet:
+            if not sujet or sujet.deleted_at is not None:
                 flash("Sujet introuvable", "error")
                 return redirect(self._url_for("index"))
             if not is_redac_chef_of_org(g.user, sujet.media_id):
@@ -295,7 +295,11 @@ class CommandesWipView(BaseWipView):
             return redirect(self._url_for("index"))
 
         sujet = db.session.get(Sujet, sujet_id)
-        if not sujet or sujet.status != PublicationStatus.PUBLIC:
+        if (
+            not sujet
+            or sujet.deleted_at is not None
+            or sujet.status != PublicationStatus.PUBLIC
+        ):
             flash("Ce sujet n'est plus disponible pour acceptation", "error")
             return redirect(url_for("SujetsWipView:index"))
 

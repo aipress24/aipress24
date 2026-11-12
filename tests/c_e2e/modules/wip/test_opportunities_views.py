@@ -11,6 +11,7 @@ import uuid
 from datetime import UTC, datetime, timedelta
 from typing import TYPE_CHECKING
 
+import arrow
 import pytest
 from sqlalchemy import event
 
@@ -345,6 +346,30 @@ class TestOpportunityUnknownIdDoesNotCrash:
             "/wip/opportunities/99999999999/form",
             data={"reponse1": "non"},
         )
+        assert response.status_code == 404
+
+
+class TestOpportunityOfDeletedAvis:
+    """Deleting an avis withdraws it from the experts it was sent to."""
+
+    @pytest.mark.parametrize(
+        ("method", "suffix"), [("get", ""), ("post", ""), ("post", "/form")]
+    )
+    def test_is_not_found(
+        self,
+        logged_in_client: FlaskClient,
+        db_session: Session,
+        test_avis_enquete: AvisEnquete,
+        test_contact: ContactAvisEnquete,
+        method: str,
+        suffix: str,
+    ):
+        test_avis_enquete.deleted_at = arrow.utcnow()
+        db_session.commit()
+
+        url = f"/wip/opportunities/{test_contact.id}{suffix}"
+        response = getattr(logged_in_client, method)(url)
+
         assert response.status_code == 404
 
 

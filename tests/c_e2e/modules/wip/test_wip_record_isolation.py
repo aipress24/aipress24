@@ -206,3 +206,39 @@ class TestCommandeIsolation:
         )
 
         assert response.status_code == 200
+
+
+class TestRecordLookup:
+    """`_get_model` answers 404 alike for absent and deleted records."""
+
+    def test_an_unknown_id_is_not_found(self, app: Flask, test_user: User) -> None:
+        client = make_authenticated_client(app, test_user)
+
+        response = client.get(url_for("AvisEnqueteWipView:get", id=999_999_999))
+
+        assert response.status_code == 404
+
+    def test_a_deleted_record_is_not_found(
+        self, app: Flask, fresh_db, test_user: User, test_org: Organisation
+    ) -> None:
+        now = arrow.utcnow()
+        avis = AvisEnquete(
+            titre="Enquête supprimée",
+            contenu="<p>Brief.</p>",
+            owner_id=test_user.id,
+            commanditaire_id=test_user.id,
+            media_id=test_org.id,
+            status=PublicationStatus.DRAFT,
+            date_debut_enquete=now,
+            date_fin_enquete=now,
+            date_bouclage=now,
+            date_parution_prevue=now,
+            deleted_at=now,
+        )
+        fresh_db.session.add(avis)
+        fresh_db.session.commit()
+        client = make_authenticated_client(app, test_user)
+
+        response = client.get(url_for("AvisEnqueteWipView:get", id=avis.id))
+
+        assert response.status_code == 404

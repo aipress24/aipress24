@@ -435,6 +435,30 @@ class TestSujetAcceptRoute:
         assert commandes[0].pays_zip_ville_detail == "01090 Guéreins"
         assert commandes[0].date_parution_prevue is not None
 
+    def test_a_deleted_sujet_cannot_be_accepted(
+        self,
+        app: Flask,
+        db_session: Session,
+        test_org: Organisation,
+        redac_chef: User,
+        author: User,
+    ):
+        sujet = _make_sujet(db_session, owner_id=author.id, media_id=test_org.id)
+        sujet.deleted_at = datetime.now(UTC)
+        db_session.commit()
+        client = make_authenticated_client(app, redac_chef)
+
+        resp_new = client.get(
+            url_for("CommandesWipView:new", from_sujet=sujet.id),
+            follow_redirects=False,
+        )
+        resp_post = _submit_commande_from_sujet(client, sujet, test_org, author)
+
+        assert resp_new.status_code == 302
+        assert resp_post.status_code == 302
+        db_session.expire_all()
+        assert db_session.query(Commande).filter_by(titre="Topic title").count() == 0
+
     def test_accept_form_requires_date_parution_prevue(
         self,
         app: Flask,

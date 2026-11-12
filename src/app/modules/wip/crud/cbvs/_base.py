@@ -586,25 +586,25 @@ class BaseWipView(FlaskView, abc.ABC):
     def _get_model(self, id):
         """Fetch by primary key, under the same rule the list applies.
 
-        `BaseDataSource._base_query` filters the list on
-        `owner_id == user.id`. Fetching by id used to skip that, so
-        every route reached through this method — get, edit, post,
-        and each module's own screens — served another member's record
-        to anyone the blueprint gate let in, and `post` overwrote it.
+        `BaseDataSource._base_query` lists the user's own records that
+        are not deleted. Every route reached through this method (get,
+        edit, post, and each module's own screens) applies the same
+        rule here, and a view that legitimately shows more widens it by
+        overriding `_can_access`. A new route thus inherits the check,
+        and a wider rule has to be written on purpose.
 
-        The rule now lives here, once, and a view that legitimately
-        shows more widens it by overriding `_can_access`. That is the
-        way round that fails safe: a new route inherits the check, and
-        a wider rule has to be written on purpose.
-
-        `NotFound` rather than `Forbidden`, so the response does not
-        confirm the record exists.
+        Absent, deleted and out-of-reach records all raise `NotFound`,
+        so the response does not tell them apart.
         """
         model = self._fetch(id)
-        if model is None:
-            return model
         user = g.user
-        if not user or user.is_anonymous or not self._can_access(model):
+        if (
+            model is None
+            or model.deleted_at is not None
+            or not user
+            or user.is_anonymous
+            or not self._can_access(model)
+        ):
             raise NotFound
         return model
 
@@ -618,7 +618,7 @@ class BaseWipView(FlaskView, abc.ABC):
             pk = int(id)
         except ValueError:
             raise NotFound from None
-        return self._get_repo().get(pk)
+        return self._get_repo().get_one_or_none(id=pk)
 
     def _can_access(self, model: Any) -> bool:
         """May the current user reach this record? Owner only, by default.

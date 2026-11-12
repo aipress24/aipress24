@@ -43,6 +43,9 @@ if TYPE_CHECKING:
         AvisEnquete,
         ContactAvisEnquete,
     )
+    from app.modules.wip.models.newsroom.repositories import (
+        ContactAvisEnqueteRepository,
+    )
 
 from ._common import get_secondary_menu
 
@@ -561,12 +564,7 @@ def media_opportunity(id: int):
         raise Forbidden(msg)
 
     repo = container.get(ContactAvisEnqueteRepository)
-    # `repo.get(id)` raises NotFoundError on unknown ids — use the
-    # `_or_none` variant so we can issue a clean 404 instead of a
-    # 500 with a stack trace.
-    contact = repo.get_one_or_none(id=id)
-    if contact is None:
-        raise NotFound
+    contact = _get_live_contact(repo, id)
     if user.id != contact.expert_id:
         flash(
             "Cet avis d'enquête ne vous est pas adressé. "
@@ -634,13 +632,7 @@ def media_opportunity_post(id: int) -> str | Response:
         return ""
 
     repo = container.get(ContactAvisEnqueteRepository)
-    # `repo.get(id)` raises Advanced-Alchemy `NotFoundError` (not the
-    # werkzeug 404) on a stale/forged id → unhandled 500. Mirror the
-    # GET sibling (`media_opportunity`, ~line 89): `_or_none` + 404.
-    # Audit C4 / lessons-learned #15.
-    contact = repo.get_one_or_none(id=id)
-    if contact is None:
-        raise NotFound
+    contact = _get_live_contact(repo, id)
 
     # An invitation is answerable by the expert it was sent to, and by
     # nobody else. Both read siblings say so — `media_opportunity` and
@@ -769,9 +761,7 @@ def media_opportunity_form_update(id: int) -> str | Response:
     if g.user.is_anonymous:
         raise NotFound
     repo = container.get(ContactAvisEnqueteRepository)
-    contact = repo.get_one_or_none(id=id)
-    if contact is None:
-        raise NotFound
+    contact = _get_live_contact(repo, id)
     if g.user.id != contact.expert_id:
         raise NotFound
 
@@ -786,12 +776,7 @@ def _render_media_opportunity(id: int) -> str:
     from app.modules.wip.models import ContactAvisEnqueteRepository, StatutAvis
 
     repo = container.get(ContactAvisEnqueteRepository)
-    # Same raises-vs-None contract as media_opportunity_post — a
-    # stale id from an old HTMX form must 404, not 500.
-    # Audit C4 / lessons-learned #15.
-    contact = repo.get_one_or_none(id=id)
-    if contact is None:
-        raise NotFound
+    contact = _get_live_contact(repo, id)
     media_opp = MediaOpportunity(
         id=contact.id,
         avis_enquete=contact.avis_enquete,
@@ -855,3 +840,18 @@ class MediaOpportunity:
     @property
     def brief(self) -> str:
         return self.avis_enquete.contenu
+
+
+def _get_live_contact(
+    repo: ContactAvisEnqueteRepository, id: int
+) -> ContactAvisEnquete:
+    """The contact row, or `NotFound` if it or its avis is gone.
+
+    `get_one_or_none`, since `repo.get` raises Advanced-Alchemy's own
+    `NotFoundError`, which surfaces as a 500. A deleted avis is
+    withdrawn from the experts it was sent to.
+    """
+    contact = repo.get_one_or_none(id=id)
+    if contact is None or contact.avis_enquete.deleted_at is not None:
+        raise NotFound
+    return contact
