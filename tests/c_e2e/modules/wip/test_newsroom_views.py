@@ -25,6 +25,8 @@ if TYPE_CHECKING:
 
 from tests.c_e2e.conftest import make_authenticated_client
 
+NOTIFICATIONS_URL = "/wip/newsroom/notifications-publication"
+
 
 @pytest.fixture
 def journalist_with_bw(db_session: Session, test_org: Organisation) -> User:
@@ -189,6 +191,37 @@ class TestNewsroomAccess:
         response = client.get("/wip/articles/")
 
         assert response.status_code == 200
+
+    @pytest.mark.parametrize(
+        ("method", "url"),
+        [
+            ("get", NOTIFICATIONS_URL),
+            ("get", f"{NOTIFICATIONS_URL}/new"),
+            ("post", f"{NOTIFICATIONS_URL}/new"),
+        ],
+    )
+    def test_publication_notifications_forbidden_for_pr_user(
+        self, app: Flask, pr_user: User, method: str, url: str
+    ):
+        """Announcing a publication is a journalist's act."""
+        client = make_authenticated_client(app, pr_user)
+
+        response = getattr(client, method)(url)
+
+        assert response.status_code == 302
+        assert response.headers.get("X-Access-Denied") == "true"
+
+    def test_publication_notification_recipients_show_no_email(
+        self, app: Flask, journalist_no_bw: User, pr_user: User
+    ):
+        client = make_authenticated_client(app, journalist_no_bw)
+
+        response = client.get(f"{NOTIFICATIONS_URL}/new")
+
+        assert response.status_code == 200
+        body = response.data.decode()
+        assert f'value="{pr_user.id}"' in body
+        assert pr_user.email not in body
 
     def test_newsroom_forbidden_for_pr_user_acting_as_manager(
         self, app: Flask, db_session: Session, pr_user: User

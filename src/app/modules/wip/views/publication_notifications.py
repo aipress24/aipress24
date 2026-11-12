@@ -16,18 +16,21 @@ from typing import cast
 
 from flask import flash, redirect, render_template, request, url_for
 from flask_login import current_user
-from sqlalchemy import and_, select
+from sqlalchemy import select
 from sqlalchemy.orm import selectinload
 from svcs.flask import container
 from werkzeug import Response
+from werkzeug.exceptions import Forbidden
 
 from app.flask.extensions import db
 from app.models.auth import User
+from app.models.repositories import UserRepository
 from app.modules.wip import blueprint
 from app.modules.wip.models import (
     NotificationPublication,
     NotificationPublicationContact,
 )
+from app.modules.wip.pr_access import user_can_access_newsroom
 from app.modules.wip.services.newsroom.publication_notification_service import (
     PublicationNotificationError,
     PublicationNotificationService,
@@ -46,6 +49,8 @@ def notifications_publication_index():
     user = cast(User, current_user)
     if user.is_anonymous:
         return redirect(url_for("security.login"))
+    if not user_can_access_newsroom(user):
+        raise Forbidden
 
     stmt = (
         select(NotificationPublication)
@@ -67,6 +72,8 @@ def notifications_publication_new():
     user = cast(User, current_user)
     if user.is_anonymous:
         return redirect(url_for("security.login"))
+    if not user_can_access_newsroom(user):
+        raise Forbidden
 
     if request.method == "POST":
         return _handle_free_form_post(journalist=user)
@@ -94,7 +101,9 @@ def _handle_free_form_post(*, journalist: User) -> Response:
     recipients = (
         list(
             db.session.execute(
-                select(User).where(User.id.in_(id_ints), User.active)
+                select(User).where(
+                    User.id.in_(id_ints), *UserRepository.public_member_filters()
+                )
             ).scalars()
         )
         if id_ints
@@ -182,7 +191,7 @@ def opportunities_notification_publication_detail(contact_id: int):
 def _list_searchable_users(exclude_user_id: int) -> list[User]:
     stmt = (
         select(User)
-        .where(and_(User.active, User.id != exclude_user_id))
+        .where(*UserRepository.public_member_filters(), User.id != exclude_user_id)
         .order_by(User.last_name, User.first_name)
     )
     return list(db.session.execute(stmt).scalars())

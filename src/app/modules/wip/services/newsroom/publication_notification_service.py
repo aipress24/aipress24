@@ -43,6 +43,7 @@ from sqlalchemy import func, select
 from sqlalchemy.orm import scoped_session
 from svcs.flask import container
 
+from app.lib.urls import is_web_url
 from app.modules.bw.bw_activation.user_utils import resolve_user_bw_name
 from app.modules.wip.models import (
     AvisEnquete,
@@ -97,9 +98,12 @@ def normalise_inputs(
 
 
 def validate_article_url(article_url: str) -> None:
-    """Raise `PublicationNotificationError` if the URL is empty."""
+    """Raise `PublicationNotificationError` unless the URL is a web link."""
     if not article_url:
         msg = "L'URL de l'article est obligatoire."
+        raise PublicationNotificationError(msg)
+    if not is_web_url(article_url):
+        msg = "L'URL de l'article doit commencer par http:// ou https://."
         raise PublicationNotificationError(msg)
 
 

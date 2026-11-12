@@ -181,6 +181,11 @@ class TestValidateArticleUrl:
             validate_article_url(bad.strip())
         assert "URL" in str(exc.value)
 
+    def test_non_web_url_raises(self) -> None:
+        """The link lands in a mail and on a page: no `javascript:`."""
+        with pytest.raises(PublicationNotificationError):
+            validate_article_url("javascript:void(0)")
+
 
 # ---------------------------------------------------------------------------
 # deduplicate_recipients

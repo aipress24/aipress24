@@ -51,7 +51,6 @@
                     {% for u in users %}
                         <option value="{{ u.id }}">
                             {{ u.last_name or '' }} {{ u.first_name or '' }}
-                            — {{ u.email }}
                         </option>
                     {% endfor %}
                 </select>
