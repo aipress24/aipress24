@@ -19,7 +19,7 @@
                     Lien
                 </p>
                 <p class="text-sm">
-                    <a href="{{ notification.article_url }}" target="_blank"
+                    <a href="{{ notification.article_url | web_url }}" target="_blank"
                        class="text-indigo-700 hover:underline break-all">
                         {{ notification.article_url }}
                     </a>
@@ -58,7 +58,7 @@
         </div>
 
         <div class="mt-6 flex gap-3">
-            <a href="{{ notification.article_url }}" target="_blank"
+            <a href="{{ notification.article_url | web_url }}" target="_blank"
                class="rounded bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-700">
                 Consulter l'article
             </a>

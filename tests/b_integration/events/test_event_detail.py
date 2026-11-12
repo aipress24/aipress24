@@ -165,6 +165,24 @@ class TestGetMetadataList:
             labels = [m["label"] for m in metadata]
             assert "URL de l'événement" in labels
 
+    @pytest.mark.parametrize(
+        ("url", "linked"),
+        [("https://example.com/event", True), ("javascript:void(0)", False)],
+    )
+    def test_metadata_list_links_web_urls_only(
+        self, app: Flask, event_post: EventPost, url: str, linked: bool
+    ):
+        """A stored `javascript:` URL shows as text, never as a link."""
+        event_post.url = url
+        view = EventDetailView()
+
+        with app.test_request_context():
+            metadata = view._get_metadata_list(EventDetailVM(event_post))
+
+        entry = next(m for m in metadata if m["label"] == "URL de l'événement")
+        assert entry["value"] == url
+        assert ("href" in entry) is linked
+
     def test_metadata_list_includes_country_when_present(
         self, app: Flask, db_session: Session, event_post: EventPost
     ):

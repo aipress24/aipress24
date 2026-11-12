@@ -20,7 +20,7 @@
                                     {{ n.article_title or n.article_url }}
                                 </p>
                                 <p class="text-xs text-gray-500">
-                                    <a href="{{ n.article_url }}" target="_blank"
+                                    <a href="{{ n.article_url | web_url }}" target="_blank"
                                        class="hover:underline">{{ n.article_url }}</a>
                                 </p>
                             </div>

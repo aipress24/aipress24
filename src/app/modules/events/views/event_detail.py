@@ -18,6 +18,7 @@ from app.flask.extensions import db
 from app.flask.lib.nav import nav
 from app.flask.routing import url_for
 from app.flask.sqla import get_public_obj
+from app.lib.urls import is_web_url
 from app.models.auth import User
 from app.models.comment import Comment
 from app.modules.events import blueprint
@@ -270,13 +271,10 @@ class EventDetailView(MethodView):
                 }
             )
         if item.url:
-            data.append(
-                {
-                    "label": "URL de l'événement",
-                    "value": item.url,
-                    "href": item.url,
-                }
-            )
+            entry = {"label": "URL de l'événement", "value": item.url}
+            if is_web_url(item.url):
+                entry["href"] = item.url
+            data.append(entry)
 
         return data
 

@@ -70,7 +70,7 @@
                             <div>
                                 <dt class="text-sm font-medium text-gray-500">Lien de visioconférence</dt>
                                 <dd class="mt-1 text-sm text-gray-900">
-                                    <a href="{{ contact.rdv_video_link }}" target="_blank" class="text-indigo-600 hover:text-indigo-900">
+                                    <a href="{{ contact.rdv_video_link | web_url }}" target="_blank" class="text-indigo-600 hover:text-indigo-900">
                                         {{ contact.rdv_video_link }}
                                     </a>
                                 </dd>
