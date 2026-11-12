@@ -22,7 +22,6 @@ component_registry: dict[str, type] = {}
 
 class StaticComponent:
     _id: str
-    _template: str = ""
 
     def __init__(self, id: str = "") -> None:
         if id:
@@ -48,10 +47,6 @@ class StaticComponent:
     # May be ovverriden
     def render_template(self) -> str:
         ctx = self.context()
-
-        if self._template:
-            return self._template.format(self=self, ctx=ctx)  # type: ignore[str-format]  # ty:ignore[no-matching-overload]
-
         template: Template = self._get_template()
         return render_template(template, this=self, **ctx)
 
@@ -78,7 +73,6 @@ class WiredComponent:
     # _name: str
 
     _attrs: ClassVar[list[str]] = []
-    _template: str = ""
     _listeners: ClassVar[list[str]] = []
 
     def __init__(self, id: str = "") -> None:
@@ -105,10 +99,6 @@ class WiredComponent:
     # May be ovverriden
     def render_template(self) -> str:
         ctx = self.context()
-
-        if self._template:
-            return self._template.format(self=self, ctx=ctx)  # type: ignore[str-format]  # ty:ignore[no-matching-overload]
-
         template: Template = self._get_template()
         return render_template(template, this=self, **ctx)
 

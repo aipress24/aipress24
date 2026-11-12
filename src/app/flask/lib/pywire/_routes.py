@@ -6,10 +6,14 @@ from __future__ import annotations
 
 from flask import jsonify, request
 from flask.app import Flask
+from flask_login import current_user
+from werkzeug.exceptions import BadRequest, Unauthorized
 
 from app.lib.names import to_snake_case
 
 from ._components import component_registry
+
+ACTION_PREFIX = "action_"
 
 
 def register_pywire(app: Flask) -> None:
@@ -17,13 +21,19 @@ def register_pywire(app: Flask) -> None:
 
 
 def livewire_message(component):
+    if current_user.is_anonymous:
+        raise Unauthorized
+
     assert request.json
 
     fingerprint: dict = request.json["fingerprint"]
     component_id = fingerprint["id"]
     component_class = component_registry[component]
     component_instance = component_class(id=component_id)
-    component_instance._restore(request.json["serverMemo"]["data"])
+    state = request.json["serverMemo"]["data"]
+    for attr_name in state:
+        _check_declared(component_instance, attr_name)
+    component_instance._restore(state)
 
     for update in request.json["updates"]:
         payload = update["payload"]
@@ -59,6 +69,9 @@ def livewire_message(component):
 def livewire_call_method(component_instance, payload) -> None:
     method_name = payload["method"]
     method_params = payload["params"]
+    if not method_name.startswith(ACTION_PREFIX):
+        msg = f"Not an action: {method_name}"
+        raise BadRequest(msg)
     method = getattr(component_instance, method_name)
     method(*method_params)
 
@@ -67,6 +80,7 @@ def livewire_sync_input(component_instance, payload) -> None:
     attr_name = payload["name"]
     attr_value = payload["value"]
     segments = attr_name.split(".")
+    _check_declared(component_instance, segments[0])
 
     if len(segments) == 1:
         setattr(component_instance, attr_name, attr_value)
@@ -84,3 +98,10 @@ def livewire_fire_event(component_instance, payload) -> None:
     method_name = f"on_{event_name.replace('-', '_')}"
     method = getattr(component_instance, method_name)
     method(*event_params)
+
+
+def _check_declared(component_instance, attr_name: str) -> None:
+    """The client writes the state a component declares, and nothing else."""
+    if attr_name not in component_instance._attrs:
+        msg = f"Not component state: {attr_name}"
+        raise BadRequest(msg)

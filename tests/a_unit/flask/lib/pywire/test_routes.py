@@ -6,11 +6,22 @@
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING, ClassVar
+
+import pytest
+from jinja2 import Template
+
+from app.flask.lib.pywire._components import StaticComponent, WiredComponent
 from app.flask.lib.pywire._routes import livewire_fire_event, livewire_sync_input
+
+if TYPE_CHECKING:
+    from flask import Flask
 
 
 class MockComponent:
     """Mock component for testing livewire functions."""
+
+    _attrs: ClassVar = ["simple_attr", "nested", "data"]
 
     def __init__(self):
         self.simple_attr = None
@@ -90,3 +101,24 @@ class TestLivewireFireEvent:
 
         assert component.event_called is True
         assert component.event_params == ()
+
+
+class _StaticStub(StaticComponent):
+    def _get_template(self) -> Template:
+        return Template("from file")
+
+
+class _WiredStub(WiredComponent):
+    def _get_template(self) -> Template:
+        return Template("from file")
+
+
+@pytest.mark.parametrize("component_class", [_StaticStub, _WiredStub])
+def test_format_string_attribute_is_not_rendered(
+    app: Flask, component_class: type[_StaticStub | _WiredStub]
+) -> None:
+    component = component_class(id="component-id")
+    component._restore({"_template": "{self._id}"})
+
+    with app.test_request_context():
+        assert component.render_template() == "from file"
