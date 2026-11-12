@@ -22,10 +22,7 @@ from app.actors.justificatif import generate_justificatif
 from app.constants import WEBHOOK_TEST_CUSTOMER_EMAIL
 from app.enums import BWStatus, BWType, PurchaseProduct, PurchaseStatus
 from app.flask.extensions import db
-from app.models.auth import User
 from app.models.organisation import Organisation
-from app.modules.admin.invitations import add_invited_users
-from app.modules.admin.utils import get_user_per_email
 from app.modules.bw.bw_activation.bw_cancellation import close_business_wall_locally
 from app.modules.bw.bw_activation.bw_creation import ensure_bw_owner_role
 from app.modules.bw.bw_activation.models import (
@@ -1011,32 +1008,6 @@ def extract_subscription_period(
     return start, end
 
 
-def should_apply_subscription_to_org(
-    user_org_id: Any, client_reference_id: Any
-) -> bool:
-    """Decide whether a Stripe subscription event should be allowed
-    to mutate the user's organisation. Pure security check.
-
-    A subscription event carries a `metadata.bw_id` (read into
-    `subinfo.client_reference_id` upstream) that names the BW the
-    Stripe object was created for. Before we let `_register_bw_subscription`
-    apply the event to the *current* user's org, this rule asserts the
-    org id matches. Without the match, a malicious or misconfigured
-    subscription event could mutate an unrelated org's `bw_active`
-    flag.
-
-    Returns True iff :
-
-    * `client_reference_id` is falsy (legacy event with no metadata —
-      always allowed), OR
-    * the string forms of `user_org_id` and `client_reference_id`
-      compare equal.
-    """
-    if not client_reference_id:
-        return True
-    return str(user_org_id) == str(client_reference_id)
-
-
 def _check_subscription_product(
     data_obj: dict[str, Any], subinfo: SubscriptionInfo
 ) -> bool:
@@ -1165,34 +1136,46 @@ def _log_subscription_subinfo(subinfo: SubscriptionInfo) -> None:
 
 
 def _register_bw_subscription(subinfo: SubscriptionInfo | None) -> None:
-    """Register/Update a Business Wall subscription."""
+    """Mirror a subscription onto the organisation of its Business Wall."""
     if not subinfo:
         return
 
-    user = get_user_per_email(subinfo.customer_email)
-    if user is None:
-        warning(
-            f'no user found for "{subinfo.customer_email}"',
-            f"from Stripe subscription {subinfo.subscription_id}",
-        )
+    bw = _find_subscribed_bw(subinfo)
+    if bw is None:
+        warning(f"no Business Wall for Stripe subscription {subinfo.subscription_id}")
         return
 
-    org = user.organisation
-    if not org:
-        warning(f"{user} has no organisation")
+    org = db.session.get(Organisation, bw.organisation_id)
+    if org is None:
+        warning(f"Business Wall {bw.id} has no organisation")
         return
 
-    if not should_apply_subscription_to_org(org.id, subinfo.client_reference_id):
-        warning(f"{user} organisation ID is different from client_reference_id")
-        return
-
-    _update_organisation_subscription_info(user, org, subinfo)
-    add_invited_users(user.email, org.id)
+    _update_organisation_subscription_info(org, subinfo)
     db.session.commit()
 
 
+def _find_subscribed_bw(subinfo: SubscriptionInfo) -> BusinessWall | None:
+    """The Business Wall the subscription was bought for.
+
+    Found through the `Subscription` row checkout linked, else through
+    the `bw_id` our own checkout puts in the subscription metadata.
+    Never through the customer's email, which whoever pays types in.
+    """
+    sub = db.session.execute(
+        sa_select(Subscription).where(
+            Subscription.stripe_subscription_id == subinfo.subscription_id
+        )
+    ).scalar_one_or_none()
+    if sub is not None:
+        return sub.business_wall
+    try:
+        bw_id = UUID(subinfo.client_reference_id)
+    except ValueError:
+        return None
+    return db.session.get(BusinessWall, bw_id)
+
+
 def _update_organisation_subscription_info(
-    user: User,
     org: Organisation,
     subinfo: SubscriptionInfo,
 ) -> None:
