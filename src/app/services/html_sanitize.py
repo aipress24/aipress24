@@ -86,19 +86,23 @@ _ALLOWED_TAGS: frozenset[str] = frozenset(
     }
 )
 
-# Attribute whitelist per tag. `*` applies to every tag.
+# Attribute whitelist per tag. `*` applies to every tag. `class` is
+# handled apart, by `_allow_attribute`.
 _ALLOWED_ATTRS: dict[str, list[str]] = {
-    "*": ["class", "id", "title"],
+    "*": ["title"],
     "a": ["href", "rel", "target"],
     "img": ["src", "alt", "width", "height"],
     "figure": [
-        "class",
         "data-trix-attachment",
         "data-trix-attributes",
         "data-trix-content-type",
     ],
-    "figcaption": ["class"],
 }
+
+# Trix styles its attachments with classes under this prefix. Any other
+# class is the site's own CSS, which would let member HTML restyle the
+# page, for instance into a full-screen overlay.
+_TRIX_CLASS_PREFIX = "attachment"
 
 # URL schemes allowed on `href` / `src`. `data:` is deliberately
 # excluded — Trix uploads go to object storage in this app, so we
@@ -133,7 +137,7 @@ def _sanitize_to_str(html: str) -> str:
     return bleach.clean(
         html,
         tags=_ALLOWED_TAGS,
-        attributes=_ALLOWED_ATTRS,
+        attributes=_allow_attribute,
         protocols=_ALLOWED_PROTOCOLS,
         strip=True,
         strip_comments=True,
@@ -180,3 +184,10 @@ class SanitizedHTML(TypeDecorator):
         # Defense-in-depth is handled at the template layer by the
         # `|sanitize` filter, not here.
         return value
+
+
+def _allow_attribute(tag: str, name: str, value: str) -> bool:
+    """Bleach's attribute filter: the whitelist, plus Trix classes."""
+    if name == "class":
+        return all(token.startswith(_TRIX_CLASS_PREFIX) for token in value.split())
+    return name in _ALLOWED_ATTRS["*"] or name in _ALLOWED_ATTRS.get(tag, [])

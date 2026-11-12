@@ -73,6 +73,21 @@ class TestSanitizeRemovesDangerous:
         out = sanitize_html('<form action="https://evil"><input></form>')
         assert "<form" not in out
 
+    def test_layout_classes_dropped(self):
+        """Site CSS classes would let a comment cover the page."""
+        out = sanitize_html('<a class="fixed inset-0 z-50" href="https://x.test">x</a>')
+        assert "class=" not in out
+        assert 'href="https://x.test"' in out
+
+    def test_class_mixing_trix_and_layout_dropped(self):
+        out = sanitize_html('<figure class="attachment fixed inset-0">x</figure>')
+        assert "class=" not in out
+
+    def test_id_dropped(self):
+        """An `id` could shadow one the page's own scripts look up."""
+        out = sanitize_html('<p id="csrf_token">x</p>')
+        assert "id=" not in out
+
 
 class TestSanitizeKeepsLegitimateMarkup:
     def test_basic_formatting_kept(self):
@@ -111,6 +126,16 @@ class TestSanitizeKeepsLegitimateMarkup:
         assert "data-trix-attachment" in out
         assert "data-trix-content-type" in out
         assert "<figcaption>" in out
+        assert 'class="attachment attachment--preview"' in out
+
+    def test_trix_caption_classes_kept(self):
+        html = (
+            '<figcaption class="attachment__caption">'
+            '<span class="attachment__name">x.png</span></figcaption>'
+        )
+        out = sanitize_html(html)
+        assert 'class="attachment__caption"' in out
+        assert 'class="attachment__name"' in out
 
 
 class TestJinjaFilterWiring:
