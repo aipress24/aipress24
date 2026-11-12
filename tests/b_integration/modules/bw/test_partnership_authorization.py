@@ -124,6 +124,19 @@ class TestGetValidatedClientOrgsForUser:
 
         assert [o.id for o in orgs] == [client_org.id]
 
+    @pytest.mark.parametrize("lapsed", ["agency", "client"])
+    def test_lapsed_wall_grants_nothing(self, db_session: Session, lapsed: str):
+        """A suspended wall, on either side, no longer carries the mandate."""
+        agency_user, _, agency_bw = _mk_user_org_bw(db_session, "Lapsed", "pr")
+        _, client_org, client_bw = _mk_user_org_bw(db_session, "ClientOfLapsed")
+        _mk_partnership(db_session, client_bw, agency_bw, PartnershipStatus.ACTIVE)
+        wall = agency_bw if lapsed == "agency" else client_bw
+        wall.status = BWStatus.SUSPENDED.value
+        db_session.flush()
+
+        assert get_validated_client_orgs_for_user(agency_user) == []
+        assert not can_user_publish_for(agency_user, client_org.id)
+
     def test_ignores_partnerships_pointing_to_other_agency(self, db_session: Session):
         agency_user, _, _ = _mk_user_org_bw(db_session, "AgencyA", "pr")
         _, _, other_agency_bw = _mk_user_org_bw(db_session, "AgencyB", "pr")

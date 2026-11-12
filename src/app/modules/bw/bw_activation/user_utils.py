@@ -711,7 +711,7 @@ def get_validated_client_orgs_for_user(user: User) -> list[Organisation]:
 
     A client is "validated" when there exists a Partnership between the client's
     BusinessWall and any of the agency organisation's BusinessWalls, with status
-    ACTIVE (or ACCEPTED).
+    ACTIVE (or ACCEPTED), and both walls are themselves active.
 
     Note: an agency organisation may have several BWs (one per brand, or
     historical clutter from re-creations). Partnerships are stored per-BW. We
@@ -733,7 +733,8 @@ def get_validated_client_orgs_for_user(user: User) -> list[Organisation]:
     agency_bw_ids = list(
         session.execute(
             select(BusinessWall.id).where(
-                BusinessWall.organisation_id == user.organisation_id
+                BusinessWall.organisation_id == user.organisation_id,
+                BusinessWall.status == BWStatus.ACTIVE.value,
             )
         ).scalars()
     )
@@ -754,6 +755,7 @@ def get_validated_client_orgs_for_user(user: User) -> list[Organisation]:
         .join(Partnership, Partnership.business_wall_id == BusinessWall.id)
         .where(Partnership.partner_bw_id.in_(agency_bw_id_strs))
         .where(Partnership.status.in_(_ACTIVE_PARTNERSHIP_STATUSES))
+        .where(BusinessWall.status == BWStatus.ACTIVE.value)
         .distinct()
     )
     results = list(session.execute(stmt).scalars())
