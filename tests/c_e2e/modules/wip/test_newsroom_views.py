@@ -173,6 +173,23 @@ class TestNewsroomAccess:
         assert response.status_code == 302
         assert response.headers.get("X-Access-Denied") == "true"
 
+    @pytest.mark.parametrize("url", ["/wip/articles/", "/wip/articles/new/"])
+    def test_articles_forbidden_for_pr_user(self, app: Flask, pr_user: User, url: str):
+        """Only journalists author articles, as on the API."""
+        client = make_authenticated_client(app, pr_user)
+
+        response = client.get(url)
+
+        assert response.status_code == 302
+        assert response.headers.get("X-Access-Denied") == "true"
+
+    def test_articles_load_for_press_media(self, app: Flask, journalist_no_bw: User):
+        client = make_authenticated_client(app, journalist_no_bw)
+
+        response = client.get("/wip/articles/")
+
+        assert response.status_code == 200
+
     def test_newsroom_forbidden_for_pr_user_acting_as_manager(
         self, app: Flask, db_session: Session, pr_user: User
     ):

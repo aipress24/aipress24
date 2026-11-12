@@ -20,7 +20,7 @@ from flask_super.registry import register
 from markupsafe import Markup
 from sqlalchemy.orm import Session
 from werkzeug import Response
-from werkzeug.exceptions import NotFound
+from werkzeug.exceptions import Forbidden, NotFound
 
 from app.flask.extensions import db
 from app.flask.lib.templates import templated
@@ -31,6 +31,7 @@ from app.lib.image_utils import extract_image_from_request
 from app.logging import warn
 from app.models.lifecycle import PublicationStatus
 from app.modules.wip.models import Article, ArticleRepository, Image, ImageRepository
+from app.modules.wip.pr_access import user_can_access_newsroom
 from app.settings.constants import MAX_IMAGE_SIZE
 from app.signals import article_published, article_unpublished, article_updated
 
@@ -257,6 +258,14 @@ class ArticlesWipView(BaseWipView):
 
     msg_delete_ok = "L'article a été supprimé"
     msg_delete_ko = "Vous n'êtes pas autorisé à supprimer cet article"
+
+    def before_request(self, *_args, **_kwargs) -> Response | None:
+        if resp := super().before_request(*_args, **_kwargs):
+            return resp
+
+        if not user_can_access_newsroom(g.user):
+            raise Forbidden
+        return None
 
     @templated(_ARTICLES_LIST_TEMPLATE)
     def index(self) -> dict:
