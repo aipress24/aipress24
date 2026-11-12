@@ -491,9 +491,8 @@ class TestIsIdempotentConfirmationTarget:
 
 
 class TestShouldFinaliseDraft:
-    """Bug #0071/2 — the confirmation route force-flips any
-    non-ACTIVE non-CANCELLED status to ACTIVE so the « Activation
-    Réussie » card matches the underlying state."""
+    """The confirmation route flips a DRAFT to ACTIVE so the « Activation
+    Réussie » card matches the underlying state, and nothing else."""
 
     def test_none_does_not_finalise(self) -> None:
         assert _should_finalise_draft(None) is False
@@ -511,7 +510,7 @@ class TestShouldFinaliseDraft:
         draft = _BwLike(status=BWStatus.DRAFT.value)
         assert _should_finalise_draft(draft) is True
 
-    def test_suspended_should_finalise(self) -> None:
-        """Suspended is also non-ACTIVE — the confirmation route revives it."""
+    def test_suspended_does_not_finalise(self) -> None:
+        """A lapsed wall comes back through a payment, not this page."""
         suspended = _BwLike(status=BWStatus.SUSPENDED.value)
-        assert _should_finalise_draft(suspended) is True
+        assert _should_finalise_draft(suspended) is False

@@ -544,17 +544,13 @@ def _is_idempotent_confirmation_target(
 
 
 def _should_finalise_draft(existing: BusinessWall | None) -> bool:
-    """True when an existing BW is in any non-ACTIVE non-CANCELLED state
-    and should be force-flipped to ACTIVE by the confirmation route.
+    """True when the confirmation route should flip `existing` to ACTIVE.
 
-    Bug #0071/2 trap : a DRAFT BW (pre-Stripe pre-checkout) used to be
-    treated as « already activated » and the page rendered the
-    confirmation card without flipping the status. Returning True
-    here means the imperative shell will flip and link.
+    Only a DRAFT qualifies: a paid BW waits in DRAFT for the Stripe
+    webhook, and without one (recette) this page finalises it. A
+    SUSPENDED wall has lapsed, and only a payment brings it back.
     """
-    if existing is None:
-        return False
-    return existing.status not in (BWStatus.ACTIVE.value, BWStatus.CANCELLED.value)
+    return existing is not None and existing.status == BWStatus.DRAFT.value
 
 
 @bp.route("/checkout/<bw_type>", methods=["POST"])
