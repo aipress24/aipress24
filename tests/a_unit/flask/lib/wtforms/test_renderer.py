@@ -43,6 +43,7 @@ from markupsafe import Markup
 from wtforms import DateField, DateTimeField, Form, SelectField, StringField
 
 from app.flask.lib.wtforms.fields.rich_select import RichSelectField
+from app.flask.lib.wtforms.fields.rich_text import RichTextField
 from app.flask.lib.wtforms.renderer import (
     DEFAULT_WIDTH,
     FIELD_CLASS_MAP,
@@ -420,6 +421,32 @@ class TestRenderFieldViewMode:
         assert "Alice" in html
         # In view mode the raw widget is NOT rendered — `field.data` is.
         assert "<input" not in html
+
+    def test_view_mode_escapes_stored_text(self, app: Flask):
+        """A title another member wrote is data in the reader's page."""
+        with app.app_context():
+            form = _SimpleForm()
+            form.name.data = "<i>title</i>"
+            renderer = FormRenderer(form=form, mode="view")
+
+            html = renderer.render_field(form.name)
+
+        assert "<i>title</i>" not in html
+        assert "&lt;i&gt;title&lt;/i&gt;" in html
+
+    def test_view_mode_rich_text_keeps_allowed_tags_only(self, app: Flask):
+        class _BodyForm(Form):
+            body = RichTextField("Body")
+
+        with app.app_context():
+            form = _BodyForm()
+            form.body.data = "<strong>bold</strong><script>x()</script>"
+            renderer = FormRenderer(form=form, mode="view")
+
+            html = renderer.render_field(form.body)
+
+        assert "<strong>bold</strong>" in html
+        assert "<script>" not in html
 
     def test_view_mode_rich_select_shows_the_label_of_a_stored_code(self, app: Flask):
         class _CopyrightForm(Form):

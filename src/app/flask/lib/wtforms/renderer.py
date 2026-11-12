@@ -11,12 +11,14 @@ from arrow import Arrow
 from attr import frozen
 from case_convert import kebab_case
 from flask import current_app
-from markupsafe import Markup
+from markupsafe import Markup, escape
 from wtforms.fields.core import Field
 from wtforms.form import Form
 
 from app.flask.lib.wtforms.fields.display import DisplayField
 from app.flask.lib.wtforms.fields.rich_select import RichSelectField
+from app.flask.lib.wtforms.fields.rich_text import RichTextField
+from app.services.html_sanitize import sanitize_html
 
 # language=jinja2
 FORM_TEMPLATE = """
@@ -283,7 +285,7 @@ class FormRenderer:
             class_ += " input-error"
 
         if self.mode == "view":
-            field_str = self._view_value(field)
+            field_str = escape(self._view_value(field))
         else:
             field_str = field(**{"class": class_})
 
@@ -350,6 +352,8 @@ class FormRenderer:
                 return destinataire.full_name if destinataire else ""
             case DisplayField():
                 return field._value()
+            case RichTextField():
+                return sanitize_html(field.data)
             case RichSelectField(choices=choices):
                 # A stored code reads as its label.
                 pairs: list[tuple[str, str]] = choices or []
