@@ -86,6 +86,9 @@ from .survey_model import get_survey_fields, get_survey_model, get_survey_profil
 # profile page
 MASKED_DATA = "*****"
 
+#: Where the wizard keeps the hashed password among its session answers.
+SESSION_HASH_KEY = "password_hash"
+
 
 @blueprint.route("/", methods=("GET", "POST"))
 def index():
@@ -200,19 +203,34 @@ def _parse_result(
     field: Field | None = None,
     key: str = "",
 ) -> None:
+    if isinstance(field, ValidPassword):
+        _parse_password(form_results, form_raw_results, field)
+        return
     if field:
         # direct access to main Field data
         key = field.name
-        if isinstance(field, ValidPassword):
-            data = field.data.strip()
-        else:
-            data = field.data
+        data = field.data
     else:
         # read secondary data from request results
         data = _parse_request_form(key)
     label = data_to_label(data, key)
     form_results[key] = label
     form_raw_results[key] = data
+
+
+def _parse_password(
+    form_results: dict[str, Any], form_raw_results: dict[str, Any], field: Field
+) -> None:
+    """Keep a hash of the password, never the password itself.
+
+    The answers live in `ses_session`, which every database export
+    carries. Empty stays empty: `hash_password("")` would mint a hash
+    that the empty password satisfies.
+    """
+    password = field.data.strip()
+    form_results[field.name] = data_to_label(password, field.name)
+    form_raw_results.pop(field.name, None)
+    form_raw_results[SESSION_HASH_KEY] = hash_password(password) if password else ""
 
 
 def _filter_out_label_tags(name: Any) -> str:
@@ -502,19 +520,13 @@ def _make_new_kyc_user_record() -> User:
         business_wall=populate_json_field("business_wall", results),
     )
 
-    # The comment here used to read "to be hashed by bcrypt". It never
-    # was: `User.password` is a plain column with no setter and no
-    # listener, so the applicant's chosen password sat in the table in
-    # clear — in every backup and every export — and the account could
-    # not authenticate either, since Flask-Security compares against a
-    # hash. Empty stays empty: hashing "" would mint a hash that the
-    # empty password satisfies.
-    submitted_password = results.get("password", "").strip()
+    # Already hashed by `_parse_password`.
+    password_hash = results.get(SESSION_HASH_KEY, "")
     submitted_email = results.get("email", "").strip()
     if not submitted_email:
         msg = "Email address is required to create a new user account."
         raise ValueError(msg)
-    if not submitted_password:
+    if not password_hash:
         msg = "Password is required to create a new user account."
         raise ValueError(msg)
     user = User(
@@ -527,7 +539,7 @@ def _make_new_kyc_user_record() -> User:
         email=submitted_email,
         email_secours=results.get("email_secours", ""),
         tel_mobile=results.get("tel_mobile", ""),
-        password=hash_password(submitted_password) if submitted_password else None,
+        password=password_hash,
         fs_uniquifier=fs_uniquifier,
         is_clone=False,
         # is_cloned=False,

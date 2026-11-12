@@ -2,46 +2,55 @@
 #
 # SPDX-License-Identifier: AGPL-3.0-only
 
-"""The sign-up wizard must never store a password as typed.
+"""The sign-up wizard never stores a password as typed.
 
-`User.password` is a plain column — no setter, no listener — and the
-only `hash_password` calls in the tree were the CLI and the faker. The
-wizard's own comment said "to be hashed by bcrypt"; nothing did, so the
-applicant's password sat in the table in clear and the account could
-not authenticate either.
+The wizard keeps its answers in `ses_session`, a plain JSON column that
+every database export carries, so the password is hashed as soon as the
+form is parsed.
 """
 
 from __future__ import annotations
 
-import inspect
+import json
+from typing import TYPE_CHECKING
 
-from flask_security import hash_password, verify_password
+from flask_security import verify_password
+from flask_wtf import FlaskForm
 
-from app.modules.kyc import views
+from app.modules.kyc.lib.valid_password import ValidPassword
+from app.modules.kyc.views import SESSION_HASH_KEY, _parse_result
+
+if TYPE_CHECKING:
+    from flask import Flask
 
 SECRET = "correct horse battery staple"
 
 
-def test_the_wizard_hashes_before_storing(app):
+class _PasswordForm(FlaskForm):
+    password = ValidPassword()
+
+
+def _parse(app: Flask, password: str) -> tuple[dict, dict]:
+    form_results: dict = {}
+    form_raw_results: dict = {"password": "left by an earlier version"}
+    with app.test_request_context():
+        form = _PasswordForm(data={"password": password}, meta={"csrf": False})
+        _parse_result(form_results, form_raw_results, field=form.password)
+    return form_results, form_raw_results
+
+
+def test_only_a_hash_reaches_the_session(app: Flask) -> None:
+    form_results, form_raw_results = _parse(app, f"  {SECRET} ")
+
+    stored = json.dumps([form_results, form_raw_results])
+    assert SECRET not in stored
+    assert "left by an earlier version" not in stored
     with app.app_context():
-        stored = hash_password(SECRET)
-
-    assert stored != SECRET
-    assert verify_password(SECRET, stored)
+        assert verify_password(SECRET, form_raw_results[SESSION_HASH_KEY])
 
 
-def test_the_creation_site_does_not_pass_the_raw_value():
-    """Reading the source rather than the database: the defect was a
-    single argument, and it is the argument we must keep honest."""
-    source = inspect.getsource(views)
+def test_an_empty_password_is_not_hashed_into_a_valid_one(app: Flask) -> None:
+    """`hash_password("")` yields a hash the empty password satisfies."""
+    _form_results, form_raw_results = _parse(app, "   ")
 
-    assert 'password=results.get("password"' not in source
-    assert "password=hash_password(" in source
-
-
-def test_an_empty_password_is_not_hashed_into_a_valid_one():
-    """`hash_password("")` yields a hash the empty password satisfies —
-    an account anyone can open. Empty must stay empty."""
-    source = inspect.getsource(views)
-
-    assert "if submitted_password else None" in source
+    assert form_raw_results[SESSION_HASH_KEY] == ""

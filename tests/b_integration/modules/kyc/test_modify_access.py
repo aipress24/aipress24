@@ -11,11 +11,12 @@ from __future__ import annotations
 
 import pytest
 from flask import g, session as flask_session
+from flask_security import hash_password, verify_password
 from flask_security.core import AnonymousUser
 from svcs.flask import container
 
 from app.models.auth import Role
-from app.modules.kyc.views import _make_new_kyc_user_record
+from app.modules.kyc.views import SESSION_HASH_KEY, _make_new_kyc_user_record
 from app.services.sessions import SessionService
 
 
@@ -100,6 +101,7 @@ def test_make_new_kyc_user_record_requires_email_and_password(app, monkeypatch):
     with app.test_request_context():
         g.user = AnonymousUser()
         flask_session["session_id"] = "test-new-user-kyc-session"
+        password_hash = hash_password("valid_secret_password")
         session_service.set("profile_id", "P002")
 
         session_service.set("form_raw_results", {})
@@ -111,15 +113,15 @@ def test_make_new_kyc_user_record_requires_email_and_password(app, monkeypatch):
             _make_new_kyc_user_record()
 
         session_service.set(
-            "form_raw_results", {"email": "   ", "password": "valid_secret_password"}
+            "form_raw_results", {"email": "   ", SESSION_HASH_KEY: password_hash}
         )
         with pytest.raises(ValueError, match="Email address is required"):
             _make_new_kyc_user_record()
 
         session_service.set(
             "form_raw_results",
-            {"email": "applicant@example.com", "password": "valid_secret_password"},
+            {"email": "applicant@example.com", SESSION_HASH_KEY: password_hash},
         )
         user = _make_new_kyc_user_record()
         assert user.email == "applicant@example.com"
-        assert user.password is not None
+        assert verify_password("valid_secret_password", user.password)
