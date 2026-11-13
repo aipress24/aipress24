@@ -24,7 +24,6 @@ from importlib import resources as rso
 from typing import Any, TypeGuard
 
 from flask import render_template_string
-from weasyprint import HTML
 
 from app.flask.extensions import db
 from app.lib.file_object_utils import create_file_object
@@ -203,6 +202,10 @@ def _build_render_context(
 
 
 def _render_pdf(*, post: Post, purchase: ArticlePurchase, buyer: User) -> bytes:
+    # Imported here: the native libraries WeasyPrint loads are needed to
+    # render a PDF, not to start the app.
+    from weasyprint import HTML
+
     template_str = rso.read_text(mail_templates, "justificatif.j2")
     context = _build_render_context(
         post=post,

@@ -8,8 +8,10 @@ help:
 # Tests
 #
 # WeasyPrint finds Homebrew's libgobject through DYLD_FALLBACK_LIBRARY_PATH,
-# which macOS strips before make and sh run: set it on the command itself.
-PYTEST := DYLD_FALLBACK_LIBRARY_PATH=/opt/homebrew/lib pytest
+# which macOS strips before make and sh run: set it on the command itself
+# wherever a PDF may be rendered.
+HOMEBREW_LIBS := DYLD_FALLBACK_LIBRARY_PATH=/opt/homebrew/lib
+PYTEST := $(HOMEBREW_LIBS) pytest
 
 .PHONY: test test-with-sqla-warnings test-with-coverage test-with-typeguard test-cov-unit test-cov-all
 
@@ -79,7 +81,7 @@ export E2E_PYTEST_ARGS
 export E2E_SERVER_LOG
 
 test-e2e:
-	uv run python e2e_playwright/run_e2e.py
+	$(HOMEBREW_LIBS) uv run python e2e_playwright/run_e2e.py
 
 
 #
