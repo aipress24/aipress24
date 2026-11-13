@@ -132,7 +132,7 @@ class FilterByJobTitle(Filter):
     id = "job_title"
     label = "Profil KYC"
     selector = "job_title"
-    options: ClassVar[list[str]] = []  # ty:ignore[invalid-attribute-override]
+    options: ClassVar[list[str]] = []  # ty:ignore[incompatible-attribute-override]
 
     def apply(self, stmt, state):
         active_options = self.active_options(state)
@@ -263,7 +263,7 @@ class FilterBySecteurActivite(Filter):
     # field_label.py), so this filter IS the detailed-sector taxonomy.
     # The PO asked for it to be named accordingly.
     label = "Secteur d'activité détaillés"
-    options: ClassVar[list[str]] = []  # ty:ignore[invalid-attribute-override]
+    options: ClassVar[list[str]] = []  # ty:ignore[incompatible-attribute-override]
 
     def __init__(self, objects: list | None = None) -> None:
         if not objects:
@@ -306,7 +306,7 @@ class FilterBySecteurActivite(Filter):
 class FilterByCompetencesGenerales(Filter):
     id = "competences_generales"
     label = "Compétences générales"
-    options: ClassVar[list[str]] = []  # ty:ignore[invalid-attribute-override]
+    options: ClassVar[list[str]] = []  # ty:ignore[incompatible-attribute-override]
 
     def __init__(self, objects: list | None = None) -> None:
         if not objects:
@@ -334,7 +334,7 @@ class FilterByCompetencesGenerales(Filter):
 class FilterByCompetencesJournalisme(Filter):
     id = "competences_journalisme"
     label = "Compétences journalisme"
-    options: ClassVar[list[str]] = []  # ty:ignore[invalid-attribute-override]
+    options: ClassVar[list[str]] = []  # ty:ignore[incompatible-attribute-override]
 
     def __init__(self, objects: list | None = None) -> None:
         if not objects:
@@ -364,7 +364,7 @@ class FilterByCompetencesJournalisme(Filter):
 class FilterByCompetencesPR(Filter):
     id = "competences_pr"
     label = "Compétences PR"
-    options: ClassVar[list[str]] = []  # ty:ignore[invalid-attribute-override]
+    options: ClassVar[list[str]] = []  # ty:ignore[incompatible-attribute-override]
 
     def __init__(self, objects: list | None = None) -> None:
         if not objects:
@@ -392,7 +392,7 @@ class FilterByCompetencesPR(Filter):
 class FilterByTransformationsMajeures(Filter):
     id = "transformations_majeures"
     label = "Transformations majeures"
-    options: ClassVar[list[str]] = []  # ty:ignore[invalid-attribute-override]
+    options: ClassVar[list[str]] = []  # ty:ignore[incompatible-attribute-override]
 
     def __init__(self, objects: list | None = None) -> None:
         if not objects:

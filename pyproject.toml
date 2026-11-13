@@ -368,7 +368,10 @@ exclude = [
 [tool.ty.rules]
 invalid-argument-type = "ignore"
 invalid-assignment = "ignore"
-unresolved-attribute = "ignore"
+missing-attribute = "ignore"
+# Attribute access on an optional value (`db_session.get(...)`, `current_user`)
+# that the surrounding code knows is set.
+missing-union-attribute = "ignore"
 # Fires on `assert <imported module>` (the import-for-side-effect idiom in
 # extensions.py) and on test assertions over literals. Both are deliberate.
 redundant-condition = "ignore"

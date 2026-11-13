@@ -307,7 +307,7 @@ class _OrgListJsonArrayFilter(Filter):
     Types presse & médias, Types de PR Agencies, Secteurs détaillés."""
 
     bw_field: ClassVar[str] = ""  # the BusinessWall column name (JSON list).
-    options: ClassVar[list[str]] = []  # ty:ignore[invalid-attribute-override]
+    options: ClassVar[list[str]] = []  # ty:ignore[incompatible-attribute-override]
 
     def __init__(self, bws: list[BusinessWall] | None = None) -> None:
         if not bws:

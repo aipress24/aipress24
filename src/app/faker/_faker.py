@@ -16,7 +16,6 @@ from mimesis.locales import Locale
 from sqlalchemy.orm import scoped_session
 
 from app.enums import AccreditationStatus
-from app.models.base import Base
 from app.models.comment import Comment
 from app.modules.admin.invitations import invite_users
 from app.modules.events.models import Accreditation
@@ -244,6 +243,6 @@ class FakerService:
 
         self.session.flush()
 
-    def persist_objects(self, objects: list[Base]) -> None:
+    def persist_objects(self, objects: Sequence[object]) -> None:
         for obj in objects:
             self.session.add(obj)
