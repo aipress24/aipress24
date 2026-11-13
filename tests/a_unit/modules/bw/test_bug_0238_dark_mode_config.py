@@ -14,6 +14,7 @@ these pages never set. The visual rendering is not asserted here.
 
 from __future__ import annotations
 
+import re
 from pathlib import Path
 
 from app.modules.bw import bw_activation
@@ -27,7 +28,13 @@ def test_bw_layout_does_not_load_the_tailwind_play_cdn() -> None:
     assert "cdn.tailwindcss.com" not in layout.read_text(encoding="utf-8")
 
 
-def test_the_css_build_ignores_the_os_dark_mode() -> None:
-    config = (REPO_ROOT / "vite" / "tailwind.config.js").read_text(encoding="utf-8")
+def test_the_built_css_ignores_the_os_dark_mode() -> None:
+    """Class mode compiles `dark:` utilities to `:is(.dark *)` selectors;
+    media mode would put them in a `prefers-color-scheme` query."""
+    (stylesheet,) = (REPO_ROOT / "vite" / "dist" / "assets").glob("*.css")
+    css = stylesheet.read_text(encoding="utf-8")
+    media_blocks = re.findall(r"@media \(prefers-color-scheme: ?dark\)\{(.*?)\}\}", css)
 
-    assert "darkMode: 'class'" in config
+    assert r".dark\:" in css
+    assert ":is(.dark *)" in css
+    assert all(r".dark\:" not in block for block in media_blocks)
