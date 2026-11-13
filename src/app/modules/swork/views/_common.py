@@ -250,8 +250,11 @@ def filter_email_mobile(user: User, target_user: User) -> MaskFields:
 
     mask_fields = MaskFields()
 
-    # Return empty mask if profiles are incomplete
+    # Without both profiles there is no contact type or consent to read.
     if not user.profile or not target_user.profile:
+        for field in MASK_FIELDS.values():
+            mask_fields.add_field(field)
+        mask_fields.add_message("profile missing")
         return mask_fields
 
     contact_type = user.profile.contact_type

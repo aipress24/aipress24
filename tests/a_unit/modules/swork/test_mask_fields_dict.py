@@ -177,38 +177,10 @@ class _StubUser:
 
 
 class TestFilterEmailMobileEarlyReturn:
-    """Pin the documented « return empty mask if profiles are incomplete »
-    branch. This branch is the *only* pure path through
-    ``filter_email_mobile`` — anything past the early return needs a real
-    ``SocialUser`` adapter and DB session.
+    """Without both profiles there is no contact type or consent to read,
+    so every contact field is masked. This is the only pure path through
+    ``filter_email_mobile``; the rest needs a ``SocialUser`` and a DB.
     """
-
-    def test_both_profiles_none_returns_empty_mask(self):
-        result = filter_email_mobile(_StubUser(None), _StubUser(None))
-        assert isinstance(result, MaskFields)
-        assert result.masked == set()
-
-    def test_logged_user_profile_none_returns_empty_mask(self):
-        """If the logged-in user has no profile, masking can't be computed
-        — fall through to the safe empty default."""
-        target = _StubUser(profile=object())
-        result = filter_email_mobile(_StubUser(None), target)
-        assert result.masked == set()
-
-    def test_target_user_profile_none_returns_empty_mask(self):
-        """If the *target* user has no profile, ``show_contact_details``
-        is unreachable and the function returns an empty mask."""
-        logged = _StubUser(profile=object())
-        result = filter_email_mobile(logged, _StubUser(None))
-        assert result.masked == set()
-
-    def test_early_return_does_not_populate_story(self):
-        """The early-return branch returns a freshly-constructed
-        ``MaskFields`` — no story should be appended. Pin to document
-        that the « no field masked » message is *only* appended by the
-        post-loop branch."""
-        result = filter_email_mobile(_StubUser(None), _StubUser(None))
-        assert result.story == ""
 
     @pytest.mark.parametrize(
         ("logged_profile", "target_profile"),
@@ -220,16 +192,12 @@ class TestFilterEmailMobileEarlyReturn:
             (0, object()),
         ],
     )
-    def test_falsy_profile_short_circuits(self, logged_profile, target_profile):
-        """The guard is ``if not user.profile`` — any falsy value (None,
-        False, 0, empty containers) should trigger the early return.
-        Pin the truthiness check so a refactor to ``is None`` would
-        surface here."""
+    def test_a_missing_profile_masks_everything(self, logged_profile, target_profile):
         result = filter_email_mobile(
             _StubUser(logged_profile), _StubUser(target_profile)
         )
-        assert result.masked == set()
-        assert result.story == ""
+        assert isinstance(result, MaskFields)
+        assert result.masked == set(MASK_FIELDS.values())
 
     def test_returns_fresh_instance_each_call(self):
         """Two calls must return *distinct* ``MaskFields`` instances —
