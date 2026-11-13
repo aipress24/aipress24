@@ -36,7 +36,6 @@ class RichSelectField(SelectField):
         values = get_choices(self.key)
         if isinstance(values, dict):
             return list(values.items())
-        # pyrefly: ignore [not-iterable]
         return [(value, value) for value in values]
 
     def get_choices_for_js(self):

@@ -105,7 +105,6 @@ class SelectField(Field):
 
     def get_options(self, key, *, choices_fn=None):
         choices = (choices_fn or get_choices)()
-        # pyrefly: ignore [not-iterable]
         return [{"value": item, "label": item, "selected": ""} for item in choices[key]]
 
 
@@ -126,7 +125,6 @@ class RichSelectField(Field):
 
     def get_options(self, key, *, choices_fn=None):
         choices = (choices_fn or get_choices)()
-        # pyrefly: ignore [not-iterable]
         return [{"value": item, "label": item, "selected": ""} for item in choices[key]]
 
 
