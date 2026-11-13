@@ -95,6 +95,9 @@ def livewire_sync_input(component_instance, payload) -> None:
 def livewire_fire_event(component_instance, payload) -> None:
     event_name = payload["event"]
     event_params = payload["params"]
+    if event_name not in component_instance._listeners:
+        msg = f"Not a listened event: {event_name}"
+        raise BadRequest(msg)
     method_name = f"on_{event_name.replace('-', '_')}"
     method = getattr(component_instance, method_name)
     method(*event_params)

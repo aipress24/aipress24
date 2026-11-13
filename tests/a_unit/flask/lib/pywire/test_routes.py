@@ -10,6 +10,7 @@ from typing import TYPE_CHECKING, ClassVar
 
 import pytest
 from jinja2 import Template
+from werkzeug.exceptions import BadRequest
 
 from app.flask.lib.pywire._components import StaticComponent, WiredComponent
 from app.flask.lib.pywire._routes import livewire_fire_event, livewire_sync_input
@@ -22,6 +23,7 @@ class MockComponent:
     """Mock component for testing livewire functions."""
 
     _attrs: ClassVar = ["simple_attr", "nested", "data"]
+    _listeners: ClassVar = ["my_event", "click-handler"]
 
     def __init__(self):
         self.simple_attr = None
@@ -101,6 +103,17 @@ class TestLivewireFireEvent:
 
         assert component.event_called is True
         assert component.event_params == ()
+
+    def test_refuses_an_undeclared_event(self):
+        """Only the events a component lists in `_listeners` reach it."""
+        component = MockComponent()
+        component.on_secret = lambda: setattr(component, "event_called", True)
+        payload = {"event": "secret", "params": []}
+
+        with pytest.raises(BadRequest):
+            livewire_fire_event(component, payload)
+
+        assert component.event_called is False
 
 
 class _StaticStub(StaticComponent):
