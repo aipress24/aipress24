@@ -225,6 +225,55 @@ def test_applicant_can_apply_to_job_with_cv_url(
     assert db_session.query(Notification).filter_by(receiver_id=emitter.id).count() >= 1
 
 
+@pytest.mark.parametrize(
+    "cv_url",
+    ["javascript:alert(document.domain)", "http://example.com/cv.pdf", "cv.pdf"],
+)
+def test_a_cv_link_must_be_https(
+    app: Flask,
+    db_session: Session,
+    published_job: JobOffer,
+    applicant: User,
+    cv_url: str,
+):
+    """The employer clicks this link, so only an `https:` URL is taken."""
+    client = make_authenticated_client(app, applicant)
+    client.post(
+        f"/biz/jobs/{published_job.id}/apply",
+        data={"message": "Intéressé.", "cv_url": cv_url},
+    )
+
+    application = (
+        db_session.query(OfferApplication)
+        .filter_by(offer_id=published_job.id, owner_id=applicant.id)
+        .first()
+    )
+    assert application is None
+
+
+def test_applications_page_links_only_https_cvs(
+    app: Flask,
+    db_session: Session,
+    published_job: JobOffer,
+    emitter: User,
+    applicant: User,
+):
+    db_session.add(
+        OfferApplication(
+            offer_id=published_job.id,
+            owner_id=applicant.id,
+            cv_url="javascript:alert(document.domain)",
+        )
+    )
+    db_session.commit()
+
+    client = make_authenticated_client(app, emitter)
+    response = client.get(f"/biz/jobs/{published_job.id}/applications")
+
+    assert response.status_code == 200
+    assert b"alert(document.domain)" not in response.data
+
+
 def test_job_fill_blocks_new_applications(
     app: Flask,
     db_session: Session,

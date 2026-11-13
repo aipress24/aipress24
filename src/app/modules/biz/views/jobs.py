@@ -22,6 +22,7 @@ from wtforms import (
 )
 
 from app.flask.extensions import db
+from app.lib.urls import is_web_url
 from app.lib.utils import strip_taxonomy_prefix
 from app.models.auth import User
 from app.models.lifecycle import PublicationStatus
@@ -51,6 +52,9 @@ from app.modules.kyc.ontology_loader import get_choices as get_ontology_choices
 from app.modules.wip.pr_access import check_mission
 from app.signals import marketplace_published
 from app.ui.geoloc import offer_geoloc_label
+
+# The employer opens a CV link the applicant typed: plain `http` is refused.
+CV_URL_SCHEMES = frozenset({"https"})
 
 _CONTRACT_CHOICES = [
     (ContractType.CDI.value, "CDI"),
@@ -519,6 +523,9 @@ def jobs_detail(id: int):
 def jobs_apply(id: int):
     job = get_offer_or_404(JobOffer, id)
     cv_url = (request.form.get("cv_url") or "").strip()
+    if cv_url and not is_web_url(cv_url, schemes=CV_URL_SCHEMES):
+        flash("Le lien vers votre CV doit commencer par https://.", "error")
+        return redirect(url_for(".jobs_detail", id=job.id))
     return handle_apply(job, detail_endpoint=".jobs_detail", cv_url=cv_url)
 
 

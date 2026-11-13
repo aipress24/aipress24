@@ -43,7 +43,7 @@
             {% if app.message %}
               <div class="mt-3 text-sm text-gray-700 whitespace-pre-line">{{ app.message }}</div>
             {% endif %}
-            {% if app.cv_url %}
+            {% if app.cv_url.startswith("https://") %}
               <div class="mt-2 text-sm">
                 <a href="{{ app.cv_url }}" target="_blank"
                    class="text-blue-600 hover:underline">

@@ -11,15 +11,15 @@ from urllib.parse import urlsplit
 WEB_SCHEMES = frozenset({"http", "https"})
 
 
-def is_web_url(url: str) -> bool:
-    """True if `url` is an absolute `http` or `https` link.
+def is_web_url(url: str, schemes: frozenset[str] = WEB_SCHEMES) -> bool:
+    """True if `url` is an absolute link in one of `schemes`.
 
     Anything else (`javascript:`, `data:`, relative or scheme-less) is
     refused rather than repaired: a member-typed link ends up in an
     `href` that another member clicks.
     """
     parts = urlsplit(url.strip())
-    return parts.scheme.lower() in WEB_SCHEMES and bool(parts.netloc)
+    return parts.scheme.lower() in schemes and bool(parts.netloc)
 
 
 def web_url(url: str | None) -> str:
