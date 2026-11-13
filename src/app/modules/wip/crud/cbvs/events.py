@@ -35,6 +35,7 @@ from app.modules.bw.bw_activation.models import PermissionType
 from app.modules.bw.bw_activation.user_utils import (
     can_user_publish_for,
     get_selected_business_wall_for_user,
+    publishable_org_ids,
 )
 from app.modules.events.notifications import (
     EventStatusChange,
@@ -73,6 +74,7 @@ from ._table import BaseTable
 
 if TYPE_CHECKING:
     from app.lib.image_utils import UploadedImageData
+    from app.models.auth import User
 
 
 class EventsTable(BaseTable):
@@ -161,17 +163,18 @@ _EVENT_MODIFIER_TEMPLATE = """
 """
 
 
-def _organisations() -> list[tuple[str, str]]:
-    """Les organisations qu'on peut désigner comme organisatrices.
+def _organisations(user: User) -> list[tuple[str, str]]:
+    """Les organisations que `user` peut désigner comme organisatrices.
 
-    Toutes celles qui ont un Business Wall — c'est-à-dire celles qui
-    ont une page vers laquelle ORG-04 pointe. Une organisation sans
-    vitrine ne gagnerait rien à être liée, et le texte libre
-    d'`organiser_name` existe pour elle.
+    Celles qui ont un Business Wall, page vers laquelle ORG-04 pointe,
+    et pour lesquelles il peut publier : le mur de l'organisatrice
+    affiche l'événement. Pour toute autre, le texte libre
+    d'`organiser_name` existe.
     """
     stmt = (
         sa.select(Organisation)
         .where(Organisation.bw_id.is_not(None))
+        .where(Organisation.id.in_(publishable_org_ids(user)))
         .order_by(Organisation.name)
     )
     return [(str(o.id), o.name) for o in db.session.scalars(stmt)]
@@ -419,7 +422,7 @@ class EventsWipView(BaseWipView):
             return
         form.organiser_id.choices = [
             ("", "— l'organisation éditrice —"),
-            *_organisations(),
+            *_organisations(g.user),
         ]
 
         # Décision `M1`. Mêmes contraintes que ci-dessus : un champ à
@@ -429,6 +432,8 @@ class EventsWipView(BaseWipView):
         form.fonctions.choices = [(v, v) for v in fonction_options()]
 
     def _post_update_model(self, model: Event) -> None:
+        if model.organiser_id and not can_user_publish_for(g.user, model.organiser_id):
+            raise Forbidden
         # Validate publisher_id: if the user selected a client org they are
         # not auth to publish for, warn but DO NOT silently reset — the
         # publish() step will enforce the auth and show an explicit error.

@@ -769,19 +769,27 @@ def get_validated_client_orgs_for_user(user: User) -> list[Organisation]:
 
 
 def can_user_publish_for(user: User, publisher_org_id: int) -> bool:
-    """Check whether `user` may publish content attributed to `publisher_org_id`.
-
-    A user may always publish for their own organisation. A user whose agency
-    has an active Partnership with the target organisation may also publish
-    on that organisation's behalf, or if the user has an explicit PR role assignment.
-    """
-    if user.organisation_id and publisher_org_id == user.organisation_id:
+    """Check whether `user` may publish content attributed to `publisher_org_id`."""
+    if publisher_org_id in publishable_org_ids(user):
         return True
+    warn(
+        f"can_user_publish_for: user {user.id} (org={user.organisation_id}) "
+        f"cannot publish for org {publisher_org_id}."
+    )
+    return False
 
+
+def publishable_org_ids(user: User) -> set[int]:
+    """The organisations `user` may publish content for.
+
+    Their own organisation, any organisation on whose Business Wall they
+    hold an accepted PR or owner role, and any client their agency has an
+    active Partnership with.
+    """
+    ids = {user.organisation_id} if user.organisation_id else set()
     stmt = (
-        select(BusinessWall.id)
+        select(BusinessWall.organisation_id)
         .join(RoleAssignment, RoleAssignment.business_wall_id == BusinessWall.id)
-        .where(BusinessWall.organisation_id == publisher_org_id)
         .where(RoleAssignment.user_id == user.id)
         .where(RoleAssignment.invitation_status == InvitationStatus.ACCEPTED.value)
         .where(
@@ -794,19 +802,9 @@ def can_user_publish_for(user: User, publisher_org_id: int) -> bool:
             )
         )
     )
-    if db.session.execute(stmt).first():
-        return True
-
-    client_orgs = get_validated_client_orgs_for_user(user)
-    result = any(org.id == publisher_org_id for org in client_orgs)
-    if not result:
-        client_ids = [org.id for org in client_orgs]
-        warn(
-            f"can_user_publish_for: user {user.id} (org={user.organisation_id}) "
-            f"cannot publish for org {publisher_org_id}. "
-            f"Validated clients: {client_ids}"
-        )
-    return result
+    ids.update(db.session.scalars(stmt))
+    ids.update(org.id for org in get_validated_client_orgs_for_user(user))
+    return ids
 
 
 def get_representing_agency_org_ids_for_client(client_org: Organisation) -> list[int]:
