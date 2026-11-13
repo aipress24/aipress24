@@ -32,6 +32,10 @@ from app.modules.biz.services.offer_notifications import (
     notify_applicant_selected,
     notify_emitter_of_application,
 )
+from app.modules.bw.bw_activation.user_utils import (
+    can_user_publish_for,
+    get_selected_business_wall_for_user,
+)
 from app.ui.money import euros_to_cents as _euros_to_cents
 
 
@@ -63,6 +67,23 @@ def get_offer_or_404(model: type, id: int):
         if not user.is_anonymous and user.id == o.owner_id:
             return offer
     raise NotFound
+
+
+def emitter_org_id_for(user: User) -> int | None:
+    """The organisation a new offer goes out in the name of.
+
+    A member managing another Business Wall posts for that wall's
+    organisation, as long as they still may publish for it: revoking
+    their role leaves the wall selected.
+    """
+    org_id = user.organisation_id
+    if user.is_managing_another_bw and (
+        bw := get_selected_business_wall_for_user(user)
+    ):
+        org_id = bw.organisation_id
+    if org_id and not can_user_publish_for(user, org_id):
+        raise Forbidden
+    return org_id
 
 
 def default_new_offer_status():

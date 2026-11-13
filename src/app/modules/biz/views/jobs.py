@@ -35,6 +35,7 @@ from app.modules.biz.models import (
 from app.modules.biz.views._offers_common import (
     date_to_datetime,
     default_new_offer_status,
+    emitter_org_id_for,
     euros_to_cents,
     get_offer_or_404,
     get_user_application,
@@ -45,7 +46,6 @@ from app.modules.biz.views._offers_common import (
     update_application_status,
 )
 from app.modules.bw.bw_activation.models import PermissionType
-from app.modules.bw.bw_activation.user_utils import get_selected_business_wall_for_user
 from app.modules.kyc.dynform import CountrySelectField
 from app.modules.kyc.ontology_loader import get_choices as get_ontology_choices
 from app.modules.wip.pr_access import check_mission
@@ -308,11 +308,7 @@ def jobs_new():
             case _:
                 pass
 
-        emitter_org_id = getattr(user, "organisation_id", None)
-        if user.is_managing_another_bw:
-            bw = get_selected_business_wall_for_user(user)
-            if bw:
-                emitter_org_id = bw.organisation_id
+        emitter_org_id = emitter_org_id_for(user)
 
         job = JobOffer(
             title=form.title.data or "",
