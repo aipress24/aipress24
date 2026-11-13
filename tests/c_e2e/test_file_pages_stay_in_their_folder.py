@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: AGPL-3.0-only
 
-"""`/sandbox/<path>` and `/page/<path>` serve files from one folder each."""
+"""`/page/<path>` serves files from its own folder only."""
 
 from __future__ import annotations
 
@@ -12,13 +12,11 @@ from typing import TYPE_CHECKING
 
 import pytest
 
-from app.modules.public.views.sandbox import TEMPLATE_DIR
-
 if TYPE_CHECKING:
     from flask import Flask
     from flask.testing import FlaskClient
 
-# A tracked page outside both folders, with the `-->` `/page` splits on.
+# A tracked page outside the folder, with the `-->` `/page` splits on.
 OUTSIDE = Path(
     "src/app/modules/bw/bw_activation/templates/bw_activation/"
     "00_confirm_subscription.html"
@@ -29,16 +27,6 @@ def _escape(folder: Path) -> str:
     """The URL path from `folder` to `OUTSIDE`, slashes percent-encoded."""
     relative = os.path.relpath(OUTSIDE.with_suffix(""), folder)
     return relative.replace("/", "%2F")
-
-
-def test_sandbox_serves_its_own_pages(client: FlaskClient) -> None:
-    assert client.get("/sandbox/bw-edit").status_code == 200
-
-
-def test_sandbox_refuses_a_path_out_of_its_folder(client: FlaskClient) -> None:
-    response = client.get(f"/sandbox/{_escape(TEMPLATE_DIR)}")
-
-    assert response.status_code == 404
 
 
 @pytest.mark.parametrize("encode", [True, False])

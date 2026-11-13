@@ -88,7 +88,6 @@ def test_marketing(logged_in_client: FlaskClient) -> None:
     """Tests static marketing pages."""
     pages = [
         "/page/a-propos",
-        "/pricing/",  # Pricing is at /pricing/, not /page/pricing
     ]
     for page in pages:
         response = logged_in_client.get(page)

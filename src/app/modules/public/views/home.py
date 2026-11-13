@@ -4,7 +4,7 @@
 
 from __future__ import annotations
 
-from flask import redirect, render_template
+from flask import redirect
 from flask_login import current_user
 
 from app.flask.routing import url_for
@@ -16,8 +16,3 @@ def home():
     if not current_user.is_anonymous:
         return redirect(url_for("wire.wire"))
     return redirect(url_for("security.login"))
-
-
-@get("/pricing/")
-def pricing():
-    return render_template("pages/pricing.j2")
