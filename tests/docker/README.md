@@ -8,6 +8,8 @@ make test-postgres-docker
 
 The code is copied into the image (not bind-mounted), so it also works with a remote Docker context.
 
+Each run gets its own Compose project (`aipress24-tests-<pid>`), so concurrent runs on one Docker host don't share a database. A run interrupted before its `down` leaves its project behind: `docker compose ls -a` lists it, and `docker compose -p <name> down` removes it.
+
 To run a subset of the tests:
 
 ```bash

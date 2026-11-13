@@ -26,7 +26,10 @@ test-postgres:
 	$(PYTEST) tests --db-url="postgresql+psycopg://localhost/aipress24_test"
 
 # CI adds `-f tests/docker/compose.host-network.yaml` through DOCKER_TESTS_EXTRA.
-DOCKER_TESTS = docker compose -f tests/docker/compose.yaml $(DOCKER_TESTS_EXTRA)
+# The project is named after the recipe shell's PID, so each run gets its
+# own database even when several runs share a Docker host.
+DOCKER_TESTS = docker compose -p aipress24-tests-$$$$ \
+	-f tests/docker/compose.yaml $(DOCKER_TESTS_EXTRA)
 
 ## Run tests against PostgreSQL, database and tests both in Docker
 test-postgres-docker:
