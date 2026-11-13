@@ -67,7 +67,7 @@ def _make_sujet(
         owner_id=owner_id,
         commanditaire_id=owner_id,
     )
-    sujet.status = status  # type: ignore[assignment]
+    sujet.status = status
     db_session.add(sujet)
     db_session.flush()
     return sujet

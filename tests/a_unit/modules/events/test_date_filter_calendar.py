@@ -175,7 +175,7 @@ class TestDateFilterApply:
         stmt = df.apply(self._base_stmt())
 
         assert stmt.whereclause is not None
-        assert stmt._limit is None  # type: ignore[attr-defined]
+        assert stmt._limit is None
         # Day-mode produces a single AND of start<bound AND end>=bound
         rendered = str(stmt.whereclause)
         assert "start_datetime" in rendered
@@ -187,7 +187,7 @@ class TestDateFilterApply:
         stmt = df.apply(self._base_stmt())
 
         assert stmt.whereclause is not None
-        assert stmt._limit is None  # type: ignore[attr-defined]
+        assert stmt._limit is None
 
     def test_apply_default_branch_limits_to_30(self) -> None:
         df = DateFilter({"day": None, "month": None})
@@ -195,7 +195,7 @@ class TestDateFilterApply:
         stmt = df.apply(self._base_stmt())
 
         # Default upcoming-events view caps at 30 rows
-        assert stmt._limit == 30  # type: ignore[attr-defined]
+        assert stmt._limit == 30
         assert stmt.whereclause is not None
 
     def test_apply_day_bound_values_are_inclusive_of_day(self) -> None:

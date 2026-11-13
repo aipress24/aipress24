@@ -43,7 +43,7 @@ def on_article_published(article: Article) -> None:
         post.created_at = article.created_at
 
     # SQLAlchemy Mapped attribute assignment
-    post.status = PublicationStatus.PUBLIC  # type: ignore[invalid-assignment]
+    post.status = PublicationStatus.PUBLIC
 
     update_article_post(post, article)
 
@@ -57,7 +57,7 @@ def on_article_unpublished(article: Article) -> None:
     if not post:
         return
     # SQLAlchemy Mapped attribute assignment
-    post.status = PublicationStatus.DRAFT  # type: ignore[invalid-assignment]
+    post.status = PublicationStatus.DRAFT
 
     db.session.add(post)
     db.session.flush()
@@ -114,7 +114,7 @@ def on_communique_published(communique: Communique) -> None:
         post.created_at = communique.created_at
 
     # SQLAlchemy Mapped attribute assignment
-    post.status = PublicationStatus.PUBLIC  # type: ignore[invalid-assignment]
+    post.status = PublicationStatus.PUBLIC
 
     update_communique_post(post, communique)
 
@@ -128,7 +128,7 @@ def on_communique_unpublished(communique: Communique) -> None:
     if not post:
         return
     # SQLAlchemy Mapped attribute assignment
-    post.status = PublicationStatus.DRAFT  # type: ignore[invalid-assignment]
+    post.status = PublicationStatus.DRAFT
 
     db.session.add(post)
     db.session.flush()

@@ -51,7 +51,7 @@ def _make_press_release(
     post.title = title
     post.owner_id = owner.id
     post.publisher_id = publisher_org_id
-    post.status = PublicationStatus.PUBLIC  # type: ignore[assignment]
+    post.status = PublicationStatus.PUBLIC
     db_session.add(post)
     db_session.flush()
     return post
@@ -153,7 +153,7 @@ class TestAgencyRepresentingClientVisibility:
         user = _make_user_in_org(db_session, agency_org, "Drafter")
 
         post = _make_press_release(db_session, user, client_org.id, title="Draft PR")
-        post.status = PublicationStatus.DRAFT  # type: ignore[assignment]
+        post.status = PublicationStatus.DRAFT
         db_session.flush()
 
         assert _count_for_org(agency_org) == 0

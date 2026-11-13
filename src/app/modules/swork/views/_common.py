@@ -75,7 +75,7 @@ class PostVM(ViewModel):
         article = cast("ArticlePost", self._model)
 
         if article.published_at:
-            age = article.published_at.humanize(locale="fr")  # type: ignore[attr-defined]
+            age = article.published_at.humanize(locale="fr")
         else:
             age = "(not set)"
 
@@ -308,7 +308,7 @@ def join_group(user: User, group: Group) -> None:
     table = group_members_table
     stmt = sa.insert(table).values(user_id=user.id, group_id=group.id)
     db.session.execute(stmt)
-    post_activity(ActivityType.Join, user, group)  # type: ignore[arg-type]
+    post_activity(ActivityType.Join, user, group)
 
 
 def leave_group(user: User, group: Group) -> None:
@@ -319,4 +319,4 @@ def leave_group(user: User, group: Group) -> None:
     c = table.c
     stmt = sa.delete(table).where(c.user_id == user.id, c.group_id == group.id)
     db.session.execute(stmt)
-    post_activity(ActivityType.Leave, user, group)  # type: ignore[arg-type]
+    post_activity(ActivityType.Leave, user, group)

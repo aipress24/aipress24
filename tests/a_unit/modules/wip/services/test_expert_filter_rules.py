@@ -122,7 +122,7 @@ class TestApplyFilterPipeline:
         selector = _StubSelector("secteur", tags={"presse": {1}})
         result = apply_filter_pipeline(
             experts,
-            state={"secteur": "presse"},  # type: ignore[dict-item]
+            state={"secteur": "presse"},
             selectors=[selector],
         )
         assert {e.id for e in result} == {1}

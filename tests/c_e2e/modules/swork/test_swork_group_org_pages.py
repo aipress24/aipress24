@@ -630,7 +630,7 @@ class TestOrgPressBookTab:
             post.title = f"Public PR {i}"
             post.owner_id = test_user_with_profile.id
             post.publisher_id = test_organisation_media.id
-            post.status = PublicationStatus.PUBLIC  # type: ignore[assignment]
+            post.status = PublicationStatus.PUBLIC
             db_session.add(post)
         db_session.flush()
 

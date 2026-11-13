@@ -305,7 +305,7 @@ class Event(IdMixin, LifeCycleMixin, Owned, Base):
         self.check_publishable()
 
         # Update state
-        self.status = PublicationStatus.PUBLIC  # type: ignore[assignment]
+        self.status = PublicationStatus.PUBLIC
         if not self.published_at:
             self.published_at = arrow.now("Europe/Paris")  # type: ignore[assignment]
         if publisher_id:
@@ -420,7 +420,7 @@ class Event(IdMixin, LifeCycleMixin, Owned, Base):
             raise BusinessRuleError(msg)
 
         self.check_publishable()
-        self.status = PublicationStatus.PENDING  # type: ignore[assignment]
+        self.status = PublicationStatus.PENDING
         # Le motif appartient au tour de relecture qui vient de s'achever :
         # le laisser montrerait au relecteur suivant un reproche déjà traité.
         self.send_back_reason = ""
@@ -454,7 +454,7 @@ class Event(IdMixin, LifeCycleMixin, Owned, Base):
             raise BusinessRuleError(msg)
 
         self.send_back_reason = comment.strip()
-        self.status = PublicationStatus.DRAFT  # type: ignore[assignment]
+        self.status = PublicationStatus.DRAFT
 
     def can_unpublish(self) -> bool:
         """Check if event can be unpublished."""
@@ -471,7 +471,7 @@ class Event(IdMixin, LifeCycleMixin, Owned, Base):
             msg = "Impossible de dépublier: l'événement n'est pas PUBLIC"
             raise BusinessRuleError(msg)
 
-        self.status = PublicationStatus.DRAFT  # type: ignore[assignment]
+        self.status = PublicationStatus.DRAFT
         # Dépublier retire l'annonce entièrement : l'annulation n'a plus
         # d'objet, et le brouillon repart propre. Sans cet effacement,
         # une republication ressusciterait un événement affiché barré,

@@ -48,7 +48,7 @@ def _mk_expert(
         active=True,
     )
     if last_login_at is not None:
-        user.last_login_at = last_login_at  # type: ignore[assignment]
+        user.last_login_at = last_login_at
     db_session.add(user)
     db_session.flush()
 

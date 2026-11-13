@@ -563,13 +563,13 @@ class StripeDebug:
             stripe.checkout.Session.create = staticmethod(  # type: ignore[method-assign]
                 _patched_session_create
             )
-            stripe.checkout.Session._stripe_debug_patched = True  # type: ignore[attr-defined]
+            stripe.checkout.Session._stripe_debug_patched = True
 
         if not getattr(stripe.Webhook, "_stripe_debug_patched", False):
             stripe.Webhook.construct_event = staticmethod(  # type: ignore[method-assign]
                 _patched_construct_event
             )
-            stripe.Webhook._stripe_debug_patched = True  # type: ignore[attr-defined]
+            stripe.Webhook._stripe_debug_patched = True
 
         # Patch Customer/Product/Invoice retrieve to return synthetic
         # objects. Used by `customer.subscription.*` event handlers
@@ -582,7 +582,7 @@ class StripeDebug:
         ):
             if not getattr(klass, "_stripe_debug_patched", False):
                 klass.retrieve = staticmethod(fn)  # type: ignore[method-assign]
-                klass._stripe_debug_patched = True  # type: ignore[attr-defined]
+                klass._stripe_debug_patched = True
 
         # Patch the Billing Portal Session.create — used by
         # `bw/bw_activation/routes/billing_portal.py` to redirect
@@ -598,7 +598,7 @@ class StripeDebug:
             stripe.billing_portal.Session.create = staticmethod(  # type: ignore[method-assign]
                 _patched_billing_portal_session_create
             )
-            stripe.billing_portal.Session._stripe_debug_patched = True  # type: ignore[attr-defined]
+            stripe.billing_portal.Session._stripe_debug_patched = True
 
         # Patch the Dramatiq `generate_justificatif` actor so its
         # `.send()` runs the underlying PDF-generation function

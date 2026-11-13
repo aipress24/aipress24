@@ -77,7 +77,7 @@ def test_anonymous_cannot_read_full(post: ArticlePost):
         is_anonymous = True
         id = None
 
-    assert user_can_read_full(Anon(), post) is False  # type: ignore[arg-type]
+    assert user_can_read_full(Anon(), post) is False
 
 
 def test_author_can_read_full(author: User, post: ArticlePost):

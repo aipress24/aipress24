@@ -192,7 +192,7 @@ def accept_sujet_as_commande(
     db.session.add(commande)
     db.session.flush()
 
-    sujet.status = PublicationStatus.ACCEPTED  # type: ignore[assignment]
+    sujet.status = PublicationStatus.ACCEPTED
 
     return commande
 
@@ -221,7 +221,7 @@ def refuse_sujet(sujet: Sujet, refuser: User) -> None:
         )
         raise ValueError(msg)
 
-    sujet.status = PublicationStatus.REJECTED  # type: ignore[assignment]
+    sujet.status = PublicationStatus.REJECTED
 
 
 def notify_author_of_sujet_acceptance(

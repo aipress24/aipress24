@@ -77,7 +77,7 @@ class TestPostCard:
             class FakePost:
                 pass
 
-            card = PostCard(post=FakePost())  # type: ignore[arg-type]
+            card = PostCard(post=FakePost())
 
             with pytest.raises(AssertionError):
                 card.get_post()

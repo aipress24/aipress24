@@ -16,7 +16,7 @@ from typing import Any
 debug: Any = print
 
 with contextlib.suppress(ImportError):
-    from devtools import debug  # type: ignore[assignment,no-redef]
+    from devtools import debug
 
 
 def install() -> None:

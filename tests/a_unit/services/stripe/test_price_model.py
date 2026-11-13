@@ -308,7 +308,7 @@ class TestRepr:
             currency = "eur"
             active = True
 
-        rendered = StripePrice.__repr__(_StandIn())  # type: ignore[arg-type]
+        rendered = StripePrice.__repr__(_StandIn())
         assert rendered == "<StripePrice price_1AbcXYZ 1999eur active=True>"
 
     def test_repr_starts_and_ends_correctly(self):
@@ -322,7 +322,7 @@ class TestRepr:
             currency = "usd"
             active = False
 
-        rendered = StripePrice.__repr__(_StandIn())  # type: ignore[arg-type]
+        rendered = StripePrice.__repr__(_StandIn())
         assert rendered.startswith("<StripePrice ")
         assert rendered.endswith(">")
 
@@ -348,7 +348,7 @@ class TestRepr:
         stand_in.currency = currency
         stand_in.active = active
 
-        rendered = StripePrice.__repr__(stand_in)  # type: ignore[arg-type]
+        rendered = StripePrice.__repr__(stand_in)
         assert "price_diag" in rendered
         assert f"{amount}{currency}" in rendered
         assert f"active={active}" in rendered

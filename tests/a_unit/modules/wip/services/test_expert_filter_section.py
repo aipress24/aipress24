@@ -150,7 +150,7 @@ class TestImmutability:
         attributes — guards against typo-driven 'silent extension'."""
         section = SelectorSection(title="T", selectors=[])
         with pytest.raises(dataclasses.FrozenInstanceError):
-            section.extra = "nope"  # type: ignore[attr-defined]
+            section.extra = "nope"
 
     def test_cannot_delete_field(self) -> None:
         section = SelectorSection(title="T", selectors=[])

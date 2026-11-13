@@ -110,7 +110,7 @@ def create_app(config=None) -> Flask:
         Flask: Configured Flask application instance.
     """
     app = Flask(__name__, template_folder="../templates", static_folder="../static")
-    app = svcs.flask.init_app(app)  # type: ignore[attr-defined]
+    app = svcs.flask.init_app(app)
 
     # 1: set up app.config properly
     setup_config(app, config)

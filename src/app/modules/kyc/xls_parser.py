@@ -45,7 +45,7 @@ COL_COMMENT = 10
 COL_PROFILE = 11
 
 
-KYC_COMMUNITY_TO_ENUM: dict[str, CommunityEnum] = {  # type: ignore
+KYC_COMMUNITY_TO_ENUM: dict[str, CommunityEnum] = {
     "press & media": CommunityEnum.PRESS_MEDIA,
     "press relations": CommunityEnum.COMMUNICANTS,
     "leaders & experts": CommunityEnum.LEADERS_EXPERTS,

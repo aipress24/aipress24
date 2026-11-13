@@ -241,7 +241,7 @@ class CommuniquesWipView(BaseWipView):
                 model.publisher_id = g.user.organisation_id
 
         if not model.status:
-            model.status = PublicationStatus.DRAFT  # type: ignore[assignment]
+            model.status = PublicationStatus.DRAFT
         communique_updated.send(model)
 
     def _extra_view_html(self, model, mode: str) -> str:

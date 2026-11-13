@@ -429,7 +429,7 @@ class FilterByTransformationsMajeures(Filter):
 #             return
 
 #         options = sorted({value for obj in objects for value in self.selector(obj)})
-#         self.options = [opt for opt in options if opt]  # type: ignore[misc]
+#         self.options = [opt for opt in options if opt]
 
 #     @staticmethod
 #     def selector(user: User) -> list[str]:

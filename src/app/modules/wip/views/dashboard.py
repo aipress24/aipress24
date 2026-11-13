@@ -25,7 +25,7 @@ from ._common import get_secondary_menu
 if TYPE_CHECKING:
     from app.services.repositories import Repository
 
-ALLOWED_ROLES: list[RoleEnum] = [RoleEnum.PRESS_MEDIA, RoleEnum.ACADEMIC]  # type: ignore[list-item]
+ALLOWED_ROLES: list[RoleEnum] = [RoleEnum.PRESS_MEDIA, RoleEnum.ACADEMIC]
 
 
 @blueprint.route("/dashboard")
@@ -65,8 +65,8 @@ def dashboard():
 
 def _get_cards(article_repo, communique_repo) -> list:
     """Build cards for dashboard."""
-    public: PublicationStatus = PublicationStatus.PUBLIC  # type: ignore[assignment]
-    draft: PublicationStatus = PublicationStatus.DRAFT  # type: ignore[assignment]
+    public: PublicationStatus = PublicationStatus.PUBLIC
+    draft: PublicationStatus = PublicationStatus.DRAFT
 
     article_public_count = _get_content_count(article_repo, public)
     article_draft_count = _get_content_count(article_repo, draft)

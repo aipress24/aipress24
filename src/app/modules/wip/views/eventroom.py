@@ -93,7 +93,7 @@ def eventroom():
             # que ce détour évite.
             item["count"] = str(len(to_review))
         else:
-            model_class: type[Owned] = item["model_class"]  # type: ignore[assignment]
+            model_class: type[Owned] = item["model_class"]
             item["count"] = str(count_owned_non_deleted(model_class))
         item["href"] = url_for(item["endpoint"])
 

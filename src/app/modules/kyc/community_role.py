@@ -11,8 +11,8 @@ from app.models.auth import Role, User
 def community_to_role_name(community: str | CommunityEnum) -> str:
     """Return RoleEnum.name derivating from from CommunityEnum.name ."""
     if isinstance(community, CommunityEnum):
-        return COMMUNITY_TO_ROLE[community].name  # type: ignore
-    return COMMUNITY_TO_ROLE[CommunityEnum[community]].name  # type: ignore
+        return COMMUNITY_TO_ROLE[community].name
+    return COMMUNITY_TO_ROLE[CommunityEnum[community]].name
 
 
 def community_to_role_enum(

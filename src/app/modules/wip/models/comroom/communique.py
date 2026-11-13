@@ -155,7 +155,7 @@ class Communique(IdMixin, LifeCycleMixin, Owned, Base):
             raise ValueError(msg)
 
         # Update state
-        self.status = PublicationStatus.PUBLIC  # type: ignore[assignment]
+        self.status = PublicationStatus.PUBLIC
         if not self.published_at:
             import arrow
 
@@ -178,7 +178,7 @@ class Communique(IdMixin, LifeCycleMixin, Owned, Base):
             msg = "Impossible de dépublier: le communique n'est pas PUBLIC"
             raise ValueError(msg)
 
-        self.status = PublicationStatus.DRAFT  # type: ignore[assignment]
+        self.status = PublicationStatus.DRAFT
 
     # ------------------------------------------------------------
     # Query Methods (for templates/views)

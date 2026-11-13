@@ -85,7 +85,7 @@ class TestPureCounters:
         [nb_follg_org, nb_follg_gr, nb_ptage_art],
     )
     def test_returns_zero_for_none(self, counter) -> None:
-        assert counter(None) == 0  # type: ignore[arg-type]
+        assert counter(None) == 0
 
     @pytest.mark.parametrize(
         "counter",
@@ -349,7 +349,7 @@ class TestComputeReputationUserDispatch:
 
     def test_user_with_no_roles_returns_zero(self) -> None:
         stub = _StubUser()
-        result = compute_reputation_user(stub)  # type: ignore[arg-type]
+        result = compute_reputation_user(stub)
         assert result == {"total": 0}
 
     def test_org_dispatch_returns_zero(self) -> None:
@@ -357,7 +357,7 @@ class TestComputeReputationUserDispatch:
         `{"total": 0}` — pin this so future behaviour change is
         an explicit decision, not a silent regression."""
         # The Organisation arg isn't read, so a sentinel suffices.
-        result = compute_reputation_org(_Sentinel())  # type: ignore[arg-type]
+        result = compute_reputation_org(_Sentinel())
         assert result == {"total": 0}
 
 

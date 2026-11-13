@@ -88,7 +88,7 @@ class _FlatSelector(BaseSelector):
     label = "Tag"
     taxonomy_name = "fake"
 
-    def _expert_values(self, expert: _StandInUser) -> Iterable[str]:  # type: ignore[override]
+    def _expert_values(self, expert: _StandInUser) -> Iterable[str]:
         return expert.profile.tags
 
 

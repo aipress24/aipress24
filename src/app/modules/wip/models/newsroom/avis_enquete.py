@@ -314,7 +314,7 @@ class ContactAvisEnquete(IdMixin, Base):
 
         # Update state - store as ISO strings for JSON serialization
         self.rdv_type = rdv_type
-        self.rdv_status = RDVStatus.PROPOSED  # type: ignore[assignment]
+        self.rdv_status = RDVStatus.PROPOSED
         self.proposed_slots = [slot.isoformat() for slot in validated_slots]
         self.rdv_phone = rdv_phone
         self.rdv_video_link = rdv_video_link
@@ -351,7 +351,7 @@ class ContactAvisEnquete(IdMixin, Base):
             raise ValueError(msg)
 
         # Update state
-        self.rdv_status = RDVStatus.ACCEPTED  # type: ignore[assignment]
+        self.rdv_status = RDVStatus.ACCEPTED
         self.date_rdv = selected_slot
         self.rdv_notes_expert = expert_notes
 
@@ -367,7 +367,7 @@ class ContactAvisEnquete(IdMixin, Base):
             raise ValueError(msg)
 
         # Update state
-        self.rdv_status = RDVStatus.NO_RDV  # type: ignore[assignment]
+        self.rdv_status = RDVStatus.NO_RDV
         self.rdv_type = None
         self.proposed_slots = []
         self.date_rdv = None
@@ -392,7 +392,7 @@ class ContactAvisEnquete(IdMixin, Base):
             msg = "Cannot confirm RDV: RDV has not been accepted yet"
             raise ValueError(msg)
 
-        self.rdv_status = RDVStatus.CONFIRMED  # type: ignore[assignment]
+        self.rdv_status = RDVStatus.CONFIRMED
 
     def can_cancel_rdv(self) -> bool:
         """Check if RDV can be cancelled."""
@@ -411,7 +411,7 @@ class ContactAvisEnquete(IdMixin, Base):
             raise ValueError(msg)
 
         # Reset to initial state
-        self.rdv_status = RDVStatus.NO_RDV  # type: ignore[assignment]
+        self.rdv_status = RDVStatus.NO_RDV
         self.rdv_type = None
         self.proposed_slots = []
         self.date_rdv = None
@@ -477,7 +477,7 @@ class ContactAvisEnquete(IdMixin, Base):
                 "acceptée, ou un rendez-vous existe déjà."
             )
             raise ValueError(msg)
-        self.status = StatutAvis.DECLINE  # type: ignore[assignment]
+        self.status = StatutAvis.DECLINE
 
     @property
     def is_declined(self) -> bool:
@@ -496,9 +496,9 @@ class ContactAvisEnquete(IdMixin, Base):
             msg = "Impossible de rétablir cette proposition."
             raise ValueError(msg)
         if self.email_relation_presse:
-            self.status = StatutAvis.ACCEPTE_RELATION_PRESSE  # type: ignore[assignment]
+            self.status = StatutAvis.ACCEPTE_RELATION_PRESSE
         else:
-            self.status = StatutAvis.ACCEPTE  # type: ignore[assignment]
+            self.status = StatutAvis.ACCEPTE
 
     def get_rdv_summary(self) -> str:
         """Get human-readable RDV summary for display."""

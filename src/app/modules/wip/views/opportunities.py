@@ -618,7 +618,7 @@ def _redirect_opportunity_response(target_url: str) -> Response:
         resp = make_response("", 200)
         resp.headers["HX-Redirect"] = target_url
         return resp
-    return redirect(target_url)  # type: ignore[return-value]
+    return redirect(target_url)
 
 
 @blueprint.route("/opportunities/<int:id>", methods=["POST"])
@@ -648,10 +648,10 @@ def media_opportunity_post(id: int) -> str | Response:
     if reponse:
         contact.date_reponse = datetime.now(UTC)
         if reponse == "oui":
-            contact.status = StatutAvis.ACCEPTE  # type: ignore[assignment]
+            contact.status = StatutAvis.ACCEPTE
             contact.rdv_notes_expert = request.form.get("contribution", "")
         elif reponse == "oui_relation_presse":
-            contact.status = StatutAvis.ACCEPTE_RELATION_PRESSE  # type: ignore[assignment]
+            contact.status = StatutAvis.ACCEPTE_RELATION_PRESSE
             contact.rdv_notes_expert = request.form.get("contribution", "")
             # Bug #0061-b: resolve the org's accepted BWPRi, not the
             # expert's own profile field (gave the PDG's own email).
@@ -694,7 +694,7 @@ def media_opportunity_post(id: int) -> str | Response:
                         f"{contact.id}, email={contact.email_relation_presse!r}: {e}"
                     )
         elif reponse == "non":
-            contact.status = StatutAvis.REFUSE  # type: ignore[assignment]
+            contact.status = StatutAvis.REFUSE
             contact.rdv_notes_expert = request.form.get("refusal_reason", "")
         elif reponse == "non-mais":
             avis_service = AvisEnqueteService()
@@ -736,7 +736,7 @@ def media_opportunity_post(id: int) -> str | Response:
                 flash(str(e), "error")
                 return _redirect_opportunity_response(url_for("wip.opportunities"))
 
-            contact.status = StatutAvis.REFUSE_SUGGESTION  # type: ignore[assignment]
+            contact.status = StatutAvis.REFUSE_SUGGESTION
             contact.rdv_notes_expert = f"Suggéré: {colleague_user.full_name}"
 
         repo.session.commit()

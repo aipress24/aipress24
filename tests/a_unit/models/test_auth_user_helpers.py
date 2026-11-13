@@ -310,7 +310,7 @@ class TestAddAndRemoveRole:
         user = _make_user()
         user.roles = []
         with pytest.raises(AssertionError):
-            user.remove_role(123)  # type: ignore[arg-type]
+            user.remove_role(123)
 
     def test_remove_role_handles_inmemory_duplicates(self, db: SQLAlchemy) -> None:
         """Pre-2f7d18cf: ``list.remove() + break`` left a lingering

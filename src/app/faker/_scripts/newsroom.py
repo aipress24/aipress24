@@ -155,7 +155,7 @@ class AvisEnqueteFakerScript(BaseScript):
 
         self.add_metadata(obj)
 
-        obj.status = random.choice(list(PublicationStatus))  # type: ignore[arg-type]
+        obj.status = random.choice(list(PublicationStatus))
 
         obj.content = faker.text(5)
 
@@ -211,7 +211,7 @@ class ArticlesFakerScript(BaseScript):
 
         self.add_metadata(obj)
 
-        obj.status = random.choice(  # type: ignore[assignment]
+        obj.status = random.choice(
             [
                 PublicationStatus.DRAFT,
                 PublicationStatus.PUBLIC,

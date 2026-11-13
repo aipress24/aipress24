@@ -326,7 +326,7 @@ class TestBackToPost:
         # Tiny duck-typed stand-in — `_back_to_post` only reads `.id`.
         post = SimpleNamespace(id=12345)
         with app.test_request_context():
-            url = _back_to_post(post)  # type: ignore[arg-type]
+            url = _back_to_post(post)
         # base62.encode prefixes with "x" then base62-encodes 12345.
         # Pin the prefix + structure ; the exact suffix is base62's
         # business, but we want to confirm it was applied (not the
@@ -339,7 +339,7 @@ class TestBackToPost:
     def test_various_post_ids_encode_via_base62(self, app, post_id: int):
         post = SimpleNamespace(id=post_id)
         with app.test_request_context():
-            url = _back_to_post(post)  # type: ignore[arg-type]
+            url = _back_to_post(post)
         # Every encoded id has the "x" base62 marker after the slash.
         assert "/x" in url
 
@@ -349,5 +349,5 @@ class TestBackToPost:
         # using the URL in a `redirect()` may misbehave.
         post = SimpleNamespace(id=1)
         with app.test_request_context():
-            url = _back_to_post(post)  # type: ignore[arg-type]
+            url = _back_to_post(post)
         assert url.startswith("/")

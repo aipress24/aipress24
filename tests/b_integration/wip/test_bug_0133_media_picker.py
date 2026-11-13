@@ -64,9 +64,9 @@ class _ConcreteView(BaseWipView):
 
     name = "test"
     model_class = Organisation
-    form_class = type("F", (), {})  # type: ignore[assignment]
-    repo_class = type("R", (), {})  # type: ignore[assignment]
-    table_class = type("T", (), {})  # type: ignore[assignment]
+    form_class = type("F", (), {})
+    repo_class = type("R", (), {})
+    table_class = type("T", (), {})
     doc_type = "test"
 
     label_main = ""

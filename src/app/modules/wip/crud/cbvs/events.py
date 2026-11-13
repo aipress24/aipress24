@@ -452,7 +452,7 @@ class EventsWipView(BaseWipView):
                 model.publisher_id = g.user.organisation_id
 
         if not model.status:
-            model.status = PublicationStatus.DRAFT  # type: ignore[assignment]
+            model.status = PublicationStatus.DRAFT
             model.published_at = arrow.now("Europe/Paris")
 
         # MOD-01, PRX-02, REL-04 — les règles gouvernent l'**état

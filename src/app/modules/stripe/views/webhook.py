@@ -816,8 +816,8 @@ def _record_article_purchase_from_checkout(data_obj) -> None:
     # see `tests/a_unit/modules/stripe/test_webhook_helpers.py`.
     purchase.amount_cents = extract_amount_cents_ht(data_obj)
     purchase.currency = normalise_currency_or_eur(data_obj)
-    purchase.status = PurchaseStatus.PAID  # type: ignore[assignment]
-    purchase.paid_at = datetime.now(UTC)  # type: ignore[assignment]
+    purchase.status = PurchaseStatus.PAID
+    purchase.paid_at = datetime.now(UTC)
     db.session.commit()
     info(
         f"ArticlePurchase {purchase.id} PAID "

@@ -297,7 +297,7 @@ class ArticlesWipView(BaseWipView):
 
     def _post_update_model(self, model: Article) -> None:
         if not model.status:
-            model.status = PublicationStatus.DRAFT  # type: ignore[assignment]
+            model.status = PublicationStatus.DRAFT
             model.published_at = arrow.now("Europe/Paris")
             if g.user.organisation_id:
                 model.publisher_id = g.user.organisation_id

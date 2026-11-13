@@ -453,7 +453,7 @@ class TestSignedUrlExpiry:
             content = _FakeFileObject()
             id = "img-x"
 
-        result = BWImage.signed_url(  # type: ignore[arg-type]
+        result = BWImage.signed_url(
             _StandIn(), expires_in=expires_in
         )
         assert f"expires_in={expires_in}" in result

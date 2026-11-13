@@ -125,14 +125,14 @@ class Post(NewsMetadataMixin, BaseContent, LifeCycleMixin):
     def publisher(cls):
         return orm.relationship(
             Organisation,
-            foreign_keys=[cls.publisher_id],  # type: ignore[list-item]
+            foreign_keys=[cls.publisher_id],
         )
 
     @orm.declared_attr
     def media(cls):
         return orm.relationship(
             Organisation,
-            foreign_keys=[cls.media_id],  # type: ignore[list-item]
+            foreign_keys=[cls.media_id],
         )
 
 

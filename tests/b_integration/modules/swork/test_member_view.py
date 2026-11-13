@@ -120,7 +120,7 @@ class TestPublicationsTabCounter:
         # survey profile id.
         target_user.profile.profile_id = "P001"
         post = ArticlePost(owner=target_user)
-        post.status = PublicationStatus.PUBLIC  # type: ignore[assignment]
+        post.status = PublicationStatus.PUBLIC
         db_session.add(post)
         db_session.flush()
 

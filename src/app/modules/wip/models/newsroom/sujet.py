@@ -114,7 +114,7 @@ class Sujet(
         if not self.contenu or not self.contenu.strip():
             msg = "Impossible d'envoyer le sujet : il n'a pas de contenu"
             raise ValueError(msg)
-        self.status = PublicationStatus.PUBLIC  # type: ignore[assignment]
+        self.status = PublicationStatus.PUBLIC
 
     def unpublish(self, user: User | None = None) -> None:
         if not self.can_unpublish(user):
@@ -123,4 +123,4 @@ class Sujet(
             else:
                 msg = "Impossible de retirer le sujet : seul son auteur peut le retirer"
             raise ValueError(msg)
-        self.status = PublicationStatus.DRAFT  # type: ignore[assignment]
+        self.status = PublicationStatus.DRAFT

@@ -188,7 +188,7 @@ class TestUserCanAccessNewsroom:
         assert user_can_access_newsroom(_User(is_anonymous=True)) is False
 
     def test_none_user_denied(self) -> None:
-        assert user_can_access_newsroom(None) is False  # type: ignore[arg-type]
+        assert user_can_access_newsroom(None) is False
 
     def test_press_media_allowed(self) -> None:
         assert user_can_access_newsroom(_User(roles=[RoleEnum.PRESS_MEDIA])) is True
@@ -219,7 +219,7 @@ class TestUserCanAccessComroom:
         assert user_can_access_comroom(_User(is_anonymous=True)) is False
 
     def test_none_user_denied(self) -> None:
-        assert user_can_access_comroom(None) is False  # type: ignore[arg-type]
+        assert user_can_access_comroom(None) is False
 
     @pytest.mark.parametrize("role", sorted(COMROOM_COMMUNITY_ROLES, key=str))
     def test_each_community_role_grants_access(self, role: RoleEnum) -> None:
@@ -250,7 +250,7 @@ class TestUserCanAccessEventroom:
         assert user_can_access_eventroom(_User(is_anonymous=True)) is False
 
     def test_none_user_denied(self) -> None:
-        assert user_can_access_eventroom(None) is False  # type: ignore[arg-type]
+        assert user_can_access_eventroom(None) is False
 
     @pytest.mark.parametrize("role", sorted(EVENTROOM_COMMUNITY_ROLES, key=str))
     def test_each_eventroom_role_grants_access(self, role: RoleEnum) -> None:
@@ -277,7 +277,7 @@ class TestUserIsActingAsPrManager:
         assert user_is_acting_as_pr_manager(_User(is_anonymous=True)) is False
 
     def test_none_user_denied(self) -> None:
-        assert user_is_acting_as_pr_manager(None) is False  # type: ignore[arg-type]
+        assert user_is_acting_as_pr_manager(None) is False
 
     def test_not_managing_another_bw_denied(self) -> None:
         user = _User(user_id=1, is_managing_another_bw=False)
@@ -328,7 +328,7 @@ class TestUserHasMission:
 
     def test_none_user_denied(self) -> None:
         assert (
-            user_has_mission(None, PermissionType.EVENTS)  # type: ignore[arg-type]
+            user_has_mission(None, PermissionType.EVENTS)
             is False
         )
 

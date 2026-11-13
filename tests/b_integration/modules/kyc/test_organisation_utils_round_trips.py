@@ -196,7 +196,7 @@ class TestStoreAutoOrganisationCreatesRow:
     """``store_auto_organisation`` persists a fresh AUTO row when none exists."""
 
     def test_creates_new_auto_row(self, db_session: Session) -> None:
-        result = store_auto_organisation(user=None, org_name="Fresh AUTO")  # type: ignore[arg-type]
+        result = store_auto_organisation(user=None, org_name="Fresh AUTO")
 
         assert result is not None
         assert result.id is not None
@@ -208,7 +208,7 @@ class TestStoreAutoOrganisationCreatesRow:
 
     def test_normalises_whitespace(self, db_session: Session) -> None:
         result = store_auto_organisation(
-            user=None,  # type: ignore[arg-type]
+            user=None,
             org_name="  Padded Org  ",
         )
 
@@ -220,7 +220,7 @@ class TestStoreAutoOrganisationCreatesRow:
         self, db_session: Session, bad_name: str
     ) -> None:
         result = store_auto_organisation(
-            user=None,  # type: ignore[arg-type]
+            user=None,
             org_name=bad_name,
         )
 
@@ -237,7 +237,7 @@ class TestStoreAutoOrganisationIdempotency:
         db_session.flush()
 
         result = store_auto_organisation(
-            user=None,  # type: ignore[arg-type]
+            user=None,
             org_name="Existing Auto",
         )
 
@@ -253,7 +253,7 @@ class TestStoreAutoOrganisationIdempotency:
         db_session.flush()
 
         result = store_auto_organisation(
-            user=None,  # type: ignore[arg-type]
+            user=None,
             org_name="Dual Name",
         )
 

@@ -354,7 +354,7 @@ class TestBuildMailKwargs:
             full_name = "X"
 
         kwargs = build_mail_kwargs(
-            recipient=_NoEmailUser(),  # type: ignore[arg-type]
+            recipient=_NoEmailUser(),
             article=_ArticleLike(),
             avis_enquete=_AvisLike(),
             journalist=_UserLike(),
@@ -384,7 +384,7 @@ class TestBuildMailKwargs:
         kwargs = build_mail_kwargs(
             recipient=_UserLike(),
             article=_ArticleLike(),
-            avis_enquete=avis,  # type: ignore[arg-type]
+            avis_enquete=avis,
             journalist=_UserLike(),
             media_name="X",
             article_url="/x",

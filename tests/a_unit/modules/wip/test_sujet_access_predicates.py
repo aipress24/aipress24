@@ -78,7 +78,7 @@ class TestUserCanAccessSujets:
         assert user_can_access_sujets(_user(is_anonymous=True)) is False
 
     def test_none_user_denied(self) -> None:
-        assert user_can_access_sujets(None) is False  # type: ignore[arg-type]
+        assert user_can_access_sujets(None) is False
 
     def test_no_bw_denied_even_with_press_media(self) -> None:
         user = _user(roles=[RoleEnum.PRESS_MEDIA])

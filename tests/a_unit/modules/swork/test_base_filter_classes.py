@@ -146,7 +146,7 @@ class _StringSelectorFilter(Filter):
 
     id = "name"
     label = "Name"
-    selector = "name"  # type: ignore[assignment]
+    selector = "name"
 
 
 class _CallableSelectorFilter(Filter):
@@ -165,7 +165,7 @@ class _BadSelectorFilter(Filter):
 
     id = "bad"
     label = "Bad"
-    selector = 12345  # type: ignore[assignment]
+    selector = 12345
 
 
 class TestFilterBase:

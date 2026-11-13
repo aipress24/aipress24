@@ -94,8 +94,8 @@ class TestLaTableDeRegles:
 
         assert (
             user_can_read_full(
-                user,  # type: ignore[arg-type]
-                post,  # type: ignore[arg-type]
+                user,
+                post,
                 role_checker=_admin_role,
                 paid_lookup=_always_paid,
                 gift_lookup=_always_gifted,
@@ -109,8 +109,8 @@ class TestLaTableDeRegles:
 
         assert (
             user_can_read_full(
-                user,  # type: ignore[arg-type]
-                post,  # type: ignore[arg-type]
+                user,
+                post,
                 role_checker=_no_role,
                 paid_lookup=_never_paid,
                 gift_lookup=_never_gifted,
@@ -122,7 +122,7 @@ class TestLaTableDeRegles:
         post = _Post(post_id=1, owner_id=42, copyright=COPYRIGHT_CREATIVE_COMMONS)
         user = _User(user_id=None, is_anonymous=True)
 
-        assert user_can_read_full(user, post) is False  # type: ignore[arg-type]
+        assert user_can_read_full(user, post) is False
 
     def test_author_wins_over_missing_purchases(self) -> None:
         post = _Post(post_id=1, owner_id=7)
@@ -130,8 +130,8 @@ class TestLaTableDeRegles:
 
         assert (
             user_can_read_full(
-                user,  # type: ignore[arg-type]
-                post,  # type: ignore[arg-type]
+                user,
+                post,
                 role_checker=_no_role,
                 paid_lookup=_never_paid,
                 gift_lookup=_never_gifted,
@@ -145,8 +145,8 @@ class TestLaTableDeRegles:
 
         assert (
             user_can_read_full(
-                user,  # type: ignore[arg-type]
-                post,  # type: ignore[arg-type]
+                user,
+                post,
                 role_checker=_admin_role,
                 paid_lookup=_never_paid,
                 gift_lookup=_never_gifted,
@@ -160,8 +160,8 @@ class TestLaTableDeRegles:
 
         assert (
             user_can_read_full(
-                user,  # type: ignore[arg-type]
-                post,  # type: ignore[arg-type]
+                user,
+                post,
                 role_checker=_no_role,
                 paid_lookup=_always_paid,
                 gift_lookup=_never_gifted,
@@ -175,8 +175,8 @@ class TestLaTableDeRegles:
 
         assert (
             user_can_read_full(
-                user,  # type: ignore[arg-type]
-                post,  # type: ignore[arg-type]
+                user,
+                post,
                 role_checker=_no_role,
                 paid_lookup=_never_paid,
                 gift_lookup=_always_gifted,
@@ -190,8 +190,8 @@ class TestLaTableDeRegles:
 
         assert (
             user_can_read_full(
-                user,  # type: ignore[arg-type]
-                post,  # type: ignore[arg-type]
+                user,
+                post,
                 role_checker=_no_role,
                 paid_lookup=_never_paid,
                 gift_lookup=_never_gifted,
@@ -209,7 +209,7 @@ class TestUserCanReadFullGuards:
         assert (
             user_can_read_full(
                 None,
-                post,  # type: ignore[arg-type]
+                post,
                 role_checker=_no_role,
                 paid_lookup=_never_paid,
                 gift_lookup=_never_gifted,
@@ -222,8 +222,8 @@ class TestUserCanReadFullGuards:
         post = _Post(post_id=1, owner_id=42)
         assert (
             user_can_read_full(
-                anon,  # type: ignore[arg-type]
-                post,  # type: ignore[arg-type]
+                anon,
+                post,
                 role_checker=_no_role,
                 paid_lookup=_never_paid,
                 gift_lookup=_never_gifted,
@@ -243,8 +243,8 @@ class TestUserCanReadFullGuards:
         post = _Post(post_id=1, owner_id=42)
         assert (
             user_can_read_full(
-                author,  # type: ignore[arg-type]
-                post,  # type: ignore[arg-type]
+                author,
+                post,
                 role_checker=boom,
                 paid_lookup=boom,
                 gift_lookup=boom,
@@ -283,8 +283,8 @@ class TestUserCanReadFullVerdicts:
         gift_lookup = _always_gifted if has_gift else _never_gifted
 
         result = user_can_read_full(
-            reader,  # type: ignore[arg-type]
-            post,  # type: ignore[arg-type]
+            reader,
+            post,
             role_checker=role_checker,
             paid_lookup=paid_lookup,
             gift_lookup=gift_lookup,
@@ -307,8 +307,8 @@ class TestUserCanReadFullVerdicts:
         reader = _User(user_id=7, is_anonymous=False)
         post = _Post(post_id=99, owner_id=42)
         user_can_read_full(
-            reader,  # type: ignore[arg-type]
-            post,  # type: ignore[arg-type]
+            reader,
+            post,
             role_checker=_no_role,
             paid_lookup=record_paid,
             gift_lookup=record_gift,
@@ -381,7 +381,7 @@ class TestIsOnSale:
     ) -> None:
         post = _Post(post_id=1, owner_id=42)
 
-        assert is_on_sale(post, product) is True  # type: ignore[arg-type]
+        assert is_on_sale(post, product) is True
 
     @pytest.mark.parametrize(
         ("product", "expected"),
@@ -397,4 +397,4 @@ class TestIsOnSale:
     ) -> None:
         post = _Post(post_id=1, owner_id=42, copyright=COPYRIGHT_CREATIVE_COMMONS)
 
-        assert is_on_sale(post, product) is expected  # type: ignore[arg-type]
+        assert is_on_sale(post, product) is expected
