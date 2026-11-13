@@ -93,26 +93,12 @@ S3_BUCKET_NAME = "aipress24-images"
 [default.CONTENT_SECURITY_POLICY]
 default-src = "'none'"
 img-src = ["*", "data:"]
-font-src = [
-    "'self'",
-    "data:",
-    # TODO: remove
-    "https://cdnjs.cloudflare.com/",
-    "https://fonts.gstatic.com/",
-    "https://use.fontawesome.com/",
-]
-style-src = [
-    "'self'",
-    "'unsafe-inline'",
-    # TODO: remove
-    "https://cdnjs.cloudflare.com/",
-    "https://fonts.googleapis.com/",
-    "https://cdn.jsdelivr.net/",
-    "https://use.fontawesome.com/",
-    "https://rsms.me/",
-]
+font-src = ["'self'", "data:"]
+style-src = ["'self'", "'unsafe-inline'"]
 connect-src = [
     "'self'",
+    # Analytics: t.js posts page views to /t
+    "https://stats.hop3.abilian.com/",
     "https://sentry.io/",
     "https://shynet.aipress24.com/",
     "https://cdn.userfront.com/",
@@ -132,13 +118,8 @@ script-src = [
     "https://api.userfront.com/",
     "https://cdn.userfront.com/",
     "https://api.anymod.com",
-    # Analytics
-    # TODO
-    # CDNs - TODO: remove
-    "https://cdn.jsdelivr.net/",
-    "https://cdnjs.cloudflare.com/",
-    "https://unpkg.com/",
-    "https://cdn.tailwindcss.com/",
+    # Analytics (t.js, loaded by the public and private layouts)
+    "https://stats.hop3.abilian.com/",
     # Stripe
     "https://js.stripe.com/",
 ]
