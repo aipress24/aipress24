@@ -18,7 +18,6 @@ from sqlalchemy import text
 from tenacity import retry, stop_after_attempt, wait_exponential
 
 from app.flask.extensions import db
-from app.lib.debugging import debug
 
 from . import db_util
 
@@ -99,7 +98,6 @@ def import_sql(filename: str) -> None:
         env["PGPASSWORD"] = password
     if username:
         env["PGUSER"] = username
-    debug(env)
 
     pg_restore = shutil.which("pg_restore")
     if not pg_restore:
