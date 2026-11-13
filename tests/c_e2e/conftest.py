@@ -119,7 +119,10 @@ def fresh_db(app: Flask):
     with app.test_request_context(), contextlib.suppress(Exception):
         logout_user()
 
-    yield _db
+    # A fresh app context per test: the session-wide one would carry `g`
+    # (the logged-in user, the Principal identity) from one test to the next.
+    with app.app_context():
+        yield _db
 
     _db.session.rollback()
     _db.session.remove()

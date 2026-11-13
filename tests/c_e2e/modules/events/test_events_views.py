@@ -38,7 +38,7 @@ if TYPE_CHECKING:
 @pytest.fixture
 def test_user(db_session: Session) -> User:
     """Create a test user for events tests."""
-    user = User(email="events_views_test@example.com")
+    user = User(email="events_views_test@example.com", active=True)
     user.photo = b""
     db_session.add(user)
     db_session.flush()
@@ -49,20 +49,8 @@ def test_user(db_session: Session) -> User:
 def authenticated_client(
     app: Flask, db_session: Session, test_user: User
 ) -> FlaskClient:
-    """Provide a Flask test client logged in as test user."""
-    client = app.test_client()
-
-    with client.session_transaction() as sess:
-        sess["_user_id"] = str(test_user.id)
-        sess["_fresh"] = True
-        sess["_permanent"] = True
-        sess["_id"] = (
-            str(test_user.fs_uniquifier)
-            if hasattr(test_user, "fs_uniquifier")
-            else str(test_user.id)
-        )
-
-    return client
+    """Provide a Flask test client logged in as test_user."""
+    return make_authenticated_client(app, test_user)
 
 
 @pytest.fixture
@@ -90,14 +78,14 @@ class TestEventsListView:
         """Test events page is accessible with regular GET."""
         response = authenticated_client.get("/events/")
         # Accept 200 or 302 (auth may redirect in some test configs)
-        assert response.status_code in (200, 302)
+        assert response.status_code == 200
 
     def test_events_page_renders_template(
         self, authenticated_client: FlaskClient, db_session: Session
     ):
         """Test events page renders correct content."""
         response = authenticated_client.get("/events/")
-        assert response.status_code in (200, 302)
+        assert response.status_code == 200
 
     def test_events_page_htmx_boosted(
         self, authenticated_client: FlaskClient, db_session: Session
@@ -107,7 +95,7 @@ class TestEventsListView:
             "/events/",
             headers={"HX-Request": "true", "HX-Boosted": "true"},
         )
-        assert response.status_code in (200, 302)
+        assert response.status_code == 200
 
     def test_events_page_htmx_partial_without_target(
         self, authenticated_client: FlaskClient, db_session: Session
@@ -118,7 +106,7 @@ class TestEventsListView:
             headers={"HX-Request": "true"},
         )
         # Should return full page as fallback
-        assert response.status_code in (200, 302)
+        assert response.status_code == 200
 
     def test_events_page_htmx_members_list_target(
         self, authenticated_client: FlaskClient, db_session: Session
@@ -128,7 +116,7 @@ class TestEventsListView:
             "/events/",
             headers={"HX-Request": "true", "HX-Target": "members-list"},
         )
-        assert response.status_code in (200, 302)
+        assert response.status_code == 200
 
     def test_events_page_with_tag_filter(
         self, authenticated_client: FlaskClient, db_session: Session
@@ -139,28 +127,28 @@ class TestEventsListView:
             headers={"HX-Request": "true", "HX-Target": "members-list"},
             query_string={"tag": "conference"},
         )
-        assert response.status_code in (200, 302)
+        assert response.status_code == 200
 
     def test_events_page_with_search(
         self, authenticated_client: FlaskClient, db_session: Session
     ):
         """Test events page with search query param."""
         response = authenticated_client.get("/events/?search=test")
-        assert response.status_code in (200, 302)
+        assert response.status_code == 200
 
     def test_events_page_with_month_filter(
         self, authenticated_client: FlaskClient, db_session: Session
     ):
         """Test events page with month filter."""
         response = authenticated_client.get("/events/?month=2024-06")
-        assert response.status_code in (200, 302)
+        assert response.status_code == 200
 
     def test_events_page_with_day_filter(
         self, authenticated_client: FlaskClient, db_session: Session
     ):
         """Test events page with day filter."""
         response = authenticated_client.get("/events/?day=2024-06-15")
-        assert response.status_code in (200, 302)
+        assert response.status_code == 200
 
 
 class TestEventsPostView:
@@ -175,7 +163,7 @@ class TestEventsPostView:
             data={"action": "toggle", "id": "genre", "value": "conference"},
             headers={"HX-Request": "true"},
         )
-        assert response.status_code in (200, 302)
+        assert response.status_code == 200
 
     def test_events_post_full_page_target(
         self, authenticated_client: FlaskClient, db_session: Session
@@ -186,7 +174,7 @@ class TestEventsPostView:
             data={"action": "toggle", "id": "genre", "value": "conference"},
             headers={"HX-Request": "true", "HX-Target": "body"},
         )
-        assert response.status_code in (200, 302)
+        assert response.status_code == 200
 
 
 class TestEventDetailView:
@@ -200,7 +188,7 @@ class TestEventDetailView:
     ):
         """Test event detail page is accessible."""
         response = authenticated_client.get(f"/events/{sample_event.id}")
-        assert response.status_code in (200, 302)
+        assert response.status_code == 200
 
     def test_event_detail_sets_nav_label(
         self,
@@ -210,7 +198,7 @@ class TestEventDetailView:
     ):
         """Test event detail sets dynamic nav label."""
         response = authenticated_client.get(f"/events/{sample_event.id}")
-        assert response.status_code in (200, 302)
+        assert response.status_code == 200
         # The title should be in the response (from g.nav.label)
 
     def test_event_detail_404_for_invalid_id(
@@ -235,7 +223,7 @@ class TestEventDetailView:
             follow_redirects=True,
         )
         # Accept 200 or 302 (auth may redirect in some test configs)
-        assert response.status_code in (200, 302)
+        assert response.status_code == 200
 
     def test_toggle_like_removes_like(
         self,
@@ -258,7 +246,7 @@ class TestEventDetailView:
             headers={"HX-Request": "true"},
             follow_redirects=True,
         )
-        assert response.status_code in (200, 302)
+        assert response.status_code == 200
 
     def test_toggle_like_returns_toast_header(
         self,
@@ -273,7 +261,7 @@ class TestEventDetailView:
             headers={"HX-Request": "true"},
         )
         # Accept 200 or 302 (may redirect if not fully authenticated)
-        assert response.status_code in (200, 302)
+        assert response.status_code == 200
         # HX-Trigger only present on 200 response
         if response.status_code == 200:
             trigger_header = response.headers.get("HX-Trigger")
@@ -289,14 +277,14 @@ class TestCalendarView:
     ):
         """Test calendar page is accessible."""
         response = authenticated_client.get("/events/calendar")
-        assert response.status_code in (200, 302)
+        assert response.status_code == 200
 
     def test_calendar_with_month_param(
         self, authenticated_client: FlaskClient, db_session: Session
     ):
         """Test calendar with month query parameter."""
         response = authenticated_client.get("/events/calendar?month=2024-06")
-        assert response.status_code in (200, 302)
+        assert response.status_code == 200
 
 
 class TestNavigationIntegration:
@@ -359,7 +347,7 @@ class TestNavigationIntegration:
     ):
         """Test that g.nav is available during requests."""
         response = authenticated_client.get("/events/")
-        assert response.status_code in (200, 302)
+        assert response.status_code == 200
         # If g.nav wasn't set up properly, the request would fail
 
     def test_breadcrumbs_injected_to_context_service(self, app):

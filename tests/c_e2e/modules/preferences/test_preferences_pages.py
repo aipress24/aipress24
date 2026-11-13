@@ -9,13 +9,12 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 import pytest
-from flask import g
 
 from app.enums import OPTIONAL_NOTIFICATION_CATEGORIES
 from app.models.auth import KYCProfile, User
 from app.modules.preferences.constants import MENU
 from app.modules.preferences.menu import make_menu
-from app.modules.preferences.views.notification import NotificationView
+from tests.c_e2e.conftest import make_authenticated_client
 
 if TYPE_CHECKING:
     from flask import Flask
@@ -26,12 +25,14 @@ if TYPE_CHECKING:
 @pytest.fixture
 def test_user_with_profile(db_session: Session) -> User:
     """Create a test user with profile for preferences tests."""
-    user = User(email="pref_test@example.com")
+    user = User(email="pref_test@example.com", active=True)
     user.first_name = "Test"
     user.last_name = "User"
     user.photo = b""
 
-    profile = KYCProfile(contact_type="PRESSE")
+    profile = KYCProfile(
+        contact_type="PRESSE", profile_id="P001", profile_community="PRESS_MEDIA"
+    )
     profile.show_contact_details = {}
     user.profile = profile
 
@@ -45,20 +46,8 @@ def test_user_with_profile(db_session: Session) -> User:
 def authenticated_client(
     app: Flask, db_session: Session, test_user_with_profile: User
 ) -> FlaskClient:
-    """Provide a Flask test client logged in as test user."""
-    client = app.test_client()
-
-    with client.session_transaction() as sess:
-        sess["_user_id"] = str(test_user_with_profile.id)
-        sess["_fresh"] = True
-        sess["_permanent"] = True
-        sess["_id"] = (
-            str(test_user_with_profile.fs_uniquifier)
-            if hasattr(test_user_with_profile, "fs_uniquifier")
-            else str(test_user_with_profile.id)
-        )
-
-    return client
+    """Provide a Flask test client logged in as test_user_with_profile."""
+    return make_authenticated_client(app, test_user_with_profile)
 
 
 class TestPreferencesEndpoints:
@@ -81,78 +70,71 @@ class TestPreferencesEndpoints:
     ):
         """Test preferences profile page is accessible when authenticated."""
         response = authenticated_client.get("/preferences/profile")
-        assert response.status_code in (200, 302)
+        assert response.status_code == 200
 
     def test_contact_options_page_accessible(
         self, authenticated_client: FlaskClient, db_session: Session
     ):
         """Test contact options preferences page is accessible."""
         response = authenticated_client.get("/preferences/contact-options")
-        assert response.status_code in (200, 302)
+        assert response.status_code == 200
 
 
 class TestNotificationPreferences:
-    """L'écran des préférences de notification — `PRF-06`.
-
-    Éprouvé sur la vue plutôt qu'à travers le client : dans cette
-    recette, le client authentifié est redirigé — les tests voisins
-    l'admettent en acceptant `(200, 302)` —, et ce qu'on veut vérifier
-    ici est l'écran, pas la plomberie d'authentification.
-    """
+    """L'écran des préférences de notification — `PRF-06`."""
 
     def test_it_requires_auth(self, app: Flask):
         client = app.test_client()
         response = client.get("/preferences/notification")
         assert response.status_code in (401, 302)
 
-    def test_it_offers_the_four_switches(
-        self, app: Flask, db_session: Session, test_user_with_profile: User
-    ):
-        with app.test_request_context("/preferences/notification"):
-            g.user = test_user_with_profile
-            body = NotificationView().get()
+    def test_it_offers_the_four_switches(self, authenticated_client: FlaskClient):
+        response = authenticated_client.get("/preferences/notification")
 
+        assert response.status_code == 200
+        body = response.get_data(as_text=True)
         for category in OPTIONAL_NOTIFICATION_CATEGORIES:
             assert f'name="{category.value}"' in body, category.value
 
-    def test_and_says_what_is_never_cut(
-        self, app: Flask, db_session: Session, test_user_with_profile: User
-    ):
+    def test_and_says_what_is_never_cut(self, authenticated_client: FlaskClient):
         """Sans cette phrase, un membre qui décoche tout croit avoir tout
         coupé, et s'étonne de recevoir encore une facture."""
-        with app.test_request_context("/preferences/notification"):
-            g.user = test_user_with_profile
-            body = NotificationView().get()
+        response = authenticated_client.get("/preferences/notification")
 
-        assert "toujours envoyés" in body
+        assert "toujours envoyés" in response.get_data(as_text=True)
 
     def test_posting_stores_the_choice(
-        self, app: Flask, db_session: Session, test_user_with_profile: User
+        self,
+        authenticated_client: FlaskClient,
+        db_session: Session,
+        test_user_with_profile: User,
     ):
         """Une case décochée n'est pas envoyée par le navigateur : c'est
         l'absence de la clé dans le formulaire qui vaut refus."""
-        with app.test_request_context(
-            "/preferences/notification",
-            method="POST",
-            data={"submit": "save", "alerts": "on"},
-        ):
-            g.user = test_user_with_profile
-            NotificationView().post()
+        authenticated_client.post(
+            "/preferences/notification", data={"submit": "save", "alerts": "on"}
+        )
 
-        preferences = test_user_with_profile.profile.notification_preferences
-        assert preferences["alerts"] is True
-        assert preferences["reminders"] is False
+        profile = test_user_with_profile.profile
+        assert profile is not None
+        db_session.refresh(profile)
+        assert profile.notification_preferences["alerts"] is True
+        assert profile.notification_preferences["reminders"] is False
 
     def test_cancelling_changes_nothing(
-        self, app: Flask, db_session: Session, test_user_with_profile: User
+        self,
+        authenticated_client: FlaskClient,
+        db_session: Session,
+        test_user_with_profile: User,
     ):
-        with app.test_request_context(
-            "/preferences/notification", method="POST", data={"submit": "cancel"}
-        ):
-            g.user = test_user_with_profile
-            NotificationView().post()
+        authenticated_client.post(
+            "/preferences/notification", data={"submit": "cancel"}
+        )
 
-        assert test_user_with_profile.profile.notification_preferences == {}
+        profile = test_user_with_profile.profile
+        assert profile is not None
+        db_session.refresh(profile)
+        assert profile.notification_preferences == {}
 
 
 class TestPreferencesMenu:

@@ -23,6 +23,7 @@ from app.modules.events.views._common import (
     EventDetailVM,
 )
 from app.modules.events.views._filters import FilterBar
+from tests.c_e2e.conftest import make_authenticated_client
 
 # Existing tests refer to the VM as `EventVM`; keep the alias.
 EventVM = EventDetailVM
@@ -36,7 +37,7 @@ if TYPE_CHECKING:
 @pytest.fixture
 def test_user(db_session: Session) -> User:
     """Create a test user for events tests."""
-    user = User(email="events_test@example.com")
+    user = User(email="events_test@example.com", active=True)
     user.photo = b""
     db_session.add(user)
     db_session.flush()
@@ -47,20 +48,8 @@ def test_user(db_session: Session) -> User:
 def authenticated_client(
     app: Flask, db_session: Session, test_user: User
 ) -> FlaskClient:
-    """Provide a Flask test client logged in as test user."""
-    client = app.test_client()
-
-    with client.session_transaction() as sess:
-        sess["_user_id"] = str(test_user.id)
-        sess["_fresh"] = True
-        sess["_permanent"] = True
-        sess["_id"] = (
-            str(test_user.fs_uniquifier)
-            if hasattr(test_user, "fs_uniquifier")
-            else str(test_user.id)
-        )
-
-    return client
+    """Provide a Flask test client logged in as test_user."""
+    return make_authenticated_client(app, test_user)
 
 
 @pytest.fixture
@@ -101,7 +90,7 @@ class TestEventsEndpoints:
         """Test events page is accessible to authenticated users."""
         response = authenticated_client.get("/events/")
         # Should get 200 or redirect (not unauthorized)
-        assert response.status_code in (200, 302)
+        assert response.status_code == 200
 
     def test_events_page_with_event(
         self,
@@ -111,7 +100,7 @@ class TestEventsEndpoints:
     ):
         """Test events page with an existing event."""
         response = authenticated_client.get("/events/")
-        assert response.status_code in (200, 302)
+        assert response.status_code == 200
 
     def test_event_detail_page_accessible(
         self,
@@ -121,7 +110,7 @@ class TestEventsEndpoints:
     ):
         """Test event detail page is accessible."""
         response = authenticated_client.get(f"/events/{sample_event.id}")
-        assert response.status_code in (200, 302)
+        assert response.status_code == 200
 
     def test_participants_template_with_orgless_participant(
         self,
@@ -136,11 +125,6 @@ class TestEventsEndpoints:
         unconditionally; under Jinja StrictUndefined an orgless
         participant (organisation is None) raised
         `UndefinedError: 'None' has no attribute 'name'`.
-
-        Rendered at the template level (not over HTTP) because the
-        c_e2e client redirects before reaching the template in this
-        harness — the sibling endpoint tests already tolerate the
-        302, so they never exercise the participants partial.
         """
         orgless = User(
             email="orgless_participant@example.com",
@@ -199,14 +183,14 @@ class TestEventsEndpoints:
     ):
         """Test calendar page is accessible."""
         response = authenticated_client.get("/events/calendar")
-        assert response.status_code in (200, 302)
+        assert response.status_code == 200
 
     def test_calendar_page_with_month_param(
         self, authenticated_client: FlaskClient, db_session: Session
     ):
         """Test calendar page with month query parameter."""
         response = authenticated_client.get("/events/calendar?month=2024-06")
-        assert response.status_code in (200, 302)
+        assert response.status_code == 200
 
 
 class TestDateFilter:

@@ -57,12 +57,14 @@ if TYPE_CHECKING:
 @pytest.fixture
 def test_user_with_profile(db_session: Session) -> User:
     """Create a test user with profile for swork tests."""
-    user = User(email="swork_grp_test@example.com")
+    user = User(email="swork_grp_test@example.com", active=True)
     user.first_name = "Test"
     user.last_name = "User"
     user.photo = b""
 
-    profile = KYCProfile(contact_type="PRESSE")
+    profile = KYCProfile(
+        contact_type="PRESSE", profile_id="P001", profile_community="PRESS_MEDIA"
+    )
     profile.show_contact_details = {}
     user.profile = profile
 
@@ -80,7 +82,9 @@ def second_user_with_profile(db_session: Session) -> User:
     user.last_name = "Person"
     user.photo = b""
 
-    profile = KYCProfile(contact_type="PRESSE")
+    profile = KYCProfile(
+        contact_type="PRESSE", profile_id="P001", profile_community="PRESS_MEDIA"
+    )
     profile.show_contact_details = {}
     user.profile = profile
 
@@ -152,20 +156,8 @@ def auto_organisation(db_session: Session) -> Organisation:
 def authenticated_client(
     app: Flask, db_session: Session, test_user_with_profile: User
 ) -> FlaskClient:
-    """Provide a Flask test client logged in as test user."""
-    client = app.test_client()
-
-    with client.session_transaction() as sess:
-        sess["_user_id"] = str(test_user_with_profile.id)
-        sess["_fresh"] = True
-        sess["_permanent"] = True
-        sess["_id"] = (
-            str(test_user_with_profile.fs_uniquifier)
-            if hasattr(test_user_with_profile, "fs_uniquifier")
-            else str(test_user_with_profile.id)
-        )
-
-    return client
+    """Provide a Flask test client logged in as test_user_with_profile."""
+    return make_authenticated_client(app, test_user_with_profile)
 
 
 # =============================================================================
@@ -201,7 +193,7 @@ class TestGroupEndpoint:
     ):
         """Test group page is accessible."""
         response = authenticated_client.get(f"/swork/groups/{test_group.id}")
-        assert response.status_code in (200, 302)
+        assert response.status_code == 200
 
     def test_toggle_join_via_post(
         self, authenticated_client: FlaskClient, db_session: Session, test_group: Group
@@ -211,7 +203,7 @@ class TestGroupEndpoint:
             f"/swork/groups/{test_group.id}",
             data={"action": "toggle-join"},
         )
-        assert response.status_code in (200, 302)
+        assert response.status_code == 200
 
 
 class TestGroupVM:
@@ -368,7 +360,7 @@ class TestOrgEndpoint:
         response = authenticated_client.get(
             f"/swork/organisations/{test_organisation.id}"
         )
-        assert response.status_code in (200, 302)
+        assert response.status_code == 200
 
     def test_admin_member_sees_member_banner_not_manager(
         self,

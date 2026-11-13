@@ -11,9 +11,11 @@ from typing import TYPE_CHECKING
 import pytest
 from flask import Flask, g
 
+from app.lib.base62 import base62
 from app.models.auth import KYCProfile, User
 from app.modules.swork.models import Group
 from app.modules.swork.views._common import MEMBER_TABS, UserVM
+from tests.c_e2e.conftest import make_authenticated_client
 
 if TYPE_CHECKING:
     from flask.testing import FlaskClient
@@ -23,12 +25,14 @@ if TYPE_CHECKING:
 @pytest.fixture
 def test_user_with_profile(db_session: Session) -> User:
     """Create a test user with profile for swork tests."""
-    user = User(email="swork_test@example.com")
+    user = User(email="swork_test@example.com", active=True)
     user.first_name = "Test"
     user.last_name = "User"
     user.photo = b""
 
-    profile = KYCProfile(contact_type="PRESSE")
+    profile = KYCProfile(
+        contact_type="PRESSE", profile_id="P001", profile_community="PRESS_MEDIA"
+    )
     profile.show_contact_details = {}
     user.profile = profile
 
@@ -41,12 +45,14 @@ def test_user_with_profile(db_session: Session) -> User:
 @pytest.fixture
 def other_user_with_profile(db_session: Session) -> User:
     """Create another user with profile for testing member page."""
-    user = User(email="other_swork@example.com")
+    user = User(email="other_swork@example.com", active=True)
     user.first_name = "Other"
     user.last_name = "Person"
     user.photo = b""
 
-    profile = KYCProfile(contact_type="PRESSE")
+    profile = KYCProfile(
+        contact_type="PRESSE", profile_id="P001", profile_community="PRESS_MEDIA"
+    )
     profile.show_contact_details = {}
     user.profile = profile
 
@@ -60,20 +66,8 @@ def other_user_with_profile(db_session: Session) -> User:
 def authenticated_client(
     app: Flask, db_session: Session, test_user_with_profile: User
 ) -> FlaskClient:
-    """Provide a Flask test client logged in as test user."""
-    client = app.test_client()
-
-    with client.session_transaction() as sess:
-        sess["_user_id"] = str(test_user_with_profile.id)
-        sess["_fresh"] = True
-        sess["_permanent"] = True
-        sess["_id"] = (
-            str(test_user_with_profile.fs_uniquifier)
-            if hasattr(test_user_with_profile, "fs_uniquifier")
-            else str(test_user_with_profile.id)
-        )
-
-    return client
+    """Provide a Flask test client logged in as test_user_with_profile."""
+    return make_authenticated_client(app, test_user_with_profile)
 
 
 @pytest.fixture
@@ -107,7 +101,7 @@ class TestSworkEndpoints:
     ):
         """Test swork home page is accessible to authenticated users."""
         response = authenticated_client.get("/swork/")
-        assert response.status_code in (200, 302)
+        assert response.status_code == 200
 
     def test_swork_home_layout_classes(self, app: Flask):
         """Regression for bug 0126: SOCIAL aside ad modules were narrow and tall.
@@ -208,29 +202,34 @@ class TestSworkPostHtmlEscape:
     ):
         """Test members page is accessible."""
         response = authenticated_client.get("/swork/members/")
-        assert response.status_code in (200, 302)
+        assert response.status_code == 200
 
     def test_groups_page_accessible(
         self, authenticated_client: FlaskClient, db_session: Session
     ):
         """Test groups page is accessible."""
         response = authenticated_client.get("/swork/groups/")
-        assert response.status_code in (200, 302)
+        assert response.status_code == 200
 
     def test_organisations_page_accessible(
         self, authenticated_client: FlaskClient, db_session: Session
     ):
         """Test organisations page is accessible."""
         response = authenticated_client.get("/swork/organisations/")
-        assert response.status_code in (200, 302)
+        assert response.status_code == 200
 
     def test_profile_redirect(
-        self, authenticated_client: FlaskClient, db_session: Session
+        self,
+        authenticated_client: FlaskClient,
+        db_session: Session,
+        test_user_with_profile: User,
     ):
         """Test profile page redirects to user's member page."""
         response = authenticated_client.get("/swork/profile/")
-        # Should redirect to member page
-        assert response.status_code in (200, 302)
+
+        assert response.status_code == 302
+        member_id = base62.encode(test_user_with_profile.id)
+        assert response.location.endswith(f"/swork/members/{member_id}")
 
 
 class TestMemberPageEndpoint:
@@ -246,7 +245,7 @@ class TestMemberPageEndpoint:
         response = authenticated_client.get(
             f"/swork/members/{other_user_with_profile.id}"
         )
-        assert response.status_code in {200, 302}
+        assert response.status_code == 200
 
     def test_member_page_not_found(
         self, authenticated_client: FlaskClient, db_session: Session

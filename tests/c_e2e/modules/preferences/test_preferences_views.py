@@ -10,7 +10,8 @@ from typing import TYPE_CHECKING
 
 import pytest
 
-from app.models.auth import User
+from app.models.auth import KYCProfile, User
+from tests.c_e2e.conftest import make_authenticated_client
 
 if TYPE_CHECKING:
     from flask import Flask
@@ -21,8 +22,11 @@ if TYPE_CHECKING:
 @pytest.fixture
 def test_user(db_session: Session) -> User:
     """Create a test user for preferences tests."""
-    user = User(email="preferences_views_test@example.com")
+    user = User(email="preferences_views_test@example.com", active=True)
     user.photo = b""
+    user.profile = KYCProfile(
+        contact_type="PRESSE", profile_id="P001", profile_community="PRESS_MEDIA"
+    )
     db_session.add(user)
     db_session.flush()
     return user
@@ -32,20 +36,8 @@ def test_user(db_session: Session) -> User:
 def authenticated_client(
     app: Flask, db_session: Session, test_user: User
 ) -> FlaskClient:
-    """Provide a Flask test client logged in as test user."""
-    client = app.test_client()
-
-    with client.session_transaction() as sess:
-        sess["_user_id"] = str(test_user.id)
-        sess["_fresh"] = True
-        sess["_permanent"] = True
-        sess["_id"] = (
-            str(test_user.fs_uniquifier)
-            if hasattr(test_user, "fs_uniquifier")
-            else str(test_user.id)
-        )
-
-    return client
+    """Provide a Flask test client logged in as test_user."""
+    return make_authenticated_client(app, test_user)
 
 
 class TestPreferencesHome:
@@ -68,7 +60,7 @@ class TestPreferencesProfile:
     ):
         """Test profile page is accessible."""
         response = authenticated_client.get("/preferences/profile")
-        assert response.status_code in (200, 302)
+        assert response.status_code == 200
 
 
 class TestPreferencesOther:
@@ -97,7 +89,7 @@ class TestPreferencesInterests:
     ):
         """Test interests page is accessible."""
         response = authenticated_client.get("/preferences/interests")
-        assert response.status_code in (200, 302)
+        assert response.status_code == 200
 
 
 class TestPreferencesContact:
@@ -108,7 +100,7 @@ class TestPreferencesContact:
     ):
         """Test contact options page is accessible."""
         response = authenticated_client.get("/preferences/contact-options")
-        assert response.status_code in (200, 302)
+        assert response.status_code == 200
 
 
 class TestPreferencesBanner:
@@ -119,7 +111,7 @@ class TestPreferencesBanner:
     ):
         """Test banner page is accessible."""
         response = authenticated_client.get("/preferences/banner")
-        assert response.status_code in (200, 302)
+        assert response.status_code == 200
 
 
 class TestPreferencesInvitations:
@@ -130,7 +122,7 @@ class TestPreferencesInvitations:
     ):
         """Test invitations page is accessible."""
         response = authenticated_client.get("/preferences/invitations")
-        assert response.status_code in (200, 302)
+        assert response.status_code == 200
 
 
 class TestNavigationIntegration:

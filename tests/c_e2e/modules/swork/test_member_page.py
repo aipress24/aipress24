@@ -32,6 +32,7 @@ from app.modules.wire.models import (
     PurchaseStatus,
 )
 from app.services.social_graph import adapt
+from tests.c_e2e.conftest import make_authenticated_client
 
 if TYPE_CHECKING:
     from flask.testing import FlaskClient
@@ -41,12 +42,14 @@ if TYPE_CHECKING:
 @pytest.fixture
 def logged_user(db_session: Session) -> User:
     """Create the logged-in user with profile."""
-    user = User(email="logged_user@example.com")
+    user = User(email="logged_user@example.com", active=True)
     user.first_name = "Logged"
     user.last_name = "User"
     user.photo = b""
 
-    profile = KYCProfile(contact_type="PRESSE")
+    profile = KYCProfile(
+        contact_type="PRESSE", profile_id="P001", profile_community="PRESS_MEDIA"
+    )
     profile.show_contact_details = {}
     user.profile = profile
 
@@ -64,7 +67,9 @@ def target_user(db_session: Session) -> User:
     user.last_name = "Person"
     user.photo = b""
 
-    profile = KYCProfile(contact_type="PRESSE")
+    profile = KYCProfile(
+        contact_type="PRESSE", profile_id="P001", profile_community="PRESS_MEDIA"
+    )
     profile.show_contact_details = {
         "email_PRESSE": True,
         "mobile_PRESSE": False,
@@ -87,7 +92,9 @@ def target_user_no_permissions(db_session: Session) -> User:
     user.last_name = "User"
     user.photo = b""
 
-    profile = KYCProfile(contact_type="PRESSE")
+    profile = KYCProfile(
+        contact_type="PRESSE", profile_id="P001", profile_community="PRESS_MEDIA"
+    )
     profile.show_contact_details = {}
     user.profile = profile
 
@@ -102,19 +109,7 @@ def authenticated_client(
     app: Flask, db_session: Session, logged_user: User
 ) -> FlaskClient:
     """Provide a Flask test client logged in as logged_user."""
-    client = app.test_client()
-
-    with client.session_transaction() as sess:
-        sess["_user_id"] = str(logged_user.id)
-        sess["_fresh"] = True
-        sess["_permanent"] = True
-        sess["_id"] = (
-            str(logged_user.fs_uniquifier)
-            if hasattr(logged_user, "fs_uniquifier")
-            else str(logged_user.id)
-        )
-
-    return client
+    return make_authenticated_client(app, logged_user)
 
 
 def _make_follower(db_session: Session, i: int) -> User:
@@ -303,7 +298,9 @@ class TestFilterEmailMobile:
         user.first_name = "Following"
         user.last_name = "User"
         user.photo = b""
-        profile = KYCProfile(contact_type="PRESSE")
+        profile = KYCProfile(
+            contact_type="PRESSE", profile_id="P001", profile_community="PRESS_MEDIA"
+        )
         profile.show_contact_details = {
             "email_PRESSE": False,
             "mobile_PRESSE": False,
@@ -343,7 +340,19 @@ class TestMemberPageEndpoints:
     ):
         """Test get without htmx returns full page."""
         response = authenticated_client.get(f"/swork/members/{target_user.id}")
-        assert response.status_code in (200, 302)
+        assert response.status_code == 200
+
+    def test_a_user_without_a_profile_is_not_a_member(
+        self, authenticated_client: FlaskClient, db_session: Session
+    ):
+        """A sign-up left before the KYC has no member page."""
+        user = User(email="no_profile@example.com", active=True)
+        db_session.add(user)
+        db_session.flush()
+
+        response = authenticated_client.get(f"/swork/members/{user.id}")
+
+        assert response.status_code == 404
 
     def test_get_with_htmx_profile_tab(
         self, authenticated_client: FlaskClient, db_session: Session, target_user: User
@@ -353,7 +362,7 @@ class TestMemberPageEndpoints:
             f"/swork/members/{target_user.id}?tab=profile",
             headers={"HX-Request": "true"},
         )
-        assert response.status_code in (200, 302)
+        assert response.status_code == 200
 
     def test_get_with_htmx_publications_tab(
         self, authenticated_client: FlaskClient, db_session: Session, target_user: User
@@ -363,23 +372,20 @@ class TestMemberPageEndpoints:
             f"/swork/members/{target_user.id}?tab=publications",
             headers={"HX-Request": "true"},
         )
-        assert response.status_code in (200, 302)
+        assert response.status_code == 200
 
     def test_get_with_htmx_press_book_tab_empty(
         self, authenticated_client: FlaskClient, db_session: Session, target_user: User
     ):
-        """Ticket #0195 — Press Book tab route is wired (mirrors the
-        smoke-test pattern of the sibling tabs which accept either 200
-        or 302 depending on auth state)."""
+        """Ticket #0195 — the Press Book tab shows its empty state."""
         response = authenticated_client.get(
             f"/swork/members/{target_user.id}?tab=press-book",
             headers={"HX-Request": "true"},
         )
-        assert response.status_code in (200, 302)
-        if response.status_code == 200:
-            body = response.data.decode()
-            assert "Press Book" in body
-            assert "Aucun justificatif" in body
+        assert response.status_code == 200
+        body = response.data.decode()
+        assert "Press Book" in body
+        assert "Aucun justificatif" in body
 
     def test_get_with_htmx_press_book_tab_lists_articles(
         self,
@@ -388,7 +394,7 @@ class TestMemberPageEndpoints:
         target_user: User,
     ):
         """When the member owns a PAID JUSTIFICATIF on an article, that
-        article appears in the Press Book tab (when status is 200)."""
+        article appears in the Press Book tab."""
         author = User(email="pb_author@example.com")
         author.first_name = "Auteur"
         author.last_name = "PB"
@@ -419,12 +425,11 @@ class TestMemberPageEndpoints:
             f"/swork/members/{target_user.id}?tab=press-book",
             headers={"HX-Request": "true"},
         )
-        assert response.status_code in (200, 302)
-        if response.status_code == 200:
-            body = response.data.decode()
-            assert "Article en Press Book" in body
-            # The empty-state copy must NOT be shown when there's content.
-            assert "Aucun justificatif" not in body
+        assert response.status_code == 200
+        body = response.data.decode()
+        assert "Article en Press Book" in body
+        # The empty-state copy must NOT be shown when there's content.
+        assert "Aucun justificatif" not in body
 
     def test_get_with_htmx_activities_tab(
         self, authenticated_client: FlaskClient, db_session: Session, target_user: User
@@ -434,7 +439,7 @@ class TestMemberPageEndpoints:
             f"/swork/members/{target_user.id}?tab=activities",
             headers={"HX-Request": "true"},
         )
-        assert response.status_code in (200, 302)
+        assert response.status_code == 200
 
     def test_get_with_htmx_groups_tab(
         self, authenticated_client: FlaskClient, db_session: Session, target_user: User
@@ -444,7 +449,7 @@ class TestMemberPageEndpoints:
             f"/swork/members/{target_user.id}?tab=groups",
             headers={"HX-Request": "true"},
         )
-        assert response.status_code in (200, 302)
+        assert response.status_code == 200
 
     def test_get_with_htmx_followers_tab(
         self, authenticated_client: FlaskClient, db_session: Session, target_user: User
@@ -454,7 +459,7 @@ class TestMemberPageEndpoints:
             f"/swork/members/{target_user.id}?tab=followers",
             headers={"HX-Request": "true"},
         )
-        assert response.status_code in (200, 302)
+        assert response.status_code == 200
 
     def test_get_with_htmx_followees_tab(
         self, authenticated_client: FlaskClient, db_session: Session, target_user: User
@@ -464,4 +469,4 @@ class TestMemberPageEndpoints:
             f"/swork/members/{target_user.id}?tab=followees",
             headers={"HX-Request": "true"},
         )
-        assert response.status_code in (200, 302)
+        assert response.status_code == 200
