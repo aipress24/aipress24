@@ -18,14 +18,12 @@ from __future__ import annotations
 
 import contextlib
 from typing import TYPE_CHECKING
-from urllib.parse import urlparse
 
 import pytest
+import sqlalchemy as sa
 from flask import session
 from flask_login import logout_user
 from flask_security import login_user
-from sqlalchemy import create_engine, text
-from sqlalchemy.exc import OperationalError, ProgrammingError
 
 from app.enums import RoleEnum
 from app.flask.extensions import db as _db
@@ -68,34 +66,28 @@ def client(app: Flask) -> FlaskClient:
     return app.test_client()
 
 
-def _terminate_postgres_connections(db_url: str) -> None:
+def _terminate_postgres_connections(db_url: sa.URL) -> None:
     """Terminate all other connections to the PostgreSQL database.
 
-    This is necessary to allow DROP TABLE to succeed when other connections
-    (from unit tests) are still holding locks in "idle in transaction" state.
+    DROP TABLE waits for every lock on the table, so a connection left
+    "idle in transaction" by an earlier test would block `fresh_db` forever.
     """
-    parsed_url = urlparse(db_url)
-    if not parsed_url.scheme.startswith("postgresql"):
-        return  # Only needed for PostgreSQL
+    if not db_url.drivername.startswith("postgresql"):
+        return
 
-    db_name = parsed_url.path[1:]
-    admin_db_url = parsed_url._replace(path="/template1").geturl()
-    engine = create_engine(admin_db_url, isolation_level="AUTOCOMMIT")
-
+    # The URL object, not its string: `str()` masks the password as "***".
+    engine = sa.create_engine(
+        db_url.set(database="template1"), isolation_level="AUTOCOMMIT"
+    )
     try:
         with engine.connect() as conn:
             conn.execute(
-                text(
-                    f"""
-                    SELECT pg_terminate_backend(pg_stat_activity.pid)
-                    FROM pg_stat_activity
-                    WHERE pg_stat_activity.datname = '{db_name}'
-                    AND pid <> pg_backend_pid()
-                    """
-                )
+                sa.text(
+                    "SELECT pg_terminate_backend(pid) FROM pg_stat_activity "
+                    "WHERE datname = :name AND pid <> pg_backend_pid()"
+                ),
+                {"name": db_url.database},
             )
-    except (ProgrammingError, OperationalError):
-        pass  # Ignore errors - database might not exist yet
     finally:
         engine.dispose()
 
@@ -110,8 +102,7 @@ def fresh_db(app: Flask):
     _db.engine.dispose()
 
     # For PostgreSQL: terminate lingering connections holding locks
-    db_url = str(_db.engine.url)
-    _terminate_postgres_connections(db_url)
+    _terminate_postgres_connections(_db.engine.url)
 
     _db.drop_all()
     _db.create_all()

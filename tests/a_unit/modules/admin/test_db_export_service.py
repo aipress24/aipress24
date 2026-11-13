@@ -6,6 +6,10 @@
 
 from __future__ import annotations
 
+import os
+import sys
+from dataclasses import dataclass
+from pathlib import Path
 from unittest.mock import MagicMock, patch
 
 import pytest
@@ -242,6 +246,52 @@ class TestDatabaseExportService:
         chunks = list(service.export_raw())
 
         assert b"CREATE TABLE" in b"".join(chunks)
+
+
+@dataclass(frozen=True)
+class EndlessDumpConfig(PgDumpConfig):
+    """Runs a stand-in for pg_dump that writes until it is stopped."""
+
+    pid_file: Path = Path()
+
+    def build_command(self) -> list[str]:
+        script = (
+            "import os, sys\n"
+            f"open({str(self.pid_file)!r}, 'w').write(str(os.getpid()))\n"
+            "while True:\n"
+            "    sys.stdout.buffer.write(os.urandom(65536))\n"
+        )
+        return [sys.executable, "-c", script]
+
+
+def _is_running(pid: int) -> bool:
+    """True while `pid` exists, zombies included."""
+    try:
+        os.kill(pid, 0)
+    except ProcessLookupError:
+        return False
+    return True
+
+
+@pytest.mark.parametrize("method", ["export_gzipped", "export_raw"])
+def test_closing_the_export_early_stops_pg_dump(tmp_path: Path, method: str) -> None:
+    """A download abandoned midway must not leave pg_dump blocked on a full
+    pipe, holding its transaction and its locks open."""
+    config = EndlessDumpConfig(
+        host="localhost", port=5432, database="testdb", pid_file=tmp_path / "pid"
+    )
+    chunks = getattr(DatabaseExportService(config), method)()
+    next(chunks)
+    pid = int(config.pid_file.read_text())
+
+    chunks.close()
+
+    try:
+        assert not _is_running(pid)
+    finally:
+        if _is_running(pid):
+            os.kill(pid, 9)
+            os.waitpid(pid, 0)
 
 
 class TestIsPostgresqlDatabase:

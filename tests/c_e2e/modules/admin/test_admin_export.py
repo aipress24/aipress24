@@ -704,7 +704,8 @@ class TestExportsLeaveATrace:
         messages: list[str] = []
         sink = logger.add(messages.append, level="INFO", format="{message}")
         try:
-            admin_client.get(url_for(endpoint, **kwargs))
+            # The database export streams; closing stops pg_dump.
+            admin_client.get(url_for(endpoint, **kwargs)).close()
         finally:
             logger.remove(sink)
 

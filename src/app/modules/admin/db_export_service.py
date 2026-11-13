@@ -11,9 +11,10 @@ the core logic from HTTP handling.
 
 from __future__ import annotations
 
+import contextlib
 import subprocess
 import zlib
-from collections.abc import Iterator
+from collections.abc import Generator, Iterator
 from dataclasses import dataclass
 from datetime import UTC, datetime
 from typing import TYPE_CHECKING
@@ -161,59 +162,18 @@ class DatabaseExportService:
             PgDumpNotFoundError: If pg_dump is not installed
             PgDumpExecutionError: If pg_dump returns non-zero exit code
         """
-        cmd = self.config.build_command()
-        env = self.config.build_env()
-
-        logger.info(f"Starting database export: {self.config.database}")
-
-        # Create gzip compressor (wbits=16 + MAX_WBITS for gzip format)
+        # wbits=16 + MAX_WBITS selects the gzip format
         compressor = zlib.compressobj(wbits=zlib.MAX_WBITS | 16)
+        # Closing this generator early must close the raw one, which stops pg_dump.
+        with contextlib.closing(self.export_raw(chunk_size)) as chunks:
+            for chunk in chunks:
+                if compressed_chunk := compressor.compress(chunk):
+                    yield compressed_chunk
+        yield compressor.flush()
+        logger.info(f"Database export completed successfully: {self.config.database}")
 
-        try:
-            process = subprocess.Popen(
-                cmd,
-                stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE,
-                env=env,
-            )
-
-            # Stream and compress stdout in chunks
-            stdout = process.stdout
-            if stdout:
-                for chunk in iter(lambda: stdout.read(chunk_size), b""):
-                    compressed_chunk = compressor.compress(chunk)
-                    if compressed_chunk:
-                        yield compressed_chunk
-
-            # Wait for process to complete
-            return_code = process.wait()
-
-            if return_code != 0:
-                stderr = process.stderr.read() if process.stderr else b""
-                error_msg = stderr.decode("utf-8", errors="replace")
-                logger.error(f"pg_dump failed with code {return_code}: {error_msg}")
-                raise PgDumpExecutionError(return_code, error_msg)
-
-            # Flush remaining compressed data
-            final_chunk = compressor.flush()
-            if final_chunk:
-                yield final_chunk
-
-            logger.info(
-                f"Database export completed successfully: {self.config.database}"
-            )
-
-        except FileNotFoundError as err:
-            logger.error(
-                "pg_dump command not found - PostgreSQL client tools not installed"
-            )
-            msg = "pg_dump not available - install PostgreSQL client tools"
-            raise PgDumpNotFoundError(msg) from err
-
-    def export_raw(self, chunk_size: int = 8192) -> Iterator[bytes]:
+    def export_raw(self, chunk_size: int = 8192) -> Generator[bytes]:
         """Stream pg_dump output without compression.
-
-        Useful for testing or when compression is not needed.
 
         Args:
             chunk_size: Size of chunks to read from pg_dump output
@@ -225,31 +185,33 @@ class DatabaseExportService:
             PgDumpNotFoundError: If pg_dump is not installed
             PgDumpExecutionError: If pg_dump returns non-zero exit code
         """
-        cmd = self.config.build_command()
-        env = self.config.build_env()
-
         try:
             process = subprocess.Popen(
-                cmd,
+                self.config.build_command(),
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
-                env=env,
+                env=self.config.build_env(),
             )
-
-            stdout = process.stdout
-            if stdout:
-                yield from iter(lambda: stdout.read(chunk_size), b"")
-
-            return_code = process.wait()
-
-            if return_code != 0:
-                stderr = process.stderr.read() if process.stderr else b""
-                error_msg = stderr.decode("utf-8", errors="replace")
-                raise PgDumpExecutionError(return_code, error_msg)
-
         except FileNotFoundError as err:
             msg = "pg_dump not available - install PostgreSQL client tools"
             raise PgDumpNotFoundError(msg) from err
+
+        try:
+            stdout = process.stdout
+            if stdout:
+                yield from iter(lambda: stdout.read(chunk_size), b"")
+        except GeneratorExit:
+            # The download stopped midway. Left alone, pg_dump blocks on the
+            # full pipe with its transaction, and its locks, open.
+            process.kill()
+            process.wait()
+            raise
+
+        return_code = process.wait()
+        if return_code != 0:
+            stderr = process.stderr.read() if process.stderr else b""
+            error_msg = stderr.decode("utf-8", errors="replace")
+            raise PgDumpExecutionError(return_code, error_msg)
 
 
 def is_postgresql_database(db_url: URL) -> bool:
