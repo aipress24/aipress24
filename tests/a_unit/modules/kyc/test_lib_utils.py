@@ -49,9 +49,9 @@ class TestConvertToTomChoicesJs:
         assert {"optgroup": "Group A", "value": "Item 2", "label": "Item 2"} in result
         assert {"optgroup": "Group B", "value": "Item 3", "label": "Item 3"} in result
 
-    def test_raises_type_error_for_invalid_type(self) -> None:
-        """Test raises TypeError for invalid input type."""
-        with pytest.raises((TypeError, TypeCheckError)):
+    def test_rejects_invalid_type(self) -> None:
+        """Test rejects invalid input type."""
+        with pytest.raises((AssertionError, TypeCheckError)):
             convert_to_tom_choices_js("invalid")
 
 
@@ -81,9 +81,9 @@ class TestConvertToTomOptgroupsJs:
         result = convert_to_tom_optgroups_js({})
         assert result == []
 
-    def test_raises_type_error_for_invalid_type(self) -> None:
-        """Test raises TypeError for invalid input type."""
-        with pytest.raises((TypeError, TypeCheckError)):
+    def test_rejects_invalid_type(self) -> None:
+        """Test rejects invalid input type."""
+        with pytest.raises((AssertionError, TypeCheckError)):
             convert_to_tom_optgroups_js("invalid")
 
 

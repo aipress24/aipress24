@@ -8,7 +8,7 @@ import inspect
 from collections.abc import Callable
 from copy import deepcopy
 from pathlib import Path
-from typing import Any
+from typing import Any, assert_never
 
 from flask import Response, current_app, render_template, render_template_string
 from jinja2 import Template
@@ -77,8 +77,7 @@ class TemplateResponse(Response):
             case Path() as template_path:
                 return render_template(str(template_path), **self.context)
             case _:
-                msg = "template_name or template_str must be provided"
-                raise ValueError(msg)
+                assert_never(self.template)
 
     def enrich_context(
         self,

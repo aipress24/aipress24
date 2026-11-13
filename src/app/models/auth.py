@@ -9,7 +9,7 @@ import typing
 import uuid
 from copy import deepcopy
 from datetime import datetime
-from typing import Any, ClassVar
+from typing import Any, ClassVar, assert_never
 
 import arrow
 import sqlalchemy as sa
@@ -335,8 +335,7 @@ class User(LifeCycleMixin, Addressable, UserMixin, Base):
             case str():
                 return role in (role.name for role in self.roles)
             case _:
-                msg = f"Invalid role: {role}"
-                raise ValueError(msg)
+                assert_never(role)
 
     def add_role(self, role: Role) -> bool:
         if self.has_role(role):
@@ -356,8 +355,7 @@ class User(LifeCycleMixin, Addressable, UserMixin, Base):
             case str():
                 role_name = role
             case _:
-                msg = f"Invalid role: {role}"
-                raise ValueError(msg)
+                assert_never(role)
 
         self.roles = [r for r in self.roles if r.name != role_name]
 

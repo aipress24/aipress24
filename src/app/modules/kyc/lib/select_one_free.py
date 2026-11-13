@@ -4,7 +4,6 @@
 
 from __future__ import annotations
 
-import sys
 from pathlib import Path
 
 from flask import current_app
@@ -14,21 +13,16 @@ from wtforms.fields.choices import SelectField
 
 
 def convert_to_tom_choices_js(choices: list) -> list:
-    if isinstance(choices, list):
-        # required by choices.js : list of dict
-        return [{"value": item[0], "label": item[1]} for item in choices]
-    print(f"{type(choices)}", file=sys.stderr)
-    print(f"{choices=}", file=sys.stderr)
-    raise TypeError
+    assert isinstance(choices, list)
+    # required by choices.js : list of dict
+    return [{"value": item[0], "label": item[1]} for item in choices]
 
 
 def convert_to_tom_optgroups_js(choices: list | dict) -> list:
     if isinstance(choices, list):
         return []
-    if isinstance(choices, dict):
-        return [{"value": group, "label": group} for group in choices]
-    msg = "choices must be a list or a dict"
-    raise TypeError(msg)
+    assert isinstance(choices, dict)
+    return [{"value": group, "label": group} for group in choices]
 
 
 def _dict_to_group_tom_choices(choices: dict) -> list:

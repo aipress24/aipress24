@@ -140,10 +140,6 @@ def close_business_wall_locally(
         "cleared_invitations_count": 0,
     }
 
-    if bw is None:
-        result["reason"] = "Business Wall is None"
-        return result
-
     bw.status = BWStatus.SUSPENDED.value
     _local_subscription_cancel(bw.subscription)
     _clear_organisation_bw_link(bw)
@@ -182,10 +178,6 @@ def cancel_business_wall_from_app(
         "cleared_role_assignments_count": 0,
         "cleared_partnerships_count": 0,
     }
-
-    if bw is None:
-        result["reason"] = "Business Wall is None"
-        return result
 
     subscription = bw.subscription
     stripe_sub_id: str | None = None

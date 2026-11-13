@@ -560,6 +560,17 @@ class TestDualSelectorChoicesForJs:
         assert cat2 is not None
         assert cat2["label"].endswith("(0)")
 
+    def test_a_parent_selected_as_a_string_is_preserved(self) -> None:
+        """The form state may hold a single selection as a bare string."""
+        loader = _make_dual_loader(self._make_dual_table())
+        sel = _CascadeSelector(
+            {"detail_parent": "Cat2"},
+            [],
+            dual_taxonomy_loader=loader,
+        )
+        result = sel.get_dual_tom_choices_for_js()
+        assert [p["value"] for p in result["field1"]] == ["Cat2"]
+
     def test_selected_child_with_no_match_is_preserved(self) -> None:
         """Chip-preservation for the child level. Even if no expert
         in the candidate pool holds it, the user's own selection

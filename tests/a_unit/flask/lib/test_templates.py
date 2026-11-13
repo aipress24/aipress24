@@ -235,9 +235,9 @@ class TestTemplateResponse:
             resp = TemplateResponse({}, "x")
         assert resp.context == {"json_data": {}}
 
-    def test_unknown_template_type_raises_value_error(self, flask_app: Flask) -> None:
+    def test_unknown_template_type_is_rejected(self, flask_app: Flask) -> None:
         with flask_app.app_context():
-            with pytest.raises(ValueError):
+            with pytest.raises(AssertionError):
                 TemplateResponse({}, template=12345)  # type: ignore[arg-type]
 
     def test_method_enrich_context_uses_module_function(self, flask_app: Flask) -> None:

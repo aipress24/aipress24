@@ -171,14 +171,14 @@ class TestUserHasRole:
         assert user.has_role("LEADER") is False
 
     def test_has_role_invalid_type_raises_error(self, db: SQLAlchemy) -> None:
-        """Test has_role raises ValueError for invalid type."""
+        """Test has_role rejects an invalid type."""
         user = User(email="has_role_invalid@example.com")
         profile = KYCProfile()
         user.profile = profile
         db.session.add_all([user, profile])
         db.session.flush()
 
-        with pytest.raises(ValueError):
+        with pytest.raises(AssertionError):
             user.has_role(123)
 
 
@@ -260,14 +260,14 @@ class TestUserRemoveRole:
         assert user.has_role("MANAGER") is False
 
     def test_invalid_type_raises_error(self, db: SQLAlchemy) -> None:
-        """Test remove_role raises ValueError for invalid type."""
+        """Test remove_role rejects an invalid type."""
         user = User(email="remove_role_invalid@example.com")
         profile = KYCProfile()
         user.profile = profile
         db.session.add_all([user, profile])
         db.session.flush()
 
-        with pytest.raises(ValueError):
+        with pytest.raises(AssertionError):
             user.remove_role(123)
 
     def test_remove_role_handles_in_memory_duplicates(self, db: SQLAlchemy) -> None:

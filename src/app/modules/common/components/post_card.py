@@ -4,7 +4,7 @@
 
 from __future__ import annotations
 
-from typing import cast
+from typing import assert_never, cast
 
 import sqlalchemy as sa
 from attr import field, frozen
@@ -62,8 +62,7 @@ class PostCard(Component):
             case Communique():
                 return CommuniqueVM(self.post)
             case _:
-                msg = f"Unsupported post type: {type(self.post)}"
-                raise ValueError(msg)
+                assert_never(self.post)
 
 
 def is_post_from_news_agency(post: ArticlePost | Post) -> bool:

@@ -725,7 +725,7 @@ class OrganisationsExporter(BaseExporter):
         else:
             bw = None
 
-        value: str | datetime | int | bool | list | None
+        value: str | datetime | int | bool | None
         match name:
             case "id":
                 value = str(org.id)
@@ -772,13 +772,9 @@ class OrganisationsExporter(BaseExporter):
                 msg = f"cell_value() Inconsistent key: {name}"
                 raise KeyError(msg)
 
-        match value:
-            case list():
-                return self.list_to_str(value)
-            case datetime():
-                return as_naive_localtz(value)
-            case _:
-                return value
+        if isinstance(value, datetime):
+            return as_naive_localtz(value)
+        return value
 
     def fetch_data(self) -> list[Organisation]:
         bws = db.session.scalars(select(BusinessWall)).all()

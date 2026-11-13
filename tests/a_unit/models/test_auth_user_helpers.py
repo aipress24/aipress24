@@ -263,7 +263,7 @@ class TestHasRoleNoPersist:
     def test_invalid_type_raises(self, db: SQLAlchemy, bad: object) -> None:
         user = _make_user()
         user.roles = []
-        with pytest.raises(ValueError):
+        with pytest.raises(AssertionError):
             user.has_role(bad)  # type: ignore[arg-type]
 
 
@@ -309,7 +309,7 @@ class TestAddAndRemoveRole:
     def test_remove_role_invalid_type_raises(self, db: SQLAlchemy) -> None:
         user = _make_user()
         user.roles = []
-        with pytest.raises(ValueError):
+        with pytest.raises(AssertionError):
             user.remove_role(123)  # type: ignore[arg-type]
 
     def test_remove_role_handles_inmemory_duplicates(self, db: SQLAlchemy) -> None:

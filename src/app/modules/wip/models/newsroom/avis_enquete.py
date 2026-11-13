@@ -65,6 +65,15 @@ class RDVType(StrEnum):
             RDVType.F2F: "Face-à-face",
         }.get(self, self.value)
 
+    @property
+    def short_label(self) -> str:
+        """The label in the RDV summary line."""
+        return {
+            RDVType.PHONE: "Téléphone",
+            RDVType.VIDEO: "Visio",
+            RDVType.F2F: "Face-à-face",
+        }[self]
+
 
 class RDVStatus(StrEnum):
     """Statut du rendez-vous."""
@@ -503,31 +512,12 @@ class ContactAvisEnquete(IdMixin, Base):
             slot_count: int = len(self.proposed_slots)
             return f"RDV proposé ({slot_count} créneaux)"
 
-        if self.rdv_status == RDVStatus.CONFIRMED and self.date_rdv and self.rdv_type:
-            date_str = self.date_rdv.strftime("%d/%m/%Y à %H:%M")
-            rdv_type = self.rdv_type
-            if rdv_type == RDVType.PHONE:
-                type_str = "Téléphone"
-            elif rdv_type == RDVType.VIDEO:
-                type_str = "Visio"
-            elif rdv_type == RDVType.F2F:
-                type_str = "Face-à-face"
-            else:
-                type_str = ""
-            return f"RDV confirmé {type_str} le {date_str}"
-
-        if self.date_rdv and self.rdv_type:
-            date_str = self.date_rdv.strftime("%d/%m/%Y à %H:%M")
-            rdv_type = self.rdv_type  # Narrow type for checker
-            if rdv_type == RDVType.PHONE:
-                type_str = "Téléphone"
-            elif rdv_type == RDVType.VIDEO:
-                type_str = "Visio"
-            elif rdv_type == RDVType.F2F:
-                type_str = "Face-à-face"
-            else:
-                type_str = ""
-            return f"RDV {type_str} le {date_str}"
+        date_rdv, rdv_type = self.date_rdv, self.rdv_type
+        if date_rdv and rdv_type:
+            when = f"{rdv_type.short_label} le {date_rdv.strftime('%d/%m/%Y à %H:%M')}"
+            if self.rdv_status == RDVStatus.CONFIRMED:
+                return f"RDV confirmé {when}"
+            return f"RDV {when}"
 
         return "RDV en cours"
 

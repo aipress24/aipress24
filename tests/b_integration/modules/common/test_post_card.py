@@ -71,7 +71,7 @@ class TestPostCard:
             assert isinstance(vm, PressReleaseVM)
 
     def test_get_post_with_invalid_type_raises(self, app):
-        """Test get_post raises ValueError for unsupported type."""
+        """Test get_post rejects an unsupported type."""
         with app.test_request_context():
 
             class FakePost:
@@ -79,7 +79,7 @@ class TestPostCard:
 
             card = PostCard(post=FakePost())  # type: ignore[arg-type]
 
-            with pytest.raises(ValueError, match="Unsupported post type"):
+            with pytest.raises(AssertionError):
                 card.get_post()
 
 

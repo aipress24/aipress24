@@ -413,9 +413,7 @@ class DualSelector(BaseSelector):
         tagged with it?", not "is the taxonomy entry present?".
         """
         raw = convert_dual_choices_js(self._raw_taxonomy)
-        selected_parents = set(self._state.get(self.parent_id, []) or [])
-        if isinstance(selected_parents, str):
-            selected_parents = {selected_parents}
+        selected_parents = set(self.get_data())
 
         surviving_children = []
         per_parent_count: dict[str, int] = {}

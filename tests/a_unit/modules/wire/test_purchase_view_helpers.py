@@ -319,14 +319,8 @@ class TestSelectPriceIdByGenre:
 
 
 class TestBackToPost:
-    """`_back_to_post` builds the article-detail URL or falls back to
-    the wire index when the post is missing. Verified in a request
-    context — `url_for` needs one."""
-
-    def test_none_post_returns_wire_index(self, app):
-        with app.test_request_context():
-            url = _back_to_post(None)  # type: ignore[arg-type]
-        assert url.endswith("/wire/")
+    """`_back_to_post` builds the article-detail URL. Verified in a
+    request context — `url_for` needs one."""
 
     def test_post_returns_item_url_with_base62_id(self, app):
         # Tiny duck-typed stand-in — `_back_to_post` only reads `.id`.

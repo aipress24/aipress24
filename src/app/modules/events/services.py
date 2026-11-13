@@ -129,9 +129,7 @@ def get_participants(
         order_by: Column or tuple of columns to order by.
         limit: Maximum number of participants to return (0 = no limit).
     """
-    if not isinstance(event, EventPost):
-        msg = f"Expected EventPost, got {type(event)}"
-        raise TypeError(msg)
+    assert isinstance(event, EventPost)
 
     ids = sa.select(Accreditation.user_id).where(
         Accreditation.event_id == event.id,

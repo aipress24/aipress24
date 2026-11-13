@@ -705,8 +705,6 @@ def _get_purchase_or_404(purchase_id: int) -> ArticlePurchase:
 
 
 def _back_to_post(post: Post) -> str:
-    if post is None:
-        return url_for("wire.wire")
     return url_for("wire.item", id=base62.encode(post.id))
 
 

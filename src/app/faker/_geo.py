@@ -16,8 +16,6 @@ CACHE: list[dict] = []
 
 
 def fake_geoloc(obj: Addressable) -> None:
-    if not isinstance(obj, Addressable):
-        return
     if not CACHE:
         with Path("bootstrap_data/bano-streets-sample.json").open() as f:
             CACHE.extend(json.load(f))

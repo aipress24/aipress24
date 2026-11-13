@@ -401,6 +401,7 @@ project-excludes = [
     "tmp",
 ]
 infer-with-first-use = false
+min-severity = "warn"
 
 [tool.pyrefly.errors]
 bad-override = "ignore"
@@ -435,13 +436,14 @@ attribute-assign-on-never = "ignore"
 # -----------------------------------------------------------------------------
 
 [tool.zuban]
+exclude_gitignore = true
+strict = false
 # strict = true
 # disallow_untyped_defs = true
 # warn_unreachable = true
 # allow_untyped_globals = false
 # check_untyped_defs = false
-# follow_untyped_imports = true
-exclude_gitignore = true
+# follow_untyped_imports = false
 
 # -----------------------------------------------------------------------------
 

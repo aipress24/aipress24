@@ -4,7 +4,6 @@
 
 from __future__ import annotations
 
-import sys
 from functools import cached_property
 from pathlib import Path
 from typing import Any
@@ -27,12 +26,9 @@ def convert_to_tom_choices_js(choices: list | dict) -> list[dict[str, Any]]:
             }
             for item in choices
         ]
-    if isinstance(choices, dict):
-        # dict is a dict of groups of labels:
-        return _dict_to_group_tom_choices(choices)
-    print(f"{type(choices)}", file=sys.stderr)
-    print(f"{choices=}", file=sys.stderr)
-    raise TypeError
+    assert isinstance(choices, dict)
+    # dict is a dict of groups of labels:
+    return _dict_to_group_tom_choices(choices)
 
 
 def _dict_to_group_tom_choices(choices: dict) -> list[dict[str, Any]]:

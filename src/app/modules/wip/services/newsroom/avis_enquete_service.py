@@ -390,8 +390,6 @@ class AvisEnqueteService:
             contact: the ContactAvisEnquete containing RDV informations.
         """
         journaliste = contact.journaliste
-        if journaliste.is_anonymous:
-            return
         sender_mail = journaliste.email
         sender_full_name = journaliste.full_name
         sender_job = journaliste.metier_fonction
@@ -439,8 +437,6 @@ class AvisEnqueteService:
             date_rdv: optional datetime of the cancelled RDV (if already reset on contact).
         """
         journaliste = contact.journaliste
-        if journaliste.is_anonymous:
-            return
         sender_mail = journaliste.email
         sender_full_name = journaliste.full_name
         sender_job = journaliste.metier_fonction
@@ -477,8 +473,6 @@ class AvisEnqueteService:
             date_rdv: optional datetime of the cancelled RDV (if already reset on contact).
         """
         expert = contact.expert
-        if expert.is_anonymous:
-            return
         sender_mail = expert.email
         sender_full_name = expert.full_name
 
@@ -1087,8 +1081,6 @@ class AvisEnqueteService:
             contact: the ContactAvisEnquete containing RDV informations.
         """
         journaliste = contact.journaliste
-        if journaliste.is_anonymous:
-            return
         sender_mail = journaliste.email
         sender_full_name = journaliste.full_name
         sender_job = journaliste.metier_fonction
@@ -1159,8 +1151,6 @@ class AvisEnqueteService:
             contact: the ContactAvisEnquete containing RDV informations.
         """
         expert = contact.expert
-        if expert.is_anonymous:
-            return
         sender_mail = expert.email
         sender_full_name = expert.full_name
 
@@ -1189,8 +1179,6 @@ class AvisEnqueteService:
             contact: the ContactAvisEnquete containing RDV informations.
         """
         expert = contact.expert
-        if expert.is_anonymous:
-            return
         sender_mail = expert.email
         sender_full_name = expert.full_name
 

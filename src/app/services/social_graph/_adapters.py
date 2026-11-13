@@ -5,7 +5,7 @@
 from __future__ import annotations
 
 from functools import singledispatch
-from typing import Never, TypeAlias, Union
+from typing import Never, TypeAlias, Union, assert_never
 
 import sqlalchemy as sa
 from attr import define
@@ -43,7 +43,7 @@ class FollowableAdapter(Adapter):
             case Organisation():
                 table = following_orgs_table
             case _:
-                raise ValueError
+                assert_never(self._obj)
 
         stmt1 = sa.select(table.c.follower_id).where(
             table.c.followee_id == self._obj.id
@@ -67,7 +67,7 @@ class FollowableAdapter(Adapter):
             case Organisation():
                 table = following_orgs_table
             case _:
-                raise ValueError
+                assert_never(self._obj)
 
         stmt = sa.select(sa.func.count()).where(table.c.followee_id == self._obj.id)
         return db.session.scalar(stmt)

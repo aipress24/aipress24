@@ -21,15 +21,9 @@ from ._types import Real, Spec
 
 
 @singledispatch
-def compute_reputation(obj: User | Organisation) -> dict[str, Real]:
-    """Compute the reputation of a user / org."""
-    match obj:
-        case User():
-            return compute_reputation_user(obj)
-        case Organisation():
-            return compute_reputation_org(obj)
-        case _:
-            return {"total": 0}
+def compute_reputation(obj: object) -> dict[str, Real]:
+    """Compute the reputation of a user / org; other objects have none."""
+    return {"total": 0}
 
 
 @compute_reputation.register

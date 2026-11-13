@@ -104,8 +104,8 @@ def test_convert_to_tom_choices_js_with_dict():
 
 
 def test_convert_to_tom_choices_js_with_invalid_type():
-    """Test that invalid type raises TypeError."""
-    with pytest.raises((TypeError, TypeCheckError)):
+    """Test that an invalid type is rejected."""
+    with pytest.raises((AssertionError, TypeCheckError)):
         convert_to_tom_choices_js("invalid")
 
 

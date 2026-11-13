@@ -4,7 +4,6 @@
 
 from __future__ import annotations
 
-import sys
 from pathlib import Path
 
 from flask import current_app
@@ -19,24 +18,16 @@ def convert_to_tom_choices_js(choices: list | dict) -> list:
     if isinstance(choices, list):
         # required by choices.js : list of dict
         return [{"value": item[0], "label": item[1]} for item in choices]
-    if isinstance(choices, dict):
-        # dict is a dict of groups of labels:
-        return _dict_to_group_tom_choices(choices)
-    print(f"{type(choices)}", file=sys.stderr)
-    print(f"{choices=}", file=sys.stderr)
-    raise TypeError
+    assert isinstance(choices, dict)
+    # dict is a dict of groups of labels:
+    return _dict_to_group_tom_choices(choices)
 
 
 def convert_to_tom_optgroups_js(choices: list | dict) -> list:
     if isinstance(choices, list):
         return []
-    if isinstance(choices, dict):
-        optgroups = []
-        for group in choices:
-            optgroups.append({"value": group, "label": group})
-        return optgroups
-    msg = "choices must be a list or a dict"
-    raise TypeError(msg)
+    assert isinstance(choices, dict)
+    return [{"value": group, "label": group} for group in choices]
 
 
 def _dict_to_group_tom_choices(choices: dict) -> list:

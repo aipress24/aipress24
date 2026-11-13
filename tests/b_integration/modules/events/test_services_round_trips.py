@@ -212,7 +212,6 @@ class TestGetParticipantsRoundTrip:
         assert len(result) == 2
 
     def test_rejects_non_event_post(self, db_session: Session) -> None:
-        # Guard the ``isinstance(event, EventPost)`` check at the top of
-        # ``get_participants`` — passing something else must raise.
-        with pytest.raises(TypeError, match="Expected EventPost"):
+        # ``get_participants`` asserts it was given an ``EventPost``.
+        with pytest.raises(AssertionError):
             get_participants("not an event")  # type: ignore[arg-type]

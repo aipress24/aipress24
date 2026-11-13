@@ -4,20 +4,16 @@
 
 from __future__ import annotations
 
-from typing import cast
-
 from flask import redirect, render_template
 from flask_login import current_user
 
 from app.flask.routing import url_for
-from app.models.auth import User
 from app.modules.public import get
 
 
 @get("/")
 def home():
-    user = cast("User", current_user)
-    if not user.is_anonymous:
+    if not current_user.is_anonymous:
         return redirect(url_for("wire.wire"))
     return redirect(url_for("security.login"))
 

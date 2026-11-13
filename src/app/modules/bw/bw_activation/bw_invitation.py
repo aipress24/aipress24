@@ -814,8 +814,6 @@ def notify_partnership_revoked(
         f"avec votre PR Agency sur le Business Wall « {bw_name} »."
     )
     agency_owner = get_obj(partner_bw.owner_id, User)
-    if agency_owner is None:
-        return
     notification_service = container.get(NotificationService)
     notification_service.post(agency_owner, message, url="/preferences/invitations")
 
@@ -834,8 +832,6 @@ def notify_partnership_invited(
         f"partenaire externe sur le Business Wall « {bw_name} »."
     )
     agency_owner = get_obj(partner_bw.owner_id, User)
-    if agency_owner is None:
-        return
     notification_service = container.get(NotificationService)
     notification_service.post(agency_owner, message, url="/preferences/invitations")
 
@@ -855,9 +851,6 @@ def send_partnership_revoked_mail(
     bw_name = business_wall.name_safe or "(Nom inconnu)"
 
     agency_owner = get_obj(partner_bw.owner_id, User)
-    if agency_owner is None:
-        warn(f"send_partnership_revoked_mail: no owner for BW {partner_bw.id}")
-        return
     if not agency_owner.email:
         warn(f"send_partnership_revoked_mail: owner {agency_owner.id} has no email")
         return

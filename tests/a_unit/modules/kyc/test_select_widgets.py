@@ -169,8 +169,8 @@ def test_convert_to_tom_choices_js_dict():
 
 
 def test_convert_to_tom_choices_js_invalid():
-    """Test that invalid type raises TypeError."""
-    with pytest.raises((TypeError, TypeCheckError)):
+    """Test that an invalid type is rejected."""
+    with pytest.raises((AssertionError, TypeCheckError)):
         convert_to_tom_choices_js("invalid")
 
 
@@ -192,8 +192,8 @@ def test_convert_to_tom_optgroups_js_dict():
 
 
 def test_convert_to_tom_optgroups_js_invalid():
-    """Test that invalid type raises TypeError."""
-    with pytest.raises((TypeError, TypeCheckError)):
+    """Test that an invalid type is rejected."""
+    with pytest.raises((AssertionError, TypeCheckError)):
         convert_to_tom_optgroups_js("invalid")
 
 
@@ -513,14 +513,14 @@ class TestConvertToTomChoicesJsFree:
         assert len(result) == 2
         assert result[0] == {"value": "v1", "label": "Label 1"}
 
-    def test_raises_type_error_for_non_list(self) -> None:
-        """Test raises TypeError for non-list input."""
-        with pytest.raises((TypeError, TypeCheckError)):
+    def test_rejects_non_list(self) -> None:
+        """Test rejects non-list input."""
+        with pytest.raises((AssertionError, TypeCheckError)):
             convert_to_tom_choices_js_free("invalid")
 
-    def test_raises_type_error_for_dict(self) -> None:
-        """Test raises TypeError for dict input."""
-        with pytest.raises((TypeError, TypeCheckError)):
+    def test_rejects_dict(self) -> None:
+        """Test rejects dict input."""
+        with pytest.raises((AssertionError, TypeCheckError)):
             convert_to_tom_choices_js_free({"key": "value"})
 
 
@@ -540,9 +540,9 @@ class TestConvertToTomOptgroupsJsFree:
         assert len(result) == 2
         assert {"value": "GroupA", "label": "GroupA"} in result
 
-    def test_raises_type_error_for_invalid(self) -> None:
-        """Test raises TypeError for invalid input."""
-        with pytest.raises((TypeError, TypeCheckError)):
+    def test_rejects_invalid(self) -> None:
+        """Test rejects invalid input."""
+        with pytest.raises((AssertionError, TypeCheckError)):
             convert_to_tom_optgroups_js_free("invalid")
 
 
