@@ -7,6 +7,10 @@ help:
 #
 # Tests
 #
+# WeasyPrint finds Homebrew's libgobject through DYLD_FALLBACK_LIBRARY_PATH,
+# which macOS strips before make and sh run: set it on the command itself.
+PYTEST := DYLD_FALLBACK_LIBRARY_PATH=/opt/homebrew/lib pytest
+
 .PHONY: test test-with-sqla-warnings test-with-coverage test-with-typeguard test-cov-unit test-cov-all
 
 ## Run tests
@@ -14,21 +18,21 @@ test:
 	@make test-sqlite test-postgres
 
 test-sqlite:
-	pytest tests
+	$(PYTEST) tests
 
 test-postgres:
-	pytest tests --db-url="postgresql+psycopg://localhost/aipress24_test"
+	$(PYTEST) tests --db-url="postgresql+psycopg://localhost/aipress24_test"
 
 ## Run tests with coverage
 test-with-coverage:
-	pytest tests --cov=app --doctest-modules
+	$(PYTEST) tests --cov=app --doctest-modules
 
 test-cov: test-with-coverage
 
 ## Coverage report scoped to the a_unit tier. Views / routes are omitted
 ## (covered at b_integration + c_e2e tiers) — see .coveragerc-unit.
 test-cov-unit:
-	pytest tests/a_unit/ --cov=app --cov-config=.coveragerc-unit
+	$(PYTEST) tests/a_unit/ --cov=app --cov-config=.coveragerc-unit
 
 ## Full coverage report (a_unit + b_integration). Reuses .coveragerc-unit
 ## so views / routes are still omitted, but rolls in integration-tier
@@ -36,10 +40,10 @@ test-cov-unit:
 ## tiers. The unit-only report (`test-cov-unit`) over-counts misses on
 ## anything that's only reachable via real DB / Stripe / etc.
 test-cov-all:
-	pytest tests/a_unit/ tests/b_integration/ --cov=app --cov-config=.coveragerc-unit
+	$(PYTEST) tests/a_unit/ tests/b_integration/ --cov=app --cov-config=.coveragerc-unit
 
 test-with-typeguard:
-	pytest tests --typeguard-packages=app
+	$(PYTEST) tests --typeguard-packages=app
 
 ## Self-contained e2e: boots its own server on 8899, runs the suite,
 ## tears the server down, exits with pytest's status. Nothing else to
