@@ -1,0 +1,10 @@
+# Override for CI (.builds/alpine.yml): on the builds.sr.ht VM, creating a
+# Docker network hangs, so every container uses the host network instead.
+# PostgreSQL then listens on the host's port 5432.
+services:
+  postgres:
+    network_mode: host
+  tests-postgres:
+    network_mode: host
+    environment:
+      PYTEST_ADDOPTS: --db-url=postgresql+psycopg://aipress24:aipress24@127.0.0.1/aipress24_test

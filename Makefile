@@ -25,7 +25,8 @@ test-sqlite:
 test-postgres:
 	$(PYTEST) tests --db-url="postgresql+psycopg://localhost/aipress24_test"
 
-DOCKER_TESTS = docker compose -f tests/docker/compose.yaml
+# CI adds `-f tests/docker/compose.host-network.yaml` through DOCKER_TESTS_EXTRA.
+DOCKER_TESTS = docker compose -f tests/docker/compose.yaml $(DOCKER_TESTS_EXTRA)
 
 ## Run tests against PostgreSQL, database and tests both in Docker
 test-postgres-docker:

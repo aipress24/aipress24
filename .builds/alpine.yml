@@ -1,0 +1,29 @@
+# Copyright (c) 2026, Abilian SAS
+#
+# SPDX-License-Identifier: BSD-3-Clause
+
+# The test suite against PostgreSQL, database and tests both in Docker
+# (tests/docker/). Lint and the SQLite tests run in the Ubuntu builds.
+
+# Latest stable release
+image: alpine/latest
+
+packages:
+  - make
+  - docker
+  - docker-cli-compose
+
+tasks:
+  - setup: |
+      # Each task is a new login, so the group applies from the next task on.
+      sudo addgroup build docker
+      sudo service docker start
+
+  - test-postgres-docker: |
+      cd aipress24
+      make test-postgres-docker DOCKER_TESTS_EXTRA="-f tests/docker/compose.host-network.yaml"
+
+triggers:
+  - action: email
+    condition: failure
+    to: builds@fermigier.com

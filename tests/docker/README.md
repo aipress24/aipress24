@@ -16,3 +16,9 @@ docker compose -f tests/docker/compose.yaml down
 ```
 
 The database URL reaches pytest through `PYTEST_ADDOPTS`, so it applies to any `pytest` command run in the container.
+
+On builds.sr.ht (`.builds/alpine.yml`), creating a Docker network hangs, so CI adds `compose.host-network.yaml`, which puts both containers on the host network:
+
+```bash
+make test-postgres-docker DOCKER_TESTS_EXTRA="-f tests/docker/compose.host-network.yaml"
+```
