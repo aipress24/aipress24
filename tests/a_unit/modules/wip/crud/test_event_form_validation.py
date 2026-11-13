@@ -287,8 +287,8 @@ class TestDateTimeFields:
 
 class TestFormShape:
     """Lock the public field surface. The form has a published
-    `Meta.groups` mapping that the rendering layer iterates — if a
-    field is renamed without updating Meta, the template silently
+    `groups` mapping that the rendering layer iterates — if a
+    field is renamed without updating `groups`, the template silently
     drops the field. These tests pin the shape."""
 
     def test_field_names_are_stable(self, app: Flask):
@@ -323,12 +323,12 @@ class TestFormShape:
         assert set(form._fields.keys()) == expected
 
     def test_meta_groups_only_reference_real_fields(self, app: Flask):
-        """Every name listed in `Meta.groups[*].fields` must
+        """Every name listed in `groups[*].fields` must
         correspond to an actual form field. Catches « renamed field
-        but forgot to update Meta » before the template breaks."""
+        but forgot to update `groups` » before the template breaks."""
         form = _make_form(app, {})
         declared = set(form._fields.keys())
-        for group_name, group in EventForm.Meta.groups.items():
+        for group_name, group in EventForm.groups.items():
             for field_name in group["fields"]:
                 assert field_name in declared, (
                     f"Group {group_name!r} references unknown field "
@@ -339,7 +339,7 @@ class TestFormShape:
         """The four-group layout (headers / contenu / metadata /
         dates) is part of the rendered page contract. Pin it so a
         re-org is intentional and reviewed."""
-        groups = EventForm.Meta.groups
+        groups = EventForm.groups
         assert set(groups.keys()) == {"headers", "contenu", "metadata", "dates"}
         assert groups["dates"]["fields"] == ["start_time", "end_time"]
         # event_type leads the metadata group — it's the
@@ -400,13 +400,9 @@ class TestTheModeField:
         # `RichSelectField`, et `_base.py` valide **avant** de les
         # injecter — un champ dont les choix arrivent plus tard échoue
         # à la pré-validation d'un POST.
-        choices = form.mode.choices
-        assert choices is not None
-
-        # Indexé et non dépaqueté : WTForms type `choices` comme
-        # « une chaîne, ou un couple, ou un triplet ». Nos options sont
-        # des couples, mais le dépaquetage l'affirmerait sans preuve.
-        values = [choice[0] for choice in choices]
+        # `iter_choices()` yields the rendered (value, label, ...) tuples,
+        # whatever form the declared `choices` take.
+        values = [choice[0] for choice in form.mode.iter_choices()]
         assert values == [m.value for m in EventMode]
         # The wire format is the `StrEnum`'s own value, so a submitted
         # option coerces straight back to its member. Using `.name`
@@ -417,10 +413,7 @@ class TestTheModeField:
 
     def test_the_labels_are_readable(self, app: Flask):
         form = _make_form(app, {})
-        choices = form.mode.choices
-        assert choices is not None
-
-        labels = [choice[1] for choice in choices]
+        labels = [choice[1] for choice in form.mode.iter_choices()]
         assert "En présentiel" in labels
         assert "Par téléphone" in labels
 
@@ -434,10 +427,10 @@ class TestTheModeField:
 
     def test_the_new_fields_are_rendered(self, app: Flask):
         """`FormRenderer` n'affiche que les noms listés dans
-        `Meta.groups`, alors que `validate()` parcourt tous les champs
+        `groups`, alors que `validate()` parcourt tous les champs
         déclarés. Un champ absent du groupe produirait une erreur que
         l'organisateur ne peut pas corriger, faute de le voir."""
-        rendered = set(EventForm.Meta.groups["metadata"]["fields"])
+        rendered = set(EventForm.groups["metadata"]["fields"])
 
         assert {"mode", "platform", "access_details"} <= rendered
 
@@ -452,10 +445,10 @@ class TestLesDeuxAxesDeCiblage:
     """
 
     def test_ils_apparaissent_dans_les_metadonnees_rendues(self, app: Flask):
-        """La couche de rendu itère `Meta.groups` : un champ déclaré mais
+        """La couche de rendu itère `groups` : un champ déclaré mais
         absent de la carte est **silencieusement omis** du formulaire."""
         form = _make_form(app, {})
-        rendus = form.Meta.groups["metadata"]["fields"]
+        rendus = form.groups["metadata"]["fields"]
 
         assert "competences" in rendus
         assert "fonctions" in rendus

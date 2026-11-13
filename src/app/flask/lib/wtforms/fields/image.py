@@ -6,13 +6,14 @@ from __future__ import annotations
 
 from markupsafe import Markup
 from wtforms import widgets
+from wtforms.fields.core import Field
 from wtforms.fields.simple import FileField
 
 from .base import BaseWidget
 
 
 class ImageWidget(widgets.Input, BaseWidget):
-    def __call__(self, field: ImageField, **kwargs):
+    def __call__(self, field: Field, **kwargs):
         template = self.get_template("image.j2")
         # #0162: return Markup, not bare str (autoescape class).
         return Markup(template.render(field=field))

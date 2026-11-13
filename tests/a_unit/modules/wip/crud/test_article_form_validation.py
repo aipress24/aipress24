@@ -320,8 +320,8 @@ class TestDateTimeParsing:
 
 class TestFormShape:
     """Lock the public field surface. The form has a published
-    `Meta.groups` mapping that the rendering layer iterates — if a
-    field is renamed without updating Meta, the template silently
+    `groups` mapping that the rendering layer iterates — if a
+    field is renamed without updating `groups`, the template silently
     drops the field. These tests pin the shape."""
 
     def test_field_names_are_stable(self, app: Flask):
@@ -346,12 +346,12 @@ class TestFormShape:
         assert set(form._fields.keys()) == expected
 
     def test_meta_groups_only_reference_real_fields(self, app: Flask):
-        """Every name listed in `Meta.groups[*].fields` must
+        """Every name listed in `groups[*].fields` must
         correspond to an actual form field. Catches « renamed field
-        but forgot to update Meta » before the template breaks."""
+        but forgot to update `groups` » before the template breaks."""
         form = _make_form(app, {})
         declared = set(form._fields.keys())
-        for group_name, group in ArticleForm.Meta.groups.items():
+        for group_name, group in ArticleForm.groups.items():
             for field_name in group["fields"]:
                 assert field_name in declared, (
                     f"Group {group_name!r} references unknown field "

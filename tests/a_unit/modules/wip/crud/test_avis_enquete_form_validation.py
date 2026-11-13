@@ -27,7 +27,7 @@ Three classes of regression we want to prevent :
 2. **Choice drift** : a RichSelectField vocabulary key renamed
    without the form being re-generated, so the JS client's
    submission is silently rejected.
-3. **Shape drift** : a field renamed without updating `Meta.groups`,
+3. **Shape drift** : a field renamed without updating `groups`,
    which the rendering layer iterates ; the template would silently
    drop the field from the rendered page.
 
@@ -245,9 +245,9 @@ class TestDateTimeParsing:
 
 class TestFormShape:
     """Lock the public field surface. The form publishes a
-    `Meta.groups` mapping that the rendering layer iterates ; if a
-    field is renamed without updating Meta, the template silently
-    drops it. These tests pin the shape and the Meta consistency."""
+    `groups` mapping that the rendering layer iterates ; if a
+    field is renamed without updating `groups`, the template silently
+    drops it. These tests pin the shape and the `groups` consistency."""
 
     def test_field_names_are_stable(self, app: Flask):
         """Pin the exact set of fields so a rename is loud, not
@@ -270,13 +270,13 @@ class TestFormShape:
         assert set(form._fields.keys()) == expected
 
     def test_meta_groups_only_reference_real_fields(self, app: Flask):
-        """Every name listed in `Meta.groups[*].fields` must
+        """Every name listed in `groups[*].fields` must
         correspond to an actual form field. Catches « renamed field
-        but forgot to update Meta » before the template breaks at
+        but forgot to update `groups` » before the template breaks at
         render time."""
         form = _make_form(app, {})
         declared = set(form._fields.keys())
-        for group_name, group in AvisEnqueteForm.Meta.groups.items():
+        for group_name, group in AvisEnqueteForm.groups.items():
             for field_name in group["fields"]:
                 assert field_name in declared, (
                     f"Group {group_name!r} references unknown field "
@@ -287,7 +287,7 @@ class TestFormShape:
         """Pin the top-level group names. The rendering layer
         iterates them in declaration order to build sections of the
         publish page ; a silent rename would hide a section."""
-        assert set(AvisEnqueteForm.Meta.groups.keys()) == {
+        assert set(AvisEnqueteForm.groups.keys()) == {
             "headers",
             "metadata",
             "dates",
@@ -298,7 +298,7 @@ class TestFormShape:
         bouclage → parution). All four must be in the `dates` group
         so the publish page renders them together — pinning the
         group's field list catches a silent reorder or omission."""
-        assert AvisEnqueteForm.Meta.groups["dates"]["fields"] == [
+        assert AvisEnqueteForm.groups["dates"]["fields"] == [
             "date_debut_enquete",
             "date_fin_enquete",
             "date_bouclage",

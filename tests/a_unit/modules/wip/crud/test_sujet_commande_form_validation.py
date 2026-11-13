@@ -29,7 +29,7 @@ validators here catches three classes of silent regression :
    the journalist can save a stub before fleshing it out. A future
    « add InputRequired to titre » would silently block legitimate
    drafts ; pin the contract here.
-3. **Shape drift** : a field renamed without updating `Meta.groups`,
+3. **Shape drift** : a field renamed without updating `groups`,
    which the rendering layer iterates ; the template would silently
    drop the field from the rendered page. The two forms also differ
    in their date set : pin each so a CommandeForm date silently
@@ -244,7 +244,7 @@ class TestSujetFormDateTimeParsing:
 
 
 class TestSujetFormShape:
-    """Lock the public field surface + Meta.groups consistency."""
+    """Lock the public field surface + `groups` consistency."""
 
     def test_field_names_are_stable(self, app: Flask):
         form = _make_sujet_form(app, {})
@@ -263,12 +263,12 @@ class TestSujetFormShape:
         assert set(form._fields.keys()) == expected
 
     def test_meta_groups_reference_real_fields(self, app: Flask):
-        """Every name listed in `Meta.groups[*].fields` must exist as
-        a real form field. Catches « renamed field but forgot Meta »
+        """Every name listed in `groups[*].fields` must exist as
+        a real form field. Catches « renamed field but forgot `groups` »
         before the template breaks at render time."""
         form = _make_sujet_form(app, {})
         declared = set(form._fields.keys())
-        for group_name, group in SujetForm.Meta.groups.items():
+        for group_name, group in SujetForm.groups.items():
             for field_name in group["fields"]:
                 assert field_name in declared, (
                     f"Group {group_name!r} references unknown field "
@@ -276,7 +276,7 @@ class TestSujetFormShape:
                 )
 
     def test_meta_groups_top_level_keys(self, app: Flask):
-        assert set(SujetForm.Meta.groups.keys()) == {
+        assert set(SujetForm.groups.keys()) == {
             "headers",
             "metadata",
             "dates",
@@ -286,7 +286,7 @@ class TestSujetFormShape:
         """`SujetForm` has exactly two date-fields (no bouclage, no
         paiement — those are CommandeForm only). Pin so a future
         cross-pollination is caught."""
-        assert SujetForm.Meta.groups["dates"]["fields"] == [
+        assert SujetForm.groups["dates"]["fields"] == [
             "date_limite_validite",
             "date_parution_prevue",
         ]
@@ -428,7 +428,7 @@ class TestCommandeFormDateTimeParsing:
 
 
 class TestCommandeFormShape:
-    """Lock the public field surface + Meta.groups consistency. The
+    """Lock the public field surface + `groups` consistency. The
     four-date workflow is the defining difference between Commande
     and Sujet ; pinning the group's field-list catches a silent
     reorder, omission, or accidental cross-pollination."""
@@ -456,7 +456,7 @@ class TestCommandeFormShape:
     def test_meta_groups_reference_real_fields(self, app: Flask):
         form = _make_commande_form(app, {})
         declared = set(form._fields.keys())
-        for group_name, group in CommandeForm.Meta.groups.items():
+        for group_name, group in CommandeForm.groups.items():
             for field_name in group["fields"]:
                 assert field_name in declared, (
                     f"Group {group_name!r} references unknown field "
@@ -464,7 +464,7 @@ class TestCommandeFormShape:
                 )
 
     def test_meta_groups_top_level_keys(self, app: Flask):
-        assert set(CommandeForm.Meta.groups.keys()) == {
+        assert set(CommandeForm.groups.keys()) == {
             "headers",
             "metadata",
             "dates",
@@ -474,7 +474,7 @@ class TestCommandeFormShape:
         """#0353 — à qui la commande s'adresse, qui l'a commandée, et
         pour quel média. L'écran n'en montrait qu'un, sous une étiquette
         qui promettait le premier et livrait le troisième."""
-        fields = CommandeForm.Meta.groups["metadata"]["fields"]
+        fields = CommandeForm.groups["metadata"]["fields"]
 
         assert fields.index("destinataire_id") < fields.index("commanditaire")
         assert fields.index("commanditaire") < fields.index("media_id")
@@ -500,7 +500,7 @@ class TestCommandeFormShape:
         validity → bouclage → parution. Pin the list to catch silent
         reorder / omission. `date_paiement` left with #0343 — a rédac
         chef does not know when the invoice will be paid."""
-        assert CommandeForm.Meta.groups["dates"]["fields"] == [
+        assert CommandeForm.groups["dates"]["fields"] == [
             "date_limite_validite",
             "date_bouclage",
             "date_parution_prevue",

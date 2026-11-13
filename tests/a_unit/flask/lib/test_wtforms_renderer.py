@@ -38,8 +38,7 @@ class _EmptyGroupForm(Form):
     """Minimal Form with no fields rendered — only the publisher_text
     header matters for these tests."""
 
-    class Meta:
-        groups: ClassVar[dict] = {}
+    groups: ClassVar[dict] = {}
 
     name = StringField("Name")
 
@@ -180,10 +179,7 @@ class TestPublisherTextFollowsModel:
         """If model defines media_name, media_id in view mode uses it."""
 
         class _MediaForm(Form):
-            class Meta:
-                groups: ClassVar[dict] = {
-                    "meta": {"label": "Meta", "fields": ["media_id"]}
-                }
+            groups: ClassVar[dict] = {"meta": {"label": "Meta", "fields": ["media_id"]}}
 
             media_id = SimpleRichSelectField("Média")
 

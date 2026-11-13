@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from markupsafe import Markup
 from wtforms import widgets
-from wtforms.fields.choices import SelectField
+from wtforms.fields.choices import SelectField, SelectFieldBase
 
 from app.flask.forms import get_choices
 
@@ -14,7 +14,7 @@ from .base import BaseWidget
 
 
 class RichSelectWidget(widgets.Select, BaseWidget):
-    def __call__(self, field: RichSelectField, **kwargs):
+    def __call__(self, field: SelectFieldBase, **kwargs):
         template = self.get_template("rich_select.j2")
         # #0162: return Markup, not bare str (autoescape class).
         return Markup(template.render(field=field))

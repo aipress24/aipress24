@@ -12,7 +12,7 @@ a small set of pure helpers:
 
 * `render_field_value`  — value-to-string formatting (None/bool/str/
   datetime/Arrow/default)
-* `get_groups`          — pull the `Meta.groups` spec into a list of
+* `get_groups`          — pull the `groups` spec into a list of
   `{label, fields, id}` dicts
 * `render_group`        — render a single group block
 * `render_field`        — pick a CSS class from `FIELD_CLASS_MAP`,
@@ -102,17 +102,16 @@ class _StubUser:
 
 
 class _SimpleForm(Form):
-    class Meta:
-        groups: ClassVar[dict] = {
-            "main": {
-                "label": "Main Info",
-                "fields": ["name", "description"],
-            },
-            "extra": {
-                "label": "",  # blank label — exercises the {% if group.label %} branch
-                "fields": ["category"],
-            },
-        }
+    groups: ClassVar[dict] = {
+        "main": {
+            "label": "Main Info",
+            "fields": ["name", "description"],
+        },
+        "extra": {
+            "label": "",  # blank label — exercises the {% if group.label %} branch
+            "fields": ["category"],
+        },
+    }
 
     name = StringField("Name", description="Your name")
     description = StringField("Description")
@@ -120,13 +119,12 @@ class _SimpleForm(Form):
 
 
 class _FormWithDates(Form):
-    class Meta:
-        groups: ClassVar[dict] = {
-            "dates": {
-                "label": "Dates",
-                "fields": ["birthday", "appointment"],
-            },
-        }
+    groups: ClassVar[dict] = {
+        "dates": {
+            "label": "Dates",
+            "fields": ["birthday", "appointment"],
+        },
+    }
 
     birthday = DateField("Birthday")
     appointment = DateTimeField("Appointment")
@@ -135,13 +133,12 @@ class _FormWithDates(Form):
 class _FormWithMedia(Form):
     """Form including the `media_id` / `publisher_id` special-cased fields."""
 
-    class Meta:
-        groups: ClassVar[dict] = {
-            "main": {
-                "label": "Main",
-                "fields": ["title", "media_id", "publisher_id"],
-            },
-        }
+    groups: ClassVar[dict] = {
+        "main": {
+            "label": "Main",
+            "fields": ["title", "media_id", "publisher_id"],
+        },
+    }
 
     title = StringField("Title")
     media_id = StringField("Media")
@@ -149,10 +146,9 @@ class _FormWithMedia(Form):
 
 
 class _FormWithRenderKw(Form):
-    class Meta:
-        groups: ClassVar[dict] = {
-            "main": {"label": "Main", "fields": ["narrow"]},
-        }
+    groups: ClassVar[dict] = {
+        "main": {"label": "Main", "fields": ["narrow"]},
+    }
 
     narrow = StringField("Narrow", render_kw={"width": 3})
 
@@ -170,8 +166,7 @@ class TestRenderFieldValue:
     def renderer(self) -> FormRenderer:
         # The method does not touch self ; an empty form is enough.
         class _Empty(Form):
-            class Meta:
-                groups: ClassVar[dict] = {}
+            groups: ClassVar[dict] = {}
 
         return FormRenderer(form=_Empty(), model=None, mode="view")
 
@@ -205,15 +200,14 @@ class TestRenderFieldValue:
 
 
 # ---------------------------------------------------------------------------
-# get_groups — pulls Meta.groups into a list of dicts with resolved fields.
+# get_groups — pulls `groups` into a list of dicts with resolved fields.
 # ---------------------------------------------------------------------------
 
 
 class TestGetGroups:
     def test_empty_meta_groups_returns_empty_list(self):
         class _Empty(Form):
-            class Meta:
-                groups: ClassVar[dict] = {}
+            groups: ClassVar[dict] = {}
 
         renderer = FormRenderer(form=_Empty(), mode="edit")
         assert renderer.get_groups() == []
@@ -229,15 +223,12 @@ class TestGetGroups:
         # Field objects come straight from the form, in the declared order.
         assert [f.name for f in groups[0]["fields"]] == ["name", "description"]
         assert [f.name for f in groups[1]["fields"]] == ["category"]
-        # The original Meta.groups dict must not be mutated (it's copied).
-        assert "id" not in form.Meta.groups["main"]
-        assert form.Meta.groups["main"]["fields"] == ["name", "description"]
+        # The original `groups` dict must not be mutated (it's copied).
+        assert "id" not in form.groups["main"]
+        assert form.groups["main"]["fields"] == ["name", "description"]
 
-    def test_meta_groups_missing_defaults_to_empty(self):
+    def test_missing_groups_default_to_empty(self):
         class _NoGroupsAttr(Form):
-            class Meta:
-                pass
-
             name = StringField("Name")
 
         renderer = FormRenderer(form=_NoGroupsAttr(), mode="edit")
@@ -387,10 +378,9 @@ class TestRenderFieldEditMode:
             widget = staticmethod(_noop_widget)
 
         class _CountryForm(Form):
-            class Meta:
-                groups: ClassVar[dict] = {
-                    "main": {"label": "Main", "fields": ["country"]},
-                }
+            groups: ClassVar[dict] = {
+                "main": {"label": "Main", "fields": ["country"]},
+            }
 
             country = CountrySelectField("Country", choices=[("fr", "France")])
 
@@ -523,7 +513,7 @@ class TestRenderFieldViewMode:
 # ---------------------------------------------------------------------------
 # render — top-level template selection. The publisher_text branch is
 # already covered by tests/a_unit/flask/lib/test_wtforms_renderer.py ;
-# here we focus on view-mode rendering + an empty Meta.groups form.
+# here we focus on view-mode rendering + a form with empty `groups`.
 # ---------------------------------------------------------------------------
 
 

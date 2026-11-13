@@ -4,6 +4,8 @@
 #
 from __future__ import annotations
 
+from typing import ClassVar
+
 from wtforms import Form, validators
 from wtforms.fields.choices import SelectField
 from wtforms.fields.simple import StringField, TextAreaField
@@ -112,30 +114,29 @@ class ArticleForm(Form):
     )
     date_paiement = DateTimeField("Date/heure de paiement", render_kw={"width": 3})
 
-    class Meta:
-        groups = {
-            "headers": {"label": "", "fields": ["titre", "chapo"]},
-            "contenu": {"label": "Contenu de l'article", "fields": ["contenu"]},
-            "metadata": {
-                "label": "Métadonnées de l'article",
-                "fields": [
-                    "genre",
-                    "section",
-                    "topic",
-                    "sector",
-                    "media_id",
-                    "pays_zip_ville",
-                ],
-            },
-            "copyright": {"label": "Copyright de l'article", "fields": ["copyright"]},
-            "dates": {
-                "label": "Dates-clés de l'article",
-                "fields": [
-                    "date_parution_prevue",
-                    "date_publication_aip24",
-                ],
-            },
-        }
+    groups: ClassVar[dict] = {
+        "headers": {"label": "", "fields": ["titre", "chapo"]},
+        "contenu": {"label": "Contenu de l'article", "fields": ["contenu"]},
+        "metadata": {
+            "label": "Métadonnées de l'article",
+            "fields": [
+                "genre",
+                "section",
+                "topic",
+                "sector",
+                "media_id",
+                "pays_zip_ville",
+            ],
+        },
+        "copyright": {"label": "Copyright de l'article", "fields": ["copyright"]},
+        "dates": {
+            "label": "Dates-clés de l'article",
+            "fields": [
+                "date_parution_prevue",
+                "date_publication_aip24",
+            ],
+        },
+    }
 
 
 class AvisEnqueteForm(Form):
@@ -198,30 +199,29 @@ class AvisEnqueteForm(Form):
         validators=[validators.InputRequired()],
     )
 
-    class Meta:
-        groups = {
-            "headers": {"label": "", "fields": ["titre", "contenu"]},
-            "metadata": {
-                "label": "Métadonnées",
-                "fields": [
-                    "genre",
-                    "section",
-                    "topic",
-                    "sector",
-                    "media_id",
-                    "pays_zip_ville",
-                ],
-            },
-            "dates": {
-                "label": "Dates-clés",
-                "fields": [
-                    "date_debut_enquete",
-                    "date_fin_enquete",
-                    "date_bouclage",
-                    "date_parution_prevue",
-                ],
-            },
-        }
+    groups: ClassVar[dict] = {
+        "headers": {"label": "", "fields": ["titre", "contenu"]},
+        "metadata": {
+            "label": "Métadonnées",
+            "fields": [
+                "genre",
+                "section",
+                "topic",
+                "sector",
+                "media_id",
+                "pays_zip_ville",
+            ],
+        },
+        "dates": {
+            "label": "Dates-clés",
+            "fields": [
+                "date_debut_enquete",
+                "date_fin_enquete",
+                "date_bouclage",
+                "date_parution_prevue",
+            ],
+        },
+    }
 
 
 class SujetForm(Form):
@@ -279,25 +279,24 @@ class SujetForm(Form):
         validators=[validators.InputRequired()],
     )
 
-    class Meta:
-        groups = {
-            "headers": {"label": "", "fields": ["titre", "contenu"]},
-            "metadata": {
-                "label": "Métadonnées",
-                "fields": [
-                    "genre",
-                    "section",
-                    "topic",
-                    "sector",
-                    "media_id",
-                    "pays_zip_ville",
-                ],
-            },
-            "dates": {
-                "label": "Dates-clés",
-                "fields": ["date_limite_validite", "date_parution_prevue"],
-            },
-        }
+    groups: ClassVar[dict] = {
+        "headers": {"label": "", "fields": ["titre", "contenu"]},
+        "metadata": {
+            "label": "Métadonnées",
+            "fields": [
+                "genre",
+                "section",
+                "topic",
+                "sector",
+                "media_id",
+                "pays_zip_ville",
+            ],
+        },
+        "dates": {
+            "label": "Dates-clés",
+            "fields": ["date_limite_validite", "date_parution_prevue"],
+        },
+    }
 
 
 class CommandeForm(Form):
@@ -370,31 +369,30 @@ class CommandeForm(Form):
         validators=[validators.InputRequired()],
     )
 
-    class Meta:
-        groups = {
-            "headers": {"label": "", "fields": ["titre", "contenu"]},
-            "metadata": {
-                "label": "Métadonnées",
-                "fields": [
-                    "genre",
-                    "section",
-                    "topic",
-                    "sector",
-                    "destinataire_id",
-                    "commanditaire",
-                    "media_id",
-                    "pays_zip_ville",
-                ],
-            },
-            "dates": {
-                "label": "Dates-clés",
-                "fields": [
-                    "date_limite_validite",
-                    "date_bouclage",
-                    "date_parution_prevue",
-                ],
-            },
-        }
+    groups: ClassVar[dict] = {
+        "headers": {"label": "", "fields": ["titre", "contenu"]},
+        "metadata": {
+            "label": "Métadonnées",
+            "fields": [
+                "genre",
+                "section",
+                "topic",
+                "sector",
+                "destinataire_id",
+                "commanditaire",
+                "media_id",
+                "pays_zip_ville",
+            ],
+        },
+        "dates": {
+            "label": "Dates-clés",
+            "fields": [
+                "date_limite_validite",
+                "date_bouclage",
+                "date_parution_prevue",
+            ],
+        },
+    }
 
 
 # --------------------------------------------------------------------------
@@ -453,34 +451,33 @@ class CommuniqueForm(Form):
         format="%Y-%m-%dT%H:%M",
     )
 
-    class Meta:
-        groups = {
-            "headers": {
-                "label": "En-têtes du communiqué",
-                "fields": ["titre", "chapo"],
-            },
-            "contenu": {
-                "label": "Contenu du communiqué",
-                "fields": ["contenu"],
-            },
-            "metadata": {
-                "label": "Métadonnées du communiqué",
-                "fields": [
-                    "genre",
-                    "section",
-                    "topic",
-                    "sector",
-                    "pays_zip_ville",
-                ],
-            },
-            "dates": {
-                "label": "Dates-clés du communiqué",
-                "fields": [
-                    "embargoed_until",
-                    "published_at",
-                ],
-            },
-        }
+    groups: ClassVar[dict] = {
+        "headers": {
+            "label": "En-têtes du communiqué",
+            "fields": ["titre", "chapo"],
+        },
+        "contenu": {
+            "label": "Contenu du communiqué",
+            "fields": ["contenu"],
+        },
+        "metadata": {
+            "label": "Métadonnées du communiqué",
+            "fields": [
+                "genre",
+                "section",
+                "topic",
+                "sector",
+                "pays_zip_ville",
+            ],
+        },
+        "dates": {
+            "label": "Dates-clés du communiqué",
+            "fields": [
+                "embargoed_until",
+                "published_at",
+            ],
+        },
+    }
 
 
 # --------------------------------------------------------------------------
@@ -656,42 +653,41 @@ class EventForm(Form):
         format="%Y-%m-%dT%H:%M",
     )
 
-    class Meta:
-        groups = {
-            "headers": {
-                "label": "En-têtes de l'événement",
-                "fields": ["titre", "chapo"],
-            },
-            "contenu": {
-                "label": "Contenu de l'événement",
-                "fields": ["contenu"],
-            },
-            "metadata": {
-                "label": "Métadonnées de l'événement",
-                "fields": [
-                    "event_type",
-                    "sector",
-                    "section",
-                    "topic",
-                    "competences",
-                    "fonctions",
-                    "mode",
-                    "platform",
-                    "address",
-                    "pays_zip_ville",
-                    "url",
-                    "access_details",
-                    "pricing",
-                    "price",
-                    "organiser_id",
-                    "organiser_name",
-                ],
-            },
-            "dates": {
-                "label": "Dates de l'événement",
-                "fields": [
-                    "start_time",
-                    "end_time",
-                ],
-            },
-        }
+    groups: ClassVar[dict] = {
+        "headers": {
+            "label": "En-têtes de l'événement",
+            "fields": ["titre", "chapo"],
+        },
+        "contenu": {
+            "label": "Contenu de l'événement",
+            "fields": ["contenu"],
+        },
+        "metadata": {
+            "label": "Métadonnées de l'événement",
+            "fields": [
+                "event_type",
+                "sector",
+                "section",
+                "topic",
+                "competences",
+                "fonctions",
+                "mode",
+                "platform",
+                "address",
+                "pays_zip_ville",
+                "url",
+                "access_details",
+                "pricing",
+                "price",
+                "organiser_id",
+                "organiser_name",
+            ],
+        },
+        "dates": {
+            "label": "Dates de l'événement",
+            "fields": [
+                "start_time",
+                "end_time",
+            ],
+        },
+    }
