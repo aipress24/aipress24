@@ -58,8 +58,3 @@ tasks:
     - nox-lint: |
           cd aipress24
           uv run nox -e lint
-
-triggers:
-    - action: email
-      condition: failure
-      to: builds@fermigier.com

@@ -22,8 +22,3 @@ tasks:
   - test-postgres-docker: |
       cd aipress24
       make test-postgres-docker DOCKER_TESTS_EXTRA="-f tests/docker/compose.host-network.yaml"
-
-triggers:
-  - action: email
-    condition: failure
-    to: builds@fermigier.com
