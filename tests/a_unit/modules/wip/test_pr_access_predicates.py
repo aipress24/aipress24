@@ -327,10 +327,7 @@ class TestUserHasMission:
         assert user_has_mission(anon, PermissionType.EVENTS) is False
 
     def test_none_user_denied(self) -> None:
-        assert (
-            user_has_mission(None, PermissionType.EVENTS)
-            is False
-        )
+        assert user_has_mission(None, PermissionType.EVENTS) is False
 
     def test_no_bw_denied(self) -> None:
         user = _User(user_id=1)
