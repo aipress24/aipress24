@@ -17,6 +17,7 @@ from app.models.organisation import Organisation
 from app.modules.biz.models import (
     EditorialProduct,
     JobOffer,
+    MissionCategory,
     MissionOffer,
     ProjectOffer,
 )
@@ -252,6 +253,18 @@ class TestIsPublicMarketplace:
     def test_status_drives_visibility(self, status, expected):
         offer = MissionOffer(status=status)
         assert is_public(offer) is expected
+
+    def test_journalism_missions_stay_out_of_the_index(self):
+        """The index has no per-reader filter, and these are for
+        journalists only."""
+        mission = MissionOffer(
+            status=PublicationStatus.PUBLIC, category=MissionCategory.JOURNALISME
+        )
+        other = MissionOffer(
+            status=PublicationStatus.PUBLIC, category=MissionCategory.COMMUNICATION
+        )
+        assert is_public(mission) is False
+        assert is_public(other) is True
 
     def test_published_at_is_not_required(self):
         """Unlike articles/events, marketplace doesn't set published_at;

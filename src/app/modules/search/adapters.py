@@ -31,7 +31,7 @@ from app.flask.routing import url_for
 from app.models.auth import User
 from app.models.lifecycle import PublicationStatus
 from app.models.organisation import Organisation
-from app.modules.biz.models import MarketplaceContent
+from app.modules.biz.models import MarketplaceContent, MissionCategory, MissionOffer
 from app.modules.events.models import EventPost
 from app.modules.wire.models import ArticlePost, PressReleasePost
 from app.services.tagging import get_tags
@@ -217,6 +217,16 @@ def _(obj: MarketplaceContent) -> dict[str, Any]:
 @is_public.register
 def _(obj: MarketplaceContent) -> bool:
     return obj.status == PublicationStatus.PUBLIC
+
+
+@is_public.register
+def _(obj: MissionOffer) -> bool:
+    """Journalism missions stay out: they are for journalists only, and
+    the index has no per-reader filter."""
+    return (
+        obj.status == PublicationStatus.PUBLIC
+        and obj.category != MissionCategory.JOURNALISME
+    )
 
 
 # ── User (members) ───────────────────────────────────────────────────

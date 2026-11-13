@@ -1061,6 +1061,24 @@ class TestJournalismVisibilityRestriction:
             "not 403, to avoid leaking the row's existence (#0186)"
         )
 
+    @pytest.mark.parametrize(("journalist", "expected"), [(True, 200), (False, 404)])
+    def test_generic_item_page_applies_the_same_rule(
+        self,
+        app: Flask,
+        emitter: User,
+        non_journalist_user: User,
+        journalism_mission: MissionOffer,
+        journalist: bool,
+        expected: int,
+    ):
+        client = make_authenticated_client(
+            app, emitter if journalist else non_journalist_user
+        )
+
+        response = client.get(f"/biz/{journalism_mission.id}")
+
+        assert response.status_code == expected
+
     def test_communication_mission_detail_open_to_all(
         self,
         app: Flask,

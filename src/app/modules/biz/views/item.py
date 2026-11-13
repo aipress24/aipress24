@@ -16,7 +16,8 @@ from app.flask.lib.nav import nav
 from app.models.auth import User
 from app.models.lifecycle import PublicationStatus
 from app.modules.biz import blueprint
-from app.modules.biz.models import MarketplaceContent
+from app.modules.biz.models import MarketplaceContent, MissionOffer
+from app.modules.biz.views.missions import enforce_journalism_visibility
 
 
 @blueprint.route("/<int:id>")
@@ -39,6 +40,8 @@ def biz_item(id: int):
     # Only allow access to published items
     if item.status != PublicationStatus.PUBLIC:
         raise NotFound
+    if isinstance(item, MissionOffer):
+        enforce_journalism_visibility(item)
 
     # Set dynamic breadcrumb label
     g.nav.label = item.title

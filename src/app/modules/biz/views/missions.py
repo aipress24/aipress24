@@ -381,7 +381,7 @@ def missions_new():
     )
 
 
-def _enforce_journalism_visibility(mission: MissionOffer) -> None:
+def enforce_journalism_visibility(mission: MissionOffer) -> None:
     """Bug #0186 — Journalism missions are only visible to PRESS_MEDIA.
 
     Abort 404 (not 403) so non-journalists can't probe for the
@@ -397,7 +397,7 @@ def _enforce_journalism_visibility(mission: MissionOffer) -> None:
 @blueprint.route("/missions/<int:id>")
 def missions_detail(id: int):
     mission = get_offer_or_404(MissionOffer, id)
-    _enforce_journalism_visibility(mission)
+    enforce_journalism_visibility(mission)
     user = cast(User, g.user)
 
     user_application = None
@@ -416,14 +416,14 @@ def missions_detail(id: int):
 @blueprint.route("/missions/<int:id>/apply", methods=["POST"])
 def missions_apply(id: int):
     mission = get_offer_or_404(MissionOffer, id)
-    _enforce_journalism_visibility(mission)
+    enforce_journalism_visibility(mission)
     return handle_apply(mission, detail_endpoint=".missions_detail")
 
 
 @blueprint.route("/missions/<int:id>/applications")
 def missions_applications(id: int):
     mission = get_offer_or_404(MissionOffer, id)
-    _enforce_journalism_visibility(mission)
+    enforce_journalism_visibility(mission)
     from app.modules.biz.views._offers_common import require_owner
 
     require_owner(mission)
@@ -441,7 +441,7 @@ def missions_applications(id: int):
 )
 def missions_application_select(id: int, app_id: int):
     mission = get_offer_or_404(MissionOffer, id)
-    _enforce_journalism_visibility(mission)  # Bug #0224
+    enforce_journalism_visibility(mission)  # Bug #0224
     message = (request.form.get("decision_message") or "").strip()
     return update_application_status(
         mission,
@@ -458,7 +458,7 @@ def missions_application_select(id: int, app_id: int):
 )
 def missions_application_reject(id: int, app_id: int):
     mission = get_offer_or_404(MissionOffer, id)
-    _enforce_journalism_visibility(mission)  # Bug #0224
+    enforce_journalism_visibility(mission)  # Bug #0224
     message = (request.form.get("decision_message") or "").strip()
     return update_application_status(
         mission,
@@ -472,5 +472,5 @@ def missions_application_reject(id: int, app_id: int):
 @blueprint.route("/missions/<int:id>/fill", methods=["POST"])
 def missions_fill(id: int):
     mission = get_offer_or_404(MissionOffer, id)
-    _enforce_journalism_visibility(mission)  # Bug #0224
+    enforce_journalism_visibility(mission)  # Bug #0224
     return mark_filled(mission, ".missions_detail")
