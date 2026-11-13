@@ -10,6 +10,7 @@ import toml
 from flask import current_app, render_template
 from markupsafe import Markup
 from svcs.flask import container
+from werkzeug.security import safe_join
 
 from app.modules.admin.cms import CorporatePageService, render_cms_html
 from app.modules.public import get
@@ -30,8 +31,11 @@ def page(path: str):
     # 2) Filesystem fallback (legacy static-pages/ + rétrocompat pour
     # sub-paths éventuels).
     root = Path(current_app.root_path).parent.parent.parent / "static-pages"
-    html_file = root / (path + ".html")
-    md_file = root / (path + ".md")
+    base = safe_join(str(root), path)
+    if base is None:
+        return render_template("errors/404.j2"), 404
+    html_file = Path(base + ".html")
+    md_file = Path(base + ".md")
 
     if html_file.exists():
         data = html_file.read_text()

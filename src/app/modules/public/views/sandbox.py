@@ -7,6 +7,7 @@ from __future__ import annotations
 from pathlib import Path
 
 from werkzeug.exceptions import NotFound
+from werkzeug.security import safe_join
 
 from app.modules.public import get
 
@@ -42,12 +43,9 @@ def sandbox_index():
 
 @get("/sandbox/<path:path>")
 def sandbox(path: str):
-    path = path.removesuffix("/")
-
-    html_file = TEMPLATE_DIR / (path + ".html")
-
-    if not html_file.exists():
+    html_file = safe_join(str(TEMPLATE_DIR), path.removesuffix("/") + ".html")
+    if html_file is None or not Path(html_file).exists():
         msg = "File not found"
         raise NotFound(msg)
 
-    return html_file.read_text()
+    return Path(html_file).read_text()
