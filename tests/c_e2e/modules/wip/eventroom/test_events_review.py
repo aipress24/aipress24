@@ -111,6 +111,47 @@ class TestOnlyAReviewerValidates:
         assert pending_event.status == PublicationStatus.PUBLIC
 
 
+class TestADraftDoesNotSkipReview:
+    """Where the organisation requires review, publishing straight from
+    draft is the reviewer's act too, or the author skips the circuit by
+    never submitting."""
+
+    @pytest.fixture
+    def draft_event(
+        self, fresh_db, test_org: Organisation, test_user: User, reviewer: User
+    ) -> Event:
+        event = Event(owner=test_user, publisher=test_org)
+        event.titre = "Salon en brouillon"
+        event.contenu = "<p>Programme</p>"
+        event.address = "1 rue de la Paix, Paris"
+        event.status = PublicationStatus.DRAFT
+        event.start_time = arrow_now(LOCAL_TZ).shift(days=5)
+        event.end_time = arrow_now(LOCAL_TZ).shift(days=6)
+        fresh_db.session.add(event)
+        fresh_db.session.commit()
+        return event
+
+    def test_the_author_cannot_publish_it(
+        self, app: Flask, fresh_db, draft_event: Event, test_user: User
+    ) -> None:
+        with app.test_request_context("/"):
+            g.user = test_user
+            EventsWipView().publish(draft_event.id)
+
+        fresh_db.session.refresh(draft_event)
+        assert draft_event.status == PublicationStatus.DRAFT
+
+    def test_a_reviewer_can(
+        self, app: Flask, fresh_db, draft_event: Event, reviewer: User
+    ) -> None:
+        with app.test_request_context("/"):
+            g.user = reviewer
+            EventsWipView().publish(draft_event.id)
+
+        fresh_db.session.refresh(draft_event)
+        assert draft_event.status == PublicationStatus.PUBLIC
+
+
 class TestSendingBack:
     def test_the_author_may_not_send_back_their_own_event(
         self, app: Flask, fresh_db, pending_event: Event, test_user: User

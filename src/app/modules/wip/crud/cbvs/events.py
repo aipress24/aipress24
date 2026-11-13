@@ -40,7 +40,7 @@ from app.modules.events.notifications import (
     EventStatusChange,
     notify_status_change,
 )
-from app.modules.events.review import is_reviewer
+from app.modules.events.review import is_reviewer, review_required
 from app.modules.events.taxonomies import (
     competence_options,
     fonction_options,
@@ -189,8 +189,6 @@ def _publication_actions(item, url_for) -> list[dict]:
     rendait avant le lot : « Publier » sur un brouillon, « Dépublier »
     sinon. C'est ce que REL-03 exige.
     """
-    from app.modules.events.review import is_reviewer, review_required
-
     # `getattr` : ce tableau est aussi construit hors d'une requête
     # authentifiée — dans les tests unitaires du menu, notamment. Sans
     # lecteur, il n'y a pas de relecteur, et le parcours par défaut
@@ -488,10 +486,13 @@ class EventsWipView(BaseWipView):
         # `can_user_publish_for` ne suffit pas : sa première condition
         # est l'appartenance à l'organisation, si bien que n'importe quel
         # collègue de l'auteur pourrait valider sa propre soumission —
-        # et le circuit de relecture ne vaudrait plus rien.
-        if event.status == PublicationStatus.PENDING and not is_reviewer(
-            g.user, event.publisher
-        ):
+        # et le circuit de relecture ne vaudrait plus rien. Là où la
+        # relecture est exigée, publier un brouillon sans le soumettre
+        # revient au même : c'est aussi l'acte d'un relecteur.
+        needs_reviewer = event.status == PublicationStatus.PENDING or (
+            review_required(event.publisher)
+        )
+        if needs_reviewer and not is_reviewer(g.user, event.publisher):
             flash(
                 "Seul un relecteur de l'organisation peut valider cet événement.",
                 "error",
