@@ -79,7 +79,7 @@ def _remove_role(business_wall: BusinessWall, role: BWRoleType) -> None:
     if not user_id:
         return
     try:
-        user_to_remove = cast(User, get_obj(user_id, User))
+        user_to_remove = get_obj(user_id, User)
     except NotFound:
         warn(f"Cannot remove {role.value} for unknown user {user_id}")
         flash("Cet utilisateur n'existe plus.", "error")
@@ -244,7 +244,7 @@ def _build_context(
     def _load(user_id: int) -> User | None:
         """`None` for a role assignment whose user row is gone."""
         try:
-            return cast(User, get_obj(user_id, User))
+            return get_obj(user_id, User)
         except NotFound:
             return None
 

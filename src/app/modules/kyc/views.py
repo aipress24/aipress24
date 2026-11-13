@@ -55,6 +55,7 @@ from app.models.auth import (
     User,
     clone_user,
     merge_values_from_other_user,
+    require_profile,
 )
 from app.models.repositories import RoleRepository
 from app.modules.admin.utils import gc_all_auto_organisations
@@ -594,7 +595,7 @@ def _update_from_current_user(orig_user: User) -> User:
     cloned_user = clone_user(orig_user)
     # orig_user.is_cloned = True
 
-    profile = cloned_user.profile
+    profile = require_profile(cloned_user)
     profile_id = session_service.get("profile_id", "")
     survey_profile = get_survey_profile(profile_id)
     profile.profile_id = survey_profile.id
@@ -664,7 +665,7 @@ def _get_critical_modified_fields(orig_user: User, cloned_user: User) -> list[st
     convert = {"civilite": "gender"}
 
     def _get_value(user: User, field_name: str) -> Any:
-        profile = user.profile
+        profile = require_profile(user)
         if profile.has_field_name(field_name):
             return profile.get_value(field_name)
         key = convert.get(field_name, field_name)
@@ -768,7 +769,7 @@ def _update_current_user_data() -> str:
 
 
 def _populate_kyc_data_from_user(user: User) -> dict[str, Any]:
-    profile = user.profile
+    profile = require_profile(user)
     data: dict[str, Any] = {}
     if isinstance(user.photo_image, FileObject):
         data["photo"] = user.photo_image
@@ -782,7 +783,7 @@ def _populate_kyc_data_from_user(user: User) -> dict[str, Any]:
     data["last_name"] = user.last_name
     data["first_name"] = user.first_name
     data["civilite"] = user.gender
-    data["presentation"] = user.profile.presentation
+    data["presentation"] = profile.presentation
     data["email"] = user.email_safe_copy or user.email
     data["email_secours"] = user.email_secours
     data["tel_mobile"] = user.tel_mobile
@@ -865,7 +866,7 @@ def public_info_context(user: User, mask_fields: MaskFields) -> dict[str, Any]:
 
     The "mask_fields" contains list of field names that should not be displayed.
     """
-    profile = user.profile
+    profile = require_profile(user)
     kyc_data = _populate_kyc_data_from_user(user)
     return _public_group_info_profile(profile, kyc_data, mask_fields)
 
@@ -873,7 +874,7 @@ def public_info_context(user: User, mask_fields: MaskFields) -> dict[str, Any]:
 def admin_info_context(user: User) -> dict[str, Any]:
     # def public_info_context(user: User, mask_fields: list[str]) -> dict[str, Any]:
     """Return group of fields visible by Admin of app."""
-    profile = user.profile
+    profile = require_profile(user)
     kyc_data = _populate_kyc_data_from_user(user)
     return _admin_group_info_profile(profile, kyc_data)
 
@@ -902,7 +903,7 @@ def _public_group_info(level: int) -> dict[str, Any]:
     level = _update_profile_display_level(level)
 
     user = g.user
-    profile = user.profile
+    profile = require_profile(user)
     kyc_data = _populate_kyc_data_from_user(user)
     return _public_group_info_profile(profile, kyc_data)
 

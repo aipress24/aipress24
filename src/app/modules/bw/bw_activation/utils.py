@@ -376,7 +376,7 @@ def bw_contact_name_email(bw: BusinessWall, *, loader=None) -> tuple[str, str]:
             :func:`get_obj`.
     """
     if loader is None:
-        owner = cast(User, get_obj(bw.owner_id, User))
+        owner = get_obj(bw.owner_id, User)
     else:
         owner = loader(bw.owner_id)
     return owner.full_name, owner.email

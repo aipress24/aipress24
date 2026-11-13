@@ -141,6 +141,22 @@ class TestShowUserPage:
         response = admin_client.get(f"/admin/show_user/{user_without_org.id}")
         assert response.status_code in (200, 302)
 
+    def test_show_user_without_a_profile(
+        self,
+        admin_client: FlaskClient,
+        admin_user: User,
+        db_session: Session,
+    ):
+        """An admin sees the account of a sign-up left before the KYC."""
+        user = User(email=f"noprofile-{uuid.uuid4().hex[:8]}@x.com", active=True)
+        db_session.add(user)
+        db_session.commit()
+
+        response = admin_client.get(f"/admin/show_user/{user.id}")
+
+        assert response.status_code == 200
+        assert "KYC non rempli" in response.get_data(as_text=True)
+
     def test_show_user_with_bw_organisation(
         self,
         admin_client: FlaskClient,

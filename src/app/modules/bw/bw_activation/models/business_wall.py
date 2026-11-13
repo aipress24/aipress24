@@ -23,7 +23,6 @@ from sqlalchemy import (
     select,
 )
 from sqlalchemy.orm import Mapped, mapped_column, relationship
-from sqlalchemy.orm.attributes import flag_modified
 
 from app.enums import BWStatus
 from app.lib.file_object_utils import deserialize_file_object, media_url
@@ -337,28 +336,6 @@ class BusinessWall(UUIDAuditBase):
                 # with fewer images.
                 warn(f"gallery_image_signed_urls: {e}")
         return result
-
-    def add_gallery_image(self, file_obj: FileObject) -> None:
-        """Add a new image to the gallery."""
-
-        if self.gallery_images is None:
-            self.gallery_images = []
-        img_dict = file_obj.to_dict()
-        img_dict["original_name"] = getattr(file_obj, "_filename", file_obj.filename)
-        self.gallery_images.append(img_dict)
-        flag_modified(self, "gallery_images")
-
-    def remove_gallery_image(self, index: int) -> FileObject | None:
-        """Remove an image from the gallery by index.
-
-        Returns the FileObject that was removed, or None if index is invalid.
-        """
-        if not self.gallery_images or index < 0 or index >= len(self.gallery_images):
-            return None
-        img_data = self.gallery_images.pop(index)
-        flag_modified(self, "gallery_images")
-
-        return deserialize_file_object(img_data)
 
     # Gallery management with BWImage
 

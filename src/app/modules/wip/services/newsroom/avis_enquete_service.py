@@ -795,7 +795,7 @@ class AvisEnqueteService:
         inactive users, and users already contacted for this avis.
         """
         expert = contact.expert
-        if not expert.organisation_id:
+        if expert.organisation is None:
             return []
 
         already_contacted_ids = {

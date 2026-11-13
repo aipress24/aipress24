@@ -46,7 +46,7 @@ class Organisation(IdMixin, LifeCycleMixin, Addressable, Base):
     # new BW type value (if any active BW subscription)
     bw_active: Mapped[str] = mapped_column(nullable=True)
     # new BW id (if any active BW subscription)
-    bw_id: Mapped[UUID] = mapped_column(nullable=True)
+    bw_id: Mapped[UUID | None] = mapped_column(nullable=True)
 
     # Shortcut to BusinessWall .name for display:
     # bw_name is synced from BusinessWall.name

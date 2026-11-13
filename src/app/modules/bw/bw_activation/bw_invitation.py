@@ -10,7 +10,6 @@ from collections.abc import Callable
 from dataclasses import dataclass
 from datetime import UTC, datetime
 from enum import StrEnum
-from typing import cast
 from uuid import UUID
 
 from flask import flash, g, url_for
@@ -603,7 +602,7 @@ def _safe_get_user_list(
     result: list[User] = []
     for uid in uids:
         try:
-            user = cast(User, get_obj(uid, User))
+            user = get_obj(uid, User)
         except NotFound:
             pass
         else:
@@ -960,7 +959,7 @@ def sync_all_pr_missions(business_wall: BusinessWall) -> int:
             continue
 
         try:
-            user = cast(User, get_obj(assignment.user_id, User))
+            user = get_obj(assignment.user_id, User)
         except NotFound:
             continue
 

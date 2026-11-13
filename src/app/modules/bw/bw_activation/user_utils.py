@@ -364,7 +364,7 @@ def filter_agency_org_ids(orgs: list[Organisation]) -> set[int]:
     ]
     if not candidates:
         return set()
-    bw_by_id = {
+    bw_by_id: dict[UUID | None, BusinessWall] = {
         bw.id: bw
         for bw in db.session.scalars(
             select(BusinessWall)

@@ -65,7 +65,7 @@ class ShowOrgView(MethodView):
 
         The page shows organization info, membership lists, and BW management options.
         """
-        org = cast(Organisation, get_obj(uid, Organisation))
+        org = get_obj(uid, Organisation)
         active_bw = get_active_business_wall_for_organisation(org)
         current_owner_email = ""
         current_owner_id = None
@@ -310,7 +310,7 @@ def change_bw_owner(uid: str):
     updates the active BusinessWall owner_id, ensures the new user has
     an accepted BW_OWNER role assignment.
     """
-    org = cast(Organisation, get_obj(uid, Organisation))
+    org = get_obj(uid, Organisation)
     active_bw = get_active_business_wall_for_organisation(org)
     if active_bw is None:
         flash("Aucun Business Wall actif pour cette organisation.", "error")
@@ -427,7 +427,7 @@ def admin_bw_dashboard(uid: str):
     Switches the admin user's session to the active BW of the given
     organisation, then redirects to the BW dashboard.
     """
-    org = cast(Organisation, get_obj(uid, Organisation))
+    org = get_obj(uid, Organisation)
     active_bw = get_active_business_wall_for_organisation(org)
     if active_bw is None:
         flash("Aucun Business Wall actif pour cette organisation.", "error")

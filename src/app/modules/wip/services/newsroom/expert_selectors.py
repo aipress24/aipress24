@@ -39,7 +39,7 @@ from functools import cached_property
 from typing import Any
 
 from app.logging import warn
-from app.models.auth import User
+from app.models.auth import User, require_profile
 from app.modules.kyc.field_label import (
     country_code_to_country_name,
     taille_orga_code_to_label,
@@ -510,7 +510,7 @@ class SecteurSelector(DualSelector):
     taxonomy_name = "secteur_detaille"
 
     def _raw_expert_values(self, expert: User) -> Iterable[str]:
-        return expert.profile.secteurs_activite
+        return require_profile(expert).secteurs_activite
 
 
 class TypeEntreprisePresseMediasSelector(BaseSelector):
@@ -519,7 +519,7 @@ class TypeEntreprisePresseMediasSelector(BaseSelector):
     taxonomy_name = "type_entreprises_medias"
 
     def _expert_values(self, expert: User) -> Iterable[str]:
-        return expert.profile.type_entreprise_media
+        return require_profile(expert).type_entreprise_media
 
 
 class TypePresseMediasSelector(BaseSelector):
@@ -528,7 +528,7 @@ class TypePresseMediasSelector(BaseSelector):
     taxonomy_name = "media_type"
 
     def _expert_values(self, expert: User) -> Iterable[str]:
-        return expert.profile.type_presse_et_media
+        return require_profile(expert).type_presse_et_media
 
 
 class LanguesSelector(BaseSelector):
@@ -537,7 +537,7 @@ class LanguesSelector(BaseSelector):
     taxonomy_name = "langue"
 
     def _expert_values(self, expert: User) -> Iterable[str]:
-        return expert.profile.langues
+        return require_profile(expert).langues
 
 
 class MetierSelector(DualSelector):
@@ -567,7 +567,7 @@ class FonctionJournalismeSelector(BaseSelector):
     taxonomy_name = "journalisme_fonction"
 
     def _expert_values(self, expert: User) -> Iterable[str]:
-        return expert.profile.fonctions_journalisme
+        return require_profile(expert).fonctions_journalisme
 
 
 class FonctionPolitiquesAdministrativesSelector(DualSelector):
@@ -578,7 +578,7 @@ class FonctionPolitiquesAdministrativesSelector(DualSelector):
     taxonomy_name = "profession_fonction_public"
 
     def _raw_expert_values(self, expert: User) -> Iterable[str]:
-        return expert.profile.fonctions_pol_adm_detail
+        return require_profile(expert).fonctions_pol_adm_detail
 
 
 class FonctionOrganisationsPriveesSelector(DualSelector):
@@ -589,7 +589,7 @@ class FonctionOrganisationsPriveesSelector(DualSelector):
     taxonomy_name = "profession_fonction_prive"
 
     def _raw_expert_values(self, expert: User) -> Iterable[str]:
-        return expert.profile.fonctions_org_priv_detail
+        return require_profile(expert).fonctions_org_priv_detail
 
 
 class FonctionAssociationsSyndicatsSelector(DualSelector):
@@ -600,7 +600,7 @@ class FonctionAssociationsSyndicatsSelector(DualSelector):
     taxonomy_name = "profession_fonction_asso"
 
     def _raw_expert_values(self, expert: User) -> Iterable[str]:
-        return expert.profile.fonctions_ass_syn_detail
+        return require_profile(expert).fonctions_ass_syn_detail
 
 
 class TransformationMajeureSelector(DualSelector):
@@ -619,7 +619,7 @@ class TransformationMajeureSelector(DualSelector):
     taxonomy_name = "transformation_majeure"
 
     def _raw_expert_values(self, expert: User) -> Iterable[str]:
-        return expert.profile.transformations_majeures
+        return require_profile(expert).transformations_majeures
 
 
 class CompetencesGeneralesSelector(DualSelector):
@@ -630,7 +630,7 @@ class CompetencesGeneralesSelector(DualSelector):
     taxonomy_name = "competence_expert"
 
     def _raw_expert_values(self, expert: User) -> Iterable[str]:
-        return expert.profile.competences
+        return require_profile(expert).competences
 
 
 class CompetencesJournalismeSelector(BaseSelector):
@@ -639,7 +639,7 @@ class CompetencesJournalismeSelector(BaseSelector):
     taxonomy_name = "journalisme_competence"
 
     def _expert_values(self, expert: User) -> Iterable[str]:
-        return expert.profile.competences_journalisme
+        return require_profile(expert).competences_journalisme
 
 
 class TypeOrganisationSelector(DualSelector):
@@ -650,7 +650,7 @@ class TypeOrganisationSelector(DualSelector):
     taxonomy_name = "type_organisation_detail"
 
     def _raw_expert_values(self, expert: User) -> Iterable[str]:
-        return expert.profile.type_organisation
+        return require_profile(expert).type_organisation
 
 
 class TailleOrganisationSelector(BaseSelector):
@@ -659,7 +659,7 @@ class TailleOrganisationSelector(BaseSelector):
     taxonomy_name = "taille_organisation"
 
     def _expert_values(self, expert: User) -> Iterable[str]:
-        return expert.profile.taille_organisation
+        return require_profile(expert).taille_organisation
 
     def _label_for(self, value: str) -> str:
         return taille_orga_code_to_label(value)
@@ -698,7 +698,7 @@ class PaysSelector(BaseSelector):
     taxonomy_name = None
 
     def _expert_values(self, expert: User) -> Iterable[str]:
-        country = expert.profile.country
+        country = require_profile(expert).country
         return [country] if country else []
 
     def filter_experts(
@@ -708,7 +708,7 @@ class PaysSelector(BaseSelector):
     ) -> list[User]:
         if not criteria:
             return experts
-        return [e for e in experts if e.profile.country in criteria]
+        return [e for e in experts if require_profile(e).country in criteria]
 
     def _label_for(self, value: str) -> str:
         return country_code_to_country_name(value)
@@ -728,7 +728,7 @@ class DepartementSelector(BaseSelector):
     taxonomy_name = None
 
     def _expert_values(self, expert: User) -> Iterable[str]:
-        dep = expert.profile.departement
+        dep = require_profile(expert).departement
         return [dep] if dep else []
 
     def get_values(self) -> set[str]:
@@ -740,9 +740,10 @@ class DepartementSelector(BaseSelector):
         else:
             country_criteria = {str(v) for v in selected_countries}
         return {
-            u.profile.departement
+            require_profile(u).departement
             for u in self._experts
-            if u.profile.country in country_criteria and u.profile.departement
+            if require_profile(u).country in country_criteria
+            and require_profile(u).departement
         }
 
     def filter_experts(
@@ -752,7 +753,7 @@ class DepartementSelector(BaseSelector):
     ) -> list[User]:
         if not criteria:
             return experts
-        return [e for e in experts if e.profile.departement in criteria]
+        return [e for e in experts if require_profile(e).departement in criteria]
 
 
 class VilleSelector(BaseSelector):
@@ -763,7 +764,7 @@ class VilleSelector(BaseSelector):
     taxonomy_name = None
 
     def _expert_values(self, expert: User) -> Iterable[str]:
-        ville = expert.profile.ville
+        ville = require_profile(expert).ville
         return [ville] if ville else []
 
     def get_values(self) -> set[str]:
@@ -775,9 +776,10 @@ class VilleSelector(BaseSelector):
         else:
             departement_criteria = {str(v) for v in selected_departements}
         return {
-            u.profile.ville
+            require_profile(u).ville
             for u in self._experts
-            if u.profile.departement in departement_criteria and u.profile.ville
+            if require_profile(u).departement in departement_criteria
+            and require_profile(u).ville
         }
 
     def filter_experts(
@@ -787,4 +789,4 @@ class VilleSelector(BaseSelector):
     ) -> list[User]:
         if not criteria:
             return experts
-        return [e for e in experts if e.profile.ville in criteria]
+        return [e for e in experts if require_profile(e).ville in criteria]

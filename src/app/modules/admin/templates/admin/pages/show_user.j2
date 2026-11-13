@@ -408,6 +408,9 @@
         <div>
             <h2 class="text-xl font-medium mb-2">Profil complet</h2>
 
+            {% if not user.profile %}
+                <p class="text-sm text-gray-500">KYC non rempli : l'inscription s'est arrêtée avant le questionnaire.</p>
+            {% else %}
             <h2 class="text-xl font-medium mb-2">{{profile_description}}</h2>
 
             <div class="space-y-3">
@@ -440,6 +443,7 @@
                 {% endfor %}
                 <hr>
             </div>
+            {% endif %}
         </div>
     </div>
 

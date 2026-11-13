@@ -100,7 +100,7 @@ class OrganisationDetailView(MethodView):
     def get(self, id: str):
         from app.services.social_graph import SocialUser, adapt
 
-        org_obj = cast(Organisation, get_obj(id, Organisation))
+        org_obj = get_obj(id, Organisation)
         soc_user: SocialUser = adapt(g.user)
 
         # Set dynamic breadcrumb label

@@ -12,6 +12,7 @@ from typing import ClassVar
 from flask import Response, g, make_response, redirect, render_template, request
 from flask.views import MethodView
 from sqlalchemy.orm import selectinload
+from werkzeug.exceptions import NotFound
 
 from app.flask.extensions import db, htmx
 from app.flask.lib.nav import nav
@@ -31,6 +32,9 @@ class MemberDetailView(MethodView):
     def get(self, id: str):
         options = selectinload(User.organisation)
         user = get_obj(id, User, options=options)
+        # An account left before the KYC is not a member yet.
+        if user.profile is None:
+            raise NotFound
 
         # Set dynamic breadcrumb label
         g.nav.label = f"{user.last_name}, {user.first_name}"

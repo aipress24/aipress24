@@ -13,7 +13,7 @@ from sqlalchemy.orm import scoped_session
 from app.constants import LABEL_MODIFICATION_ORGANISATION, LOCAL_TZ
 from app.flask.extensions import db
 from app.flask.sqla import get_obj
-from app.models.auth import User, clone_kycprofile
+from app.models.auth import User, clone_kycprofile, require_profile
 from app.models.organisation import Organisation
 
 
@@ -54,7 +54,7 @@ def _remove_user_organisation(user: User) -> None:
 
 
 def _remove_user_profile_organisation(user: User) -> None:
-    new_profile = clone_kycprofile(user.profile)
+    new_profile = clone_kycprofile(require_profile(user))
     new_profile.info_professionnelle["nom_adm"] = ""
     new_profile.info_professionnelle["nom_agence_rp"] = ""
     new_profile.info_professionnelle["nom_group_com"] = ""
@@ -96,7 +96,7 @@ def _set_user_organisation_id(user: User, org_id: int) -> None:
 
 
 def _set_user_profile_organisation(user: User, organisation: Organisation) -> None:
-    new_profile = clone_kycprofile(user.profile)
+    new_profile = clone_kycprofile(require_profile(user))
     name = organisation.name
     # Use bw_type if available, or default to nom_orga
     bw_type = organisation.bw_active

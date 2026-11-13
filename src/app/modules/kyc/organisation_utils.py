@@ -8,7 +8,7 @@ from sqlalchemy import func, or_, select
 
 from app.enums import InvitationStatus
 from app.flask.extensions import db
-from app.models.auth import User
+from app.models.auth import User, require_profile
 from app.models.invitation import Invitation
 from app.models.organisation import Organisation
 from app.modules.bw.bw_activation.models import (
@@ -121,7 +121,7 @@ def get_organisation_for_noms_com() -> list[str]:
 
 
 def _find_kyc_organisation_name(user: User) -> str:
-    profile = user.profile
+    profile = require_profile(user)
     orga_field_name = profile.organisation_field_name_origin
     current_value = profile.get_value(orga_field_name)
     if isinstance(current_value, list):  # newsrooms is a list

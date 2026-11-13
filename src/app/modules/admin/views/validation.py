@@ -24,7 +24,7 @@ from app.constants import (
 from app.flask.extensions import db
 from app.flask.lib.nav import nav
 from app.flask.sqla import get_obj
-from app.models.auth import User, merge_values_from_other_user
+from app.models.auth import User, merge_values_from_other_user, require_profile
 from app.modules.admin import blueprint
 from app.modules.admin.utils import gc_all_auto_organisations
 from app.modules.kyc.organisation_utils import retrieve_user_organisation
@@ -72,7 +72,7 @@ class ValidationUserView(MethodView):
     ) -> None:
         """Detect business wall trigger for user."""
         media_status = {"bw_trigger": False, "bw_organisation": ""}
-        profile = user.profile
+        profile = require_profile(user)
         trigger = profile.get_first_bw_trigger()
         if trigger:
             media_status = {

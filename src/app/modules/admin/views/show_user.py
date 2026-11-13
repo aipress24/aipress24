@@ -6,7 +6,7 @@
 
 from __future__ import annotations
 
-from typing import ClassVar, cast
+from typing import ClassVar
 
 from arrow import now
 from flask import Response, flash, render_template, request, url_for
@@ -47,7 +47,7 @@ class ShowUserView(MethodView):
     ]
 
     def get(self, uid: str):
-        user = cast(User, get_obj(uid, User))
+        user = get_obj(uid, User)
         org = user.organisation
         active_bw = get_business_wall_for_user(user)
 
@@ -80,7 +80,7 @@ class ShowUserView(MethodView):
             [inv.organisation_id for inv in org_invitations]
         )
 
-        context = admin_info_context(user)
+        context = admin_info_context(user) if user.profile is not None else {}
         context.update(
             {
                 "user": user,

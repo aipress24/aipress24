@@ -4,7 +4,7 @@
 
 from __future__ import annotations
 
-from typing import Any, Protocol, cast
+from typing import Any, Protocol, TypeVar, cast
 
 from flask import g
 from sqlalchemy import select
@@ -15,6 +15,8 @@ from app.enums import RoleEnum
 from app.flask.extensions import db
 from app.lib.base62 import base62
 from app.models.lifecycle import PublicationStatus
+
+T = TypeVar("T")
 
 
 class _HasId(Protocol):
@@ -47,7 +49,7 @@ def parse_id(id: int | str) -> int:
             raise NotFound(msg)
 
 
-def get_obj(id: int | str, cls: type, options=None):
+def get_obj(id: int | str, cls: type[T], options=None) -> T:
     id = parse_id(id)
     m = cast("type[_HasId]", cls)
     stmt = select(m).where(m.id == id)
@@ -58,7 +60,7 @@ def get_obj(id: int | str, cls: type, options=None):
     if not obj:
         msg = f"Can't match id {id}"
         raise NotFound(msg)
-    return obj
+    return cast("T", obj)
 
 
 def get_public_obj(id: int | str, cls: type, options=None):

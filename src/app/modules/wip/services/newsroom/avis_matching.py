@@ -180,7 +180,8 @@ def record_notifications(
 
 
 def _is_active_recently(expert: User, cutoff: datetime) -> bool:
-    last = expert.last_login_at
+    # Nullable in the database, though Flask-Security types it `datetime`.
+    last: datetime | None = expert.last_login_at
     if last is None:
         return False
     if last.tzinfo is None:
