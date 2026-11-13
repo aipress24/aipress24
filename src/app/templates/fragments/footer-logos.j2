@@ -5,9 +5,7 @@
           href="{{ link.url }}"
           class="text-gray-500 hover:text-gray-900 dark:hover:text-white dark:text-gray-400"
       >
-        <i
-            class="w-5 h-5 flex-shrink-0"
-            data-lucide="{{ link.icon }}"></i>
+        {{ icon(link.icon, type="lucide", class="w-5 h-5 flex-shrink-0") }}
       </a>
     </li>
   {% endfor %}
