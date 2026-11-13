@@ -1,8 +1,6 @@
 {% extends "admin/layout/_base.j2" %}
 
 {% block main %}
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
     <div class="grid gap-6 grid-cols-1 lg:grid-cols-2">
         {% for widget in widgets %}
             {% set data = widget.get_data() %}
@@ -16,7 +14,7 @@
                         <canvas id="widget-{{ widget.id }}"></canvas>
                     </div>
                     <script>
-                        (() => {
+                        document.addEventListener('DOMContentLoaded', () => {
                             const ctx = document.getElementById(
                                 'widget-{{ widget.id }}');
                             if (!ctx) return;
@@ -30,7 +28,7 @@
                                     scales: {y: {beginAtZero: true}},
                                 },
                             });
-                        })();
+                        });
                     </script>
                 {% else %}
                     <p class="text-sm text-gray-500 italic py-12 text-center">

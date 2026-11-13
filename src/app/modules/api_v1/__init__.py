@@ -153,11 +153,10 @@ def _default_config() -> dict[str, object]:
         "OPENAPI_URL_PREFIX": "/api/v1",
         "OPENAPI_JSON_PATH": "openapi.json",
         "OPENAPI_SWAGGER_UI_PATH": "/docs",
-        "OPENAPI_SWAGGER_UI_URL": "https://cdn.jsdelivr.net/npm/swagger-ui-dist/",
+        # Copied from vite/node_modules by `npm run build` (copy-vendor.mjs).
+        "OPENAPI_SWAGGER_UI_URL": "/static/vendor/swagger-ui/",
         "OPENAPI_REDOC_PATH": "/redoc",
-        "OPENAPI_REDOC_URL": (
-            "https://cdn.jsdelivr.net/npm/redoc@next/bundles/redoc.standalone.js"
-        ),
+        "OPENAPI_REDOC_URL": "/static/vendor/redoc/redoc.standalone.js",
     }
 
 

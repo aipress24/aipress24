@@ -9,7 +9,6 @@
     <canvas id="myChart"></canvas>
   </div>
 
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script>
     const config = {
       type: 'line',
@@ -23,10 +22,11 @@
       },
     };
 
-    new Chart(
-        document.getElementById('myChart'),
-        config
-    );
+    // Chart comes from the bundle, a module script that runs before
+    // DOMContentLoaded.
+    document.addEventListener('DOMContentLoaded', () => {
+      new Chart(document.getElementById('myChart'), config);
+    });
   </script>
 
 {% endblock %}

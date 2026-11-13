@@ -5,7 +5,7 @@
   <div class="max-w-2xl mx-auto">
     <div class="flex items-center mb-6">
       <a href="{{ url_for('.list_entries', taxonomy_name=taxonomy_name) }}" class="mr-3 text-gray-600 hover:text-blue-600">
-        <i class="fas fa-arrow-left"></i>
+        {{ icon("arrow-left", class="inline w-4 h-4") }}
       </a>
       <h2 class="text-2xl font-bold text-gray-800">Edit Entry in <span class="text-blue-600">{{ taxonomy_name }}</span></h2>
     </div>

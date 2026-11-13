@@ -15,8 +15,14 @@ import imageViewer from "@/image-upload";
 
 import 'flowbite';
 
+import Chart from "chart.js/auto";
+import Choices from "choices.js";
+
 // Export in the global namesapce
 window.imageViewer = imageViewer;
+// Templates call these from inline scripts and Alpine `init()` hooks.
+window.Chart = Chart;
+window.Choices = Choices;
 
 setupLivewire();
 initTrix();
