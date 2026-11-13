@@ -5,13 +5,9 @@
 
 from __future__ import annotations
 
-from typing import cast
-
 from flask import Blueprint
 from flask_login import current_user
 from werkzeug.exceptions import Unauthorized
-
-from app.models.auth import User
 
 blueprint = Blueprint("api", __name__, url_prefix="/api")
 route = blueprint.route
@@ -26,6 +22,5 @@ def check_auth() -> None:
     Raises:
         Unauthorized: If user is anonymous/not authenticated.
     """
-    user = cast("User", current_user)
-    if user.is_anonymous:
+    if current_user.is_anonymous:
         raise Unauthorized

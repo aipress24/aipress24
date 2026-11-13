@@ -181,7 +181,7 @@ class Tab(ABC):
     def guard(self) -> bool: ...
 
 
-class OrgProfileTab(Tab, ABC):
+class OrgProfileTab(Tab):
     id = "profile"
     label = "A propos"
 

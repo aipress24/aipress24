@@ -354,9 +354,13 @@ dev = [
     { name = "ty" },
     { name = "typeguard" },
     { name = "types-bleach" },
+    { name = "types-boltons" },
     { name = "types-chardet" },
     { name = "types-deprecated" },
+    { name = "types-flask-migrate" },
     { name = "types-markdown" },
+    { name = "types-openpyxl" },
+    { name = "types-psutil" },
     { name = "types-python-slugify" },
     { name = "types-pytz" },
     { name = "types-pyyaml" },
@@ -518,9 +522,13 @@ dev = [
     { name = "ty", specifier = ">=0.0.0a7" },
     { name = "typeguard", specifier = ">=4.1,<5.0" },
     { name = "types-bleach" },
+    { name = "types-boltons", specifier = ">=26.1.0.20261029" },
     { name = "types-chardet" },
     { name = "types-deprecated" },
+    { name = "types-flask-migrate", specifier = ">=4.1.0.20260508" },
     { name = "types-markdown" },
+    { name = "types-openpyxl", specifier = ">=3.1.5.20261017" },
+    { name = "types-psutil", specifier = ">=7.2.2.20261111" },
     { name = "types-python-slugify" },
     { name = "types-pytz" },
     { name = "types-pyyaml" },
@@ -4730,6 +4738,15 @@ wheels = [
 ]
 
 [[package]]
+name = "types-boltons"
+version = "26.1.0.20261029"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/00/0f/d1c5651b69c8199d8f5a660a572f6896ab6c45373bb2017a071aafa8c738/types_boltons-26.1.0.20261029.tar.gz", hash = "sha256:ec1a58d676e35ffc1e066b0c5329a43f0d6a04830c2e9ace2eea19435eff48da", size = 22581, upload-time = "2026-10-29T07:44:15.953Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/66/be/167b0977a818e2ace835259adde5badc7f0027d77aa5d0e426769f05fad6/types_boltons-26.1.0.20261029-py3-none-any.whl", hash = "sha256:1ab5cd726cec5e4e42a082f81a78dbb67ab089cc61a9de9774de2b5ed4eb1524", size = 28811, upload-time = "2026-10-29T07:44:14.962Z" },
+]
+
+[[package]]
 name = "types-chardet"
 version = "5.0.4.6"
 source = { registry = "https://pypi.org/simple" }
@@ -4745,6 +4762,19 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/7f/9e/1450b10d9e033183aacc1e137108fc51931d243833e5918cc4c9d7367128/types_deprecated-1.3.1.20260928.tar.gz", hash = "sha256:baa950d1a8125c015e4614eedc16fb5401a6d418075a81aea8330cc26b3d4ff6", size = 9060, upload-time = "2026-09-28T07:50:51.287Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/e3/50/8c0b1e3a953669f9b9782b4b948136a3e719d70d8e0e16e6c128b0da1e45/types_deprecated-1.3.1.20260928-py3-none-any.whl", hash = "sha256:97d6816bbe822bb7b52c9a1ad035ed10ff916e7dfe8652c4c406f950d8f72694", size = 9253, upload-time = "2026-09-28T07:50:50.502Z" },
+]
+
+[[package]]
+name = "types-flask-migrate"
+version = "4.1.0.20260508"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "flask" },
+    { name = "flask-sqlalchemy" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/87/cd/31a5b4882cee1ba417cd602d5b55c263c51471cd8cbe4720e17238d9a075/types_flask_migrate-4.1.0.20260508.tar.gz", hash = "sha256:af42934032789f8b4e778c0d07ea22d670e7920894481589bfa18dcfa776376e", size = 8815, upload-time = "2026-05-08T04:52:05.782Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/8a/b8/fe3858bb1848047b938e75001b44442a84e8c7445788f20abf7f7df2f5a2/types_flask_migrate-4.1.0.20260508-py3-none-any.whl", hash = "sha256:f22dfd36fe2c14eb533361ad021a26fc7c89079026c3b3b0ebb2d6a48a80b8e0", size = 8661, upload-time = "2026-05-08T04:52:04.673Z" },
 ]
 
 [[package]]
@@ -4766,6 +4796,24 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/56/49/b7e71464ac2a88112202cc19885169703897be958801ddc13d6f6b911e52/types_markdown-3.11.3.20261108.tar.gz", hash = "sha256:eac0188fc8dacbf9bbbea68a0aee98c7d3b0008f8b1def1a141cd669dd7c708a", size = 21043, upload-time = "2026-11-08T08:12:43.96Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/01/c8/d6538cf551ca721782891de6455a129679eab0d2fedd39570e66e5057c77/types_markdown-3.11.3.20261108-py3-none-any.whl", hash = "sha256:f906be98f35c745906ce2b88bd803f5e2af78d2f2f146d700110152ac20ffc38", size = 26452, upload-time = "2026-11-08T08:12:43.074Z" },
+]
+
+[[package]]
+name = "types-openpyxl"
+version = "3.1.5.20261017"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/af/13/ce0b36e7e29ee31ec75d6718d48d28d2d48ad319ddf4665f81c8f3a8fc95/types_openpyxl-3.1.5.20261017.tar.gz", hash = "sha256:3deb3b6279b65ab379c126df0ee1fd27500c9628edb8d9667d73f637462917dc", size = 102026, upload-time = "2026-10-17T06:20:01.431Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/2b/17/a091e90fde3e90eff9168354269626e210a4c3c688910d8c9176b8a08cb4/types_openpyxl-3.1.5.20261017-py3-none-any.whl", hash = "sha256:3315cfebad290cc7ade1fccaf3a46ee820b3a8e7df726ff4f18d30ab7f383d68", size = 165886, upload-time = "2026-10-17T06:19:59.944Z" },
+]
+
+[[package]]
+name = "types-psutil"
+version = "7.2.2.20261111"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/9c/30/9eb9f10b074aa0cb3456ad3469716169d0af6de58096719f31cb065aac68/types_psutil-7.2.2.20261111.tar.gz", hash = "sha256:d677119c44fb80cc9be41d8ac731f08bf89974bb1daa49b6688665a9d7224f42", size = 27439, upload-time = "2026-11-11T08:32:33.155Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/c1/c2/6a9d0b3e4f55ad008891dda1f9316b077f28c22274c58869f8047f7d6b74/types_psutil-7.2.2.20261111-py3-none-any.whl", hash = "sha256:054f7b635fc908d3d27e49e8d274fbfed115a1a859f2edeae17519c0238286a1", size = 33394, upload-time = "2026-11-11T08:32:32.097Z" },
 ]
 
 [[package]]

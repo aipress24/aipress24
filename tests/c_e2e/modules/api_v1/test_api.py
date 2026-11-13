@@ -177,7 +177,7 @@ def test_app_factory_is_reentrant() -> None:
     # register_on_app must not call setup methods on the shared blueprint, so a
     # second create_app() in the same process must not raise (regression).
     second = create_app(TestConfig)
-    rules = {str(rule.rule) for rule in second.url_map.iter_rules()}
+    rules = {rule.rule for rule in second.url_map.iter_rules()}
     assert "/api/v1/articles" in rules
 
 

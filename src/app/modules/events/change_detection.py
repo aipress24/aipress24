@@ -111,7 +111,7 @@ def _worth_saying(old, new) -> bool:
     succède à quelque chose est une information, celui qui n'a jamais
     rien remplacé n'en est pas une.
     """
-    return bool(_filled(new) or _filled(old))
+    return _filled(new) or _filled(old)
 
 
 def _filled(value) -> bool:

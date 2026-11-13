@@ -4,14 +4,11 @@
 
 from __future__ import annotations
 
-from typing import cast
-
 from flask import Blueprint
 from flask_login import current_user
 from werkzeug.exceptions import Unauthorized
 
 from app.flask.lib.nav import configure_nav
-from app.models.auth import User
 
 blueprint = Blueprint(
     "search", __name__, url_prefix="/search", template_folder="templates"
@@ -22,8 +19,7 @@ route = blueprint.route
 
 @blueprint.before_request
 def check_auth() -> None:
-    user = cast("User", current_user)
-    if user.is_anonymous:
+    if current_user.is_anonymous:
         raise Unauthorized
 
 

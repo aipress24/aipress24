@@ -100,8 +100,6 @@ def default_new_offer_status():
 
 
 def get_user_application(offer_id: int, user: User) -> OfferApplication | None:
-    if user.is_anonymous:
-        return None
     return (
         db.session.query(OfferApplication)
         .filter_by(offer_id=offer_id, owner_id=user.id)
@@ -111,11 +109,10 @@ def get_user_application(offer_id: int, user: User) -> OfferApplication | None:
 
 def handle_apply(offer, *, detail_endpoint: str, cv_url: str = ""):
     """Submit a candidature on an offer. Returns a Flask response."""
-    user = cast(User, g.user)
-
-    if user.is_anonymous:
+    if g.user.is_anonymous:
         flash("Connexion requise pour candidater.", "error")
         return redirect(url_for("security.login"))
+    user = cast(User, g.user)
 
     if user.id == offer.owner_id:
         flash("Vous ne pouvez pas candidater à votre propre offre.", "error")

@@ -223,10 +223,14 @@ def _field_builder(
         match readonly_mode:
             case ReadOnly.WIDGET:
                 widget_kwargs["readonly"] = 1 if readonly else 0
-            case ReadOnly.RENDER_KW if readonly:
-                render_kw["readonly"] = True
-            case ReadOnly.DISABLED if readonly:
-                render_kw["disabled"] = ""
+            case ReadOnly.RENDER_KW:
+                if readonly:
+                    render_kw["readonly"] = True
+            case ReadOnly.DISABLED:
+                if readonly:
+                    render_kw["disabled"] = ""
+            case ReadOnly.UNSUPPORTED:
+                pass  # The widget has no read-only state.
 
         return widget(**widget_kwargs)
 

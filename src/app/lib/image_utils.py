@@ -4,7 +4,6 @@
 from __future__ import annotations
 
 import base64
-import binascii
 import io
 from typing import TYPE_CHECKING, NamedTuple
 
@@ -78,7 +77,7 @@ def extract_image_from_request(
                 filename=filename,
                 content_type=content_type,
             )
-        except (ValueError, binascii.Error):
+        except ValueError:  # `binascii.Error` is a `ValueError`
             # Malformed data-URL : fall through to the file
             # storage rather than dropping the upload entirely.
             pass

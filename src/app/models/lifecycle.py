@@ -36,7 +36,7 @@ class PublicationStatus(StrEnum):
             PublicationStatus.ARCHIVED: "Archivé",
             PublicationStatus.DELETED: "Supprimé",
         }
-        return labels.get(self, str(self.value))
+        return labels.get(self, self.value)
 
     @classmethod
     def from_str(cls, value: str) -> PublicationStatus | None:

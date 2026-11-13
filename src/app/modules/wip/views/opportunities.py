@@ -589,9 +589,9 @@ def send_avis_enquete_acceptance_email(
         contact: Contact responding to the avis.
         response: either "oui", "oui_relation_presse", "non", "non-mais".
     """
-    expert = cast(User, current_user)
-    if expert.is_anonymous:
+    if current_user.is_anonymous:
         return
+    expert = cast(User, current_user)
     sender_mail = expert.email
     sender_full_name = expert.full_name
 
@@ -627,9 +627,9 @@ def media_opportunity_post(id: int) -> str | Response:
     # Lazy import to avoid circular import
     from app.modules.wip.models import ContactAvisEnqueteRepository, StatutAvis
 
-    expert = cast(User, current_user)
-    if expert.is_anonymous:
+    if current_user.is_anonymous:
         return ""
+    expert = cast(User, current_user)
 
     repo = container.get(ContactAvisEnqueteRepository)
     contact = _get_live_contact(repo, id)
@@ -676,7 +676,7 @@ def media_opportunity_post(id: int) -> str | Response:
 
                 def _build_pr_opportunity_url(c: ContactAvisEnquete) -> str:
                     domain = str(current_app.config.get("SERVER_NAME"))
-                    path = str(url_for("wip.media_opportunity", id=c.id))
+                    path = url_for("wip.media_opportunity", id=c.id)
                     return _build_absolute_url(domain, path)
 
                 try:
@@ -722,7 +722,7 @@ def media_opportunity_post(id: int) -> str | Response:
 
             def _build_opportunity_url(contact: ContactAvisEnquete) -> str:
                 domain = str(current_app.config.get("SERVER_NAME"))
-                path = str(url_for("wip.media_opportunity", id=contact.id))
+                path = url_for("wip.media_opportunity", id=contact.id)
                 return _build_absolute_url(domain, path)
 
             avis_service = AvisEnqueteService()
@@ -783,9 +783,9 @@ def _render_media_opportunity(id: int) -> str:
         journaliste=contact.journaliste,
     )
 
-    expert = cast(User, current_user)
-    if expert.is_anonymous:
+    if current_user.is_anonymous:
         return ""
+    expert = cast(User, current_user)
 
     avis_service = AvisEnqueteService()
     # Bug #0061-b: prefill with the org's accepted BWPRi email.

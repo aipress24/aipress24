@@ -6,8 +6,6 @@
 
 from __future__ import annotations
 
-from typing import cast
-
 from flask import g, render_template
 from werkzeug.exceptions import Forbidden
 
@@ -83,9 +81,7 @@ def eventroom():
     is_acting_pr = user_is_acting_as_pr_manager(user)
 
     for item in main_items:
-        if is_acting_pr and not user_has_mission(
-            user, cast(PermissionType, item["mission"])
-        ):
+        if is_acting_pr and not user_has_mission(user, item["mission"]):
             continue
         items.append(item)
 

@@ -229,6 +229,10 @@ dev = [
     "zuban>=0.9.0",
     # Stubs follow the installed WTForms, which sqladmin holds below 3.3.
     "types-wtforms>=3.2.1,<3.3",
+    "types-openpyxl>=3.1.5.20261017",
+    "types-psutil>=7.2.2.20261111",
+    "types-flask-migrate>=4.1.0.20260508",
+    "types-boltons>=26.1.0.20261029",
 ]
 
 [build-system]
@@ -415,6 +419,17 @@ not-callable = "ignore"
 # InstrumentedAttribute note on bad-argument-type above).
 unsupported-operation = "ignore"
 unnecessary-comparison = "ignore"
+# `declarative_base()` is typed as returning `Any`, so after a `case Model():`
+# pyrefly narrows the subject to `Never` and reports the remaining cases as
+# unreachable; legacy `Column()` attributes read as `InstrumentedAttribute`.
+unreachable-match-case = "ignore"
+# The flagged `int()`/`str()`/`bool()` calls normalise values whose static
+# type is wrong at runtime: nullable columns, `SUM` returning `Decimal` on
+# Postgres, form, session and JSON data, integer choice values.
+unnecessary-type-conversion = "ignore"
+# We write `import sqlalchemy as sa` plus `import sqlalchemy.event`, then
+# `sa.event`; pyrefly does not follow the submodule import through the alias.
+implicit-import = "ignore"
 attribute-assign-on-never = "ignore"
 
 # -----------------------------------------------------------------------------

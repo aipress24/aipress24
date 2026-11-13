@@ -7,6 +7,7 @@ from __future__ import annotations
 
 from collections.abc import Sequence
 
+from flask_security.core import AnonymousUser
 from svcs.flask import container
 
 from app.enums import RoleEnum
@@ -46,7 +47,7 @@ def add_role(
 
 
 def has_role(
-    user: User,
+    user: User | AnonymousUser,
     role: str | RoleEnum | Role | Sequence[str] | set[str],
 ) -> bool:
     """Check if a user has a specific role or any role from a set.

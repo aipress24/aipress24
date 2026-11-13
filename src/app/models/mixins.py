@@ -9,7 +9,7 @@ from decimal import Decimal
 import arrow
 import sqlalchemy as sa
 import sqlalchemy.event
-from sqlalchemy import BigInteger, orm
+import sqlalchemy.orm
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy_utils import ArrowType
@@ -26,7 +26,7 @@ id_generator = SnowflakeGenerator()
 
 
 class IdMixin:
-    id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
+    id: Mapped[int] = mapped_column(sa.BigInteger, primary_key=True)
 
     def __init__(self, *args, **kw) -> None:
         super().__init__(*args, **kw)
@@ -35,17 +35,17 @@ class IdMixin:
 
 
 class Owned:
-    @orm.declared_attr
+    @sa.orm.declared_attr
     def owner_id(cls):
         from app.models.auth import User
 
         return sa.Column(sa.Integer, sa.ForeignKey(User.id), nullable=False)
 
-    @orm.declared_attr
+    @sa.orm.declared_attr
     def owner(cls):
         from app.models.auth import User
 
-        return orm.relationship(User, foreign_keys=[cls.owner_id])
+        return sa.orm.relationship(User, foreign_keys=[cls.owner_id])
 
 
 class Timestamped:
@@ -89,15 +89,15 @@ def lifecycle_before_update(_mapper, _connection, target) -> None:
 
 
 class UserFeedbackMixin:
-    @orm.declared_attr
+    @sa.orm.declared_attr
     def view_count(cls):
         return sa.Column(sa.Integer, nullable=False, default=0)
 
-    @orm.declared_attr
+    @sa.orm.declared_attr
     def like_count(cls):
         return sa.Column(sa.Integer, nullable=False, default=0)
 
-    @orm.declared_attr
+    @sa.orm.declared_attr
     def comment_count(cls):
         return sa.Column(sa.Integer, nullable=False, default=0)
 

@@ -46,9 +46,9 @@ from ._common import get_secondary_menu
 
 @blueprint.route("/newsroom/notifications-publication")
 def notifications_publication_index():
-    user = cast(User, current_user)
-    if user.is_anonymous:
+    if current_user.is_anonymous:
         return redirect(url_for("security.login"))
+    user = cast(User, current_user)
     if not user_can_access_newsroom(user):
         raise Forbidden
 
@@ -69,9 +69,9 @@ def notifications_publication_index():
 
 @blueprint.route("/newsroom/notifications-publication/new", methods=["GET", "POST"])
 def notifications_publication_new():
-    user = cast(User, current_user)
-    if user.is_anonymous:
+    if current_user.is_anonymous:
         return redirect(url_for("security.login"))
+    user = cast(User, current_user)
     if not user_can_access_newsroom(user):
         raise Forbidden
 
@@ -140,9 +140,9 @@ def _handle_free_form_post(*, journalist: User) -> Response:
 
 @blueprint.route("/opportunities/notifications-publication")
 def opportunities_notifications_publication():
-    user = cast(User, current_user)
-    if user.is_anonymous:
+    if current_user.is_anonymous:
         return redirect(url_for("security.login"))
+    user = cast(User, current_user)
 
     stmt = (
         select(NotificationPublicationContact)
@@ -161,9 +161,9 @@ def opportunities_notifications_publication():
 
 @blueprint.route("/opportunities/notifications-publication/<int:contact_id>")
 def opportunities_notification_publication_detail(contact_id: int):
-    user = cast(User, current_user)
-    if user.is_anonymous:
+    if current_user.is_anonymous:
         return redirect(url_for("security.login"))
+    user = cast(User, current_user)
 
     contact = db.session.get(NotificationPublicationContact, contact_id)
     if contact is None or contact.recipient_user_id != user.id:

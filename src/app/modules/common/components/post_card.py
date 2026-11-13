@@ -84,7 +84,7 @@ def is_post_from_news_agency(post: ArticlePost | Post) -> bool:
         return True
 
     # Check media
-    return bool(_is_agency(getattr(post, "media", None)))
+    return _is_agency(getattr(post, "media", None))
 
 
 @frozen

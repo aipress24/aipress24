@@ -5,7 +5,6 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import cast
 
 from flask import Blueprint, current_app, send_from_directory
 from flask_login import current_user
@@ -13,7 +12,6 @@ from werkzeug.exceptions import Unauthorized
 
 from app.enums import RoleEnum
 from app.flask.lib.nav import configure_nav
-from app.models.auth import User
 
 blueprint = Blueprint(
     "preferences", __name__, url_prefix="/preferences", template_folder="templates"
@@ -38,8 +36,7 @@ def images_page(filename):
 
 @blueprint.before_request
 def check_auth() -> None:
-    user = cast("User", current_user)
-    if user.is_anonymous:
+    if current_user.is_anonymous:
         raise Unauthorized
 
 

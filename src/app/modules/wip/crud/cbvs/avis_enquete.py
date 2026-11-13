@@ -419,9 +419,9 @@ class AvisEnqueteWipView(BaseWipView):
 
         model = self._get_model(id)
         self._update_phase_breadcrumbs(model, "Notifier une publication")
-        user = cast("User", current_user)
-        if user.is_anonymous:
+        if current_user.is_anonymous:
             return redirect(url_for("security.login"))
+        user = cast("User", current_user)
 
         svc = container.get(PublicationNotificationService)
         all_contacts = svc.contacts_for_avis(model)

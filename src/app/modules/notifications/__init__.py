@@ -12,21 +12,16 @@ wiring. Requires an authenticated session.
 
 from __future__ import annotations
 
-from typing import cast
-
 from flask import Blueprint
 from flask_login import current_user
 from werkzeug.exceptions import Unauthorized
-
-from app.models.auth import User
 
 blueprint = Blueprint("notifications", __name__, url_prefix="/notifications")
 
 
 @blueprint.before_request
 def check_auth() -> None:
-    user = cast("User", current_user)
-    if user.is_anonymous:
+    if current_user.is_anonymous:
         raise Unauthorized
 
 

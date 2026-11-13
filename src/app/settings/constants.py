@@ -8,7 +8,7 @@ from __future__ import annotations
 MAX_IMAGE_SIZE = 4 * 1024 * 1024
 MAX_ATTACHMENT_SIZE = 10 * 1024 * 1024
 MAX_GALLERY_IMAGES = 10
-STRIPE_RESPONSE_ALWAYS_200 = 1
+STRIPE_RESPONSE_ALWAYS_200: bool = True
 MAX_CONTENT_LENGTH = 32 * 1024 * 1024
 # Werkzeug 3+ default is 500 KB, which trips the cropper.js
 # base64 data-URL flow : a 1 MB image → ~1.4 MB data-URL form field

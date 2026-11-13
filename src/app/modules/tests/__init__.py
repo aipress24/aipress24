@@ -12,21 +12,16 @@ an authenticated session to keep the endpoints off the open internet.
 
 from __future__ import annotations
 
-from typing import cast
-
 from flask import Blueprint
 from flask_login import current_user
 from werkzeug.exceptions import Unauthorized
-
-from app.models.auth import User
 
 blueprint = Blueprint("tests", __name__, url_prefix="/tests")
 
 
 @blueprint.before_request
 def check_auth() -> None:
-    user = cast("User", current_user)
-    if user.is_anonymous:
+    if current_user.is_anonymous:
         raise Unauthorized
 
 

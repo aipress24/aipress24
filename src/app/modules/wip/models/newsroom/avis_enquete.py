@@ -47,7 +47,7 @@ class StatutAvis(StrEnum):
             StatutAvis.REFUSE: "Refusé",
             StatutAvis.REFUSE_SUGGESTION: "Refusé, suggestion",
             StatutAvis.DECLINE: "Proposition refusée",
-        }.get(self, str(self.value))
+        }.get(self, self.value)
 
 
 class RDVType(StrEnum):
@@ -63,7 +63,7 @@ class RDVType(StrEnum):
             RDVType.PHONE: "Téléphone",
             RDVType.VIDEO: "Visioconférence",
             RDVType.F2F: "Face-à-face",
-        }.get(self, str(self.value))
+        }.get(self, self.value)
 
 
 class RDVStatus(StrEnum):
@@ -81,7 +81,7 @@ class RDVStatus(StrEnum):
             RDVStatus.PROPOSED: "Proposé",
             RDVStatus.ACCEPTED: "Accepté",
             RDVStatus.CONFIRMED: "Confirmé",
-        }.get(self, str(self.value))
+        }.get(self, self.value)
 
 
 class AvisEnquete(
@@ -558,7 +558,7 @@ class ContactAvisEnquete(IdMixin, Base):
         delta = self.time_until_rdv()
         if delta is None:
             return False
-        return bool(timedelta(0) < delta <= timedelta(hours=24))
+        return timedelta(0) < delta <= timedelta(hours=24)
 
     @property
     def is_rdv_past(self) -> bool:
@@ -566,4 +566,4 @@ class ContactAvisEnquete(IdMixin, Base):
         delta = self.time_until_rdv()
         if delta is None:
             return False
-        return bool(delta < timedelta(0))
+        return delta < timedelta(0)

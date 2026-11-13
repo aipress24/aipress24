@@ -719,7 +719,7 @@ class OrganisationsExporter(BaseExporter):
         org: Organisation,
         name: str,
     ) -> str | datetime | int | bool | None:
-        has_bw = bool(org.bw_id is not None)
+        has_bw = org.bw_id is not None
         if has_bw:
             bw = self.bw_by_id.get(org.bw_id)
         else:
