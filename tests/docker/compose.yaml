@@ -2,15 +2,15 @@
 # See README.md.
 
 services:
-  # The database keeps its data in tmpfs: every `down` starts the next run
-  # from an empty database.
+  # The data lives in an anonymous volume that `down -v` removes. It peaks
+  # around 400 MB, too much for tmpfs on a small CI VM; with fsync off, disk
+  # costs no speed, and a crash only loses a throwaway database.
   postgres:
     image: postgres:16
+    command: postgres -c fsync=off -c synchronous_commit=off -c full_page_writes=off
     environment:
       POSTGRES_USER: aipress24
       POSTGRES_PASSWORD: aipress24
-    tmpfs:
-      - /var/lib/postgresql/data
     healthcheck:
       test: ["CMD", "pg_isready", "-U", "aipress24"]
       interval: 2s

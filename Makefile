@@ -34,7 +34,7 @@ DOCKER_TESTS = docker compose -p aipress24-tests-$$$$ \
 ## Run tests against PostgreSQL, database and tests both in Docker
 test-postgres-docker:
 	$(DOCKER_TESTS) run --rm --build tests-postgres; status=$$?; \
-	$(DOCKER_TESTS) down; exit $$status
+	$(DOCKER_TESTS) down -v; exit $$status
 
 ## Run tests with coverage
 test-with-coverage:
