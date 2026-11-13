@@ -343,6 +343,55 @@ class TestNotifyForm:
         # Suppress unused-variable warning.
         _ = original_post_in_app
 
+    def test_get_does_not_list_someone_elses_avis_contacts(
+        self,
+        app: Flask,
+        fresh_db,
+        test_user: User,
+        test_org: Organisation,
+        published_article: Article,
+        avis_with_contacts: tuple[AvisEnquete, User],
+    ):
+        """The picker lists contacts of the journalist's own avis only,
+        whatever id the query string carries."""
+        avis, expert = avis_with_contacts
+        other = User(email=_email(), first_name="Other", last_name="Other", active=True)
+        fresh_db.session.add(other)
+        fresh_db.session.flush()
+        avis.owner_id = other.id
+        fresh_db.session.commit()
+        client = make_authenticated_client(app, test_user)
+
+        response = client.get(
+            url_for(
+                "ArticlesWipView:notify",
+                id=published_article.id,
+                avis_enquete_id=avis.id,
+            )
+        )
+
+        assert response.status_code == 200
+        assert expert.full_name not in response.data.decode()
+
+    def test_get_leaves_deleted_avis_out_of_the_picker(
+        self,
+        app: Flask,
+        fresh_db,
+        test_user: User,
+        published_article: Article,
+        avis_with_contacts: tuple[AvisEnquete, User],
+    ):
+        avis, _expert = avis_with_contacts
+        avis.deleted_at = datetime.now(UTC)
+        fresh_db.session.commit()
+        client = make_authenticated_client(app, test_user)
+
+        response = client.get(
+            url_for("ArticlesWipView:notify", id=published_article.id)
+        )
+
+        assert avis.titre not in response.data.decode()
+
     def test_post_on_someone_elses_avis_refused(
         self,
         app: Flask,

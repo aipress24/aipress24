@@ -444,7 +444,7 @@ class ArticlesWipView(BaseWipView):
             )
 
             avis = db.session.get(AvisEnquete, avis_id)
-            if avis is None or avis.owner_id != user.id:
+            if avis is None or avis.owner_id != user.id or avis.deleted_at is not None:
                 flash("Enquête introuvable.", "error")
                 return redirect(self._url_for("index"))
 
@@ -504,7 +504,12 @@ class ArticlesWipView(BaseWipView):
             selected_avis_id = int(selected_avis_id_raw)
         except ValueError:
             selected_avis_id = 0
-        contacts = list_avis_contacts(selected_avis_id) if selected_avis_id else []
+        own_avis_ids = {a["id"] for a in avis_list}
+        contacts = (
+            list_avis_contacts(selected_avis_id)
+            if selected_avis_id in own_avis_ids
+            else []
+        )
         # Breadcrumbs : the base WIP layout reads them from the request
         # context — `update_phase_breadcrumbs` populates the standard
         # « Work > Articles > <title> > <phase> » trail.

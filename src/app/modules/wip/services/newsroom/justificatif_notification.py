@@ -311,14 +311,15 @@ def _send_email(
 
 
 def list_journalist_avis_enquetes(journalist_id: int) -> list[dict]:
-    """List the journalist's own avis d'enquêtes for the picker on the
-    Justificatif notify form. Returns dicts so the template doesn't
+    """List the journalist's own live avis d'enquêtes for the picker on
+    the Justificatif notify form. Returns dicts so the template doesn't
     need to know the model shape."""
     from app.modules.wip.models.newsroom.avis_enquete import AvisEnquete
 
     rows = (
         db.session.query(AvisEnquete)
         .filter(AvisEnquete.owner_id == journalist_id)
+        .filter(AvisEnquete.deleted_at.is_(None))
         .order_by(AvisEnquete.date_fin_enquete.desc())
         .all()
     )
