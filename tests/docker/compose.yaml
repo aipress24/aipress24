@@ -1,0 +1,29 @@
+# Run the test suite against PostgreSQL, all in containers.
+# See README.md.
+
+services:
+  # The database keeps its data in tmpfs: every `down` starts the next run
+  # from an empty database.
+  postgres:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: aipress24
+      POSTGRES_PASSWORD: aipress24
+    tmpfs:
+      - /var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "aipress24"]
+      interval: 2s
+      retries: 30
+
+  tests-postgres:
+    build:
+      context: ../..
+      dockerfile: tests/docker/Dockerfile
+    image: aipress24-tests
+    environment:
+      # The test session creates and drops this database itself.
+      PYTEST_ADDOPTS: --db-url=postgresql+psycopg://aipress24:aipress24@postgres/aipress24_test
+    depends_on:
+      postgres:
+        condition: service_healthy

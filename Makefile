@@ -13,7 +13,7 @@ help:
 HOMEBREW_LIBS := DYLD_FALLBACK_LIBRARY_PATH=/opt/homebrew/lib
 PYTEST := $(HOMEBREW_LIBS) pytest
 
-.PHONY: test test-with-sqla-warnings test-with-coverage test-with-typeguard test-cov-unit test-cov-all
+.PHONY: test test-postgres-docker test-with-sqla-warnings test-with-coverage test-with-typeguard test-cov-unit test-cov-all
 
 ## Run tests
 test:
@@ -24,6 +24,13 @@ test-sqlite:
 
 test-postgres:
 	$(PYTEST) tests --db-url="postgresql+psycopg://localhost/aipress24_test"
+
+DOCKER_TESTS = docker compose -f tests/docker/compose.yaml
+
+## Run tests against PostgreSQL, database and tests both in Docker
+test-postgres-docker:
+	$(DOCKER_TESTS) run --rm --build tests-postgres; status=$$?; \
+	$(DOCKER_TESTS) down; exit $$status
 
 ## Run tests with coverage
 test-with-coverage:
