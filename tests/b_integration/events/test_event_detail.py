@@ -352,6 +352,22 @@ class TestAccreditationRequest:
             assert get_accreditation(event_post, viewer_user) is None
 
 
+def test_a_member_outside_the_audience_cannot_comment(
+    app: Flask, db_session: Session, event_post: EventPost, viewer_user: User
+):
+    """The thread is part of the content the audience restricts."""
+    event_post.audience = [CommunityEnum.PRESS_MEDIA.value]
+    db_session.flush()
+
+    view = EventDetailView()
+    with app.test_request_context("/", data={"comment": "Hello"}):
+        g.user = viewer_user
+        response = view._post_comment(event_post)
+
+    assert response.status_code == 403
+    assert event_post.comment_count == 0
+
+
 class TestACancelledEventOnTheDetailPage:
     """ANN-04 et ANN-05 — le bandeau se voit, les gestes s'en vont.
 

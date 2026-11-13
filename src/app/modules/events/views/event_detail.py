@@ -211,6 +211,10 @@ class EventDetailView(MethodView):
             return make_response("Cet événement a été annulé.", 409)
 
         user = g.user
+        if not sees_full_content(user, event_obj):
+            # The thread is part of the content the audience restricts.
+            return make_response("Cet événement ne vous est pas ouvert.", 403)
+
         comment_text = request.form.get("comment", "").strip()
         if comment_text:
             comment = Comment()
