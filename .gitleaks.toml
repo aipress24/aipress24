@@ -1,0 +1,8 @@
+# The pre-commit hook scans the staged diff itself, so the `exclude` in
+# .pre-commit-config.yaml does not reach it.
+[extend]
+useDefault = true
+
+[[allowlists]]
+description = "Build output of `npm run build` in vite/; its sources are scanned"
+paths = ['''^vite/dist/''', '''^src/app/static/vendor/''']
