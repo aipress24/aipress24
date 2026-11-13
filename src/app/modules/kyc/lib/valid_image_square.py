@@ -10,13 +10,13 @@ from typing import Any
 from advanced_alchemy.types import FileObject
 from flask import current_app
 from markupsafe import Markup
-from wtforms import FileField, widgets
+from wtforms import Field, FileField, widgets
 
 from app.lib.file_object_utils import deserialize_file_object, media_url
 
 
 class ValidImageWidgetSquare(widgets.Input):
-    def __call__(self, field: ValidImageFieldSquare, **kwargs):
+    def __call__(self, field: Field, **kwargs: Any) -> Markup:
         template = self.get_template()
         # #0162: return Markup, not bare str (see CountrySelectWidget).
         return Markup(template.render(field=field, **kwargs))

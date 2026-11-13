@@ -5,10 +5,11 @@
 from __future__ import annotations
 
 from pathlib import Path
+from typing import Any
 
 from flask import current_app
 from markupsafe import Markup
-from wtforms import widgets
+from wtforms import Field, widgets
 from wtforms.fields.choices import SelectMultipleField
 
 
@@ -33,7 +34,7 @@ def _dict_to_group_tom_choices(choices: dict) -> list:
 
 
 class SelectMultiSimpleFreeWidget(widgets.Select):
-    def __call__(self, field: SelectMultiSimpleFreeField, **kwargs):
+    def __call__(self, field: Field, **kwargs: Any) -> Markup:
         template = self.get_template()
         # #0162: return Markup, not bare str (see CountrySelectWidget).
         return Markup(template.render(field=field))

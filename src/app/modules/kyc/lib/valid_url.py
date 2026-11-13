@@ -5,14 +5,15 @@
 from __future__ import annotations
 
 from pathlib import Path
+from typing import Any
 
 from flask import current_app
 from markupsafe import Markup
-from wtforms import StringField, widgets
+from wtforms import Field, StringField, widgets
 
 
 class ValidURLWidget(widgets.Input):
-    def __call__(self, field: ValidURL, **kwargs):
+    def __call__(self, field: Field, **kwargs: Any) -> Markup:
         template = self.get_template()
         # #0162: return Markup, not bare str (see CountrySelectWidget).
         return Markup(template.render(field=field))

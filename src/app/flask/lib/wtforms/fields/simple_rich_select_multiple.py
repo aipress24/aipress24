@@ -7,14 +7,14 @@ from __future__ import annotations
 from typing import Any
 
 from markupsafe import Markup
-from wtforms import widgets
-from wtforms.fields.choices import SelectFieldBase, SelectMultipleField
+from wtforms import Field, widgets
+from wtforms.fields.choices import SelectMultipleField
 
 from .base import BaseWidget
 
 
 class SimpleRichSelectMultipleWidget(widgets.Select, BaseWidget):
-    def __call__(self, field: SelectFieldBase, **kwargs):
+    def __call__(self, field: Field, **kwargs: Any) -> Markup:
         template = self.get_template("rich_select_multiple.j2")
         # #0162: return Markup, not bare str (autoescape class).
         return Markup(template.render(field=field))

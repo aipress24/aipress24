@@ -4,9 +4,10 @@
 
 from __future__ import annotations
 
-from typing import ClassVar
+from typing import Any, ClassVar
 
 from markupsafe import Markup
+from wtforms import Field
 from wtforms.fields.simple import StringField
 
 from .base import BaseWidget
@@ -39,7 +40,7 @@ class RichTextWidget(BaseWidget):
     #         % (html_params(name=field.name, **kwargs), escape(field._value()))
     #     )
 
-    def __call__(self, field: RichTextField, **kwargs):
+    def __call__(self, field: Field, **kwargs: Any) -> Markup:
         template = self.get_template("rich_text.j2")
         ctx = {
             "field": field,

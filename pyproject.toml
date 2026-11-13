@@ -404,6 +404,10 @@ infer-with-first-use = false
 min-severity = "warn"
 
 [tool.pyrefly.errors]
+#
+# NB: The real fix for most of these is typing the models with DeclarativeBase
+# instead of declarative_base().
+#
 bad-override = "ignore"
 bad-argument-type = "ignore"   # SQLAlchemy InstrumentedAttribute false positives
 bad-return = "ignore"
@@ -421,9 +425,11 @@ not-callable = "ignore"
 unsupported-operation = "ignore"
 unnecessary-comparison = "ignore"
 # `declarative_base()` is typed as returning `Any`, so after a `case Model():`
-# pyrefly narrows the subject to `Never` and reports the remaining cases as
-# unreachable; legacy `Column()` attributes read as `InstrumentedAttribute`.
+# or an `isinstance` check pyrefly narrows the rest to `Never`: it reports the
+# remaining cases as unreachable, and attribute writes on them as writes to
+# `Never`. Legacy `Column()` attributes read as `InstrumentedAttribute`.
 unreachable-match-case = "ignore"
+attribute-assign-on-never = "ignore"
 # The flagged `int()`/`str()`/`bool()` calls normalise values whose static
 # type is wrong at runtime: nullable columns, `SUM` returning `Decimal` on
 # Postgres, form, session and JSON data, integer choice values.
@@ -431,7 +437,6 @@ unnecessary-type-conversion = "ignore"
 # We write `import sqlalchemy as sa` plus `import sqlalchemy.event`, then
 # `sa.event`; pyrefly does not follow the submodule import through the alias.
 implicit-import = "ignore"
-attribute-assign-on-never = "ignore"
 
 # -----------------------------------------------------------------------------
 

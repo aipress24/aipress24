@@ -521,7 +521,7 @@ class BaseConvert:
         )
         print(f"  saved to {filename}  ({len(self._buffer)} lines)")
 
-    def export_optgroup(self):
+    def export_optgroup(self) -> list:
         """
         For optgroup kind of ontologies, returned formats:
 
@@ -539,7 +539,7 @@ class BaseConvert:
             all_values.extend(items)
         return all_values
 
-    def export_list(self):
+    def export_list(self) -> list | dict:
         """
         For list kind of ontologies, returned formats:
 
@@ -551,7 +551,9 @@ class BaseConvert:
         """
         return self._buffer
 
-    export = export_optgroup
+    def export(self) -> list | dict:
+        """The converted ontology; subclasses pick `export_list`."""
+        return self.export_optgroup()
 
 
 class CiviliteConverter(BaseConvert):
