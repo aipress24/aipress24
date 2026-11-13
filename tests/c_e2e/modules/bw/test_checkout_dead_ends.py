@@ -111,6 +111,8 @@ def test_checkout_refuse_si_organisation_a_deja_un_bw_actif(
         "app.modules.bw.bw_activation.routes.stage3.load_stripe_api_key",
         lambda: True,
     )
+    with authenticated_owner_client.session_transaction() as sess:
+        sess["pricing_value"] = 1
 
     response = authenticated_owner_client.post(
         "/BW/checkout/media", follow_redirects=False

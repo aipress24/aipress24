@@ -69,6 +69,8 @@ from app.services.stripe.utils import (
 from app.services.taxonomies import get_full_taxonomy
 
 if TYPE_CHECKING:
+    from werkzeug.wrappers import Response
+
     from app.models.auth import User
 
 
@@ -88,11 +90,8 @@ def pricing_page(bw_type: str):
     if bw_type not in BW_TYPES:
         return redirect(url_for("bw_activation.confirm_subscription"))
 
-    if not session.get("bw_type_confirmed"):
-        return redirect(url_for("bw_activation.confirm_subscription"))
-
-    if not session.get("contacts_confirmed"):
-        return redirect(url_for("bw_activation.nominate_contacts"))
+    if skipped := _skipped_funnel_step(priced=False):
+        return skipped
 
     bw_info = BW_TYPES[bw_type]
     # Bug 0255: the employee-count field is a `taille_organisation` taxonomy
@@ -109,11 +108,31 @@ def pricing_page(bw_type: str):
     )
 
 
+def _skipped_funnel_step(*, priced: bool = True) -> Response | None:
+    """Send the member back to the first activation step they skipped.
+
+    `select_subscription` sets `bw_type_confirmed` only for an eligible
+    member, and `set_pricing` sets `pricing_value` only once the CGV are
+    accepted, so these flags stand for those checks.
+    """
+    if not session.get("bw_type_confirmed"):
+        return redirect(url_for("bw_activation.confirm_subscription"))
+    if not session.get("contacts_confirmed"):
+        return redirect(url_for("bw_activation.nominate_contacts"))
+    if priced and not session.get("pricing_value"):
+        flash("Merci de choisir d'abord votre offre.", "warning")
+        return redirect(url_for("bw_activation.index"))
+    return None
+
+
 @bp.route("/set_pricing/<bw_type>", methods=["POST"])
 def set_pricing(bw_type: str):
     """Set pricing information and CGV acceptance for all BW types."""
     if bw_type not in BW_TYPES:
         return redirect(url_for("bw_activation.index"))
+
+    if skipped := _skipped_funnel_step(priced=False):
+        return skipped
 
     bw_info = BW_TYPES[bw_type]
 
@@ -176,9 +195,8 @@ def payment(bw_type: str):
         flash("Ce type de Business Wall n'existe pas.", "danger")
         return redirect(url_for("bw_activation.index"))
 
-    if not session.get("pricing_value"):
-        flash("Merci de choisir d'abord votre offre.", "warning")
-        return redirect(url_for("bw_activation.index"))
+    if skipped := _skipped_funnel_step():
+        return skipped
 
     bw_info = BW_TYPES[bw_type]
     ctx: dict[str, Any] = {
@@ -583,6 +601,9 @@ def checkout(bw_type: str):
         )
         return redirect(url_for("bw_activation.payment", bw_type=bw_type))
 
+    if skipped := _skipped_funnel_step():
+        return skipped
+
     draft_bw = _get_or_create_draft_bw_for_checkout(g.user, bw_type)
     if draft_bw is None:
         user_id = getattr(g.user, "id", None)
@@ -856,6 +877,9 @@ def simulate_payment(bw_type: str):
     if bw_type not in BW_TYPES:
         return redirect(url_for("bw_activation.index"))
 
+    if skipped := _skipped_funnel_step():
+        return skipped
+
     user = cast("User", g.user)
     if user.organisation and get_active_business_wall_for_organisation(
         user.organisation
@@ -866,11 +890,8 @@ def simulate_payment(bw_type: str):
         flash("Votre organisation possède déjà un Business Wall actif.", "danger")
         return redirect(url_for("bw_activation.dashboard"))
 
-    if session.get("pricing_value"):
-        session["bw_activated"] = True
-        return redirect(url_for("bw_activation.confirmation_paid"))
-
-    return redirect(url_for("bw_activation.index"))
+    session["bw_activated"] = True
+    return redirect(url_for("bw_activation.confirmation_paid"))
 
 
 @bp.route("/confirmation/paid")

@@ -411,6 +411,52 @@ class TestStage3FreeRoutes:
         assert "/BW/confirmation/paid" in response.headers.get("Location", "")
 
 
+class TestStage3RefusesASkippedStep:
+    """Each stage-3 route needs the eligibility, contacts and CGV steps."""
+
+    def test_set_pricing_needs_eligibility(
+        self, authenticated_client: FlaskClient, test_user_media: User
+    ) -> None:
+        response = authenticated_client.post(
+            "/BW/set_pricing/media", data={"cgv_accepted": "on"}
+        )
+
+        assert "/BW/confirm-subscription" in response.headers["Location"]
+        assert test_user_media.cgv_accepted_at is None
+
+    @pytest.mark.parametrize(
+        ("method", "path"),
+        [
+            ("get", "/BW/payment/media"),
+            ("post", "/BW/checkout/media"),
+            ("post", "/BW/simulate_payment/media"),
+        ],
+    )
+    def test_payment_needs_the_cgv(
+        self,
+        authenticated_client: FlaskClient,
+        db_session: Session,
+        test_org: Organisation,
+        monkeypatch: pytest.MonkeyPatch,
+        method: str,
+        path: str,
+    ) -> None:
+        monkeypatch.setattr(
+            "app.modules.bw.bw_activation.routes.stage3.load_stripe_api_key",
+            lambda: True,
+        )
+        with authenticated_client.session_transaction() as sess:
+            sess["pricing_value"] = 1
+
+        response = getattr(authenticated_client, method)(path)
+
+        assert "/BW/confirm-subscription" in response.headers["Location"]
+        assert (
+            db_session.query(BusinessWall).filter_by(organisation_id=test_org.id).all()
+            == []
+        )
+
+
 # =============================================================================
 # Stage 3: Activation Routes (Paid)
 # =============================================================================
