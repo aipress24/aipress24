@@ -32,9 +32,12 @@
                                             {{ expert.full_name }}
                                         </a>
                                     </div>
-                                    <div class="text-gray-500 truncate" title="{{ expert.email }}">
-                                        {{ expert.email }}
-                                    </div>
+                                    {% set email = visible_emails.get(expert.id) %}
+                                    {% if email %}
+                                        <div class="text-gray-500 truncate" title="{{ email }}">
+                                            {{ email }}
+                                        </div>
+                                    {% endif %}
                                 </div>
                             </div>
                         </td>

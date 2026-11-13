@@ -29,6 +29,7 @@ from app.flask.lib.templates import templated
 from app.flask.routing import url_for
 from app.logging import report_failure
 from app.models.lifecycle import PublicationStatus
+from app.modules.swork.views._common import MASK_FIELDS, filter_email_mobile
 from app.modules.wip.models import (
     AvisEnquete,
     AvisEnqueteRepository,
@@ -58,7 +59,7 @@ from ._forms import AvisEnqueteForm
 from ._table import BaseDataSource, BaseTable, WipContentModel
 
 if TYPE_CHECKING:
-    from collections.abc import Callable
+    from collections.abc import Callable, Iterable
 
     from app.models.auth import User
     from app.modules.wip.models import ContactAvisEnquete
@@ -392,6 +393,7 @@ class AvisEnqueteWipView(BaseWipView):
             "form": filter_service,  # Template uses form.selectors
             "experts": experts,
             "selected_experts": selected_experts,
+            "visible_emails": _visible_emails(g.user, [*experts, *selected_experts]),
             # The template says "affichage limité à N" when the list is
             # capped; it used to compare against a literal 50 of its own,
             # so raising the cap here would have silently stopped the
@@ -928,3 +930,12 @@ def _commit_then_email(
         send_email()
     except Exception as exc:
         report_failure(f"RDV email failed (contact {contact.id})", exc)
+
+
+def _visible_emails(viewer: User, experts: Iterable[User]) -> dict[int, str]:
+    """The emails `viewer` may see, by expert id: the member profile rule."""
+    return {
+        expert.id: expert.email
+        for expert in experts
+        if MASK_FIELDS["email"] not in filter_email_mobile(viewer, expert).masked
+    }

@@ -403,13 +403,21 @@ class TestJournalistAvisEnqueteViews:
             f"Expected 9 flat selectors with the .tom-select-it class, got {flat_count}"
         )
 
+    @pytest.mark.parametrize("email_allowed", [True, False])
     def test_ciblage_selected_experts_displays_avatar_name_and_email(
         self,
         logged_in_client: FlaskClient,
+        fresh_db,
+        test_user: User,
         test_avis_enquete: AvisEnquete,
         expert_user: User,
+        email_allowed: bool,
     ):
-        """Selected experts in ciblage show avatar, full name and email."""
+        """Selected experts in ciblage show avatar and full name, and
+        their email only where they allow it for the journalist."""
+        key = f"email_{test_user.profile.contact_type}"
+        expert_user.profile.show_contact_details = {key: email_allowed}
+        fresh_db.session.commit()
         url = url_for("AvisEnqueteWipView:ciblage", id=test_avis_enquete.id)
         response = logged_in_client.post(
             url,
@@ -423,7 +431,7 @@ class TestJournalistAvisEnqueteViews:
 
         assert "Profils sélectionnés" in html
         assert expert_user.full_name in html
-        assert expert_user.email in html
+        assert (expert_user.email in html) is email_allowed
         expert_url = url_for(expert_user)
         assert f'href="{expert_url}"' in html
 
