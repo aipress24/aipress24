@@ -16,6 +16,8 @@ from typing import Any
 from flask import current_app, g
 from marshmallow import Schema, fields
 
+from app.modules.events.services import sees_full_content
+
 API_PREFIX = "/api/v1"
 
 
@@ -184,7 +186,13 @@ class EventSchema(Schema):
     kind = fields.Constant("event")
     title = fields.Str()
     summary = fields.Str()
-    content = fields.Str()
+    content = fields.Method(
+        "_content",
+        metadata={
+            "description": "Sanitized HTML body, empty when the token's user "
+            "is outside the event's audience."
+        },
+    )
     start_datetime = IsoDateTime()
     end_datetime = IsoDateTime()
     genre = fields.Str()
@@ -208,6 +216,12 @@ class EventSchema(Schema):
     geo_lat = fields.Float()
     geo_lng = fields.Float()
     links = fields.Method("_make_links", data_key="_links")
+
+    def _content(self, obj) -> str:
+        """Show the body to the members the event page shows it to."""
+        if sees_full_content(g.api_identity, obj):
+            return obj.content or ""
+        return ""
 
     def _make_links(self, obj) -> dict[str, dict[str, str]]:
         return {"self": link(resource_path("events", obj.id))}

@@ -10,7 +10,9 @@ from types import SimpleNamespace
 import pytest
 from flask import Flask
 from flask.testing import FlaskClient
+from sqlalchemy.orm import Session
 
+from app.enums import CommunityEnum
 from app.flask.main import create_app
 from tests.conftest import TestConfig
 
@@ -132,6 +134,22 @@ def test_event_detail_and_draft_404(
     assert ok.status_code == 200
     hidden = client.get(f"/api/v1/events/{seed.draft_event.id}", headers=auth)
     assert hidden.status_code == 404
+
+
+def test_event_body_follows_its_audience(
+    client: FlaskClient, db_session: Session, seed: SimpleNamespace
+) -> None:
+    """The API shows an event's body to the same members the site does."""
+    seed.event.audience = [CommunityEnum.PRESS_MEDIA.value]
+    db_session.commit()
+    url = f"/api/v1/events/{seed.event.id}"
+
+    outsider = client.get(url, headers={"Authorization": f"Bearer {seed.reader_token}"})
+    member = client.get(url, headers={"Authorization": f"Bearer {seed.token}"})
+
+    assert outsider.get_json()["content"] == ""
+    assert outsider.get_json()["title"] == "Expo"
+    assert member.get_json()["content"] == "<p>ev</p>"
 
 
 def test_unknown_api_path_returns_json_404(client: FlaskClient) -> None:
