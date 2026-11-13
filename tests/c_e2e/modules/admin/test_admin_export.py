@@ -12,6 +12,7 @@ from uuid import uuid4
 
 import pytest
 from arrow import Arrow
+from loguru import logger
 
 from app.enums import BWStatus, RoleEnum
 from app.flask.routing import url_for
@@ -680,3 +681,32 @@ class TestEveryExportProducesAFile:
         assert "attachment" in response.headers.get("Content-Disposition", "")
         # ODS is a zip container: fail loudly on an empty or HTML body.
         assert response.data[:4] == b"PK\x03\x04"
+
+
+class TestExportsLeaveATrace:
+    """An export hands over member data in bulk: say who took it."""
+
+    @pytest.mark.parametrize(
+        ("endpoint", "kwargs", "what"),
+        [
+            ("admin.export_route", {"exporter_name": "users"}, "users"),
+            ("admin.export_database", {}, "database"),
+        ],
+    )
+    def test_the_acting_admin_is_logged(
+        self,
+        admin_client: FlaskClient,
+        admin_user: User,
+        endpoint: str,
+        kwargs: dict,
+        what: str,
+    ):
+        messages: list[str] = []
+        sink = logger.add(messages.append, level="INFO", format="{message}")
+        try:
+            admin_client.get(url_for(endpoint, **kwargs))
+        finally:
+            logger.remove(sink)
+
+        expected = f"Admin {admin_user.id} exported {what}"
+        assert any(expected in m for m in messages), messages

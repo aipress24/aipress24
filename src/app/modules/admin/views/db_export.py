@@ -9,6 +9,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from flask import Response
+from flask_login import current_user
 from loguru import logger
 from werkzeug.exceptions import InternalServerError, NotFound
 
@@ -96,4 +97,5 @@ def export_database():
         404: If database is not PostgreSQL
         500: If pg_dump fails or database configuration is invalid
     """
+    logger.info("Admin {} exported database", current_user.id)
     return create_export_response(db.engine.url)

@@ -17,6 +17,8 @@ from zoneinfo import ZoneInfo
 import pytz
 from arrow import Arrow
 from flask import send_file
+from flask_login import current_user
+from loguru import logger
 from odsgenerator import odsgenerator
 from sqlalchemy import case, desc, false, nulls_last, select, true
 from werkzeug.exceptions import NotFound
@@ -54,6 +56,7 @@ def export_route(exporter_name: str):
         raise NotFound
 
     assert exporter_class is not None  # type narrowing for type checker
+    logger.info("Admin {} exported {}", current_user.id, exporter_name)
     generator = exporter_class()
     generator.run()
     stream = BytesIO(generator.document)
