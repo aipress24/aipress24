@@ -100,10 +100,8 @@ class TestCanonicalProfileMappings:
             (ProfileEnum.PM_JR_PIG.name, BWType.MEDIA),
             (ProfileEnum.PM_JR_CP_ME.name, BWType.MICRO),
             (ProfileEnum.PM_JR_ME.name, BWType.MICRO),
-            # corporate_media and union are deprecated; those
-            # profiles now default to media.
-            (ProfileEnum.PM_DIR_INST.name, BWType.MEDIA),
-            (ProfileEnum.PM_DIR_SYND.name, BWType.MEDIA),
+            (ProfileEnum.PM_DIR_INST.name, BWType.CORPORATE_MEDIA),
+            (ProfileEnum.PM_DIR_SYND.name, BWType.UNION),
             (ProfileEnum.PR_DIR.name, BWType.PR),
             (ProfileEnum.PR_CS.name, BWType.PR),
             (ProfileEnum.XP_DIR_ANY.name, BWType.LEADERS_EXPERTS),

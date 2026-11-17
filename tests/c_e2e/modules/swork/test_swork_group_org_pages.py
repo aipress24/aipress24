@@ -541,7 +541,7 @@ class TestOrgPublicationsTab:
         tab = OrgPublicationsTab(org=test_organisation_media)
         assert tab.guard() is True
 
-    @pytest.mark.parametrize("bw_type", ["news_agency", "micro"])
+    @pytest.mark.parametrize("bw_type", ["news_agency", "micro", "corporate_media"])
     def test_guard_true_for_other_media_like_bw(
         self,
         app: Flask,

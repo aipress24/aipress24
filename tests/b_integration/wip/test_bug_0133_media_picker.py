@@ -116,7 +116,7 @@ class TestGetMediaOrganisationsScope:
 
     @pytest.mark.parametrize(
         "bw_active",
-        ["media", "news_agency", "micro"],
+        ["media", "news_agency", "micro", "corporate_media"],
     )
     def test_includes_org_with_active_media_like_bw(
         self,
@@ -156,7 +156,7 @@ class TestGetMediaOrganisationsScope:
 
     @pytest.mark.parametrize(
         "bw_active",
-        ["media", "news_agency", "micro"],
+        ["media", "news_agency", "micro", "corporate_media"],
     )
     def test_user_own_media_org_pinned_without_duplicate(
         self,

@@ -68,8 +68,6 @@ class TestBwtypeAllowedProducts:
         lookup non-deterministic (depends on iteration order of the dict)."""
         allowed_aliases = {
             ("media", "micro"),
-            ("corporate_media", "media"),
-            ("media", "union"),
         }
         seen: dict[str, str] = {}
         for bw_type, products in BWTYPE_ALLOWED_PRODUCTS.items():

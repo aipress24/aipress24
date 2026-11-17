@@ -122,6 +122,7 @@ class TestUserCanAccessSujets:
             BWType.MEDIA.value,
             BWType.MICRO.value,
             BWType.NEWS_AGENCY.value,
+            BWType.CORPORATE_MEDIA.value,
         ],
     )
     def test_media_bw_with_press_media_role_allowed(self, bw_type: str) -> None:
