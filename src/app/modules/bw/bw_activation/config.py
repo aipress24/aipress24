@@ -237,9 +237,11 @@ BW_TYPES: dict[str, BWTypeConfig] = {
             # Note: No justificatifs or copyright sales for Corporate Media per CGV
         ],
         "onboarding_messages": [
-            "Votre abonnement gratuit à Business Wall for Corporate Media sera la vitrine sur AiPRESS24 de votre organe de presse institutionnel",
-            "Pour bénéficier de Business Wall for Corporate Media et de l'accès aux fonctionnalités de NEWSROOM (propositions et commandes de sujets, Avis d'enquête digital), vous devrez approuver nos Conditions générales de vente.",
-            "Les informations que vous allez saisir seront vérifiées par les équipes d'AiPRESS24.",
+            "BUSINESS WALL FOR CORPORATE MEDIA est la vitrine officielle sur AiPRESS24 de votre activité de journal, ",
+            "magazine ou média institutionnels. ",
+            "Développez votre notoriété et devenez encore plus efficaces avec les services digitaux d’AiPRESS24. ",
+            "Vos collaborateurs.rices pourront accéder la la Newsroom mais pas publier et monétiser leurs articles. ",
+            "Désignez votre Business Wall Manager interne (BWMi) et votre Responsable des Relations Presse interne (BWPRi).",
         ],
     },
     BWType.UNION.value: {
