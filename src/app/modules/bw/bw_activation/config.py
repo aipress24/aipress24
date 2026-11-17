@@ -243,7 +243,7 @@ BW_TYPES: dict[str, BWTypeConfig] = {
         ],
     },
     BWType.UNION.value: {
-        "name": "Business Wall for Union",
+        "name": "Business Wall for Press Asso",
         "description": "Pour les syndicats ou fédérations de la presse ou des médias, clubs de la presse ou associations de journalistes.",
         "deprecated": False,
         "free": True,
@@ -257,8 +257,8 @@ BW_TYPES: dict[str, BWTypeConfig] = {
         "manager_role": "Press Manager",  # Different from other types
         "allows_self_management": True,  # Can self-assign roles
         "onboarding_messages": [
-            "Votre abonnement gratuit à Business Wall for Union sera la vitrine sur AiPRESS24 de votre syndicat ou fédération de la presse ou des médias, de votre club de la presse ou association de journalistes",
-            "Pour bénéficier de Business Wall for Union, vous devrez approuver nos Conditions générales de vente.",
+            "Votre abonnement gratuit à Business Wall for Press Asso sera la vitrine sur AiPRESS24 de votre syndicat ou fédération de la presse ou des médias, de votre club de la presse ou association de journalistes",
+            "Pour bénéficier de Business Wall for Press Asso, vous devrez approuver nos Conditions générales de vente.",
             "Les informations que vous allez saisir seront vérifiées par les équipes d'AiPRESS24.",
             "Vous devez déclarer également déclarer et valider individuellement chaque PR Agency ou chaque PR Consultant qui vous représentent sur AiPRESS24 et peuvent agir en tant que contact presse, publier vos communiqués de presse et vos événements.",
         ],
