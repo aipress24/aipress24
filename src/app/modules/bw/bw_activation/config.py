@@ -240,7 +240,7 @@ BW_TYPES: dict[str, BWTypeConfig] = {
             "BUSINESS WALL FOR CORPORATE MEDIA est la vitrine officielle sur AiPRESS24 de votre activité de journal, ",
             "magazine ou média institutionnels. ",
             "Développez votre notoriété et devenez encore plus efficaces avec les services digitaux d’AiPRESS24. ",
-            "Vos collaborateurs.rices pourront accéder la la Newsroom mais pas publier et monétiser leurs articles. ",
+            "Vos collaborateurs.rices pourront accéder à la Newsroom mais pas publier et monétiser leurs articles. ",
             "Désignez votre Business Wall Manager interne (BWMi) et votre Responsable des Relations Presse interne (BWPRi).",
         ],
     },
