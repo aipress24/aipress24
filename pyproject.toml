@@ -234,6 +234,7 @@ dev = [
     "types-flask-migrate>=4.1.0.20260508",
     "types-boltons>=26.1.0.20261029",
     "httpx2>=2.16.2",
+    "types-lxml>=2026.2.16",
 ]
 
 [build-system]
