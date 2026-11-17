@@ -9,12 +9,16 @@
 | domain       | family          | genre   | offer | maximum | reference                           | Subs         | article                            |
 |--------------|-----------------|---------|-------|---------|-------------------------------------|--------------|------------------------------------|
 | bw           | academics       | any     | free  |         | BW4AC                               | BW4AC        |                                    |
+| bw           | corporate_media | any     | free  |         | BW4CM                               | BW4CM        |                                    |
+| bw           | media           | any     | free  |         | BW4J                                | BW4J         |                                    |
 | bw           | leaders_experts | GE      | paid  | 9999999 | BW4L&E\-GE                          | BW4L&E\-GE   |                                    |
 | bw           | leaders_experts | ETI     | paid  |     999 | BW4L&E\-ETI                         | BW4L&E\-ETI  |                                    |
 | bw           | leaders_experts | PME     | paid  |     249 | BW4L&E\-PME                         | BW4L&E\-PME  |                                    |
 | bw           | leaders_experts | solo    | paid  |       9 | BW4L&E\-Solo                        | BW4L&E\-Solo |                                    |
 | bw           | leaders_experts | TPE     | paid  |      49 | BW4L&E\-TPE                         | BW4L&E\-TPE  |                                    |
 | bw           | media           | any     | free  |         | BW4Media                            | BW4Media     |                                    |
+| bw           | media           | any     | free  |         | BW4NA                               | BW4NA        |                                    |
+| bw           | press_asso      | any     | free  |         | BW4PASS                             | BW4PASS      |                                    |
 | bw           | pr              | any     | paid  |         | BW4PR                               | BW4PR        |                                    |
 | bw           | transformers    | ETI     | paid  |     999 | BW4T\-ETI                           | BW4T\-ETI    |                                    |
 | bw           | transformers    | GE      | paid  | 9999999 | BW4T\-GE                            | BW4T\-GE     |                                    |
