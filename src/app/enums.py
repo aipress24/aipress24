@@ -229,8 +229,8 @@ class BWType(StrEnum):
     MEDIA = "media"
     NEWS_AGENCY = "news_agency"
     MICRO = "micro"  # also known as BW4J
-    CORPORATE_MEDIA = "corporate_media"  # deprecated
-    UNION = "union"  # deprecated
+    CORPORATE_MEDIA = "corporate_media"
+    UNION = "union"
     ACADEMICS = "academics"
     PR = "pr"
     LEADERS_EXPERTS = "leaders_experts"
@@ -244,6 +244,7 @@ MEDIA_BW_TYPES: frozenset[str] = frozenset(
         BWType.MEDIA.value,
         BWType.NEWS_AGENCY.value,
         BWType.MICRO.value,
+        BWType.CORPORATE_MEDIA.value,
     }
 )
 

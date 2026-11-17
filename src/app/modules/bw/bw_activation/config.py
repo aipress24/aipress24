@@ -120,10 +120,8 @@ BWTYPE_ALLOWED_PRODUCTS: dict[str, list[str]] = {
     # BW4Micro exists again in Stripe; micro BWs reuse the micro (if available) or media product.
     # BW4Micro product renamed as BW4J
     BWType.MICRO.value: ["BW4J", "BW4Media"],
-    # BW4CorporateMedia product does not exists, use Media
-    BWType.CORPORATE_MEDIA.value: ["BW4Media"],
-    # BW4Union product does not exists, use Media
-    BWType.UNION.value: ["BW4Media"],
+    BWType.CORPORATE_MEDIA.value: ["BW4CorporateMedia"],
+    BWType.UNION.value: ["BW4Union"],
     BWType.ACADEMICS.value: ["BW4AC"],
 }
 
@@ -131,8 +129,8 @@ BWTYPE_ALLOWED_PRODUCTS: dict[str, list[str]] = {
 # may still exist in the database or referenced by existing BWs.
 DEPRECATED_BW_TYPES: set[str] = {
     # BWType.MICRO.value,
-    BWType.CORPORATE_MEDIA.value,
-    BWType.UNION.value,
+    # BWType.CORPORATE_MEDIA.value,
+    # BWType.UNION.value,
 }
 
 #: What a NEWSROOM-enabled Business Wall advertises. Three of the four
@@ -221,7 +219,7 @@ BW_TYPES: dict[str, BWTypeConfig] = {
     BWType.CORPORATE_MEDIA.value: {
         "name": "Business Wall for Corporate Media",
         "description": "Pour les médias d'entreprise et institutionnels.",
-        "deprecated": True,
+        "deprecated": False,
         "free": True,
         "skip_pricing_input": True,
         "pricing_field": "",
@@ -247,7 +245,7 @@ BW_TYPES: dict[str, BWTypeConfig] = {
     BWType.UNION.value: {
         "name": "Business Wall for Union",
         "description": "Pour les syndicats ou fédérations de la presse ou des médias, clubs de la presse ou associations de journalistes.",
-        "deprecated": True,
+        "deprecated": False,
         "free": True,
         "skip_pricing_input": True,
         "pricing_field": "",
