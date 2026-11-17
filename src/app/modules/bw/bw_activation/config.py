@@ -257,10 +257,11 @@ BW_TYPES: dict[str, BWTypeConfig] = {
         "manager_role": "Press Manager",  # Different from other types
         "allows_self_management": True,  # Can self-assign roles
         "onboarding_messages": [
-            "Votre abonnement gratuit à Business Wall for Press Asso sera la vitrine sur AiPRESS24 de votre syndicat ou fédération de la presse ou des médias, de votre club de la presse ou association de journalistes",
-            "Pour bénéficier de Business Wall for Press Asso, vous devrez approuver nos Conditions générales de vente.",
-            "Les informations que vous allez saisir seront vérifiées par les équipes d'AiPRESS24.",
-            "Vous devez déclarer également déclarer et valider individuellement chaque PR Agency ou chaque PR Consultant qui vous représentent sur AiPRESS24 et peuvent agir en tant que contact presse, publier vos communiqués de presse et vos événements.",
+            "BUSINESS WALL FOR PRESS ASSO est la vitrine officielle sur AiPRESS24 de votre activité ",
+            "d’organisation associative de presse : syndicat ou de fédération de syndicats, club de la presse, ",
+            "association ou collectif de journalistes. ",
+            "Développez votre notoriété et devenez encore plus efficaces avec les services digitaux d’AiPRESS24. ",
+            "Désignez votre Business Wall Manager interne (BWMi) et votre Responsable des Relations Presse interne (BWPRi).",
         ],
     },
     BWType.ACADEMICS.value: {
