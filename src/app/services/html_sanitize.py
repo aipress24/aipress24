@@ -20,6 +20,7 @@ you DO chain `|safe`, it is a no-op on `Markup`.)
 
 from __future__ import annotations
 
+import html as html_lib
 import json
 import re
 from typing import Any
@@ -124,6 +125,13 @@ _SOURCELESS_IFRAME_RE = re.compile(
     re.IGNORECASE | re.DOTALL,
 )
 
+# Match Trix attachment `<figure>` blocks carrying `data-trix-attachment="..."`
+# so we can materialize safe YouTube `<iframe>` children when Trix omitted them.
+_TRIX_FIGURE_RE = re.compile(
+    r'(<figure\b[^>]*\bdata-trix-attachment="([^"]*)"[^>]*>)(.*?)(</figure>)',
+    re.IGNORECASE | re.DOTALL,
+)
+
 # Trix styles its attachments with classes under this prefix. Any other
 # class is the site's own CSS, which would let member HTML restyle the
 # page, for instance into a full-screen overlay.
@@ -150,15 +158,8 @@ def sanitize_html(html: object) -> Markup:
     return Markup(cleaned)
 
 
-def _sanitize_to_str(html: str) -> str:
-    """Same sanitization as `sanitize_html` but return plain `str`.
-
-    Used by the `SanitizedHTML` SQLAlchemy type so the value bound to
-    the DB row is a regular Python string, not a `Markup` — most DB
-    drivers don't care, but the column type is `String` and round-
-    tripping `Markup` through psycopg can lose attrs on some
-    serializers. Plain `str` is the conservative choice.
-    """
+def _clean_fragment(html: str) -> str:
+    """Run `bleach.clean` and strip any sourceless `<iframe>` shells."""
     cleaned = bleach.clean(
         html,
         tags=_ALLOWED_TAGS,
@@ -168,6 +169,19 @@ def _sanitize_to_str(html: str) -> str:
         strip_comments=True,
     )
     return _SOURCELESS_IFRAME_RE.sub("", cleaned)
+
+
+def _sanitize_to_str(html: str) -> str:
+    """Same sanitization as `sanitize_html` but return plain `str`.
+
+    Used by the `SanitizedHTML` SQLAlchemy type so the value bound to
+    the DB row is a regular Python string, not a `Markup` — most DB
+    drivers don't care, but the column type is `String` and round-
+    tripping `Markup` through psycopg can lose attrs on some
+    serializers. Plain `str` is the conservative choice.
+    """
+    cleaned = _clean_fragment(html)
+    return _materialize_trix_youtube_iframes(cleaned)
 
 
 class SanitizedHTML(TypeDecorator):
@@ -212,6 +226,50 @@ class SanitizedHTML(TypeDecorator):
         return value
 
 
+def _extract_safe_youtube_iframe_from_content(content: str) -> str | None:
+    """Sanitize `content` and return it if it is a single YouTube `<iframe>`."""
+    sanitized = _clean_fragment(content).strip()
+    if sanitized.startswith("<iframe ") and sanitized.endswith("</iframe>"):
+        return sanitized
+    return None
+
+
+def _extract_safe_youtube_iframe(raw_attachment_json: str) -> str | None:
+    """Parse `data-trix-attachment` JSON and extract its safe YouTube `<iframe>`."""
+    try:
+        data = json.loads(html_lib.unescape(raw_attachment_json))
+    except (ValueError, TypeError):
+        return None
+    if not isinstance(data, dict):
+        return None
+    content = data.get("content")
+    if not isinstance(content, str):
+        return None
+    return _extract_safe_youtube_iframe_from_content(content)
+
+
+def _materialize_trix_youtube_iframes(cleaned: str) -> str:
+    """Ensure `<figure data-trix-attachment=...>` YouTube embeds contain their `<iframe>`.
+
+    Trix stores the embed HTML in `data-trix-attachment.content` and may
+    serialize `<figure>` without the inner `<iframe>` child. When the
+    attachment JSON carries a validated YouTube `<iframe>` and the
+    `<figure>` body has no `<iframe>` yet, inject the sanitized `<iframe>`
+    inside `<figure>` so public views render the video.
+    """
+
+    def _inject(match: re.Match[str]) -> str:
+        open_tag, attr_value, inner, close_tag = match.groups()
+        if "<iframe" in inner.lower():
+            return match.group(0)
+        iframe_html = _extract_safe_youtube_iframe(attr_value)
+        if not iframe_html:
+            return match.group(0)
+        return f"{open_tag}{iframe_html}{inner}{close_tag}"
+
+    return _TRIX_FIGURE_RE.sub(_inject, cleaned)
+
+
 def _is_safe_trix_attachment_json(value: str) -> bool:
     """Validate "data-trix-attachment" JSON on "<figure>".
 
@@ -222,7 +280,8 @@ def _is_safe_trix_attachment_json(value: str) -> bool:
     other tags.
     """
     try:
-        data = json.loads(value)
+        # `bleach` passes HTML-escaped attribute values (e.g. `&quot;`).
+        data = json.loads(html_lib.unescape(value))
     except (ValueError, TypeError):
         return False
     if not isinstance(data, dict):
@@ -232,12 +291,7 @@ def _is_safe_trix_attachment_json(value: str) -> bool:
         return True
     if not isinstance(content, str):
         return False
-    sanitized = _sanitize_to_str(content).strip()
-    return (
-        bool(sanitized)
-        and sanitized.startswith("<iframe ")
-        and sanitized.endswith("</iframe>")
-    )
+    return _extract_safe_youtube_iframe_from_content(content) is not None
 
 
 def _allow_attribute(tag: str, name: str, value: str) -> bool:

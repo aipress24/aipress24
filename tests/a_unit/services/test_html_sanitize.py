@@ -10,6 +10,7 @@ bypasses should land here, not in production templates.
 
 from __future__ import annotations
 
+import html as html_lib
 import json
 
 from markupsafe import Markup
@@ -191,6 +192,43 @@ class TestSanitizeKeepsLegitimateMarkup:
         assert "data-trix-attachment" in out
         assert "<iframe" in out
         assert 'src="https://www.youtube.com/embed/dQw4w9WgXcQ"' in out
+        assert out.count("<iframe") == 1
+
+    def test_trix_youtube_double_quoted_attachment_materializes_iframe(self):
+        iframe = (
+            '<iframe width="560" height="315" '
+            'src="https://www.youtube-nocookie.com/embed/CI9wm99Bj0Q" '
+            'frameborder="0" allowfullscreen></iframe>'
+        )
+        att_json = html_lib.escape(
+            json.dumps({"content": iframe, "contentType": "video/youtube"})
+        )
+        figure_html = (
+            f'<figure data-trix-attachment="{att_json}" '
+            'data-trix-content-type="video/youtube" '
+            'class="attachment attachment--content">'
+            '<figcaption class="attachment__caption"></figcaption></figure>'
+        )
+        out = sanitize_html(figure_html)
+        assert "data-trix-attachment" in out
+        assert out.count("<iframe") == 1
+        assert 'src="https://www.youtube-nocookie.com/embed/CI9wm99Bj0Q"' in out
+
+        # Idempotent on second pass
+        out2 = sanitize_html(out)
+        assert out2.count("<iframe") == 1
+
+    def test_trix_malicious_attachment_content_stripped(self):
+        att_json = html_lib.escape(
+            json.dumps({"content": "<script>alert(1)</script>", "contentType": "text/html"})
+        )
+        figure_html = (
+            f'<figure data-trix-attachment="{att_json}" '
+            'class="attachment attachment--content"></figure>'
+        )
+        out = sanitize_html(figure_html)
+        assert "data-trix-attachment" not in out
+        assert "<script" not in out
 
 
 class TestJinjaFilterWiring:
