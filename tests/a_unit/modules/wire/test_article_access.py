@@ -343,6 +343,17 @@ class TestTruncateBody:
         assert truncated.endswith("</p>")
         assert "<strong>" in truncated
 
+    def test_embedded_iframe_stripped_from_truncated_preview(self) -> None:
+        html = (
+            "<p>Chapo court.</p>"
+            '<figure class="attachment attachment--content">'
+            '<iframe src="https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ"></iframe>'
+            "</figure>"
+        )
+        truncated = truncate_body(html, limit=300)
+        assert "<iframe" not in truncated
+        assert "Chapo court." in truncated
+
 
 class TestCutOnWordBoundary:
     """Internal helper used by `truncate_body` — pure on str."""

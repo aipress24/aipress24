@@ -10,6 +10,8 @@ bypasses should land here, not in production templates.
 
 from __future__ import annotations
 
+import json
+
 from markupsafe import Markup
 
 from app.services.html_sanitize import SanitizedHTML, sanitize_html
@@ -68,6 +70,26 @@ class TestSanitizeRemovesDangerous:
     def test_iframe_dropped(self):
         out = sanitize_html('<iframe src="https://evil"></iframe>')
         assert "<iframe" not in out
+
+    def test_iframe_without_src_dropped(self):
+        out = sanitize_html("<iframe></iframe>")
+        assert "<iframe" not in out
+
+    def test_iframe_non_youtube_domain_dropped(self):
+        out = sanitize_html(
+            '<iframe src="https://evil.com/youtube.com/embed/dQw4w9WgXcQ"></iframe>'
+        )
+        assert "<iframe" not in out
+
+    def test_trix_attachment_with_script_in_content_dropped(self):
+        html = (
+            '<figure data-trix-attachment=\'{"content":"<script>alert(1)</script>"}\' '
+            'data-trix-content-type="video/youtube" class="attachment attachment--content">'
+            "</figure>"
+        )
+        out = sanitize_html(html)
+        assert "data-trix-attachment" not in out
+        assert "<script" not in out
 
     def test_form_dropped(self):
         out = sanitize_html('<form action="https://evil"><input></form>')
@@ -136,6 +158,39 @@ class TestSanitizeKeepsLegitimateMarkup:
         out = sanitize_html(html)
         assert 'class="attachment__caption"' in out
         assert 'class="attachment__name"' in out
+
+    def test_youtube_iframe_kept(self):
+        html = (
+            '<iframe width="560" height="315" '
+            'src="https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ" '
+            'title="YouTube video player" frameborder="0" '
+            'allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" '
+            'referrerpolicy="strict-origin-when-cross-origin" '
+            'allowfullscreen loading="lazy"></iframe>'
+        )
+        out = sanitize_html(html)
+        assert "<iframe" in out
+        assert 'src="https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ"' in out
+        assert 'width="560"' in out
+        assert 'height="315"' in out
+        assert "allowfullscreen" in out
+
+    def test_trix_youtube_attachment_figure_kept(self):
+        iframe = (
+            '<iframe width="560" height="315" '
+            'src="https://www.youtube.com/embed/dQw4w9WgXcQ" '
+            'frameborder="0" allowfullscreen></iframe>'
+        )
+        att_json = json.dumps({"content": iframe, "contentType": "video/youtube"})
+        figure_html = (
+            f"<figure data-trix-attachment='{att_json}' "
+            'data-trix-content-type="video/youtube" '
+            f'class="attachment attachment--content">{iframe}</figure>'
+        )
+        out = sanitize_html(figure_html)
+        assert "data-trix-attachment" in out
+        assert "<iframe" in out
+        assert 'src="https://www.youtube.com/embed/dQw4w9WgXcQ"' in out
 
 
 class TestJinjaFilterWiring:
