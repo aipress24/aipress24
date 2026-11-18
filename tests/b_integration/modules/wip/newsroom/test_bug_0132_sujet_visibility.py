@@ -278,20 +278,26 @@ def test_ordinary_journalist_does_not_see_received_sujet(
 def test_other_pm_dir_variants_count_as_redac_chef(
     app, db_session: Session, media_org: Organisation, author_user: User
 ):
-    """PM_DIR_INST and PM_DIR_SYND are also rédac chef equivalents."""
+    """PM_DIR_INST is a rédac chef equivalent; PM_DIR_SYND (Press Asso / union) is not."""
     public = _make_sujet(
         db_session,
         media_id=media_org.id,
         owner_id=author_user.id,
         status=PublicationStatus.PUBLIC,
     )
-    for code in ("PM_DIR_INST", "PM_DIR_SYND"):
-        rc = _make_rc_with_profile(db_session, media_org, code)
-        with app.test_request_context():
-            g.user = rc
-            ds = SujetDataSource(model_class=Sujet, q="")
-            ids = {s.id for s in ds.get_items()}
-        assert public.id in ids, f"{code} must qualify as rédac chef (#0132 pt 1)"
+    rc_inst = _make_rc_with_profile(db_session, media_org, "PM_DIR_INST")
+    with app.test_request_context():
+        g.user = rc_inst
+        ds = SujetDataSource(model_class=Sujet, q="")
+        ids = {s.id for s in ds.get_items()}
+    assert public.id in ids, "PM_DIR_INST must qualify as rédac chef (#0132 pt 1)"
+
+    synd = _make_rc_with_profile(db_session, media_org, "PM_DIR_SYND")
+    with app.test_request_context():
+        g.user = synd
+        ds = SujetDataSource(model_class=Sujet, q="")
+        ids = {s.id for s in ds.get_items()}
+    assert public.id not in ids, "PM_DIR_SYND must not qualify as rédac chef"
 
 
 def test_bwmi_role_holder_qualifies_as_redac_chef(

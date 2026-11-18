@@ -24,7 +24,7 @@ from collections.abc import Iterable
 import pytest
 from werkzeug.exceptions import Forbidden
 
-from app.enums import BWRoleType, BWType, InvitationStatus, RoleEnum
+from app.enums import BWRoleType, BWType, InvitationStatus, ProfileEnum, RoleEnum
 from app.modules.bw.bw_activation.models import PermissionType
 from app.modules.wip.pr_access import (
     COMROOM_COMMUNITY_ROLES,
@@ -33,6 +33,7 @@ from app.modules.wip.pr_access import (
     user_can_access_comroom,
     user_can_access_eventroom,
     user_can_access_newsroom,
+    user_can_author_articles,
     user_has_mission,
     user_is_acting_as_pr_manager,
 )
@@ -40,6 +41,11 @@ from app.modules.wip.pr_access import (
 # ---------------------------------------------------------------------------
 # Stand-in collaborators (plain duck-typed classes -- no mocking library).
 # ---------------------------------------------------------------------------
+
+
+class _Profile:
+    def __init__(self, profile_code: str = "") -> None:
+        self.profile_code = profile_code
 
 
 class _User:
@@ -53,12 +59,14 @@ class _User:
         is_anonymous: bool = False,
         is_managing_another_bw: bool = False,
         organisation: object | None = None,
+        profile: object | None = None,
     ) -> None:
         self.id = user_id
         self._roles = {self._key(r) for r in roles}
         self.is_anonymous = is_anonymous
         self.is_managing_another_bw = is_managing_another_bw
         self.organisation = organisation
+        self.profile = profile
 
     @staticmethod
     def _key(role: object) -> str:
@@ -208,6 +216,60 @@ class TestUserCanAccessNewsroom:
     def test_no_roles_denied(self) -> None:
         assert user_can_access_newsroom(_User()) is False
 
+    def test_union_profile_denied_newsroom(self) -> None:
+        user = _User(
+            roles=[RoleEnum.PRESS_MEDIA],
+            profile=_Profile(ProfileEnum.PM_DIR_SYND.name),
+        )
+        assert user_can_access_newsroom(user) is False
+
+    def test_union_bw_denied_newsroom(self) -> None:
+        user = _User(
+            roles=[RoleEnum.PRESS_MEDIA],
+            organisation=_Organisation(bw_active=BWType.UNION.value),
+        )
+        assert user_can_access_newsroom(user) is False
+
+
+class TestUserCanAuthorArticles:
+    def test_media_journalist_allowed(self) -> None:
+        user = _User(
+            roles=[RoleEnum.PRESS_MEDIA],
+            profile=_Profile(ProfileEnum.PM_JR_CP_SAL.name),
+            organisation=_Organisation(bw_active=BWType.MEDIA.value),
+        )
+        assert user_can_author_articles(user) is True
+
+    @pytest.mark.parametrize(
+        "profile_code",
+        [
+            ProfileEnum.PM_DIR_SYND.name,
+            ProfileEnum.PM_DIR_INST.name,
+            ProfileEnum.PM_JR_INST.name,
+        ],
+    )
+    def test_union_and_corporate_media_profiles_denied(self, profile_code: str) -> None:
+        user = _User(
+            roles=[RoleEnum.PRESS_MEDIA],
+            profile=_Profile(profile_code),
+        )
+        assert user_can_author_articles(user) is False
+
+    @pytest.mark.parametrize(
+        "bw_active",
+        [
+            BWType.UNION.value,
+            BWType.CORPORATE_MEDIA.value,
+        ],
+    )
+    def test_union_and_corporate_media_bws_denied(self, bw_active: str) -> None:
+        user = _User(
+            roles=[RoleEnum.PRESS_MEDIA],
+            profile=_Profile(ProfileEnum.PM_JR_CP_SAL.name),
+            organisation=_Organisation(bw_active=bw_active),
+        )
+        assert user_can_author_articles(user) is False
+
 
 # ---------------------------------------------------------------------------
 # user_can_access_comroom -- community roles OR acting as PR manager.
@@ -229,6 +291,20 @@ class TestUserCanAccessComroom:
     def test_press_media_alone_denied(self) -> None:
         user = _User(roles=[RoleEnum.PRESS_MEDIA])
         assert user_can_access_comroom(user, bw_loader=_NO_BW) is False
+
+    def test_union_profile_allowed_comroom(self) -> None:
+        user = _User(
+            roles=[RoleEnum.PRESS_MEDIA],
+            profile=_Profile(ProfileEnum.PM_DIR_SYND.name),
+        )
+        assert user_can_access_comroom(user, bw_loader=_NO_BW) is True
+
+    def test_union_bw_allowed_comroom(self) -> None:
+        user = _User(
+            roles=[RoleEnum.PRESS_MEDIA],
+            organisation=_Organisation(bw_active=BWType.UNION.value),
+        )
+        assert user_can_access_comroom(user, bw_loader=_NO_BW) is True
 
     def test_pr_manager_fallback_allowed(self) -> None:
         user = _User(user_id=42, is_managing_another_bw=True)
