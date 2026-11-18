@@ -64,7 +64,6 @@ from app.services.stripe.product import resolve_product_price
 from app.services.stripe.utils import (
     get_stripe_public_key,
     load_stripe_api_key,
-    # load_pricing_table_id,
 )
 from app.services.taxonomies import get_full_taxonomy
 
@@ -740,8 +739,6 @@ def _payment_live_enabled(bw_type: str, ctx: dict[str, Any]):
     if draft_bw is None:
         session["error"] = ERR_NO_ORGANISATION
         return redirect(url_for("bw_activation.not_authorized"))
-
-    # pricing_table_id = load_pricing_table_id(bw_type)
 
     allowed_products = allowed_bw_product_list(bw_type)
     if not allowed_products:

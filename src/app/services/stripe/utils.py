@@ -52,49 +52,6 @@ def get_stripe_webhook_secret() -> str:
     return config.get("STRIPE_WEBHOOK_SECRET") or ""
 
 
-def load_pricing_table_id(bw_type_name: str) -> str:
-    """Return the Stripe Pricing Table ID for a given BW type.
-
-    Accepts both modern `BWType` enum values (media, micro, pr,
-    leaders_experts, transformers, corporate_media, academics, union)
-    and the legacy names (media, com, organisation, corporate). The
-    latter are retained as fallbacks until all deployments update their
-    env variables.
-    """
-    config = current_app.config
-    key_to_envs: dict[str, tuple[str, ...]] = {
-        # Modern BWType (primary keys first, legacy fallbacks second).
-        "MEDIA": ("STRIPE_PRICING_SUBS_MEDIA",),
-        "MICRO": ("STRIPE_PRICING_SUBS_MICRO",),
-        "PR": ("STRIPE_PRICING_SUBS_PR", "STRIPE_PRICING_SUBS_COM"),
-        "LEADERS_EXPERTS": (
-            "STRIPE_PRICING_SUBS_LEADERS_EXPERTS",
-            "STRIPE_PRICING_SUBS_ORGANISATION",
-        ),
-        "TRANSFORMERS": (
-            "STRIPE_PRICING_SUBS_TRANSFORMERS",
-            "STRIPE_PRICING_SUBS_ORGANISATION",
-        ),
-        "CORPORATE_MEDIA": (
-            "STRIPE_PRICING_SUBS_CORPORATE_MEDIA",
-            "STRIPE_PRICING_SUBS_CORPORATE",
-        ),
-        "ACADEMICS": ("STRIPE_PRICING_SUBS_ACADEMICS",),
-        "UNION": ("STRIPE_PRICING_SUBS_UNION",),
-        # Legacy codes (kept so existing config keeps working).
-        "COM": ("STRIPE_PRICING_SUBS_COM",),
-        "ORGANISATION": ("STRIPE_PRICING_SUBS_ORGANISATION",),
-        "CORPORATE": ("STRIPE_PRICING_SUBS_CORPORATE",),
-    }
-    envs = key_to_envs.get(bw_type_name.upper(), ())
-    for env_name in envs:
-        pricing = config.get(env_name)
-        if pricing:
-            return pricing
-    print(f"Warning: no Stripe pricing table found for bw_type_name {bw_type_name!r}")
-    return ""
-
-
 def attr_or_item_getter(obj: Any) -> Callable[..., Any]:
     """Return a `.get(key, default=None)` callable for dict-like or attr-like.
 
