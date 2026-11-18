@@ -18,7 +18,7 @@ When active :
 - Captures every call's args + the synthetic session into a
   process-local list, exposed via ``/debug/stripe/sessions``.
 - Force-enables ``STRIPE_LIVE_ENABLED`` and provides placeholder
-  STRIPE_PRICE_* / STRIPE_PRICING_SUBS_* config keys.
+  ``STRIPE_SECRET_KEY`` / ``STRIPE_WEBHOOK_SECRET`` config keys.
 - Monkey-patches ``stripe.Webhook.construct_event`` to skip
   signature verification when called via the in-tree mock —
   tests can POST raw JSON event payloads to ``/webhook``
@@ -535,20 +535,6 @@ class StripeDebug:
         # Provide a placeholder API key so `load_stripe_api_key`
         # doesn't bail. The real Stripe SDK won't be called.
         app.config.setdefault("STRIPE_SECRET_KEY", "sk_test_mock_inline")
-        # Placeholder Stripe price IDs for the BW pricing tables. The
-        # mock doesn't validate — these just let the routes pass the
-        # `if not price_id: bail` guard.
-        for env in (
-            "STRIPE_PRICING_SUBS_MEDIA",
-            "STRIPE_PRICING_SUBS_MICRO",
-            "STRIPE_PRICING_SUBS_PR",
-            "STRIPE_PRICING_SUBS_LEADERS_EXPERTS",
-            "STRIPE_PRICING_SUBS_TRANSFORMERS",
-            "STRIPE_PRICING_SUBS_CORPORATE_MEDIA",
-            "STRIPE_PRICING_SUBS_ACADEMICS",
-            "STRIPE_PRICING_SUBS_UNION",
-        ):
-            app.config.setdefault(env, f"price_mock_{env.lower()}")
 
         # Set a placeholder STRIPE_WEBHOOK_SECRET so the webhook
         # handler doesn't `raise ValueError` on the missing-secret

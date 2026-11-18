@@ -52,13 +52,9 @@ hop3 config set "$APP" \
     FLASK_SENTRY_DSN="CHANGE_ME"
 
 # --- Stripe (optional — the app boots and runs without it) --------------------
-# Price-table / price IDs (prctbl_* / price_*) are not secret; the keys are.
 hop3 config set "$APP" \
     FLASK_STRIPE_PUBLIC_KEY="CHANGE_ME" \
     FLASK_STRIPE_SECRET_KEY="CHANGE_ME" \
-    FLASK_STRIPE_WEBHOOK_SECRET="CHANGE_ME" \
-    FLASK_STRIPE_PRICING_SUBS_MEDIA="prctbl_CHANGE_ME" \
-    FLASK_STRIPE_PRICING_SUBS_COM="prctbl_CHANGE_ME" \
-    FLASK_STRIPE_PRICING_SUBS_ORGANISATION="prctbl_CHANGE_ME"
+    FLASK_STRIPE_WEBHOOK_SECRET="CHANGE_ME"
 
 echo "Config applied to '$APP'. Now: hop3 app restart $APP"
