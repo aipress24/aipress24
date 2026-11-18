@@ -11,7 +11,7 @@ from typing import Any
 from flask import g, render_template
 from werkzeug.exceptions import Forbidden
 
-from app.enums import MEDIA_BW_TYPES, ProfileEnum, RoleEnum
+from app.enums import MEDIA_BW_TYPES, BWType, ProfileEnum, RoleEnum
 from app.flask.lib.nav import nav
 from app.flask.routing import url_for
 from app.modules.bw.bw_activation.user_utils import (
@@ -33,16 +33,20 @@ ALLOW_NEWSROOM_ARTICLE: set[ProfileEnum] = {
     ProfileEnum.PM_JR_PIG,
     ProfileEnum.PM_JR_CP_ME,
     ProfileEnum.PM_JR_ME,
-    ProfileEnum.PM_DIR_SYND,
+}
+
+ALLOW_NEWSROOM_EDITORIAL: set[ProfileEnum] = ALLOW_NEWSROOM_ARTICLE | {
+    ProfileEnum.PM_DIR_INST,
+    ProfileEnum.PM_JR_INST,
 }
 
 ALLOW_NEWSROOM_COMMAND: set[ProfileEnum] = {
     ProfileEnum.PM_DIR,
+    ProfileEnum.PM_DIR_INST,
     ProfileEnum.PM_JR_CP_SAL,
     ProfileEnum.PM_JR_PIG,
     ProfileEnum.PM_JR_CP_ME,
     ProfileEnum.PM_JR_ME,
-    ProfileEnum.PM_DIR_SYND,
 }
 
 
@@ -126,28 +130,42 @@ def newsroom():
 def _allowed_redaction_items(items: list[dict[str, Any]]) -> list[dict[str, Any]]:
     """Filter items based on user permissions.
 
-    Journalists only. PR managers have no access to editorial content.
+    Journalists only. PR managers and Press Asso (UNION) BWs have no
+    access to editorial content. Corporate Media BW may  use Sujets,
+    Commandes and Avis d'enquête, but may not publish or monetize Articles.
     """
-    allow_journalist = _check_article_creation_by_journalist()
+    allow_article = _check_article_creation_by_journalist()
+    allow_editorial = _check_editorial_by_journalist()
     allow_commands = _check_command_creation_by_redac_chief()
     has_bw = _has_active_business_wall()
+    has_article_bw = _has_active_article_business_wall()
     has_media_bw = _has_active_media_business_wall()
 
-    items = _filter_articles_items(items, [has_bw, allow_journalist])
-    items = _filter_sujets_items(items, [has_media_bw, allow_journalist])
-    items = _filter_avis_enquetes_items(items, [has_bw, allow_journalist])
+    items = _filter_articles_items(items, [has_article_bw, allow_article])
+    items = _filter_sujets_items(items, [has_media_bw, allow_editorial])
+    items = _filter_avis_enquetes_items(items, [has_bw, allow_editorial])
     items = _filter_commandes_items(items, [has_bw, allow_commands])
     return items
 
 
 def _has_active_business_wall() -> bool:
-    """True if user has an active Business Wall (own or selected)."""
+    """True if user has an active Business Wall (excluding UNION)."""
     bw = get_selected_business_wall_for_user(g.user)
-    return bw is not None
+    return bw is not None and bw.bw_type != BWType.UNION.value
+
+
+def _has_active_article_business_wall() -> bool:
+    """True if user has an active Business Wall allowing publishing articles."""
+    bw = get_selected_business_wall_for_user(g.user)
+    return bw is not None and bw.bw_type not in {
+        BWType.UNION.value,
+        BWType.CORPORATE_MEDIA.value,
+    }
 
 
 def _has_active_media_business_wall() -> bool:
-    """True if user has an active Business Wall of type Media, Journalist (micro) or Agency."""
+    """True if user has an active Business Wall of type Media, Journalist
+    (micro), Agency or Corporate Media."""
     bw = get_selected_business_wall_for_user(g.user)
     if bw is not None:
         return bw.bw_type in MEDIA_BW_TYPES
@@ -164,6 +182,16 @@ def _check_article_creation_by_journalist() -> bool:
     except KeyError:
         return False
     return profile_enum in ALLOW_NEWSROOM_ARTICLE
+
+
+def _check_editorial_by_journalist() -> bool:
+    """True if user is allowed to use Sujets and Avis d'enquête."""
+    profile = g.user.profile
+    try:
+        profile_enum = ProfileEnum[profile.profile_code]
+    except KeyError:
+        return False
+    return profile_enum in ALLOW_NEWSROOM_EDITORIAL
 
 
 def _check_command_creation_by_redac_chief() -> bool:

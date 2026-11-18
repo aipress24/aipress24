@@ -50,7 +50,7 @@ from app.modules.wip.pr_access import (
     pr_manager_missing_mission,
     user_can_access_comroom,
     user_can_access_eventroom,
-    user_can_access_newsroom,
+    user_can_author_articles,
     user_has_mission,
     user_is_acting_as_pr_manager,
 )
@@ -364,7 +364,7 @@ def _require_comroom(user: User) -> None:
 
 def _require_newsroom(user: User) -> None:
     """The Newsroom author gate: journalists only (no on-behalf)."""
-    if not user_can_access_newsroom(user):
+    if not user_can_author_articles(user):
         raise WriteError(
             403, "Your account is not allowed to author articles (journalists only)."
         )

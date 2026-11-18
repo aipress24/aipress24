@@ -20,7 +20,7 @@ from typing import TYPE_CHECKING
 
 from werkzeug.exceptions import Forbidden
 
-from app.enums import BWRoleType, InvitationStatus, RoleEnum
+from app.enums import BWRoleType, BWType, InvitationStatus, ProfileEnum, RoleEnum
 from app.modules.bw.bw_activation.models import PermissionType
 from app.modules.bw.bw_activation.user_utils import (
     get_selected_business_wall_for_user,
@@ -57,6 +57,32 @@ EVENTROOM_COMMUNITY_ROLES: frozenset[RoleEnum] = frozenset(
 )
 
 
+_NON_ARTICLE_PROFILES: frozenset[str] = frozenset(
+    {
+        ProfileEnum.PM_DIR_SYND.name,
+        ProfileEnum.PM_DIR_INST.name,
+        ProfileEnum.PM_JR_INST.name,
+    }
+)
+
+_NON_ARTICLE_BW_TYPES: frozenset[str] = frozenset(
+    {
+        BWType.UNION.value,
+        BWType.CORPORATE_MEDIA.value,
+    }
+)
+
+
+def _is_union_press_asso_user(user: User) -> bool:
+    """True if user is a Press Asso / Union director (PM_DIR_SYND) or
+    belongs to an organisation with an active Union BW."""
+    profile = getattr(user, "profile", None)
+    if getattr(profile, "profile_code", None) == ProfileEnum.PM_DIR_SYND.name:
+        return True
+    org = getattr(user, "organisation", None)
+    return getattr(org, "bw_active", None) == BWType.UNION.value
+
+
 def user_can_access_comroom(
     user: User,
     *,
@@ -66,6 +92,8 @@ def user_can_access_comroom(
     if not user or user.is_anonymous:
         return False
     if has_role(user, [role.name for role in COMROOM_COMMUNITY_ROLES]):
+        return True
+    if _is_union_press_asso_user(user):
         return True
     return user_is_acting_as_pr_manager(user, bw_loader=bw_loader)
 
@@ -87,11 +115,31 @@ def user_can_access_eventroom(
 def user_can_access_newsroom(user: User) -> bool:
     """True if `user` may access Newsroom.
 
-    Journalists only. PR managers do not have NewRoom acess.
+    Journalists only. PR managers and Press Asso (`union`) users do not
+    have Newsroom access.
     """
     if not user or user.is_anonymous:
         return False
+    if _is_union_press_asso_user(user):
+        return False
     return has_role(user, [RoleEnum.PRESS_MEDIA])
+
+
+def user_can_author_articles(user: User) -> bool:
+    """True if user may author and publish articles.
+
+    Requires Newsroom access (PRESS_MEDIA, not UNION), and excludes
+    Corporate Media (PM_DIR_INST / PM_JR_INST or corporate_media BW),
+    which may use Newsroom workflows (sujets, commandes, avis d'enquête)
+    but cant publish or monetize articles on NEWS.
+    """
+    if not user_can_access_newsroom(user):
+        return False
+    profile = getattr(user, "profile", None)
+    if getattr(profile, "profile_code", None) in _NON_ARTICLE_PROFILES:
+        return False
+    org = getattr(user, "organisation", None)
+    return getattr(org, "bw_active", None) not in _NON_ARTICLE_BW_TYPES
 
 
 def user_is_acting_as_pr_manager(

@@ -14,7 +14,7 @@ from sqlalchemy import select
 
 from app.flask.extensions import db
 
-_REDAC_CHEF_PROFILES = frozenset({"PM_DIR", "PM_DIR_INST", "PM_DIR_SYND"})
+_REDAC_CHEF_PROFILES = frozenset({"PM_DIR", "PM_DIR_INST"})
 
 
 def is_redac_chef_of_org(user, org_id) -> bool:

@@ -31,7 +31,7 @@ from app.lib.image_utils import extract_image_from_request
 from app.logging import warn
 from app.models.lifecycle import PublicationStatus
 from app.modules.wip.models import Article, ArticleRepository, Image, ImageRepository
-from app.modules.wip.pr_access import user_can_access_newsroom
+from app.modules.wip.pr_access import user_can_author_articles
 from app.settings.constants import MAX_IMAGE_SIZE
 from app.signals import article_published, article_unpublished, article_updated
 
@@ -263,7 +263,7 @@ class ArticlesWipView(BaseWipView):
         if resp := super().before_request(*_args, **_kwargs):
             return resp
 
-        if not user_can_access_newsroom(g.user):
+        if not user_can_author_articles(g.user):
             raise Forbidden
         return None
 
