@@ -20,6 +20,8 @@ you DO chain `|safe`, it is a no-op on `Markup`.)
 
 from __future__ import annotations
 
+import json
+import re
 from typing import Any
 
 import bleach
@@ -73,6 +75,7 @@ _ALLOWED_TAGS: frozenset[str] = frozenset(
         "ol",
         "ul",
         # Media
+        "iframe",
         "img",
         # Tables
         "caption",
@@ -92,12 +95,34 @@ _ALLOWED_ATTRS: dict[str, list[str]] = {
     "*": ["title"],
     "a": ["href", "rel", "target"],
     "img": ["src", "alt", "width", "height"],
+    "iframe": [
+        "src",
+        "width",
+        "height",
+        "frameborder",
+        "allow",
+        "allowfullscreen",
+        "referrerpolicy",
+        "loading",
+    ],
     "figure": [
         "data-trix-attachment",
         "data-trix-attributes",
         "data-trix-content-type",
     ],
 }
+
+# Security: only YouTube embed URLs are permitted on `<iframe src="...">`. (to be validated).
+_YOUTUBE_EMBED_SRC_RE = re.compile(
+    r"^https://(?:www\.)?youtube(?:-nocookie)?\.com/embed/[A-Za-z0-9_-]{11}(?:\?[A-Za-z0-9_=&%-]*)?$"
+)
+
+# Any <iframe> whose src was rejected by _allow_attribute() comes out
+# of `bleach.clean` without a src attribute.
+_SOURCELESS_IFRAME_RE = re.compile(
+    r"<iframe\b(?![^>]*\bsrc=)[^>]*>.*?</iframe>",
+    re.IGNORECASE | re.DOTALL,
+)
 
 # Trix styles its attachments with classes under this prefix. Any other
 # class is the site's own CSS, which would let member HTML restyle the
@@ -134,7 +159,7 @@ def _sanitize_to_str(html: str) -> str:
     tripping `Markup` through psycopg can lose attrs on some
     serializers. Plain `str` is the conservative choice.
     """
-    return bleach.clean(
+    cleaned = bleach.clean(
         html,
         tags=_ALLOWED_TAGS,
         attributes=_allow_attribute,
@@ -142,6 +167,7 @@ def _sanitize_to_str(html: str) -> str:
         strip=True,
         strip_comments=True,
     )
+    return _SOURCELESS_IFRAME_RE.sub("", cleaned)
 
 
 class SanitizedHTML(TypeDecorator):
@@ -186,8 +212,40 @@ class SanitizedHTML(TypeDecorator):
         return value
 
 
+def _is_safe_trix_attachment_json(value: str) -> bool:
+    """Validate "data-trix-attachment" JSON on "<figure>".
+
+    File/image attachments carry metadata (`url`, `filename`, …) without
+    raw HTML. Content attachments (e.g. YouTube embeds) carry a `content`
+    HTML string that Trix renders back into the editor when editing.
+    Require that `content` contain a valid YouTube `<iframe>` and no
+    other tags.
+    """
+    try:
+        data = json.loads(value)
+    except (ValueError, TypeError):
+        return False
+    if not isinstance(data, dict):
+        return False
+    content = data.get("content")
+    if content is None:
+        return True
+    if not isinstance(content, str):
+        return False
+    sanitized = _sanitize_to_str(content).strip()
+    return (
+        bool(sanitized)
+        and sanitized.startswith("<iframe ")
+        and sanitized.endswith("</iframe>")
+    )
+
+
 def _allow_attribute(tag: str, name: str, value: str) -> bool:
     """Bleach's attribute filter: the whitelist, plus Trix classes."""
     if name == "class":
         return all(token.startswith(_TRIX_CLASS_PREFIX) for token in value.split())
+    if tag == "iframe" and name == "src":
+        return bool(_YOUTUBE_EMBED_SRC_RE.match(value.strip()))
+    if tag == "figure" and name == "data-trix-attachment":
+        return _is_safe_trix_attachment_json(value)
     return name in _ALLOWED_ATTRS["*"] or name in _ALLOWED_ATTRS.get(tag, [])

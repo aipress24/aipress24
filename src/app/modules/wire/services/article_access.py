@@ -255,10 +255,13 @@ def truncate_body(html: str, limit: int = 300) -> str:
     Uses BeautifulSoup to walk text nodes and cut at the target length,
     closing tags on the way out via the parser. Good enough for a
     paywall preview (not a security control).
+    Embedded iframes (YouTube videos) are stripped from the preview.
     """
     if not html:
         return ""
     soup = BeautifulSoup(html, "html.parser")
+    for iframe in soup.find_all("iframe"):
+        iframe.decompose()
     remaining = limit
     for text_node in list(soup.find_all(string=True)):
         text = str(text_node)
