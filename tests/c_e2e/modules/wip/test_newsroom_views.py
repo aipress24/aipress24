@@ -490,6 +490,118 @@ class TestNewsroomContent:
         assert "Sujet" in html
         assert "Avis" in html or "enqu" in html
 
+    def test_newsroom_allows_sujets_commandes_avis_but_hide_articles_for_corporate_media(
+        self, app: Flask, db_session: Session
+    ):
+        """Corporate Media BW allows access to Newsroom (Sujets, Commandes,
+        Avis d'enquête) but not publishing/monetizing Articles."""
+        role = db_session.query(Role).filter_by(name=RoleEnum.PRESS_MEDIA.name).first()
+        if not role:
+            role = Role(
+                name=RoleEnum.PRESS_MEDIA.name, description=RoleEnum.PRESS_MEDIA.value
+            )
+            db_session.add(role)
+
+        org = Organisation(name="Corp Media Org", bw_active="corporate_media")
+        db_session.add(org)
+        db_session.flush()
+
+        profile = KYCProfile(profile_code=ProfileEnum.PM_DIR_INST.name)
+        user = User(
+            email="corp-media-dir@example.com",
+            first_name="Claire",
+            last_name="Instit",
+            active=True,
+        )
+        user.profile = profile
+        user.organisation = org
+        user.organisation_id = org.id
+        user.roles.append(role)
+        db_session.add(user)
+        db_session.flush()
+
+        bw = BusinessWall(
+            bw_type="corporate_media",
+            status=BWStatus.ACTIVE.value,
+            owner_id=user.id,
+            payer_id=user.id,
+            organisation_id=org.id,
+            name="Mon BW Corporate Media",
+        )
+        db_session.add(bw)
+        db_session.flush()
+        org.bw_id = bw.id
+        db_session.commit()
+
+        client = make_authenticated_client(app, user)
+        response = client.get("/wip/newsroom")
+
+        assert response.status_code == 200
+        html = response.data.decode()
+        assert "Sujets" in html
+        assert "Commandes" in html
+        assert "Avis" in html or "enqu" in html
+        assert "Articles" not in html
+
+        # Direct access to /wip/articles/ is forbidden for Corporate Media
+        articles_resp = client.get("/wip/articles/")
+        assert articles_resp.status_code == 302
+        assert articles_resp.headers.get("X-Access-Denied") == "true"
+
+    def test_newsroom_forbidden_and_comroom_allowed_for_union_bw(
+        self, app: Flask, db_session: Session
+    ):
+        """Union (Press Asso) BW forbid Newsroom and Articles, and allow ComRoom."""
+        role = db_session.query(Role).filter_by(name=RoleEnum.PRESS_MEDIA.name).first()
+        if not role:
+            role = Role(
+                name=RoleEnum.PRESS_MEDIA.name, description=RoleEnum.PRESS_MEDIA.value
+            )
+            db_session.add(role)
+
+        org = Organisation(name="Syndicat Presse", bw_active="union")
+        db_session.add(org)
+        db_session.flush()
+
+        profile = KYCProfile(profile_code=ProfileEnum.PM_DIR_SYND.name)
+        user = User(
+            email="union-dir@example.com",
+            first_name="Marc",
+            last_name="Syndicat",
+            active=True,
+        )
+        user.profile = profile
+        user.organisation = org
+        user.organisation_id = org.id
+        user.roles.append(role)
+        db_session.add(user)
+        db_session.flush()
+
+        bw = BusinessWall(
+            bw_type="union",
+            status=BWStatus.ACTIVE.value,
+            owner_id=user.id,
+            payer_id=user.id,
+            organisation_id=org.id,
+            name="Mon BW Press Asso",
+        )
+        db_session.add(bw)
+        db_session.flush()
+        org.bw_id = bw.id
+        db_session.commit()
+
+        client = make_authenticated_client(app, user)
+        newsroom_resp = client.get("/wip/newsroom")
+        assert newsroom_resp.status_code == 302
+        assert newsroom_resp.headers.get("X-Access-Denied") == "true"
+
+        articles_resp = client.get("/wip/articles/")
+        assert articles_resp.status_code == 302
+        assert articles_resp.headers.get("X-Access-Denied") == "true"
+
+        comroom_resp = client.get("/wip/comroom")
+        assert comroom_resp.status_code == 200
+
 
 def _received_sujet(db_session: Session, media: Organisation) -> Sujet:
     """A sujet an author from another org has sent to `media`."""
