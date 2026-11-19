@@ -31,6 +31,7 @@ from app.flask.extensions import db
 from app.logging import report_failure, warn
 from app.modules.admin.org_email_utils import change_members_emails
 from app.modules.bw.bw_activation import bp
+from app.modules.bw.bw_activation.activate_bw import activate_bw_from_checkout
 from app.modules.bw.bw_activation.bw_creation import (
     create_new_free_bw_record,
     create_new_paid_bw_record,
@@ -723,8 +724,6 @@ def _activate_bw_from_checkout_session(
     "payment_success" when the asynchronous "checkout.session.completed"
     webhook has not arrived yet or cant reach localhost in local development.
     """
-    from app.modules.stripe.views.webhook import activate_bw_from_checkout
-
     load_stripe_api_key()
     try:
         checkout_session = stripe.checkout.Session.retrieve(session_id)

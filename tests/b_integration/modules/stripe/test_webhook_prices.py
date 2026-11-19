@@ -14,9 +14,9 @@ from typing import TYPE_CHECKING
 from app.enums import BWStatus, BWType
 from app.models.auth import User
 from app.models.organisation import Organisation
+from app.modules.bw.bw_activation.activate_bw import activate_bw_from_checkout
 from app.modules.bw.bw_activation.models import BusinessWall
 from app.modules.stripe.views.webhook import (
-    activate_bw_from_checkout,
     on_price_created,
     on_price_deleted,
     on_price_updated,
