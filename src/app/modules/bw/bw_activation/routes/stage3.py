@@ -8,6 +8,7 @@ from __future__ import annotations
 
 from datetime import UTC, datetime
 from typing import TYPE_CHECKING, Any, cast
+from uuid import UUID
 
 import arrow
 import stripe
@@ -62,6 +63,7 @@ from app.modules.bw.bw_activation.utils import (
 )
 from app.services.stripe.product import resolve_product_price
 from app.services.stripe.utils import (
+    attr_or_item_getter,
     get_stripe_public_key,
     load_stripe_api_key,
 )
@@ -365,11 +367,12 @@ def _preview_checkout_amount(
     The created session is never shown to the user and expires
     unused in one day.
     """
-    success_url = url_for(
+    base_success_url = url_for(
         "bw_activation.payment_success",
         bw_type=bw_type,
         _external=True,
     )
+    success_url = f"{base_success_url}?session_id={{CHECKOUT_SESSION_ID}}"
     cancel_url = url_for(
         "bw_activation.payment_cancel",
         bw_type=bw_type,
@@ -653,11 +656,12 @@ def checkout(bw_type: str):
         checkout_quantity = 1
     items = [{"price": price_id, "quantity": checkout_quantity}]
 
-    success_url = url_for(
+    base_success_url = url_for(
         "bw_activation.payment_success",
         bw_type=bw_type,
         _external=True,
     )
+    success_url = f"{base_success_url}?session_id={{CHECKOUT_SESSION_ID}}"
     cancel_url = url_for(
         "bw_activation.payment_cancel",
         bw_type=bw_type,
@@ -710,11 +714,90 @@ def checkout(bw_type: str):
     return redirect(checkout_session.url, code=303)
 
 
+def _activate_bw_from_checkout_session(
+    session_id: str, user: User
+) -> BusinessWall | None:
+    """Retrieve a Stripe Checkout Session and activate its DRAFT BusinessWall.
+
+    Fix Bug 0250 when the Strip webhook is slow : idempotent fallback for
+    "payment_success" when the asynchronous "checkout.session.completed"
+    webhook has not arrived yet or cant reach localhost in local development.
+    """
+    from app.modules.stripe.views.webhook import activate_bw_from_checkout
+
+    load_stripe_api_key()
+    try:
+        checkout_session = stripe.checkout.Session.retrieve(session_id)
+    except StripeError as exc:
+        warn(f"payment_success: Session.retrieve({session_id}) failed: {exc}")
+        return None
+
+    get = attr_or_item_getter(checkout_session)
+    if get("mode") != "subscription":
+        return None
+    if get("status") != "complete":
+        return None
+    if get("payment_status") not in ("paid", "no_payment_required"):
+        return None
+
+    metadata = get("metadata") or {}
+    meta_get = attr_or_item_getter(metadata)
+    raw_bw_id = get("client_reference_id") or meta_get("bw_id")
+    if not raw_bw_id:
+        return None
+    try:
+        bw_uuid = UUID(str(raw_bw_id))
+    except (ValueError, TypeError):
+        return None
+
+    bw = db.session.get(BusinessWall, bw_uuid)
+    if bw is None:
+        return None
+
+    user_org_id = getattr(user, "organisation_id", None)
+    if (
+        bw.owner_id != user.id
+        and (user_org_id is None or bw.organisation_id != user_org_id)
+        and not is_bw_manager_or_admin(user, bw)
+    ):
+        return None
+
+    if bw.status == BWStatus.DRAFT.value:
+        activate_bw_from_checkout(
+            bw=bw,
+            customer_id=str(get("customer") or ""),
+            subscription_id=str(get("subscription") or ""),
+            checkout_session_id=session_id,
+        )
+        db.session.commit()
+
+    return bw
+
+
 @bp.route("/payment-success/<bw_type>")
 def payment_success(bw_type: str):
     """Landing page after successful Stripe checkout."""
-    # Actual activation happens via webhook.
-    # We just display a success message.
+    user = cast("User", g.user)
+    session_id = (request.args.get("session_id") or "").strip()
+
+    bw: BusinessWall | None = None
+    if (
+        session_id
+        and "{CHECKOUT_SESSION_ID}" not in session_id
+        and not current_app.config.get("STRIPE_DEBUG_ACTIVE")
+    ):
+        bw = _activate_bw_from_checkout_session(session_id, user)
+
+    if bw is None and getattr(user, "organisation", None) is not None:
+        active_bw = get_active_business_wall_for_organisation(user.organisation)
+        if active_bw is not None and is_bw_manager_or_admin(user, active_bw):
+            bw = active_bw
+
+    if bw is not None and bw.status == BWStatus.ACTIVE.value:
+        fill_session(bw)
+        flash("Votre Business Wall est maintenant activé.", "success")
+        return redirect(url_for("bw_activation.dashboard"))
+
     return render_template(
         "bw_activation/payment_success.html",
         bw_type=bw_type,

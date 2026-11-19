@@ -16,7 +16,7 @@ from app.models.auth import User
 from app.models.organisation import Organisation
 from app.modules.bw.bw_activation.models import BusinessWall
 from app.modules.stripe.views.webhook import (
-    _activate_bw_from_checkout,
+    activate_bw_from_checkout,
     on_price_created,
     on_price_deleted,
     on_price_updated,
@@ -107,7 +107,7 @@ class TestCustomerIdPropagation:
         db_session.add(bw)
         db_session.flush()
 
-        _activate_bw_from_checkout(
+        activate_bw_from_checkout(
             bw=bw,
             customer_id="cus_test_001",
             subscription_id="sub_test_001",
@@ -139,7 +139,7 @@ class TestCustomerIdPropagation:
         db_session.add(bw)
         db_session.flush()
 
-        _activate_bw_from_checkout(
+        activate_bw_from_checkout(
             bw=bw,
             customer_id="cus_intruder",
             subscription_id="sub_intruder",

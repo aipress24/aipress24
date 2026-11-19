@@ -689,7 +689,7 @@ def on_checkout_session_completed(event: stripe.Event) -> None:
         warning(f"checkout.session.completed for unknown BW {bw_uuid}")
         return
 
-    _activate_bw_from_checkout(
+    activate_bw_from_checkout(
         bw=bw,
         customer_id=get("customer"),
         subscription_id=get("subscription"),
@@ -698,9 +698,9 @@ def on_checkout_session_completed(event: stripe.Event) -> None:
     db.session.commit()
 
 
-def _activate_bw_from_checkout(
+def activate_bw_from_checkout(
     *,
-    bw,
+    bw: BusinessWall,
     customer_id: str,
     subscription_id: str,
     checkout_session_id: str,
@@ -759,7 +759,7 @@ def _activate_bw_from_checkout(
     )
 
 
-def _bind_customer_to_organisation(bw, customer_id: str) -> None:
+def _bind_customer_to_organisation(bw: BusinessWall, customer_id: str) -> None:
     """Pin the Stripe customer to the BW's organisation, first time only.
 
     A previous binding is never overwritten — silent reassignment would
