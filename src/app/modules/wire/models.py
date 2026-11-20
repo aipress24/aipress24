@@ -6,7 +6,6 @@ from __future__ import annotations
 
 from datetime import datetime
 from enum import StrEnum, auto
-from typing import ClassVar
 
 import sqlalchemy as sa
 from advanced_alchemy.types.file_object import FileObject, StoredObject
@@ -70,7 +69,7 @@ class NewsMetadataMixin(PaysZipVilleMixin):
 
 
 class Post(NewsMetadataMixin, BaseContent, LifeCycleMixin):
-    __mapper_args__: ClassVar[dict] = {
+    __mapper_args__ = {
         "polymorphic_identity": "post",
     }
 
@@ -137,7 +136,7 @@ class Post(NewsMetadataMixin, BaseContent, LifeCycleMixin):
 
 
 class ArticlePost(Post, Taggable):
-    __mapper_args__: ClassVar[dict] = {
+    __mapper_args__ = {
         "polymorphic_identity": "article",
     }
 
@@ -164,7 +163,7 @@ class ArticlePost(Post, Taggable):
 
 
 class PressReleasePost(Post, Taggable):
-    __mapper_args__: ClassVar[dict] = {
+    __mapper_args__ = {
         "polymorphic_identity": "press_release",
     }
 

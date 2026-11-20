@@ -5,6 +5,9 @@
 
 from __future__ import annotations
 
-from sqlalchemy.orm import declarative_base
+import sqlalchemy as sa
+import sqlalchemy.orm
 
-Base = declarative_base()
+
+class Base(sa.orm.DeclarativeBase):
+    pass

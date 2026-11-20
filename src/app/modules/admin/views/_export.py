@@ -1035,11 +1035,7 @@ class BusinessWallExporter(BaseExporter):
                         select(User).where(User.id.in_(bwpre_user_ids))
                     ).all()
                     for u in bwpre_users:
-                        org = (
-                            u.get_organisation()
-                            if hasattr(u, "get_organisation")
-                            else None
-                        )
+                        org = u.organisation
                         if org and org.name:
                             agency_names.add(org.name)
 

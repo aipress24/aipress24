@@ -114,7 +114,7 @@ class CommandesFakerScript(BaseScript):
     name = "commandes"
     model_class = Commande
 
-    def make_one(self, user: User) -> Sujet:
+    def make_one(self, user: User) -> Commande:
         obj = Commande(owner_id=user.id)
         obj.titre = faker.sentence()
         obj.brief = faker.text()

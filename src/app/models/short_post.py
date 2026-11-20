@@ -6,8 +6,6 @@
 
 from __future__ import annotations
 
-from typing import ClassVar
-
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.models.base import Base
@@ -17,7 +15,7 @@ from app.services.html_sanitize import SanitizedHTML
 
 
 class ShortPost(BaseContent, LifeCycleMixin, Base):
-    __mapper_args__: ClassVar[dict] = {
+    __mapper_args__ = {
         "polymorphic_identity": "short_post",
     }
 

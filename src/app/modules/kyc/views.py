@@ -756,7 +756,7 @@ def _minor_modification_validated(
 
 def _update_current_user_data() -> str:
     db_session = db.session
-    orig_user = User.query.get(current_user.id)
+    orig_user = db_session.get(User, current_user.id)
     cloned_user = _update_from_current_user(orig_user)
     critical_modified_fields = _get_critical_modified_fields(orig_user, cloned_user)
     if critical_modified_fields:

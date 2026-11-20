@@ -6,11 +6,12 @@
 
 from __future__ import annotations
 
-from app.enums import BWStatus
+from app.enums import BWRoleType, BWStatus, InvitationStatus
 from app.models.auth import User
 from app.models.organisation import Organisation
 from app.modules.admin.views._export import BusinessWallExporter
 from app.modules.bw.bw_activation.models import BusinessWall
+from app.modules.bw.bw_activation.models.role import RoleAssignment
 from app.modules.kyc.field_label import country_code_to_country_name
 from app.modules.kyc.ontology_loader import get_ontology_content
 from app.services.zip_codes import CountryEntry
@@ -131,3 +132,33 @@ def test_business_wall_exporter(db_session) -> None:
 
     assert exporter.cell_value(bw_a, "pays") == "Belgique"
     assert exporter.cell_value(bw_a, "code_postal_ville") == "BEL / 1000 Bruxelles"
+
+
+def test_pr_agency_lists_the_organisations_of_accepted_pr_managers(
+    db_session,
+) -> None:
+    owner = User(email="owner@example.com")
+    agency = Organisation(name="Agence Tartempion")
+    db_session.add_all([owner, agency])
+    db_session.flush()
+    manager = User(email="pr@example.com", organisation_id=agency.id)
+    bw = BusinessWall(
+        bw_type="media",
+        status=BWStatus.ACTIVE.value,
+        name="Some Wall",
+        owner_id=owner.id,
+        payer_id=owner.id,
+    )
+    db_session.add_all([manager, bw])
+    db_session.flush()
+    db_session.add(
+        RoleAssignment(
+            business_wall_id=bw.id,
+            user_id=manager.id,
+            role_type=BWRoleType.BWPRE.value,
+            invitation_status=InvitationStatus.ACCEPTED.value,
+        )
+    )
+    db_session.flush()
+
+    assert BusinessWallExporter().cell_value(bw, "pr_agency") == "Agence Tartempion"

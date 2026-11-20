@@ -15,6 +15,7 @@ from unittest.mock import patch
 
 import arrow
 import pytest
+import sqlalchemy as sa
 
 from app.flask.routing import url_for
 from app.lib.base62 import base62
@@ -33,6 +34,7 @@ from tests.c_e2e.conftest import make_authenticated_client
 
 if TYPE_CHECKING:
     from flask import Flask
+    from sqlalchemy.orm import Session
 
 
 def _email() -> str:
@@ -151,6 +153,7 @@ class TestNotifyForm:
         test_user: User,
         published_article: Article,
         avis_with_contacts: tuple[AvisEnquete, User],
+        db_session: Session,
     ):
         avis, expert = avis_with_contacts
         client = make_authenticated_client(app, test_user)
@@ -177,8 +180,10 @@ class TestNotifyForm:
         assert kwargs["recipient_user_ids"] == [expert.id]
         assert kwargs["avis_enquete"].id == avis.id
         assert kwargs["article"].id == published_article.id
-        article_post = ArticlePost.query.filter(
-            ArticlePost.newsroom_id == published_article.id
+        article_post = db_session.scalars(
+            sa.select(ArticlePost).where(
+                ArticlePost.newsroom_id == published_article.id
+            )
         ).one()
         expected_path = url_for("wire.item", id=base62.encode(article_post.id))
         assert kwargs["article_url"].endswith(expected_path)

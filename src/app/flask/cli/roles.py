@@ -6,11 +6,13 @@
 from __future__ import annotations
 
 import click
-from flask import current_app
+import sqlalchemy as sa
 from flask.cli import with_appcontext
-from flask_security import SQLAlchemyUserDatastore
 from rich.console import Console
 from rich.table import Table
+
+from app.flask.extensions import db
+from app.models.auth import Role, User
 
 
 def register_roles_commands(app):
@@ -27,10 +29,7 @@ def register_roles_commands(app):
     @with_appcontext
     def list_roles():
         """List all available roles."""
-        datastore: SQLAlchemyUserDatastore = current_app.extensions[
-            "security"
-        ].datastore
-        roles = datastore.role_model.query.order_by("name").all()
+        roles = db.session.scalars(sa.select(Role).order_by(Role.name)).all()
 
         console = Console()
         table = Table(title="Available Roles")
@@ -60,14 +59,11 @@ def register_users_commands(app):
     @with_appcontext
     def list_users(limit, active):
         """List users."""
-        datastore: SQLAlchemyUserDatastore = current_app.extensions[
-            "security"
-        ].datastore
-        query = datastore.user_model.query.order_by("email")
+        query = sa.select(User)
         if active:
-            query = query.filter_by(active=True)
-        users = query.limit(limit).all()
-        total = query.count()
+            query = query.where(User.active)
+        users = db.session.scalars(query.order_by(User.email).limit(limit)).all()
+        total = db.session.scalar(sa.select(sa.func.count()).select_from(query.subquery()))
 
         console = Console()
         table = Table(title=f"Users ({'active only' if active else 'all'})")

@@ -6,7 +6,6 @@ from __future__ import annotations
 
 from typing import cast
 
-from arrow import Arrow
 from attr import define
 from flask import g
 
@@ -30,9 +29,7 @@ class EventCardVM(ViewModel):
 
         # Compute opening hours only if both dates are set
         if event.start_datetime and event.end_datetime:
-            start = cast(Arrow, event.start_datetime)
-            end = cast(Arrow, event.end_datetime)
-            opening = opening_hours(start, end)
+            opening = opening_hours(event.start_datetime, event.end_datetime)
         else:
             opening = ""
 

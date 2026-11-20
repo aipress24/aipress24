@@ -92,6 +92,10 @@ lint.ignore = [
 "src/app/modules/wip/crud/cbvs/**/*.py" = [
     "RUF012", # Mutable default value for class attribute
 ]
+# `DeclarativeBase` types `__mapper_args__` as an instance attribute, so ty
+# rejects the `ClassVar` annotation RUF012 asks for.
+"src/app/models/{base_content,comment,short_post}.py" = ["RUF012"]
+"src/app/modules/wire/models.py" = ["RUF012"]
 "tests/**/*.py" = [
     "ANN", # flake8-annotations
     "INP001", #  implicit-namespace-package

@@ -88,7 +88,7 @@ class _FlatSelector(BaseSelector):
     label = "Tag"
     taxonomy_name = "fake"
 
-    def _expert_values(self, expert: _StandInUser) -> Iterable[str]:
+    def _expert_values(self, expert: Any) -> Iterable[str]:
         return expert.profile.tags
 
 
@@ -101,7 +101,7 @@ class _CascadeSelector(DualSelector):
     parent_label = "Parent"
     taxonomy_name = "fake_dual"
 
-    def _expert_values(self, expert: _StandInUser) -> Iterable[str]:  # type: ignore[override]
+    def _expert_values(self, expert: Any) -> Iterable[str]:
         return expert.profile.detail
 
 
