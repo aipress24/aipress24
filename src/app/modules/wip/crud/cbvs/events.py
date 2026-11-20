@@ -277,19 +277,25 @@ def _has_events_mission_on(user, organisation) -> bool:
     """L'utilisateur porte-t-il la mission « événements » sur le BW de
     cette organisation ?
 
-    Vrai pour le propriétaire du Business Wall, et pour toute
+    Vrai pour le propriétaire du Business Wall, pour toute
     attribution de rôle acceptée qui accorde explicitement cette
-    permission.
+    permission, et pour les membres d'une agence RP en partenariat
+    lorsque la mission est activée sur le BW.
     """
     from app.modules.bw.bw_activation.user_utils import (
         get_active_business_wall_for_organisation,
+        user_has_pr_partnership_on_bw,
     )
     from app.modules.wip.pr_access import _bw_grants_mission
 
     bw = get_active_business_wall_for_organisation(organisation)
     if bw is None:
         return False
-    return _bw_grants_mission(bw, user.id, PermissionType.EVENTS)
+    if _bw_grants_mission(bw, user.id, PermissionType.EVENTS):
+        return True
+    return user_has_pr_partnership_on_bw(user, bw) and bool(
+        (bw.missions or {}).get(PermissionType.EVENTS.value, False)
+    )
 
 
 def _event_post_of(event):

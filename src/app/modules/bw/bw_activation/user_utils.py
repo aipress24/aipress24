@@ -604,6 +604,19 @@ def get_user_rights_on_bw(user: User, bw: BusinessWall) -> list[str]:
                             rights.append(f"Mission : {mission_label}")
                             seen_missions.add(perm.permission_type)
 
+    # 3. PR Agency Partnership, allow for all BW agency members
+    if user_has_pr_partnership_on_bw(user, bw):
+        pr_role = BWRoleType.BWPRE.value
+        if pr_role not in seen_roles:
+            role_label = BW_ROLE_TYPE_LABEL.get(pr_role, pr_role)
+            rights.append(f"Rôle : {role_label}")
+            seen_roles.add(pr_role)
+        for mission_key, enabled in (bw.missions or {}).items():
+            if enabled and mission_key not in seen_missions:
+                mission_label = MISSION_LABELS.get(mission_key, mission_key)
+                rights.append(f"Mission : {mission_label}")
+                seen_missions.add(mission_key)
+
     return rights
 
 
@@ -695,6 +708,37 @@ def is_pr_agency(org: Organisation | None) -> bool:
         BusinessWall.organisation_id == org.id,
         BusinessWall.bw_type == BWType.PR.value,
         BusinessWall.status.not_in({BWStatus.DRAFT.value, BWStatus.CANCELLED.value}),
+    )
+    return db.session.execute(stmt).first() is not None
+
+
+def user_has_pr_partnership_on_bw(user: User, bw: BusinessWall) -> bool:
+    """True if `user`'s PR agency has an active Partnership with `bw`."""
+    from app.modules.bw.bw_activation.models import Partnership
+
+    org_id = getattr(user, "organisation_id", None)
+    org = getattr(user, "organisation", None)
+    if not org_id or org is None or not is_pr_agency(org):
+        return False
+
+    agency_bw_id_strs = [
+        str(bw_id)
+        for bw_id in db.session.execute(
+            select(BusinessWall.id).where(
+                BusinessWall.organisation_id == org_id,
+                BusinessWall.status.not_in(
+                    {BWStatus.DRAFT.value, BWStatus.CANCELLED.value}
+                ),
+            )
+        ).scalars()
+    ]
+    if not agency_bw_id_strs:
+        return False
+
+    stmt = select(Partnership.id).where(
+        Partnership.business_wall_id == bw.id,
+        Partnership.partner_bw_id.in_(agency_bw_id_strs),
+        Partnership.status.in_(_ACTIVE_PARTNERSHIP_STATUSES),
     )
     return db.session.execute(stmt).first() is not None
 

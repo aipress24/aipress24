@@ -24,6 +24,7 @@ from app.enums import BWRoleType, BWType, InvitationStatus, ProfileEnum, RoleEnu
 from app.modules.bw.bw_activation.models import PermissionType
 from app.modules.bw.bw_activation.user_utils import (
     get_selected_business_wall_for_user,
+    user_has_pr_partnership_on_bw,
 )
 from app.services.roles import has_role
 
@@ -163,7 +164,9 @@ def user_is_acting_as_pr_manager(
     if not bw:
         return False
 
-    return _bw_grants_pr_manager_role(bw, user.id)
+    return _bw_grants_pr_manager_role(bw, user.id) or user_has_pr_partnership_on_bw(
+        user, bw
+    )
 
 
 def _bw_grants_pr_manager_role(bw, user_id) -> bool:
@@ -198,7 +201,11 @@ def user_has_mission(
     if not bw:
         return False
 
-    return _bw_grants_mission(bw, user.id, mission)
+    if _bw_grants_mission(bw, user.id, mission):
+        return True
+    return user_has_pr_partnership_on_bw(user, bw) and bool(
+        (getattr(bw, "missions", None) or {}).get(mission.value, False)
+    )
 
 
 def _bw_grants_mission(bw, user_id, mission: PermissionType) -> bool:
