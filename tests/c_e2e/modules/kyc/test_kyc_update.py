@@ -31,7 +31,7 @@ def test_logged_in_user_minor_kyc_update_is_applied(app, db_session, monkeypatch
     )
     user = User(
         email="kyc-update@example.com",
-        gender="Mme",
+        gender="F",
         first_name="Ada",
         last_name="Lovelace",
     )
@@ -53,7 +53,7 @@ def test_logged_in_user_minor_kyc_update_is_applied(app, db_session, monkeypatch
             "form_raw_results",
             {
                 # Same identity, so no moderator validation is needed.
-                "civilite": "Mme",
+                "civilite": "F",
                 "first_name": "Ada",
                 "last_name": "Lovelace",
                 "tel_mobile": "0601020304",
