@@ -74,6 +74,6 @@ def serve(
         workers=WORKERS,
         log_dictconfig={"root": {"level": "INFO"}} if not debug else {},
         log_level=log_level,
-        loop=Loops.uvloop,
+        loop=Loops.auto,
         reload=reload,
     ).serve()
