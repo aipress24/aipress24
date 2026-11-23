@@ -114,13 +114,16 @@ def _list_media_sales(media_org_id: int) -> list[dict]:
     under the user's media. Only shown to rédac chefs."""
     stmt = (
         select(ArticlePurchase)
-        .options(selectinload(ArticlePurchase.post))
+        .options(selectinload(ArticlePurchase.post).selectinload(Post.owner))
         .join(Post, ArticlePurchase.post_id == Post.id)
         .where(Post.publisher_id == media_org_id)
         .where(ArticlePurchase.status == PurchaseStatus.PAID)
         .order_by(ArticlePurchase.timestamp.desc())
     )
-    return [_row_dict(p) for p in db.session.scalars(stmt)]
+    return [
+        _row_dict(p) | {"author_name": p.post.owner.full_name}
+        for p in db.session.scalars(stmt)
+    ]
 
 
 def _row_dict(p: ArticlePurchase) -> dict:

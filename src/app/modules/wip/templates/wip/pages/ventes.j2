@@ -1,12 +1,15 @@
 {% extends "wip/layout/_base.j2" %}
 
-{% macro render_rows_table(rows) %}
+{% macro render_rows_table(rows, show_author=false) %}
   <table class="min-w-full divide-y divide-gray-200">
     <thead class="bg-gray-50">
       <tr>
         <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
         <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Type</th>
         <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Article</th>
+        {% if show_author %}
+          <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Auteur</th>
+        {% endif %}
         <th class="px-4 py-2 text-right text-xs font-medium text-gray-500 uppercase">Montant (HT)</th>
         <th class="px-4 py-2 text-right text-xs font-medium text-gray-500 uppercase">Part éditeur (HT)</th>
       </tr>
@@ -21,6 +24,9 @@
           <td class="px-4 py-2 text-sm text-gray-900">
             <a href="{{ r.post_url }}" class="text-pink-700 hover:underline">{{ r.post_title }}</a>
           </td>
+          {% if show_author %}
+            <td class="px-4 py-2 text-sm text-gray-700">{{ r.author_name }}</td>
+          {% endif %}
           <td class="px-4 py-2 text-right text-sm text-gray-700">{{ "%.2f"|format(r.amount_eur) }} €</td>
           <td class="px-4 py-2 text-right text-sm font-medium text-gray-900">{{ "%.2f"|format(r.editor_share_eur) }} €</td>
         </tr>
@@ -59,7 +65,7 @@
       </div>
 
       {% if media_rows %}
-        {{ render_rows_table(media_rows) }}
+        {{ render_rows_table(media_rows, show_author=true) }}
       {% else %}
         <p class="text-sm text-gray-600">
           Aucune vente n'a encore été enregistrée sur les articles publiés par votre média.

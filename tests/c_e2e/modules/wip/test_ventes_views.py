@@ -251,6 +251,23 @@ class TestVentesViewRedacChef:
         body = response.data.decode()
         assert "rédacteur en chef" not in body
 
+    def test_only_the_media_table_has_an_author_column(
+        self,
+        logged_in_client: FlaskClient,
+        db_session: Session,
+        article_by_test_user: ArticlePost,
+        buyer: User,
+        make_redac_chef,
+    ):
+        """Every row of « Mes ventes » has the same author: the reader."""
+        _add_paid(db_session, buyer=buyer, post=article_by_test_user, amount_cents=100)
+
+        body = logged_in_client.get("/wip/ventes").data.decode()
+        own_table, media_table = re.findall(r"<table.*?</table>", body, re.DOTALL)
+
+        assert "Auteur" not in own_table
+        assert "Auteur" in media_table
+
     def test_media_section_visible_for_redac_chef(
         self,
         logged_in_client: FlaskClient,
@@ -338,5 +355,6 @@ class TestVentesViewRedacChef:
         # Annick's *own* cumul is 0 (she didn't author Nicolas's post).
         # But the media section must show 30.00 €.
         assert "Article de Nicolas" in body
+        assert "Nicolas Mouriou" in body
         # Both the row amount and the media cumul are 30.00.
         assert body.count("30.00") >= 2
