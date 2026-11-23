@@ -1,5 +1,5 @@
 .PHONY: all
-all: lint/ruff test lint
+all: lint test
 
 help:
 	@adt help-make
@@ -16,11 +16,12 @@ PYTEST := $(HOMEBREW_LIBS) pytest
 .PHONY: test test-postgres-docker test-with-sqla-warnings test-with-coverage test-with-typeguard test-cov-unit test-cov-all
 
 ## Run tests
-test:
-	@make test-sqlite test-postgres
+test: test-sqlite test-postgres
 
 test-sqlite:
-	$(PYTEST) tests
+	$(PYTEST) tests/a_unit
+	$(PYTEST) tests/b_integration
+	$(PYTEST) tests/c_e2e
 
 test-postgres:
 	$(PYTEST) tests --db-url="postgresql+psycopg://localhost/aipress24_test"
@@ -98,22 +99,19 @@ test-e2e:
 #
 # Lint
 #
-.PHONY: lint/ruff lint hadolint audit
+.PHONY: lint audit typecheck check
 
 check: lint
-
-lint/ruff:
-	ruff check
-
 
 ## Lint source code and check typing
 lint:
 	ruff check
+	@make typecheck
 	vulture --min-confidence 80 src
 	lint-imports
-	# deptry src
-	@make typecheck
+	deptry src
 
+## Run typechecking tools
 typecheck:
 	ty check src tests
 	pyrefly check

@@ -125,7 +125,7 @@ dependencies = [
     # libpass (a maintained passlib fork without pkg_resources).
     "setuptools>=82,<83",
     "pyyaml>=6.0.3",
-    "schedule>=1.2.2",
+    # "schedule>=1.2.2",
     "pyexcel>=0.7.3",
     "pyexcel-ods3>=0.6.1",
     "fsspec>=2025.10.0",
@@ -139,6 +139,8 @@ dependencies = [
     "bleach>=6.3.0",
     "pagebar>=0.1.1",
     "flask-smorest<1.0,>=0.47.0",
+    "marshmallow>=4.4.0",
+    "babel>=2.18.0",
 ]
 description = ""
 
@@ -331,7 +333,16 @@ DEP002 = [
 ]
 
 # X imported but declared as a dev dependency
-DEP004 = ['hypothesis', 'openpyxl', "flask_debugtoolbar"]
+DEP004 = [
+    'hypothesis',
+    'openpyxl',
+    "flask_debugtoolbar",
+    "mimesis",
+    "faker",
+    "flask_coverage",
+    "devtools",
+    "snoop",
+]
 
 # -----------------------------------------------------------------------------
 
