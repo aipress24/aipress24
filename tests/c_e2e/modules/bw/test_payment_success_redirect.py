@@ -117,9 +117,7 @@ def test_payment_success_activates_draft_bw_and_redirects_to_dashboard(
         assert refreshed_org.bw_active == BWType.UNION.value
 
 
-def test_payment_success_without_session_id_renders_waiting_page(
-    app, client
-) -> None:
+def test_payment_success_without_session_id_renders_waiting_page(app, client) -> None:
     """Without a `session_id` (and before webhook), renders payment_success.html."""
     with app.app_context():
         user, _org, _bw = _create_user_with_draft_bw(BWType.UNION.value)

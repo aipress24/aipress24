@@ -220,7 +220,9 @@ class TestSanitizeKeepsLegitimateMarkup:
 
     def test_trix_malicious_attachment_content_stripped(self):
         att_json = html_lib.escape(
-            json.dumps({"content": "<script>alert(1)</script>", "contentType": "text/html"})
+            json.dumps(
+                {"content": "<script>alert(1)</script>", "contentType": "text/html"}
+            )
         )
         figure_html = (
             f'<figure data-trix-attachment="{att_json}" '

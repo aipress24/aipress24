@@ -63,7 +63,9 @@ def register_users_commands(app):
         if active:
             query = query.where(User.active)
         users = db.session.scalars(query.order_by(User.email).limit(limit)).all()
-        total = db.session.scalar(sa.select(sa.func.count()).select_from(query.subquery()))
+        total = db.session.scalar(
+            sa.select(sa.func.count()).select_from(query.subquery())
+        )
 
         console = Console()
         table = Table(title=f"Users ({'active only' if active else 'all'})")
