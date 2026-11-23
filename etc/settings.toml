@@ -130,6 +130,8 @@ frame-src = [
     "https://www.google.com/",
     "https://js.stripe.com/",
     "https://checkout.stripe.com/",
+    "https://www.youtube-nocookie.com/",
+    "https://www.youtube.com/",
 ]
 base-uri = "'none'"
 form-action = [

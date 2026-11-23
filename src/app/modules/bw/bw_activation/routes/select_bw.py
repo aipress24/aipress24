@@ -19,6 +19,7 @@ from app.modules.bw.bw_activation.models import BusinessWall
 from app.modules.bw.bw_activation.user_utils import (
     get_manageable_business_walls_for_user,
     get_user_rights_on_bw,
+    user_has_pr_partnership_on_bw,
 )
 from app.modules.bw.bw_activation.utils import (
     ERR_NOT_MANAGER,
@@ -122,6 +123,9 @@ def select_bw_post(bw_id: str):
                     has_management_rights = True
                 elif assignment.role_type in _PR_ROLES:
                     has_pr_rights = True
+
+    if not has_pr_rights and user_has_pr_partnership_on_bw(user, bw):
+        has_pr_rights = True
 
     if not (has_management_rights or has_pr_rights):
         # No role on this BW — route to `not_authorized` so the user
