@@ -203,7 +203,7 @@ wheels = [
 
 [[package]]
 name = "aipress24-flask"
-version = "2026.11.20.1"
+version = "2026.11.23.1"
 source = { editable = "." }
 dependencies = [
     { name = "advanced-alchemy" },
@@ -278,7 +278,6 @@ dependencies = [
     { name = "requests" },
     { name = "rich" },
     { name = "s3fs" },
-    { name = "schedule" },
     { name = "sentry-sdk" },
     { name = "setuptools" },
     { name = "sqladmin" },
@@ -450,7 +449,6 @@ requires-dist = [
     { name = "requests", specifier = ">=2.31.0,<3.0.0" },
     { name = "rich", specifier = ">=15,<16" },
     { name = "s3fs", specifier = ">=2025.10.0" },
-    { name = "schedule", specifier = ">=1.2.2" },
     { name = "sentry-sdk", specifier = ">=2,<3" },
     { name = "setuptools", specifier = ">=82,<83" },
     { name = "sqladmin", specifier = ">=0.20,<1.0" },
@@ -4360,15 +4358,6 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/49/c5/0a5ce655109cb96b8dfad36908a4e108d15f5dc2eff8fbc3146c4312e704/s3transfer-0.19.3.tar.gz", hash = "sha256:8326acc3d056d7f7b8a37110c7d2aea41f67e83f6ae79cd3b5fbcca34c726406", size = 166087, upload-time = "2026-10-19T19:19:49.751Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/e2/a4/88f9e10498759121060b8050a1554753dfc04df39bbbcc7aad9ecc8d9440/s3transfer-0.19.3-py3-none-any.whl", hash = "sha256:24eb7535804306355e31c952a90022bf5b2f9d760f9a11062c7493a217c08553", size = 90252, upload-time = "2026-10-19T19:19:48.309Z" },
-]
-
-[[package]]
-name = "schedule"
-version = "1.2.2"
-source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/0c/91/b525790063015759f34447d4cf9d2ccb52cdee0f1dd6ff8764e863bcb74c/schedule-1.2.2.tar.gz", hash = "sha256:15fe9c75fe5fd9b9627f3f19cc0ef1420508f9f9a46f45cd0769ef75ede5f0b7", size = 26452, upload-time = "2024-06-18T20:03:14.633Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/20/a7/84c96b61fd13205f2cafbe263cdb2745965974bdf3e0078f121dfeca5f02/schedule-1.2.2-py3-none-any.whl", hash = "sha256:5bef4a2a0183abf44046ae0d164cadcac21b1db011bdd8102e4a0c1e91e06a7d", size = 12220, upload-time = "2024-05-25T18:41:59.121Z" },
 ]
 
 [[package]]
