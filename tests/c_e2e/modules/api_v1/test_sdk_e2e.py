@@ -43,6 +43,8 @@ from app.modules.bw.bw_activation.models.role import (
 from app.modules.wip.models import Article, AvisEnquete, Communique
 from app.modules.wip.models.eventroom import Event
 
+from .conftest import CLASSIFICATION
+
 # The SDK is a standalone package under sdk/python (not installed); add it to
 # the path exactly as the SDK unit tests do.
 _SDK_PATH = Path(__file__).resolve().parents[4] / "sdk" / "python"
@@ -161,7 +163,7 @@ def _grant_pr_role(
 
 
 @pytest.fixture
-def authoring_seed(db_session: Session) -> SimpleNamespace:
+def authoring_seed(db_session: Session, press_vocabularies: None) -> SimpleNamespace:
     """Users, roles and owned draft content for the /me + write scenarios."""
     pr_role = _role(db_session, RoleEnum.PRESS_RELATIONS)
     jr_role = _role(db_session, RoleEnum.PRESS_MEDIA)
@@ -457,8 +459,9 @@ def test_me_marketplace_only_own(make_sdk, authoring_seed) -> None:
 
 
 def _create_pr(api: WsgiClient, **body) -> dict:
-    body.setdefault("titre", "Hello world")
-    return api.create("me/press-releases", body)
+    return api.create(
+        "me/press-releases", {"titre": "Hello world", **CLASSIFICATION, **body}
+    )
 
 
 def test_pr_create_and_list_own(make_sdk, authoring_seed) -> None:
@@ -711,6 +714,7 @@ def test_onbehalf_allowed_with_mission(make_sdk, authoring_seed, db_session) -> 
             "titre": "For our client",
             "contenu": "<p>b</p>",
             "publisher_id": authoring_seed.other_org.id,
+            **CLASSIFICATION,
         },
     )
     assert created["publisher_id"] == authoring_seed.other_org.id

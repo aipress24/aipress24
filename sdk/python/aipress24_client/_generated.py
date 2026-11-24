@@ -13,20 +13,20 @@ from typing import Any, TypedDict
 
 
 class Article(TypedDict, total=False):
-    _links: Any
+    _links: dict[str, Any]
     comment_count: int
-    content: Any
-    expires_at: Any
+    content: str
+    expires_at: str
     genre: str
     geo_localisation: str
     id: int
-    kind: Any
+    kind: str
     language: str
-    last_updated_at: Any
+    last_updated_at: str
     like_count: int
     media_id: int
     pays_zip_ville: str
-    published_at: Any
+    published_at: str
     publisher_id: int
     section: str
     sector: str
@@ -37,12 +37,12 @@ class Article(TypedDict, total=False):
 
 
 class BusinessWall(TypedDict, total=False):
-    _links: Any
+    _links: dict[str, Any]
     audience_cible: str
     bw_type: str
-    cover_url: Any
+    cover_url: str
     id: str
-    logo_url: Any
+    logo_url: str
     name: str
     name_group: str
     name_institution: str
@@ -58,18 +58,18 @@ class BusinessWall(TypedDict, total=False):
 
 
 class Event(TypedDict, total=False):
-    _links: Any
+    _links: dict[str, Any]
     category: str
     city: str
     content: str
     country: str
     cover_image_url: str
-    end_datetime: Any
+    end_datetime: str
     genre: str
     geo_lat: float
     geo_lng: float
     id: int
-    kind: Any
+    kind: str
     language: str
     location: str
     logo_url: str
@@ -77,36 +77,36 @@ class Event(TypedDict, total=False):
     platform: str
     region: str
     sector: str
-    start_datetime: Any
+    start_datetime: str
     summary: str
     title: str
     zip_code: str
 
 
 class Member(TypedDict, total=False):
-    _links: Any
-    competences: Any
+    _links: dict[str, Any]
+    competences: list[str]
     first_name: str
     full_name: str
     gender: str
     id: int
     job_title: str
     karma: float
-    langues: Any
+    langues: list[str]
     last_name: str
-    metiers: Any
+    metiers: list[str]
     organisation_id: int
     organisation_name: str
-    photo_url: Any
-    presentation: Any
-    profile_community: Any
-    profile_label: Any
-    secteurs_activite: Any
+    photo_url: str
+    presentation: str
+    profile_community: str
+    profile_label: str
+    secteurs_activite: list[str]
     status: str
 
 
 class Organisation(TypedDict, total=False):
-    _links: Any
+    _links: dict[str, Any]
     bw_active: str
     bw_name: str
     city: str
@@ -123,20 +123,20 @@ class Organisation(TypedDict, total=False):
 
 
 class PressRelease(TypedDict, total=False):
-    _links: Any
+    _links: dict[str, Any]
     comment_count: int
-    content: Any
-    expires_at: Any
+    content: str
+    expires_at: str
     genre: str
     geo_localisation: str
     id: int
-    kind: Any
+    kind: str
     language: str
-    last_updated_at: Any
+    last_updated_at: str
     like_count: int
     media_id: int
     pays_zip_ville: str
-    published_at: Any
+    published_at: str
     publisher_id: int
     section: str
     sector: str

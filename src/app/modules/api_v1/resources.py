@@ -49,8 +49,14 @@ from .schemas import (
     OrganisationSchema,
     PageArgsSchema,
     PressReleaseCollection,
+    PressReleaseImageCollection,
+    PressReleaseImageFileSchema,
+    PressReleaseImageFormSchema,
+    PressReleaseImageSchema,
+    PressReleaseImageUploadSchema,
     PressReleaseSchema,
     PressReleaseUpdateSchema,
+    PressReleaseVocabulariesSchema,
     PressReleaseWriteSchema,
     RootSchema,
     SelfProfileSchema,
@@ -115,6 +121,14 @@ def root() -> dict:
             "docs": link(f"{API_PREFIX}/docs"),
         },
     }
+
+
+@blp.route("/vocabularies/press-releases")
+class PressReleaseVocabularies(MethodView):
+    @blp.response(200, PressReleaseVocabulariesSchema)
+    def get(self) -> dict[str, list[str]]:
+        """List the values accepted to classify a press release (any token)."""
+        return w.press_release_vocabularies()
 
 
 # --- articles -------------------------------------------------------------
@@ -466,6 +480,65 @@ class MyPressReleaseUnpublish(MethodView):
             return w.unpublish_press_release(user, obj)
         except w.WriteError as exc:
             abort(exc.status, message=exc.message)
+
+
+@blp.route("/me/press-releases/<int:press_release_id>/images")
+class MyPressReleaseImages(MethodView):
+    @blp.response(200, PressReleaseImageCollection)
+    def get(self, press_release_id: int):
+        """List the carousel of one of the caller's own press releases."""
+        _require(Scope.READ_SELF)
+        obj = q.get_my_press_release(current_identity().id, press_release_id)
+        if obj is None:
+            abort(404, message="Press release not found.")
+        return {"items": obj.sorted_images}
+
+    # The spec keeps a single request body, so it is spelled out: one multipart
+    # form, parsed from two locations.
+    @blp.doc(
+        requestBody={
+            "required": True,
+            "content": {
+                "multipart/form-data": {"schema": PressReleaseImageUploadSchema}
+            },
+        }
+    )
+    @blp.arguments(PressReleaseImageFileSchema, location="files")
+    @blp.arguments(
+        PressReleaseImageFormSchema,
+        location="form",
+        content_type="multipart/form-data",
+    )
+    @blp.response(201, PressReleaseImageSchema)
+    def post(self, files: dict, form: dict, press_release_id: int):
+        """Append an image to the carousel (the first one is the cover)."""
+        user = _require_write()
+        obj = q.get_my_press_release(user.id, press_release_id)
+        if obj is None:
+            abort(404, message="Press release not found.")
+        try:
+            return w.add_press_release_image(user, obj, files["image"], **form)
+        except w.WriteError as exc:
+            abort(exc.status, message=exc.message)
+
+
+@blp.route("/me/press-releases/<int:press_release_id>/images/<int:image_id>")
+class MyPressReleaseImage(MethodView):
+    @blp.response(204)
+    def delete(self, press_release_id: int, image_id: int):
+        """Remove an image from the carousel."""
+        user = _require_write()
+        obj = q.get_my_press_release(user.id, press_release_id)
+        if obj is None:
+            abort(404, message="Press release not found.")
+        image = obj.get_image(image_id)
+        if image is None:
+            abort(404, message="Image not found.")
+        try:
+            w.delete_press_release_image(user, obj, image)
+        except w.WriteError as exc:
+            abort(exc.status, message=exc.message)
+        return ""
 
 
 # --- owner-scoped events (read + write; source Event, any status) ---------

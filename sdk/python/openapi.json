@@ -27,16 +27,30 @@
         "additionalProperties": false,
         "properties": {
           "_links": {
-            "readOnly": true
+            "additionalProperties": {
+              "properties": {
+                "href": {
+                  "type": "string"
+                }
+              },
+              "type": "object"
+            },
+            "readOnly": true,
+            "type": "object"
           },
           "comment_count": {
             "type": "integer"
           },
           "content": {
             "description": "Sanitized HTML body. For a for-sale item this is the preview unless the token's user is entitled to the full text.",
-            "readOnly": true
+            "readOnly": true,
+            "type": "string"
           },
-          "expires_at": {},
+          "expires_at": {
+            "format": "date-time",
+            "nullable": true,
+            "type": "string"
+          },
           "genre": {
             "type": "string"
           },
@@ -47,12 +61,17 @@
             "type": "integer"
           },
           "kind": {
-            "default": "article"
+            "default": "article",
+            "type": "string"
           },
           "language": {
             "type": "string"
           },
-          "last_updated_at": {},
+          "last_updated_at": {
+            "format": "date-time",
+            "nullable": true,
+            "type": "string"
+          },
           "like_count": {
             "type": "integer"
           },
@@ -63,7 +82,11 @@
           "pays_zip_ville": {
             "type": "string"
           },
-          "published_at": {},
+          "published_at": {
+            "format": "date-time",
+            "nullable": true,
+            "type": "string"
+          },
           "publisher_id": {
             "nullable": true,
             "type": "integer"
@@ -234,7 +257,16 @@
         "additionalProperties": false,
         "properties": {
           "_links": {
-            "readOnly": true
+            "additionalProperties": {
+              "properties": {
+                "href": {
+                  "type": "string"
+                }
+              },
+              "type": "object"
+            },
+            "readOnly": true,
+            "type": "object"
           },
           "audience_cible": {
             "type": "string"
@@ -243,13 +275,17 @@
             "type": "string"
           },
           "cover_url": {
-            "readOnly": true
+            "nullable": true,
+            "readOnly": true,
+            "type": "string"
           },
           "id": {
             "type": "string"
           },
           "logo_url": {
-            "readOnly": true
+            "nullable": true,
+            "readOnly": true,
+            "type": "string"
           },
           "name": {
             "type": "string"
@@ -354,7 +390,16 @@
         "additionalProperties": false,
         "properties": {
           "_links": {
-            "readOnly": true
+            "additionalProperties": {
+              "properties": {
+                "href": {
+                  "type": "string"
+                }
+              },
+              "type": "object"
+            },
+            "readOnly": true,
+            "type": "object"
           },
           "category": {
             "type": "string"
@@ -363,6 +408,8 @@
             "type": "string"
           },
           "content": {
+            "description": "Sanitized HTML body, empty when the token's user is outside the event's audience.",
+            "readOnly": true,
             "type": "string"
           },
           "country": {
@@ -371,7 +418,11 @@
           "cover_image_url": {
             "type": "string"
           },
-          "end_datetime": {},
+          "end_datetime": {
+            "format": "date-time",
+            "nullable": true,
+            "type": "string"
+          },
           "genre": {
             "type": "string"
           },
@@ -385,7 +436,8 @@
             "type": "integer"
           },
           "kind": {
-            "default": "event"
+            "default": "event",
+            "type": "string"
           },
           "language": {
             "type": "string"
@@ -408,7 +460,11 @@
           "sector": {
             "type": "string"
           },
-          "start_datetime": {},
+          "start_datetime": {
+            "format": "date-time",
+            "nullable": true,
+            "type": "string"
+          },
           "summary": {
             "type": "string"
           },
@@ -588,10 +644,23 @@
         "additionalProperties": false,
         "properties": {
           "_links": {
-            "readOnly": true
+            "additionalProperties": {
+              "properties": {
+                "href": {
+                  "type": "string"
+                }
+              },
+              "type": "object"
+            },
+            "readOnly": true,
+            "type": "object"
           },
           "competences": {
-            "readOnly": true
+            "items": {
+              "type": "string"
+            },
+            "readOnly": true,
+            "type": "array"
           },
           "first_name": {
             "type": "string"
@@ -612,13 +681,21 @@
             "type": "number"
           },
           "langues": {
-            "readOnly": true
+            "items": {
+              "type": "string"
+            },
+            "readOnly": true,
+            "type": "array"
           },
           "last_name": {
             "type": "string"
           },
           "metiers": {
-            "readOnly": true
+            "items": {
+              "type": "string"
+            },
+            "readOnly": true,
+            "type": "array"
           },
           "organisation_id": {
             "nullable": true,
@@ -628,19 +705,28 @@
             "type": "string"
           },
           "photo_url": {
-            "readOnly": true
+            "nullable": true,
+            "readOnly": true,
+            "type": "string"
           },
           "presentation": {
-            "readOnly": true
+            "readOnly": true,
+            "type": "string"
           },
           "profile_community": {
-            "readOnly": true
+            "readOnly": true,
+            "type": "string"
           },
           "profile_label": {
-            "readOnly": true
+            "readOnly": true,
+            "type": "string"
           },
           "secteurs_activite": {
-            "readOnly": true
+            "items": {
+              "type": "string"
+            },
+            "readOnly": true,
+            "type": "array"
           },
           "status": {
             "type": "string"
@@ -682,7 +768,16 @@
         "additionalProperties": false,
         "properties": {
           "_links": {
-            "readOnly": true
+            "additionalProperties": {
+              "properties": {
+                "href": {
+                  "type": "string"
+                }
+              },
+              "type": "object"
+            },
+            "readOnly": true,
+            "type": "object"
           },
           "address": {
             "type": "string"
@@ -703,10 +798,26 @@
           "copyright": {
             "type": "string"
           },
-          "created_at": {},
-          "date_parution_prevue": {},
-          "date_publication_aip24": {},
-          "expired_at": {},
+          "created_at": {
+            "format": "date-time",
+            "nullable": true,
+            "type": "string"
+          },
+          "date_parution_prevue": {
+            "format": "date-time",
+            "nullable": true,
+            "type": "string"
+          },
+          "date_publication_aip24": {
+            "format": "date-time",
+            "nullable": true,
+            "type": "string"
+          },
+          "expired_at": {
+            "format": "date-time",
+            "nullable": true,
+            "type": "string"
+          },
           "genre": {
             "type": "string"
           },
@@ -717,7 +828,8 @@
             "type": "integer"
           },
           "kind": {
-            "default": "article"
+            "default": "article",
+            "type": "string"
           },
           "language": {
             "type": "string"
@@ -726,11 +838,19 @@
             "nullable": true,
             "type": "integer"
           },
-          "modified_at": {},
+          "modified_at": {
+            "format": "date-time",
+            "nullable": true,
+            "type": "string"
+          },
           "pays_zip_ville": {
             "type": "string"
           },
-          "published_at": {},
+          "published_at": {
+            "format": "date-time",
+            "nullable": true,
+            "type": "string"
+          },
           "publisher_id": {
             "nullable": true,
             "type": "integer"
@@ -787,7 +907,16 @@
         "additionalProperties": false,
         "properties": {
           "_links": {
-            "readOnly": true
+            "additionalProperties": {
+              "properties": {
+                "href": {
+                  "type": "string"
+                }
+              },
+              "type": "object"
+            },
+            "readOnly": true,
+            "type": "object"
           },
           "brief": {
             "type": "string"
@@ -814,11 +943,31 @@
           "contenu": {
             "type": "string"
           },
-          "created_at": {},
-          "date_bouclage": {},
-          "date_debut_enquete": {},
-          "date_fin_enquete": {},
-          "date_parution_prevue": {},
+          "created_at": {
+            "format": "date-time",
+            "nullable": true,
+            "type": "string"
+          },
+          "date_bouclage": {
+            "format": "date-time",
+            "nullable": true,
+            "type": "string"
+          },
+          "date_debut_enquete": {
+            "format": "date-time",
+            "nullable": true,
+            "type": "string"
+          },
+          "date_fin_enquete": {
+            "format": "date-time",
+            "nullable": true,
+            "type": "string"
+          },
+          "date_parution_prevue": {
+            "format": "date-time",
+            "nullable": true,
+            "type": "string"
+          },
           "genre": {
             "type": "string"
           },
@@ -829,7 +978,8 @@
             "type": "integer"
           },
           "kind": {
-            "default": "avis_enquete"
+            "default": "avis_enquete",
+            "type": "string"
           },
           "language": {
             "type": "string"
@@ -838,7 +988,11 @@
             "nullable": true,
             "type": "integer"
           },
-          "modified_at": {},
+          "modified_at": {
+            "format": "date-time",
+            "nullable": true,
+            "type": "string"
+          },
           "publisher_id": {
             "nullable": true,
             "type": "integer"
@@ -898,9 +1052,22 @@
         "additionalProperties": false,
         "properties": {
           "_links": {
-            "readOnly": true
+            "additionalProperties": {
+              "properties": {
+                "href": {
+                  "type": "string"
+                }
+              },
+              "type": "object"
+            },
+            "readOnly": true,
+            "type": "object"
           },
-          "created_at": {},
+          "created_at": {
+            "format": "date-time",
+            "nullable": true,
+            "type": "string"
+          },
           "description": {
             "type": "string"
           },
@@ -911,16 +1078,24 @@
             "type": "string"
           },
           "kind": {
-            "default": "editorial_product"
+            "default": "editorial_product",
+            "type": "string"
           },
-          "modified_at": {},
+          "modified_at": {
+            "format": "date-time",
+            "nullable": true,
+            "type": "string"
+          },
           "price": {
             "type": "integer"
           },
           "product_type": {
             "type": "string"
           },
-          "status": {},
+          "status": {
+            "nullable": true,
+            "type": "string"
+          },
           "title": {
             "type": "string"
           }
@@ -961,7 +1136,16 @@
         "additionalProperties": false,
         "properties": {
           "_links": {
-            "readOnly": true
+            "additionalProperties": {
+              "properties": {
+                "href": {
+                  "type": "string"
+                }
+              },
+              "type": "object"
+            },
+            "readOnly": true,
+            "type": "object"
           },
           "access_details": {
             "type": "string"
@@ -975,17 +1159,30 @@
           "contenu": {
             "type": "string"
           },
-          "created_at": {},
-          "end_time": {},
+          "created_at": {
+            "format": "date-time",
+            "nullable": true,
+            "type": "string"
+          },
+          "end_time": {
+            "format": "date-time",
+            "nullable": true,
+            "type": "string"
+          },
           "event_type": {
             "type": "string"
           },
-          "expired_at": {},
+          "expired_at": {
+            "format": "date-time",
+            "nullable": true,
+            "type": "string"
+          },
           "id": {
             "type": "integer"
           },
           "kind": {
-            "default": "event"
+            "default": "event",
+            "type": "string"
           },
           "language": {
             "type": "string"
@@ -993,14 +1190,22 @@
           "mode": {
             "type": "string"
           },
-          "modified_at": {},
+          "modified_at": {
+            "format": "date-time",
+            "nullable": true,
+            "type": "string"
+          },
           "pays_zip_ville": {
             "type": "string"
           },
           "platform": {
             "type": "string"
           },
-          "published_at": {},
+          "published_at": {
+            "format": "date-time",
+            "nullable": true,
+            "type": "string"
+          },
           "publisher_id": {
             "nullable": true,
             "type": "integer"
@@ -1008,7 +1213,11 @@
           "sector": {
             "type": "string"
           },
-          "start_time": {},
+          "start_time": {
+            "format": "date-time",
+            "nullable": true,
+            "type": "string"
+          },
           "status": {
             "type": "string"
           },
@@ -1055,13 +1264,29 @@
         "additionalProperties": false,
         "properties": {
           "_links": {
-            "readOnly": true
+            "additionalProperties": {
+              "properties": {
+                "href": {
+                  "type": "string"
+                }
+              },
+              "type": "object"
+            },
+            "readOnly": true,
+            "type": "object"
           },
           "contact_email": {
             "type": "string"
           },
-          "contract_type": {},
-          "created_at": {},
+          "contract_type": {
+            "nullable": true,
+            "type": "string"
+          },
+          "created_at": {
+            "format": "date-time",
+            "nullable": true,
+            "type": "string"
+          },
           "currency": {
             "type": "string"
           },
@@ -1079,13 +1304,21 @@
             "type": "integer"
           },
           "kind": {
-            "default": "job"
+            "default": "job",
+            "type": "string"
           },
           "location": {
             "type": "string"
           },
-          "mission_status": {},
-          "modified_at": {},
+          "mission_status": {
+            "nullable": true,
+            "type": "string"
+          },
+          "modified_at": {
+            "format": "date-time",
+            "nullable": true,
+            "type": "string"
+          },
           "pays_zip_ville": {
             "type": "string"
           },
@@ -1100,8 +1333,15 @@
             "nullable": true,
             "type": "integer"
           },
-          "starting_date": {},
-          "status": {},
+          "starting_date": {
+            "format": "date-time",
+            "nullable": true,
+            "type": "string"
+          },
+          "status": {
+            "nullable": true,
+            "type": "string"
+          },
           "subcategory": {
             "type": "string"
           },
@@ -1145,7 +1385,16 @@
         "additionalProperties": false,
         "properties": {
           "_links": {
-            "readOnly": true
+            "additionalProperties": {
+              "properties": {
+                "href": {
+                  "type": "string"
+                }
+              },
+              "type": "object"
+            },
+            "readOnly": true,
+            "type": "object"
           },
           "budget_max": {
             "nullable": true,
@@ -1155,7 +1404,10 @@
             "nullable": true,
             "type": "integer"
           },
-          "category": {},
+          "category": {
+            "nullable": true,
+            "type": "string"
+          },
           "competences_journalisme": {
             "items": {
               "type": "string"
@@ -1165,11 +1417,19 @@
           "contact_email": {
             "type": "string"
           },
-          "created_at": {},
+          "created_at": {
+            "format": "date-time",
+            "nullable": true,
+            "type": "string"
+          },
           "currency": {
             "type": "string"
           },
-          "deadline": {},
+          "deadline": {
+            "format": "date-time",
+            "nullable": true,
+            "type": "string"
+          },
           "description": {
             "type": "string"
           },
@@ -1181,7 +1441,8 @@
             "type": "integer"
           },
           "kind": {
-            "default": "mission"
+            "default": "mission",
+            "type": "string"
           },
           "langues": {
             "items": {
@@ -1198,8 +1459,15 @@
             },
             "type": "array"
           },
-          "mission_status": {},
-          "modified_at": {},
+          "mission_status": {
+            "nullable": true,
+            "type": "string"
+          },
+          "modified_at": {
+            "format": "date-time",
+            "nullable": true,
+            "type": "string"
+          },
           "pays_zip_ville": {
             "type": "string"
           },
@@ -1209,7 +1477,10 @@
           "remote_required": {
             "type": "boolean"
           },
-          "status": {},
+          "status": {
+            "nullable": true,
+            "type": "string"
+          },
           "subcategory": {
             "type": "string"
           },
@@ -1253,7 +1524,16 @@
         "additionalProperties": false,
         "properties": {
           "_links": {
-            "readOnly": true
+            "additionalProperties": {
+              "properties": {
+                "href": {
+                  "type": "string"
+                }
+              },
+              "type": "object"
+            },
+            "readOnly": true,
+            "type": "object"
           },
           "address": {
             "type": "string"
@@ -1264,9 +1544,21 @@
           "contenu": {
             "type": "string"
           },
-          "created_at": {},
-          "embargoed_until": {},
-          "expired_at": {},
+          "created_at": {
+            "format": "date-time",
+            "nullable": true,
+            "type": "string"
+          },
+          "embargoed_until": {
+            "format": "date-time",
+            "nullable": true,
+            "type": "string"
+          },
+          "expired_at": {
+            "format": "date-time",
+            "nullable": true,
+            "type": "string"
+          },
           "genre": {
             "type": "string"
           },
@@ -1277,16 +1569,28 @@
             "type": "integer"
           },
           "kind": {
-            "default": "press_release"
+            "default": "press_release",
+            "type": "string"
           },
           "language": {
             "type": "string"
           },
-          "modified_at": {},
+          "modified_at": {
+            "format": "date-time",
+            "nullable": true,
+            "type": "string"
+          },
           "pays_zip_ville": {
             "type": "string"
           },
-          "published_at": {},
+          "pays_zip_ville_detail": {
+            "type": "string"
+          },
+          "published_at": {
+            "format": "date-time",
+            "nullable": true,
+            "type": "string"
+          },
           "publisher_id": {
             "nullable": true,
             "type": "integer"
@@ -1343,7 +1647,16 @@
         "additionalProperties": false,
         "properties": {
           "_links": {
-            "readOnly": true
+            "additionalProperties": {
+              "properties": {
+                "href": {
+                  "type": "string"
+                }
+              },
+              "type": "object"
+            },
+            "readOnly": true,
+            "type": "object"
           },
           "budget_max": {
             "nullable": true,
@@ -1356,11 +1669,19 @@
           "contact_email": {
             "type": "string"
           },
-          "created_at": {},
+          "created_at": {
+            "format": "date-time",
+            "nullable": true,
+            "type": "string"
+          },
           "currency": {
             "type": "string"
           },
-          "deadline": {},
+          "deadline": {
+            "format": "date-time",
+            "nullable": true,
+            "type": "string"
+          },
           "description": {
             "type": "string"
           },
@@ -1376,13 +1697,21 @@
             "type": "integer"
           },
           "kind": {
-            "default": "project"
+            "default": "project",
+            "type": "string"
           },
           "location": {
             "type": "string"
           },
-          "mission_status": {},
-          "modified_at": {},
+          "mission_status": {
+            "nullable": true,
+            "type": "string"
+          },
+          "modified_at": {
+            "format": "date-time",
+            "nullable": true,
+            "type": "string"
+          },
           "pays_zip_ville": {
             "type": "string"
           },
@@ -1392,7 +1721,10 @@
           "project_type": {
             "type": "string"
           },
-          "status": {},
+          "status": {
+            "nullable": true,
+            "type": "string"
+          },
           "subcategory": {
             "type": "string"
           },
@@ -1440,7 +1772,16 @@
         "additionalProperties": false,
         "properties": {
           "_links": {
-            "readOnly": true
+            "additionalProperties": {
+              "properties": {
+                "href": {
+                  "type": "string"
+                }
+              },
+              "type": "object"
+            },
+            "readOnly": true,
+            "type": "object"
           },
           "bw_active": {
             "nullable": true,
@@ -1553,16 +1894,30 @@
         "additionalProperties": false,
         "properties": {
           "_links": {
-            "readOnly": true
+            "additionalProperties": {
+              "properties": {
+                "href": {
+                  "type": "string"
+                }
+              },
+              "type": "object"
+            },
+            "readOnly": true,
+            "type": "object"
           },
           "comment_count": {
             "type": "integer"
           },
           "content": {
             "description": "Sanitized HTML body. For a for-sale item this is the preview unless the token's user is entitled to the full text.",
-            "readOnly": true
+            "readOnly": true,
+            "type": "string"
           },
-          "expires_at": {},
+          "expires_at": {
+            "format": "date-time",
+            "nullable": true,
+            "type": "string"
+          },
           "genre": {
             "type": "string"
           },
@@ -1573,12 +1928,17 @@
             "type": "integer"
           },
           "kind": {
-            "default": "press_release"
+            "default": "press_release",
+            "type": "string"
           },
           "language": {
             "type": "string"
           },
-          "last_updated_at": {},
+          "last_updated_at": {
+            "format": "date-time",
+            "nullable": true,
+            "type": "string"
+          },
           "like_count": {
             "type": "integer"
           },
@@ -1589,7 +1949,11 @@
           "pays_zip_ville": {
             "type": "string"
           },
-          "published_at": {},
+          "published_at": {
+            "format": "date-time",
+            "nullable": true,
+            "type": "string"
+          },
           "publisher_id": {
             "nullable": true,
             "type": "integer"
@@ -1645,6 +2009,65 @@
         },
         "type": "object"
       },
+      "PressReleaseImage": {
+        "additionalProperties": false,
+        "properties": {
+          "caption": {
+            "type": "string"
+          },
+          "copyright": {
+            "type": "string"
+          },
+          "id": {
+            "type": "integer"
+          },
+          "position": {
+            "description": "0 is the cover.",
+            "type": "integer"
+          },
+          "sha256": {
+            "description": "Digest of the file, to tell what is already uploaded. Null for a file stored under its original name.",
+            "nullable": true,
+            "readOnly": true,
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "PressReleaseImageCollection": {
+        "additionalProperties": false,
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/PressReleaseImage"
+            },
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
+      "PressReleaseImageUpload": {
+        "additionalProperties": false,
+        "properties": {
+          "caption": {
+            "default": "",
+            "type": "string"
+          },
+          "copyright": {
+            "default": "",
+            "type": "string"
+          },
+          "image": {
+            "description": "JPEG, PNG, GIF, WebP or AVIF, under 4 MB.",
+            "format": "binary",
+            "type": "string"
+          }
+        },
+        "required": [
+          "image"
+        ],
+        "type": "object"
+      },
       "PressReleaseUpdate": {
         "additionalProperties": false,
         "properties": {
@@ -1666,6 +2089,7 @@
             "type": "string"
           },
           "genre": {
+            "description": "A value from `/vocabularies/press-releases`. Optional in a draft, required to publish.",
             "type": "string"
           },
           "geo_localisation": {
@@ -1675,6 +2099,11 @@
             "type": "string"
           },
           "pays_zip_ville": {
+            "description": "Country, as an ISO 3166-1 alpha-3 code.",
+            "type": "string"
+          },
+          "pays_zip_ville_detail": {
+            "description": "City, e.g. `FRA / 75001 Paris`.",
             "type": "string"
           },
           "publisher_id": {
@@ -1683,9 +2112,11 @@
             "type": "integer"
           },
           "section": {
+            "description": "A value from `/vocabularies/press-releases`. Optional in a draft, required to publish.",
             "type": "string"
           },
           "sector": {
+            "description": "A value from `/vocabularies/press-releases`. Optional in a draft, required to publish.",
             "type": "string"
           },
           "titre": {
@@ -1693,7 +2124,38 @@
             "type": "string"
           },
           "topic": {
+            "description": "A value from `/vocabularies/press-releases`. Optional in a draft, required to publish.",
             "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "PressReleaseVocabularies": {
+        "additionalProperties": false,
+        "properties": {
+          "genre": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "section": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "sector": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "topic": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
           }
         },
         "type": "object"
@@ -1719,6 +2181,7 @@
             "type": "string"
           },
           "genre": {
+            "description": "A value from `/vocabularies/press-releases`. Optional in a draft, required to publish.",
             "type": "string"
           },
           "geo_localisation": {
@@ -1728,6 +2191,11 @@
             "type": "string"
           },
           "pays_zip_ville": {
+            "description": "Country, as an ISO 3166-1 alpha-3 code.",
+            "type": "string"
+          },
+          "pays_zip_ville_detail": {
+            "description": "City, e.g. `FRA / 75001 Paris`.",
             "type": "string"
           },
           "publisher_id": {
@@ -1736,9 +2204,11 @@
             "type": "integer"
           },
           "section": {
+            "description": "A value from `/vocabularies/press-releases`. Optional in a draft, required to publish.",
             "type": "string"
           },
           "sector": {
+            "description": "A value from `/vocabularies/press-releases`. Optional in a draft, required to publish.",
             "type": "string"
           },
           "titre": {
@@ -1746,6 +2216,7 @@
             "type": "string"
           },
           "topic": {
+            "description": "A value from `/vocabularies/press-releases`. Optional in a draft, required to publish.",
             "type": "string"
           }
         },
@@ -1774,15 +2245,34 @@
         "additionalProperties": false,
         "properties": {
           "_links": {
-            "readOnly": true
+            "additionalProperties": {
+              "properties": {
+                "href": {
+                  "type": "string"
+                }
+              },
+              "type": "object"
+            },
+            "readOnly": true,
+            "type": "object"
           },
           "competences": {
-            "readOnly": true
+            "items": {
+              "type": "string"
+            },
+            "readOnly": true,
+            "type": "array"
           },
           "cover_url": {
-            "readOnly": true
+            "nullable": true,
+            "readOnly": true,
+            "type": "string"
           },
-          "created_at": {},
+          "created_at": {
+            "format": "date-time",
+            "nullable": true,
+            "type": "string"
+          },
           "email": {
             "type": "string"
           },
@@ -1812,15 +2302,27 @@
             "type": "number"
           },
           "langues": {
-            "readOnly": true
+            "items": {
+              "type": "string"
+            },
+            "readOnly": true,
+            "type": "array"
           },
           "last_name": {
             "type": "string"
           },
           "metiers": {
-            "readOnly": true
+            "items": {
+              "type": "string"
+            },
+            "readOnly": true,
+            "type": "array"
           },
-          "modified_at": {},
+          "modified_at": {
+            "format": "date-time",
+            "nullable": true,
+            "type": "string"
+          },
           "organisation_id": {
             "nullable": true,
             "type": "integer"
@@ -1829,22 +2331,35 @@
             "type": "string"
           },
           "photo_url": {
-            "readOnly": true
+            "nullable": true,
+            "readOnly": true,
+            "type": "string"
           },
           "presentation": {
-            "readOnly": true
+            "readOnly": true,
+            "type": "string"
           },
           "profile_community": {
-            "readOnly": true
+            "readOnly": true,
+            "type": "string"
           },
           "profile_label": {
-            "readOnly": true
+            "readOnly": true,
+            "type": "string"
           },
           "roles": {
-            "readOnly": true
+            "items": {
+              "type": "string"
+            },
+            "readOnly": true,
+            "type": "array"
           },
           "secteurs_activite": {
-            "readOnly": true
+            "items": {
+              "type": "string"
+            },
+            "readOnly": true,
+            "type": "array"
           },
           "status": {
             "type": "string"
@@ -1852,7 +2367,11 @@
           "tel_mobile": {
             "type": "string"
           },
-          "validated_at": {},
+          "validated_at": {
+            "format": "date-time",
+            "nullable": true,
+            "type": "string"
+          },
           "validation_status": {
             "type": "string"
           }
@@ -1869,6 +2388,7 @@
     }
   },
   "info": {
+    "description": "Send the token as `Authorization: Bearer <token>`. It acts as its owner, within its scopes:\n\n| Scope | Grants |\n|---|---|\n| `read:content` | articles, press releases, events |\n| `read:organisations` | organisations, business walls |\n| `read:directory` | member profiles |\n| `read:self` | reading the owner's own data, under `/me` |\n| `write:content` | authoring and publishing the owner's own content, under `/me` |\n\nErrors are JSON: `401` missing or unusable token, `403` missing scope or right, `404` unknown or not yours, `413` file too large, `422` invalid input or refused publication.\n",
     "title": "AIpress24 API",
     "version": "1.0"
   },
@@ -3032,6 +3552,122 @@
         ]
       }
     },
+    "/api/v1/me/press-releases/{press_release_id}/images": {
+      "get": {
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PressReleaseImageCollection"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "default": {
+            "$ref": "#/components/responses/DEFAULT_ERROR"
+          }
+        },
+        "summary": "List the carousel of one of the caller's own press releases.",
+        "tags": [
+          "api_v1"
+        ]
+      },
+      "parameters": [
+        {
+          "in": "path",
+          "name": "press_release_id",
+          "required": true,
+          "schema": {
+            "minimum": 0,
+            "type": "integer"
+          }
+        }
+      ],
+      "post": {
+        "parameters": [
+          {
+            "description": "JPEG, PNG, GIF, WebP or AVIF, under 4 MB.",
+            "in": "formData",
+            "name": "image",
+            "required": true,
+            "schema": {
+              "format": "binary",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/PressReleaseImageUpload"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PressReleaseImage"
+                }
+              }
+            },
+            "description": "Created"
+          },
+          "422": {
+            "$ref": "#/components/responses/UNPROCESSABLE_ENTITY"
+          },
+          "default": {
+            "$ref": "#/components/responses/DEFAULT_ERROR"
+          }
+        },
+        "summary": "Append an image to the carousel (the first one is the cover).",
+        "tags": [
+          "api_v1"
+        ]
+      }
+    },
+    "/api/v1/me/press-releases/{press_release_id}/images/{image_id}": {
+      "delete": {
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "default": {
+            "$ref": "#/components/responses/DEFAULT_ERROR"
+          }
+        },
+        "summary": "Remove an image from the carousel.",
+        "tags": [
+          "api_v1"
+        ]
+      },
+      "parameters": [
+        {
+          "in": "path",
+          "name": "press_release_id",
+          "required": true,
+          "schema": {
+            "minimum": 0,
+            "type": "integer"
+          }
+        },
+        {
+          "in": "path",
+          "name": "image_id",
+          "required": true,
+          "schema": {
+            "minimum": 0,
+            "type": "integer"
+          }
+        }
+      ]
+    },
     "/api/v1/me/press-releases/{press_release_id}/publish": {
       "parameters": [
         {
@@ -3504,6 +4140,29 @@
           }
         }
       ]
+    },
+    "/api/v1/vocabularies/press-releases": {
+      "get": {
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PressReleaseVocabularies"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "default": {
+            "$ref": "#/components/responses/DEFAULT_ERROR"
+          }
+        },
+        "summary": "List the values accepted to classify a press release (any token).",
+        "tags": [
+          "api_v1"
+        ]
+      }
     }
   },
   "security": [
@@ -3513,7 +4172,7 @@
   ],
   "tags": [
     {
-      "description": "AIpress24 public API \u2014 read-only access to published content, organisations and member profiles.",
+      "description": "AIpress24 public API \u2014 published content, organisations and member profiles, plus authoring of the token owner's own content.",
       "name": "api_v1"
     }
   ]

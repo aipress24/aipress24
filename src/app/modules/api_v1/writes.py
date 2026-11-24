@@ -26,14 +26,19 @@ mutation targets a row already resolved through ``OwnedRepository.get_owned``):
 
 from __future__ import annotations
 
+from io import BytesIO
+from pathlib import Path
 from typing import TYPE_CHECKING
 
 from arrow import now
+from PIL import Image
 from sqlalchemy import select
 from svcs.flask import container
 
 from app.constants import LOCAL_TZ
 from app.flask.extensions import db
+from app.flask.forms import get_choices
+from app.lib.file_object_utils import SAFE_TYPES, create_file_object
 from app.logging import report_failure
 from app.models.lifecycle import PublicationStatus
 from app.modules.bw.bw_activation.models import PermissionType
@@ -42,6 +47,7 @@ from app.modules.bw.bw_activation.user_utils import can_user_publish_for
 from app.modules.wip.models import (
     Article,
     ArticleRepository,
+    ComImage,
     Communique,
     CommuniqueRepository,
 )
@@ -59,6 +65,7 @@ from app.modules.wip.services.pr_notifications import (
     notify_client_of_pr_publication,
 )
 from app.services.html_sanitize import sanitize_html
+from app.settings.constants import MAX_IMAGE_SIZE
 from app.signals import (
     article_published,
     article_unpublished,
@@ -73,6 +80,7 @@ from app.signals import (
 
 if TYPE_CHECKING:
     from blinker import Signal
+    from werkzeug.datastructures import FileStorage
 
     from app.models.auth import User
 
@@ -95,7 +103,24 @@ _PRESS_RELEASE_FIELDS = (
     "language",
     "address",
     "pays_zip_ville",
+    "pays_zip_ville_detail",
 )
+# Field → vocabulary: those the Com'room form requires.
+_PRESS_RELEASE_VOCABULARIES = {
+    "genre": "genre-com",
+    "section": "section",
+    "topic": "topic",
+    "sector": "sector",
+}
+_PUBLISHED_PRESS_RELEASE_FIELDS = ("titre", "contenu", *_PRESS_RELEASE_VOCABULARIES)
+# Pillow format → storage extension, for the image types `/media` serves.
+_IMAGE_SUFFIXES = {
+    "JPEG": ".jpg",
+    "PNG": ".png",
+    "GIF": ".gif",
+    "WEBP": ".webp",
+    "AVIF": ".avif",
+}
 _ARTICLE_FIELDS = (
     "titre",
     "chapo",
@@ -139,6 +164,7 @@ class WriteError(Exception):
 def create_press_release(user: User, data: dict) -> Communique:
     """Create a DRAFT press release owned by ``user``."""
     _require_comroom(user)
+    _check_vocabularies(data)
     publisher_id = _resolve_publisher(
         user, data.get("publisher_id"), PermissionType.PRESS_RELEASE
     )
@@ -154,6 +180,9 @@ def create_press_release(user: User, data: dict) -> Communique:
 def update_press_release(user: User, model: Communique, data: dict) -> Communique:
     """Apply a partial update to the caller's own press release."""
     _require_comroom(user)
+    _check_vocabularies(data)
+    if model.is_public:
+        _require_complete(model, data)
     if "publisher_id" in data:
         model.publisher_id = _resolve_publisher(
             user, data["publisher_id"], PermissionType.PRESS_RELEASE
@@ -170,6 +199,7 @@ def publish_press_release(user: User, model: Communique) -> Communique:
     publisher_id = _resolve_publisher(
         user, model.publisher_id, PermissionType.PRESS_RELEASE
     )
+    _require_complete(model)
     _publish(
         model, publisher_id, container.get(CommuniqueRepository), communique_published
     )
@@ -188,6 +218,53 @@ def delete_press_release(user: User, model: Communique) -> None:
     """Soft-delete the caller's own press release."""
     _require_comroom(user)
     _delete(model, container.get(CommuniqueRepository), communique_unpublished)
+
+
+def press_release_vocabularies() -> dict[str, list[str]]:
+    """The values each classification field accepts."""
+    return {
+        field: get_choices(key) for field, key in _PRESS_RELEASE_VOCABULARIES.items()
+    }
+
+
+def add_press_release_image(
+    user: User, model: Communique, upload: FileStorage, caption: str, copyright: str
+) -> ComImage:
+    """Append an image to the caller's own press release's carousel."""
+    _require_comroom(user)
+    # Reading up to the limit, which is itself refused, is enough to tell.
+    content = upload.stream.read(MAX_IMAGE_SIZE)
+    if len(content) >= MAX_IMAGE_SIZE:
+        raise WriteError(413, "The image is too large.")
+    suffix = _image_suffix(content)
+    # The extension decides the type `/media` serves: take it from the bytes.
+    file_object = create_file_object(
+        content=content,
+        original_filename=f"{Path(upload.filename or 'image').stem}{suffix}",
+        content_type=SAFE_TYPES[suffix],
+    )
+    file_object.save()
+    image = ComImage(
+        owner=model.owner,
+        content=file_object,
+        caption=caption.strip(),
+        copyright=copyright.strip(),
+    )
+    model.add_image(image)
+    _save(model, container.get(CommuniqueRepository), communique_updated)
+    return image
+
+
+def delete_press_release_image(user: User, model: Communique, image: ComImage) -> None:
+    """Remove an image from the caller's own press release's carousel.
+
+    The stored file stays: storage is content-addressed, so another row may
+    point at the same bytes.
+    """
+    _require_comroom(user)
+    model.delete_image(image)
+    db.session.delete(image)
+    _save(model, container.get(CommuniqueRepository), communique_updated)
 
 
 # --- articles (newsroom) --------------------------------------------------
@@ -415,6 +492,38 @@ def _business_walls_for_org(org_id: int) -> list[BusinessWall]:
             select(BusinessWall).where(BusinessWall.organisation_id == org_id)
         )
     )
+
+
+def _check_vocabularies(data: dict) -> None:
+    """Refuse a classification the Com'room form would not offer."""
+    for field, key in _PRESS_RELEASE_VOCABULARIES.items():
+        value = data.get(field, "").strip()
+        if value and data[field] not in get_choices(key):
+            raise WriteError(422, f"{field}: {data[field]!r} is not an accepted value.")
+
+
+def _require_complete(model: Communique, data: dict | None = None) -> None:
+    """Refuse a public release lacking a field the Com'room form requires."""
+    pending = data or {}
+    missing = [
+        field
+        for field in _PUBLISHED_PRESS_RELEASE_FIELDS
+        if not pending.get(field, getattr(model, field)).strip()
+    ]
+    if missing:
+        raise WriteError(422, f"Required to be published: {', '.join(missing)}.")
+
+
+def _image_suffix(content: bytes) -> str:
+    """The storage extension for an image, from its bytes."""
+    try:
+        with Image.open(BytesIO(content), formats=list(_IMAGE_SUFFIXES)) as image:
+            image.verify()
+            return _IMAGE_SUFFIXES[image.format or ""]
+    except (OSError, SyntaxError, ValueError, Image.DecompressionBombError) as exc:
+        raise WriteError(
+            422, "The file is not a valid JPEG, PNG, GIF, WebP or AVIF image."
+        ) from exc
 
 
 def _apply_fields(model, data: dict, fields: tuple[str, ...]) -> None:

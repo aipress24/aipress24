@@ -32,7 +32,7 @@ def main(argv: list[str]) -> int:
         spec = current_openapi_json()
 
     Path(argv[1]).write_text(
-        json.dumps(spec, indent=2, sort_keys=True), encoding="utf-8"
+        json.dumps(spec, indent=2, sort_keys=True) + "\n", encoding="utf-8"
     )
     print(f"exported OpenAPI spec ({len(spec.get('paths', {}))} paths) to {argv[1]}")
     return 0

@@ -18,24 +18,30 @@ from types import SimpleNamespace
 
 import arrow
 import pytest
+from flask import Flask
 from flask.testing import FlaskClient
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.enums import BWRoleType, InvitationStatus, RoleEnum
+from app.flask.lib.wtforms.fields.rich_select import RichSelectField
 from app.models.auth import Role, User
 from app.models.lifecycle import PublicationStatus
 from app.models.organisation import Organisation
 from app.modules.api_v1.models import ApiToken
-from app.modules.api_v1.security import ALL_SCOPES, Scope, generate_token
+from app.modules.api_v1.security import generate_token
 from app.modules.bw.bw_activation.models.business_wall import BusinessWall
 from app.modules.bw.bw_activation.models.role import (
     PermissionType,
     RoleAssignment,
     RolePermission,
 )
+from app.modules.wip.crud.cbvs._forms import CommuniqueForm
 from app.modules.wip.models import Article, Communique
 from app.modules.wip.models.eventroom import Event
+from app.modules.wire.models import PressReleasePost
+
+from .conftest import CLASSIFICATION
 
 
 def _grant_pr_role(
@@ -119,49 +125,8 @@ def _auth(token: str) -> dict[str, str]:
     return {"Authorization": f"Bearer {token}"}
 
 
-@pytest.fixture
-def wseed(db_session: Session) -> SimpleNamespace:
-    pr_role = _role(db_session, RoleEnum.PRESS_RELATIONS)
-    jr_role = _role(db_session, RoleEnum.PRESS_MEDIA)
-
-    # A PR person (Com'room role) may author press releases.
-    org = Organisation(name=f"Agency {uuid.uuid4().hex[:6]}")
-    author = User(email=_email(), first_name="Pia", last_name="Ar", active=True)
-    author.roles.append(pr_role)
-    author.organisation = org
-
-    # A journalist (Newsroom role only) may NOT author press releases.
-    journalist = User(
-        email=_email(), first_name="Jo", last_name="Urnalist", active=True
-    )
-    journalist.roles.append(jr_role)
-    journalist.organisation = org
-
-    # Another PR person, in a different org — used for the "not your row" checks
-    # and as an org the author is not allowed to publish for.
-    other_org = Organisation(name=f"Other {uuid.uuid4().hex[:6]}")
-    other = User(email=_email(), first_name="Al", last_name="Ien", active=True)
-    other.roles.append(pr_role)
-    other.organisation = other_org
-
-    db_session.add_all([org, other_org, author, journalist, other])
-    db_session.commit()
-
-    return SimpleNamespace(
-        author=author,
-        org=org,
-        journalist=journalist,
-        other=other,
-        other_org=other_org,
-        author_token=_mint(db_session, author, ALL_SCOPES),
-        author_read_only=_mint(db_session, author, [Scope.READ_SELF.value]),
-        journalist_token=_mint(db_session, journalist, ALL_SCOPES),
-        other_token=_mint(db_session, other, ALL_SCOPES),
-    )
-
-
 def _create(client: FlaskClient, token: str, **body) -> dict:
-    body.setdefault("titre", "Hello world")
+    body = {"titre": "Hello world", **CLASSIFICATION, **body}
     resp = client.post("/api/v1/me/press-releases", json=body, headers=_auth(token))
     assert resp.status_code == 201, resp.get_json()
     return resp.get_json()
@@ -244,6 +209,93 @@ def test_publish_requires_content(client: FlaskClient, wseed: SimpleNamespace) -
         headers=_auth(wseed.author_token),
     )
     assert resp.status_code == 422
+
+
+@pytest.mark.parametrize("field", sorted(CLASSIFICATION))
+def test_publish_requires_the_classification(
+    client: FlaskClient, wseed: SimpleNamespace, field: str
+) -> None:
+    # A draft may be incomplete; the portal's form is not.
+    created = _create(client, wseed.author_token, contenu="<p>Body</p>", **{field: ""})
+    url = f"/api/v1/me/press-releases/{created['id']}"
+
+    resp = client.post(f"{url}/publish", headers=_auth(wseed.author_token))
+    assert resp.status_code == 422
+    assert field in resp.get_json()["message"]
+
+    client.patch(
+        url, json={field: CLASSIFICATION[field]}, headers=_auth(wseed.author_token)
+    )
+    resp = client.post(f"{url}/publish", headers=_auth(wseed.author_token))
+    assert resp.status_code == 200
+
+
+@pytest.mark.parametrize("field", sorted(CLASSIFICATION))
+def test_classification_must_come_from_the_vocabulary(
+    client: FlaskClient, wseed: SimpleNamespace, field: str
+) -> None:
+    created = _create(client, wseed.author_token)
+    for method, url in (
+        ("POST", "/api/v1/me/press-releases"),
+        ("PATCH", f"/api/v1/me/press-releases/{created['id']}"),
+    ):
+        resp = client.open(
+            url,
+            method=method,
+            json={"titre": "x", field: "Nope"},
+            headers=_auth(wseed.author_token),
+        )
+        assert resp.status_code == 422
+        assert field in resp.get_json()["message"]
+
+
+@pytest.mark.parametrize("field", ["titre", "contenu", *sorted(CLASSIFICATION)])
+def test_a_published_release_stays_complete(
+    client: FlaskClient, wseed: SimpleNamespace, field: str
+) -> None:
+    created = _create(client, wseed.author_token, contenu="<p>Body</p>")
+    url = f"/api/v1/me/press-releases/{created['id']}"
+    client.post(f"{url}/publish", headers=_auth(wseed.author_token))
+
+    resp = client.patch(url, json={field: " "}, headers=_auth(wseed.author_token))
+
+    assert resp.status_code == 422
+    after = client.get(url, headers=_auth(wseed.author_token)).get_json()
+    assert after[field] == created[field]
+
+
+def test_city_round_trips_to_the_public_mirror(
+    client: FlaskClient, wseed: SimpleNamespace, db_session: Session
+) -> None:
+    city = {"pays_zip_ville": "FRA", "pays_zip_ville_detail": "FRA / 75001 Paris"}
+    created = _create(client, wseed.author_token, contenu="<p>Body</p>", **city)
+    assert {key: created[key] for key in city} == city
+
+    client.post(
+        f"/api/v1/me/press-releases/{created['id']}/publish",
+        headers=_auth(wseed.author_token),
+    )
+    post = db_session.scalar(
+        select(PressReleasePost).where(PressReleasePost.newsroom_id == created["id"])
+    )
+    assert post.pays_zip_ville_detail == city["pays_zip_ville_detail"]
+
+
+def test_vocabularies_list_what_the_form_offers(
+    client: FlaskClient, wseed: SimpleNamespace, app: Flask
+) -> None:
+    resp = client.get(
+        "/api/v1/vocabularies/press-releases", headers=_auth(wseed.author_read_only)
+    )
+    assert resp.status_code == 200
+    with app.test_request_context():
+        offered = {
+            field.name: [value for value, _label in field._choices()]
+            for field in CommuniqueForm()
+            if isinstance(field, RichSelectField)
+        }
+    assert resp.get_json() == offered
+    assert client.get("/api/v1/vocabularies/press-releases").status_code == 401
 
 
 def test_publish_for_unauthorized_org_forbidden(
@@ -608,6 +660,7 @@ def test_pr_onbehalf_allowed_with_mission(
             "titre": "For our client",
             "contenu": "<p>Body</p>",
             "publisher_id": wseed.other_org.id,
+            **CLASSIFICATION,
         },
         headers=_auth(wseed.author_token),
     )

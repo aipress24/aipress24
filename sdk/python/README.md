@@ -14,7 +14,7 @@ committed file stays in sync with the spec, so the client can't silently drift.
 
 ```bash
 pip install ./sdk/python          # from a checkout
-# or vendor aipress24_client/__init__.py directly into your project
+# or vendor the aipress24_client/ package into your project
 ```
 
 ## Authentication

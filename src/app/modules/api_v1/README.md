@@ -5,7 +5,7 @@ SPDX-License-Identifier: AGPL-3.0-only
 
 # `api_v1` — the public REST API (`/api/v1`)
 
-A versioned, OpenAPI-documented, token-authenticated, **read-only** REST API for third-party integrations. It is deliberately isolated: it depends on the business modules (wire, events, biz, bw, swork, core models/services) but **nothing depends on it** — enforced by an import-linter contract (`setup.cfg`, contract 2).
+A versioned, OpenAPI-documented, token-authenticated REST API for third-party integrations. It is deliberately isolated: it depends on the business modules (wire, events, biz, bw, swork, core models/services) but **nothing depends on it** — enforced by an import-linter contract (`setup.cfg`, contract 2).
 
 This is separate from the internal `app.modules.api` blueprint (`/api`), which is session-cookie-authenticated and only serves the HTML front-end (likes, Trix uploads).
 
@@ -16,7 +16,7 @@ This is separate from the internal `app.modules.api` blueprint (`/api`), which i
 | Framework | [flask-smorest](https://flask-smorest.readthedocs.io/) (marshmallow 4 + webargs + apispec) |
 | Docs | OpenAPI 3 at `/api/v1/openapi.json`; Swagger UI at `/api/v1/docs`; ReDoc at `/api/v1/redoc` |
 | Auth | `Authorization: Bearer <token>` — dedicated `ApiToken` (hashed, scoped, expirable, revocable). No session, no CSRF. |
-| Surface | Read (GET) everywhere; owner-scoped **writes** for press releases under `/me` (`write:content`) |
+| Surface | Read (GET) everywhere; owner-scoped **writes** for press releases, articles and events under `/me` (`write:content`) |
 | Serialization | Allowlist marshmallow schemas — PII is redacted by omission |
 | Pagination | offset/limit, `{items, total, count, limit, offset, _links}` envelope |
 | Hypermedia | HAL-style `_links` on every payload; discovery entry point at `/api/v1/` |
@@ -47,7 +47,7 @@ The blueprint is **not** exposed as a top-level `blueprint` attribute (which the
 | `read:organisations` | organisations, business walls |
 | `read:directory` | member profiles |
 | `read:self` | the token owner's own private data (`/me`) |
-| `write:content` | author/publish the owner's own content (press releases) |
+| `write:content` | author/publish the owner's own content (press releases, articles, events) |
 
 ## Resources
 
@@ -66,6 +66,10 @@ Everything is filtered to `owner_id == g.api_identity.id AND deleted_at IS NULL`
 | `press-releases` | `user_can_access_comroom` (comms/expert/academic/transformer, or a mandated PR manager) | own org **or a client org** via partnership (`can_user_publish_for`) |
 | `articles` | `user_can_access_newsroom` (journalists / `PRESS_MEDIA` only) | **own org only** — no on-behalf path exists in the UI; `media`/`publisher` are server-set |
 | `events` | `user_can_access_eventroom` (comms/expert/journalist/transformer, or a mandated PR manager with the `EVENTS` mission) | own org **or a client org** via partnership |
+
+A press release also has a carousel: `GET`/`POST /me/press-releases/{id}/images` (multipart `image`, `caption`, `copyright`) and `DELETE …/images/{image_id}`. The first image is the public cover. The stored type comes from the file's bytes, never from its name.
+
+`genre`, `section`, `topic` and `sector` of a press release only accept the values the Com'room form offers, listed by `GET /vocabularies/press-releases` (any token). They may be missing from a draft, but publishing requires them, and a published release cannot lose them.
 
 Authorization is **not** re-implemented — `writes.py` reuses the exact WIP-room predicates and the source models' domain methods:
 
@@ -110,5 +114,5 @@ The API does **not** re-derive "what is publicly visible" — that lives in the 
 ## Operational notes
 
 - Authenticating stamps `ApiToken.last_used_at` (one small write per request). Batch it if request volume ever makes that a concern.
-- The Swagger UI / ReDoc pages load their assets from a CDN. Under the production Talisman CSP (`default-src 'self'`) those assets are blocked, so the interactive docs render blank in prod; `openapi.json` itself is always available. Relax the CSP for `/api/v1/docs` (or self-host the UI assets) if the rendered docs are needed in production.
+- The Swagger UI / ReDoc assets are served from `/static/vendor` (copied by `npm run build` in `vite/`), as the CSP requires.
 - v1 exposes raw integer/UUID ids. Content Snowflake ids encode an approximate creation time and member ids are sequential; if enumeration becomes a concern, mint opaque ids at the boundary (`app/lib/base62.py`).

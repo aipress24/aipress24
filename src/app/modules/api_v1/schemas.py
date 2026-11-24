@@ -11,14 +11,19 @@ internal FKs, login/IP metadata) is redacted by omission.
 
 from __future__ import annotations
 
+import re
+from pathlib import Path
 from typing import Any
 
 from flask import current_app, g
+from flask_smorest.fields import Upload
 from marshmallow import Schema, fields
 
 from app.modules.events.services import sees_full_content
 
 API_PREFIX = "/api/v1"
+
+_SHA256_RE = re.compile(r"[0-9a-f]{64}")
 
 
 # --- HATEOAS link helpers -------------------------------------------------
@@ -56,8 +61,26 @@ def page_links(
 # --- custom fields --------------------------------------------------------
 
 
+# OpenAPI types for `Method` and `Constant` fields, which carry none themselves.
+TEXT = {"type": "string"}
+NULLABLE_TEXT = {"type": "string", "nullable": True}
+TEXT_LIST = {"type": "array", "items": {"type": "string"}}
+LINKS = {
+    "type": "object",
+    "additionalProperties": {
+        "type": "object",
+        "properties": {"href": {"type": "string"}},
+    },
+}
+
+
 class IsoDateTime(fields.Field):
     """Serialize a ``datetime`` or ``arrow.Arrow`` as an ISO-8601 string."""
+
+    def __init__(self) -> None:
+        super().__init__(
+            metadata={"type": "string", "format": "date-time", "nullable": True}
+        )
 
     def _serialize(self, value, attr, obj, **kwargs) -> str | None:
         if not value:
@@ -67,6 +90,9 @@ class IsoDateTime(fields.Field):
 
 class EnumValue(fields.Field):
     """Serialize an enum member as its ``.value`` (or ``None``)."""
+
+    def __init__(self) -> None:
+        super().__init__(metadata=NULLABLE_TEXT)
 
     def _serialize(self, value, attr, obj, **kwargs):
         if value is None:
@@ -109,8 +135,9 @@ class _NewsItemSchema(Schema):
     content = fields.Method(
         "_content",
         metadata={
+            **TEXT,
             "description": "Sanitized HTML body. For a for-sale item this is "
-            "the preview unless the token's user is entitled to the full text."
+            "the preview unless the token's user is entitled to the full text.",
         },
     )
     genre = fields.Str()
@@ -128,7 +155,7 @@ class _NewsItemSchema(Schema):
     comment_count = fields.Int()
     publisher_id = fields.Int(allow_none=True)
     media_id = fields.Int(allow_none=True)
-    links = fields.Method("_make_links", data_key="_links")
+    links = fields.Method("_make_links", data_key="_links", metadata=LINKS)
 
     _collection = ""  # overridden per concrete schema
 
@@ -169,12 +196,12 @@ class _NewsItemSchema(Schema):
 
 
 class ArticleSchema(_NewsItemSchema):
-    kind = fields.Constant("article")
+    kind = fields.Constant("article", metadata=TEXT)
     _collection = "articles"
 
 
 class PressReleaseSchema(_NewsItemSchema):
-    kind = fields.Constant("press_release")
+    kind = fields.Constant("press_release", metadata=TEXT)
     _collection = "press-releases"
 
 
@@ -183,14 +210,15 @@ class PressReleaseSchema(_NewsItemSchema):
 
 class EventSchema(Schema):
     id = fields.Int()
-    kind = fields.Constant("event")
+    kind = fields.Constant("event", metadata=TEXT)
     title = fields.Str()
     summary = fields.Str()
     content = fields.Method(
         "_content",
         metadata={
+            **TEXT,
             "description": "Sanitized HTML body, empty when the token's user "
-            "is outside the event's audience."
+            "is outside the event's audience.",
         },
     )
     start_datetime = IsoDateTime()
@@ -215,7 +243,7 @@ class EventSchema(Schema):
     zip_code = fields.Str()
     geo_lat = fields.Float()
     geo_lng = fields.Float()
-    links = fields.Method("_make_links", data_key="_links")
+    links = fields.Method("_make_links", data_key="_links", metadata=LINKS)
 
     def _content(self, obj) -> str:
         """Show the body to the members the event page shows it to."""
@@ -244,7 +272,7 @@ class OrganisationSchema(Schema):
     zip_code = fields.Str()
     geo_lat = fields.Float()
     geo_lng = fields.Float()
-    links = fields.Method("_make_links", data_key="_links")
+    links = fields.Method("_make_links", data_key="_links", metadata=LINKS)
 
     def _make_links(self, obj) -> dict[str, dict[str, str]]:
         links = {"self": link(resource_path("organisations", obj.id))}
@@ -271,10 +299,10 @@ class BusinessWallSchema(Schema):
     site_url = fields.Str()
     type_organisation = fields.List(fields.Str())
     secteurs_activite = fields.List(fields.Str())
-    logo_url = fields.Method("_logo_url")
-    cover_url = fields.Method("_cover_url")
+    logo_url = fields.Method("_logo_url", metadata=NULLABLE_TEXT)
+    cover_url = fields.Method("_cover_url", metadata=NULLABLE_TEXT)
     organisation_id = fields.Int(allow_none=True)
-    links = fields.Method("_make_links", data_key="_links")
+    links = fields.Method("_make_links", data_key="_links", metadata=LINKS)
 
     def _signed(self, method_name: str, obj) -> str | None:
         method = getattr(obj, method_name, None)
@@ -314,15 +342,15 @@ class MemberSchema(Schema):
     job_title = fields.Str()
     organisation_name = fields.Str()
     organisation_id = fields.Int(allow_none=True)
-    photo_url = fields.Method("_photo_url")
-    presentation = fields.Method("_presentation")
-    metiers = fields.Method("_metiers")
-    competences = fields.Method("_competences")
-    langues = fields.Method("_langues")
-    secteurs_activite = fields.Method("_secteurs")
-    profile_label = fields.Method("_profile_label")
-    profile_community = fields.Method("_profile_community")
-    links = fields.Method("_make_links", data_key="_links")
+    photo_url = fields.Method("_photo_url", metadata=NULLABLE_TEXT)
+    presentation = fields.Method("_presentation", metadata=TEXT)
+    metiers = fields.Method("_metiers", metadata=TEXT_LIST)
+    competences = fields.Method("_competences", metadata=TEXT_LIST)
+    langues = fields.Method("_langues", metadata=TEXT_LIST)
+    secteurs_activite = fields.Method("_secteurs", metadata=TEXT_LIST)
+    profile_label = fields.Method("_profile_label", metadata=TEXT)
+    profile_community = fields.Method("_profile_community", metadata=TEXT)
+    links = fields.Method("_make_links", data_key="_links", metadata=LINKS)
 
     def _photo_url(self, obj) -> str | None:
         try:
@@ -395,17 +423,17 @@ class SelfProfileSchema(Schema):
     job_title = fields.Str()
     organisation_name = fields.Str()
     organisation_id = fields.Int(allow_none=True)
-    roles = fields.Method("_roles")
-    profile_community = fields.Method("_profile_community")
-    profile_label = fields.Method("_profile_label")
-    presentation = fields.Method("_presentation")
-    metiers = fields.Method("_metiers")
-    competences = fields.Method("_competences")
-    langues = fields.Method("_langues")
-    secteurs_activite = fields.Method("_secteurs")
-    photo_url = fields.Method("_photo_url")
-    cover_url = fields.Method("_cover_url")
-    links = fields.Method("_make_links", data_key="_links")
+    roles = fields.Method("_roles", metadata=TEXT_LIST)
+    profile_community = fields.Method("_profile_community", metadata=TEXT)
+    profile_label = fields.Method("_profile_label", metadata=TEXT)
+    presentation = fields.Method("_presentation", metadata=TEXT)
+    metiers = fields.Method("_metiers", metadata=TEXT_LIST)
+    competences = fields.Method("_competences", metadata=TEXT_LIST)
+    langues = fields.Method("_langues", metadata=TEXT_LIST)
+    secteurs_activite = fields.Method("_secteurs", metadata=TEXT_LIST)
+    photo_url = fields.Method("_photo_url", metadata=NULLABLE_TEXT)
+    cover_url = fields.Method("_cover_url", metadata=NULLABLE_TEXT)
+    links = fields.Method("_make_links", data_key="_links", metadata=LINKS)
 
     def _roles(self, obj) -> list[str]:
         return [role.name for role in obj.roles]
@@ -488,7 +516,7 @@ class _MyNewsroomSchema(Schema):
     created_at = IsoDateTime()
     modified_at = IsoDateTime()
     publisher_id = fields.Int(allow_none=True)
-    links = fields.Method("_make_links", data_key="_links")
+    links = fields.Method("_make_links", data_key="_links", metadata=LINKS)
 
     _collection = ""
 
@@ -497,7 +525,7 @@ class _MyNewsroomSchema(Schema):
 
 
 class MyArticleSchema(_MyNewsroomSchema):
-    kind = fields.Constant("article")
+    kind = fields.Constant("article", metadata=TEXT)
     brief = fields.Str()
     copyright = fields.Str()
     media_id = fields.Int(allow_none=True)
@@ -508,9 +536,68 @@ class MyArticleSchema(_MyNewsroomSchema):
 
 
 class MyPressReleaseSchema(_MyNewsroomSchema):
-    kind = fields.Constant("press_release")
+    kind = fields.Constant("press_release", metadata=TEXT)
     embargoed_until = IsoDateTime()
+    pays_zip_ville_detail = fields.Str()
     _collection = "me/press-releases"
+
+    def _make_links(self, obj) -> dict[str, dict[str, str]]:
+        path = resource_path(self._collection, obj.id)
+        return {"self": link(path), "images": link(f"{path}/images")}
+
+
+class PressReleaseImageSchema(Schema):
+    """One image of the caller's own press release's carousel."""
+
+    id = fields.Int()
+    caption = fields.Str()
+    copyright = fields.Str()
+    position = fields.Int(metadata={"description": "0 is the cover."})
+    sha256 = fields.Method(
+        "_sha256",
+        metadata={
+            **NULLABLE_TEXT,
+            "description": "Digest of the file, to tell what is already uploaded. "
+            "Null for a file stored under its original name.",
+        },
+    )
+
+    def _sha256(self, obj) -> str | None:
+        stem = Path(obj.content.path).stem if obj.content else ""
+        return stem if _SHA256_RE.fullmatch(stem) else None
+
+
+class PressReleaseImageCollection(Schema):
+    """A release's whole carousel, in order (not paginated)."""
+
+    items = fields.List(fields.Nested(PressReleaseImageSchema))
+
+
+class PressReleaseImageFileSchema(Schema):
+    image = Upload(
+        required=True,
+        metadata={"description": "JPEG, PNG, GIF, WebP or AVIF, under 4 MB."},
+    )
+
+
+class PressReleaseImageFormSchema(Schema):
+    caption = fields.Str(load_default="")
+    copyright = fields.Str(load_default="")
+
+
+class PressReleaseImageUploadSchema(
+    PressReleaseImageFileSchema, PressReleaseImageFormSchema
+):
+    """The whole multipart body, as documented in the spec."""
+
+
+class PressReleaseVocabulariesSchema(Schema):
+    """The values accepted for a press release's classification."""
+
+    genre = fields.List(fields.Str())
+    section = fields.List(fields.Str())
+    topic = fields.List(fields.Str())
+    sector = fields.List(fields.Str())
 
 
 class MyEventSchema(Schema):
@@ -523,7 +610,7 @@ class MyEventSchema(Schema):
     """
 
     id = fields.Int()
-    kind = fields.Constant("event")
+    kind = fields.Constant("event", metadata=TEXT)
     titre = fields.Str()
     chapo = fields.Str()
     contenu = fields.Str()
@@ -546,7 +633,7 @@ class MyEventSchema(Schema):
     publisher_id = fields.Int(allow_none=True)
     created_at = IsoDateTime()
     modified_at = IsoDateTime()
-    links = fields.Method("_make_links", data_key="_links")
+    links = fields.Method("_make_links", data_key="_links", metadata=LINKS)
 
     def _make_links(self, obj) -> dict[str, dict[str, str]]:
         return {"self": link(resource_path("me/events", obj.id))}
@@ -554,7 +641,7 @@ class MyEventSchema(Schema):
 
 class MyAvisEnqueteSchema(Schema):
     id = fields.Int()
-    kind = fields.Constant("avis_enquete")
+    kind = fields.Constant("avis_enquete", metadata=TEXT)
     type_avis = fields.Str()
     status = fields.Str()
     titre = fields.Str()
@@ -581,7 +668,7 @@ class MyAvisEnqueteSchema(Schema):
     publisher_id = fields.Int(allow_none=True)
     created_at = IsoDateTime()
     modified_at = IsoDateTime()
-    links = fields.Method("_make_links", data_key="_links")
+    links = fields.Method("_make_links", data_key="_links", metadata=LINKS)
 
     def _make_links(self, obj) -> dict[str, dict[str, str]]:
         return {"self": link(resource_path("me/enquiry-notices", obj.id))}
@@ -606,7 +693,7 @@ class _MyOfferSchema(Schema):
     subcategory = fields.Str()
     created_at = IsoDateTime()
     modified_at = IsoDateTime()
-    links = fields.Method("_make_links", data_key="_links")
+    links = fields.Method("_make_links", data_key="_links", metadata=LINKS)
 
     _collection = ""
 
@@ -615,7 +702,7 @@ class _MyOfferSchema(Schema):
 
 
 class MyMissionSchema(_MyOfferSchema):
-    kind = fields.Constant("mission")
+    kind = fields.Constant("mission", metadata=TEXT)
     budget_min = fields.Int(allow_none=True)
     budget_max = fields.Int(allow_none=True)
     deadline = IsoDateTime()
@@ -629,7 +716,7 @@ class MyMissionSchema(_MyOfferSchema):
 
 
 class MyProjectSchema(_MyOfferSchema):
-    kind = fields.Constant("project")
+    kind = fields.Constant("project", metadata=TEXT)
     budget_min = fields.Int(allow_none=True)
     budget_max = fields.Int(allow_none=True)
     deadline = IsoDateTime()
@@ -641,7 +728,7 @@ class MyProjectSchema(_MyOfferSchema):
 
 
 class MyJobSchema(_MyOfferSchema):
-    kind = fields.Constant("job")
+    kind = fields.Constant("job", metadata=TEXT)
     salary_min = fields.Int(allow_none=True)
     salary_max = fields.Int(allow_none=True)
     starting_date = IsoDateTime()
@@ -653,7 +740,7 @@ class MyJobSchema(_MyOfferSchema):
 
 class MyEditorialProductSchema(Schema):
     id = fields.Int()
-    kind = fields.Constant("editorial_product")
+    kind = fields.Constant("editorial_product", metadata=TEXT)
     title = fields.Str()
     description = fields.Str()
     image_url = fields.Str()
@@ -662,7 +749,7 @@ class MyEditorialProductSchema(Schema):
     status = EnumValue()
     created_at = IsoDateTime()
     modified_at = IsoDateTime()
-    links = fields.Method("_make_links", data_key="_links")
+    links = fields.Method("_make_links", data_key="_links", metadata=LINKS)
 
     def _make_links(self, obj) -> dict[str, dict[str, str]]:
         return {"self": link(resource_path("me/products", obj.id))}
@@ -671,28 +758,38 @@ class MyEditorialProductSchema(Schema):
 # --- write inputs (owner-scoped authoring) --------------------------------
 
 
+_CLASSIFICATION = {
+    "description": "A value from `/vocabularies/press-releases`. "
+    "Optional in a draft, required to publish."
+}
+
+
 class PressReleaseWriteSchema(Schema):
     """Loadable fields for creating/updating a press release (communiqué).
 
     Only the author-editable fields are accepted; ``owner``, ``status`` and
     ``published_at`` are set by the domain, never by the caller. ``titre`` is
-    required on create; on update the schema is loaded with ``partial=True``
-    so any subset may be sent. ``titre``/``chapo``/``contenu`` are sanitized
-    server-side (the model only sanitizes ``contenu``). Field names match the
-    read schema (:class:`MyPressReleaseSchema`) so payloads round-trip.
+    required on create; :class:`PressReleaseUpdateSchema` accepts any subset.
+    Only ``contenu`` is sanitized; ``titre``/``chapo`` are stored verbatim,
+    as in the UI. Field names match the read schema (:class:`MyPressReleaseSchema`) so payloads round-trip.
     """
 
     titre = fields.Str(required=True, metadata={"description": "Title (required)."})
     chapo = fields.Str(metadata={"description": "Standfirst / lede."})
     contenu = fields.Str(metadata={"description": "Body (sanitized HTML)."})
-    genre = fields.Str()
-    section = fields.Str()
-    topic = fields.Str()
-    sector = fields.Str()
+    genre = fields.Str(metadata=_CLASSIFICATION)
+    section = fields.Str(metadata=_CLASSIFICATION)
+    topic = fields.Str(metadata=_CLASSIFICATION)
+    sector = fields.Str(metadata=_CLASSIFICATION)
     geo_localisation = fields.Str()
     language = fields.Str()
     address = fields.Str()
-    pays_zip_ville = fields.Str()
+    pays_zip_ville = fields.Str(
+        metadata={"description": "Country, as an ISO 3166-1 alpha-3 code."}
+    )
+    pays_zip_ville_detail = fields.Str(
+        metadata={"description": "City, e.g. `FRA / 75001 Paris`."}
+    )
     publisher_id = fields.Int(
         allow_none=True,
         metadata={

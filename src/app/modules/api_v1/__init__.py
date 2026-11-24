@@ -12,8 +12,8 @@ paths — see :func:`register_on_app`.
 Design summary:
 
 - **Mostly read**: every collection is a scoped GET. The only writes are the
-  owner-scoped authoring endpoints under ``/me`` (create/update/publish a
-  press release), which require the ``write:content`` scope and reuse the
+  owner-scoped authoring endpoints under ``/me`` (press releases, articles
+  and events), which require the ``write:content`` scope and reuse the
   Com'room domain authorization + publication state machine (see
   :mod:`.writes`).
 - **Token auth** via ``Authorization: Bearer <token>`` (see :mod:`.security`);
@@ -57,8 +57,8 @@ blp = Blueprint(
     "api_v1",
     __name__,
     url_prefix="/api/v1",
-    description="AIpress24 public API — read-only access to published content, "
-    "organisations and member profiles.",
+    description="AIpress24 public API — published content, organisations and member "
+    "profiles, plus authoring of the token owner's own content.",
 )
 
 # Endpoints reachable without a token (the discovery entrypoint). The OpenAPI
@@ -145,11 +145,27 @@ def authenticate() -> Response | None:
 # --- app wiring -----------------------------------------------------------
 
 
+_API_DESCRIPTION = """\
+Send the token as `Authorization: Bearer <token>`. It acts as its owner, within its scopes:
+
+| Scope | Grants |
+|---|---|
+| `read:content` | articles, press releases, events |
+| `read:organisations` | organisations, business walls |
+| `read:directory` | member profiles |
+| `read:self` | reading the owner's own data, under `/me` |
+| `write:content` | authoring and publishing the owner's own content, under `/me` |
+
+Errors are JSON: `401` missing or unusable token, `403` missing scope or right, `404` unknown or not yours, `413` file too large, `422` invalid input or refused publication.
+"""
+
+
 def _default_config() -> dict[str, object]:
     return {
         "API_TITLE": "AIpress24 API",
         "API_VERSION": "1.0",
         "OPENAPI_VERSION": "3.0.3",
+        "API_SPEC_OPTIONS": {"info": {"description": _API_DESCRIPTION}},
         "OPENAPI_URL_PREFIX": "/api/v1",
         "OPENAPI_JSON_PATH": "openapi.json",
         "OPENAPI_SWAGGER_UI_PATH": "/docs",
