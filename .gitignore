@@ -82,3 +82,4 @@ e2e_playwright/server.log
 # traces. The findings that matter are in notes/security/report-2026-09-17.md.
 notes/security/strix/
 notes/security/strix.zip
+.hop3-local.toml
