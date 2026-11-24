@@ -55,6 +55,10 @@ except ApiError as exc:
     print(exc.status, exc.payload)
 ```
 
+Responses are typed (`Article`, `Member`, …: `TypedDict`s generated from the
+spec). The client only ever sends the token to `base_url`: it refuses links to
+another origin and does not follow redirects.
+
 ## Public read resources
 
 | Method | Endpoint | Scope |
@@ -85,11 +89,36 @@ as `me/press-releases`, `me/articles` or `me/events`.
 ```python
 # Author a press release on your own behalf, then publish it.
 pr = api.create(
-    "me/press-releases", {"titre": "Acme launches …", "contenu": "<p>…</p>"}
+    "me/press-releases",
+    {
+        "titre": "Acme launches …",
+        "contenu": "<p>…</p>",
+        "genre": "…",
+        "section": "…",
+        "topic": "…",
+        "sector": "…",
+    },
 )
+with open("cover.jpg", "rb") as cover:
+    api.add_press_release_image(pr["id"], cover.read(), "cover.jpg", caption="…")
 api.publish("me/press-releases", pr["id"])
 ```
+
+Publishing also requires `genre`, `section`, `topic` and `sector`, with values
+from `press_release_vocabularies()`. Upload the images first: the first one is
+the cover.
+
+| Method | Endpoint | Scope |
+|---|---|---|
+| `press_release_vocabularies()` | `GET /vocabularies/press-releases` | any |
+| `press_release_images(id)` | `GET /me/press-releases/{id}/images` | `read:self` |
+| `add_press_release_image(id, content, filename, caption, copyright)` | `POST …/images` | `write:content` |
+| `delete_press_release_image(id, image_id)` | `DELETE …/images/{image_id}` | `write:content` |
 
 Interactive documentation (OpenAPI) is served live at
 `https://aipress24.com/api/v1/docs` (Swagger UI) and `/api/v1/redoc`, with the raw
 spec at `/api/v1/openapi.json`.
+
+## License
+
+Apache-2.0, see `LICENSE`. The AIpress24 application itself is under AGPL-3.0.

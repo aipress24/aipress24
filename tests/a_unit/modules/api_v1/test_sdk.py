@@ -12,6 +12,8 @@ from __future__ import annotations
 
 import json
 import sys
+import threading
+from http.server import BaseHTTPRequestHandler, HTTPServer
 from pathlib import Path
 
 import pytest
@@ -139,3 +141,69 @@ def test_me_targets_the_self_endpoint() -> None:
     client = StubClient({url: (200, {"id": 1, "email": "me@example.com"})})
     assert client.me()["email"] == "me@example.com"
     assert client.calls[0]["method"] == "GET"
+
+
+@pytest.mark.parametrize(
+    "href",
+    [
+        "https://evil.test/api/v1/articles",
+        "http://ex.test/api/v1/articles",
+        "https://ex.test:8443/api/v1/articles",
+        "https://ex.test@evil.test/api/v1/articles",
+        "HTTPS://evil.test/api/v1/articles",
+    ],
+)
+def test_the_token_never_leaves_the_configured_origin(href: str) -> None:
+    client = StubClient({})
+    with pytest.raises(ValueError, match="origin"):
+        client._request(href)
+    assert client.calls == []
+
+
+def test_an_absolute_link_to_the_configured_origin_is_followed() -> None:
+    url = "https://ex.test/api/v1/articles?limit=1"
+    assert StubClient({url: (200, {"total": 3})})._request(url) == {"total": 3}
+
+
+def test_redirects_are_not_followed_with_the_token() -> None:
+    seen: list[str] = []
+
+    class Handler(BaseHTTPRequestHandler):
+        def do_GET(self) -> None:
+            seen.append(self.path)
+            self.send_response(302)
+            self.send_header("Location", "/elsewhere")
+            self.end_headers()
+
+        def log_message(self, format: str, *args: object) -> None:
+            pass
+
+    server = HTTPServer(("127.0.0.1", 0), Handler)
+    threading.Thread(target=server.serve_forever, daemon=True).start()
+    try:
+        client = Client("a24_x", base_url=f"http://127.0.0.1:{server.server_port}")
+        with pytest.raises(ApiError) as excinfo:
+            client.me()
+    finally:
+        server.shutdown()
+        server.server_close()
+
+    assert excinfo.value.status == 302
+    assert seen == ["/api/v1/me"]
+
+
+def test_a_hostile_filename_cannot_add_multipart_headers() -> None:
+    url = "https://ex.test/api/v1/me/press-releases/7/images"
+    client = StubClient({url: (201, {"id": 1})})
+
+    client.add_press_release_image(7, b"bytes", 'a"\r\nX-Evil: 1.png')
+
+    body = client.calls[0]["data"]
+    assert b'filename="a%22%0D%0AX-Evil: 1.png"' in body
+    assert b"\r\nX-Evil" not in body
+
+
+@pytest.mark.parametrize("base_url", ["", "file:///etc", "ftp://ex.test", "ex.test"])
+def test_base_url_must_be_http(base_url: str) -> None:
+    with pytest.raises(ValueError, match="base_url"):
+        Client("a24_x", base_url=base_url)

@@ -9,11 +9,8 @@ import hashlib
 from io import BytesIO
 from typing import TYPE_CHECKING
 
-import fsspec
 import pytest
 import sqlalchemy as sa
-from advanced_alchemy.types.file_object import storages
-from advanced_alchemy.types.file_object.backends.fsspec import FSSpecBackend
 from PIL import Image
 
 from app.modules.wip.models import ComImage
@@ -23,7 +20,6 @@ from app.settings.constants import MAX_IMAGE_SIZE
 from .test_write import _auth, _create
 
 if TYPE_CHECKING:
-    from collections.abc import Iterator
     from pathlib import Path
     from types import SimpleNamespace
 
@@ -42,14 +38,7 @@ def _digest(content: bytes) -> str:
     return hashlib.sha256(content).hexdigest()
 
 
-@pytest.fixture(autouse=True)
-def media_dir(tmp_path: Path) -> Iterator[Path]:
-    original = storages.get_backend("s3")
-    storages.register_backend(
-        FSSpecBackend(fs=fsspec.filesystem("file"), key="s3", prefix=str(tmp_path))
-    )
-    yield tmp_path
-    storages.register_backend(original)
+pytestmark = pytest.mark.usefixtures("media_dir")
 
 
 def _upload(

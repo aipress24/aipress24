@@ -15,8 +15,10 @@ one test client backs several SDK identities at once.
 
 from __future__ import annotations
 
+import hashlib
 import sys
 import uuid
+from io import BytesIO
 from pathlib import Path
 from types import SimpleNamespace
 
@@ -24,6 +26,7 @@ import arrow
 import pytest
 from flask import Flask
 from flask.testing import FlaskClient
+from PIL import Image
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
@@ -63,14 +66,13 @@ PUBLIC = PublicationStatus.PUBLIC.value
 class WsgiClient(Client):
     """An SDK ``Client`` whose HTTP goes through the Flask test client.
 
-    ``base_url=""`` makes the SDK emit absolute ``/api/v1/…`` paths, which the
-    Werkzeug test client accepts. Each request carries its own bearer token, so
+    Each request carries its own bearer token, so
     several ``WsgiClient`` instances (different identities) share one test
     client without any session cross-talk.
     """
 
     def __init__(self, flask_client: FlaskClient, token: str) -> None:
-        super().__init__(token=token, base_url="")
+        super().__init__(token=token, base_url="http://localhost")
         self._flask_client = flask_client
 
     def _open(self, url, headers, method="GET", data=None):
@@ -531,6 +533,30 @@ def test_pr_unpublish_removes_mirror(make_sdk, authoring_seed) -> None:
     back = api.unpublish("me/press-releases", created["id"])
     assert back["status"] == DRAFT
     assert "Hello world" not in {pr["title"] for pr in api.press_releases()}
+
+
+def test_pr_vocabularies(make_sdk, authoring_seed) -> None:
+    vocabularies = make_sdk(authoring_seed.author_all).press_release_vocabularies()
+    assert vocabularies == {key: [value] for key, value in CLASSIFICATION.items()}
+
+
+def test_pr_image_lifecycle(make_sdk, authoring_seed, media_dir) -> None:
+    api = make_sdk(authoring_seed.author_all)
+    pr_id = _create_pr(api)["id"]
+    buffer = BytesIO()
+    Image.new("RGB", (4, 4), "red").save(buffer, "PNG")
+    content = buffer.getvalue()
+
+    added = api.add_press_release_image(
+        pr_id, content, "été.png", caption="Légende", copyright="© Acme"
+    )
+
+    digest = hashlib.sha256(content).hexdigest()
+    assert (media_dir / f"{digest}.png").read_bytes() == content
+    assert api.press_release_images(pr_id) == [added]
+    assert (added["caption"], added["copyright"]) == ("Légende", "© Acme")
+    api.delete_press_release_image(pr_id, added["id"])
+    assert api.press_release_images(pr_id) == []
 
 
 def test_pr_delete_soft_deletes(make_sdk, authoring_seed) -> None:

@@ -11,11 +11,16 @@ separate request context created by the test client can see it.
 from __future__ import annotations
 
 import uuid
+from collections.abc import Iterator
 from datetime import UTC, datetime, timedelta
+from pathlib import Path
 from types import SimpleNamespace
 
 import arrow
+import fsspec
 import pytest
+from advanced_alchemy.types.file_object import storages
+from advanced_alchemy.types.file_object.backends.fsspec import FSSpecBackend
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
@@ -48,6 +53,17 @@ _VOCABULARIES = {
     "topic": "topics",
     "sector": "news_sectors",
 }
+
+
+@pytest.fixture
+def media_dir(tmp_path: Path) -> Iterator[Path]:
+    """Store uploads in a temporary directory instead of S3."""
+    original = storages.get_backend("s3")
+    storages.register_backend(
+        FSSpecBackend(fs=fsspec.filesystem("file"), key="s3", prefix=str(tmp_path))
+    )
+    yield tmp_path
+    storages.register_backend(original)
 
 
 @pytest.fixture

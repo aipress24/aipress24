@@ -1,12 +1,13 @@
 # Copyright (c) 2025, Abilian SAS & TCA
-# SPDX-License-Identifier: AGPL-3.0-only
+# SPDX-License-Identifier: Apache-2.0
 [project]
 name = "aipress24-client"
 version = "0.1.0"
 description = "Dependency-free Python client for the AIpress24 public API (/api/v1)"
 readme = "README.md"
 requires-python = ">=3.9"
-license = { text = "AGPL-3.0-only" }
+license = "Apache-2.0"
+license-files = ["LICENSE"]
 dependencies = []
 
 [build-system]

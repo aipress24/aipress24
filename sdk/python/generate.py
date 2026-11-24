@@ -1,10 +1,10 @@
 # Copyright (c) 2025, Abilian SAS & TCA
 #
-# SPDX-License-Identifier: AGPL-3.0-only
+# SPDX-License-Identifier: Apache-2.0
 """Generate ``aipress24_client/_generated.py`` from the API's OpenAPI spec.
 
 The SDK's transport is hand-written and stable; only the drift-prone parts —
-the list of collections and the per-resource typed models — are derived from
+the list of collections and the typed models of the JSON bodies — are derived from
 the spec, so the client can't fall out of step with ``/api/v1/openapi.json``.
 
 Usage::
@@ -29,7 +29,7 @@ _SCALAR = {"string": "str", "integer": "int", "number": "float", "boolean": "boo
 
 _HEADER = '''# Copyright (c) 2025, Abilian SAS & TCA
 #
-# SPDX-License-Identifier: AGPL-3.0-only
+# SPDX-License-Identifier: Apache-2.0
 """AUTO-GENERATED from the OpenAPI spec by ``generate.py`` — do not edit.
 
 Regenerate with ``make api-sdk``. A unit test asserts this file matches the
@@ -68,7 +68,40 @@ def collections_from_spec(spec: dict[str, Any]) -> dict[str, str]:
     return dict(sorted(out.items()))
 
 
+def json_models(spec: dict[str, Any]) -> list[str]:
+    """Name every schema a JSON request or response body reaches."""
+    schemas = spec.get("components", {}).get("schemas", {})
+    pending = [
+        media["schema"]
+        for operations in spec.get("paths", {}).values()
+        for operation in operations.values()
+        if isinstance(operation, dict)
+        for body in (
+            operation.get("requestBody", {}),
+            *operation.get("responses", {}).values(),
+        )
+        if (media := body.get("content", {}).get("application/json"))
+    ]
+    found: set[str] = set()
+    while pending:
+        for name in _refs(pending.pop()) - found:
+            found.add(name)
+            pending.append(schemas[name])
+    return sorted(found)
+
+
+def _refs(node: Any) -> set[str]:
+    if isinstance(node, list):
+        return {name for item in node for name in _refs(item)}
+    if not isinstance(node, dict):
+        return set()
+    own = {node["$ref"].rsplit("/", 1)[-1]} if "$ref" in node else set()
+    return own.union(*(_refs(value) for value in node.values()))
+
+
 def _py_type(prop: Any) -> str:
+    if isinstance(prop, dict) and prop.get("nullable"):
+        return f"{_py_type({**prop, 'nullable': False})} | None"
     if not isinstance(prop, dict):
         return "Any"
     if "$ref" in prop:
@@ -80,7 +113,7 @@ def _py_type(prop: Any) -> str:
         return f"list[{_py_type(prop.get('items', {}))}]"
     if kind == "object":
         return "dict[str, Any]"
-    return "Any"  # untyped in the spec (e.g. marshmallow Method fields)
+    return "Any"
 
 
 def generate(spec: dict[str, Any]) -> str:
@@ -89,7 +122,7 @@ def generate(spec: dict[str, Any]) -> str:
     schemas = spec.get("components", {}).get("schemas", {})
 
     parts: list[str] = [_HEADER]
-    for model in sorted(set(collections.values())):
+    for model in json_models(spec):
         props: dict[str, Any] = schemas.get(model, {}).get("properties", {})
         body = [f"class {model}(TypedDict, total=False):"]
         if props:
