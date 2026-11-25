@@ -110,6 +110,7 @@ CONTENT_ALERT_REASONS = {
     "alert03": "Propos antisémites",
     "alert04": "Propos homophobes ou transphobes",
     "alert05": "Propos haineux ou discriminatoires",
+    "alert055": "Contenu vidéo inapproprié",
     "alert06": "Harcèlement ou attaque personnelle",
     "alert07": "Menace ou incitation à la violence",
     "alert08": "Contenu violent ou choquant",
