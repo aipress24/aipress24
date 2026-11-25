@@ -8,30 +8,33 @@ from __future__ import annotations
 
 from typing import cast
 
-import arrow
 import webargs
 from flask import flash, g, make_response, redirect, render_template, request
 from webargs.flaskparser import parser
 from werkzeug import Response
-from werkzeug.datastructures import FileStorage
 from werkzeug.exceptions import Forbidden, NotFound
 
-from app.constants import CONTENT_ALERT_REASONS, LOCAL_TZ
+from app.constants import CONTENT_ALERT_REASONS
 from app.enums import RoleEnum
 from app.flask.extensions import db
 from app.flask.lib.nav import nav
 from app.flask.lib.toaster import toast
 from app.flask.routing import url_for
-from app.lib.file_object_utils import InvalidImageError, store_image
+from app.lib.file_object_utils import InvalidImageError
 from app.models.auth import User
-from app.models.short_post import ShortPost as Post, ShortPostImage
+from app.models.short_post import ShortPost as Post
 from app.modules.swork import blueprint
-from app.modules.swork.posts import get_page, get_post
+from app.modules.swork.posts import (
+    MAX_IMAGES,
+    ImageTooLargeError,
+    TooManyImagesError,
+    add_images,
+    delete_post as remove_post,
+    get_page,
+    get_post,
+)
 from app.services.moderation import submit_content_alert
 from app.services.roles import has_role
-from app.settings.constants import MAX_IMAGE_SIZE
-
-MAX_IMAGES = 4
 
 new_post_args = {
     "message": webargs.fields.Str(load_default=""),
@@ -54,6 +57,7 @@ def swork():
     number = request.args.get("page", 1, type=int)
     ctx = {
         "page": get_page(*criteria, number=number),
+        "max_images": MAX_IMAGES,
         "title": "Social",
     }
     return render_template("pages/swork.j2", **ctx)
@@ -72,9 +76,9 @@ def new_post():
     post = Post(owner=g.user)
     post.text = text
     try:
-        _add_images(post, uploads)
+        add_images(post, uploads)
     except ValueError as exc:
-        flash(str(exc), "error")
+        flash(_refusal(exc), "error")
         return redirect(url_for("swork.swork"))
     db.session.add(post)
     db.session.commit()
@@ -82,23 +86,16 @@ def new_post():
     return redirect(url_for("swork.swork"))
 
 
-def _add_images(post: Post, uploads: list[FileStorage]) -> None:
-    """Attach the uploaded images; a `ValueError` says why one is refused."""
-    if len(uploads) > MAX_IMAGES:
-        msg = f"Un message a {MAX_IMAGES} images au plus."
-        raise ValueError(msg)
-    for position, upload in enumerate(uploads):
-        # Reading up to the limit, which is itself refused, is enough to tell.
-        content = upload.stream.read(MAX_IMAGE_SIZE)
-        if len(content) >= MAX_IMAGE_SIZE:
-            msg = f"L'image {upload.filename} est trop volumineuse (4 Mo au plus)."
-            raise ValueError(msg)
-        try:
-            file_object = store_image(content, upload.filename or "")
-        except InvalidImageError as exc:
-            msg = f"{upload.filename} n'est pas une image JPEG, PNG, GIF, WebP ou AVIF."
-            raise ValueError(msg) from exc
-        post.images.append(ShortPostImage(content=file_object, position=position))
+def _refusal(error: ValueError) -> str:
+    match error:
+        case TooManyImagesError():
+            return f"Un message a {MAX_IMAGES} images au plus."
+        case ImageTooLargeError():
+            return f"L'image {error} est trop volumineuse (4 Mo au plus)."
+        case InvalidImageError():
+            return "Les images doivent être au format JPEG, PNG, GIF, WebP ou AVIF."
+        case _:
+            raise error
 
 
 @blueprint.route("/posts/<post_id>", methods=["GET"])
@@ -115,8 +112,7 @@ def delete_post(post_id: str) -> Response:
     post = get_post(post_id)
     if post.owner_id != g.user.id:
         raise NotFound
-    post.deleted_at = arrow.now(LOCAL_TZ)
-    db.session.commit()
+    remove_post(post)
     response = make_response("")
     toast(response, "Votre message a été supprimé.")
     return response

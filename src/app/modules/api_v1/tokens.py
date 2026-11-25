@@ -25,6 +25,7 @@ LIFETIMES = (30, 90, 365)
 MEMBER_SCOPES: dict[str, str] = {
     Scope.READ_SELF: "Lire mon profil et mes propres contenus, brouillons compris",
     Scope.WRITE_CONTENT: "Créer, modifier, publier et supprimer mes contenus",
+    Scope.WRITE_SOCIAL: "Publier et supprimer mes messages sur le mur",
     Scope.READ_CONTENT: "Lire les articles, communiqués et événements publiés",
     Scope.READ_ORGANISATIONS: "Lire les organisations et les Business Walls",
 }

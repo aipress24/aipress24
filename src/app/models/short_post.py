@@ -51,6 +51,7 @@ class ShortPost(BaseContent, LifeCycleMixin, Base):
         order_by="ShortPostImage.position",
         cascade="all, delete-orphan",
         back_populates="post",
+        lazy="selectin",
     )
 
     def __init__(self, **kw: Any) -> None:

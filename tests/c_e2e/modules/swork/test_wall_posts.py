@@ -28,7 +28,7 @@ from app.enums import RoleEnum
 from app.lib.base62 import base62
 from app.models.auth import KYCProfile, Role, User
 from app.models.short_post import ShortPost, ShortPostImage
-from app.modules.swork.posts import PAGE_SIZE
+from app.modules.swork.posts import MAX_IMAGES, PAGE_SIZE
 from tests.c_e2e.conftest import make_authenticated_client
 
 _counter = itertools.count()
@@ -234,7 +234,7 @@ def test_images_are_attached(
         [(b"<svg></svg>", "a.svg")],
         [(b"not an image", "a.png")],
         [(b"x" * 4 * 1024 * 1024, "big.png")],
-        [(_png(), f"{n}.png") for n in range(5)],
+        [(_png(), f"{n}.png") for n in range(MAX_IMAGES + 1)],
     ],
     ids=["svg", "text", "large", "many"],
 )

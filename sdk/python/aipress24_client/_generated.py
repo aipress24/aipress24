@@ -415,6 +415,27 @@ class MyMissionCollection(TypedDict, total=False):
     total: int
 
 
+class MyPost(TypedDict, total=False):
+    _links: dict[str, Any]
+    created_at: str | None
+    external_ref: str | None
+    id: int
+    images: list[PostImage]
+    kind: str
+    like_count: int
+    published_at: str
+    text: str
+
+
+class MyPostCollection(TypedDict, total=False):
+    _links: dict[str, Any]
+    count: int
+    items: list[MyPost]
+    limit: int
+    offset: int
+    total: int
+
+
 class MyPressRelease(TypedDict, total=False):
     _links: dict[str, Any]
     address: str
@@ -508,6 +529,12 @@ class OrganisationCollection(TypedDict, total=False):
     limit: int
     offset: int
     total: int
+
+
+class PostImage(TypedDict, total=False):
+    caption: str
+    position: int
+    sha256: str | None
 
 
 class PressRelease(TypedDict, total=False):

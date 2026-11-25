@@ -15,6 +15,7 @@ import re
 from pathlib import Path
 from typing import Any
 
+from advanced_alchemy.types.file_object import FileObject
 from flask import current_app, g
 from flask_smorest.fields import Upload
 from marshmallow import Schema, fields, validate
@@ -22,6 +23,7 @@ from marshmallow import Schema, fields, validate
 from app.flask.routing import url_for
 from app.lib.base62 import base62
 from app.modules.events.services import sees_full_content
+from app.modules.swork.posts import MAX_IMAGES
 
 API_PREFIX = "/api/v1"
 
@@ -594,14 +596,94 @@ class PressReleaseImageSchema(Schema):
     )
 
     def _sha256(self, obj) -> str | None:
-        stem = Path(obj.content.path).stem if obj.content else ""
-        return stem if _SHA256_RE.fullmatch(stem) else None
+        return _sha256_of(obj.content)
+
+
+def _sha256_of(content: FileObject | None) -> str | None:
+    stem = Path(content.path).stem if content else ""
+    return stem if _SHA256_RE.fullmatch(stem) else None
 
 
 class PressReleaseImageCollection(Schema):
     """A release's whole carousel, in order (not paginated)."""
 
     items = fields.List(fields.Nested(PressReleaseImageSchema))
+
+
+class PostImageSchema(Schema):
+    """One image of the caller's own post."""
+
+    caption = fields.Str()
+    position = fields.Int()
+    sha256 = fields.Function(
+        lambda image: _sha256_of(image.content), metadata=NULLABLE_TEXT
+    )
+
+
+class MyPostSchema(Schema):
+    """One of the caller's own messages on the wall."""
+
+    id = fields.Int()
+    kind = fields.Constant("post", metadata=TEXT)
+    text = fields.Str()
+    published_at = fields.Function(
+        lambda post: post.date.isoformat(),
+        metadata={"type": "string", "format": "date-time"},
+    )
+    created_at = IsoDateTime()
+    external_ref = fields.Str(allow_none=True)
+    like_count = fields.Int()
+    images = fields.List(fields.Nested(PostImageSchema))
+    links = fields.Method("_make_links", data_key="_links", metadata=LINKS)
+
+    def _make_links(self, obj) -> dict[str, dict[str, str]]:
+        return {
+            "self": link(resource_path("me/posts", obj.id)),
+            "page": link(url_for(obj)),
+        }
+
+
+class PostFilesSchema(Schema):
+    images = fields.List(
+        Upload(),
+        load_default=list,
+        metadata={
+            "description": f"Up to {MAX_IMAGES} JPEG, PNG, GIF, WebP or AVIF files, "
+            "under 4 MB each."
+        },
+    )
+
+
+class PostFormSchema(Schema):
+    text = fields.Str(
+        load_default="",
+        validate=validate.Length(max=10_000),
+        metadata={"description": "Plain text. May be empty if there are images."},
+    )
+    captions = fields.List(
+        fields.Str(),
+        load_default=list,
+        metadata={"description": "One for each image, in the same order."},
+    )
+    published_at = fields.AwareDateTime(
+        metadata={
+            "description": "Publication date, for a message first published "
+            "elsewhere: from 2000 on, and not in the future. Over a day old, it "
+            "needs an external_ref."
+        },
+    )
+    external_ref = fields.Str(
+        validate=validate.Length(min=1, max=500),
+        metadata={
+            "description": "Your own reference for the original, such as its URL, "
+            "which is then shown. It is unique among your posts: a second post with "
+            "the same one is refused (409)."
+        },
+    )
+
+
+class PostUploadSchema(PostFilesSchema, PostFormSchema):
+    """The whole multipart body, as documented in the spec."""
 
 
 class PressReleaseImageFileSchema(Schema):
@@ -956,6 +1038,12 @@ class PageArgsSchema(Schema):
     offset = fields.Int(load_default=0)
 
 
+class MyPostArgsSchema(PageArgsSchema):
+    external_ref = fields.Str(
+        metadata={"description": "Only the post with this reference."}
+    )
+
+
 class MyPressReleaseArgsSchema(PageArgsSchema):
     external_ref = fields.Str(
         metadata={"description": "Only the release with this reference."}
@@ -977,6 +1065,7 @@ MemberCollection = make_collection_schema(MemberSchema)
 MyArticleCollection = make_collection_schema(MyArticleSchema)
 MyPressReleaseCollection = make_collection_schema(MyPressReleaseSchema)
 MyEventCollection = make_collection_schema(MyEventSchema)
+MyPostCollection = make_collection_schema(MyPostSchema)
 MyAvisEnqueteCollection = make_collection_schema(MyAvisEnqueteSchema)
 MyMissionCollection = make_collection_schema(MyMissionSchema)
 MyProjectCollection = make_collection_schema(MyProjectSchema)

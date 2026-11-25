@@ -48,6 +48,7 @@ The blueprint is **not** exposed as a top-level `blueprint` attribute (which the
 | `read:directory` | member profiles |
 | `read:self` | the token owner's own private data (`/me`) |
 | `write:content` | author/publish the owner's own content (press releases, articles, events) |
+| `write:social` | post on the wall in the owner's name, and delete posts |
 
 ## Resources
 
@@ -72,6 +73,8 @@ A press release also has a carousel: `GET`/`POST /me/press-releases/{id}/images`
 `genre`, `section`, `topic` and `sector` of a press release only accept the values the Com'room form offers, listed by `GET /vocabularies/press-releases` (any token). They may be missing from a draft, but publishing requires them, and a published release cannot lose them.
 
 To import press releases published elsewhere, a client sends `published_at` (from 2000 on, never in the future), which places them in the wire at their own date, and `external_ref`, its own reference for the source document. A reference is unique among the author's releases and those of the publisher: creating a second one answers `409`, and `GET /me/press-releases?external_ref=…` finds the first. Deleting a release frees its reference. `GET /me/publishers` lists the organisations the caller may pass as `publisher_id`, and `_links.page` is the page to show to people: the author's one, then the public one once published.
+
+**Wall posts** (`write:social`): `POST /me/posts` is one multipart form (`text`, `images`, `captions`, `published_at`, `external_ref`), so that a post is never seen without its images; `DELETE /me/posts/{id}` removes one, and there is no update, as on the site. Reading them needs `read:self`. A post over a day old is an import: it needs an `external_ref`, which is shown when it is a URL. In 24 hours, an account may make 50 new posts and 1000 imports (`429`), deleted ones included.
 
 Authorization is **not** re-implemented — `writes.py` reuses the exact WIP-room predicates and the source models' domain methods:
 

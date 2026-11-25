@@ -26,11 +26,12 @@ mutation targets a row already resolved through ``OwnedRepository.get_owned``):
 
 from __future__ import annotations
 
-from datetime import UTC
+from datetime import UTC, datetime, timedelta
 from typing import TYPE_CHECKING
 
+import arrow
 import sqlalchemy as sa
-from arrow import now
+from arrow import Arrow, now
 from svcs.flask import container
 
 from app.constants import LOCAL_TZ
@@ -40,11 +41,18 @@ from app.lib.file_object_utils import InvalidImageError, store_image
 from app.logging import report_failure
 from app.models.lifecycle import PublicationStatus
 from app.models.organisation import Organisation
+from app.models.short_post import ShortPost
 from app.modules.bw.bw_activation.models import PermissionType
 from app.modules.bw.bw_activation.models.business_wall import BusinessWall
 from app.modules.bw.bw_activation.user_utils import (
     can_user_publish_for,
     publishable_org_ids,
+)
+from app.modules.swork.posts import (
+    MAX_IMAGES,
+    ImageTooLargeError,
+    TooManyImagesError,
+    add_images,
 )
 from app.modules.wip.models import (
     Article,
@@ -110,6 +118,9 @@ _PRESS_RELEASE_FIELDS = (
     "published_at",
     "external_ref",
 )
+# In 24 hours, and for each account.
+MAX_NEW_POSTS = 50
+MAX_IMPORTED_POSTS = 1000
 # The public mirror replaces an earlier date by the current one.
 _FIRST_PUBLICATION_YEAR = 2000
 # Field → vocabulary: those the Com'room form requires.
@@ -280,6 +291,84 @@ def delete_press_release_image(user: User, model: Communique, image: ComImage) -
     model.delete_image(image)
     db.session.delete(image)
     _save(model, container.get(CommuniqueRepository), communique_updated)
+
+
+# --- wall posts -------------------------------------------------------------
+# Any member may post, as on the site. The site has no limit; a program does.
+
+
+def create_post(
+    user: User,
+    uploads: list[FileStorage],
+    *,
+    text: str,
+    captions: list[str],
+    published_at: datetime | None = None,
+    external_ref: str | None = None,
+) -> ShortPost:
+    """Post a message in the caller's name."""
+    text = text.strip()
+    if not text and not uploads:
+        raise WriteError(422, "A post needs a text or an image.")
+    moment = arrow.utcnow()
+    is_import = published_at is not None and _is_import(published_at, moment)
+    if published_at is not None:
+        _check_published_at({"published_at": published_at})
+    if is_import and not external_ref:
+        raise WriteError(422, "external_ref: needed for a post over a day old.")
+    if external_ref and _post_reference_is_used(user, external_ref):
+        raise WriteError(
+            409, f"external_ref: {external_ref!r} is already used by another post."
+        )
+    _check_post_quota(user, moment, is_import=is_import)
+    post = ShortPost(
+        owner=user,
+        external_ref=external_ref,
+        published_at=arrow.get(published_at or moment),
+    )
+    post.text = text
+    try:
+        add_images(post, uploads, captions)
+    except TooManyImagesError as exc:
+        raise WriteError(422, f"A post has {MAX_IMAGES} images at most.") from exc
+    except ImageTooLargeError as exc:
+        raise WriteError(413, f"The image {exc} is too large.") from exc
+    except InvalidImageError as exc:
+        raise WriteError(422, str(exc)) from exc
+    db.session.add(post)
+    db.session.commit()
+    return post
+
+
+def _post_reference_is_used(user: User, reference: str) -> bool:
+    stmt = (
+        sa.select(ShortPost.id)
+        .where(ShortPost.owner_id == user.id, ShortPost.external_ref == reference)
+        .where(ShortPost.deleted_at.is_(None))
+    )
+    return db.session.scalar(stmt) is not None
+
+
+def _is_import(published_at: datetime, created_at: datetime) -> bool:
+    return published_at < created_at - timedelta(days=1)
+
+
+def _check_post_quota(user: User, moment: Arrow, *, is_import: bool) -> None:
+    """Limit what is posted in a day, counting what was deleted since."""
+    stmt = (
+        sa.select(ShortPost.published_at, ShortPost.created_at)
+        .where(ShortPost.owner_id == user.id)
+        .where(ShortPost.created_at > moment.shift(days=-1))
+    )
+    recent = db.session.execute(stmt).all()
+    count = sum(
+        _is_import(published_at or created_at, created_at) == is_import
+        for published_at, created_at in recent
+    )
+    limit = MAX_IMPORTED_POSTS if is_import else MAX_NEW_POSTS
+    if count >= limit:
+        kind = "imported" if is_import else "new"
+        raise WriteError(429, f"The limit is {limit} {kind} posts in 24 hours.")
 
 
 # --- articles (newsroom) --------------------------------------------------

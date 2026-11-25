@@ -14,6 +14,8 @@ from flask import g
 from flask.views import MethodView
 from flask_smorest import abort
 
+from app.modules.swork.posts import delete_post
+
 from . import blp, queries as q, writes as w
 from .schemas import (
     API_PREFIX,
@@ -41,6 +43,9 @@ from .schemas import (
     MyJobSchema,
     MyMissionCollection,
     MyMissionSchema,
+    MyPostArgsSchema,
+    MyPostCollection,
+    MyPostSchema,
     MyPressReleaseArgsSchema,
     MyPressReleaseCollection,
     MyPressReleaseSchema,
@@ -49,6 +54,9 @@ from .schemas import (
     OrganisationCollection,
     OrganisationSchema,
     PageArgsSchema,
+    PostFilesSchema,
+    PostFormSchema,
+    PostUploadSchema,
     PressReleaseCollection,
     PressReleaseImageCollection,
     PressReleaseImageFileSchema,
@@ -552,6 +560,59 @@ class MyPressReleaseImage(MethodView):
             w.delete_press_release_image(user, obj, image)
         except w.WriteError as exc:
             abort(exc.status, message=exc.message)
+        return ""
+
+
+# --- owner-scoped wall posts ------------------------------------------------
+
+
+@blp.route("/me/posts")
+class MyPosts(MethodView):
+    @blp.arguments(MyPostArgsSchema, location="query")
+    @blp.response(200, MyPostCollection)
+    def get(self, args: dict) -> dict:
+        """List the caller's own posts on the wall."""
+        _require(Scope.READ_SELF)
+        return _collection("me/posts", q.list_my_posts(current_identity().id, **args))
+
+    # As for the images of press releases: one form, parsed from two locations.
+    @blp.doc(
+        requestBody={
+            "required": True,
+            "content": {"multipart/form-data": {"schema": PostUploadSchema}},
+        }
+    )
+    @blp.arguments(PostFilesSchema, location="files")
+    @blp.arguments(PostFormSchema, location="form", content_type="multipart/form-data")
+    @blp.response(201, MyPostSchema)
+    def post(self, files: dict, form: dict):
+        """Post a message on the wall, with its images."""
+        _require(Scope.WRITE_SOCIAL)
+        try:
+            return w.create_post(current_identity(), files["images"], **form)
+        except w.WriteError as exc:
+            abort(exc.status, message=exc.message)
+
+
+@blp.route("/me/posts/<int:post_id>")
+class MyPost(MethodView):
+    @blp.response(200, MyPostSchema)
+    def get(self, post_id: int):
+        """Fetch one of the caller's own posts."""
+        _require(Scope.READ_SELF)
+        obj = q.get_my_post(current_identity().id, post_id)
+        if obj is None:
+            abort(404, message="Post not found.")
+        return obj
+
+    @blp.response(204)
+    def delete(self, post_id: int):
+        """Delete one of the caller's own posts."""
+        _require(Scope.WRITE_SOCIAL)
+        obj = q.get_my_post(current_identity().id, post_id)
+        if obj is None:
+            abort(404, message="Post not found.")
+        delete_post(obj)
         return ""
 
 

@@ -27,6 +27,7 @@ from app.modules.biz.repositories import (
 )
 from app.modules.bw.bw_activation.models.repositories import BusinessWallRepository
 from app.modules.events.repositories import EventPostRepository
+from app.modules.swork.repositories import ShortPostRepository
 from app.modules.wip.models import (
     ArticleRepository,
     AvisEnqueteRepository,
@@ -41,6 +42,7 @@ from app.modules.wire.repositories import (
 if TYPE_CHECKING:
     from app.models.auth import User
     from app.models.organisation import Organisation
+    from app.models.short_post import ShortPost
     from app.modules.biz.models._offers import JobOffer, MissionOffer, ProjectOffer
     from app.modules.biz.models._products import EditorialProduct
     from app.modules.bw.bw_activation.models.business_wall import BusinessWall
@@ -176,6 +178,20 @@ def list_my_press_releases(
 
 def get_my_press_release(owner_id: int, identifier: int) -> Communique | None:
     return container.get(CommuniqueRepository).get_owned(owner_id, identifier)
+
+
+def list_my_posts(
+    owner_id: int, limit: int, offset: int, external_ref: str | None = None
+) -> Page:
+    limit, offset = clamp_limit(limit), clamp_offset(offset)
+    repo = container.get(ShortPostRepository)
+    filters = {"external_ref": external_ref} if external_ref else {}
+    found = repo.list_owned(owner_id, limit=limit, offset=offset, **filters)
+    return _page(found, limit, offset)
+
+
+def get_my_post(owner_id: int, identifier: int) -> ShortPost | None:
+    return container.get(ShortPostRepository).get_owned(owner_id, identifier)
 
 
 def list_my_events(owner_id: int, limit: int, offset: int) -> Page:
