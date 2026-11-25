@@ -765,6 +765,7 @@ class TestCloneKycProfile:
             display_level=3,
             presentation="hello",
             show_contact_details={"a": True},
+            notification_preferences={"alerts": False},
             info_personnelle={"b": "c"},
             info_professionnelle={"d": "e"},
             match_making={"f": ["g"]},
@@ -777,6 +778,7 @@ class TestCloneKycProfile:
         assert clone.profile_label == "Label"
         assert clone.display_level == 3
         assert clone.show_contact_details == {"a": True}
+        assert clone.notification_preferences == {"alerts": False}
         assert clone.info_personnelle == {"b": "c"}
         assert clone.match_making == {"f": ["g"]}
         assert clone.business_wall == {"media": True}
@@ -879,3 +881,15 @@ class TestMergeValuesFromOtherUser:
         # modified data:
         assert orig.profile is not clone.profile
         assert orig.profile.profile_label == "new"
+
+    def test_merge_keeps_the_notification_preferences(self, db: SQLAlchemy) -> None:
+        """Those of the member, who may have changed them while the clone was
+        waiting for a moderator."""
+        orig = _make_user(email="old@example.com")
+        orig.profile = _make_profile(notification_preferences={"alerts": False})
+        clone = _make_user(email_safe_copy="old@example.com", is_clone=True)
+        clone.profile = _make_profile(notification_preferences={"reminders": False})
+
+        merge_values_from_other_user(orig, clone)
+
+        assert orig.profile.notification_preferences == {"alerts": False}

@@ -976,6 +976,11 @@ def merge_values_from_other_user(orig_user: User, modified_user: User) -> None:
     The function also reset the is_cloned flag of orig_user.
     """
     new_kyc_profile = clone_kycprofile(require_profile(modified_user))
+    # The clone may have waited for a moderator: the member's own choices since
+    # then win.
+    new_kyc_profile.notification_preferences = require_profile(
+        orig_user
+    ).notification_preferences
 
     orig_user.email = modified_user.email_safe_copy
     orig_user.email_safe_copy = ""
@@ -1045,6 +1050,7 @@ def clone_kycprofile(orig_profile: KYCProfile) -> KYCProfile:
         display_level=orig_profile.display_level,
         presentation=orig_profile.presentation,
         show_contact_details=orig_profile.show_contact_details,
+        notification_preferences=orig_profile.notification_preferences,
         info_personnelle=orig_profile.info_personnelle,
         info_professionnelle=orig_profile.info_professionnelle,
         match_making=orig_profile.match_making,

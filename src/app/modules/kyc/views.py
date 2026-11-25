@@ -571,6 +571,7 @@ def _set_default_kyc_profile(user: User) -> None:
         profile_community=survey_profile.community.name,
         contact_type=survey_profile.contact_type.name,
         show_contact_details=populate_json_field("show_contact_details", {}),
+        notification_preferences={},
         info_personnelle=populate_json_field("info_personnelle", {}),
         info_professionnelle=populate_json_field("info_professionnelle", {}),
         match_making=populate_json_field("match_making", {}),
