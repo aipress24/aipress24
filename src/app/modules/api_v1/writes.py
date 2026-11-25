@@ -26,13 +26,14 @@ mutation targets a row already resolved through ``OwnedRepository.get_owned``):
 
 from __future__ import annotations
 
+from datetime import UTC
 from io import BytesIO
 from pathlib import Path
 from typing import TYPE_CHECKING
 
+import sqlalchemy as sa
 from arrow import now
 from PIL import Image
-from sqlalchemy import select
 from svcs.flask import container
 
 from app.constants import LOCAL_TZ
@@ -41,9 +42,13 @@ from app.flask.forms import get_choices
 from app.lib.file_object_utils import SAFE_TYPES, create_file_object
 from app.logging import report_failure
 from app.models.lifecycle import PublicationStatus
+from app.models.organisation import Organisation
 from app.modules.bw.bw_activation.models import PermissionType
 from app.modules.bw.bw_activation.models.business_wall import BusinessWall
-from app.modules.bw.bw_activation.user_utils import can_user_publish_for
+from app.modules.bw.bw_activation.user_utils import (
+    can_user_publish_for,
+    publishable_org_ids,
+)
 from app.modules.wip.models import (
     Article,
     ArticleRepository,
@@ -104,7 +109,12 @@ _PRESS_RELEASE_FIELDS = (
     "address",
     "pays_zip_ville",
     "pays_zip_ville_detail",
+    "embargoed_until",
+    "published_at",
+    "external_ref",
 )
+# The public mirror replaces an earlier date by the current one.
+_FIRST_PUBLICATION_YEAR = 2000
 # Field → vocabulary: those the Com'room form requires.
 _PRESS_RELEASE_VOCABULARIES = {
     "genre": "genre-com",
@@ -168,12 +178,12 @@ def create_press_release(user: User, data: dict) -> Communique:
     publisher_id = _resolve_publisher(
         user, data.get("publisher_id"), PermissionType.PRESS_RELEASE
     )
+    _check_published_at(data)
+    _check_external_ref(data, user, publisher_id)
     model = Communique(
         owner=user, status=PublicationStatus.DRAFT, publisher_id=publisher_id
     )
     _apply_fields(model, data, _PRESS_RELEASE_FIELDS)
-    if "embargoed_until" in data:
-        model.embargoed_until = data["embargoed_until"]
     return _create(model, container.get(CommuniqueRepository), communique_updated)
 
 
@@ -181,15 +191,17 @@ def update_press_release(user: User, model: Communique, data: dict) -> Communiqu
     """Apply a partial update to the caller's own press release."""
     _require_comroom(user)
     _check_vocabularies(data)
+    _check_published_at(data, is_public=model.is_public)
     if model.is_public:
         _require_complete(model, data)
+    publisher_id = model.publisher_id
     if "publisher_id" in data:
-        model.publisher_id = _resolve_publisher(
+        publisher_id = _resolve_publisher(
             user, data["publisher_id"], PermissionType.PRESS_RELEASE
         )
+    _check_external_ref(data, user, publisher_id, model.id)
+    model.publisher_id = publisher_id
     _apply_fields(model, data, _PRESS_RELEASE_FIELDS)
-    if "embargoed_until" in data:
-        model.embargoed_until = data["embargoed_until"]
     return _save(model, container.get(CommuniqueRepository), communique_updated)
 
 
@@ -225,6 +237,24 @@ def press_release_vocabularies() -> dict[str, list[str]]:
     return {
         field: get_choices(key) for field, key in _PRESS_RELEASE_VOCABULARIES.items()
     }
+
+
+def press_release_publishers(user: User) -> list[Organisation]:
+    """The organisations ``user`` may publish press releases for."""
+    _require_comroom(user)
+    organisations = db.session.scalars(
+        sa.select(Organisation)
+        .where(Organisation.id.in_(publishable_org_ids(user)))
+        .where(Organisation.deleted_at.is_(None))
+    )
+    allowed = [
+        org
+        for org in organisations
+        if not _lacks_mission(user, org.id, PermissionType.PRESS_RELEASE)
+    ]
+    return sorted(
+        allowed, key=lambda org: (org.id != user.organisation_id, org.name.casefold())
+    )
 
 
 def add_press_release_image(
@@ -477,19 +507,69 @@ def _resolve_publisher(
     publisher_id = publisher_id or user.organisation_id
     if publisher_id and not can_user_publish_for(user, publisher_id):
         raise WriteError(403, "You are not allowed to publish for this organisation.")
-    if publisher_id and publisher_id != user.organisation_id:
-        bws = _business_walls_for_org(publisher_id)
-        if pr_manager_missing_mission(bws, user.id, mission):
-            raise WriteError(
-                403, "You lack the mission required to publish for this organisation."
-            )
+    if publisher_id and _lacks_mission(user, publisher_id, mission):
+        raise WriteError(
+            403, "You lack the mission required to publish for this organisation."
+        )
     return publisher_id
+
+
+def _lacks_mission(user: User, org_id: int, mission: PermissionType) -> bool:
+    """Is ``user`` a delegated PR manager of the organisation, without ``mission``?"""
+    return org_id != user.organisation_id and pr_manager_missing_mission(
+        _business_walls_for_org(org_id), user.id, mission
+    )
+
+
+def _check_published_at(data: dict, *, is_public: bool = False) -> None:
+    if "published_at" not in data:
+        return
+    value = data["published_at"]
+    if value is None:
+        if is_public:
+            raise WriteError(422, "published_at: a public release must have one.")
+        return
+    if value.astimezone(UTC).year < _FIRST_PUBLICATION_YEAR or value > now(LOCAL_TZ):
+        raise WriteError(
+            422,
+            f"published_at: expected a date from {_FIRST_PUBLICATION_YEAR} on, "
+            "and not in the future.",
+        )
+
+
+def _check_external_ref(
+    data: dict, user: User, publisher_id: int | None, release_id: int | None = None
+) -> None:
+    """Refuse a reference used by another of the caller's or publisher's releases.
+
+    The index on (owner, reference) is the backstop between two requests.
+    """
+    reference = data.get("external_ref")
+    if not reference:
+        return
+    same_author = Communique.owner_id == user.id
+    same_source = (
+        sa.or_(same_author, Communique.publisher_id == publisher_id)
+        if publisher_id
+        else same_author
+    )
+    stmt = (
+        sa.select(Communique.id)
+        .where(Communique.external_ref == reference, same_source)
+        .where(Communique.deleted_at.is_(None))
+    )
+    if release_id:
+        stmt = stmt.where(Communique.id != release_id)
+    if db.session.scalar(stmt.limit(1)):
+        raise WriteError(
+            409, f"external_ref: {reference!r} is already used by another release."
+        )
 
 
 def _business_walls_for_org(org_id: int) -> list[BusinessWall]:
     return list(
         db.session.scalars(
-            select(BusinessWall).where(BusinessWall.organisation_id == org_id)
+            sa.select(BusinessWall).where(BusinessWall.organisation_id == org_id)
         )
     )
 

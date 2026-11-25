@@ -71,6 +71,8 @@ A press release also has a carousel: `GET`/`POST /me/press-releases/{id}/images`
 
 `genre`, `section`, `topic` and `sector` of a press release only accept the values the Com'room form offers, listed by `GET /vocabularies/press-releases` (any token). They may be missing from a draft, but publishing requires them, and a published release cannot lose them.
 
+To import press releases published elsewhere, a client sends `published_at` (from 2000 on, never in the future), which places them in the wire at their own date, and `external_ref`, its own reference for the source document. A reference is unique among the author's releases and those of the publisher: creating a second one answers `409`, and `GET /me/press-releases?external_ref=…` finds the first. Deleting a release frees its reference. `GET /me/publishers` lists the organisations the caller may pass as `publisher_id`, and `_links.page` is the page to show to people: the author's one, then the public one once published.
+
 Authorization is **not** re-implemented — `writes.py` reuses the exact WIP-room predicates and the source models' domain methods:
 
 - **who may author**: the room gate above (per content type);

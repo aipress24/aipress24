@@ -1559,6 +1559,10 @@
             "nullable": true,
             "type": "string"
           },
+          "external_ref": {
+            "nullable": true,
+            "type": "string"
+          },
           "genre": {
             "type": "string"
           },
@@ -2088,6 +2092,13 @@
             "nullable": true,
             "type": "string"
           },
+          "external_ref": {
+            "description": "Your own reference for the source document, such as its URL. It is unique among your releases and those of the organisation: a second release with the same one is refused (409).",
+            "maxLength": 500,
+            "minLength": 1,
+            "nullable": true,
+            "type": "string"
+          },
           "genre": {
             "description": "A value from `/vocabularies/press-releases`. Optional in a draft, required to publish.",
             "type": "string"
@@ -2104,6 +2115,12 @@
           },
           "pays_zip_ville_detail": {
             "description": "City, e.g. `FRA / 75001 Paris`.",
+            "type": "string"
+          },
+          "published_at": {
+            "description": "Publication date, for a release first published elsewhere: from 2000 on, and not in the future. Defaults to the time it is published here.",
+            "format": "date-time",
+            "nullable": true,
             "type": "string"
           },
           "publisher_id": {
@@ -2180,6 +2197,13 @@
             "nullable": true,
             "type": "string"
           },
+          "external_ref": {
+            "description": "Your own reference for the source document, such as its URL. It is unique among your releases and those of the organisation: a second release with the same one is refused (409).",
+            "maxLength": 500,
+            "minLength": 1,
+            "nullable": true,
+            "type": "string"
+          },
           "genre": {
             "description": "A value from `/vocabularies/press-releases`. Optional in a draft, required to publish.",
             "type": "string"
@@ -2196,6 +2220,12 @@
           },
           "pays_zip_ville_detail": {
             "description": "City, e.g. `FRA / 75001 Paris`.",
+            "type": "string"
+          },
+          "published_at": {
+            "description": "Publication date, for a release first published elsewhere: from 2000 on, and not in the future. Defaults to the time it is published here.",
+            "format": "date-time",
+            "nullable": true,
             "type": "string"
           },
           "publisher_id": {
@@ -2223,6 +2253,42 @@
         "required": [
           "titre"
         ],
+        "type": "object"
+      },
+      "Publisher": {
+        "additionalProperties": false,
+        "properties": {
+          "_links": {
+            "additionalProperties": {
+              "properties": {
+                "href": {
+                  "type": "string"
+                }
+              },
+              "type": "object"
+            },
+            "readOnly": true,
+            "type": "object"
+          },
+          "id": {
+            "type": "integer"
+          },
+          "name": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "PublisherCollection": {
+        "additionalProperties": false,
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/Publisher"
+            },
+            "type": "array"
+          }
+        },
         "type": "object"
       },
       "Root": {
@@ -3410,6 +3476,15 @@
               "default": 0,
               "type": "integer"
             }
+          },
+          {
+            "description": "Only the release with this reference.",
+            "in": "query",
+            "name": "external_ref",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "responses": {
@@ -3897,6 +3972,29 @@
           }
         }
       ]
+    },
+    "/api/v1/me/publishers": {
+      "get": {
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublisherCollection"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "default": {
+            "$ref": "#/components/responses/DEFAULT_ERROR"
+          }
+        },
+        "summary": "List the organisations the caller may publish press releases for.",
+        "tags": [
+          "api_v1"
+        ]
+      }
     },
     "/api/v1/members": {
       "get": {

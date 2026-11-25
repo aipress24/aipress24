@@ -25,6 +25,17 @@ DRAFT = PublicationStatus.DRAFT
 
 class Communique(IdMixin, LifeCycleMixin, Owned, Base):
     __tablename__ = "crm_communique"
+    # Deleting a release frees its reference.
+    __table_args__ = (
+        sa.Index(
+            "ix_crm_communique_owner_external_ref",
+            "owner_id",
+            "external_ref",
+            unique=True,
+            postgresql_where=sa.text("deleted_at IS NULL"),
+            sqlite_where=sa.text("deleted_at IS NULL"),
+        ),
+    )
 
     # from LifeCycleMixin:
     # created_at...
@@ -97,6 +108,9 @@ class Communique(IdMixin, LifeCycleMixin, Owned, Base):
     address: Mapped[str] = mapped_column(default="")
     pays_zip_ville: Mapped[str] = mapped_column(default="")
     pays_zip_ville_detail: Mapped[str] = mapped_column(default="")
+
+    # What an API client calls the document this release comes from.
+    external_ref: Mapped[str | None] = mapped_column(sa.String(500))
 
     # Image list
     images: ClassVar[list[ComImage]]

@@ -28,14 +28,18 @@ class OwnedRepository(Repository[ModelT]):
     """Reads restricted to rows owned by a given user (excludes soft-deleted)."""
 
     def list_owned(
-        self, owner_id: int, *, limit: int, offset: int
+        self, owner_id: int, *, limit: int, offset: int, **filters: object
     ) -> tuple[Sequence[ModelT], int]:
-        """One page of the owner's own rows (most recently modified first)."""
+        """One page of the owner's own rows (most recently modified first).
+
+        ``filters`` are column values the rows must have.
+        """
         return self.list_and_count(
             self.model_type.owner_id == owner_id,
             self.model_type.deleted_at.is_(None),
             LimitOffset(limit, offset),
             OrderBy(self.model_type.modified_at, "desc"),
+            **filters,
         )
 
     def get_owned(self, owner_id: int, identifier: object) -> ModelT | None:

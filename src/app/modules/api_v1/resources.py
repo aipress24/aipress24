@@ -41,6 +41,7 @@ from .schemas import (
     MyJobSchema,
     MyMissionCollection,
     MyMissionSchema,
+    MyPressReleaseArgsSchema,
     MyPressReleaseCollection,
     MyPressReleaseSchema,
     MyProjectCollection,
@@ -58,6 +59,7 @@ from .schemas import (
     PressReleaseUpdateSchema,
     PressReleaseVocabulariesSchema,
     PressReleaseWriteSchema,
+    PublisherCollection,
     RootSchema,
     SelfProfileSchema,
     collection_path,
@@ -391,16 +393,28 @@ class MyArticleUnpublish(MethodView):
             abort(exc.status, message=exc.message)
 
 
+@blp.route("/me/publishers")
+class MyPublishers(MethodView):
+    @blp.response(200, PublisherCollection)
+    def get(self):
+        """List the organisations the caller may publish press releases for."""
+        _require(Scope.READ_SELF)
+        # Read by the Com'room predicates, as in `_require_write`.
+        g.user = current_identity()
+        try:
+            return {"items": w.press_release_publishers(g.user)}
+        except w.WriteError as exc:
+            abort(exc.status, message=exc.message)
+
+
 @blp.route("/me/press-releases")
 class MyPressReleases(MethodView):
-    @blp.arguments(PageArgsSchema, location="query")
+    @blp.arguments(MyPressReleaseArgsSchema, location="query")
     @blp.response(200, MyPressReleaseCollection)
     def get(self, args: dict) -> dict:
         """List the caller's own press releases (any status)."""
         _require(Scope.READ_SELF)
-        page = q.list_my_press_releases(
-            current_identity().id, args["limit"], args["offset"]
-        )
+        page = q.list_my_press_releases(current_identity().id, **args)
         return _collection("me/press-releases", page)
 
     @blp.arguments(PressReleaseWriteSchema)

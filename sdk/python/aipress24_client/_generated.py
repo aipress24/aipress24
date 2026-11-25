@@ -423,6 +423,7 @@ class MyPressRelease(TypedDict, total=False):
     created_at: str | None
     embargoed_until: str | None
     expired_at: str | None
+    external_ref: str | None
     genre: str
     geo_localisation: str
     id: int
@@ -559,11 +560,13 @@ class PressReleaseUpdate(TypedDict, total=False):
     chapo: str
     contenu: str
     embargoed_until: str | None
+    external_ref: str | None
     genre: str
     geo_localisation: str
     language: str
     pays_zip_ville: str
     pays_zip_ville_detail: str
+    published_at: str | None
     publisher_id: int | None
     section: str
     sector: str
@@ -583,16 +586,28 @@ class PressReleaseWrite(TypedDict, total=False):
     chapo: str
     contenu: str
     embargoed_until: str | None
+    external_ref: str | None
     genre: str
     geo_localisation: str
     language: str
     pays_zip_ville: str
     pays_zip_ville_detail: str
+    published_at: str | None
     publisher_id: int | None
     section: str
     sector: str
     titre: str
     topic: str
+
+
+class Publisher(TypedDict, total=False):
+    _links: dict[str, Any]
+    id: int
+    name: str
+
+
+class PublisherCollection(TypedDict, total=False):
+    items: list[Publisher]
 
 
 class Root(TypedDict, total=False):

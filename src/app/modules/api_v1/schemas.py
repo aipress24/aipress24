@@ -17,8 +17,10 @@ from typing import Any
 
 from flask import current_app, g
 from flask_smorest.fields import Upload
-from marshmallow import Schema, fields
+from marshmallow import Schema, fields, validate
 
+from app.flask.routing import url_for
+from app.lib.base62 import base62
 from app.modules.events.services import sees_full_content
 
 API_PREFIX = "/api/v1"
@@ -539,11 +541,40 @@ class MyPressReleaseSchema(_MyNewsroomSchema):
     kind = fields.Constant("press_release", metadata=TEXT)
     embargoed_until = IsoDateTime()
     pays_zip_ville_detail = fields.Str()
+    external_ref = fields.Str(allow_none=True)
     _collection = "me/press-releases"
 
     def _make_links(self, obj) -> dict[str, dict[str, str]]:
+        """``page`` is for people: the public page, or the author's one until then."""
         path = resource_path(self._collection, obj.id)
-        return {"self": link(path), "images": link(f"{path}/images")}
+        # One query for each public release.
+        page = (
+            url_for(obj)
+            if obj.is_public
+            else url_for("CommuniquesWipView:get", id=base62.encode(obj.id))
+        )
+        return {
+            "self": link(path),
+            "images": link(f"{path}/images"),
+            "page": link(page),
+        }
+
+
+class PublisherSchema(Schema):
+    """An organisation the caller may publish press releases for."""
+
+    id = fields.Int()
+    name = fields.Str()
+    links = fields.Method("_make_links", data_key="_links", metadata=LINKS)
+
+    def _make_links(self, obj) -> dict[str, dict[str, str]]:
+        return {"self": link(resource_path("organisations", obj.id))}
+
+
+class PublisherCollection(Schema):
+    """The caller's own organisation first, then by name (not paginated)."""
+
+    items = fields.List(fields.Nested(PublisherSchema))
 
 
 class PressReleaseImageSchema(Schema):
@@ -767,9 +798,8 @@ _CLASSIFICATION = {
 class PressReleaseWriteSchema(Schema):
     """Loadable fields for creating/updating a press release (communiqué).
 
-    Only the author-editable fields are accepted; ``owner``, ``status`` and
-    ``published_at`` are set by the domain, never by the caller. ``titre`` is
-    required on create; :class:`PressReleaseUpdateSchema` accepts any subset.
+    Only the author-editable fields are accepted; ``owner`` and ``status`` are
+    set by the domain, never by the caller. ``titre`` is required on create; :class:`PressReleaseUpdateSchema` accepts any subset.
     Only ``contenu`` is sanitized; ``titre``/``chapo`` are stored verbatim,
     as in the UI. Field names match the read schema (:class:`MyPressReleaseSchema`) so payloads round-trip.
     """
@@ -801,6 +831,23 @@ class PressReleaseWriteSchema(Schema):
     embargoed_until = fields.AwareDateTime(
         allow_none=True,
         metadata={"description": "Publication is refused while this is in the future."},
+    )
+    published_at = fields.AwareDateTime(
+        allow_none=True,
+        metadata={
+            "description": "Publication date, for a release first published "
+            "elsewhere: from 2000 on, and not in the future. Defaults to the time "
+            "it is published here."
+        },
+    )
+    external_ref = fields.Str(
+        allow_none=True,
+        validate=validate.Length(min=1, max=500),
+        metadata={
+            "description": "Your own reference for the source document, such as "
+            "its URL. It is unique among your releases and those of the "
+            "organisation: a second release with the same one is refused (409)."
+        },
     )
 
 
@@ -907,6 +954,12 @@ class EventUpdateSchema(EventWriteSchema):
 class PageArgsSchema(Schema):
     limit = fields.Int(load_default=20, metadata={"description": "1–100."})
     offset = fields.Int(load_default=0)
+
+
+class MyPressReleaseArgsSchema(PageArgsSchema):
+    external_ref = fields.Str(
+        metadata={"description": "Only the release with this reference."}
+    )
 
 
 class RootSchema(Schema):

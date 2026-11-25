@@ -25,6 +25,7 @@ from sqlalchemy.orm import Session
 
 from app.enums import BWRoleType, InvitationStatus, RoleEnum
 from app.flask.lib.wtforms.fields.rich_select import RichSelectField
+from app.lib.base62 import base62
 from app.models.auth import Role, User
 from app.models.lifecycle import PublicationStatus
 from app.models.organisation import Organisation
@@ -690,3 +691,201 @@ def test_event_onbehalf_denied_without_events_mission(
         headers=_auth(wseed.author_token),
     )
     assert resp.status_code == 403
+
+
+# --- importing existing press releases -------------------------------------
+
+
+def _patch(client: FlaskClient, token: str, pr_id: int, **body):
+    return client.patch(
+        f"/api/v1/me/press-releases/{pr_id}", json=body, headers=_auth(token)
+    )
+
+
+def _publish(client: FlaskClient, token: str, pr_id: int) -> dict:
+    resp = client.post(
+        f"/api/v1/me/press-releases/{pr_id}/publish", headers=_auth(token)
+    )
+    assert resp.status_code == 200, resp.get_json()
+    return resp.get_json()
+
+
+def _mirror(db_session: Session, pr_id: int) -> PressReleasePost:
+    stmt = select(PressReleasePost).where(PressReleasePost.newsroom_id == pr_id)
+    return db_session.scalars(stmt).one()
+
+
+def _mirror_date(db_session: Session, pr_id: int) -> arrow.Arrow:
+    db_session.expire_all()
+    published_at = _mirror(db_session, pr_id).published_at
+    assert published_at
+    return arrow.get(published_at)
+
+
+def test_a_past_publication_date_reaches_the_public_mirror(
+    client: FlaskClient, wseed: SimpleNamespace, db_session: Session
+) -> None:
+    token = wseed.author_token
+    created = _create(
+        client, token, contenu="<p>x</p>", published_at="2014-12-03T09:00:00+01:00"
+    )
+    published = _publish(client, token, created["id"])
+    expected = arrow.get("2014-12-03T08:00:00+00:00")
+    assert arrow.get(published["published_at"]) == expected
+    assert _mirror_date(db_session, created["id"]) == expected
+
+    resp = _patch(
+        client, token, created["id"], published_at="2015-01-01T00:00:00+00:00"
+    )
+    assert resp.status_code == 200
+    assert _mirror_date(db_session, created["id"]) == arrow.get("2015-01-01")
+
+    assert _patch(client, token, created["id"], published_at=None).status_code == 422
+
+
+def test_without_a_date_a_release_is_published_now(
+    client: FlaskClient, wseed: SimpleNamespace
+) -> None:
+    created = _create(client, wseed.author_token, contenu="<p>x</p>", published_at=None)
+    published = _publish(client, wseed.author_token, created["id"])
+    age = arrow.utcnow() - arrow.get(published["published_at"])
+    assert age.total_seconds() < 60
+
+
+@pytest.mark.parametrize(
+    "value", ["2000-01-01T00:30:00+01:00", "2999-01-01T00:00:00+00:00", "2014-12-03"]
+)
+def test_an_invalid_publication_date_is_refused(
+    client: FlaskClient, wseed: SimpleNamespace, value: str
+) -> None:
+    resp = client.post(
+        "/api/v1/me/press-releases",
+        json={"titre": "x", "published_at": value},
+        headers=_auth(wseed.author_token),
+    )
+    assert resp.status_code == 422
+
+
+def test_a_release_is_found_by_its_reference(
+    client: FlaskClient, wseed: SimpleNamespace
+) -> None:
+    token = wseed.author_token
+    _create(client, token)
+    created = _create(client, token, external_ref="https://ex.test/a?b=c")
+    found = client.get(
+        "/api/v1/me/press-releases",
+        query_string={"external_ref": "https://ex.test/a?b=c"},
+        headers=_auth(token),
+    ).get_json()
+    assert [item["id"] for item in found["items"]] == [created["id"]]
+    assert found["items"][0]["external_ref"] == "https://ex.test/a?b=c"
+
+    # Someone else's release is not, even by its reference.
+    found = client.get(
+        "/api/v1/me/press-releases",
+        query_string={"external_ref": "https://ex.test/a?b=c"},
+        headers=_auth(wseed.other_token),
+    ).get_json()
+    assert found["items"] == []
+
+
+def test_a_reference_is_used_once(
+    client: FlaskClient, wseed: SimpleNamespace, db_session: Session
+) -> None:
+    token = wseed.author_token
+    created = _create(client, token, external_ref="doc-1")
+    other = _create(client, token, external_ref="doc-2")
+    body = {"titre": "again", "external_ref": "doc-1"}
+    url = "/api/v1/me/press-releases"
+
+    assert client.post(url, json=body, headers=_auth(token)).status_code == 409
+    resp = _patch(client, token, other["id"], external_ref="doc-1")
+    assert resp.status_code == 409
+    # Sending a release's own reference again is not a conflict.
+    resp = _patch(client, token, created["id"], external_ref="doc-1", chapo="x")
+    assert resp.status_code == 200
+
+    # A colleague publishing for the same organisation would duplicate it...
+    colleague = User(email=_email(), active=True)
+    colleague.roles.append(_role(db_session, RoleEnum.PRESS_RELATIONS))
+    colleague.organisation = wseed.org
+    db_session.add(colleague)
+    db_session.commit()
+    colleague_token = _mint(db_session, colleague, ["write:content"])
+    resp = client.post(url, json=body, headers=_auth(colleague_token))
+    assert resp.status_code == 409
+    # ... but another organisation has its own references.
+    resp = client.post(url, json=body, headers=_auth(wseed.other_token))
+    assert resp.status_code == 201
+
+    # Deleting the release frees its reference.
+    resp = client.delete(f"{url}/{created['id']}", headers=_auth(token))
+    assert resp.status_code == 204
+    assert client.post(url, json=body, headers=_auth(token)).status_code == 201
+
+
+def test_the_page_link_follows_the_status(
+    client: FlaskClient, wseed: SimpleNamespace, db_session: Session
+) -> None:
+    token = wseed.author_token
+    created = _create(client, token, contenu="<p>x</p>")
+    author_page = created["_links"]["page"]["href"]
+    assert author_page == f"/wip/communiques/{base62.encode(created['id'])}/"
+
+    published = _publish(client, token, created["id"])
+    post_id = base62.encode(_mirror(db_session, created["id"]).id)
+    assert published["_links"]["page"]["href"] == f"/wire/{post_id}"
+
+    resp = client.post(
+        f"/api/v1/me/press-releases/{created['id']}/unpublish", headers=_auth(token)
+    )
+    assert resp.get_json()["_links"]["page"]["href"] == author_page
+
+
+def test_publishers_are_the_organisations_one_may_publish_for(
+    client: FlaskClient, wseed: SimpleNamespace, db_session: Session
+) -> None:
+    def publishers(token: str) -> list[int]:
+        resp = client.get("/api/v1/me/publishers", headers=_auth(token))
+        assert resp.status_code == 200
+        return [item["id"] for item in resp.get_json()["items"]]
+
+    assert publishers(wseed.author_token) == [wseed.org.id]
+    _grant_pr_role(
+        db_session,
+        wseed.author,
+        wseed.other_org,
+        mission=PermissionType.PRESS_RELEASE,
+        mission_granted=True,
+    )
+    assert publishers(wseed.author_token) == [wseed.org.id, wseed.other_org.id]
+
+
+def test_publishers_leave_out_those_whose_mission_is_missing(
+    client: FlaskClient, wseed: SimpleNamespace, db_session: Session
+) -> None:
+    _grant_pr_role(
+        db_session,
+        wseed.author,
+        wseed.other_org,
+        mission=PermissionType.PRESS_RELEASE,
+        mission_granted=False,
+    )
+    resp = client.get("/api/v1/me/publishers", headers=_auth(wseed.author_token))
+    assert [item["id"] for item in resp.get_json()["items"]] == [wseed.org.id]
+
+
+def test_publishers_are_for_press_release_authors(
+    client: FlaskClient, wseed: SimpleNamespace
+) -> None:
+    resp = client.get("/api/v1/me/publishers", headers=_auth(wseed.journalist_token))
+    assert resp.status_code == 403
+
+
+def test_an_author_without_organisation_has_no_publisher(
+    client: FlaskClient, wseed: SimpleNamespace, db_session: Session
+) -> None:
+    wseed.author.organisation = None
+    db_session.commit()
+    resp = client.get("/api/v1/me/publishers", headers=_auth(wseed.author_token))
+    assert resp.get_json()["items"] == []

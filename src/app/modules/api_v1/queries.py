@@ -164,10 +164,14 @@ def get_my_article(owner_id: int, identifier: int) -> Article | None:
     return container.get(ArticleRepository).get_owned(owner_id, identifier)
 
 
-def list_my_press_releases(owner_id: int, limit: int, offset: int) -> Page:
+def list_my_press_releases(
+    owner_id: int, limit: int, offset: int, external_ref: str | None = None
+) -> Page:
     limit, offset = clamp_limit(limit), clamp_offset(offset)
     repo = container.get(CommuniqueRepository)
-    return _page(repo.list_owned(owner_id, limit=limit, offset=offset), limit, offset)
+    filters = {"external_ref": external_ref} if external_ref else {}
+    found = repo.list_owned(owner_id, limit=limit, offset=offset, **filters)
+    return _page(found, limit, offset)
 
 
 def get_my_press_release(owner_id: int, identifier: int) -> Communique | None:
