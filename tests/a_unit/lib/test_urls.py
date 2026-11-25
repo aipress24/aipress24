@@ -30,6 +30,8 @@ def test_web_urls_pass(url: str) -> None:
         "//example.com",
         "/relative",
         "https://",
+        "https://[x",
+        "https://x]y/",
         "",
     ],
 )

@@ -18,7 +18,10 @@ def is_web_url(url: str, schemes: frozenset[str] = WEB_SCHEMES) -> bool:
     refused rather than repaired: a member-typed link ends up in an
     `href` that another member clicks.
     """
-    parts = urlsplit(url.strip())
+    try:
+        parts = urlsplit(url.strip())
+    except ValueError:  # such as an unclosed "[" in the host
+        return False
     return parts.scheme.lower() in schemes and bool(parts.netloc)
 
 
