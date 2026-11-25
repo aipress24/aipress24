@@ -566,7 +566,7 @@ class TestMembersSearchByZip:
     `split_part`, so this path was structurally untested in CI
     (lessons-learned #11) and the array assumption is fragile on
     Postgres. The test EXECUTES the statement so it runs under both
-    backends (`make test-postgres` covers the prod dialect).
+    backends (`make test-postgres-docker` covers the prod dialect).
     """
 
     def test_search_with_zip_executes_and_matches(

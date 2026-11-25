@@ -4,7 +4,7 @@ Part of [Lessons Learned](00-index.md).
 
 ### SQLite-green does not imply Postgres-green
 
-**Rule**: any change touching schema, migrations, raw SQL, or type-sensitive operators (`>`, casts, JSON ops) must run `make test-postgres` before it counts as tested.
+**Rule**: any change touching schema, migrations, raw SQL, or type-sensitive operators (`>`, casts, JSON ops) must run `make test-postgres-docker` before it counts as tested.
 
 SQLite is permissive about types and tolerant of drift; Postgres is strict. An `EventPost.publisher_id` fix passed the whole SQLite suite, then crashed production with `UndefinedColumn`.
 

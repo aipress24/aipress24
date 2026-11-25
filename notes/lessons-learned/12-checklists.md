@@ -16,7 +16,7 @@ Part of [Lessons Learned](00-index.md).
 
 ### Before merging a cross-cutting or schema change
 
-- [ ] Touched schema, migration, raw SQL, or a typed operator? Ran `make test-postgres`?
+- [ ] Touched schema, migration, raw SQL, or a typed operator? Ran `make test-postgres-docker`?
 - [ ] Any dialect-specific SQL (`split_part`, `->>` with an int index, `strpos`/`instr`)? Isolated behind one portable construct?
 - [ ] Denormalized a column? Can you name every write site?
 - [ ] A rule written twice (Python + SQL)? Is there a test asserting the two halves agree?

@@ -16,15 +16,12 @@ PYTEST := $(HOMEBREW_LIBS) pytest
 .PHONY: test test-postgres-docker test-with-sqla-warnings test-with-coverage test-with-typeguard test-cov-unit test-cov-all
 
 ## Run tests
-test: test-sqlite test-postgres
+test: test-sqlite test-postgres-docker
 
 test-sqlite:
 	$(PYTEST) tests/a_unit
 	$(PYTEST) tests/b_integration
 	$(PYTEST) tests/c_e2e
-
-test-postgres:
-	$(PYTEST) tests --db-url="postgresql+psycopg://localhost/aipress24_test"
 
 # CI adds `-f tests/docker/compose.host-network.yaml` through DOCKER_TESTS_EXTRA.
 # The project is named after the recipe shell's PID, so each run gets its
