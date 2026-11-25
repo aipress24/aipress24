@@ -36,6 +36,8 @@ The blueprint is **not** exposed as a top-level `blueprint` attribute (which the
 | `schemas.py` | Allowlist marshmallow schemas (read + write inputs) + HATEOAS link helpers + collection envelope |
 | `queries.py` | Thin **read** adapter that resolves the **domain repositories** — owns no visibility logic |
 | `writes.py` | Thin **write** adapter — reuses the Com'room authz predicates + `Communique` publish state machine + signals |
+| `answers.py` | Describes and checks the answers to a form of the site, for the two modules below |
+| `profile.py`, `business_walls.py` | The professional profile, and the Business Walls, as the site's forms edit them |
 | `resources.py` | The MethodView resources + the discovery root |
 | `cli.py` | `flask api-token issue|list|revoke` |
 
@@ -49,6 +51,8 @@ The blueprint is **not** exposed as a top-level `blueprint` attribute (which the
 | `read:self` | the token owner's own private data (`/me`) |
 | `write:content` | author/publish the owner's own content (press releases, articles, events) |
 | `write:social` | post on the wall in the owner's name, and delete posts |
+| `write:profile` | edit the owner's professional profile |
+| `write:business-wall` | edit the Business Walls the owner manages; an administrator may open one for their organisation, without payment |
 
 ## Resources
 

@@ -10,13 +10,23 @@ detail lookup 404s on anything outside the public visibility gate (see
 
 from __future__ import annotations
 
+from typing import NoReturn
+from uuid import UUID
+
 from flask import g
 from flask.views import MethodView
 from flask_smorest import abort
 
 from app.modules.swork.posts import delete_post
 
-from . import blp, queries as q, writes as w
+from . import (
+    answers as a,
+    blp,
+    business_walls as b,
+    profile as p,
+    queries as q,
+    writes as w,
+)
 from .schemas import (
     API_PREFIX,
     ArticleCollection,
@@ -25,6 +35,8 @@ from .schemas import (
     ArticleWriteSchema,
     BusinessWallCollection,
     BusinessWallSchema,
+    BusinessWallTypeCollection,
+    DryRunArgsSchema,
     EventCollection,
     EventSchema,
     EventUpdateSchema,
@@ -35,6 +47,11 @@ from .schemas import (
     MyArticleSchema,
     MyAvisEnqueteCollection,
     MyAvisEnqueteSchema,
+    MyBusinessWallCollection,
+    MyBusinessWallCreateSchema,
+    MyBusinessWallReportSchema,
+    MyBusinessWallSchema,
+    MyBusinessWallUpdateSchema,
     MyEditorialProductCollection,
     MyEditorialProductSchema,
     MyEventCollection,
@@ -49,11 +66,17 @@ from .schemas import (
     MyPressReleaseArgsSchema,
     MyPressReleaseCollection,
     MyPressReleaseSchema,
+    MyProfileArgsSchema,
+    MyProfileReportSchema,
+    MyProfileSchema,
+    MyProfileUpdateSchema,
     MyProjectCollection,
     MyProjectSchema,
     OrganisationCollection,
     OrganisationSchema,
     PageArgsSchema,
+    PictureFormSchema,
+    PictureUploadSchema,
     PostFilesSchema,
     PostFormSchema,
     PostUploadSchema,
@@ -67,9 +90,12 @@ from .schemas import (
     PressReleaseUpdateSchema,
     PressReleaseVocabulariesSchema,
     PressReleaseWriteSchema,
+    ProfileTypeCollection,
     PublisherCollection,
     RootSchema,
     SelfProfileSchema,
+    VocabularyArgsSchema,
+    VocabularyCollection,
     collection_path,
     link,
     page_links,
@@ -93,6 +119,10 @@ def _require_write():
     identity = current_identity()
     g.user = identity
     return identity
+
+
+def _refuse(exc: w.WriteError) -> NoReturn:
+    abort(exc.status, message=exc.message, errors=exc.errors)
 
 
 def _collection(name: str, page: q.Page) -> dict:
@@ -561,6 +591,137 @@ class MyPressReleaseImage(MethodView):
         except w.WriteError as exc:
             abort(exc.status, message=exc.message)
         return ""
+
+
+# --- professional profile and Business Walls --------------------------------
+
+
+@blp.route("/vocabularies/profile-types")
+class ProfileTypes(MethodView):
+    @blp.response(200, ProfileTypeCollection)
+    def get(self):
+        """List the types of profile a member may have."""
+        return {"items": p.profile_types()}
+
+
+@blp.route("/vocabularies/business-wall-types")
+class BusinessWallTypes(MethodView):
+    @blp.response(200, BusinessWallTypeCollection)
+    def get(self):
+        """List the types of Business Wall."""
+        return {"items": b.business_wall_types()}
+
+
+@blp.route("/vocabularies/values/<name>")
+class VocabularyValues(MethodView):
+    @blp.arguments(VocabularyArgsSchema, location="query")
+    @blp.response(200, VocabularyCollection)
+    def get(self, args: dict, name: str):
+        """List the values of the vocabulary of a field; cities must be searched."""
+        values = a.search_vocabulary(
+            name, text=args["search"], country=args["country"], limit=args["limit"]
+        )
+        return {"items": values}
+
+
+@blp.route("/me/profile")
+class MyProfile(MethodView):
+    @blp.arguments(MyProfileArgsSchema, location="query")
+    @blp.response(200, MyProfileSchema)
+    def get(self, args: dict):
+        """Fetch the caller's professional profile, and what it may hold."""
+        _require(Scope.READ_SELF)
+        try:
+            return p.profile_view(current_identity(), args.get("type"))
+        except w.WriteError as exc:
+            _refuse(exc)
+
+    @blp.arguments(DryRunArgsSchema, location="query")
+    @blp.arguments(MyProfileUpdateSchema)
+    @blp.response(200, MyProfileReportSchema)
+    def patch(self, args: dict, data: dict):
+        """Change some answers; a moderator validates those to the main ones."""
+        _require(Scope.WRITE_PROFILE)
+        try:
+            return p.update_profile(current_identity(), data, **args)
+        except w.WriteError as exc:
+            _refuse(exc)
+
+
+@blp.route("/me/business-walls")
+class MyBusinessWalls(MethodView):
+    @blp.response(200, MyBusinessWallCollection)
+    def get(self):
+        """List the Business Walls the caller manages."""
+        _require(Scope.READ_SELF)
+        walls = b.my_business_walls(current_identity())
+        return {"items": [b.business_wall_view(wall) for wall in walls]}
+
+    @blp.arguments(MyBusinessWallCreateSchema)
+    @blp.response(201, MyBusinessWallSchema)
+    def post(self, data: dict):
+        """Open one for the caller's organisation, without payment (administrators)."""
+        _require(Scope.WRITE_BUSINESS_WALL)
+        # Read by the creation of a Business Wall, as in `_require_write`.
+        g.user = current_identity()
+        try:
+            wall = b.create_business_wall(g.user, data["bw_type"])
+        except w.WriteError as exc:
+            _refuse(exc)
+        return b.business_wall_view(wall)
+
+
+@blp.route("/me/business-walls/<uuid:business_wall_id>")
+class MyBusinessWall(MethodView):
+    @blp.response(200, MyBusinessWallSchema)
+    def get(self, business_wall_id: UUID):
+        """Fetch a Business Wall the caller manages, and what it may hold."""
+        _require(Scope.READ_SELF)
+        return b.business_wall_view(_my_business_wall(business_wall_id))
+
+    @blp.arguments(DryRunArgsSchema, location="query")
+    @blp.arguments(MyBusinessWallUpdateSchema)
+    @blp.response(200, MyBusinessWallReportSchema)
+    def patch(self, args: dict, data: dict, business_wall_id: UUID):
+        """Change some answers."""
+        _require(Scope.WRITE_BUSINESS_WALL)
+        wall = _my_business_wall(business_wall_id)
+        try:
+            return b.update_business_wall(wall, data["answers"], **args)
+        except w.WriteError as exc:
+            _refuse(exc)
+
+
+@blp.route("/me/business-walls/<uuid:business_wall_id>/<any(logo, cover):picture>")
+class MyBusinessWallPicture(MethodView):
+    # As for the images of press releases: one form, parsed from two locations.
+    @blp.doc(
+        requestBody={
+            "required": True,
+            "content": {"multipart/form-data": {"schema": PictureUploadSchema}},
+        }
+    )
+    @blp.arguments(PressReleaseImageFileSchema, location="files")
+    @blp.arguments(
+        PictureFormSchema, location="form", content_type="multipart/form-data"
+    )
+    @blp.response(200, MyBusinessWallSchema)
+    def put(self, files: dict, form: dict, business_wall_id: UUID, picture: str):
+        """Replace the logo or the cover."""
+        _require(Scope.WRITE_BUSINESS_WALL)
+        wall = _my_business_wall(business_wall_id)
+        try:
+            b.set_picture(wall, picture, files["image"], form.get("copyright"))
+        except w.WriteError as exc:
+            _refuse(exc)
+        return b.business_wall_view(wall)
+
+
+def _my_business_wall(identifier: UUID) -> b.BusinessWall:
+    wall = b.my_business_wall(current_identity(), identifier)
+    if wall is None:
+        abort(404, message="Business Wall not found.")
+    return wall
 
 
 # --- owner-scoped wall posts ------------------------------------------------

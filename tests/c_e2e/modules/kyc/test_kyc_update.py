@@ -35,7 +35,7 @@ def test_logged_in_user_minor_kyc_update_is_applied(app, db_session, monkeypatch
         first_name="Ada",
         last_name="Lovelace",
     )
-    # A profile that has been through the KYC, as `_update_from_current_user`
+    # A profile that has been through the KYC, as `_clone_with_answers`
     # expects: every survey field present.
     user.profile = KYCProfile(
         **{name: populate_json_field(name, {}) for name in PROFILE_JSON_FIELDS}

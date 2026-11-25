@@ -12,6 +12,19 @@ from __future__ import annotations
 from typing import Any, TypedDict
 
 
+class AnswerField(TypedDict, total=False):
+    kind: str
+    label: str
+    max_items: int
+    max_length: int
+    moderated: bool
+    name: str
+    parent: str
+    required: bool
+    section: str
+    vocabulary: str
+
+
 class Article(TypedDict, total=False):
     _links: dict[str, Any]
     comment_count: int
@@ -107,6 +120,16 @@ class BusinessWallCollection(TypedDict, total=False):
     limit: int
     offset: int
     total: int
+
+
+class BusinessWallType(TypedDict, total=False):
+    free: bool
+    id: str
+    label: str
+
+
+class BusinessWallTypeCollection(TypedDict, total=False):
+    items: list[BusinessWallType]
 
 
 class Event(TypedDict, total=False):
@@ -286,6 +309,38 @@ class MyAvisEnqueteCollection(TypedDict, total=False):
     limit: int
     offset: int
     total: int
+
+
+class MyBusinessWall(TypedDict, total=False):
+    _links: dict[str, Any]
+    answers: dict[str, Any]
+    bw_type: str
+    cover_sha256: str | None
+    fields: list[AnswerField]
+    id: str
+    logo_sha256: str | None
+    missing: list[str]
+    name: str
+    organisation_id: int | None
+    type_label: str
+
+
+class MyBusinessWallCollection(TypedDict, total=False):
+    items: list[MyBusinessWall]
+
+
+class MyBusinessWallCreate(TypedDict, total=False):
+    bw_type: str
+    terms_accepted: bool
+
+
+class MyBusinessWallReport(TypedDict, total=False):
+    changed: list[str]
+    dry_run: bool
+
+
+class MyBusinessWallUpdate(TypedDict, total=False):
+    answers: dict[str, Any]
 
 
 class MyEditorialProduct(TypedDict, total=False):
@@ -471,6 +526,30 @@ class MyPressReleaseCollection(TypedDict, total=False):
     total: int
 
 
+class MyProfile(TypedDict, total=False):
+    answers: dict[str, Any]
+    awaiting_validation: bool
+    community: str
+    fields: list[AnswerField]
+    missing: list[str]
+    organisation_name: str
+    type: str
+    type_label: str
+
+
+class MyProfileReport(TypedDict, total=False):
+    awaiting_validation: bool
+    changed: list[str]
+    dry_run: bool
+    organisation_name: str
+    type_changed: bool
+
+
+class MyProfileUpdate(TypedDict, total=False):
+    answers: dict[str, Any]
+    type: str
+
+
 class MyProject(TypedDict, total=False):
     _links: dict[str, Any]
     budget_max: int | None
@@ -627,6 +706,16 @@ class PressReleaseWrite(TypedDict, total=False):
     topic: str
 
 
+class ProfileType(TypedDict, total=False):
+    community: str
+    id: str
+    label: str
+
+
+class ProfileTypeCollection(TypedDict, total=False):
+    items: list[ProfileType]
+
+
 class Publisher(TypedDict, total=False):
     _links: dict[str, Any]
     id: int
@@ -673,6 +762,16 @@ class SelfProfile(TypedDict, total=False):
     tel_mobile: str
     validated_at: str | None
     validation_status: str
+
+
+class VocabularyCollection(TypedDict, total=False):
+    items: list[VocabularyValue]
+
+
+class VocabularyValue(TypedDict, total=False):
+    group: str
+    label: str
+    value: str
 
 
 COLLECTIONS: tuple[str, ...] = (

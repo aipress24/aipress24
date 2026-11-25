@@ -1038,6 +1038,181 @@ class PageArgsSchema(Schema):
     offset = fields.Int(load_default=0)
 
 
+# --- professional profile and Business Walls --------------------------------
+
+
+class AnswerFieldSchema(Schema):
+    """A question of a form of the site."""
+
+    name = fields.Str()
+    label = fields.Str()
+    section = fields.Str()
+    kind = fields.Str(
+        metadata={"description": "`text`, `flag`, `choice` or `choices`."}
+    )
+    required = fields.Bool()
+    moderated = fields.Bool(
+        metadata={"description": "A moderator must validate a change."}
+    )
+    max_length = fields.Int(metadata={"description": "0 when there is no limit."})
+    max_items = fields.Int(metadata={"description": "0 when there is no limit."})
+    vocabulary = fields.Str(
+        metadata={"description": "Where the values come from; empty if they are free."}
+    )
+    parent = fields.Str(
+        metadata={"description": "The field holding the groups of these values."}
+    )
+
+
+ANSWERS = {"type": "object", "additionalProperties": True}
+
+
+class MyProfileSchema(Schema):
+    """The caller's professional profile, as the form of the site edits it."""
+
+    type = fields.Str()
+    type_label = fields.Str()
+    community = fields.Str()
+    awaiting_validation = fields.Bool()
+    organisation_name = fields.Str()
+    answers = fields.Dict(metadata=ANSWERS)
+    missing = fields.List(
+        fields.Str(), metadata={"description": "Required fields with no answer."}
+    )
+    fields_ = fields.List(
+        fields.Nested(AnswerFieldSchema), data_key="fields", attribute="fields"
+    )
+
+
+class MyProfileUpdateSchema(Schema):
+    type = fields.Str()
+    answers = fields.Dict(keys=fields.Str(), load_default=dict)
+
+
+class MyProfileReportSchema(Schema):
+    """What an update of the profile does."""
+
+    changed = fields.List(fields.Str())
+    type_changed = fields.Bool()
+    organisation_name = fields.Str(
+        metadata={"description": "The organisation the profile names."}
+    )
+    awaiting_validation = fields.Bool()
+    dry_run = fields.Bool()
+
+
+class DryRunArgsSchema(Schema):
+    dry_run = fields.Bool(
+        load_default=False, metadata={"description": "Check, and change nothing."}
+    )
+
+
+class MyProfileArgsSchema(Schema):
+    type = fields.Str(
+        metadata={"description": "Describe it as if it were of this type."}
+    )
+
+
+class ProfileTypeSchema(Schema):
+    id = fields.Str()
+    label = fields.Str()
+    community = fields.Str()
+
+
+class ProfileTypeCollection(Schema):
+    items = fields.List(fields.Nested(ProfileTypeSchema))
+
+
+class BusinessWallTypeSchema(Schema):
+    id = fields.Str()
+    label = fields.Str()
+    free = fields.Bool(metadata={"description": "Whether the subscription is free."})
+
+
+class BusinessWallTypeCollection(Schema):
+    items = fields.List(fields.Nested(BusinessWallTypeSchema))
+
+
+class VocabularyArgsSchema(Schema):
+    search = fields.Str(load_default="")
+    country = fields.Str(
+        load_default="", metadata={"description": "ISO 3166 alpha-3, for `cities`."}
+    )
+    limit = fields.Int(load_default=None, validate=validate.Range(min=1))
+
+
+class VocabularyValueSchema(Schema):
+    value = fields.Str()
+    label = fields.Str()
+    group = fields.Str()
+
+
+class VocabularyCollection(Schema):
+    items = fields.List(fields.Nested(VocabularyValueSchema))
+
+
+class MyBusinessWallSchema(Schema):
+    """A Business Wall the caller manages."""
+
+    id = fields.Str()
+    name = fields.Str()
+    bw_type = fields.Str()
+    type_label = fields.Str()
+    organisation_id = fields.Int(allow_none=True)
+    logo_sha256 = fields.Function(
+        lambda wall: _sha256_of(wall["logo"]), metadata=NULLABLE_TEXT
+    )
+    cover_sha256 = fields.Function(
+        lambda wall: _sha256_of(wall["cover"]), metadata=NULLABLE_TEXT
+    )
+    answers = fields.Dict(metadata=ANSWERS)
+    missing = fields.List(
+        fields.Str(), metadata={"description": "Required fields with no answer."}
+    )
+    fields_ = fields.List(
+        fields.Nested(AnswerFieldSchema), data_key="fields", attribute="fields"
+    )
+    links = fields.Method("_make_links", data_key="_links", metadata=LINKS)
+
+    def _make_links(self, wall) -> dict[str, dict[str, str]]:
+        links = {"self": link(resource_path("me/business-walls", wall["id"]))}
+        if wall["organisation_id"]:
+            organisation = base62.encode(wall["organisation_id"])
+            links["page"] = link(f"/swork/organisations/{organisation}")
+        return links
+
+
+class MyBusinessWallCollection(Schema):
+    items = fields.List(fields.Nested(MyBusinessWallSchema))
+
+
+class MyBusinessWallCreateSchema(Schema):
+    bw_type = fields.Str(required=True)
+    terms_accepted = fields.Bool(
+        required=True,
+        validate=validate.Equal(True, error="The terms of sale must be accepted."),
+    )
+
+
+class MyBusinessWallUpdateSchema(Schema):
+    answers = fields.Dict(keys=fields.Str(), required=True)
+
+
+class MyBusinessWallReportSchema(Schema):
+    """What an update of a Business Wall does."""
+
+    changed = fields.List(fields.Str())
+    dry_run = fields.Bool()
+
+
+class PictureFormSchema(Schema):
+    copyright = fields.Str()
+
+
+class PictureUploadSchema(PressReleaseImageFileSchema, PictureFormSchema):
+    """The whole multipart body, as documented in the spec."""
+
+
 class MyPostArgsSchema(PageArgsSchema):
     external_ref = fields.Str(
         metadata={"description": "Only the post with this reference."}

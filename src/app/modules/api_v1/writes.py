@@ -162,9 +162,13 @@ _EVENT_FIELDS = (
 class WriteError(Exception):
     """A write was refused; ``status`` is the HTTP code the resource returns."""
 
-    def __init__(self, status: int, message: str) -> None:
+    def __init__(
+        self, status: int, message: str, errors: dict[str, list[str]] | None = None
+    ) -> None:
         self.status = status
         self.message = message
+        # What is wrong with each field.
+        self.errors = errors or {}
         super().__init__(message)
 
 

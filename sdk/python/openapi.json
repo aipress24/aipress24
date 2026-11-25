@@ -23,6 +23,48 @@
       }
     },
     "schemas": {
+      "AnswerField": {
+        "additionalProperties": false,
+        "properties": {
+          "kind": {
+            "description": "`text`, `flag`, `choice` or `choices`.",
+            "type": "string"
+          },
+          "label": {
+            "type": "string"
+          },
+          "max_items": {
+            "description": "0 when there is no limit.",
+            "type": "integer"
+          },
+          "max_length": {
+            "description": "0 when there is no limit.",
+            "type": "integer"
+          },
+          "moderated": {
+            "description": "A moderator must validate a change.",
+            "type": "boolean"
+          },
+          "name": {
+            "type": "string"
+          },
+          "parent": {
+            "description": "The field holding the groups of these values.",
+            "type": "string"
+          },
+          "required": {
+            "type": "boolean"
+          },
+          "section": {
+            "type": "string"
+          },
+          "vocabulary": {
+            "description": "Where the values come from; empty if they are free.",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
       "Article": {
         "additionalProperties": false,
         "properties": {
@@ -359,6 +401,34 @@
           "total": {
             "description": "Total matching resources.",
             "type": "integer"
+          }
+        },
+        "type": "object"
+      },
+      "BusinessWallType": {
+        "additionalProperties": false,
+        "properties": {
+          "free": {
+            "description": "Whether the subscription is free.",
+            "type": "boolean"
+          },
+          "id": {
+            "type": "string"
+          },
+          "label": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "BusinessWallTypeCollection": {
+        "additionalProperties": false,
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/BusinessWallType"
+            },
+            "type": "array"
           }
         },
         "type": "object"
@@ -1048,6 +1118,126 @@
         },
         "type": "object"
       },
+      "MyBusinessWall": {
+        "additionalProperties": false,
+        "properties": {
+          "_links": {
+            "additionalProperties": {
+              "properties": {
+                "href": {
+                  "type": "string"
+                }
+              },
+              "type": "object"
+            },
+            "readOnly": true,
+            "type": "object"
+          },
+          "answers": {
+            "additionalProperties": true,
+            "type": "object"
+          },
+          "bw_type": {
+            "type": "string"
+          },
+          "cover_sha256": {
+            "nullable": true,
+            "readOnly": true,
+            "type": "string"
+          },
+          "fields": {
+            "items": {
+              "$ref": "#/components/schemas/AnswerField"
+            },
+            "type": "array"
+          },
+          "id": {
+            "type": "string"
+          },
+          "logo_sha256": {
+            "nullable": true,
+            "readOnly": true,
+            "type": "string"
+          },
+          "missing": {
+            "description": "Required fields with no answer.",
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "name": {
+            "type": "string"
+          },
+          "organisation_id": {
+            "nullable": true,
+            "type": "integer"
+          },
+          "type_label": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "MyBusinessWallCollection": {
+        "additionalProperties": false,
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/MyBusinessWall"
+            },
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
+      "MyBusinessWallCreate": {
+        "additionalProperties": false,
+        "properties": {
+          "bw_type": {
+            "type": "string"
+          },
+          "terms_accepted": {
+            "enum": [
+              true
+            ],
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "bw_type",
+          "terms_accepted"
+        ],
+        "type": "object"
+      },
+      "MyBusinessWallReport": {
+        "additionalProperties": false,
+        "properties": {
+          "changed": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "dry_run": {
+            "type": "boolean"
+          }
+        },
+        "type": "object"
+      },
+      "MyBusinessWallUpdate": {
+        "additionalProperties": false,
+        "properties": {
+          "answers": {
+            "additionalProperties": {},
+            "type": "object"
+          }
+        },
+        "required": [
+          "answers"
+        ],
+        "type": "object"
+      },
       "MyEditorialProduct": {
         "additionalProperties": false,
         "properties": {
@@ -1728,6 +1918,82 @@
         },
         "type": "object"
       },
+      "MyProfile": {
+        "additionalProperties": false,
+        "properties": {
+          "answers": {
+            "additionalProperties": true,
+            "type": "object"
+          },
+          "awaiting_validation": {
+            "type": "boolean"
+          },
+          "community": {
+            "type": "string"
+          },
+          "fields": {
+            "items": {
+              "$ref": "#/components/schemas/AnswerField"
+            },
+            "type": "array"
+          },
+          "missing": {
+            "description": "Required fields with no answer.",
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "organisation_name": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string"
+          },
+          "type_label": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "MyProfileReport": {
+        "additionalProperties": false,
+        "properties": {
+          "awaiting_validation": {
+            "type": "boolean"
+          },
+          "changed": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "dry_run": {
+            "type": "boolean"
+          },
+          "organisation_name": {
+            "description": "The organisation the profile names.",
+            "type": "string"
+          },
+          "type_changed": {
+            "type": "boolean"
+          }
+        },
+        "type": "object"
+      },
+      "MyProfileUpdate": {
+        "additionalProperties": false,
+        "properties": {
+          "answers": {
+            "additionalProperties": {},
+            "type": "object"
+          },
+          "type": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
       "MyProject": {
         "additionalProperties": false,
         "properties": {
@@ -1973,6 +2239,23 @@
             "type": "integer"
           }
         },
+        "type": "object"
+      },
+      "PictureUpload": {
+        "additionalProperties": false,
+        "properties": {
+          "copyright": {
+            "type": "string"
+          },
+          "image": {
+            "description": "JPEG, PNG, GIF, WebP or AVIF, under 4 MB.",
+            "format": "binary",
+            "type": "string"
+          }
+        },
+        "required": [
+          "image"
+        ],
         "type": "object"
       },
       "PostImage": {
@@ -2391,6 +2674,33 @@
         ],
         "type": "object"
       },
+      "ProfileType": {
+        "additionalProperties": false,
+        "properties": {
+          "community": {
+            "type": "string"
+          },
+          "id": {
+            "type": "string"
+          },
+          "label": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "ProfileTypeCollection": {
+        "additionalProperties": false,
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/ProfileType"
+            },
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
       "Publisher": {
         "additionalProperties": false,
         "properties": {
@@ -2579,6 +2889,33 @@
           }
         },
         "type": "object"
+      },
+      "VocabularyCollection": {
+        "additionalProperties": false,
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/VocabularyValue"
+            },
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
+      "VocabularyValue": {
+        "additionalProperties": false,
+        "properties": {
+          "group": {
+            "type": "string"
+          },
+          "label": {
+            "type": "string"
+          },
+          "value": {
+            "type": "string"
+          }
+        },
+        "type": "object"
       }
     },
     "securitySchemes": {
@@ -2590,7 +2927,7 @@
     }
   },
   "info": {
-    "description": "Send the token as `Authorization: Bearer <token>`. It acts as its owner, within its scopes:\n\n| Scope | Grants |\n|---|---|\n| `read:content` | articles, press releases, events |\n| `read:organisations` | organisations, business walls |\n| `read:directory` | member profiles |\n| `read:self` | reading the owner's own data, under `/me` |\n| `write:content` | authoring and publishing the owner's own content, under `/me` |\n| `write:social` | posting on the wall in the owner's name, and deleting posts |\n\nErrors are JSON: `401` missing or unusable token, `403` missing scope or right, `404` unknown or not yours, `413` file too large, `409` reference already used, `422` invalid input or refused publication, `429` too many posts in a day.\n",
+    "description": "Send the token as `Authorization: Bearer <token>`. It acts as its owner, within its scopes:\n\n| Scope | Grants |\n|---|---|\n| `read:content` | articles, press releases, events |\n| `read:organisations` | organisations, business walls |\n| `read:directory` | member profiles |\n| `read:self` | reading the owner's own data, under `/me` |\n| `write:content` | authoring and publishing the owner's own content, under `/me` |\n| `write:social` | posting on the wall in the owner's name, and deleting posts |\n| `write:profile` | editing the owner's professional profile |\n| `write:business-wall` | editing the Business Walls the owner manages |\n\nErrors are JSON: `401` missing or unusable token, `403` missing scope or right, `404` unknown or not yours, `413` file too large, `409` reference already used, `422` invalid input or refused publication, `429` too many posts in a day.\n",
     "title": "AIpress24 API",
     "version": "1.0"
   },
@@ -3112,6 +3449,214 @@
           }
         },
         "summary": "Return one of the caller's own articles to draft.",
+        "tags": [
+          "api_v1"
+        ]
+      }
+    },
+    "/api/v1/me/business-walls": {
+      "get": {
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MyBusinessWallCollection"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "default": {
+            "$ref": "#/components/responses/DEFAULT_ERROR"
+          }
+        },
+        "summary": "List the Business Walls the caller manages.",
+        "tags": [
+          "api_v1"
+        ]
+      },
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MyBusinessWallCreate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MyBusinessWall"
+                }
+              }
+            },
+            "description": "Created"
+          },
+          "422": {
+            "$ref": "#/components/responses/UNPROCESSABLE_ENTITY"
+          },
+          "default": {
+            "$ref": "#/components/responses/DEFAULT_ERROR"
+          }
+        },
+        "summary": "Open one for the caller's organisation, without payment (administrators).",
+        "tags": [
+          "api_v1"
+        ]
+      }
+    },
+    "/api/v1/me/business-walls/{business_wall_id}": {
+      "get": {
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MyBusinessWall"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "default": {
+            "$ref": "#/components/responses/DEFAULT_ERROR"
+          }
+        },
+        "summary": "Fetch a Business Wall the caller manages, and what it may hold.",
+        "tags": [
+          "api_v1"
+        ]
+      },
+      "parameters": [
+        {
+          "in": "path",
+          "name": "business_wall_id",
+          "required": true,
+          "schema": {
+            "format": "uuid",
+            "type": "string"
+          }
+        }
+      ],
+      "patch": {
+        "parameters": [
+          {
+            "description": "Check, and change nothing.",
+            "in": "query",
+            "name": "dry_run",
+            "required": false,
+            "schema": {
+              "default": false,
+              "type": "boolean"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MyBusinessWallUpdate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MyBusinessWallReport"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "422": {
+            "$ref": "#/components/responses/UNPROCESSABLE_ENTITY"
+          },
+          "default": {
+            "$ref": "#/components/responses/DEFAULT_ERROR"
+          }
+        },
+        "summary": "Change some answers.",
+        "tags": [
+          "api_v1"
+        ]
+      }
+    },
+    "/api/v1/me/business-walls/{business_wall_id}/{picture}": {
+      "parameters": [
+        {
+          "in": "path",
+          "name": "business_wall_id",
+          "required": true,
+          "schema": {
+            "format": "uuid",
+            "type": "string"
+          }
+        },
+        {
+          "in": "path",
+          "name": "picture",
+          "required": true,
+          "schema": {
+            "enum": [
+              "logo",
+              "cover"
+            ],
+            "type": "string"
+          }
+        }
+      ],
+      "put": {
+        "parameters": [
+          {
+            "description": "JPEG, PNG, GIF, WebP or AVIF, under 4 MB.",
+            "in": "formData",
+            "name": "image",
+            "required": true,
+            "schema": {
+              "format": "binary",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/PictureUpload"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MyBusinessWall"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "422": {
+            "$ref": "#/components/responses/UNPROCESSABLE_ENTITY"
+          },
+          "default": {
+            "$ref": "#/components/responses/DEFAULT_ERROR"
+          }
+        },
+        "summary": "Replace the logo or the cover.",
         "tags": [
           "api_v1"
         ]
@@ -4183,6 +4728,89 @@
         }
       ]
     },
+    "/api/v1/me/profile": {
+      "get": {
+        "parameters": [
+          {
+            "description": "Describe it as if it were of this type.",
+            "in": "query",
+            "name": "type",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MyProfile"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "422": {
+            "$ref": "#/components/responses/UNPROCESSABLE_ENTITY"
+          },
+          "default": {
+            "$ref": "#/components/responses/DEFAULT_ERROR"
+          }
+        },
+        "summary": "Fetch the caller's professional profile, and what it may hold.",
+        "tags": [
+          "api_v1"
+        ]
+      },
+      "patch": {
+        "parameters": [
+          {
+            "description": "Check, and change nothing.",
+            "in": "query",
+            "name": "dry_run",
+            "required": false,
+            "schema": {
+              "default": false,
+              "type": "boolean"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MyProfileUpdate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MyProfileReport"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "422": {
+            "$ref": "#/components/responses/UNPROCESSABLE_ENTITY"
+          },
+          "default": {
+            "$ref": "#/components/responses/DEFAULT_ERROR"
+          }
+        },
+        "summary": "Change some answers; a moderator validates those to the main ones.",
+        "tags": [
+          "api_v1"
+        ]
+      }
+    },
     "/api/v1/me/projects": {
       "get": {
         "parameters": [
@@ -4530,6 +5158,29 @@
         }
       ]
     },
+    "/api/v1/vocabularies/business-wall-types": {
+      "get": {
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BusinessWallTypeCollection"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "default": {
+            "$ref": "#/components/responses/DEFAULT_ERROR"
+          }
+        },
+        "summary": "List the types of Business Wall.",
+        "tags": [
+          "api_v1"
+        ]
+      }
+    },
     "/api/v1/vocabularies/press-releases": {
       "get": {
         "responses": {
@@ -4552,6 +5203,98 @@
           "api_v1"
         ]
       }
+    },
+    "/api/v1/vocabularies/profile-types": {
+      "get": {
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProfileTypeCollection"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "default": {
+            "$ref": "#/components/responses/DEFAULT_ERROR"
+          }
+        },
+        "summary": "List the types of profile a member may have.",
+        "tags": [
+          "api_v1"
+        ]
+      }
+    },
+    "/api/v1/vocabularies/values/{name}": {
+      "get": {
+        "parameters": [
+          {
+            "in": "query",
+            "name": "search",
+            "required": false,
+            "schema": {
+              "default": "",
+              "type": "string"
+            }
+          },
+          {
+            "description": "ISO 3166 alpha-3, for `cities`.",
+            "in": "query",
+            "name": "country",
+            "required": false,
+            "schema": {
+              "default": "",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": null,
+              "minimum": 1,
+              "nullable": true,
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VocabularyCollection"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "422": {
+            "$ref": "#/components/responses/UNPROCESSABLE_ENTITY"
+          },
+          "default": {
+            "$ref": "#/components/responses/DEFAULT_ERROR"
+          }
+        },
+        "summary": "List the values of the vocabulary of a field; cities must be searched.",
+        "tags": [
+          "api_v1"
+        ]
+      },
+      "parameters": [
+        {
+          "in": "path",
+          "name": "name",
+          "required": true,
+          "schema": {
+            "minLength": 1,
+            "type": "string"
+          }
+        }
+      ]
     }
   },
   "security": [

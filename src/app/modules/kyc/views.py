@@ -105,22 +105,18 @@ def zip_towns(country_code: str):
 def _load_user_data_in_session() -> None:
     user = g.user
     profile = user.profile
-    # warning: no need to clone so early
-    # cloned_user = clone_user(user)
-    kyc_data_for_display = _populate_kyc_data_from_user(user)
-
-    # convert to dict kyc_data for session storage
-    kyc_data_for_session = {}
-    for key, value in kyc_data_for_display.items():
-        if isinstance(value, FileObject):
-            kyc_data_for_session[key] = value.to_dict()
-        else:
-            kyc_data_for_session[key] = value
-
     session_service = container.get(SessionService)
     session_service.set("profile_id", profile.profile_id)
-    session_service.set("form_raw_results", kyc_data_for_session)
+    session_service.set("form_raw_results", member_answers(user))
     session_service.set("modify_form", True)
+
+
+def member_answers(user: User) -> dict[str, Any]:
+    """The member's current answers, as `update_member` takes them back."""
+    return {
+        key: value.to_dict() if isinstance(value, FileObject) else value
+        for key, value in _populate_kyc_data_from_user(user).items()
+    }
 
 
 def _create_session_id() -> str:
@@ -584,10 +580,9 @@ def _set_default_kyc_profile(user: User) -> None:
     user.profile = profile
 
 
-def _update_from_current_user(orig_user: User) -> User:
-    session_service = container.get(SessionService)
-    results = session_service.get("form_raw_results", {})
-
+def _clone_with_answers(
+    orig_user: User, profile_id: str, results: dict[str, Any]
+) -> User:
     if not orig_user.profile:  # should never happen
         _set_default_kyc_profile(orig_user)
 
@@ -596,7 +591,6 @@ def _update_from_current_user(orig_user: User) -> User:
     # orig_user.is_cloned = True
 
     profile = require_profile(cloned_user)
-    profile_id = session_service.get("profile_id", "")
     survey_profile = get_survey_profile(profile_id)
     profile.profile_id = survey_profile.id
     profile.profile_code = survey_profile.code.name
@@ -663,20 +657,11 @@ def _get_critical_modified_fields(orig_user: User, cloned_user: User) -> list[st
     is required.
     """
     convert = {"civilite": "gender"}
-
-    def _get_value(user: User, field_name: str) -> Any:
-        profile = require_profile(user)
-        if profile.has_field_name(field_name):
-            return profile.get_value(field_name)
-        key = convert.get(field_name, field_name)
-        return getattr(user, key)
-
+    # A field the profile does not hold yet has its default value.
+    before = _populate_kyc_data_from_user(orig_user)
+    after = _populate_kyc_data_from_user(cloned_user)
     critical = [field.name for field in get_survey_fields() if field.validate_changes]
-    critical_modified_fields = []
-    for key_name in critical:
-        if _get_value(orig_user, key_name) != _get_value(cloned_user, key_name):
-            critical_modified_fields.append(convert.get(key_name, key_name))
-    return critical_modified_fields
+    return [convert.get(name, name) for name in critical if before[name] != after[name]]
 
 
 def _modified_fields_as_label(attr_names: list[str]) -> str:
@@ -708,6 +693,16 @@ def _modification_validation_required(
     return error
 
 
+def is_kept_by_business_wall(user: User, organisation_name: str) -> bool:
+    """Does the member's Business Wall keep them from joining this organisation?"""
+    current = user.organisation.name.lower() if user.organisation else ""
+    return (
+        bool(organisation_name)
+        and organisation_name.lower() != current
+        and user_has_business_wall_role(user)
+    )
+
+
 def _minor_modification_validated(
     db_session: scoped_session[Session],
     orig_user: User,
@@ -720,14 +715,7 @@ def _minor_modification_validated(
 
     # Detect organisation-name changes. If the user is member of a BusinessWall,
     # refuses change.
-    new_org_name = _find_kyc_organisation_name(orig_user).lower()
-    current_org = orig_user.organisation
-    current_org_name = current_org.name.lower() if current_org else ""
-    if (
-        new_org_name
-        and new_org_name != current_org_name
-        and user_has_business_wall_role(orig_user)
-    ):
+    if is_kept_by_business_wall(orig_user, _find_kyc_organisation_name(orig_user)):
         return (
             "Votre organisation ne peut pas être modifiée car vous êtes "
             "rattaché·e à un Business Wall."
@@ -755,16 +743,28 @@ def _minor_modification_validated(
 
 
 def _update_current_user_data() -> str:
+    session_service = container.get(SessionService)
+    return update_member(
+        db.session.get(User, current_user.id),
+        session_service.get("profile_id", ""),
+        session_service.get("form_raw_results", {}),
+    )
+
+
+def update_member(user: User, profile_id: str, answers: dict[str, Any]) -> str:
+    """Apply every answer, or submit them when a moderator must validate them.
+
+    Returns why they are refused, or an empty string.
+    """
     db_session = db.session
-    orig_user = db_session.get(User, current_user.id)
-    cloned_user = _update_from_current_user(orig_user)
-    critical_modified_fields = _get_critical_modified_fields(orig_user, cloned_user)
+    cloned_user = _clone_with_answers(user, profile_id, answers)
+    critical_modified_fields = _get_critical_modified_fields(user, cloned_user)
     if critical_modified_fields:
         return _modification_validation_required(
             db_session, cloned_user, critical_modified_fields
         )
     return _minor_modification_validated(
-        db_session, orig_user, cloned_user, critical_modified_fields
+        db_session, user, cloned_user, critical_modified_fields
     )
 
 

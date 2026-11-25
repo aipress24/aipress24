@@ -37,6 +37,8 @@ class Scope(StrEnum):
     READ_SELF = "read:self"  # the token owner's own private data (/me)
     WRITE_CONTENT = "write:content"  # author/publish the owner's own content
     WRITE_SOCIAL = "write:social"  # speak in the owner's name on the wall
+    WRITE_PROFILE = "write:profile"  # edit the owner's professional profile
+    WRITE_BUSINESS_WALL = "write:business-wall"  # edit those the owner manages
 
 
 ALL_SCOPES: list[str] = [s.value for s in Scope]

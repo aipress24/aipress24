@@ -158,6 +158,8 @@ Send the token as `Authorization: Bearer <token>`. It acts as its owner, within 
 | `read:self` | reading the owner's own data, under `/me` |
 | `write:content` | authoring and publishing the owner's own content, under `/me` |
 | `write:social` | posting on the wall in the owner's name, and deleting posts |
+| `write:profile` | editing the owner's professional profile |
+| `write:business-wall` | editing the Business Walls the owner manages |
 
 Errors are JSON: `401` missing or unusable token, `403` missing scope or right, `404` unknown or not yours, `413` file too large, `409` reference already used, `422` invalid input or refused publication, `429` too many posts in a day.
 """
