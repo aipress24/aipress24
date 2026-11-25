@@ -185,7 +185,9 @@ def test_an_imported_post_says_where_it_comes_from(
     assert "origine" not in _find_post(page, new).text
 
 
-@pytest.mark.parametrize("reference", ["javascript:alert(1)", "doc-12", "https://[x", None])
+@pytest.mark.parametrize(
+    "reference", ["javascript:alert(1)", "doc-12", "https://[x", None]
+)
 def test_a_reference_is_only_a_link_if_it_is_one(
     client: FlaskClient, author: User, db_session: Session, reference: str | None
 ) -> None:
