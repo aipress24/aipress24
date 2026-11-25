@@ -10,10 +10,20 @@ depend on the API.
 
 from __future__ import annotations
 
-from typing import ClassVar, cast
+from typing import Any, ClassVar, cast
 
 import sqlalchemy as sa
-from flask import Response, flash, g, make_response, redirect, render_template, request
+from flask import (
+    Flask,
+    Response,
+    flash,
+    g,
+    has_request_context,
+    make_response,
+    redirect,
+    render_template,
+    request,
+)
 from flask.views import MethodView
 from flask_security.decorators import auth_required
 from flask_security.utils import config_value
@@ -24,9 +34,11 @@ from werkzeug.exceptions import NotFound
 from app.flask.extensions import db
 from app.flask.lib.nav import nav
 from app.flask.routing import url_for
+from app.logging import report_failure
 from app.models.auth import User
 from app.modules.admin import blueprint as admin_blueprint
 from app.modules.preferences import blueprint as preferences_blueprint
+from app.services.emails import ApiKeyCreatedMail
 
 from .models import ApiToken
 from .tokens import (
@@ -38,6 +50,8 @@ from .tokens import (
     issue_member_token,
     revoke_token,
 )
+
+CONTACT = "contact@aipress24.com"
 
 
 class ApiKeysView(MethodView):
@@ -55,7 +69,7 @@ class ApiKeysView(MethodView):
     def post(self) -> Response:
         user = cast("User", g.user)
         try:
-            secret = issue_member_token(
+            token, secret = issue_member_token(
                 db.session,
                 user,
                 request.form.get("name", ""),
@@ -65,8 +79,28 @@ class ApiKeysView(MethodView):
         except TokenRefusedError as exc:
             return _render_keys(error=str(exc))
         db.session.commit()
-        logger.info("API key issued by user {}", user.id)
+        logger.info("API key {} issued by user {}", token.id, user.id)
+        _alert_owner(user, token)
         return _render_keys(secret=secret)
+
+
+def _alert_owner(user: User, token: ApiToken) -> None:
+    """Tell the member by email, in case they did not create the key themselves."""
+    expires_at = token.expires_at
+    mail = ApiKeyCreatedMail(
+        sender=CONTACT,
+        sender_mail=CONTACT,
+        recipient=user.email,
+        key_name=token.name,
+        scopes=[MEMBER_SCOPES[scope] for scope in token.scopes],
+        expires_on=f"{expires_at:%d/%m/%Y}" if expires_at else "",
+        keys_url=url_for("preferences.api_keys", _external=True),
+    )
+    try:
+        mail.send()
+    except Exception as exc:
+        # The key exists, and its secret can only be shown now.
+        report_failure(f"Alert for API key {token.id} not sent", exc)
 
 
 def _render_keys(secret: str = "", error: str = "") -> Response:
@@ -86,6 +120,19 @@ def _render_keys(secret: str = "", error: str = "") -> Response:
     )
     response.cache_control.no_store = True
     return response
+
+
+@preferences_blueprint.post("/api-keys/revoke-all")
+@nav(hidden=True)
+def revoke_all_api_keys() -> WerkzeugResponse:
+    """Revoke every key of the member."""
+    tokens = active_tokens(db.session, cast("User", g.user))
+    for token in tokens:
+        revoke_token(token)
+    db.session.commit()
+    logger.info("{} API keys revoked by user {}", len(tokens), g.user.id)
+    flash("Toutes vos clés sont révoquées.")
+    return redirect(url_for("preferences.api_keys"))
 
 
 @preferences_blueprint.post("/api-keys/<int:token_id>/revoke")
@@ -113,6 +160,19 @@ def admin_revoke_api_key(token_id: int) -> WerkzeugResponse:
     """Revoke anybody's key."""
     _revoke(ApiToken.id == token_id)
     return redirect(url_for("admin.api_keys"))
+
+
+def remind_of_keys(_app: Flask, user: User, **_kwargs: Any) -> None:
+    """After a password change, recall the keys that still act for the member."""
+    # `flask users change_password` has nobody to show a message to.
+    if not has_request_context():
+        return
+    count = len(active_tokens(db.session, user))
+    if count:
+        flash(
+            f"Vos clés d'API restent valables ({count}). En cas de doute, "
+            "révoquez-les dans Préférences, « Clés d'API »."
+        )
 
 
 def _revoke(*criteria: sa.ColumnElement[bool]) -> None:

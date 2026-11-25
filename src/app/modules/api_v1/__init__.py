@@ -27,6 +27,7 @@ from __future__ import annotations
 
 from flask import Flask, current_app, jsonify, make_response, request
 from flask.wrappers import Response
+from flask_security.signals import password_changed, password_reset
 from flask_smorest import Api, Blueprint
 from flask_super.registry import register
 from werkzeug.exceptions import HTTPException
@@ -206,6 +207,7 @@ def register_on_app(app: Flask) -> None:
     # Import route modules so their @blp.route decorators have run before the
     # blueprint is registered. (Idempotent: modules are import-cached.)
     from . import resources  # noqa: F401
+    from .pages import remind_of_keys
 
     api = ScopedApi(app)
     _configure_security_scheme(api)
@@ -214,6 +216,8 @@ def register_on_app(app: Flask) -> None:
     # re-entrant across multiple create_app() calls in one process.
     app.register_error_handler(HTTPException, _handle_http_exception)
     api.register_blueprint(blp)
+    password_changed.connect(remind_of_keys, app)
+    password_reset.connect(remind_of_keys, app)
 
 
 def current_openapi_json() -> dict:

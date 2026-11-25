@@ -948,3 +948,23 @@ class ParrainageMail(EmailTemplate):
     sender_full_name: str
     sender_first_name: str = ""
     url: str = "https://aipress24.com"
+
+
+@dataclass(kw_only=True)
+class ApiKeyCreatedMail(EmailTemplate):
+    """Tell a member that an API key was created on their account.
+
+    Args:
+        - sender / recipient / sender_mail: standard EmailTemplate fields.
+        - key_name / scopes / expires_on: the key, as listed to the member.
+        - keys_url: the page where the member revokes it.
+    """
+
+    subject: str = "[Aipress24] Une clé d'API a été créée sur votre compte"
+    template_html: str = "api_key_created.j2"
+    # A security alert: filling the recipient's quota must not silence it.
+    bypass_quota: bool = True
+    key_name: str
+    scopes: list[str]
+    expires_on: str
+    keys_url: str

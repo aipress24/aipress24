@@ -36,8 +36,8 @@ class TokenRefusedError(Exception):
 
 def issue_member_token(
     session: Session, user: User, name: str, scopes: list[str], days: int | None
-) -> str:
-    """Issue a token a member asked for, and return its secret."""
+) -> tuple[ApiToken, str]:
+    """Add a token a member asked for, and return it with its secret."""
     name = name.strip()
     if not name or len(name) > MAX_NAME_LENGTH:
         msg = f"Donnez un nom à la clé ({MAX_NAME_LENGTH} caractères au plus)."
@@ -51,10 +51,7 @@ def issue_member_token(
     if len(active_tokens(session, user)) >= MAX_ACTIVE_TOKENS:
         msg = f"Vous avez déjà {MAX_ACTIVE_TOKENS} clés actives : révoquez-en une."
         raise TokenRefusedError(msg)
-    _token, secret = issue_token(
-        session, user, name, scopes, _utcnow() + timedelta(days=days)
-    )
-    return secret
+    return issue_token(session, user, name, scopes, _utcnow() + timedelta(days=days))
 
 
 def issue_token(

@@ -12,14 +12,16 @@ from types import SimpleNamespace
 
 import pytest
 import sqlalchemy as sa
-from flask import Flask, g
+from flask import Flask, g, get_flashed_messages
 from flask.testing import FlaskClient
+from flask_security.signals import password_changed, password_reset
 from sqlalchemy.orm import Session
 
 from app.enums import RoleEnum
 from app.models.auth import KYCProfile, User
 from app.modules.api_v1.models import ApiToken, _utcnow
-from app.modules.api_v1.tokens import MAX_ACTIVE_TOKENS, issue_token
+from app.modules.api_v1.tokens import MAX_ACTIVE_TOKENS, active_tokens, issue_token
+from app.services.emails import ApiKeyCreatedMail
 from tests.c_e2e.conftest import make_authenticated_client
 
 from .conftest import _role
@@ -155,6 +157,71 @@ def test_a_member_revokes_their_own_key(
     db_session.refresh(key)
     assert key.is_revoked()
     assert "Existing" not in owner_client.get(URL).text
+
+
+def test_a_member_revokes_all_their_keys_and_only_theirs(
+    owner_client: FlaskClient,
+    members: SimpleNamespace,
+    db_session: Session,
+    key: ApiToken,
+) -> None:
+    issue_token(db_session, members.owner, "Second", ["read:self"], None)
+    foreign, _ = issue_token(db_session, members.other, "Foreign", ["read:self"], None)
+    db_session.commit()
+
+    owner_client.post(f"{URL}/revoke-all")
+
+    db_session.expire_all()
+    assert active_tokens(db_session, members.owner) == []
+    assert not foreign.is_revoked()
+
+
+def test_the_owner_is_told_of_a_new_key(
+    app: Flask, owner_client: FlaskClient, db_session: Session
+) -> None:
+    outbox = app.extensions["mailman"].outbox = []
+    response = owner_client.post(URL, data={**FORM, "name": "<b>Laptop</b>"})
+
+    [mail] = outbox
+    assert mail.to == ["owner@example.com"]
+    assert "&lt;b&gt;Laptop" in mail.body
+    assert "Créer, modifier, publier" in mail.body
+    assert re.search(rf'href="https?://[^/"]+{URL}"', mail.body)
+    secret = re.search(r"a24_[\w-]{30,}", response.text)
+    assert secret
+    assert secret[0] not in mail.body
+
+
+def test_a_key_is_shown_even_if_its_alert_cannot_be_sent(
+    owner_client: FlaskClient, db_session: Session, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    def refuse(_mail: ApiKeyCreatedMail) -> bool:
+        raise ConnectionRefusedError
+
+    monkeypatch.setattr(ApiKeyCreatedMail, "send", refuse)
+    response = owner_client.post(URL, data=FORM)
+
+    assert response.status_code == 200
+    assert re.search(r"a24_[\w-]{30,}", response.text)
+
+
+def test_a_new_password_recalls_the_active_keys(
+    app: Flask, members: SimpleNamespace, key: ApiToken
+) -> None:
+    for signal in (password_changed, password_reset):
+        with app.test_request_context():
+            signal.send(app, user=members.owner)
+            assert "(1)" in get_flashed_messages()[0]
+        with app.test_request_context():
+            signal.send(app, user=members.other)
+            assert get_flashed_messages() == []
+    assert not key.is_revoked()
+
+
+def test_a_password_set_from_the_command_line_shows_nothing(
+    app: Flask, members: SimpleNamespace, key: ApiToken
+) -> None:
+    password_changed.send(app, user=members.owner)
 
 
 def test_a_member_neither_sees_nor_revokes_another_members_key(

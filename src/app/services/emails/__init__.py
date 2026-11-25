@@ -16,6 +16,7 @@ from loguru import logger
 
 from .mailers import (
     AccreditationAcceptedMail,
+    ApiKeyCreatedMail,
     ApplicationRejectedMail,
     ApplicationSelectedMail,
     AvisEnqueteNotificationMail,
@@ -52,6 +53,7 @@ from .mailers import (
 __all__ = [
     "ALERTS_RECIPIENTS",
     "AccreditationAcceptedMail",
+    "ApiKeyCreatedMail",
     "ApplicationRejectedMail",
     "ApplicationSelectedMail",
     "AvisEnqueteNotificationMail",

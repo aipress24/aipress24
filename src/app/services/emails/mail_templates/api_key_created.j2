@@ -1,0 +1,17 @@
+<p>Bonjour,</p>
+
+<p>
+Une clé d'API, <strong>{{ key_name }}</strong>, vient d'être créée sur votre compte
+AiPRESS24. Jusqu'au {{ expires_on }}, elle permet à un logiciel d'agir en votre nom :
+</p>
+
+<ul>
+{% for scope in scopes %}<li>{{ scope }}</li>
+{% endfor %}</ul>
+
+<p>
+Si vous n'êtes pas à l'origine de cette création,
+<a href="{{ keys_url }}">révoquez toutes vos clés</a> puis changez votre mot de passe.
+</p>
+
+<p>Envoyé automatiquement via aipress24.com.</p>

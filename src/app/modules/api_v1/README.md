@@ -82,7 +82,7 @@ Only `contenu` (the HTML body) is sanitized server-side (the model sanitizes it 
 
 ## Issuing a token
 
-Members manage their own keys in the preferences (`/preferences/api-keys`), under a fresh login: at most 10 active keys, each with a name, a lifetime of 30, 90 or 365 days, and any scope but `read:directory`. Administrators see and revoke every key at `/admin/api-keys`. Both pages live in `pages.py`, added to the preferences and admin blueprints because those modules may not import this one.
+Members manage their own keys in the preferences (`/preferences/api-keys`), under a fresh login: at most 10 active keys, each with a name, a lifetime of 30, 90 or 365 days, and any scope but `read:directory`. The member is told of each new key by email, may revoke all of them at once, and is reminded of them after a password change, which leaves keys valid. Administrators see and revoke every key at `/admin/api-keys`. Both pages live in `pages.py`, added to the preferences and admin blueprints because those modules may not import this one.
 
 The command line issues any token, `read:directory` included:
 
