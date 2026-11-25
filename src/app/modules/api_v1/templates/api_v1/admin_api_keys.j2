@@ -1,0 +1,7 @@
+{% extends "admin/layout/_base.j2" %}
+
+{% block main %}
+  {% set revoke_endpoint = "admin.admin_revoke_api_key" %}
+  {% set show_owner = true %}
+  {% include "api_v1/_tokens.j2" %}
+{% endblock %}

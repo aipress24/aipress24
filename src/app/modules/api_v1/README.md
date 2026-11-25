@@ -82,6 +82,10 @@ Only `contenu` (the HTML body) is sanitized server-side (the model sanitizes it 
 
 ## Issuing a token
 
+Members manage their own keys in the preferences (`/preferences/api-keys`), under a fresh login: at most 10 active keys, each with a name, a lifetime of 30, 90 or 365 days, and any scope but `read:directory`. Administrators see and revoke every key at `/admin/api-keys`. Both pages live in `pages.py`, added to the preferences and admin blueprints because those modules may not import this one.
+
+The command line issues any token, `read:directory` included:
+
 ```bash
 flask api-token issue --email editor@example.com \
     --name "Acme integration" --scopes read:content,read:directory --expires-days 365

@@ -146,7 +146,7 @@ class TestPreferencesMenu:
         Neuf depuis que les préférences de notification ont remplacé la
         page vide qui portait déjà leur adresse (`PRF-06`).
         """
-        assert len(MENU) == 9
+        assert len(MENU) == 10
 
         page_names = [p.name for p in MENU]
         assert "profile" in page_names
@@ -161,7 +161,7 @@ class TestPreferencesMenu:
             menu = make_menu("profile")
 
             assert isinstance(menu, list)
-            assert len(menu) == 9
+            assert len(menu) == 10
 
     def test_make_menu_entry_structure(self, app: Flask, db_session: Session):
         """Test menu entries have correct structure."""

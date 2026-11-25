@@ -21,7 +21,8 @@ from app.flask.extensions import db
 from app.models.auth import User
 
 from .models import ApiToken
-from .security import ALL_SCOPES, generate_token, is_valid_scope
+from .security import ALL_SCOPES, is_valid_scope
+from .tokens import issue_token, revoke_token
 
 
 @group(short_help="Manage public API (/api/v1) access tokens")
@@ -62,19 +63,10 @@ def issue(email: str, name: str, scopes: str, expires_days: int | None) -> None:
         )
         raise click.ClickException(msg)
 
-    raw_token, token_hash, token_prefix = generate_token()
     expires_at = (
         datetime.now(UTC) + timedelta(days=expires_days) if expires_days else None
     )
-    token = ApiToken(
-        name=name,
-        token_hash=token_hash,
-        token_prefix=token_prefix,
-        user_id=user.id,
-        scopes=requested,
-        expires_at=expires_at,
-    )
-    db.session.add(token)
+    token, raw_token = issue_token(db.session, user, name, requested, expires_at)
     db.session.commit()
 
     print(f"[green]Issued token #{token.id}[/green] for [cyan]{email}[/cyan]")
@@ -122,6 +114,6 @@ def revoke(token_id: int) -> None:
     if token.is_revoked():
         print(f"[yellow]Token #{token_id} was already revoked.[/yellow]")
         return
-    token.revoked_at = datetime.now(UTC)
+    revoke_token(token)
     db.session.commit()
     print(f"[green]Revoked token #{token_id}.[/green]")

@@ -72,4 +72,11 @@ MENU = [
         icon="sparkles",
         endpoint=".banner",
     ),
+    # Defined by the API module, on this blueprint.
+    MenuEntry(
+        name="api_keys",
+        label="Clés d'API",
+        icon="key",
+        endpoint=".api_keys",
+    ),
 ]

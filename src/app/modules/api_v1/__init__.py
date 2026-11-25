@@ -57,6 +57,7 @@ blp = Blueprint(
     "api_v1",
     __name__,
     url_prefix="/api/v1",
+    template_folder="templates",
     description="AIpress24 public API — published content, organisations and member "
     "profiles, plus authoring of the token owner's own content.",
 )

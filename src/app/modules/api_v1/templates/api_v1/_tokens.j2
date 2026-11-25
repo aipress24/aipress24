@@ -1,0 +1,41 @@
+{# Expects `tokens`, `revoke_endpoint` and `show_owner`. #}
+{% if tokens %}
+  <div class="overflow-x-auto">
+    <table class="min-w-full text-sm text-left">
+      <thead class="text-gray-500">
+        <tr>
+          {% if show_owner %}<th scope="col" class="py-2 pr-4">Membre</th>{% endif %}
+          <th scope="col" class="py-2 pr-4">Nom</th>
+          <th scope="col" class="py-2 pr-4">Clé</th>
+          <th scope="col" class="py-2 pr-4">Droits</th>
+          <th scope="col" class="py-2 pr-4">Expire le</th>
+          <th scope="col" class="py-2 pr-4">Dernier usage</th>
+          <th scope="col" class="py-2"><span class="sr-only">Actions</span></th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-gray-200">
+        {% for token in tokens %}
+          <tr>
+            {% if show_owner %}
+              <td class="py-2 pr-4">
+                <a href="{{ url_for('admin.show_user', uid=token.user_id) }}" class="text-blue-600 hover:underline">{{ token.user.email }}</a>
+              </td>
+            {% endif %}
+            <td class="py-2 pr-4">{{ token.name or "(sans nom)" }}</td>
+            <td class="py-2 pr-4"><code>{{ token.token_prefix }}…</code></td>
+            <td class="py-2 pr-4">{{ token.scopes | join(", ") }}</td>
+            <td class="py-2 pr-4">{{ token.expires_at | localdt if token.expires_at else "jamais" }}</td>
+            <td class="py-2 pr-4">{{ token.last_used_at | localdt if token.last_used_at else "jamais" }}</td>
+            <td class="py-2">
+              <form method="POST" action="{{ url_for(revoke_endpoint, token_id=token.id) }}">
+                <button type="submit" class="text-red-600 hover:underline" aria-label="Révoquer la clé {{ token.name }}">Révoquer</button>
+              </form>
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+{% else %}
+  <p class="text-gray-500">Aucune clé active.</p>
+{% endif %}

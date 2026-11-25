@@ -1,0 +1,68 @@
+{% extends "pages/preferences/_base.j2" %}
+
+{% block main %}
+  <h2>Clés d'API</h2>
+
+  <p>
+    Une clé permet à un logiciel d'agir en votre nom sur AiPRESS24, par exemple pour
+    déposer vos communiqués. Ne la communiquez à personne, et révoquez-la si vous ne
+    vous en servez plus.
+    <a href="/api/v1/docs" class="text-blue-600 hover:underline">Documentation de l'API</a>
+  </p>
+
+  {% if secret %}
+    <div role="status" class="my-6 p-4 rounded-md border border-green-300 bg-green-50">
+      <p class="font-semibold">Votre clé est créée. Copiez-la maintenant : elle ne sera plus affichée.</p>
+      <p class="mt-2 break-all"><code class="select-all" data-test-id="api-key">{{ secret }}</code></p>
+    </div>
+  {% endif %}
+  {% if error %}
+    <p role="alert" class="my-6 p-4 rounded-md border border-red-300 bg-red-50">{{ error }}</p>
+  {% endif %}
+
+  <h3>Clés actives</h3>
+  {% set revoke_endpoint = "preferences.revoke_api_key" %}
+  {% set show_owner = false %}
+  {% include "api_v1/_tokens.j2" %}
+
+  <h3 class="mt-8">Créer une clé</h3>
+  <form method="POST" action="{{ url_for('preferences.api_keys') }}" class="space-y-6">
+    <div>
+      <label for="name" class="block font-medium">Nom</label>
+      <input
+          type="text" id="name" name="name" required maxlength="{{ max_name_length }}"
+          value="{{ form.get('name', '') if error else '' }}"
+          placeholder="Ex. : mon poste de travail"
+          class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 sm:text-sm">
+    </div>
+
+    <fieldset>
+      <legend class="font-medium">Droits</legend>
+      {% for scope, label in member_scopes.items() %}
+        <div class="mt-2 flex items-start gap-3">
+          <input
+              type="checkbox" id="{{ scope }}" name="scopes" value="{{ scope }}" class="mt-1"
+              {% if error and scope in form.getlist("scopes") %}checked{% endif %}>
+          <label for="{{ scope }}">{{ label }} <code class="text-gray-500">{{ scope }}</code></label>
+        </div>
+      {% endfor %}
+      <p class="mt-2 text-sm text-gray-500">
+        La commande <code>aipress24</code> utilise les deux premiers. Une clé ne donne jamais
+        plus de droits que votre compte.
+      </p>
+    </fieldset>
+
+    <div>
+      <label for="days" class="block font-medium">Durée</label>
+      <select id="days" name="days" class="mt-1 border border-gray-300 rounded-md shadow-sm py-2 px-3 sm:text-sm">
+        {% for days in lifetimes %}
+          <option value="{{ days }}" {% if days | string == (form.get("days") if error else "90") %}selected{% endif %}>{{ days }} jours</option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <button type="submit" class="bg-sky-700 rounded-md shadow-sm py-2 px-4 text-sm font-medium text-white hover:bg-sky-800">
+      Créer la clé
+    </button>
+  </form>
+{% endblock %}
