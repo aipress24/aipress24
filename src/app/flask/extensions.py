@@ -11,9 +11,10 @@ import fsspec
 from advanced_alchemy.base import UUIDAuditBase
 from advanced_alchemy.types.file_object import storages
 from advanced_alchemy.types.file_object.backends.fsspec import FSSpecBackend
-from flask import Flask
+from flask import Flask, Request
 from flask_babel import Babel
 from flask_htmx import HTMX
+from flask_login import current_user
 from flask_mailman import Mail
 from flask_migrate import Migrate
 from flask_security import Security, SQLAlchemySessionUserDatastore
@@ -24,8 +25,10 @@ from loguru import logger
 from pagebar.flask import Pagebar
 from pytz import timezone
 
+from app.enums import RoleEnum
 from app.models.auth import Role, User
 from app.models.base import Base
+from app.services.roles import has_role
 
 # Tell UUIDAuditBase to use the same metadata as Base
 # to fix ForeignKey references work across models using different bases
@@ -128,7 +131,10 @@ def register_extensions(app: Flask) -> None:
     # wakaq.init_app(app)
     setup_security(app, db)
     htmx.init_app(app)
-    Pagebar(app, package="aipress24-flask", unsafe=app.debug)
+    # Rendered for administrators only, hence `unsafe` (SQL, stacks) in production too.
+    Pagebar(
+        app, package="aipress24-flask", enabled=is_made_by_administrator, unsafe=True
+    )
 
     if app.debug:
         setup_debug_toolbar(app)
@@ -136,6 +142,13 @@ def register_extensions(app: Flask) -> None:
     if not app.debug and not app.testing:
         csp = app.config.get("CONTENT_SECURITY_POLICY", DEFAULT_CSP_POLICY)
         Talisman(app, content_security_policy=csp, force_https=False)
+
+
+def is_made_by_administrator(request: Request) -> bool:
+    """Whether an administrator makes this request, for a page."""
+    if request.path.startswith(("/static", "/api/")):
+        return False
+    return has_role(current_user, RoleEnum.ADMIN)
 
 
 def register_s3_storage(app: Flask) -> None:
