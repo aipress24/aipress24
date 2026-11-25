@@ -42,6 +42,7 @@ if TYPE_CHECKING:
 MEMBER_TABS = [
     {"id": "profile", "label": "Profil"},
     {"id": "publications", "label": "Publications"},
+    {"id": "messages", "label": "Messages"},
     # Ticket #0195 — Press Book : the articles for which the member
     # owns a PAID JUSTIFICATIF (« l'article va figurer à la rubrique
     # « Press Book » sur votre Profil »).

@@ -1,0 +1,38 @@
+{% from "pages/swork-macros.j2" import make_post, page_links with context %}
+
+{% include "pages/member/member--tab-bar.j2" %}
+
+{% macro year_link(value, label) %}
+  {% if value == year %}
+    <span class="mr-2 font-medium text-gray-900">{{ label }}</span>
+  {% else %}
+    <a hx-get="?tab=messages{% if value %}&year={{ value }}{% endif %}" class="mr-2 cursor-pointer text-blue-600 hover:underline">{{ label }}</a>
+  {% endif %}
+{% endmacro %}
+
+<div class="py-6 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+
+  <h2 class="text-xl font-medium mb-2">Messages</h2>
+
+  {% if years|length > 1 %}
+    <nav class="mb-4 text-sm" aria-label="Années">
+      {{ year_link(None, "Toutes") }}
+      {% for value in years %}
+        {{ year_link(value, value) }}
+      {% endfor %}
+    </nav>
+  {% endif %}
+
+  {% if page.posts %}
+    <ul role="list" class="space-y-4">
+      {% for post in page.posts %}
+        {{ make_post(post) }}
+      {% endfor %}
+    </ul>
+    {% set query = "tab=messages&year=" ~ year ~ "&" if year else "tab=messages&" %}
+    {{ page_links(page, query, "hx-get") }}
+  {% else %}
+    <p>Aucun message.</p>
+  {% endif %}
+
+</div>

@@ -21,6 +21,11 @@ from app.flask.routing import url_for
 from app.flask.sqla import get_obj
 from app.models.auth import User
 from app.modules.swork import blueprint
+from app.modules.swork.posts import (
+    count_member_posts,
+    get_member_page,
+    get_member_years,
+)
 from app.modules.swork.views._common import MEMBER_TABS, UserVM, filter_email_mobile
 
 
@@ -72,6 +77,7 @@ class MemberDetailView(MethodView):
         template_map = {
             "profile": "pages/member/member--tab-profile.j2",
             "publications": "pages/member/member--tab-publications.j2",
+            "messages": "pages/member/member--tab-messages.j2",
             "press-book": "pages/member/member--tab-press-book.j2",
             "activities": "pages/member/member--tab-activities.j2",
             "groups": "pages/member/member--tab-groups.j2",
@@ -109,12 +115,15 @@ class MemberDetailView(MethodView):
             list_user_press_book,
         )
 
+        messages_count = count_member_posts(user)
         press_book_count = count_user_press_book(user.id)
         press_book = list_user_press_book(user.id)
 
         def _tab_label(tab):
             if tab["id"] == "publications" and posts_count:
                 return f"{tab['label']} ({posts_count})"
+            if tab["id"] == "messages" and messages_count:
+                return f"{tab['label']} ({messages_count})"
             if tab["id"] == "press-book" and press_book_count:
                 return f"{tab['label']} ({press_book_count})"
             return tab["label"]
@@ -130,7 +139,21 @@ class MemberDetailView(MethodView):
                 "press_book": press_book,
             }
         )
+        if active_tab == "messages":
+            context.update(self._messages_context(user))
         return context
+
+    def _messages_context(self, user: User) -> dict:
+        years = get_member_years(user)
+        year = request.args.get("year", type=int)
+        # Also keeps out what no calendar holds.
+        year = year if year in years else None
+        number = request.args.get("page", 1, type=int)
+        return {
+            "years": years,
+            "year": year,
+            "page": get_member_page(user, year, number),
+        }
 
     def _toggle_follow(self, user: User) -> Response:
         """Toggle follow status for a user.

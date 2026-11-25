@@ -182,20 +182,16 @@ class TestSworkPostHtmlEscape:
     typing `<b>...<b>` (unclosed tags) leaked into the page DOM and
     cascaded into broken layout. Same defect was an XSS vector.
 
-    The systemic fix is `.j2` autoescape (test above). The macro keeps
-    an explicit `|e` filter as belt-and-suspenders.
+    The systemic fix is `.j2` autoescape (test above). The macro renders the
+    plain text of the post through `linkify`, which escapes it.
     """
 
     def test_post_html_is_escaped(self, app: Flask):
         template_source = app.jinja_env.loader.get_source(
             app.jinja_env, "pages/swork-macros.j2"
         )[0]
-        assert "post.content|e" in template_source or (
-            "post.content|escape" in template_source
-        ), (
-            "swork-macros.j2 must escape `post.content` — raw `{{ post.content }}` "
-            "renders user-supplied HTML and is an XSS vector. See bug #0126 v4."
-        )
+        assert "post.text|linkify" in template_source
+        assert "post.content" not in template_source
 
     def test_members_page_accessible(
         self, authenticated_client: FlaskClient, db_session: Session
@@ -362,8 +358,8 @@ class TestMemberTabs:
     def test_tabs_structure(self):
         """Test MEMBER_TABS constant has correct structure."""
         assert isinstance(MEMBER_TABS, list)
-        # 5 tabs since activities and groups are commented out.
-        assert len(MEMBER_TABS) == 5
+        # 6 tabs since activities and groups are commented out.
+        assert len(MEMBER_TABS) == 6
 
         tab_ids = [t["id"] for t in MEMBER_TABS]
         assert "profile" in tab_ids

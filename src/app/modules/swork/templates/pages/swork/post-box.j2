@@ -41,13 +41,19 @@
           x-show="!isOpen"
       >
 
-      <form id="post-form" action="new_post" method="post" class="block"
+      <form id="post-form" action="new_post" method="post" enctype="multipart/form-data" class="block"
             @submit="submit()" x-cloak x-show="isOpen" x-trap="isOpen" x-transition.opacity>
 
-        <input type="text" hidden name="message" id="hidden-text-field">
+        {# Not a text input: the browser would remove the line breaks. #}
+        <input type="hidden" name="message" id="hidden-text-field">
 
         <div class="w-full border border-gray-300 rounded min-h-24" contenteditable id="text-field">
         </div>
+
+        <label class="mt-2 block text-sm text-gray-700">
+          Images (4 au plus)
+          <input type="file" name="images" multiple accept="image/jpeg,image/png,image/gif,image/webp,image/avif" class="block">
+        </label>
 
         <input type="submit" value="Poster" class="mt-2 button ~info @high">
       </form>

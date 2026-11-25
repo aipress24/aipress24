@@ -1,0 +1,11 @@
+{% from "pages/swork-macros.j2" import make_post with context %}
+
+{% extends "layout/private.j2" %}
+
+{% block content %}
+  <div class="max-w-3xl mx-auto sm:px-6 my-8">
+    <ul role="list">
+      {{ make_post(post) }}
+    </ul>
+  </div>
+{% endblock %}

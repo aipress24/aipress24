@@ -27,19 +27,16 @@ mutation targets a row already resolved through ``OwnedRepository.get_owned``):
 from __future__ import annotations
 
 from datetime import UTC
-from io import BytesIO
-from pathlib import Path
 from typing import TYPE_CHECKING
 
 import sqlalchemy as sa
 from arrow import now
-from PIL import Image
 from svcs.flask import container
 
 from app.constants import LOCAL_TZ
 from app.flask.extensions import db
 from app.flask.forms import get_choices
-from app.lib.file_object_utils import SAFE_TYPES, create_file_object
+from app.lib.file_object_utils import InvalidImageError, store_image
 from app.logging import report_failure
 from app.models.lifecycle import PublicationStatus
 from app.models.organisation import Organisation
@@ -123,14 +120,6 @@ _PRESS_RELEASE_VOCABULARIES = {
     "sector": "sector",
 }
 _PUBLISHED_PRESS_RELEASE_FIELDS = ("titre", "contenu", *_PRESS_RELEASE_VOCABULARIES)
-# Pillow format → storage extension, for the image types `/media` serves.
-_IMAGE_SUFFIXES = {
-    "JPEG": ".jpg",
-    "PNG": ".png",
-    "GIF": ".gif",
-    "WEBP": ".webp",
-    "AVIF": ".avif",
-}
 _ARTICLE_FIELDS = (
     "titre",
     "chapo",
@@ -266,14 +255,10 @@ def add_press_release_image(
     content = upload.stream.read(MAX_IMAGE_SIZE)
     if len(content) >= MAX_IMAGE_SIZE:
         raise WriteError(413, "The image is too large.")
-    suffix = _image_suffix(content)
-    # The extension decides the type `/media` serves: take it from the bytes.
-    file_object = create_file_object(
-        content=content,
-        original_filename=f"{Path(upload.filename or 'image').stem}{suffix}",
-        content_type=SAFE_TYPES[suffix],
-    )
-    file_object.save()
+    try:
+        file_object = store_image(content, upload.filename or "")
+    except InvalidImageError as exc:
+        raise WriteError(422, str(exc)) from exc
     image = ComImage(
         owner=model.owner,
         content=file_object,
@@ -592,18 +577,6 @@ def _require_complete(model: Communique, data: dict | None = None) -> None:
     ]
     if missing:
         raise WriteError(422, f"Required to be published: {', '.join(missing)}.")
-
-
-def _image_suffix(content: bytes) -> str:
-    """The storage extension for an image, from its bytes."""
-    try:
-        with Image.open(BytesIO(content), formats=list(_IMAGE_SUFFIXES)) as image:
-            image.verify()
-            return _IMAGE_SUFFIXES[image.format or ""]
-    except (OSError, SyntaxError, ValueError, Image.DecompressionBombError) as exc:
-        raise WriteError(
-            422, "The file is not a valid JPEG, PNG, GIF, WebP or AVIF image."
-        ) from exc
 
 
 def _apply_fields(model, data: dict, fields: tuple[str, ...]) -> None:

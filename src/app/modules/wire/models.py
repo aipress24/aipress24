@@ -89,7 +89,7 @@ class Post(NewsMetadataMixin, BaseContent, LifeCycleMixin):
     )
 
     published_at: Mapped[datetime | None] = mapped_column(
-        ArrowType(timezone=True), nullable=True
+        ArrowType(timezone=True), nullable=True, use_existing_column=True
     )
     last_updated_at: Mapped[datetime | None] = mapped_column(
         ArrowType(timezone=True), nullable=True

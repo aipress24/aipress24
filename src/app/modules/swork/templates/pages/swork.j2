@@ -1,4 +1,4 @@
-{% from "pages/swork-macros.j2" import make_post with context %}
+{% from "pages/swork-macros.j2" import make_post, page_links with context %}
 
 {% extends "layout/private.j2" %}
 
@@ -29,10 +29,12 @@
           {% include "pages/swork/post-box.j2" %}
         </li>
 
-        {% for post in posts %}
+        {% for post in page.posts %}
           {{ make_post(post) }}
         {% endfor %}
       </ul>
+
+      {{ page_links(page) }}
     </main>
 
     <aside class="hidden lg:block lg:col-span-4 my-8" style="min-width: 280px;">

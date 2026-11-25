@@ -12,10 +12,12 @@ collisions.
 from __future__ import annotations
 
 import hashlib
+from io import BytesIO
 from pathlib import Path
 from typing import Any
 
 from advanced_alchemy.types import FileObject
+from PIL import Image
 
 _PLACEHOLDER_IMAGE_URL = "/static/img/gray-texture.png"
 
@@ -57,6 +59,16 @@ SAFE_TYPES = {
     ".ods": "application/vnd.oasis.opendocument.spreadsheet",
     ".csv": "text/csv",
     ".txt": "text/plain",
+}
+
+
+# Pillow format → storage extension, for the image types `/media` serves.
+IMAGE_SUFFIXES = {
+    "JPEG": ".jpg",
+    "PNG": ".png",
+    "GIF": ".gif",
+    "WEBP": ".webp",
+    "AVIF": ".avif",
 }
 
 
@@ -104,6 +116,37 @@ def create_file_object(
         content=content,
         content_type=content_type,
     )
+
+
+class InvalidImageError(ValueError):
+    """The bytes are not an image we serve."""
+
+
+def store_image(content: bytes, original_filename: str) -> FileObject:
+    """Store an image under the extension its bytes call for.
+
+    The extension decides the type `/media` serves, so the name given by the
+    uploader does not choose it.
+    """
+    suffix = _image_suffix(content)
+    stem = Path(original_filename).stem or "image"
+    file_object = create_file_object(
+        content=content,
+        original_filename=f"{stem}{suffix}",
+        content_type=SAFE_TYPES[suffix],
+    )
+    file_object.save()
+    return file_object
+
+
+def _image_suffix(content: bytes) -> str:
+    try:
+        with Image.open(BytesIO(content), formats=list(IMAGE_SUFFIXES)) as image:
+            image.verify()
+            return IMAGE_SUFFIXES[image.format or ""]
+    except (OSError, SyntaxError, ValueError, Image.DecompressionBombError) as exc:
+        msg = "The file is not a valid JPEG, PNG, GIF, WebP or AVIF image."
+        raise InvalidImageError(msg) from exc
 
 
 def deserialize_file_object(file_data: dict[str, Any] | None) -> FileObject | None:

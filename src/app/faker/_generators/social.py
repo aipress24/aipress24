@@ -33,7 +33,7 @@ class PostGenerator(BaseGenerator):
 
         post = Post()
         post.owner = random.choice(users)
-        post.created_at = self.generate_date()
+        post.created_at = post.published_at = self.generate_date()
         post.content = self.generate_html(min_sentences=1, max_sentences=3)
 
         return post

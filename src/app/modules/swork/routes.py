@@ -39,4 +39,5 @@ def url_for_group(org: Group, _ns: str = "swork", **kw) -> str:
 
 @url_for.register
 def url_for_short_post(post: ShortPost, **kw) -> str:
-    return url_for("swork.swork", _anchor=f"post-{post.id}", **kw)
+    kw["post_id"] = base62.encode(post.id)
+    return url_for("swork.post", _anchor=f"post-{post.id}", **kw)
