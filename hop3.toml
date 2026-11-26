@@ -55,8 +55,9 @@ ignore = [
 # real-data deploy the flag is unset, so this is just `flask db upgrade`.
 before-run = ["sh scripts/hop3-before-run.sh"]
 # gunicorn binds 0.0.0.0:$PORT and loads the app factory. Runs from the repo root
-# (where etc/settings.toml, migrations/ and wsgi.py live).
-start = "gunicorn -b 0.0.0.0:$PORT -w 2 'app.flask.main:create_app()'"
+# (where etc/settings.toml, migrations/ and wsgi.py live), so it reads
+# gunicorn.conf.py: the number of workers comes from WEB_CONCURRENCY there.
+start = "gunicorn -b 0.0.0.0:$PORT 'app.flask.main:create_app()'"
 start-timeout = 180
 # Runtime shared libraries (psycopg, python-magic, WeasyPrint PDF rendering).
 # `git` is needed by `flask bootstrap` (blank/CI seed clones the reference-data
