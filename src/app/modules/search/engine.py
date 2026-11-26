@@ -28,6 +28,7 @@ if TYPE_CHECKING:
 
     from svcs import Container
     from wesh.backends.filedb.filestore import Storage
+    from wesh.backends.sql.storage import SQLAlchemyStorage
 
 
 @service
@@ -196,6 +197,16 @@ def _engine_for(url: str) -> SearchEngine:
     wesh takes a connection for each of its reads, and gives it back at once:
     a search makes about a hundred. Opening one for each costs seconds.
     """
+    return SearchEngine(_storage_for(url).create())
+
+
+def _storage_for(url: str) -> SQLAlchemyStorage:
+    """The storage of the index, whatever the password of the database.
+
+    wesh names its tables after the URL it is given: an engine shows it with
+    the password masked, so changing the password keeps the index.
+    """
+    from sqlalchemy import create_engine
     from wesh.backends.sql.storage import SQLAlchemyStorage
 
-    return SearchEngine(SQLAlchemyStorage(url).create())
+    return SQLAlchemyStorage(create_engine(url))

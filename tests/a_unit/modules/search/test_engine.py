@@ -6,6 +6,7 @@
 
 from __future__ import annotations
 
+import hashlib
 import tempfile
 from datetime import UTC, datetime
 from pathlib import Path
@@ -15,7 +16,7 @@ import pytest
 from wesh.backends.filedb.filestore import RamStorage
 from wesh.backends.sql.storage import SQLAlchemyStorage
 
-from app.modules.search.engine import SearchEngine
+from app.modules.search.engine import SearchEngine, _storage_for
 
 
 def _unique_indexname() -> str:
@@ -273,3 +274,12 @@ class TestSearchEngineEdgeCases:
         # Corpus has 3 docs total; asking for 100 should return at most 3.
         hits = populated_engine.search("python", limit=100)
         assert 1 <= len(hits) <= 3
+
+
+def test_the_index_does_not_depend_on_the_password() -> None:
+    """Production reads the tables named after the URL with its password
+    masked, as an engine shows it."""
+    url = "postgresql+psycopg://user:{}@db.example.com/aipress24"
+    namespaces = {_storage_for(url.format(each)).namespace for each in ("a", "b")}
+    masked = url.format("***").encode()
+    assert namespaces == {f"wesh_{hashlib.sha256(masked).hexdigest()[:12]}"}
