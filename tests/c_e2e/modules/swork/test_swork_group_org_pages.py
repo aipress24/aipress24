@@ -6,6 +6,7 @@
 
 from __future__ import annotations
 
+import re
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import TYPE_CHECKING
@@ -362,7 +363,7 @@ class TestOrgEndpoint:
         )
         assert response.status_code == 200
 
-    def test_admin_member_sees_member_banner_not_manager(
+    def test_admin_member_sees_member_banner_not_manage_button(
         self,
         app: Flask,
         db_session: Session,
@@ -416,15 +417,15 @@ class TestOrgEndpoint:
         assert response.status_code == 200
         body = response.data.decode()
         assert "Vous êtes membre de cette organisation" in body
-        assert "Vous êtes manager du Business Wall de cette organisation" not in body
+        assert "Gérer le Business Wall" not in body
 
-    def test_actual_manager_sees_manager_banner(
+    def test_actual_manager_gets_a_button_to_manage_the_bw(
         self,
         app: Flask,
         db_session: Session,
         test_organisation: Organisation,
     ):
-        """Actual BW owner sees the manager banner."""
+        """The BW owner can open the management of this very BW."""
         owner = User(
             email="real_owner@example.com",
             first_name="Real",
@@ -454,8 +455,12 @@ class TestOrgEndpoint:
         response = client.get(f"/swork/organisations/{test_organisation.id}")
         assert response.status_code == 200
         body = response.data.decode()
-        assert "Vous êtes manager du Business Wall de cette organisation" in body
+        assert "Gérer le Business Wall" in body
         assert "Vous êtes membre de cette organisation" not in body
+        [action] = re.findall(r'action="([^"]*select-bw/[^"]*)"', body)
+        assert action.endswith(f"/select-bw/{bw.id}")
+        response = client.post(action)
+        assert response.location.endswith("/dashboard")
 
 
 # =============================================================================

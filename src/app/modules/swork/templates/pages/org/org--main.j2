@@ -145,10 +145,12 @@
 
         {% if is_member %}
             {% if is_bw_manager %}
-                <div class="px-8 pt-2">
-                    <p class="text-xl text-orange-700">
-                        Vous êtes manager du Business Wall de cette organisation</p>
-                </div>
+                <form class="px-8 pt-2" method="POST"
+                      action="{{ url_for('bw_activation.select_bw_post', bw_id=active_bw.id) }}">
+                    <button type="submit" class="aui-button">
+                        Gérer le Business Wall
+                    </button>
+                </form>
             {% else %}
                 <div class="px-8 pt-2">
                     <p class="text-xl text-green-700">

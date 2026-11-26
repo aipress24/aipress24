@@ -120,6 +120,7 @@ class OrganisationDetailView(MethodView):
             "org": vm,
             "is_member": soc_user.user.is_member(org_obj.id),
             "is_bw_manager": is_bw_manager,
+            "active_bw": active_bw,
             "tabs": tabs,
             "title": org_obj.name,
         }
