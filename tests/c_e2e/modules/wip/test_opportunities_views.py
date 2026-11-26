@@ -169,6 +169,34 @@ class TestOpportunitiesListPage:
         assert "Rédacteur en chef" in html
         assert 'alt="profile image"' in html
 
+    def test_an_expired_avis_is_not_shown(
+        self,
+        logged_in_client: FlaskClient,
+        test_contact: ContactAvisEnquete,
+        test_avis_enquete: AvisEnquete,
+        db_session: Session,
+    ):
+        test_avis_enquete.date_fin_enquete = datetime.now(UTC) - timedelta(hours=1)
+        db_session.commit()
+
+        response = logged_in_client.get("/wip/opportunities?tab=avis")
+
+        assert "Test Enquête" not in response.data.decode()
+
+    def test_the_hub_does_not_count_an_expired_avis(
+        self,
+        logged_in_client: FlaskClient,
+        test_user: User,
+        test_contact: ContactAvisEnquete,
+        test_avis_enquete: AvisEnquete,
+        db_session: Session,
+    ):
+        assert opp_module._count_avis_contacts(test_user) == 1
+        test_avis_enquete.date_fin_enquete = datetime.now(UTC) - timedelta(hours=1)
+        db_session.commit()
+
+        assert opp_module._count_avis_contacts(test_user) == 0
+
     def test_opportunities_page_empty_when_no_contacts(
         self, logged_in_client: FlaskClient, test_user: User
     ):

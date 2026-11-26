@@ -34,15 +34,11 @@ from app.logging import warn
 from app.models.auth import User
 from app.modules.biz.models import OfferApplication
 from app.modules.wip import blueprint
-from app.modules.wip.models import ContactAvisEnquete
+from app.modules.wip.models import AvisEnquete, ContactAvisEnquete
 from app.modules.wip.services.newsroom import AvisEnqueteService
 from app.services.emails import ContactAvisEnqueteAcceptanceMail
 
 if TYPE_CHECKING:
-    from app.modules.wip.models.newsroom.avis_enquete import (
-        AvisEnquete,
-        ContactAvisEnquete,
-    )
     from app.modules.wip.models.newsroom.repositories import (
         ContactAvisEnqueteRepository,
     )
@@ -80,10 +76,22 @@ _STATUS_TO_FORM_FIELD: dict[str, tuple[str, str]] = {
 
 
 def _count_avis_contacts(user: User) -> int:
-    stmt = select(func.count(ContactAvisEnquete.id)).where(
-        ContactAvisEnquete.expert_id == user.id
+    stmt = _live_avis_contacts(user).with_only_columns(
+        func.count(ContactAvisEnquete.id)
     )
     return db.session.scalar(stmt) or 0
+
+
+def _live_avis_contacts(user: User):
+    """The avis d'enquête sent to `user` whose investigation is not over."""
+    return (
+        select(ContactAvisEnquete)
+        .join(AvisEnquete, ContactAvisEnquete.avis_enquete_id == AvisEnquete.id)
+        .where(
+            ContactAvisEnquete.expert_id == user.id,
+            AvisEnquete.date_fin_enquete >= datetime.now(UTC),
+        )
+    )
 
 
 def _count_marketplace_candidacies(offer_model, user: User) -> int:
@@ -443,15 +451,12 @@ def _render_justificatifs_tab():
 
 
 def _render_avis_opportunites_tab():
-    # Lazy import to avoid circular import
-    from app.modules.wip.models import ContactAvisEnquete
-
-    # Filter in SQL (was: load ALL contacts then `c.expert == g.user` in
-    # Python, which lazy-loaded every contact's expert — N+1). Eager-load the
-    # avis (sort + title) and the journalist + their org (shown on each card).
+    # Eager-load the avis (title) and the journalist + their org (shown on
+    # each card).
     stmt = (
-        select(ContactAvisEnquete)
-        .where(ContactAvisEnquete.expert_id == g.user.id)
+        _live_avis_contacts(cast(User, g.user))
+        .order_by(AvisEnquete.date_fin_enquete.desc())
+        .limit(50)
         .options(
             selectinload(ContactAvisEnquete.avis_enquete),
             selectinload(ContactAvisEnquete.journaliste).selectinload(
@@ -462,9 +467,6 @@ def _render_avis_opportunites_tab():
         )
     )
     contacts = list(db.session.scalars(stmt))
-
-    contacts.sort(key=lambda c: c.avis_enquete.date_fin_enquete, reverse=True)
-    contacts = contacts[:50]
 
     return render_template(
         "wip/pages/opportunities.j2",
