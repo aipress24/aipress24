@@ -88,6 +88,7 @@
                                 </a>
                             {% endif %}
                         </div>
+                        {% if profile.id != g.user.id %}
                         <div
                             class="mt-6 flex flex-col justify-stretch space-y-3 sm:flex-row sm:space-y-0 sm:space-x-4"
                         >
@@ -113,6 +114,7 @@
                                 </span>
                             </button>
                         </div>
+                        {% endif %}
                     </div>
                 </div>
 

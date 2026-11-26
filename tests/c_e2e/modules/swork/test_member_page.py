@@ -342,6 +342,19 @@ class TestMemberPageEndpoints:
         response = authenticated_client.get(f"/swork/members/{target_user.id}")
         assert response.status_code == 200
 
+    def test_another_member_can_be_followed(
+        self, authenticated_client: FlaskClient, target_user: User
+    ):
+        response = authenticated_client.get(f"/swork/members/{target_user.id}")
+        assert "toggle-follow" in response.data.decode()
+
+    def test_one_cannot_follow_oneself(
+        self, authenticated_client: FlaskClient, logged_user: User
+    ):
+        response = authenticated_client.get(f"/swork/members/{logged_user.id}")
+        assert response.status_code == 200
+        assert "toggle-follow" not in response.data.decode()
+
     def test_a_user_without_a_profile_is_not_a_member(
         self, authenticated_client: FlaskClient, db_session: Session
     ):
