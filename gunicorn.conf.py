@@ -24,7 +24,10 @@ def post_fork(server, worker):
 
 
 workers = int(os.environ.get("WEB_CONCURRENCY", "3"))
-worker_class = "sync"
+# Threads, so that a request waiting on S3 or the database holds one thread,
+# not a whole worker.
+worker_class = "gthread"
+threads = 4
 timeout = 30
 graceful_timeout = 30
 
