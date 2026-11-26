@@ -552,19 +552,21 @@ def find_finalizable_bw_for_user(user: User) -> BusinessWall | None:
     return get_business_wall_for_user(user)
 
 
+# What a BW lets its press relations managers publish, keyed as
+# `BusinessWall.missions`.
+MISSION_LABELS: dict[str, str] = {
+    "press_release": "Publier des communiqués de presse",
+    "events": "Publier des événements",
+    "missions": "Publier des Missions",
+    "projects": "Publier des Projets",
+    "internships": "Publier des offres de stage",
+    "apprenticeships": "Publier des offres d'alternance",
+    "doctoral": "Publier des offres de convention doctorale",
+}
+
+
 def get_user_rights_on_bw(user: User, bw: BusinessWall) -> list[str]:
     """Return a list of human-readable rights/actions for the user on this BW."""
-
-    MISSION_LABELS = {
-        "press_release": "Publier des communiqués de presse",
-        "events": "Publier des événements",
-        "missions": "Publier des Missions",
-        "projects": "Publier des Projets",
-        "internships": "Publier des offres de stage",
-        "apprenticeships": "Publier des offres d'alternance",
-        "doctoral": "Publier des offres de convention doctorale",
-    }
-
     rights = []
     seen_roles = set()
     seen_missions = set()

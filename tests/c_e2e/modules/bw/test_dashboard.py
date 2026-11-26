@@ -12,9 +12,10 @@ from __future__ import annotations
 import uuid
 from typing import TYPE_CHECKING
 
-from app.enums import BWStatus, RoleEnum
+from app.enums import BWStatus, InvitationStatus, RoleEnum
 from app.models.auth import Role, User
 from app.models.organisation import Organisation
+from app.modules.bw.bw_activation.models import RolePermission
 from tests.c_e2e.conftest import make_authenticated_client
 from tests.c_e2e.modules.bw.conftest import create_bw_test_data
 
@@ -134,6 +135,43 @@ class TestDashboard:
 
         assert response.status_code == 200
         assert "en tant qu'administrateur du site" in response.data.decode()
+
+    def test_edit_config_updates_the_press_relations_permissions(
+        self, app: Flask, fresh_db
+    ):
+        data = create_bw_test_data(
+            fresh_db,
+            create_pr_user=True,
+            create_role_assignment=True,
+            invitation_status=InvitationStatus.ACCEPTED,
+        )
+        assignment = data["role_assignment"]
+        fresh_db.session.add(
+            RolePermission(
+                role_assignment_id=assignment.id,
+                permission_type="events",
+                is_granted=True,
+            )
+        )
+        fresh_db.session.commit()
+        client = make_authenticated_client(app, data["media_owner"])
+
+        response = client.post("/BW/edit-config", data={"press_release": "y"})
+
+        assert response.status_code == 302
+        fresh_db.session.expire_all()
+        granted = {p.permission_type: p.is_granted for p in assignment.permissions}
+        assert granted["events"] is False
+        assert granted["press_release"] is True
+
+    def test_edit_config_names_the_publishing_permissions(self, app: Flask, fresh_db):
+        data = create_bw_test_data(fresh_db)
+        client = make_authenticated_client(app, data["media_owner"])
+
+        body = client.get("/BW/edit-config").data.decode()
+
+        assert "Permissions de publication des chargés de relations presse" in body
+        assert "Publier des événements" in body
 
     def test_redirects_non_manager_to_not_authorized(self, app: Flask, fresh_db):
         """Dashboard redirects to not_authorized if user is not BW manager."""

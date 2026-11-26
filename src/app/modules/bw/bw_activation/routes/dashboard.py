@@ -17,10 +17,12 @@ from app.modules.bw.bw_activation import bp
 from app.modules.bw.bw_activation.bw_cancellation import (
     cancel_business_wall_from_app,
 )
+from app.modules.bw.bw_activation.bw_invitation import sync_all_pr_missions
 from app.modules.bw.bw_activation.bw_product import evaluate_subscription
 from app.modules.bw.bw_activation.config import BW_TYPES
 from app.modules.bw.bw_activation.stripe_subs_upgrade import change_bw_subscription_tier
 from app.modules.bw.bw_activation.user_utils import (
+    MISSION_LABELS,
     current_business_wall,
     get_manageable_business_walls_for_user,
 )
@@ -113,16 +115,6 @@ def dashboard():
 # Edition de la configuration de base (ticket #0220)
 # --------------------------------------------------------------------
 
-_MISSION_LABELS: dict[str, str] = {
-    "press_release": "Communiqué de presse",
-    "events": "Événements",
-    "missions": "Missions",
-    "projects": "Projets",
-    "internships": "Stages",
-    "apprenticeships": "Apprentissages",
-    "doctoral": "Doctorat",
-}
-
 
 class BWConfigForm(Form):
     name = StringField(
@@ -135,16 +127,16 @@ class BWConfigForm(Form):
         validate_choice=False,
         validators=[validators.Optional()],
     )
-    # Mission flags — one BooleanField per key in `_MISSION_LABELS`.
+    # Mission flags — one BooleanField per key in `MISSION_LABELS`.
     # The form reads the current BusinessWall.missions dict and gives
     # each key its own checkbox.
-    press_release = BooleanField(_MISSION_LABELS["press_release"])
-    events = BooleanField(_MISSION_LABELS["events"])
-    missions = BooleanField(_MISSION_LABELS["missions"])
-    projects = BooleanField(_MISSION_LABELS["projects"])
-    internships = BooleanField(_MISSION_LABELS["internships"])
-    apprenticeships = BooleanField(_MISSION_LABELS["apprenticeships"])
-    doctoral = BooleanField(_MISSION_LABELS["doctoral"])
+    press_release = BooleanField(MISSION_LABELS["press_release"])
+    events = BooleanField(MISSION_LABELS["events"])
+    missions = BooleanField(MISSION_LABELS["missions"])
+    projects = BooleanField(MISSION_LABELS["projects"])
+    internships = BooleanField(MISSION_LABELS["internships"])
+    apprenticeships = BooleanField(MISSION_LABELS["apprenticeships"])
+    doctoral = BooleanField(MISSION_LABELS["doctoral"])
 
 
 @bp.route("/edit-config", methods=["GET", "POST"])
@@ -171,8 +163,9 @@ def edit_config():
         if form.taille_orga.data:
             current_bw.taille_orga = form.taille_orga.data
         current_bw.missions = {
-            key: bool(getattr(form, key).data) for key in _MISSION_LABELS
+            key: bool(getattr(form, key).data) for key in MISSION_LABELS
         }
+        sync_all_pr_missions(current_bw)
 
         if action == "change_subscription":
             quantity = _quantity_from_taille_orga(form.taille_orga.data)
@@ -195,7 +188,7 @@ def edit_config():
         form.name.data = current_bw.name or ""
         form.taille_orga.data = current_bw.taille_orga or ""
         missions = current_bw.missions or {}
-        for key in _MISSION_LABELS:
+        for key in MISSION_LABELS:
             getattr(form, key).data = bool(missions.get(key, False))
 
     bw_info = BW_TYPES.get(current_bw.bw_type, {})
@@ -217,7 +210,7 @@ def edit_config():
         bw=current_bw,
         bw_info=bw_info,
         form=form,
-        mission_labels=_MISSION_LABELS,
+        mission_labels=MISSION_LABELS,
         subscription_message=subscription_message,
         subscription_show_change=subscription_show_change,
         show_success_modal=show_success_modal,

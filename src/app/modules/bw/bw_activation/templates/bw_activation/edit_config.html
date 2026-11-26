@@ -69,9 +69,13 @@
         </div>
 
         <fieldset>
-            <legend class="block text-sm font-medium text-gray-700 mb-3">
-                Missions activées
+            <legend class="block text-sm font-medium text-gray-700 mb-1">
+                Permissions de publication des chargés de relations presse
             </legend>
+            <p class="text-sm text-gray-500 mb-3">
+                Ce que vos chargés de relations presse, internes ou en agence,
+                peuvent publier au nom de votre organisation.
+            </p>
             <div class="space-y-2">
                 {% for key, label in mission_labels.items() %}
                     <label class="flex items-center gap-2">
