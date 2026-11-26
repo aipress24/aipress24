@@ -133,7 +133,10 @@ def _build_doc(obj: Any) -> dict[str, Any]:
         "text": " ".join(filter(None, [title, content, summary])),
         "summary": summary,
         "url": url_for(obj),
-        "timestamp": _to_datetime(getattr(obj, "published_at", None)),
+        # Marketplace offers have no publication date: sorting by date needs one.
+        "timestamp": _to_datetime(
+            getattr(obj, "published_at", None) or getattr(obj, "created_at", None)
+        ),
         "tags": _tags(obj),
     }
 

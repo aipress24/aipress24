@@ -4,8 +4,9 @@
 
 """Search page: thin layer over ``SearchEngine``.
 
-The route accepts ``qs`` (the query string) and ``filter`` (the
-collection name from :data:`COLLECTIONS`). Renders one section per
+The route accepts ``qs`` (the query string), ``filter`` (the
+collection name from :data:`COLLECTIONS`) and ``sort`` (a key of
+:data:`SORTS`, the most recent first by default). Renders one section per
 type when ``filter=all``, or a single section otherwise. The sidebar
 shows per-type counts, read with the hits in one ``engine.overview``.
 
@@ -34,6 +35,8 @@ if TYPE_CHECKING:
 
 _DEFAULT_LIMIT = 20
 
+SORTS = {"date": "Date", "relevance": "Pertinence"}
+
 # Collection name -> the types of documents it holds.
 _GROUPS: dict[str, list[str]] = {
     c["name"]: [c["type"]] if isinstance(c["type"], str) else c["type"]
@@ -47,6 +50,9 @@ def search():
     """Rechercher"""
     qs = request.args.get("qs", "").strip()
     filter_name = request.args.get("filter", "all")
+    sort = request.args.get("sort", "")
+    if sort not in SORTS:
+        sort = "date"
 
     _warn_if_semantic_requested()
 
@@ -55,13 +61,19 @@ def search():
             "pages/search.j2",
             title="Rechercher",
             qs="",
-            search_menu=_make_menu(qs="", counts={}, current=filter_name),
+            sort=sort,
+            search_menu=_make_menu(qs="", counts={}, current=filter_name, sort=sort),
+            sort_menu=[],
             result_sets=[],
         )
 
     engine = svcs.flask.container.get(SearchEngine)
     found = engine.overview(
-        qs, _GROUPS, shown=_shown(filter_name), limit=_DEFAULT_LIMIT
+        qs,
+        _GROUPS,
+        shown=_shown(filter_name),
+        limit=_DEFAULT_LIMIT,
+        by_date=sort == "date",
     )
     counts = {name: count for name, (count, _hits) in found.items()}
     counts["all"] = sum(counts.values())
@@ -71,7 +83,9 @@ def search():
         "pages/search.j2",
         title="Rechercher",
         qs=qs,
-        search_menu=_make_menu(qs=qs, counts=counts, current=filter_name),
+        sort=sort,
+        search_menu=_make_menu(qs=qs, counts=counts, current=filter_name, sort=sort),
+        sort_menu=_make_sort_menu(qs=qs, filter_name=filter_name, current=sort),
         result_sets=result_sets,
     )
 
@@ -104,13 +118,26 @@ def _result_sets(found: dict[str, tuple[int, list[dict]]]) -> list[ResultSet]:
     return out
 
 
-def _make_menu(*, qs: str, counts: dict[str, int], current: str) -> list[dict]:
+def _make_sort_menu(*, qs: str, filter_name: str, current: str) -> list[dict]:
+    return [
+        {
+            "label": label,
+            "href": url_for(".search", qs=qs, filter=filter_name, sort=name),
+            "current": current == name,
+        }
+        for name, label in SORTS.items()
+    ]
+
+
+def _make_menu(
+    *, qs: str, counts: dict[str, int], current: str, sort: str
+) -> list[dict]:
     return [
         {
             "name": c["name"],
             "label": c["label"],
             "icon": c["icon"],
-            "href": url_for(".search", qs=qs, filter=c["name"]),
+            "href": url_for(".search", qs=qs, filter=c["name"], sort=sort),
             "current": current == c["name"],
             "count": counts.get(c["name"], 0),
         }

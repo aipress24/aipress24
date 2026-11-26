@@ -161,15 +161,18 @@ class SearchEngine:
         *,
         shown: Collection[str],
         limit: int,
+        by_date: bool = False,
     ) -> dict[str, tuple[int, list[dict[str, Any]]]]:
         """For each named group of types, how many documents match ``qs``, and
-        the best ``limit`` of them for the groups in ``shown``.
+        the first ``limit`` of them for the groups in ``shown``: the most
+        recent, or the most relevant.
 
         Everything comes from one searcher, as opening one reads the table of
         contents of the index again.
         """
         ix = self._get_index()
         query = self._build_query(qs, type=None)
+        order = {"sortedby": "timestamp", "reverse": True} if by_date else {}
         with ix.searcher() as s:
             # limit=0: the counts, without reading any document.
             matched = s.search(query, facets={"type": Categorical(limit=None)}, limit=0)
@@ -180,7 +183,8 @@ class SearchEngine:
                 hits = []
                 if count and name in shown:
                     filtered = self._build_query(qs, type=types)
-                    hits = [dict(hit) for hit in s.search(filtered, limit=limit)]
+                    results = s.search(filtered, limit=limit, **order)
+                    hits = [dict(hit) for hit in results]
                 out[name] = (count, hits)
         return out
 

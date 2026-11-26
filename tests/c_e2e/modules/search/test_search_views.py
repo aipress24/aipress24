@@ -15,6 +15,7 @@ from __future__ import annotations
 
 from datetime import UTC, datetime
 from typing import TYPE_CHECKING
+from urllib.parse import parse_qsl, urlsplit
 from uuid import uuid4
 
 import pytest
@@ -72,6 +73,14 @@ def test_engine(app: Flask) -> Iterator[SearchEngine]:
     finally:
         if previous is not None:
             svcs.flask.overwrite_value(SearchEngine, previous)
+
+
+def _query(link) -> dict[str, str]:
+    return dict(parse_qsl(urlsplit(link["href"]).query))
+
+
+def _hit_titles(page: BeautifulSoup) -> list[str]:
+    return [title.get_text(strip=True) for title in page.select("main h3")]
 
 
 class TestSearchView:
@@ -168,13 +177,82 @@ class TestSearchView:
         assert response.status_code == 200
         page = BeautifulSoup(response.get_data(as_text=True), "html.parser")
         counts = {
-            link["href"].rsplit("filter=", 1)[1]: " ".join(link.get_text().split())
-            for link in page.select('a[href*="filter="]')
+            _query(link)["filter"]: " ".join(link.get_text().split())
+            for link in page.select('nav[aria-label="Sidebar"] a')
         }
         assert counts["all"] == "Tout (3)"
         assert counts["articles"].endswith("(2)")
         assert counts["events"].endswith("(1)")
         assert "Topic 0" not in page.get_text()
+
+    def _three_articles(self, engine: SearchEngine) -> None:
+        """The oldest is the most relevant."""
+        for pk, (text, when) in enumerate(
+            [
+                ("topic topic topic", datetime(2020, 1, 1, tzinfo=UTC)),
+                ("topic", datetime(2026, 1, 1, tzinfo=UTC)),
+                ("topic topic", datetime(2023, 1, 1, tzinfo=UTC)),
+            ]
+        ):
+            engine.upsert(
+                {
+                    "type": "article",
+                    "id": f"article:{pk}",
+                    "title": f"Article {when.year}",
+                    "text": text,
+                    "summary": "",
+                    "url": f"/a/{pk}",
+                    "timestamp": when,
+                    "tags": "",
+                }
+            )
+
+    def test_the_most_recent_come_first(
+        self, authenticated_client: FlaskClient, test_engine: SearchEngine
+    ):
+        self._three_articles(test_engine)
+
+        response = authenticated_client.get("/search/?qs=topic")
+
+        page = BeautifulSoup(response.get_data(as_text=True), "html.parser")
+        assert _hit_titles(page) == ["Article 2026", "Article 2023", "Article 2020"]
+
+    def test_the_most_relevant_come_first_on_demand(
+        self, authenticated_client: FlaskClient, test_engine: SearchEngine
+    ):
+        self._three_articles(test_engine)
+
+        response = authenticated_client.get("/search/?qs=topic&sort=relevance")
+
+        page = BeautifulSoup(response.get_data(as_text=True), "html.parser")
+        assert _hit_titles(page) == ["Article 2020", "Article 2023", "Article 2026"]
+
+    def test_the_links_keep_the_order(
+        self, authenticated_client: FlaskClient, test_engine: SearchEngine
+    ):
+        self._three_articles(test_engine)
+
+        response = authenticated_client.get(
+            "/search/?qs=topic&filter=articles&sort=relevance"
+        )
+
+        page = BeautifulSoup(response.get_data(as_text=True), "html.parser")
+        sidebar = page.select('nav[aria-label="Sidebar"] a')
+        assert {_query(link)["sort"] for link in sidebar} == {"relevance"}
+        [to_date] = page.select('nav[aria-label="Tri"] a')
+        assert _query(to_date) == {"qs": "topic", "filter": "articles", "sort": "date"}
+        assert page.select_one('form input[name="sort"]')["value"] == "relevance"
+
+    def test_an_unknown_order_is_by_date(
+        self, authenticated_client: FlaskClient, test_engine: SearchEngine
+    ):
+        self._three_articles(test_engine)
+
+        response = authenticated_client.get("/search/?qs=topic&sort=bogus")
+
+        assert response.status_code == 200
+        page = BeautifulSoup(response.get_data(as_text=True), "html.parser")
+        assert _hit_titles(page)[0] == "Article 2026"
 
     @pytest.mark.parametrize(
         "filter_name", ["all", "articles", "press-releases", "events"]

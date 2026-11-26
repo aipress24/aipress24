@@ -30,6 +30,18 @@
   {% if not qs %}
     <p class="text-gray-600">Tapez un mot-clé pour lancer une recherche.</p>
   {% else %}
+    <nav aria-label="Tri" class="mb-6 text-sm text-gray-600">
+      Trier par :
+      {% for item in sort_menu %}
+        {% if item.current %}
+          <span class="font-semibold text-gray-900" aria-current="true">{{ item.label }}</span>
+        {% else %}
+          <a href="{{ item.href }}" class="text-blue-700 hover:underline">{{ item.label }}</a>
+        {% endif %}
+        {% if not loop.last %}·{% endif %}
+      {% endfor %}
+    </nav>
+
     {% for result_set in result_sets %}
       <div class="mb-6">
         <h2 class="aui-title flex">

@@ -201,8 +201,8 @@ class TestToDocArticle:
             assert doc["summary"] == ""
             # text should at least carry the title
             assert "Bare title" in doc["text"]
-            # No published_at → timestamp is None
-            assert doc["timestamp"] is None
+            # No published_at: the date of creation, to sort by date.
+            assert doc["timestamp"] == article.created_at.datetime
 
 
 class TestToDocPressRelease:
@@ -317,8 +317,8 @@ class TestToDocMarketplace:
             assert "transition écologique" in doc["text"]
             assert isinstance(doc["url"], str)
             assert doc["url"]
-            # No published_at set; timestamp tolerated as None
-            assert doc["timestamp"] is None
+            # No published_at: the date of creation, to sort by date.
+            assert doc["timestamp"] == offer.created_at.datetime
 
     def test_editorial_product_doc(self, db_session, app):
         with app.test_request_context():
