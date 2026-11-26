@@ -9,7 +9,7 @@ from io import BytesIO
 from pathlib import Path
 
 from advanced_alchemy.types.file_object import storages
-from flask import send_file
+from flask import request, send_file
 from werkzeug.exceptions import NotFound
 from werkzeug.wrappers import Response
 
@@ -31,6 +31,23 @@ def serve(storage_name: str) -> Response:
     if not _STORAGE_NAME_RE.match(storage_name):
         raise NotFound
 
+    sha256 = storage_name.split(".", 1)[0]
+    # The ETag is the hash of the bytes: a browser which has it has them.
+    if sha256 in request.if_none_match:
+        response = Response(status=304)
+        response.set_etag(sha256)
+    else:
+        response = _send(storage_name, sha256)
+
+    # Override send_file's default `public` with `private` (content is
+    # session-gated) and add `immutable` (URL is content-addressed, bytes
+    # never change).
+    response.headers["Cache-Control"] = f"private, max-age={_MAX_AGE}, immutable"
+    # And no `Vary: Cookie`: see `app.flask.sessions`.
+    return response
+
+
+def _send(storage_name: str, sha256: str) -> Response:
     backend = storages.get_backend("s3")
     try:
         content = backend.get_content(storage_name)
@@ -43,8 +60,7 @@ def serve(storage_name: str) -> Response:
     # viewer's session. Anything outside the allowlist is served as bytes.
     suffix = Path(storage_name).suffix.lower()
     mimetype = SAFE_TYPES.get(suffix, "application/octet-stream")
-    sha256 = storage_name.split(".", 1)[0]
-    response = send_file(
+    return send_file(
         BytesIO(content),
         mimetype=mimetype,
         download_name=storage_name,
@@ -52,9 +68,3 @@ def serve(storage_name: str) -> Response:
         max_age=_MAX_AGE,
         conditional=True,
     )
-    # Override send_file's default `public` with `private` (content is
-    # session-gated) and add `immutable` (URL is content-addressed, bytes
-    # never change). Flask-Security's global hook still flips `private`
-    # → `private=True` via dict-style assignment (cosmetic only).
-    response.headers["Cache-Control"] = f"private, max-age={_MAX_AGE}, immutable"
-    return response

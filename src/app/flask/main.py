@@ -37,6 +37,7 @@ from app.flask.lib.pywire import (
     register_pywire,
     register_wired_components,
 )
+from app.flask.sessions import SessionInterface
 from app.flask.util import utcnow
 from app.lib import debugging
 from app.lib.debugging import debug
@@ -111,6 +112,7 @@ def create_app(config=None) -> Flask:
     """
     app = Flask(__name__, template_folder="../templates", static_folder="../static")
     app = svcs.flask.init_app(app)
+    app.session_interface = SessionInterface()
 
     # 1: set up app.config properly
     setup_config(app, config)

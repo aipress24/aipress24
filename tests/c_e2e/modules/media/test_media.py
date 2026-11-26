@@ -183,3 +183,37 @@ class TestCaching:
         second = client.get(f"/media/{storage_name}", headers={"If-None-Match": etag})
         assert second.status_code == 304
         assert second.data == b""
+
+    def test_a_revalidation_does_not_read_the_storage(
+        self, client: FlaskClient, local_media_backend: Path
+    ):
+        """The ETag is the hash: whoever sends it has the bytes."""
+        storage_name = _put(local_media_backend, TINY_PNG)
+        etag = client.get(f"/media/{storage_name}").headers["ETag"]
+        (local_media_backend / storage_name).unlink()
+
+        response = client.get(f"/media/{storage_name}", headers={"If-None-Match": etag})
+
+        assert response.status_code == 304
+        assert response.headers["ETag"] == etag
+        assert "immutable" in response.headers["Cache-Control"]
+
+    def test_the_cache_does_not_depend_on_the_cookies(
+        self, client: FlaskClient, local_media_backend: Path
+    ):
+        """With `Vary: Cookie`, a browser would fetch every image again each
+        time the session cookie changes."""
+        storage_name = _put(local_media_backend, TINY_PNG)
+        with client.session_transaction() as sess:
+            sess.permanent = True  # Flask then sends a new cookie each time.
+        for headers in ({}, {"If-None-Match": f'"{storage_name[:64]}"'}):
+            response = client.get(f"/media/{storage_name}", headers=headers)
+            assert "Cookie" not in response.vary
+            assert "Set-Cookie" not in response.headers
+
+    def test_pages_still_save_the_session(self, client: FlaskClient):
+        with client.session_transaction() as sess:
+            sess.permanent = True
+        response = client.get("/wire/tab/wall")
+        assert "Cookie" in response.vary
+        assert "Set-Cookie" in response.headers
