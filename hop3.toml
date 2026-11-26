@@ -105,10 +105,10 @@ FLASK_SECURITY_PASSWORD_SALT = { generate = "urlsafe", length = 32 }
 # sets FLASK_SERVER_NAME='' (see scripts/hop3-ci-config.sh) to accept any host.
 _policy = "override"
 list = [
-    # "aipress24.com",
-    # "www.aipress24.com",
+    "aipress24.com",
+    "www.aipress24.com",
     # "aipress24.hop3.abilian.com",
-    "aipress24.c18.abilian.com",
+    # "aipress24.c18.abilian.com",
 ]
 
 [[addons]]
