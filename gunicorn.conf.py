@@ -27,4 +27,6 @@ def max_workers():
 workers = 1
 threads = 1
 
-preload_app = True
+# Each worker builds its own app: clients made before a fork (S3, database
+# connections) cannot serve in the workers.
+preload_app = False
