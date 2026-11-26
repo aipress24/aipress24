@@ -117,6 +117,11 @@ class SearchEngine:
         writer = ix.writer()
         writer.commit(mergetype=CLEAR)
 
+    def optimize(self) -> None:
+        """Merge the index into one segment: a search costs one lookup per
+        segment."""
+        self._get_index().optimize()
+
     def doc_count(self, *, type: str | None = None) -> int:
         """Return the number of indexed documents, optionally filtered
         by ``type``. Used by the ``status`` CLI command.

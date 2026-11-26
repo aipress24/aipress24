@@ -89,6 +89,8 @@ def rebuild_index(*, show_progress: bool = True) -> dict[str, int]:
     else:
         for entry in REGISTRY:
             counts[entry.source_type] = _rebuild_one_type(engine, entry, None)
+    # Each type was written in its own segment.
+    engine.optimize()
     return counts
 
 

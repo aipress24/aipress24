@@ -401,3 +401,27 @@ class TestRebuildCli:
             assert len(test_engine.search("Findable")) == 1
             assert test_engine.search("Hidden") == []  # draft excluded
             assert len(test_engine.search("PR body")) == 1
+
+    def test_rebuild_leaves_one_segment(self, app, db_session, test_engine):
+        """A search makes one lookup for each segment of the index."""
+        with app.test_request_context():
+            _make_article_post(
+                db_session,
+                status=PublicationStatus.PUBLIC,
+                newsroom_id=311,
+                title="Article",
+                content="Body.",
+            )
+            _make_press_release(
+                db_session,
+                status=PublicationStatus.PUBLIC,
+                newsroom_id=312,
+                title="PR",
+                content="Body.",
+            )
+
+            result = app.test_cli_runner().invoke(rebuild)
+            assert result.exit_code == 0, result.output
+
+            with test_engine._get_index().searcher() as searcher:
+                assert len(searcher.reader().leaf_readers()) == 1
