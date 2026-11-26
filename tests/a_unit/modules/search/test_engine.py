@@ -208,19 +208,30 @@ class TestSearchEngineEdgeCases:
         hits = populated_engine.search("post-reset")
         assert [h["id"] for h in hits] == ["article:999"]
 
-    def test_count_matches_search_for_small_corpus(
-        self, populated_engine: SearchEngine
-    ) -> None:
-        assert populated_engine.count("python") == len(
-            populated_engine.search("python", limit=100)
+    def test_overview_counts_each_group(self, populated_engine: SearchEngine) -> None:
+        found = populated_engine.overview(
+            "python",
+            {"articles": ["article"], "both": ["article", "event"], "none": ["user"]},
+            shown=set(),
+            limit=10,
         )
+        assert found == {"articles": (2, []), "both": (3, []), "none": (0, [])}
 
-    def test_count_with_type_filter_matches_search(
+    def test_overview_returns_the_hits_of_the_groups_shown(
         self, populated_engine: SearchEngine
     ) -> None:
-        assert populated_engine.count("python", type="article") == len(
-            populated_engine.search("python", type="article", limit=100)
+        found = populated_engine.overview(
+            "python",
+            {"articles": ["article"], "events": ["event"]},
+            shown={"articles"},
+            limit=1,
         )
+        count, hits = found["articles"]
+        assert count == 2
+        assert [hit["id"] for hit in hits] == [
+            populated_engine.search("python", type="article", limit=1)[0]["id"]
+        ]
+        assert found["events"] == (1, [])
 
     def test_list_type_filter_unions_types(
         self, populated_engine: SearchEngine

@@ -7,7 +7,7 @@
 The route accepts ``qs`` (the query string) and ``filter`` (the
 collection name from :data:`COLLECTIONS`). Renders one section per
 type when ``filter=all``, or a single section otherwise. The sidebar
-shows per-type counts driven by ``engine.count(qs, type=…)``.
+shows per-type counts, read with the hits in one ``engine.overview``.
 
 Empty queries render the page with zero hits and a hint to type
 something — running BM25 on an empty query is wasteful and produces a
@@ -34,6 +34,13 @@ if TYPE_CHECKING:
 
 _DEFAULT_LIMIT = 20
 
+# Collection name -> the types of documents it holds.
+_GROUPS: dict[str, list[str]] = {
+    c["name"]: [c["type"]] if isinstance(c["type"], str) else c["type"]
+    for c in COLLECTIONS
+    if c["type"] is not None
+}
+
 
 @blueprint.route("/")
 def search():
@@ -53,8 +60,12 @@ def search():
         )
 
     engine = svcs.flask.container.get(SearchEngine)
-    counts = _counts_by_name(engine, qs)
-    result_sets = _result_sets(engine, qs, filter_name, counts)
+    found = engine.overview(
+        qs, _GROUPS, shown=_shown(filter_name), limit=_DEFAULT_LIMIT
+    )
+    counts = {name: count for name, (count, _hits) in found.items()}
+    counts["all"] = sum(counts.values())
+    result_sets = _result_sets(found)
 
     return render_template(
         "pages/search.j2",
@@ -68,35 +79,17 @@ def search():
 # ── Helpers ─────────────────────────────────────────────────────────
 
 
-def _counts_by_name(engine: SearchEngine, qs: str) -> dict[str, int]:
-    """Per-collection-name hit counts. The ``all`` entry is the sum."""
-    counts: dict[str, int] = {}
-    for collection in COLLECTIONS:
-        type_name = collection["type"]
-        if type_name is None:
-            continue
-        counts[collection["name"]] = engine.count(qs, type=type_name)
-    counts["all"] = sum(counts.values())
-    return counts
-
-
-def _result_sets(
-    engine: SearchEngine,
-    qs: str,
-    filter_name: str,
-    counts: dict[str, int],
-) -> list[ResultSet]:
+def _shown(filter_name: str) -> set[str]:
+    """The collections whose hits the page shows."""
     if filter_name == "all":
-        named_types = [c for c in COLLECTIONS if c["type"] is not None]
-    else:
-        named_types = [c for c in COLLECTIONS if c["name"] == filter_name]
+        return set(_GROUPS)
+    return {filter_name}
 
+
+def _result_sets(found: dict[str, tuple[int, list[dict]]]) -> list[ResultSet]:
     out: list[ResultSet] = []
-    for collection in named_types:
-        type_name = collection["type"]
-        if type_name is None:
-            continue
-        hits = engine.search(qs, type=type_name, limit=_DEFAULT_LIMIT)
+    for collection in COLLECTIONS:
+        count, hits = found.get(collection["name"], (0, []))
         if not hits:
             continue
         out.append(
@@ -104,7 +97,7 @@ def _result_sets(
                 name=collection["name"],
                 label=collection["label"],
                 icon=collection["icon"],
-                count=counts.get(collection["name"], len(hits)),
+                count=count,
                 hits=[Hit.from_doc(doc) for doc in hits],
             )
         )

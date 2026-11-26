@@ -19,6 +19,7 @@ from uuid import uuid4
 
 import pytest
 import svcs.flask
+from bs4 import BeautifulSoup
 from wesh.backends.filedb.filestore import RamStorage
 
 from app.enums import RoleEnum
@@ -145,6 +146,35 @@ class TestSearchView:
         body = response.get_data(as_text=True)
         assert "Article hit" in body
         assert "Event hit" not in body
+
+    def test_the_sidebar_counts_every_collection(
+        self, authenticated_client: FlaskClient, test_engine: SearchEngine
+    ):
+        for pk, type in enumerate(["article", "article", "event"]):
+            test_engine.upsert(
+                {
+                    "type": type,
+                    "id": f"{type}:{pk}",
+                    "title": f"Topic {pk}",
+                    "text": "topic",
+                    "summary": "",
+                    "url": f"/{type}/{pk}",
+                    "timestamp": datetime(2026, 1, 1, tzinfo=UTC),
+                    "tags": "",
+                }
+            )
+
+        response = authenticated_client.get("/search/?qs=topic&filter=events")
+        assert response.status_code == 200
+        page = BeautifulSoup(response.get_data(as_text=True), "html.parser")
+        counts = {
+            link["href"].rsplit("filter=", 1)[1]: " ".join(link.get_text().split())
+            for link in page.select('a[href*="filter="]')
+        }
+        assert counts["all"] == "Tout (3)"
+        assert counts["articles"].endswith("(2)")
+        assert counts["events"].endswith("(1)")
+        assert "Topic 0" not in page.get_text()
 
     @pytest.mark.parametrize(
         "filter_name", ["all", "articles", "press-releases", "events"]

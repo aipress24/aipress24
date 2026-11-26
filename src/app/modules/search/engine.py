@@ -13,15 +13,19 @@ to the SVCS container at runtime.
 
 from __future__ import annotations
 
+from functools import cache
 from typing import TYPE_CHECKING, Any
 
 from flask_super.decorators import service
+from wesh.facets import Categorical
 from wesh.qparser import MultifieldParser
 from wesh.query import And, Or, Term
 
 from .schema import SCHEMA
 
 if TYPE_CHECKING:
+    from collections.abc import Collection, Mapping
+
     from svcs import Container
     from wesh.backends.filedb.filestore import Storage
 
@@ -52,25 +56,8 @@ class SearchEngine:
     @classmethod
     def svcs_factory(cls, container: Container) -> SearchEngine:
         from flask import current_app
-        from sqlalchemy import create_engine
-        from sqlalchemy.pool import NullPool
-        from wesh.backends.sql.storage import SQLAlchemyStorage
 
-        url = current_app.config["SQLALCHEMY_DATABASE_URI"]
-        # wesh's `_make_engine` defaults to QueuePool(size=5, overflow=10)
-        # for non-SQLite URLs even though its own docstring warns this
-        # « exhausts quickly » under multi-segment indexes : every count /
-        # search opens several segment readers, each grabbing its own
-        # connection, and `/search/?qs=…` iterates over every collection
-        # in COLLECTIONS — easily blowing past 15 connections per request
-        # and producing a `QueuePool limit … timed out` 500. NullPool
-        # short-circuits the cap : every checkout opens a fresh
-        # connection and returns it to the OS as soon as wesh closes
-        # the reader, so a request can use as many concurrent readers
-        # as it needs without starving the pool.
-        engine = create_engine(url, poolclass=NullPool)
-        storage = SQLAlchemyStorage(engine).create()
-        return cls(storage)
+        return _engine_for(current_app.config["SQLALCHEMY_DATABASE_URI"])
 
     # ── Index lifecycle ─────────────────────────────────────────────
 
@@ -161,15 +148,35 @@ class SearchEngine:
             results = s.search(query, limit=limit)
             return [dict(hit) for hit in results]
 
-    def count(self, qs: str, *, type: str | list[str] | None = None) -> int:
-        """Return the number of documents matching ``qs`` (optionally
-        filtered by ``type``). Used by the sidebar to show per-type
-        counts without materialising the hits.
+    def overview(
+        self,
+        qs: str,
+        groups: Mapping[str, list[str]],
+        *,
+        shown: Collection[str],
+        limit: int,
+    ) -> dict[str, tuple[int, list[dict[str, Any]]]]:
+        """For each named group of types, how many documents match ``qs``, and
+        the best ``limit`` of them for the groups in ``shown``.
+
+        Everything comes from one searcher, as opening one reads the table of
+        contents of the index again.
         """
         ix = self._get_index()
-        query = self._build_query(qs, type=type)
+        query = self._build_query(qs, type=None)
         with ix.searcher() as s:
-            return s.search(query, limit=None).estimated_length()
+            # limit=0: the counts, without reading any document.
+            matched = s.search(query, facets={"type": Categorical(limit=None)}, limit=0)
+            per_type = matched.facets["type"]
+            out = {}
+            for name, types in groups.items():
+                count = sum(per_type.get(each, 0) for each in types)
+                hits = []
+                if count and name in shown:
+                    filtered = self._build_query(qs, type=types)
+                    hits = [dict(hit) for hit in s.search(filtered, limit=limit)]
+                out[name] = (count, hits)
+        return out
 
     def _build_query(self, qs: str, *, type: str | list[str] | None) -> Any:
         parser = MultifieldParser(["title", "text"], schema=SCHEMA)
@@ -180,3 +187,15 @@ class SearchEngine:
             return And([query, Term("type", type)])
         # list[str] — OR the discriminators, AND with the text query
         return And([query, Or([Term("type", t) for t in type])])
+
+
+@cache
+def _engine_for(url: str) -> SearchEngine:
+    """The engine of the process, with its pool of connections.
+
+    wesh takes a connection for each of its reads, and gives it back at once:
+    a search makes about a hundred. Opening one for each costs seconds.
+    """
+    from wesh.backends.sql.storage import SQLAlchemyStorage
+
+    return SearchEngine(SQLAlchemyStorage(url).create())
