@@ -32,6 +32,8 @@ from app.signals import (
     org_deactivated,
     user_activated,
     user_deactivated,
+    wall_post_deleted,
+    wall_post_published,
 )
 
 from .jobs import reindex_from_source
@@ -39,6 +41,7 @@ from .jobs import reindex_from_source
 if TYPE_CHECKING:
     from app.models.auth import User
     from app.models.organisation import Organisation
+    from app.models.short_post import ShortPost
     from app.modules.biz.models import MarketplaceContent
     from app.modules.wip.models import Article, Communique
     from app.modules.wip.models.eventroom import Event
@@ -63,6 +66,12 @@ def _reindex_press_release(communique: Communique) -> None:
 @event_updated.connect
 def _reindex_event(event: Event) -> None:
     reindex_from_source.send("event", event.id)
+
+
+@wall_post_published.connect
+@wall_post_deleted.connect
+def _reindex_wall_post(post: ShortPost) -> None:
+    reindex_from_source.send("wall_post", post.id)
 
 
 @marketplace_published.connect

@@ -22,6 +22,7 @@ import pytest
 
 from app.models.auth import User
 from app.models.organisation import Organisation
+from app.models.short_post import ShortPost
 from app.modules.biz.models import MarketplaceContent
 from app.modules.events.models import EventPost
 from app.modules.search.registry import (
@@ -35,7 +36,15 @@ from app.modules.wire.models import ArticlePost, PressReleasePost
 # intentionally removed; the rebuild CLI, sidebar and adapters all key
 # off this exact set, so a drift here must be a deliberate registry edit.
 CANONICAL_SOURCE_TYPES = frozenset(
-    {"article", "press_release", "event", "marketplace", "user", "organisation"}
+    {
+        "article",
+        "press_release",
+        "event",
+        "wall_post",
+        "marketplace",
+        "user",
+        "organisation",
+    }
 )
 
 
@@ -235,6 +244,7 @@ class TestCanonicalEntries:
             ("press_release", PressReleasePost, "newsroom_id"),
             ("event", EventPost, "eventroom_id"),
             ("marketplace", MarketplaceContent, None),
+            ("wall_post", ShortPost, None),
             ("user", User, None),
             ("organisation", Organisation, None),
         ],

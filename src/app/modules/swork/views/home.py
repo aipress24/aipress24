@@ -16,7 +16,6 @@ from werkzeug.exceptions import Forbidden, NotFound
 
 from app.constants import CONTENT_ALERT_REASONS
 from app.enums import RoleEnum
-from app.flask.extensions import db
 from app.flask.lib.nav import nav
 from app.flask.lib.toaster import toast
 from app.flask.routing import url_for
@@ -32,6 +31,7 @@ from app.modules.swork.posts import (
     delete_post as remove_post,
     get_page,
     get_post,
+    save_post,
 )
 from app.services.moderation import submit_content_alert
 from app.services.roles import has_role
@@ -80,8 +80,7 @@ def new_post():
     except ValueError as exc:
         flash(_refusal(exc), "error")
         return redirect(url_for("swork.swork"))
-    db.session.add(post)
-    db.session.commit()
+    save_post(post)
     flash("Votre message a été posté.")
     return redirect(url_for("swork.swork"))
 
@@ -118,15 +117,6 @@ def delete_post(post_id: str) -> Response:
     return response
 
 
-def _shorten_message(post: Post) -> str:
-    short = " ".join(post.text.split())
-    if not short:
-        return "Message"
-    if len(short) > 80:
-        return short[:80] + "…"
-    return short
-
-
 @blueprint.route("/<post_id>/alert_modal", methods=["GET"])
 def alert_modal(post_id: str) -> str:
     """HTMX modal for reporting a swork post."""
@@ -138,7 +128,7 @@ def alert_modal(post_id: str) -> str:
     return render_template(
         "pages/wire/alert_modal.j2",
         post=post,
-        post_title=_shorten_message(post),
+        post_title=post.headline,
         submit_url=url_for("swork.alert_submit", post_id=post.id),
         alert_reasons=CONTENT_ALERT_REASONS,
     )
@@ -158,7 +148,7 @@ def alert_submit(post_id: str) -> Response:
     return submit_content_alert(
         user=user,
         post_id=post.id,
-        post_title=_shorten_message(post),
+        post_title=post.headline,
         post_type="Commentaire (Wall)",
         post_url=post_url,
         post_author_name=post_author_name,

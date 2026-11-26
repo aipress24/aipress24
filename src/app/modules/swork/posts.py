@@ -22,6 +22,7 @@ from app.lib.file_object_utils import store_image
 from app.models.auth import User
 from app.models.short_post import ShortPost, ShortPostImage
 from app.settings.constants import MAX_IMAGE_SIZE
+from app.signals import wall_post_deleted, wall_post_published
 
 PAGE_SIZE = 20
 MAX_PAGE = 100_000
@@ -135,6 +136,13 @@ def add_images(
         post.images.append(image)
 
 
+def save_post(post: ShortPost) -> None:
+    db.session.add(post)
+    db.session.commit()
+    wall_post_published.send(post)
+
+
 def delete_post(post: ShortPost) -> None:
     post.deleted_at = arrow.now(LOCAL_TZ)
     db.session.commit()
+    wall_post_deleted.send(post)

@@ -28,6 +28,7 @@ from app.enums import RoleEnum
 from app.lib.base62 import base62
 from app.models.auth import KYCProfile, Role, User
 from app.models.short_post import ShortPost, ShortPostImage
+from app.modules.search import receivers as search_receivers
 from app.modules.swork.posts import MAX_IMAGES, PAGE_SIZE
 from tests.c_e2e.conftest import make_authenticated_client
 
@@ -387,3 +388,18 @@ def test_a_member_without_message(client: FlaskClient, author: User) -> None:
     page = _messages(client, author)
     assert "Aucun message" in page.text
     assert "Messages (" not in page.text
+
+
+def test_posting_and_deleting_reindex_the_message(
+    client: FlaskClient, db_session: Session, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    sent: list[tuple] = []
+    monkeypatch.setattr(
+        search_receivers.reindex_from_source, "send", lambda *a: sent.append(a)
+    )
+
+    client.post("/swork/new_post", data={"message": "À indexer"})
+    post = db_session.scalars(sa.select(ShortPost)).one()
+    client.post(f"/swork/posts/{post.id}/delete")
+
+    assert sent == [("wall_post", post.id), ("wall_post", post.id)]

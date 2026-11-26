@@ -24,6 +24,8 @@ from app.models.base_content import BaseContent
 from app.models.mixins import IdMixin, LifeCycleMixin
 from app.services.html_sanitize import SanitizedHTML
 
+HEADLINE_LENGTH = 80
+
 
 class ShortPost(BaseContent, LifeCycleMixin, Base):
     """A message on the wall: plain text, and images."""
@@ -66,6 +68,16 @@ class ShortPost(BaseContent, LifeCycleMixin, Base):
     @text.setter
     def text(self, value: str) -> None:
         self.content = str(escape(value))
+
+    @property
+    def headline(self) -> str:
+        """The start of the text, on one line, to name the message."""
+        short = " ".join(self.text.split())
+        if not short:
+            return "Message"
+        if len(short) > HEADLINE_LENGTH:
+            return short[:HEADLINE_LENGTH] + "…"
+        return short
 
     @property
     def date(self) -> arrow.Arrow:

@@ -42,6 +42,8 @@ from app.signals import (
     org_deactivated,
     user_activated,
     user_deactivated,
+    wall_post_deleted,
+    wall_post_published,
 )
 
 
@@ -67,6 +69,7 @@ def _payload(pk: int) -> SimpleNamespace:
         (receivers._reindex_press_release, "press_release"),
         (receivers._reindex_event, "event"),
         (receivers._reindex_marketplace, "marketplace"),
+        (receivers._reindex_wall_post, "wall_post"),
         (receivers._reindex_user, "user"),
         (receivers._reindex_organisation, "organisation"),
     ],
@@ -91,6 +94,8 @@ def test_receiver_enqueues_its_source_type(captured_sends, receiver, source_type
         (event_updated, receivers._reindex_event),
         (marketplace_published, receivers._reindex_marketplace),
         (marketplace_unpublished, receivers._reindex_marketplace),
+        (wall_post_published, receivers._reindex_wall_post),
+        (wall_post_deleted, receivers._reindex_wall_post),
         (user_activated, receivers._reindex_user),
         (user_deactivated, receivers._reindex_user),
         (org_activated, receivers._reindex_organisation),

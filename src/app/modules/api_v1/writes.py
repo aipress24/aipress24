@@ -53,6 +53,7 @@ from app.modules.swork.posts import (
     ImageTooLargeError,
     TooManyImagesError,
     add_images,
+    save_post,
 )
 from app.modules.wip.models import (
     Article,
@@ -339,8 +340,7 @@ def create_post(
         raise WriteError(413, f"The image {exc} is too large.") from exc
     except InvalidImageError as exc:
         raise WriteError(422, str(exc)) from exc
-    db.session.add(post)
-    db.session.commit()
+    save_post(post)
     return post
 
 

@@ -24,13 +24,16 @@ from datetime import UTC, datetime
 from typing import TYPE_CHECKING
 from uuid import uuid4
 
+import arrow
 import pytest
 import svcs.flask
 from wesh.backends.filedb.filestore import RamStorage
 
+from app.flask.routing import url_for
 from app.models.auth import User
 from app.models.lifecycle import PublicationStatus
 from app.models.organisation import Organisation
+from app.models.short_post import ShortPost
 from app.modules.biz.models import JobOffer, MissionOffer
 from app.modules.search.cli import rebuild
 from app.modules.search.engine import SearchEngine
@@ -348,6 +351,56 @@ class TestReindexFromSourceOrganisation:
             reindex_from_source.fn("organisation", org.id)
 
             assert test_engine.search("LifecycleCorp") == []
+
+
+class TestReindexFromSourceWallPost:
+    def _post(self, db_session, text: str, **owner) -> ShortPost:
+        user = User(
+            email=f"wall-{uuid4().hex[:8]}@example.com",
+            first_name="Ada",
+            last_name="Lovelace",
+            active=owner.get("active", True),
+            validated_at=datetime(2026, 1, 1, tzinfo=UTC),
+        )
+        post = ShortPost(owner=user, published_at=arrow.get(2026, 3, 1))
+        post.text = text
+        db_session.add(post)
+        db_session.flush()
+        return post
+
+    def test_a_message_is_indexed(self, app, db_session, test_engine):
+        with app.test_request_context():
+            post = self._post(db_session, "Le wall parle de souveraineté.")
+
+            reindex_from_source.fn("wall_post", post.id)
+
+            [hit] = test_engine.search("souveraineté")
+            assert hit["type"] == "wall_post"
+            assert hit["title"] == "Le wall parle de souveraineté."
+            assert hit["summary"] == "Ada Lovelace"
+            assert hit["url"] == url_for(post)
+
+    def test_a_deleted_message_leaves_the_index(self, app, db_session, test_engine):
+        with app.test_request_context():
+            post = self._post(db_session, "Un message éphémère.")
+            reindex_from_source.fn("wall_post", post.id)
+            assert test_engine.search("éphémère")
+
+            post.deleted_at = arrow.utcnow()
+            db_session.flush()
+            reindex_from_source.fn("wall_post", post.id)
+
+            assert test_engine.search("éphémère") == []
+
+    def test_the_messages_of_an_inactive_member_stay_out(
+        self, app, db_session, test_engine
+    ):
+        with app.test_request_context():
+            post = self._post(db_session, "Un membre parti.", active=False)
+
+            reindex_from_source.fn("wall_post", post.id)
+
+            assert test_engine.search("parti") == []
 
 
 class TestRebuildCli:

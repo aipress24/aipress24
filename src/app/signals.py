@@ -25,6 +25,8 @@ user_activated = signal("user-activated")
 user_deactivated = signal("user-deactivated")
 org_activated = signal("org-activated")
 org_deactivated = signal("org-deactivated")
+wall_post_published = signal("wall-post-published")
+wall_post_deleted = signal("wall-post-deleted")
 
 # Initialisation signals
 after_config = signal("after-config")

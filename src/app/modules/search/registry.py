@@ -28,6 +28,7 @@ from dataclasses import dataclass
 
 from app.models.auth import User
 from app.models.organisation import Organisation
+from app.models.short_post import ShortPost
 from app.modules.biz.models import MarketplaceContent
 from app.modules.events.models import EventPost
 from app.modules.wire.models import ArticlePost, PressReleasePost
@@ -98,6 +99,15 @@ REGISTRY: tuple[IndexableType, ...] = (
         label="Événements",
         icon="calendar",
         doc_types=("event",),
+    ),
+    IndexableType(
+        source_type="wall_post",
+        model=ShortPost,
+        fk_column=None,
+        ui_name="posts",
+        label="Messages",
+        icon="chat-bubble-left-ellipsis",
+        doc_types=("wall_post",),
     ),
     IndexableType(
         source_type="marketplace",

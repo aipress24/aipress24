@@ -31,6 +31,7 @@ from app.flask.routing import url_for
 from app.models.auth import User
 from app.models.lifecycle import PublicationStatus
 from app.models.organisation import Organisation
+from app.models.short_post import ShortPost
 from app.modules.biz.models import MarketplaceContent, MissionCategory, MissionOffer
 from app.modules.events.models import EventPost
 from app.modules.wire.models import ArticlePost, PressReleasePost
@@ -189,6 +190,40 @@ def _(obj: EventPost) -> dict[str, Any]:
 @is_public.register
 def _(obj: EventPost) -> bool:
     return _is_publicly_visible(obj, expiry_attr="expired_at")
+
+
+# ── ShortPost (wall messages) ───────────────────────────────────────
+#
+# Every member sees every message, on its author's page: the index shows the
+# same ones, those of members who are themselves in it.
+
+
+@doc_type.register
+def _(_: ShortPost) -> str:
+    return "wall_post"
+
+
+@to_doc.register
+def _(obj: ShortPost) -> dict[str, Any]:
+    text = obj.text
+    author = obj.owner.full_name if obj.owner else ""
+    return {
+        "type": "wall_post",
+        "id": f"wall_post:{obj.id}",
+        "title": obj.headline,
+        "text": text,
+        "summary": author,
+        "url": url_for(obj),
+        "timestamp": _to_datetime(obj.date),
+        "tags": "",
+    }
+
+
+@is_public.register
+def _(obj: ShortPost) -> bool:
+    if obj.deleted_at is not None or obj.owner is None:
+        return False
+    return is_public(obj.owner)
 
 
 # ── Marketplace (Mission/Project/Job/EditorialProduct) ──────────────
