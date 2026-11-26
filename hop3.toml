@@ -85,8 +85,9 @@ scheduler = "flask queue scheduler"
 "/_vite" = "vite/dist/assets"
 
 [static.headers]
-# Their names change with their content, so a browser keeps them.
-# Under /static they don't: nginx then sends `no-cache` and answers a 304.
+# Under /_vite, names change with the content, so a browser keeps the files.
+# Under /static they don't: an hour, so that a change shows within one.
+"/static" = { Cache-Control = "public, max-age=3600" }
 "/_vite" = { Cache-Control = "public, max-age=31536000, immutable" }
 
 [env]
