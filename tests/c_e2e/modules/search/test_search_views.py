@@ -241,7 +241,8 @@ class TestSearchView:
         assert {_query(link)["sort"] for link in sidebar} == {"relevance"}
         [to_date] = page.select('nav[aria-label="Tri"] a')
         assert _query(to_date) == {"qs": "topic", "filter": "articles", "sort": "date"}
-        assert page.select_one('form input[name="sort"]')["value"] == "relevance"
+        [sort_input] = page.select('form input[name="sort"]')
+        assert sort_input["value"] == "relevance"
 
     def test_an_unknown_order_is_by_date(
         self, authenticated_client: FlaskClient, test_engine: SearchEngine
