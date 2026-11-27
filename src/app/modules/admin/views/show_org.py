@@ -18,14 +18,26 @@ from __future__ import annotations
 from datetime import UTC, datetime
 from typing import ClassVar, cast
 
-from flask import Response, flash, g, redirect, render_template, request, url_for
+import stripe
+from flask import (
+    Response,
+    current_app,
+    flash,
+    g,
+    redirect,
+    render_template,
+    request,
+    url_for,
+)
 from flask.views import MethodView
 from sqlalchemy import select
+from stripe import StripeError
 
 from app.enums import BWRoleType, InvitationStatus
 from app.flask.extensions import db
 from app.flask.lib.nav import nav
 from app.flask.sqla import get_obj
+from app.logging import report_failure, warn
 from app.models.auth import User
 from app.models.organisation import Organisation
 from app.modules.admin import blueprint
@@ -51,6 +63,8 @@ from app.modules.bw.bw_activation.user_utils import (
     get_active_business_wall_for_organisation,
 )
 from app.modules.bw.bw_activation.utils import fill_session, is_bw_manager_or_admin
+from app.services.stripe.product import resolve_product_price
+from app.services.stripe.utils import attr_or_item_getter, load_stripe_api_key
 
 
 class ShowOrgView(MethodView):
@@ -76,6 +90,14 @@ class ShowOrgView(MethodView):
             current_owner_id = current_owner.id if current_owner else None
             current_owner_full_name = current_owner.full_name if current_owner else ""
 
+        bw_missing_stripe_sub = bool(
+            active_bw
+            and (
+                active_bw.subscription is None
+                or not active_bw.subscription.stripe_subscription_id
+            )
+        )
+
         return render_template(
             "admin/pages/show_org.j2",
             title="Informations sur l'organisation",
@@ -83,6 +105,7 @@ class ShowOrgView(MethodView):
             current_owner_email=current_owner_email,
             current_owner_id=current_owner_id,
             current_owner_full_name=current_owner_full_name,
+            bw_missing_stripe_sub=bw_missing_stripe_sub,
         )
 
     def post(self, uid: str) -> Response:
@@ -462,3 +485,156 @@ def admin_bw_dashboard(uid: str):
         fill_session(active_bw)
 
     return redirect(url_for("bw_activation.dashboard"))
+
+
+@blueprint.route("/show_org/<uid>/resubscribe-stripe", methods=["POST"])
+def admin_resubscribe_stripe(uid: str):
+    """Redirect admin directly to Stripe Checkout for an active BW missing a Stripe sub."""
+
+    from app.modules.bw.bw_activation.bw_product import (
+        allowed_bw_product_list,
+        select_product_for_quantity,
+    )
+    from app.modules.bw.bw_activation.config import employee_count_from_taille_orga
+    from app.modules.bw.bw_activation.routes.stage3 import (
+        _add_billing_collection,
+        _build_checkout_metadata,
+        _create_stripe_checkout_session,
+        _resolve_stripe_customer_kwargs_for_payer,
+    )
+
+    org = get_obj(uid, Organisation)
+    active_bw = get_active_business_wall_for_organisation(org)
+    if active_bw is None:
+        flash("Aucun Business Wall actif pour cette organisation.", "error")
+        return redirect(url_for("admin.show_org", uid=uid))
+
+    if (
+        active_bw.subscription is not None
+        and active_bw.subscription.stripe_subscription_id
+    ):
+        flash("Ce Business Wall possède déjà un abonnement Stripe.", "info")
+        return redirect(url_for("admin.show_org", uid=uid))
+
+    if not load_stripe_api_key():
+        flash("Stripe n'est pas configuré sur cette instance.", "error")
+        return redirect(url_for("admin.show_org", uid=uid))
+
+    allowed_products = allowed_bw_product_list(active_bw.bw_type)
+    if not allowed_products:
+        flash(
+            f"Aucune offre Stripe disponible pour le type {active_bw.bw_type}.",
+            "error",
+        )
+        return redirect(url_for("admin.show_org", uid=uid))
+
+    taille_orga = active_bw.taille_orga or getattr(org, "taille_orga", "") or ""
+    quantity = max(
+        1, employee_count_from_taille_orga(taille_orga) if taille_orga else 1
+    )
+    chosen_product = select_product_for_quantity(allowed_products, quantity)
+    price_id, default_price = resolve_product_price(chosen_product)
+    if not price_id:
+        flash("Aucun tarif Stripe trouvé pour ce Business Wall.", "error")
+        return redirect(url_for("admin.show_org", uid=uid))
+
+    if isinstance(default_price, dict):
+        billing_scheme = default_price.get("billing_scheme")
+    else:
+        billing_scheme = getattr(default_price, "billing_scheme", None)
+    checkout_quantity = quantity if billing_scheme == "tiered" else 1
+
+    owner = db.session.get(User, active_bw.owner_id) if active_bw.owner_id else None
+    payer_email = (
+        active_bw.payer_email
+        or (owner.email if owner else None)
+        or cast(User, g.user).email
+    )
+
+    base_success_url = url_for(
+        "admin.admin_resubscribe_stripe_success",
+        uid=uid,
+        _external=True,
+    )
+    success_url = f"{base_success_url}?session_id={{CHECKOUT_SESSION_ID}}"
+    cancel_url = url_for("admin.show_org", uid=uid, _external=True)
+
+    checkout_kwargs: dict[str, object] = {
+        "mode": "subscription",
+        "line_items": [{"price": price_id, "quantity": checkout_quantity}],
+        "success_url": success_url,
+        "cancel_url": cancel_url,
+        "client_reference_id": str(active_bw.id),
+        "metadata": _build_checkout_metadata(
+            active_bw.id, active_bw.bw_type, active_bw.owner_id
+        ),
+        "automatic_tax": {"enabled": True},
+        "allowed_payment_method_types": ["card"],
+    }
+    checkout_kwargs.update(
+        _resolve_stripe_customer_kwargs_for_payer(org.stripe_customer_id, payer_email)
+    )
+    _add_billing_collection(checkout_kwargs)
+
+    try:
+        checkout_session = _create_stripe_checkout_session(
+            checkout_kwargs, org, payer_email
+        )
+    except StripeError as exc:
+        warn(f"Admin resubscribe Stripe failed for BW {active_bw.id}: {exc}")
+        report_failure(f"Admin resubscribe Stripe failed ({active_bw.bw_type})", exc)
+        flash(
+            "La session Stripe n'a pas pu être créée.",
+            "error",
+        )
+        return redirect(url_for("admin.show_org", uid=uid))
+
+    return redirect(checkout_session.url, code=303)
+
+
+@blueprint.route("/show_org/<uid>/resubscribe-stripe/success", methods=["GET"])
+def admin_resubscribe_stripe_success(uid: str):
+    """Attach the new Stripe subscription to the active BW on Checkout return."""
+
+    from app.modules.bw.bw_activation.activate_bw import activate_bw_from_checkout
+
+    org = get_obj(uid, Organisation)
+    active_bw = get_active_business_wall_for_organisation(org)
+    session_id = (request.args.get("session_id") or "").strip()
+
+    if (
+        active_bw is not None
+        and session_id
+        and "{CHECKOUT_SESSION_ID}" not in session_id
+        and not current_app.config.get("STRIPE_DEBUG_ACTIVE")
+    ):
+        load_stripe_api_key()
+        try:
+            checkout_session = stripe.checkout.Session.retrieve(session_id)
+        except StripeError as exc:
+            warn(f"admin_resubscribe_stripe_success: {exc}")
+            checkout_session = None
+
+        if checkout_session is not None:
+            get = attr_or_item_getter(checkout_session)
+            if (
+                get("mode") == "subscription"
+                and get("status") == "complete"
+                and get("payment_status") in ("paid", "no_payment_required")
+                and str(get("client_reference_id") or "") == str(active_bw.id)
+            ):
+                activate_bw_from_checkout(
+                    bw=active_bw,
+                    customer_id=str(get("customer") or ""),
+                    subscription_id=str(get("subscription") or ""),
+                    checkout_session_id=session_id,
+                )
+                db.session.commit()
+                flash(
+                    "L'abonnement Stripe du Business Wall a été recréé.",
+                    "success",
+                )
+                return redirect(url_for("admin.show_org", uid=uid))
+
+    flash("Paiement validé. L'abonnement Stripe est en cours de liaison.", "info")
+    return redirect(url_for("admin.show_org", uid=uid))
