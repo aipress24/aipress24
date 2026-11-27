@@ -22,6 +22,7 @@ from app.flask.extensions import db
 from app.models.auth import User
 from app.models.invitation import Invitation
 from app.models.organisation import Organisation
+from app.modules.bw.bw_activation.bw_creation import ensure_bw_owner_role
 from app.modules.bw.bw_activation.models import (
     BusinessWall,
     Partnership,
@@ -153,6 +154,29 @@ def close_business_wall_locally(
 
     result["success"] = True
     return result
+
+
+def reopen_business_wall(bw: BusinessWall) -> bool:
+    """Undo `close_business_wall_locally`, without a Stripe subscription.
+
+    Restores the status, the organisation link and the owner's role; what
+    closing deleted (other roles, partnerships, invitations) stays lost.
+    Returns False, changing nothing, when the organisation already has
+    another active BW.
+    """
+    org = bw.get_organisation()
+    if org is not None and org.bw_id not in (None, bw.id):
+        return False
+    bw.status = BWStatus.ACTIVE.value
+    if bw.subscription is not None:
+        bw.subscription.status = SubscriptionStatus.ACTIVE.value
+        bw.subscription.cancelled_at = None
+    if org is not None:
+        org.bw_id = bw.id
+        org.bw_active = bw.bw_type
+        org.bw_name = bw.name or org.bw_name or org.name or ""
+    ensure_bw_owner_role(bw)
+    return True
 
 
 def cancel_business_wall_from_app(

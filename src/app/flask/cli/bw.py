@@ -7,6 +7,8 @@
 - `flask bw suspend-overdue` — suspend BWs whose subscription has been
   PAST_DUE beyond the grace window (cron-friendly). Spec:
   local-notes/specs/finances-02.md §B.
+- `flask bw reopen` — reopen BWs closed along with their Stripe
+  subscription, without going through Stripe.
 """
 
 from __future__ import annotations
@@ -21,7 +23,9 @@ from sqlalchemy import select
 
 from app.enums import BWStatus
 from app.flask.extensions import db
+from app.modules.bw.bw_activation.bw_cancellation import reopen_business_wall
 from app.modules.bw.bw_activation.models import (
+    BusinessWall,
     Subscription,
     SubscriptionStatus,
 )
@@ -71,3 +75,40 @@ def suspend_overdue(grace_days: int) -> None:
         db.session.commit()
     logger.info(f"suspend-overdue: {suspended} BW(s) suspended")
     click.echo(f"{suspended} BW(s) suspended")
+
+
+@bw.command("reopen")
+@click.argument("bw_ids", nargs=-1)
+@click.option("--apply", is_flag=True, help="Reopen them. Without it, only list.")
+@with_appcontext
+def reopen(bw_ids: tuple[str, ...], apply: bool) -> None:
+    """Reopen BWs closed along with their Stripe subscription.
+
+    Stripe cancels test-mode subscriptions after 90 days, and the webhook
+    then closes their BW. Without BW_IDS, takes every BW closed that way,
+    newest first. The reopened BW has no Stripe subscription. The roles,
+    partnerships and invitations deleted at closing are not restored.
+    """
+    stmt = (
+        select(BusinessWall)
+        .join(Subscription, Subscription.business_wall_id == BusinessWall.id)
+        .where(BusinessWall.status == BWStatus.SUSPENDED.value)
+        .where(Subscription.status == SubscriptionStatus.CANCELLED.value)
+        .order_by(BusinessWall.created_at.desc())
+    )
+    if bw_ids:
+        stmt = stmt.where(BusinessWall.id.in_(bw_ids))
+    reopened = 0
+    for business_wall in db.session.scalars(stmt).all():
+        org = business_wall.get_organisation()
+        label = f"{business_wall.id} {business_wall.bw_type} {org.name if org else '?'}"
+        if not apply:
+            click.echo(f"would reopen {label}")
+        elif reopen_business_wall(business_wall):
+            reopened += 1
+            click.echo(f"reopened {label}")
+        else:
+            click.echo(f"skipped {label}: the organisation has another active BW")
+    if apply:
+        db.session.commit()
+        click.echo(f"{reopened} BW(s) reopened")
