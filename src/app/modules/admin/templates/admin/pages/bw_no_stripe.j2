@@ -1,0 +1,55 @@
+{% extends "admin/layout/_base.j2" %}
+
+{% block main %}
+    <h1 class="text-2xl font-semibold text-gray-900 mb-6">BW sans abonnement Stripe</h1>
+
+    <p class="text-sm text-gray-600 mb-4">
+        Business Walls actifs dont l'abonnement local est actif mais sans <code>stripe_subscription_id</code>
+        ({{ rows|length }} trouvé{{ "s" if rows|length > 1 else "" }}).
+    </p>
+
+    {% if rows %}
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200 text-sm">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">BW</th>
+                        <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Type</th>
+                        <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Organisation</th>
+                        <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Propriétaire</th>
+                        <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Créé le</th>
+                        <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">ID BW</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    {% for r in rows %}
+                        <tr class="hover:bg-gray-50">
+                            <td class="px-3 py-2 text-gray-900 whitespace-nowrap">{{ r.bw_name }}</td>
+                            <td class="px-3 py-2 text-gray-700 whitespace-nowrap">{{ r.bw_type }}</td>
+                            <td class="px-3 py-2 text-gray-900 whitespace-nowrap">
+                                {% if r.org_id %}
+                                    <a href="{{ url_for('admin.show_org', uid=r.org_id) }}" class="text-blue-600 hover:underline">
+                                        {{ r.org_name }}
+                                    </a>
+                                {% else %}
+                                    {{ r.org_name }}
+                                {% endif %}
+                            </td>
+                            <td class="px-3 py-2 text-gray-700 whitespace-nowrap">{{ r.owner_email }}</td>
+                            <td class="px-3 py-2 text-gray-500 whitespace-nowrap">
+                                {% if r.created_at %}
+                                    {{ r.created_at.strftime("%d/%m/%Y %H:%M") }}
+                                {% else %}
+                                    —
+                                {% endif %}
+                            </td>
+                            <td class="px-3 py-2 text-gray-500 font-mono text-xs whitespace-nowrap">{{ r.bw_id }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <p class="text-sm text-gray-500">Aucun Business Wall actif sans abonnement Stripe.</p>
+    {% endif %}
+{% endblock %}

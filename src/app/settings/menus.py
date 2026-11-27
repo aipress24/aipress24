@@ -199,6 +199,11 @@ ADMIN_MENU = [
         "icon": "shopping-bag",
     },
     {
+        "label": "BW no stripe",
+        "endpoint": "admin.bw_no_stripe",
+        "icon": "alert-triangle",
+    },
+    {
         "label": "Test Webhook",
         "endpoint": "admin.webhook_testing",
         "icon": "webhook",
