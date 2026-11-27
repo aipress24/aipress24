@@ -136,7 +136,10 @@ frame-src = [
 base-uri = "'none'"
 form-action = [
     "'self'",
+    # Stripe Checkout, and the customer portal (`/BW/billing-portal`).
+    # Browsers apply form-action to the redirects that follow a form post.
     "https://checkout.stripe.com",
+    "https://billing.stripe.com",
 ]
 
 [development]
