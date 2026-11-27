@@ -1008,6 +1008,34 @@ class TestOrgVM:
                 "delegated event must also still appear on the client BW"
             )
 
+    def test_get_events_lists_the_latest_event_first(
+        self,
+        app: Flask,
+        db_session: Session,
+        test_user_with_profile: User,
+        test_organisation: Organisation,
+    ):
+        now = arrow.now()
+        for title, days in [("Soon", 10), ("Latest", 40), ("Past", -20)]:
+            start = now.shift(days=days)
+            db_session.add(
+                EventPost(
+                    title=title,
+                    owner_id=test_user_with_profile.id,
+                    publisher_id=test_organisation.id,
+                    status=PublicationStatus.PUBLIC,
+                    start_datetime=start,
+                    end_datetime=start.shift(hours=2),
+                )
+            )
+        db_session.flush()
+
+        with app.test_request_context():
+            g.user = test_user_with_profile
+            titles = [e.title for e in OrgVM(test_organisation).get_events()]
+
+        assert titles == ["Latest", "Soon", "Past"]
+
     def test_get_events_includes_events_it_merely_organises(
         self,
         app: Flask,

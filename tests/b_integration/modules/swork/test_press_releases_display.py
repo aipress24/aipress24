@@ -14,13 +14,18 @@ from __future__ import annotations
 import uuid
 from typing import TYPE_CHECKING
 
+import arrow
+from flask import Flask
 from sqlalchemy import func, select
 
 from app.flask.extensions import db
 from app.models.auth import User
 from app.models.lifecycle import PublicationStatus
 from app.models.organisation import Organisation
-from app.modules.swork.views.organisation import _press_releases_for_org_clause
+from app.modules.swork.views.organisation import (
+    OrgVM,
+    _press_releases_for_org_clause,
+)
 from app.modules.wire.models import PressReleasePost
 
 if TYPE_CHECKING:
@@ -158,3 +163,20 @@ class TestAgencyRepresentingClientVisibility:
 
         assert _count_for_org(agency_org) == 0
         assert _count_for_org(client_org) == 0
+
+
+def test_the_bw_lists_the_latest_press_release_first(app: Flask, db_session: Session):
+    org = Organisation(name=f"Emitter-{uuid.uuid4().hex[:6]}")
+    db_session.add(org)
+    db_session.flush()
+    owner = _make_user_in_org(db_session, org, "EmitterUser")
+    now = arrow.utcnow()
+    for title, days_ago in [("Older", 30), ("Latest", 0), ("Middle", 10)]:
+        post = _make_press_release(db_session, owner, org.id, title=title)
+        post.published_at = now.shift(days=-days_ago)
+    db_session.flush()
+
+    with app.test_request_context():
+        titles = [p.title for p in OrgVM(org).get_press_releases()]
+
+    assert titles == ["Latest", "Middle", "Older"]
