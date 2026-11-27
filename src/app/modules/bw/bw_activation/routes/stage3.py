@@ -75,6 +75,13 @@ if TYPE_CHECKING:
 
     from app.models.auth import User
 
+# Stripe can keep its confirmation screen up for 20 seconds or more before
+# it sends the member back, and testers closed the window during the wait.
+STRIPE_WAIT_NOTICE = (
+    "Après la validation, Stripe peut mettre jusqu'à 30 secondes à vous "
+    "ramener sur AiPRESS24. Merci de patienter sans fermer la fenêtre."
+)
+
 
 # ===== FREE ACTIVATION =====
 
@@ -679,6 +686,7 @@ def checkout(bw_type: str):
         "automatic_tax": {"enabled": True},
         # Ticket #0214: pin card (no Link / SMS dead-end).
         "allowed_payment_method_types": ["card"],
+        "custom_text": {"after_submit": {"message": STRIPE_WAIT_NOTICE}},
     }
 
     # Keep existing customer ID when known, fall back to the payer's email
@@ -872,6 +880,7 @@ def _payment_live_enabled(bw_type: str, ctx: dict[str, Any]):
             "user_email": g.user.email,
             "chosen_product": chosen_product,
             "chosen_price_total": price_total,
+            "stripe_wait_notice": STRIPE_WAIT_NOTICE,
         }
     )
     return render_template("bw_activation/payment.html", **ctx)

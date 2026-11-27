@@ -10,9 +10,11 @@ These tests verify the Flask route handlers work correctly.
 from __future__ import annotations
 
 import uuid
+from types import SimpleNamespace
 from typing import TYPE_CHECKING
 
 import pytest
+import stripe
 from flask import Flask, session
 from flask_security import login_user
 
@@ -621,6 +623,47 @@ class TestStage3PaidRoutes:
 
         assert response.status_code in (302, 303)
         assert "payment" in response.headers.get("Location", "")
+
+    def test_checkout_tells_the_member_to_wait_for_stripe(
+        self,
+        authenticated_client: FlaskClient,
+        monkeypatch: pytest.MonkeyPatch,
+    ) -> None:
+        """Stripe can take 20 seconds or more to send the member back."""
+        created: list[dict] = []
+
+        def create_session(**kwargs):
+            created.append(kwargs)
+            return SimpleNamespace(url="https://checkout.stripe.com/c/pay/x")
+
+        stage3 = "app.modules.bw.bw_activation.routes.stage3"
+        product = {"id": "prod_x", "default_price": {"id": "price_x"}}
+        monkeypatch.setattr(f"{stage3}.load_stripe_api_key", lambda: True)
+        monkeypatch.setattr(
+            f"{stage3}.allowed_bw_product_list", lambda _bw_type: [product]
+        )
+        monkeypatch.setattr(stripe.checkout.Session, "create", create_session)
+        authenticated_client.post("/BW/select-subscription/pr")
+        authenticated_client.post(
+            "/BW/submit-contacts",
+            data={
+                "owner_first_name": "Jean",
+                "owner_last_name": "Dupont",
+                "owner_email": "jean@example.com",
+                "owner_phone": "+33612345678",
+                "same_as_owner": "on",
+            },
+        )
+        authenticated_client.post(
+            "/BW/set_pricing/pr", data={"client_count": "5", "cgv_accepted": "on"}
+        )
+
+        response = authenticated_client.post("/BW/checkout/pr")
+
+        assert response.headers["Location"].startswith("https://checkout.stripe.com")
+        [kwargs] = created
+        notice = kwargs["custom_text"]["after_submit"]["message"]
+        assert "30 secondes" in notice
 
     def test_set_pricing_employee_count_persists_for_taille_orga_prefill(
         self,
